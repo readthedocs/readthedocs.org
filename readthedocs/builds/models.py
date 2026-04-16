@@ -32,9 +32,9 @@ from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
@@ -1226,7 +1226,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1252,7 +1252,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1285,7 +1285,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
@@ -1487,7 +1487,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        VersionAutomationRule,
+        "projects.AutomationRule",
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,
