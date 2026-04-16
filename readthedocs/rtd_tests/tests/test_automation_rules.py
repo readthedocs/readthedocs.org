@@ -948,4 +948,3 @@ class TestWebhookAutomationRules:
         assert rule.match_webhook(commit_message="feature: new thing") is True
         assert rule.match_webhook(commit_message="chore: update deps") is False
         assert rule.match_webhook(commit_message="") is False
-
