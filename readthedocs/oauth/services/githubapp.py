@@ -545,17 +545,14 @@ class GitHubAppService(Service):
         gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
         gh_pull = gh_repo.get_pull(int(version.verbose_name))
 
-        # Don't create new comments on pull requests that have already been
-        # closed or merged. Existing comments can still be updated to reflect
-        # the final build state.
-        if gh_pull.state != "open" and create_new:
-            log.debug(
-                "Pull request is closed or merged, skipping new comment.",
+        if gh_pull.state != "open":
+            log.info(
+                "Pull request is closed or merged, skipping comment.",
                 project=project.slug,
                 build=build.pk,
                 pr_state=gh_pull.state,
             )
-            create_new = False
+            return
 
         existing_gh_comment = None
         comment_marker = f"<!-- readthedocs-{project.pk} -->"
