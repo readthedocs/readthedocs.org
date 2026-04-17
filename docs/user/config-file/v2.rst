@@ -112,6 +112,7 @@ Example:
 
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
+   However, you can use :ref:`build-customization:where to put files` with custom build commands to generate offline formats for any documentation framework.
 
    With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
 
