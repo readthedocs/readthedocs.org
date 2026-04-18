@@ -668,13 +668,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Rename file as "<project_slug>-<version_slug>.<artifact_type>",
                 # which is the filename that Proxito serves for offline formats.
                 filename = list_dir[0]
-                if "." not in filename:
-                    log.warning(
-                        "Skipping artifact file without extension: %s",
-                        filename,
-                    )
-                    continue
-                _, extension = filename.rsplit(".")
+                extension = Path(filename).suffix.lstrip(".")
                 path = Path(artifact_directory) / filename
                 destination = Path(artifact_directory) / f"{self.data.project.slug}.{extension}"
                 assert_path_is_inside_docroot(path)
