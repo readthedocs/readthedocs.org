@@ -73,7 +73,7 @@ numpy==2.4.4
     # via
     #   contourpy
     #   matplotlib
-packaging==26.0
+packaging==26.1
     # via
     #   matplotlib
     #   sphinx
