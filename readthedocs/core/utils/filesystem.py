@@ -164,6 +164,9 @@ def safe_rmtree(path, *args, **kwargs):
     The extra *args and **kwargs will be passed to the rmtree() function.
     """
     path = Path(path)
+    if not path.exists():
+        return
+
     if path.is_symlink():
         log.info(
             "Not deleting directory because it's a symlink.",
