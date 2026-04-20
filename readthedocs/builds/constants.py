@@ -88,6 +88,10 @@ NON_REPOSITORY_VERSIONS = (
 BUILD_STATUS_FAILURE = "failed"
 BUILD_STATUS_PENDING = "pending"
 BUILD_STATUS_SUCCESS = "success"
+# Reported as success to the Git provider (so the pull request can merge),
+# but communicates in the description that the build was intentionally
+# skipped via exit code 183.
+BUILD_STATUS_SKIPPED = "skipped"
 
 # GitHub Build Statuses
 GITHUB_BUILD_STATUS_FAILURE = "failure"
@@ -115,6 +119,11 @@ SELECT_BUILD_STATUS = {
         "github": GITHUB_BUILD_STATUS_SUCCESS,
         "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
         "description": "Read the Docs build succeeded!",
+    },
+    BUILD_STATUS_SKIPPED: {
+        "github": GITHUB_BUILD_STATUS_SUCCESS,
+        "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
+        "description": "Read the Docs build skipped.",
     },
 }
 

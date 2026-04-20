@@ -1,4 +1,5 @@
 import copy
+import json
 from unittest import mock
 
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
@@ -17,6 +18,7 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
+    BUILD_STATUS_SKIPPED,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
     LATEST,
@@ -1669,6 +1671,29 @@ class GitHubOAuthTests(TestCase):
         # Should link to build detail page, not version URL
         self.assertIn(f'/projects/{self.project.slug}/builds/{self.external_build.pk}/', target_url)
         self.assertNotIn('.readthedocs.io', target_url)
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_skipped(self, session, mock_logger, mock_structlog):
+        """Skipped builds report as success to GitHub with a distinct description."""
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SKIPPED,
+        )
+
+        self.assertTrue(success)
+        posted = json.loads(session.post.call_args.kwargs["data"])
+        assert posted["state"] == "success"
+        assert posted["description"] == "Read the Docs build skipped."
+        # Skipped builds link to the build detail page, not the version docs,
+        # since no new documentation was produced for this commit.
+        assert (
+            f"/projects/{self.project.slug}/builds/{self.external_build.pk}/"
+            in posted["target_url"]
+        )
 
     @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
