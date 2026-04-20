@@ -48,6 +48,34 @@ It supports multiple documentation tools (Sphinx, MkDocs, etc.) and automaticall
 - Place tests in appropriate test files following the project structure
 - Always keep the test db with ``pytest --reuse-db`` to speed up test runs
 
+### Running tests locally
+
+Tests do **not** require Docker — they run via `tox` with SQLite and `readthedocs.settings.test`.
+Docker Compose is only for the development server.
+
+```bash
+# Validate migrations (run after any migration change)
+tox -e migrations
+
+# Run linting and formatting checks
+tox -e pre-commit
+
+# Run the main test suite (search, proxito, and embed_api tests are excluded by default)
+tox -e py312 -- --nomigrations
+
+# Run tests matching a keyword (faster) — use -k because --pyargs readthedocs is hardcoded
+tox -e py312 -- -k "<keyword>" --reuse-db --nomigrations
+
+# Run only search tests (requires Elasticsearch sidecar in CI, skip locally unless available)
+tox -e search
+```
+
+### Migration validation
+
+Always run `tox -e migrations` after adding or modifying migration files. This runs
+`manage.py makemigrations --check --dry-run` and catches missing or inconsistent migrations
+before they cause `IntegrityError` failures at deploy time.
+
 ## Code Quality
 
 - Follow PEP 8 style guidelines
