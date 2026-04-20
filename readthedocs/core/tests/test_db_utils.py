@@ -286,7 +286,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Delete only 10 versions with a limit
         queryset = Version.objects.filter(slug__startswith="raw-limit-")
-        raw_delete_in_batches(queryset, batch_size=3, end=10)
+        raw_delete_in_batches(queryset, batch_size=3, start=0, end=10)
 
         # Should have 10 versions remaining
         assert Version.objects.filter(slug__startswith="raw-limit-").count() == 10
@@ -300,7 +300,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit larger than actual count
         queryset = Version.objects.filter(slug__startswith="raw-over-")
-        raw_delete_in_batches(queryset, batch_size=2, end=100)
+        raw_delete_in_batches(queryset, batch_size=2, start=0, end=100)
 
         # Should delete all 5 versions
         assert Version.objects.filter(slug__startswith="raw-over-").count() == 0
@@ -314,7 +314,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit equal to batch_size
         queryset = Version.objects.filter(slug__startswith="raw-eq-lim-")
-        raw_delete_in_batches(queryset, batch_size=5, end=5)
+        raw_delete_in_batches(queryset, batch_size=5, start=0, end=5)
 
         # Should have 5 versions remaining
         assert Version.objects.filter(slug__startswith="raw-eq-lim-").count() == 5
@@ -328,7 +328,7 @@ class TestRawDeleteInBatches(TestCase):
 
         # Set limit to 1
         queryset = Version.objects.filter(slug__startswith="raw-one-")
-        raw_delete_in_batches(queryset, batch_size=2, end=1)
+        raw_delete_in_batches(queryset, batch_size=2, start=0, end=1)
 
         # Should have 4 versions remaining
         assert Version.objects.filter(slug__startswith="raw-one-").count() == 4
