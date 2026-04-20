@@ -413,8 +413,6 @@ class CommunityBaseSettings(Settings):
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, "readthedocs", "templates")
     DOCROOT = os.path.join(SITE_ROOT, "user_builds")
     LOGS_ROOT = os.path.join(SITE_ROOT, "logs")
-    PRODUCTION_ROOT = os.path.join(SITE_ROOT, "prod_artifacts")
-    PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, "media")
 
     # Assets and media
     STATIC_ROOT = os.path.join(SITE_ROOT, "static")

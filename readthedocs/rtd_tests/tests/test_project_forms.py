@@ -31,6 +31,7 @@ from readthedocs.projects.forms import (
     ProjectAutomaticForm,
     ProjectBasicsForm,
     ProjectManualForm,
+    ProjectPullRequestForm,
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
@@ -403,9 +404,10 @@ class TestProjectAdvancedForm(TestCase):
         self.assertEqual(self.project.remote_repository, remote_repository)
         self.assertEqual(self.project.repo, remote_repository.clone_url)
 
-        # Since a remote repository is attached, the repo field should be disabled.
+        # Since a remote repository is attached, we used to disable the repo
+        # field. This is now handled more on the front end instead.
         form = UpdateProjectForm(data, instance=self.project, user=self.user)
-        self.assertTrue(form.fields["repo"].disabled)
+        self.assertFalse(form.fields["repo"].disabled)
 
         # This project has the don't sync with remote repository feature enabled,
         # so the repo field should be enabled.
@@ -1336,3 +1338,116 @@ class TestAddonsConfigForm(TestCase):
             "The flyout sorting custom pattern is required when selecting a custom pattern.",
             form.errors["__all__"][0],
         )
+
+
+class TestProjectPullRequestForm(TestCase):
+    def setUp(self):
+        self.project = get(Project, external_builds_enabled=False)
+        # Give the project a GitHub webhook integration so the form's
+        # prevalidation (which requires a supported integration capable of
+        # building external versions) passes.
+        from readthedocs.integrations.models import Integration
+
+        get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data={"events": ["pull_request"]},
+        )
+        # Pin the starting state explicitly so these tests do not depend on
+        # whatever the model-level default happens to be.
+        self.project.addons.notifications_show_on_external = False
+        self.project.addons.save()
+
+    def _base_data(self, **overrides):
+        data = {
+            "external_builds_enabled": True,
+            "external_builds_privacy_level": PUBLIC,
+            "notifications_show_on_external": False,
+        }
+        data.update(overrides)
+        return data
+
+    def test_initial_value_reflects_addons_config(self):
+        """The form should seed the toggle from the related ``AddonsConfig``."""
+        self.project.addons.notifications_show_on_external = True
+        self.project.addons.save()
+
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        self.assertTrue(
+            form.fields["notifications_show_on_external"].initial,
+        )
+
+    def test_saving_updates_addons_config(self):
+        """Toggling on the PR build form should update the single ``AddonsConfig`` row."""
+        self.assertFalse(self.project.addons.notifications_show_on_external)
+
+        form = ProjectPullRequestForm(
+            data=self._base_data(notifications_show_on_external=True),
+            instance=self.project,
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.project.addons.refresh_from_db()
+        self.assertTrue(self.project.addons.notifications_show_on_external)
+
+        # Toggling it back off through the same form persists as well.
+        form = ProjectPullRequestForm(
+            data=self._base_data(notifications_show_on_external=False),
+            instance=self.project,
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+
+        self.project.addons.refresh_from_db()
+        self.assertFalse(self.project.addons.notifications_show_on_external)
+
+    def test_addons_and_pr_forms_share_single_field(self):
+        """The Addons form and PR build form must update the same row."""
+        # Toggle via the AddonsConfigForm.
+        addons_data = {
+            "enabled": True,
+            "options_root_selector": "main",
+            "analytics_enabled": False,
+            "doc_diff_enabled": True,
+            "filetreediff_enabled": True,
+            "filetreediff_ignored_files": "",
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "flyout_position": "bottom-left",
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "linkpreviews_enabled": True,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
+        }
+        addons_form = AddonsConfigForm(data=addons_data, project=self.project)
+        self.assertTrue(addons_form.is_valid(), addons_form.errors)
+        addons_form.save()
+
+        # The PR build form should now pick up the value via ``initial``.
+        pr_form = ProjectPullRequestForm(
+            instance=self.project, project=self.project
+        )
+        self.assertTrue(
+            pr_form.fields["notifications_show_on_external"].initial,
+        )
+
+        # Flipping it off on the PR build form updates the same row.
+        pr_form = ProjectPullRequestForm(
+            data=self._base_data(notifications_show_on_external=False),
+            instance=self.project,
+            project=self.project,
+        )
+        self.assertTrue(pr_form.is_valid(), pr_form.errors)
+        pr_form.save()
+
+        self.project.addons.refresh_from_db()
+        self.assertFalse(self.project.addons.notifications_show_on_external)
