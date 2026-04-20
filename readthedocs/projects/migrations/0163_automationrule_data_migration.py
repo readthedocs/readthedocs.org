@@ -33,9 +33,7 @@ def forward_migrate_data(apps, schema_editor):
             modified=rule.modified,
         )
 
-        for match in AutomationRuleMatch.objects.filter(rule_id=rule.id):
-            match.rule_id = newrule.id
-            match.save(update_fields=["rule_id"])
+        AutomationRuleMatch.objects.filter(rule_id=rule.id).update(rule_id=newrule.id)
 
 
 class Migration(migrations.Migration):
