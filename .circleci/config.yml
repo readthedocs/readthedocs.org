@@ -97,7 +97,7 @@ jobs:
       - run: sudo apt install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
-      - run: tox -e py312 -- --nomigrations
+      - run: tox -e py312
       - run: cp .coverage .coverage.tests
       - save_cache:
           key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
