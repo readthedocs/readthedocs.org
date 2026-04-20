@@ -95,7 +95,7 @@ class DisableListEndpoint:
     We are disablng the listing endpoint because it could cause DOS without
     using any type of filtering.
 
-    This class disables these endpoints except:
+    This class disables these endpoints except Exception:
 
      - version resource when passing ``?project__slug=``
      - build resource when using ``?commit=``
