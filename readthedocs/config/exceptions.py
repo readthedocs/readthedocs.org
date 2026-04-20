@@ -32,6 +32,8 @@ class ConfigError(BuildUserError):
     UV_GROUPS_EXTRAS_EMPTY = "config:python:uv-groups-extras-empty"
     UV_GROUPS_EXTRAS_INVALID_TYPE = "config:python:uv-groups-extras-invalid-type"
 
+    PYTHON_SETUP_PY_INSTALL_REMOVED = "config:python:setup-py-install-removed"
+
     SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
     MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"
 

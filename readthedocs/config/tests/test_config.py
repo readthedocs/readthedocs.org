@@ -9,7 +9,7 @@ from django.conf import settings
 from django.test import override_settings
 from pytest import raises
 
-from readthedocs.config import ALL, PIP, SETUPTOOLS, UV, BuildConfigV2, load
+from readthedocs.config import ALL, PIP, UV, BuildConfigV2, load
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.exceptions import ConfigError, ConfigValidationError
 from readthedocs.config.models import (
@@ -1078,7 +1078,7 @@ class TestBuildConfigV2:
         assert install[0].path == "."
         assert install[0].method == PIP
 
-    def test_python_install_setuptools_check_valid(self, tmpdir):
+    def test_python_install_setuptools_raises_error(self, tmpdir):
         build = get_build_config(
             {
                 "python": {
@@ -1092,11 +1092,9 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join("readthedocs.yml")),
         )
-        build.validate()
-        install = build.python.install
-        assert len(install) == 1
-        assert install[0].path == "."
-        assert install[0].method == SETUPTOOLS
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.PYTHON_SETUP_PY_INSTALL_REMOVED
 
     def test_python_install_allow_empty_list(self):
         build = get_build_config(
@@ -1157,7 +1155,7 @@ class TestBuildConfigV2:
         )
         with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.message_id == ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS
+        assert excinfo.value.message_id == ConfigError.PYTHON_SETUP_PY_INSTALL_REMOVED
 
     @pytest.mark.parametrize("value", [2, "invalid", {}, "", None])
     def test_python_install_extra_requirements_check_type(self, value, tmpdir):
@@ -1223,7 +1221,7 @@ class TestBuildConfigV2:
                         },
                         {
                             "path": "two",
-                            "method": "setuptools",
+                            "method": "pip",
                         },
                         {
                             "requirements": "three.txt",
@@ -1242,7 +1240,7 @@ class TestBuildConfigV2:
         assert install[0].extra_requirements == []
 
         assert install[1].path == "two"
-        assert install[1].method == SETUPTOOLS
+        assert install[1].method == PIP
 
         assert install[2].requirements == "three.txt"
 
