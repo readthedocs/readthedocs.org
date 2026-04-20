@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.88
+boto3==1.42.91
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.88
+botocore==1.42.91
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -217,11 +217,11 @@ executing==2.2.1
     # via stack-data
 fancycompleter==0.11.1
     # via pdbpp
-fido2==2.1.1
+fido2==2.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.25.2
+filelock==3.28.0
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -282,7 +282,7 @@ oauthlib==3.3.1
     #   requests-oauthlib
 orjson==3.11.8
     # via -r requirements/pip.txt
-packaging==26.0
+packaging==26.1
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
@@ -332,9 +332,9 @@ pycparser==3.0
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.12.5
+pydantic==2.13.2
     # via -r requirements/pip.txt
-pydantic-core==2.41.5
+pydantic-core==2.46.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -413,7 +413,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-rich==14.3.4
+rich==15.0.0
     # via -r requirements/docker.in
 s3transfer==0.16.0
     # via
@@ -456,7 +456,7 @@ toml==0.10.2
     #   bumpver
 tomli-w==1.2.0
     # via tox
-tox==4.52.1
+tox==4.53.0
     # via
     #   -r requirements/docker.in
     #   tox-uv-bare
@@ -518,7 +518,7 @@ urllib3==2.6.3
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.11.6
+uv==0.11.7
     # via tox-uv
 vine==5.1.0
     # via
@@ -526,7 +526,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.2.1
+virtualenv==21.2.4
     # via
     #   -r requirements/pip.txt
     #   tox
