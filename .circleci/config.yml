@@ -32,8 +32,8 @@
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
 #   - skip-if-no-relevant-changes compares against origin/main, so it only
-#     works for PRs targeting main. PRs targeting other branches will always
-#     run tests. Each job passes an allow-list regex of paths whose changes
+#     works for branches that diverged from main. Branches targeting other
+#     bases will always run tests. Each job passes an allow-list regex of paths whose changes
 #     should trigger it; if no changed file matches, the job is halted.
 #     Infrastructure changes (CI config, requirements, tox, settings, shared
 #     test helpers) always force every job to run, regardless of the regex.
@@ -68,7 +68,7 @@ commands:
       Halt the job if no changed file matches the given grep -E pattern.
       Infrastructure changes (CI config, requirements, tox, settings, shared
       test helpers) always force the job to run regardless of the pattern.
-      Only active on PR branches — on main, the job always runs.
+      Only active on non-main branches — on main, the job always runs.
     parameters:
       paths:
         type: string
@@ -77,7 +77,7 @@ commands:
       - run:
           name: Skip if no relevant changes
           command: |
-            # Only run this check on PR branches, not on main.
+            # Only run this check on non-main branches.
             if [ "$CIRCLE_BRANCH" = "main" ]; then
               echo "On main branch — running job."
               exit 0
