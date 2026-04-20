@@ -11,9 +11,6 @@ def forward_migrate_data(apps, schema_editor):
 
     for rule in RegexAutomationRule.objects.iterator():
         newrule = AutomationRule.objects.create(
-            # Keep the same date for the migrated rules.
-            created=rule.created,
-            modified=rule.modified,
             project=rule.project,
             priority=rule.priority,
             description=rule.description,
@@ -28,6 +25,12 @@ def forward_migrate_data(apps, schema_editor):
             else "custom-match",
             action=rule.action,
             enabled=True,
+        )
+        # ``auto_now_add`` and ``auto_now`` fields ignore values passed to create(),
+        # so we use update() to preserve the original timestamps.
+        AutomationRule.objects.filter(pk=newrule.pk).update(
+            created=rule.created,
+            modified=rule.modified,
         )
 
         for match in AutomationRuleMatch.objects.filter(rule_id=rule.id):
