@@ -1,13 +1,13 @@
 .. note::
 
-   Starting on June 30, the changelog is published as a GitHub release
+   Starting on June 30, 2025, the changelog is published as a GitHub release
    and `listed in the repository itself <https://github.com/readthedocs/readthedocs.org/releases>`_.
 
 
 Version 14.0.0
 --------------
 
-:Date: June 24, 2035
+:Date: June 24, 2025
 
 Trying out the GitHub auto-generated Changelog.
 

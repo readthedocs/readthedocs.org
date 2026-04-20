@@ -29,9 +29,9 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
@@ -56,6 +56,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import BITBUCKET_COMMIT_URL
 from readthedocs.projects.constants import DOCTYPE_CHOICES
+from readthedocs.projects.constants import DOWNLOADABLE_MEDIA_TYPES
 from readthedocs.projects.constants import GITHUB_COMMIT_URL
 from readthedocs.projects.constants import GITHUB_PULL_REQUEST_COMMIT_URL
 from readthedocs.projects.constants import GITLAB_COMMIT_URL
@@ -73,6 +74,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_media_storage
 
 
 log = structlog.get_logger(__name__)
@@ -542,20 +544,58 @@ class Version(TimeStampedModel):
          sometimes to clean old resources.
         :rtype: list
         """
-        paths = []
+        return [
+            self.get_storage_path(media_type=media_type, version_slug=version_slug)
+            for media_type in MEDIA_TYPES
+        ]
 
-        slug = version_slug or self.slug
-        for type_ in MEDIA_TYPES:
-            paths.append(
-                self.project.get_storage_path(
-                    type_=type_,
-                    version_slug=slug,
-                    include_file=False,
-                    version_type=self.type,
-                )
-            )
+    def get_storage_path(self, media_type, filename=None, version_slug=None):
+        """
+        Get a path in storage for a given media type and filename for this version.
 
-        return paths
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        :param filename: Optional filename to append to the path.
+         If not provided, the directory path for the media type will be returned.
+        :param version_slug: Override the version slug to use in the path.
+         This is useful when the version slug has changed but we need to access old resources.
+        """
+        if media_type not in MEDIA_TYPES:
+            raise ValueError("Invalid type.")
+
+        version_slug = version_slug or self.slug
+
+        path = media_type
+        if self.is_external:
+            path = f"{EXTERNAL}/{media_type}"
+
+        # Version slug may come from an untrusted input,
+        # so we use join to avoid any path traversal.
+        # All other values are already validated.
+        path = build_media_storage.join(f"{path}/{self.project.slug}", version_slug)
+
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
+        filename = (filename or "").lstrip("/")
+        if not filename:
+            return path
+
+        return build_media_storage.join(path, filename)
+
+    def get_download_storage_path(self, media_type):
+        """
+        Get the storage path for a downloadable artifact of this version.
+
+        This is basically a shortcut to `get_storage_path` that also adds the
+        filename based on the version slug and media type.
+
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        """
+        if media_type not in DOWNLOADABLE_MEDIA_TYPES:
+            raise ValueError("Invalid type for downloadable file.")
+
+        extension = media_type.replace("htmlzip", "zip")
+        filename = f"{self.project.slug}.{extension}"
+        return self.get_storage_path(media_type=media_type, filename=filename)
 
 
 class APIVersion(Version):
@@ -1105,7 +1145,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1131,7 +1171,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1164,7 +1204,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
@@ -1366,7 +1406,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        VersionAutomationRule,
+        "projects.AutomationRule",
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,

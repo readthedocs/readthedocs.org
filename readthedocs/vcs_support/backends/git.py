@@ -210,7 +210,11 @@ class Backend(BaseVCS):
             cmd = ["git", "remote", "add", remote_name, ssh_url]
             self.run(*cmd, record=False)
 
-            cmd = ["git", "push", "--dry-run", remote_name]
+            # NOTE: We use timeout to avoid hanging the build.
+            # Azure DevOps is known to not fail immediately when trying to push
+            # with an SSH key without write access, but instead it hangs until
+            # it times out (this happens randomly).
+            cmd = ["timeout", "10s", "git", "push", "--dry-run", remote_name]
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
@@ -250,6 +254,8 @@ class Backend(BaseVCS):
                 "remote: This deploy key does not have write access to this project.",
                 # Bitbucket:
                 "fatal: Could not read from remote repository.",
+                # Azure:
+                "You need the Git 'GenericContribute' permission to perform this action.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
@@ -300,30 +306,32 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        # Skip adding a remote reference if we are building "latest",
+        # Fetch from HEAD (symlink to the default branch) if we are building "latest",
         # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
-        omit_remote_reference = self.version.is_machine_latest and not self.project.default_branch
-        if not omit_remote_reference:
+        use_default_branch = self.version.is_machine_latest and not self.project.default_branch
+        if use_default_branch:
+            cmd.append("HEAD")
+        else:
             remote_reference = self.get_remote_fetch_refspec()
             if remote_reference:
                 # TODO: We are still fetching the latest 50 commits.
                 # A PR might have another commit added after the build has started...
                 cmd.append(remote_reference)
 
-        # Log a warning, except for machine versions since it's a known bug that
-        # we haven't stored a remote refspec in Version for those "stable" versions.
-        # This could be the case for an unknown default branch.
-        elif not self.version.machine:
-            # We are doing a fetch without knowing the remote reference.
-            # This is expensive, so log the event.
-            log.warning(
-                "Git fetch: Could not decide a remote reference for version. "
-                "Is it an empty default branch?",
-                project_slug=self.project.slug,
-                verbose_name=self.version.verbose_name,
-                version_type=self.version.type,
-                version_identifier=self.version.identifier,
-            )
+            # Log a warning, except for machine versions since it's a known bug that
+            # we haven't stored a remote refspec in Version for those "stable" versions.
+            # This could be the case for an unknown default branch.
+            elif not self.version.machine:
+                # We are doing a fetch without knowing the remote reference.
+                # This is expensive, so log the event.
+                log.warning(
+                    "Git fetch: Could not decide a remote reference for version. "
+                    "Is it an empty default branch?",
+                    project_slug=self.project.slug,
+                    verbose_name=self.version.verbose_name,
+                    version_type=self.version.type,
+                    version_identifier=self.version.identifier,
+                )
 
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
