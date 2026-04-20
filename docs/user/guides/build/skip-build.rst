@@ -205,9 +205,14 @@ Be aware of these limitations when using the skip build feature:
    Cancelled builds appear in your build history as cancelled, not as skipped or successful.
    This is different from builds that never start due to branch/version filters.
 
-**Webhook notifications still trigger**
-   Even though the build is cancelled, webhook notifications (if configured) may still be sent
-   with a cancelled status.
+**No webhook notifications are sent**
+   When a build is skipped via exit code ``183``, Read the Docs does not send
+   ``build:failed`` webhook notifications or failure emails for it. The build is
+   treated as an intentional skip rather than a failure.
+
+**Pull request status is reported as successful**
+   For pull request builds, the commit status sent to your Git provider is
+   reported as successful so that the pull request is not blocked from merging.
 
 Troubleshooting
 ---------------
