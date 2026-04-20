@@ -6,7 +6,8 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.validators import URLValidator
+from readthedocs.oauth.validators import CloneURLValidator
+from readthedocs.oauth.validators import SshURLValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -294,19 +295,17 @@ class RemoteRepository(TimeStampedModel):
         max_length=255,
     )
 
-    ssh_url = models.URLField(
+    ssh_url = models.CharField(
         _("SSH URL"),
         max_length=512,
         blank=True,
-        validators=[URLValidator(schemes=["ssh"])],
+        validators=[SshURLValidator()],
     )
-    clone_url = models.URLField(
+    clone_url = models.CharField(
         _("Repository clone URL"),
         max_length=512,
         blank=True,
-        validators=[
-            URLValidator(schemes=["http", "https", "ssh", "git"]),
-        ],
+        validators=[CloneURLValidator()],
     )
     html_url = models.URLField(_("HTML URL"), null=True, blank=True)
 
