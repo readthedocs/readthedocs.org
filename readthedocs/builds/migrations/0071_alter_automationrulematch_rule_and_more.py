@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("builds", "0070_delete_build_old_config"),
-        ("projects", "0162_add_automationrule_v2"),
+        ("projects", "0163_automationrule_data_migration"),
     ]
 
     operations = [

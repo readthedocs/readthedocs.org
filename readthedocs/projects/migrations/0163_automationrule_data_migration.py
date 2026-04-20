@@ -5,29 +5,35 @@ from django_safemigrate import Safe
 
 
 def forward_migrate_data(apps, schema_editor):
-    RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
+    VersionAutomationRule = apps.get_model("builds", "VersionAutomationRule")
     AutomationRule = apps.get_model("projects", "AutomationRule")
+    AutomationRuleMatch = apps.get_model("builds", "AutomationRuleMatch")
 
-    for rule in RegexAutomationRule.objects.iterator():
-        AutomationRule.objects.create(
-            # Keep the same date for the migrated rules.
-            created=rule.created,
-            modified=rule.modified,
+    for rule in VersionAutomationRule.objects.iterator():
+        is_webhook = rule.action == "trigger-build"
+        new_rule = AutomationRule.objects.create(
             project=rule.project,
             priority=rule.priority,
             description=rule.description,
             version_types=[rule.version_type],
-            version_match_pattern=rule.match_arg,
-            # ``predefined_match_arg`` could be:
-            # - semver-versions
-            # - all-versions
-            # - custom-match (if the match_arg doesn't match with any of the predefined patterns).
-            version_predefined_match_pattern=rule.predefined_match_arg
-            if rule.predefined_match_arg
-            else "custom-match",
             action=rule.action,
             enabled=True,
+            version_match_pattern="" if is_webhook else rule.match_arg,
+            version_predefined_match_pattern=(
+                "all-versions"
+                if is_webhook
+                else (rule.predefined_match_arg or "custom-match")
+            ),
+            webhook_files_match_pattern=(
+                [rule.match_arg] if is_webhook and rule.match_arg else None
+            ),
         )
+        # ``created``/``modified`` are auto_now_add/auto_now and ignore values
+        # passed to ``create()``; use ``update()`` to preserve the originals.
+        AutomationRule.objects.filter(pk=new_rule.pk).update(
+            created=rule.created, modified=rule.modified
+        )
+        AutomationRuleMatch.objects.filter(rule_id=rule.id).update(rule_id=new_rule.id)
 
 
 class Migration(migrations.Migration):
@@ -38,5 +44,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forward_migrate_data, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            forward_migrate_data, reverse_code=migrations.RunPython.noop
+        ),
     ]
