@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import override_settings
 import django_dynamic_fixture as fixture
 import pytest
@@ -167,3 +168,61 @@ class TestBuildQuerySet:
             )
         assert (True, 2, 2) == Build.objects.concurrent(project_limited)
         assert (False, 2, 10) == Build.objects.concurrent(project_not_limited)
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+    def test_concurrent_builds_user(self):
+        """Builds across all projects of shared maintainers are counted together."""
+        user = fixture.get(User)
+
+        project_a = fixture.get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        project_a.users.add(user)
+
+        project_b = fixture.get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        project_b.users.add(user)
+
+        # Create 2 active builds on project_a and 2 on project_b
+        for state in ("building", "cloning"):
+            fixture.get(Build, project=project_a, state=state)
+            fixture.get(Build, project=project_b, state=state)
+
+        # Both projects share the same user, so the total concurrent count
+        # for each project should include builds from the other project.
+        assert (True, 4, 4) == Build.objects.concurrent(project_a)
+        assert (True, 4, 4) == Build.objects.concurrent(project_b)
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+    def test_concurrent_builds_user_unrelated_projects_not_counted(self):
+        """Builds on projects with no shared maintainers are not counted together."""
+        user_a = fixture.get(User)
+        user_b = fixture.get(User)
+
+        project_a = fixture.get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        project_a.users.add(user_a)
+
+        project_b = fixture.get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        project_b.users.add(user_b)
+
+        # Create 2 active builds on each project
+        for state in ("building", "cloning"):
+            fixture.get(Build, project=project_a, state=state)
+            fixture.get(Build, project=project_b, state=state)
+
+        # Projects have different maintainers, so they should not affect each other
+        assert (False, 2, 4) == Build.objects.concurrent(project_a)
+        assert (False, 2, 4) == Build.objects.concurrent(project_b)

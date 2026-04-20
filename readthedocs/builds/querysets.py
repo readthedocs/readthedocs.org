@@ -3,6 +3,7 @@
 import datetime
 
 import structlog
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -227,6 +228,9 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
+          If organizations are not enabled, we count all concurrent builds for all
+          projects where any of the current project's users are maintainers.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
@@ -249,6 +253,12 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         organization = project.organization
         if organization:
             query |= Q(project__in=organization.projects.all())
+        elif not settings.RTD_ALLOW_ORGANIZATIONS:
+            # If organizations are not enabled, count all builds for all projects
+            # where any of the current project's users are maintainers.
+            # This prevents a single user from bypassing the concurrency limit
+            # by triggering builds across multiple projects.
+            query |= Q(project__users__in=project.users.all())
 
         # Limit builds to 5 hours ago to speed up the query
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
