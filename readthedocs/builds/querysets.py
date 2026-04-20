@@ -258,7 +258,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
             # where any of the current project's users are maintainers.
             # This prevents a single user from bypassing the concurrency limit
             # by triggering builds across multiple projects.
-            query |= Q(project__users__in=project.users.all())
+            query |= Q(project__users__in=project.users.values_list("id", flat=True))
 
         # Limit builds to 5 hours ago to speed up the query
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
