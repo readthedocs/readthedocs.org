@@ -114,6 +114,7 @@ server {
         add_header X-Content-Type-Options $x_content_type_options always;
 
         # https://docs.djangoproject.com/en/4.2/ref/middleware/#cross-origin-opener-policy
+        proxy_hide_header Cross-Origin-Opener-Policy;
         set $cross_origin_opener_policy $upstream_http_cross_origin_opener_policy;
         add_header Cross-Origin-Opener-Policy $cross_origin_opener_policy always;
 
