@@ -29,7 +29,6 @@ from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
 from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
