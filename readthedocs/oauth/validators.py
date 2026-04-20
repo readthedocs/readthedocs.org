@@ -6,6 +6,10 @@ from django.core.validators import URLValidator
 from django.utils.deconstruct import deconstructible
 
 
+# Pattern for ``git@github.com:user/repo`` SSH format used by GitHub, GitLab, and Bitbucket
+_RE_GIT_USER_SSH = re.compile(r"^[\w.+-]+@[^:]+:[^/][^:]*$")
+
+
 @deconstructible
 class SshURLValidator:
     """
@@ -16,11 +20,8 @@ class SshURLValidator:
     by GitHub, GitLab, and Bitbucket.
     """
 
-    # Pattern for ``git@github.com:user/repo`` format
-    re_git_user = re.compile(r"^[\w.+-]+@[^:]+:.+")
-
     def __call__(self, value):
-        if self.re_git_user.match(value):
+        if _RE_GIT_USER_SSH.match(value):
             return
         URLValidator(schemes=["ssh"])(value)
 
@@ -37,11 +38,8 @@ class CloneURLValidator:
     (``git@github.com:user/repo.git``) commonly used by GitHub, GitLab, and Bitbucket.
     """
 
-    # Pattern for ``git@github.com:user/repo`` format
-    re_git_user = re.compile(r"^[\w.+-]+@[^:]+:.+")
-
     def __call__(self, value):
-        if self.re_git_user.match(value):
+        if _RE_GIT_USER_SSH.match(value):
             return
         URLValidator(schemes=["http", "https", "ssh", "git"])(value)
 
