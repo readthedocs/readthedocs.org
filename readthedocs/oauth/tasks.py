@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.tasks import PublicTask
@@ -33,7 +34,6 @@ from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
@@ -300,13 +300,13 @@ class GitHubAppWebhookHandler:
         structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
-            event_name=self.event,
+            event=self.event,
         )
         if self.event not in self.event_handlers:
             log.debug("Unsupported event")
             raise ValueError(f"Unsupported event: {self.event}")
 
-        log.info("Handling event from GitHubAppWebhookHandler.")
+        log.info("Handling event")
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
@@ -579,48 +579,34 @@ class GitHubAppWebhookHandler:
             # If none one matches, it finishes here.
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
+            allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
             webhook_rules = project.automation_rules.filter(
-                enabled=True,
-                action__in=AutomationRule.BUILD_ACTIONS,
-                # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                # We are using `rule.match_version` below to check this instead.
-                # version_types__contains=version_type,
+                action__in=allowed_actions,
+                version_type=version_type,
             )
             if webhook_rules.exists():
+                triggered = False
                 changed_files = self._get_changed_files_from_push_event()
-                commit_message = self.data["head_commit"]["message"]
-                labels = []  # We don't have labels in push events, so we leave it empty.
-
-                rule_triggered_for_project = False
-                for version in project.versions_from_name(version_name, version_type):
-                    rule_triggered_for_version = False
-                    for rule in webhook_rules.iterator():
-                        if rule.match_version(version=version) and rule.match_webhook(
-                            changed_files=changed_files,
-                            commit_message=commit_message,
-                            labels=labels,
-                        ):
-                            log.info(
-                                "Automation rule matched, triggering build.",
-                                project_slug=project.slug,
-                                rule_id=rule.pk,
-                                rule_version_types=rule.version_types,
-                                version_slug=version.slug,
-                                version_name=version_name,
-                                version_type=version_type,
-                            )
-                            rule_triggered_for_project = True
-                            rule_triggered_for_version = True
+                for rule in webhook_rules.iterator():
+                    if rule.match(changed_files=changed_files):
+                        log.info(
+                            "Webhook automation rule matched, triggering build.",
+                            project_slug=project.slug,
+                            rule_id=rule.pk,
+                            rule_version_type=rule.version_type,
+                            version_type=version_type,
+                        )
+                        for version in project.versions_from_name(version_name, version_type):
+                            triggered = True
                             rule.run(version)
 
-                        # We only trigger the first matching rule per version
+                        # We only trigger the first matching rule,
                         # to avoid triggering multiple builds for the same tag/branches.
-                        if rule_triggered_for_version:
-                            break
+                        break
 
-                if not rule_triggered_for_project:
+                if not triggered:
                     log.info(
-                        "No automation rule matched, skipping build.",
+                        "No webhook automation rule matched, skipping build.",
                         project_slug=project.slug,
                     )
             else:
@@ -659,45 +645,35 @@ class GitHubAppWebhookHandler:
                 # If none one matches, it finishes here.
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
+                allowed_actions = [VersionAutomationRule.TRIGGER_BUILD_ACTION]
                 webhook_rules = project.automation_rules.filter(
-                    enabled=True,
-                    action__in=AutomationRule.BUILD_ACTIONS,
-                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                    # We are using `rule.match_version` below to check this instead.
-                    # version_types__contains=EXTERNAL,
+                    action__in=allowed_actions,
+                    version_type=EXTERNAL,
                 )
                 if webhook_rules.exists():
-                    rule_triggered = False
+                    triggered = False
+
                     changed_files = self._get_changed_files_from_pull_request_event(
                         project,
                         action,
                     )
-                    commit_message = self._get_commit_message_from_pull_request_event(project)
-                    labels = self._get_labels_from_pull_request_event()
 
                     for rule in webhook_rules.iterator():
-                        if rule.match_version(version=external_version) and rule.match_webhook(
-                            changed_files=changed_files,
-                            commit_message=commit_message,
-                            labels=labels,
-                        ):
+                        if rule.match(changed_files=changed_files):
                             log.info(
-                                "Automation rule matched, triggering build.",
+                                "Webhook automation rule matched, triggering build.",
                                 project_slug=project.slug,
                                 rule_id=rule.pk,
-                                rule_version_types=rule.version_types,
-                                version_slug=external_version.slug,
-                                version_type=EXTERNAL,
                             )
-                            rule_triggered = True
+                            triggered = True
                             rule.run(external_version)
 
                             # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
                             break
 
-                    if not rule_triggered:
+                    if not triggered:
                         log.info(
-                            "No automation rule matched, skipping build.",
+                            "No webhook automation rule matched, skipping build.",
                             project_slug=project.slug,
                         )
                 else:
@@ -921,36 +897,6 @@ class GitHubAppWebhookHandler:
 
         return changed_files
 
-    def _get_commit_message_from_pull_request_event(self, project):
-        """
-        Get latest commit message from the pull request event.
-
-        :return: latest commit message
-        """
-        installation, _ = self._get_or_create_installation()
-
-        gh_repository = installation.service.installation_client.get_repo(
-            int(project.remote_repository.remote_id),
-            lazy=True,
-        )
-
-        gh_commit = gh_repository.get_commit(
-            self.data["pull_request"]["head"]["sha"],
-        )
-        return gh_commit.commit.message
-
-    def _get_labels_from_pull_request_event(self):
-        """
-        Get the list of labels from the pull request event.
-
-        :return: List of labels
-        """
-        labels = set()
-        for label in self.data["pull_request"]["labels"]:
-            labels.add(label["name"])
-
-        return labels
-
 
 @app.task(queue="web")
 def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown"):
@@ -964,6 +910,6 @@ def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown")
         event=event,
         event_id=event_id,
     )
-    log.info("Handling GitHub App webhook from Celery task.")
+    log.info("Handling GitHub App webhook")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()

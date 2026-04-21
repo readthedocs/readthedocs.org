@@ -128,7 +128,6 @@ GENERIC_EXTERNAL_VERSION_NAME = "External Version"
 ALL_VERSIONS = "all-versions"
 ALL_VERSIONS_REGEX = r".*"
 SEMVER_VERSIONS = "semver-versions"
-CUSTOM_MATCH = "custom-match"
 
 # Pattern referred from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -136,19 +135,14 @@ CUSTOM_MATCH = "custom-match"
 # allowing an optional "v" prefix.
 SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
-OLD_VERSION_PREDEFINED_MATCH_PATTERNS = (
+
+PREDEFINED_MATCH_ARGS = (
     (ALL_VERSIONS, _("Any version")),
     (SEMVER_VERSIONS, _("SemVer versions")),
     (None, _("Custom match")),
 )
 
-VERSION_PREDEFINED_MATCH_PATTERNS = (
-    (ALL_VERSIONS, _("Any version")),
-    (SEMVER_VERSIONS, _("SemVer versions")),
-    (CUSTOM_MATCH, _("Custom match")),
-)
-
-VERSION_PREDEFINED_MATCH_PATTERN_VALUES = {
+PREDEFINED_MATCH_ARGS_VALUES = {
     ALL_VERSIONS: ALL_VERSIONS_REGEX,
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }

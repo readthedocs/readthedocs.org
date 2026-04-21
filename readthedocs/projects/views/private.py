@@ -31,9 +31,12 @@ from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.forms import WebhookAutomationRuleForm
 from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
+from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.builds.models import WebhookAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import AsyncDeleteViewWithMessage
@@ -53,7 +56,6 @@ from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
-from readthedocs.projects.forms import AutomationRuleForm
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
@@ -70,7 +72,6 @@ from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.forms import UserForm
 from readthedocs.projects.forms import WebHookForm
-from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
@@ -1074,7 +1075,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 
 
 class AutomationRuleMixin(PrivateViewMixin, ProjectAdminMixin):
-    model = AutomationRule
+    model = VersionAutomationRule
     lookup_url_kwarg = "automation_rule_pk"
 
     def get_success_url(self):
@@ -1125,18 +1126,18 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 
-class AutomationRuleMixin(AutomationRuleMixin):
-    model = AutomationRule
-    form_class = AutomationRuleForm
-    lookup_url_kwarg = "automation_rule_pk"
+class WebhookAutomationRuleMixin(AutomationRuleMixin):
+    model = WebhookAutomationRule
+    form_class = WebhookAutomationRuleForm
+    lookup_url_kwarg = "webhook_automation_rule_pk"
 
 
-class AutomationRuleCreate(AutomationRuleMixin, CreateView):
-    success_message = _("Automation rule created")
+class WebhookAutomationRuleCreate(WebhookAutomationRuleMixin, CreateView):
+    success_message = _("Webhook automation rule created")
 
 
-class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
-    success_message = _("Automation rule updated")
+class WebhookAutomationRuleUpdate(WebhookAutomationRuleMixin, UpdateView):
+    success_message = _("Webhook automation rule updated")
 
 
 class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):

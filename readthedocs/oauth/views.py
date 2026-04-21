@@ -42,14 +42,14 @@ class GitHubAppWebhookView(APIView):
         structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
-            event_name=event,
+            event=event,
             event_id=event_id,
         )
         if event not in GitHubAppWebhookHandler(request.data, event).event_handlers:
             log.info("Unsupported event")
             raise ValidationError(f"Unsupported event: {event}")
 
-        log.info("Handling event from view.")
+        log.info("Handling event")
         handle_github_app_webhook.delay(
             data=request.data,
             event=event,
