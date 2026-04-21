@@ -14,7 +14,7 @@ Markdown inside <details> requires a blank line after </summary>.
 
 {% if diff.files %}{% if diff.should_auto_expand %}
 <details open>
-<summary>{{ diff.files|length }} files changed</summary>
+<summary>{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed</summary>
 <br>
 {% for file in diff.added %}<code>+</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
 {% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
@@ -22,7 +22,7 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endfor %}</details>
 {% else %}
 <details>
-<summary>{{ diff.files|length }} files changed{% if diff.added %} · <code>+</code> {{ diff.added|length }} added{% endif %}{% if diff.modified %} · <code>±</code> {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · <code>-</code> {{ diff.deleted|length }} deleted{% endif %}</summary>
+<summary>{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed{% if diff.added %} · <code>+</code> {{ diff.added|length }} added{% endif %}{% if diff.modified %} · <code>±</code> {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · <code>-</code> {{ diff.deleted|length }} deleted{% endif %}</summary>
 <br>
 {% if diff.added %}
 `+` **Added**

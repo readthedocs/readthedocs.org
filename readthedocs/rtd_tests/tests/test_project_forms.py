@@ -1027,6 +1027,8 @@ class TestTranslationForms(TestCase):
 class TestWebhookForm(TestCase):
     def setUp(self):
         self.project = get(Project)
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     def test_webhookform(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
