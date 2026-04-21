@@ -410,6 +410,7 @@ class BuildConfigV2(BuildConfigBase):
                     )
 
         build["apt_packages"] = self.validate_apt_packages()
+        build["environment"] = self.validate_build_environment()
         return build
 
     def validate_build_jobs_build(self, build_jobs):
@@ -498,6 +499,36 @@ class BuildConfigV2(BuildConfigBase):
                     },
                 )
         return package
+
+    def validate_build_environment(self):
+        """
+        Validate the ``build.environment`` key.
+
+        Environment variable names must be valid identifiers
+        (alphanumeric and underscores, starting with a letter or underscore).
+        Values are coerced to strings to support integers and booleans from YAML.
+        """
+        environment = {}
+        raw_environment = self._raw_config.get("build", {}).get("environment", {})
+        with self.catch_validation_error("build.environment"):
+            validate_dict(raw_environment)
+            for name, value in raw_environment.items():
+                key = f"build.environment.{name}"
+                with self.catch_validation_error(key):
+                    if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name):
+                        raise ConfigError(
+                            message_id=ConfigError.BUILD_ENVIRONMENT_VARIABLE_INVALID_NAME,
+                            format_values={
+                                "variable": name,
+                                "key": key,
+                            },
+                        )
+                    # Coerce int/float/bool values to string, as YAML may parse them as such.
+                    environment[name] = str(value)
+            if "environment" in self._raw_config.get("build", {}):
+                self.pop_config("build.environment")
+
+        return environment
 
     def validate_python(self):
         """
@@ -1013,6 +1044,7 @@ class BuildConfigV2(BuildConfigBase):
             jobs=BuildJobs(**build["jobs"]),
             commands=build["commands"],
             apt_packages=build["apt_packages"],
+            environment=build["environment"],
         )
 
     @property

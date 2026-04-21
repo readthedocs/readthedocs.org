@@ -607,6 +607,7 @@ class TestBuildTask(BuildEnvironmentBase):
                         }
                     },
                     "apt_packages": [],
+                    "environment": {},
                 },
                 "doctype": "sphinx",
                 "sphinx": {
