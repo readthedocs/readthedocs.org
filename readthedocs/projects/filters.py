@@ -4,6 +4,7 @@ import structlog
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django_filters import CharFilter
 from django_filters import ChoiceFilter
@@ -268,6 +269,4 @@ class RedirectListFilterSet(ModelFilterSet):
     )
 
     def filter_url_contains(self, queryset, field_name, value):
-        from django.db.models import Q
-
         return queryset.filter(Q(from_url__icontains=value) | Q(to_url__icontains=value))
