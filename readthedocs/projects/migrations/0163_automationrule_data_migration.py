@@ -6,11 +6,13 @@ from django_safemigrate import Safe
 
 def forward_migrate_data(apps, schema_editor):
     RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
-    AutomationRuleMatch = apps.get_model("builds", "AutomationRuleMatch")
     AutomationRule = apps.get_model("projects", "AutomationRule")
 
     for rule in RegexAutomationRule.objects.iterator():
+        # Preserve the legacy PK so that existing ``AutomationRuleMatch.rule_id``
+        # values remain valid without needing to be remapped.
         newrule = AutomationRule.objects.create(
+            id=rule.id,
             project=rule.project,
             priority=rule.priority,
             description=rule.description,
@@ -32,10 +34,6 @@ def forward_migrate_data(apps, schema_editor):
             created=rule.created,
             modified=rule.modified,
         )
-
-        for match in AutomationRuleMatch.objects.filter(rule_id=rule.id):
-            match.rule_id = newrule.id
-            match.save(update_fields=["rule_id"])
 
 
 class Migration(migrations.Migration):
