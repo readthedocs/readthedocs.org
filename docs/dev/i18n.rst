@@ -79,7 +79,7 @@ of a word are identical.
 
 To make it possible to localize these correctly, we can add "context" (known in
 gettext as *msgctxt*) to differentiate two otherwise identical strings. Django
-provides a :func:`~django.utils.translation.pgettext()` function for this.
+provides a :func:`~django.utils.translation.pgettext` function for this.
 
 For example, the string *Search* may be a noun or a verb in English. In a
 heading, it may be considered a noun, but on a button, it may be a verb. It's
@@ -100,7 +100,7 @@ Plurals
 
 *You have 1 new messages* grates on discerning ears. Fortunately, gettext gives
 us a way to fix that in English *and* other locales, the
-:func:`~django.utils.translation.ngettext()` function::
+:func:`~django.utils.translation.ngettext` function::
 
     ngettext('singular sentence', 'plural sentence', count)
 

@@ -22,28 +22,28 @@ Tasks
 -----
 
 * Manage all Admin-style information via API
-	* Settings
-	* Versions
-	* Maintainers
-	* Access Tokens
-	* Redirects
-	* Translations
-	* Subprojects
-	* Notifications
+    * Settings
+    * Versions
+    * Maintainers
+    * Access Tokens
+    * Redirects
+    * Translations
+    * Subprojects
+    * Notifications
 * Get Public Project information
-	* Active Versions
-	* Build Information
-	* Downloads
-	* Search
+    * Active Versions
+    * Build Information
+    * Downloads
+    * Search
 * Get User information
-	* User activity
+    * User activity
 * Trigger a new build
 * Page-level information
-	* Sections
-	* Section HTML Content
+    * Sections
+    * Section HTML Content
 
 * Operating Content
-	* Footer
-	* Version out of date
-	* CNAME content
-	* Sync versions
+    * Footer
+    * Version out of date
+    * CNAME content
+    * Sync versions
