@@ -60,7 +60,6 @@ tags
 *.pyo
 .pytest_cache/
 scripts/travis/elasticsearch*
-snapshots/
 
 # django-silk
 media/*.prof
