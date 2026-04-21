@@ -22,20 +22,9 @@ class ProjectItemPositionManager:
         model = item._meta.model
         total = model.objects.filter(project=item.project).count()
 
-        # We are creating new AutomationRules passing `id=` attribute in the migration,
-        # so we cannot check for `if item.pk` to know if the item is new or not.
-        current_position = None
-        try:
-            current_position = model.objects.values_list(
-                self.position_field_name,
-                flat=True,
-            ).get(pk=item.pk)
-        except model.DoesNotExist:
-            pass
-
         # If the item was just created, we just need to insert it at the given position.
         # We do this by moving the other items down before saving.
-        if current_position is None:
+        if not item.pk:
             # A new item can be created at the end as max.
             position = min(getattr(item, self.position_field_name), total)
             setattr(item, self.position_field_name, position)
@@ -54,6 +43,11 @@ class ProjectItemPositionManager:
             )
             expression = F(self.position_field_name) + 1
         else:
+            current_position = model.objects.values_list(
+                self.position_field_name,
+                flat=True,
+            ).get(pk=item.pk)
+
             # An existing item can't be moved past the end.
             position = min(getattr(item, self.position_field_name), total - 1)
             setattr(item, self.position_field_name, position)
