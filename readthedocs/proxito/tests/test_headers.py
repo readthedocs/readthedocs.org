@@ -188,6 +188,91 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)
 
+    def test_user_project_headers_on_public_domain(self):
+        """Project-level headers are applied on the public domain."""
+        http_header = "X-My-Header"
+        http_header_secure = "X-My-Secure-Header"
+        http_header_value = "Header Value; Another Value;"
+        fixture.get(
+            HTTPHeader,
+            project=self.project,
+            domain=None,
+            name=http_header,
+            value=http_header_value,
+            only_if_secure_request=False,
+        )
+        fixture.get(
+            HTTPHeader,
+            project=self.project,
+            domain=None,
+            name=http_header_secure,
+            value=http_header_value,
+            only_if_secure_request=True,
+        )
+
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[http_header], http_header_value)
+        self.assertEqual(r[http_header_secure], http_header_value)
+
+    def test_user_project_headers_on_custom_domain(self):
+        """Project-level headers are also applied on custom domains."""
+        hostname = "docs.domain.com"
+        self.domain = fixture.get(
+            Domain,
+            project=self.project,
+            domain=hostname,
+            https=False,
+        )
+        http_header_value = "some-value"
+        fixture.get(
+            HTTPHeader,
+            project=self.project,
+            domain=None,
+            name="X-Project-Header",
+            value=http_header_value,
+            only_if_secure_request=False,
+        )
+
+        r = self.client.get("/en/latest/", headers={"host": hostname}, secure=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["X-Project-Header"], http_header_value)
+
+    def test_both_domain_and_project_headers(self):
+        """Both domain-level and project-level headers are applied together."""
+        hostname = "docs.domain.com"
+        self.domain = fixture.get(
+            Domain,
+            project=self.project,
+            domain=hostname,
+            https=False,
+        )
+        fixture.get(
+            HTTPHeader,
+            domain=self.domain,
+            project=None,
+            name="X-Domain-Header",
+            value="domain-value",
+            only_if_secure_request=False,
+        )
+        fixture.get(
+            HTTPHeader,
+            project=self.project,
+            domain=None,
+            name="X-Project-Header",
+            value="project-value",
+            only_if_secure_request=False,
+        )
+
+        r = self.client.get("/en/latest/", headers={"host": hostname}, secure=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["X-Domain-Header"], "domain-value")
+        self.assertEqual(r["X-Project-Header"], "project-value")
+
     def test_force_addons_header(self):
         r = self.client.get(
             "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}

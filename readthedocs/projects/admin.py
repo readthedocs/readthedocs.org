@@ -92,6 +92,14 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
+class HTTPHeaderProjectInline(admin.TabularInline):
+    model = HTTPHeader
+    fk_name = "project"
+    extra = 1
+    verbose_name = "HTTP Header"
+    verbose_name_plural = "HTTP Headers"
+
+
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
     """
     Filter for projects with banned owners.
@@ -246,6 +254,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         RedirectInline,
         DomainInline,
         VersionInline,
+        HTTPHeaderProjectInline,
     ]
     readonly_fields = (
         "pub_date",
@@ -448,8 +457,12 @@ class ImportedFileAdmin(admin.ModelAdmin):
     search_fields = ("project__slug", "version__slug", "path", "build")
 
 
-class HTTPHeaderInline(admin.TabularInline):
+class HTTPHeaderDomainInline(admin.TabularInline):
     model = HTTPHeader
+    fk_name = "domain"
+    extra = 1
+    verbose_name = "HTTP Header"
+    verbose_name_plural = "HTTP Headers"
 
 
 @admin.register(Domain)
@@ -464,7 +477,7 @@ class DomainAdmin(admin.ModelAdmin):
         "created",
         "modified",
     )
-    inlines = (HTTPHeaderInline,)
+    inlines = (HTTPHeaderDomainInline,)
     search_fields = ("domain", "project__slug")
     raw_id_fields = ("project",)
     list_filter = ("canonical", "https", "ssl_status")
@@ -479,15 +492,21 @@ class HTTPHeaderAdmin(admin.ModelAdmin):
         "domain_name",
         "project_slug",
     )
-    raw_id_fields = ("domain",)
-    search_fields = ("name", "domain__name", "project__slug")
+    raw_id_fields = ("domain", "project")
+    search_fields = ("name", "domain__domain", "project__slug")
     model = HTTPHeader
 
     def domain_name(self, http_header):
-        return http_header.domain.domain
+        if http_header.domain:
+            return http_header.domain.domain
+        return "-"
 
     def project_slug(self, http_header):
-        return http_header.domain.project.slug
+        if http_header.project:
+            return http_header.project.slug
+        if http_header.domain:
+            return http_header.domain.project.slug
+        return "-"
 
 
 @admin.register(Feature)

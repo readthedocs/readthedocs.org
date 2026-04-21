@@ -13,6 +13,7 @@ import structlog
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -1988,10 +1989,15 @@ class Domain(TimeStampedModel):
 
 class HTTPHeader(TimeStampedModel, models.Model):
     """
-    Define a HTTP header for a user Domain.
+    Define a custom HTTP header for a Domain or Project.
 
-    All the HTTPHeader(s) associated with the domain are added in the response
-    from El Proxito.
+    HTTPHeaders can be associated with either a Domain or a Project (or both).
+    All matching HTTPHeaders are added to the response from El Proxito.
+
+    When associated with a Project, the header is applied to all requests
+    for that project regardless of the domain (including the public domain).
+    When associated with a Domain, the header is only applied to requests
+    served from that specific custom domain.
 
     NOTE: the available headers are hardcoded in the NGINX configuration for
     now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
@@ -2014,6 +2020,15 @@ class HTTPHeader(TimeStampedModel, models.Model):
         Domain,
         related_name="http_headers",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    project = models.ForeignKey(
+        Project,
+        related_name="http_headers",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     name = models.CharField(
         max_length=128,
@@ -2026,6 +2041,12 @@ class HTTPHeader(TimeStampedModel, models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if not self.domain and not self.project:
+            raise ValidationError(
+                "An HTTPHeader must be associated with a Domain or a Project (or both)."
+            )
 
 
 class Feature(models.Model):

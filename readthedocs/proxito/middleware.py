@@ -91,32 +91,51 @@ class ProxitoMiddleware(MiddlewareMixin):
         Set specific HTTP headers requested by the user.
 
         The headers added come from ``projects.models.HTTPHeader`` associated
-        with the ``Domain`` object.
+        with the ``Domain`` or ``Project`` object.
+
+        - Domain-level headers are applied only on custom domain requests.
+        - Project-level headers are applied on all requests for that project,
+          including the public domain (.readthedocs.io).
         """
+        from readthedocs.projects.models import HTTPHeader
+
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_custom_domain:
-            response_headers = [header.lower() for header in response.headers.keys()]
+        if not unresolved_domain:
+            return
+
+        http_headers = HTTPHeader.objects.none()
+
+        # Domain-level headers (custom domains only).
+        if unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
-            for http_header in domain.http_headers.all():
-                if http_header.name.lower() in response_headers:
-                    log.error(
-                        "Overriding an existing response HTTP header.",
-                        http_header=http_header.name,
-                        domain=domain.domain,
-                    )
-                log.debug(
-                    "Adding custom response HTTP header.",
+            http_headers = http_headers | domain.http_headers.all()
+
+        # Project-level headers (all domains).
+        project = unresolved_domain.project
+        if project:
+            http_headers = http_headers | project.http_headers.all()
+
+        response_headers = [header.lower() for header in response.headers.keys()]
+        for http_header in http_headers.distinct():
+            if http_header.name.lower() in response_headers:
+                log.error(
+                    "Overriding an existing response HTTP header.",
                     http_header=http_header.name,
-                    domain=domain.domain,
+                    project=project.slug if project else None,
                 )
+            log.debug(
+                "Adding custom response HTTP header.",
+                http_header=http_header.name,
+                project=project.slug if project else None,
+            )
 
-                if http_header.only_if_secure_request and not request.is_secure():
-                    continue
+            if http_header.only_if_secure_request and not request.is_secure():
+                continue
 
-                # HTTP headers here are limited to
-                # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
-                # headers is potentially dangerous
-                response[http_header.name] = http_header.value
+            # HTTP headers here are limited to
+            # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
+            # headers is potentially dangerous
+            response[http_header.name] = http_header.value
 
     def add_hsts_headers(self, request, response):
         """
