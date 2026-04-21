@@ -749,6 +749,8 @@ class TestWebhooksViews(TestCase):
         self.version = get(Version, slug="1.0", project=self.project)
         self.webhook = get(WebHook, project=self.project)
         self.client.force_login(self.user)
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     def test_list(self):
         resp = self.client.get(

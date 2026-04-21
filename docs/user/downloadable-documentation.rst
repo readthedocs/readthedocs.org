@@ -81,3 +81,4 @@ but support is coming soon.**
 
    * :doc:`/guides/enable-offline-formats` - Guide to enabling and disabling this feature.
    * :ref:`config-file/v2:formats` - Configuration file options for offline formats.
+   * :ref:`build-customization:where to put files` - Where to put offline format output when using custom build commands.
