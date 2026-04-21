@@ -6,13 +6,13 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
-from readthedocs.oauth.validators import CloneURLValidator
-from readthedocs.oauth.validators import SshURLValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from readthedocs.oauth.validators import CloneURLValidator
+from readthedocs.oauth.validators import SshURLValidator
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
