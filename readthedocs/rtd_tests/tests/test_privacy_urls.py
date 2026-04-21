@@ -8,14 +8,17 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
-from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
+from readthedocs.builds.constants import BRANCH, EXTERNAL
 from readthedocs.builds.models import (
     Build,
     BuildCommandResult,
+    RegexAutomationRule,
+    VersionAutomationRule,
+    WebhookAutomationRule,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook, AutomationRule
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.utils import create_user
 
@@ -194,13 +197,20 @@ class ProjectMixin(URLAccessMixin):
         self.domain = get(Domain, domain="docs.foobar.com", project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.automation_rule = get(
-            AutomationRule,
+            RegexAutomationRule,
             priority=0,
             project=self.pip,
-            version_predefined_match_pattern=ALL_VERSIONS,
-            webhook_files_match_pattern="docs/*.md",
-            action=AutomationRule.TRIGGER_BUILD_ACTION,
-            version_types=[EXTERNAL],
+            match_arg=".*",
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=BRANCH,
+        )
+        self.webhook_automation_rule = get(
+            WebhookAutomationRule,
+            priority=1,
+            project=self.pip,
+            match_arg="docs/*.md",
+            action=VersionAutomationRule.TRIGGER_BUILD_ACTION,
+            version_type=EXTERNAL,
         )
         self.webhook = get(WebHook, project=self.pip)
         self.webhook_exchange = HttpExchange.objects.create(
@@ -229,6 +239,7 @@ class ProjectMixin(URLAccessMixin):
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
             "automation_rule_pk": self.automation_rule.pk,
+            "webhook_automation_rule_pk": self.webhook_automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
             "webhook_pk": self.webhook.pk,

@@ -1,7 +1,6 @@
 """Project forms."""
 
 import json
-import re
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -21,10 +20,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.constants import UNKNOWN
-from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.forms import PrevalidatedForm
 from readthedocs.core.forms import RichChoice
 from readthedocs.core.forms import RichSelect
@@ -41,7 +37,6 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import AddonsConfig
-from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
@@ -538,7 +533,6 @@ class UpdateProjectForm(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.had_search_disabled = not self.instance.search_indexing_enabled
 
         # Remove empty choice from options.
@@ -827,22 +821,6 @@ class OnePerLineList(forms.Field):
         return "\n".join(value)
 
 
-class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
-    """Handle comma-separated values for a single hidden input."""
-
-    hidden_widget = forms.HiddenInput
-
-    def to_python(self, value):
-        if isinstance(value, str):
-            value = [item.strip() for item in value.split(",") if item.strip()]
-        return super().to_python(value)
-
-    def prepare_value(self, value):
-        if isinstance(value, (list, tuple)):
-            return ",".join(value)
-        return super().prepare_value(value)
-
-
 class AddonsConfigForm(forms.ModelForm):
     """Form to opt-in into new addons."""
 
@@ -883,7 +861,6 @@ class AddonsConfigForm(forms.ModelForm):
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
@@ -1424,121 +1401,3 @@ class AddonsConfigSearchSettingsForm(forms.ModelForm):
         self.project = kwargs.pop("project", None)
         kwargs["instance"] = self.project.addons
         super().__init__(*args, **kwargs)
-
-
-class AutomationRuleForm(forms.ModelForm):
-    project = forms.CharField(widget=forms.HiddenInput(), required=False)
-
-    VERSION_TYPE_CHOICES = [(value, name) for value, name in VERSION_TYPES if value != UNKNOWN]
-    version_types = CommaSeparatedMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=[(value, choice) for value, choice in VERSION_TYPE_CHOICES],
-        required=True,
-    )
-
-    # Override to show it as Textarea instead of a JSON field in the UI
-    webhook_files_match_pattern = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                "rows": 5,
-                "placeholder": "\n".join(
-                    [
-                        "docs/*.rst",
-                        "docs/*.md",
-                        "docs/requirements.txt",
-                        "requirements.txt",
-                        ".readthedocs.yaml",
-                    ],
-                ),
-            }
-        ),
-    )
-
-    class Meta:
-        model = AutomationRule
-        fields = [
-            "project",
-            "enabled",
-            "description",
-            "version_types",
-            "version_predefined_match_pattern",
-            "version_match_pattern",
-            "webhook_files_match_pattern",
-            "webhook_labels_match_pattern",
-            "webhook_commit_message_match_pattern",
-            "action",
-        ]
-
-        widgets = {
-            "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
-            "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
-            "webhook_commit_message_match_pattern": forms.TextInput(
-                attrs={"placeholder": "^fix|feature$"}
-            ),
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
-
-        if self.instance and self.instance.pk and self.instance.webhook_files_match_pattern:
-            self.initial["webhook_files_match_pattern"] = "\n".join(
-                self.instance.webhook_files_match_pattern
-            )
-
-    def clean_project(self):
-        return self.project
-
-    def clean_version_types(self):
-        version_types = self.cleaned_data["version_types"]
-        if not version_types:
-            raise forms.ValidationError(_("At least one version type must be selected."))
-        return version_types
-
-    def clean_webhook_files_match_pattern(self):
-        webhook_files_match_pattern = self.cleaned_data["webhook_files_match_pattern"]
-        if webhook_files_match_pattern:
-            webhook_files_match_pattern = [
-                line.strip() for line in webhook_files_match_pattern.splitlines() if line.strip()
-            ]
-        return webhook_files_match_pattern
-
-    def clean(self):
-        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
-        if version_predefined_match_pattern is None and not self.cleaned_data.get(
-            "version_match_pattern"
-        ):
-            raise forms.ValidationError(
-                _("You should use either a predefined match or a custom match."),
-            )
-        return super().clean()
-
-    def clean_version_match_pattern(self):
-        version_match_pattern = self.cleaned_data.get("version_match_pattern")
-        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
-        if version_predefined_match_pattern == CUSTOM_MATCH and not version_match_pattern:
-            raise forms.ValidationError(
-                _("You should use either a predefined match or a custom match."),
-            )
-        return self.clean_regex_input("version_match_pattern")
-
-    def clean_webhook_labels_match_pattern(self):
-        return self.clean_regex_input("webhook_labels_match_pattern")
-
-    def clean_webhook_commit_message_match_pattern(self):
-        return self.clean_regex_input("webhook_commit_message_match_pattern")
-
-    def clean_regex_input(self, field_name):
-        """Check that a custom match was given if a predefined match wasn't used."""
-        regex = self.cleaned_data[field_name]
-        if not regex:
-            return None
-
-        try:
-            re.compile(regex)
-        except Exception:
-            raise forms.ValidationError(
-                _("Invalid Python regular expression."),
-            )
-        return regex

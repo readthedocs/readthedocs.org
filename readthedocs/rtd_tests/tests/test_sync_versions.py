@@ -7,7 +7,9 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
+    RegexAutomationRule,
     Version,
+    VersionAutomationRule,
 )
 from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.organizations.models import Organization, OrganizationOwner
@@ -1063,6 +1065,123 @@ class TestSyncVersions(TestCase):
             {"new_branch", "new_tag"},
             {"0.8", "0.8.1"},
         )
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build", mock.MagicMock())
+    def test_automation_rule_activate_version(self):
+        tags_data = [
+            {
+                "identifier": "new_tag",
+                "verbose_name": "new_tag",
+            },
+            {
+                "identifier": "0.8.3",
+                "verbose_name": "0.8.3",
+            },
+        ]
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r"^new_tag$",
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        self.assertFalse(self.pip.versions.filter(verbose_name="new_tag").exists())
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[],
+            tags_data=tags_data,
+        )
+        new_tag = self.pip.versions.get(verbose_name="new_tag")
+        self.assertTrue(new_tag.active)
+
+    @mock.patch("readthedocs.builds.automation_actions.trigger_build", mock.MagicMock())
+    def test_automation_rule_set_default_version(self):
+        tags_data = [
+            {
+                "identifier": "new_tag",
+                "verbose_name": "new_tag",
+            },
+            {
+                "identifier": "0.8.3",
+                "verbose_name": "0.8.3",
+            },
+        ]
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r"^new_tag$",
+            action=VersionAutomationRule.SET_DEFAULT_VERSION_ACTION,
+            version_type=TAG,
+        )
+        self.assertEqual(self.pip.get_default_version(), LATEST)
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[],
+            tags_data=tags_data,
+        )
+        self.pip.refresh_from_db()
+        self.assertEqual(self.pip.get_default_version(), "new_tag")
+
+    def test_automation_rule_delete_version(self):
+        tags_data = [
+            {
+                "identifier": "new_tag",
+                "verbose_name": "new_tag",
+            },
+            {
+                "identifier": "0.8.3",
+                "verbose_name": "0.8.3",
+            },
+        ]
+        version_slug = "0.8"
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r"^0\.8$",
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[],
+            tags_data=tags_data,
+        )
+        self.assertFalse(self.pip.versions.filter(slug=version_slug).exists())
+
+    def test_automation_rule_dont_delete_default_version(self):
+        tags_data = [
+            {
+                "identifier": "new_tag",
+                "verbose_name": "new_tag",
+            },
+            {
+                "identifier": "0.8.3",
+                "verbose_name": "0.8.3",
+            },
+        ]
+        version_slug = "0.8"
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r"^0\.8$",
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
+
+        self.pip.default_version = version_slug
+        self.pip.save()
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[],
+            tags_data=tags_data,
+        )
+        self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
 
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
