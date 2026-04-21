@@ -525,8 +525,7 @@ class BuildConfigV2(BuildConfigBase):
                         )
                     # Coerce int/float/bool values to string, as YAML may parse them as such.
                     environment[name] = str(value)
-            if "environment" in self._raw_config.get("build", {}):
-                self.pop_config("build.environment")
+            self.pop_config("build.environment")
 
         return environment
 
