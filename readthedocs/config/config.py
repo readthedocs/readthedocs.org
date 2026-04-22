@@ -229,7 +229,9 @@ class BuildConfigBase:
         tool = self.build.tools.get("python")
         if tool and tool.version.startswith("mamba"):
             return "mamba"
-        if tool and (tool.version.startswith("miniconda") or tool.version.startswith("miniforge")):
+        if tool and (
+            tool.version.startswith("miniconda") or tool.version.startswith("miniforge")
+        ):
             return "conda"
         if tool:
             return "python"
@@ -392,7 +394,8 @@ class BuildConfigV2(BuildConfigBase):
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
-                    validate_string(job_command) for job_command in validate_list(job_commands)
+                    validate_string(job_command)
+                    for job_command in validate_list(job_commands)
                 ]
 
         build["commands"] = []
@@ -441,9 +444,13 @@ class BuildConfigV2(BuildConfigBase):
             raw_packages = self._raw_config.get("build", {}).get("apt_packages", [])
             validate_list(raw_packages)
             # Transform to a dict, so is easy to validate individual entries.
-            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(raw_packages)
+            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(
+                raw_packages
+            )
 
-            apt_packages = [self.validate_apt_package(index) for index in range(len(raw_packages))]
+            apt_packages = [
+                self.validate_apt_package(index) for index in range(len(raw_packages))
+            ]
             if not raw_packages:
                 self.pop_config("build.apt_packages")
 
@@ -520,7 +527,9 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self._raw_config.setdefault("python", {})["install"] = list_to_dict(raw_install)
+                self._raw_config.setdefault("python", {})["install"] = list_to_dict(
+                    raw_install
+                )
             else:
                 self.pop_config("python.install")
 
@@ -593,6 +602,9 @@ class BuildConfigV2(BuildConfigBase):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
+                extra_requirements = [
+                    validate_string(element) for element in extra_requirements
+                ]
                 if extra_requirements and python_install["method"] != PIP:
                     raise ConfigError(
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
@@ -831,14 +843,18 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error("submodules.include"):
             include = self.pop_config("submodules.include", [])
             if include != ALL:
-                include = [validate_string(submodule) for submodule in validate_list(include)]
+                include = [
+                    validate_string(submodule) for submodule in validate_list(include)
+                ]
             submodules["include"] = include
 
         with self.catch_validation_error("submodules.exclude"):
             default = [] if submodules["include"] else ALL
             exclude = self.pop_config("submodules.exclude", default)
             if exclude != ALL:
-                exclude = [validate_string(submodule) for submodule in validate_list(exclude)]
+                exclude = [
+                    validate_string(submodule) for submodule in validate_list(exclude)
+                ]
             submodules["exclude"] = exclude
 
         with self.catch_validation_error("submodules"):
@@ -1075,7 +1091,9 @@ def load(path, readthedocs_yaml_path=None):
             raise ConfigError(ConfigError.DEFAULT_PATH_NOT_FOUND)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
-    with safe_open(filename, "r", allow_symlinks=True, base_path=path) as configuration_file:
+    with safe_open(
+        filename, "r", allow_symlinks=True, base_path=path
+    ) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:
