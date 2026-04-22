@@ -83,7 +83,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
                "sphinx": {"html_theme": str, "source_suffix": str},
                "analytics": {"user_analytics_code": str, "global_analytics_code": str},
                "vcs": {
-                   "type": str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
+                   "type": str,  # 'bitbucket', 'github', 'gitlab'
                    "user": str,
                    "repo": str,
                    "commit": str,

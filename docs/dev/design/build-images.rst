@@ -307,7 +307,6 @@ Examples of these versions are:
 
 * doxygen
 * git
-* subversion
 * pandoc
 * swig
 * latex
