@@ -1307,6 +1307,33 @@ class TestBuildConfigV2:
         build.validate()
         assert build.sphinx.configuration == "conf.py"
 
+    def test_sphinx_configuration_check_valid_nested(self, tmpdir):
+        apply_fs(tmpdir, {"docs": {"conf.py": ""}})
+        build = get_build_config(
+            {"sphinx": {"configuration": "docs/conf.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.sphinx.configuration == "docs/conf.py"
+
+    @pytest.mark.parametrize(
+        "value,fs",
+        [
+            ("conf-custom.py", {"conf-custom.py": ""}),
+            ("docs/myconf.py", {"docs": {"myconf.py": ""}}),
+            ("docs/conf.py.bak", {"docs": {"conf.py.bak": ""}}),
+        ],
+    )
+    def test_sphinx_configuration_invalid_filename(self, tmpdir, value, fs):
+        apply_fs(tmpdir, fs)
+        build = get_build_config(
+            {"sphinx": {"configuration": value}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.SPHINX_INVALID_CONFIG_FILE
+
     def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
         apply_fs(tmpdir, {"conf.py": ""})
         build = get_build_config(

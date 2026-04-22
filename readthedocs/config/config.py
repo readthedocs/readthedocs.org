@@ -808,6 +808,10 @@ class BuildConfigV2(BuildConfigBase):
             )
             if configuration is not None:
                 configuration = validate_path(configuration, self.base_path)
+                if os.path.basename(configuration) != "conf.py":
+                    raise ConfigError(
+                        message_id=ConfigError.SPHINX_INVALID_CONFIG_FILE,
+                    )
             sphinx["configuration"] = configuration
 
         with self.catch_validation_error("sphinx.fail_on_warning"):

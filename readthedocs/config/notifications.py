@@ -469,6 +469,18 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=ConfigError.SPHINX_INVALID_CONFIG_FILE,
+        header=_("Invalid Sphinx configuration file"),
+        body=_(
+            textwrap.dedent(
+                """
+                The <code>sphinx.configuration</code> key must point to a file named <code>conf.py</code>.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=ConfigError.SPHINX_CONFIG_MISSING,
         header=_("Missing Sphinx configuration key"),
         body=_(
