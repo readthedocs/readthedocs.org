@@ -54,6 +54,7 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
+from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import DomainForm
@@ -787,9 +788,16 @@ class ProjectRedirectsMixin(PrivateViewMixin, ProjectAdminMixin):
         return self.get_project().redirects.all()
 
 
-class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
+class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
     template_name = "redirects/redirect_list.html"
     context_object_name = "redirects"
+    filterset_class = RedirectListFilterSet
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["filter"] = self.get_filterset(queryset=self.get_queryset())
+        context["redirects"] = self.get_filtered_queryset()
+        return context
 
 
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
