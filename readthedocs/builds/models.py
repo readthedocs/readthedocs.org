@@ -36,7 +36,6 @@ from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
-from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
 from readthedocs.builds.managers import ExternalVersionManager
@@ -72,6 +71,7 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
@@ -1199,6 +1199,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
+# TODO: delete VersionAutomationRule model after we are fully migrated
 class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
@@ -1380,6 +1381,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
+# TODO: delete RegexAutomationRule model after we are fully migrated
 class RegexAutomationRule(VersionAutomationRule):
     TIMEOUT = 1  # timeout in seconds
 
@@ -1439,6 +1441,7 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete WebhookAutomationRule model after we are fully migrated
 class WebhookAutomationRule(VersionAutomationRule):
     """
     Automation rule for filtering builds based on files changed in webhook events.
@@ -1475,6 +1478,7 @@ class WebhookAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete AutomationRuleMatch model after we are fully migrated
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
@@ -1487,7 +1491,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        "projects.AutomationRule",
+        VersionAutomationRule,
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,
