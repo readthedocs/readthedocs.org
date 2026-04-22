@@ -107,16 +107,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.demux = demux
         self.exit_code = None
 
-        # NOTE: `self.build_env` is not available when instantiating this class
-        # from hacky tests. `Project.vcs_repo` allows not passing an
-        # environment, which makes all the commands to fail, because there is
-        # no environment to run them.
-        #
-        # Maybe this ``BuildCommand`` should not accept `build_env=None` since
-        # it doesn't make sense.
         if self.build_env:
-            # When using `project.vcs_repo` on tests we are passing `environment=False`.
-            # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
             if self.build_env.project and self.build_env.version:
                 structlog.contextvars.bind_contextvars(
                     project_slug=self.build_env.project.slug,

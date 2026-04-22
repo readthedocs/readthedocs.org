@@ -554,7 +554,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "cloning",
             "commit": "a1b2c3",
-            "error": "",
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
         }
@@ -567,7 +566,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
             "readthedocs_yaml_path": None,
-            "error": "",
             # We update the `config` field at the same time we send the
             # `installing` state, to reduce one API call
             "config": {
@@ -648,7 +646,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "config": mock.ANY,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
-            "error": "",
         }
         # Update build state: uploading
         assert self.requests_mock.request_history[8].json() == {
@@ -659,7 +656,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "config": mock.ANY,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
-            "error": "",
         }
 
         # Get temporary credentials
@@ -698,7 +694,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "task_executed_at": mock.ANY,
             "length": mock.ANY,
             "success": True,
-            "error": "",
         }
 
         assert self.requests_mock.request_history[13]._request.method == "POST"
@@ -785,7 +780,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
             "commit": self.build.commit,
-            "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
             "length": mock.ANY,
             "state": "finished",
@@ -840,7 +834,6 @@ class TestBuildTask(BuildEnvironmentBase):
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
             "commit": self.build.commit,
-            "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
             "length": mock.ANY,
             "state": "cancelled",
@@ -2990,7 +2983,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
-            "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,

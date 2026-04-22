@@ -188,7 +188,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "duration",
             "state",
             "success",
-            "error",
             "commit",
             "_links",
             "urls",

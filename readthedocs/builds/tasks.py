@@ -402,7 +402,6 @@ class BuildNotificationSender:
             },
             "build": {
                 "pk": self.build.pk,
-                "error": self.build.error,
             },
             "build_url": "{}://{}{}".format(
                 protocol,
