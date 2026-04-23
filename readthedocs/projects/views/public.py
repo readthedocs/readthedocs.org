@@ -333,12 +333,6 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
             is_external = request.unresolved_domain.is_from_external_domain
             manager = EXTERNAL if is_external else INTERNAL
 
-            # Additional protection to force all storage calls
-            # to use the external or internal versions storage.
-            # TODO: We already force the manager to match the type,
-            # so we could probably just remove this.
-            self.version_type = manager
-
             # It uses the request to get the ``project``.
             # The rest of arguments come from the URL.
             project = unresolved_domain.project

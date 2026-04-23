@@ -21,6 +21,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
 
 
@@ -56,7 +57,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     ### Example
 
-    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23full-text-search
+    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.com/platform/stable/reference/features.html%23feature-reference
 
     """  # noqa
 
@@ -92,32 +93,19 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
             return response.content
 
-    def _get_page_content_from_storage(self, project, version, filename):
-        storage_path = project.get_storage_path(
-            "html",
-            version_slug=version.slug,
-            include_file=False,
-            version_type=version.type,
-        )
-
+    def _get_page_content_from_storage(self, version, filename):
         # Decode encoded URLs (e.g. convert %20 into a whitespace)
         filename = urllib.parse.unquote(filename)
-
-        # If the filename starts with `/`, the join will fail,
-        # so we strip it before joining it.
-        relative_filename = filename.lstrip("/")
-        file_path = build_media_storage.join(
-            storage_path,
-            relative_filename,
-        )
-
-        tryfiles = [file_path, build_media_storage.join(file_path, "index.html")]
+        tryfiles = [filename, build_media_storage.join(filename, "index.html")]
         for tryfile in tryfiles:
+            storage_file_path = version.get_storage_path(
+                media_type=MEDIA_TYPE_HTML, filename=tryfile
+            )
             try:
-                with build_media_storage.open(tryfile) as fd:
+                with build_media_storage.open(storage_file_path) as fd:
                     return fd.read()
             except Exception:  # noqa
-                log.warning("Unable to read file.", file_path=file_path)
+                log.warning("Unable to read file.", file_path=storage_file_path)
 
         return None
 
@@ -132,10 +120,9 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if self.external:
             page_content = self._download_page_content(url)
         else:
-            project = self.unresolved_url.project
             version = self.unresolved_url.version
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(project, version, filename)
+            page_content = self._get_page_content_from_storage(version, filename)
 
         return self._parse_based_on_doctool(
             page_content,
