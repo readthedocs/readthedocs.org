@@ -32,45 +32,81 @@ class BitbucketService(UserService):
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
 
+    def _get_workspaces_base(self):
+        """
+        Paginate the workspaces the user is a member of.
+
+        Bitbucket deprecated the cross-workspace ``/2.0/repositories/?role=<role>``
+        endpoint on 2026-04-14, so listing repositories now has to be done per workspace.
+        See https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
+
+        See https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/#api-user-workspaces-get.
+
+        NOTE: this endpoint doesn't return all the fields from the workspace object as the repositories endpoint does,
+        if you need more fields, you need to query the workspace endpoint for each workspace slug.
+        """
+        return (
+            workspace_access["workspace"]
+            for workspace_access in self.paginate(f"{self.base_api_url}/2.0/user/workspaces/")
+        )
+
     def sync_repositories(self):
-        """Sync repositories from Bitbucket API."""
+        """Sync repositories from Bitbucket API, one workspace at a time."""
         remote_ids = []
 
-        # Get user repos
         try:
-            repos = self.paginate(
-                "https://bitbucket.org/api/2.0/repositories/",
-                role="member",
-            )
-            for repo in repos:
-                remote_repository = self.create_repository(repo)
-                if remote_repository:
-                    remote_ids.append(remote_repository.remote_id)
-
-        except (TypeError, ValueError):
-            log.warning("Error syncing Bitbucket repositories")
+            workspace_slugs = [
+                workspace_base["slug"] for workspace_base in self._get_workspaces_base()
+            ]
+        except (TypeError, ValueError, KeyError):
+            log.warning("Error syncing Bitbucket workspaces")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
                     provider=self.allauth_provider.name
                 )
             )
 
-        # Because privileges aren't returned with repository data, run query
-        # again for repositories that user has admin role for, and update
-        # existing repositories.
-        try:
-            resp = self.paginate(
-                "https://bitbucket.org/api/2.0/repositories/",
-                role="admin",
-            )
-            RemoteRepositoryRelation.objects.filter(
-                user=self.user,
-                account=self.account,
-                remote_repository__vcs_provider=self.vcs_provider_slug,
-                remote_repository__remote_id__in=[r["uuid"] for r in resp],
-            ).update(admin=True)
-        except (TypeError, ValueError):
-            log.warning("Error syncing Bitbucket admin repositories")
+        for workspace_slug in workspace_slugs:
+            try:
+                repos = self.paginate(
+                    f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
+                    role="member",
+                )
+                for repo in repos:
+                    remote_repository = self.create_repository(repo)
+                    if remote_repository:
+                        remote_ids.append(remote_repository.remote_id)
+            except (TypeError, ValueError):
+                log.warning(
+                    "Error syncing Bitbucket repositories for workspace.",
+                    workspace=workspace_slug,
+                )
+                raise SyncServiceError(
+                    SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                        provider=self.allauth_provider.name
+                    )
+                )
+
+            # Privileges aren't returned with repository data, so we query
+            # again for repositories the user has the admin role on.
+            try:
+                admin_repos = self.paginate(
+                    f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
+                    role="admin",
+                )
+                admin_repos_ids = [repo["uuid"] for repo in admin_repos]
+                if admin_repos_ids:
+                    RemoteRepositoryRelation.objects.filter(
+                        user=self.user,
+                        account=self.account,
+                        remote_repository__vcs_provider=self.vcs_provider_slug,
+                        remote_repository__remote_id__in=admin_repos_ids,
+                    ).update(admin=True)
+            except (TypeError, ValueError):
+                log.warning(
+                    "Error syncing Bitbucket admin repositories for workspace.",
+                    workspace=workspace_slug,
+                )
 
         return remote_ids
 
@@ -85,15 +121,14 @@ class BitbucketService(UserService):
         organization_remote_ids = []
 
         try:
-            workspaces = self.paginate(
-                f"{self.base_api_url}/2.0/workspaces/",
-                role="member",
-            )
-            for workspace in workspaces:
+            for workspace_base in self._get_workspaces_base():
+                workspace = self.session.get(
+                    f"{self.base_api_url}/2.0/workspaces/{workspace_base['slug']}"
+                ).json()
                 remote_organization = self.create_organization(workspace)
                 remote_organization.get_remote_organization_relation(self.user, self.account)
                 organization_remote_ids.append(remote_organization.remote_id)
-        except ValueError:
+        except (TypeError, ValueError):
             log.warning("Error syncing Bitbucket organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -168,18 +203,24 @@ class BitbucketService(UserService):
         """
         Get a single repository by its remote ID where the user has a specific role.
 
-        Bitbucket doesn't provide an endpoint to get a single repository by its ID (it requires the group ID as well),
-        and it also doesn't return the user's role in the repository, so we filter the repositories by role
-        and then look for the repository with the matching ID.
+        Bitbucket doesn't provide an endpoint to get a single repository by its ID
+        (it requires the workspace as well), and it also doesn't return the user's
+        role in the repository, so we filter the repositories in the workspace by
+        role and then look for the repository with the matching ID.
+
+        The cross-workspace ``/2.0/repositories/?role=<role>`` endpoint was
+        deprecated on 2026-04-14, so we scope the query to the workspace the
+        repository belongs to.
         """
-        repos = self.paginate(
-            f"{self.base_api_url}/2.0/repositories/",
-            role=role,
-            q=f'uuid="{remote_repository.remote_id}"',
-        )
-        for repo in repos:
-            if repo["uuid"] == remote_repository.remote_id:
-                return repo
+        for workspace_base in self._get_workspaces_base():
+            repos = self.paginate(
+                f"{self.base_api_url}/2.0/repositories/{workspace_base['slug']}",
+                role=role,
+                q=f'uuid="{remote_repository.remote_id}"',
+            )
+            for repo in repos:
+                if repo["uuid"] == remote_repository.remote_id:
+                    return repo
         return None
 
     def _update_repository_from_fields(self, repo, fields):

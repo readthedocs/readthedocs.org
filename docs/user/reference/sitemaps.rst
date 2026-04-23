@@ -26,10 +26,17 @@ sorted by `semantic versioning`_.
 Custom ``sitemap.xml``
 ----------------------
 
-You can control the sitemap that is used via the ``robots.txt`` file.
-Our :doc:`/reference/robots` allows you to host a custom version of this file.
+You can provide a custom ``sitemap.xml`` file with your docs build output.
+Read the Docs looks for this file in the **default version** of your project,
+because ``sitemap.xml`` is served from the root of your docs domain.
 
-An example would look like::
+If this custom file exists, it is served as-is.
+If it does not exist, Read the Docs serves the generated sitemap instead.
+
+You can also point crawlers to a different sitemap URL via ``robots.txt``.
+See :doc:`/reference/robots` for details.
+
+For example, in ``robots.txt``::
 
   User-agent: *
   Allow: /

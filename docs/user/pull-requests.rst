@@ -33,8 +33,10 @@ Build overview with changed files
        This feature is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
 
 Pull request notifications
-    A pull request notifications is shown at the top of preview pages,
+    A pull request notification can be shown at the top of preview pages,
     which let readers know they aren't viewing an active version of the project.
+    New projects have this notification disabled by default;
+    enable it from :guilabel:`Settings` → :guilabel:`Addons` → :guilabel:`Notifications`.
 
 :doc:`Visual diff </visual-diff>`
     Visual diff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.

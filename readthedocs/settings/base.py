@@ -413,8 +413,6 @@ class CommunityBaseSettings(Settings):
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, "readthedocs", "templates")
     DOCROOT = os.path.join(SITE_ROOT, "user_builds")
     LOGS_ROOT = os.path.join(SITE_ROOT, "logs")
-    PRODUCTION_ROOT = os.path.join(SITE_ROOT, "prod_artifacts")
-    PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, "media")
 
     # Assets and media
     STATIC_ROOT = os.path.join(SITE_ROOT, "static")
@@ -724,7 +722,6 @@ class CommunityBaseSettings(Settings):
             "kwargs": {
                 "days": 1,
                 "limit": 500,
-                "delete": True,
             },
         },
         "every-30m-delete-inactive-external-versions": {
@@ -753,6 +750,19 @@ class CommunityBaseSettings(Settings):
             "task": "readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
+        },
+        "every-hour-delete-old-build-objects": {
+            "task": "readthedocs.builds.tasks.delete_old_build_objects",
+            # NOTE: we are running this task with a limit for now
+            # to don't overload the DB with many deletion queries,
+            # since we have lots of objects to delete
+            # TODO: go back to do delete without a limit after we delete the backlog of objects,
+            # or keep less build objects (keep_recent=100, days=365).
+            # It should take around 24 days to delete all the old objects on community,
+            # and 2 days on commercial.
+            "schedule": crontab(minute=22, hour="*"),
+            "options": {"queue": "web"},
+            "kwargs": {"days": 365 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 2_500},
         },
     }
 
