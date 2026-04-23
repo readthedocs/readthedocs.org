@@ -1243,10 +1243,7 @@ class TestBuildConfigV2:
         with raises(ConfigError) as excinfo:
             build.validate()
         assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
-        assert (
-            excinfo.value.format_values.get("key")
-            == "python.install.0.extra_requirements"
-        )
+        assert excinfo.value.format_values.get("key") == "python.install.0.extra_requirements"
 
     def test_python_install_several_respects_order(self, tmpdir):
         apply_fs(
@@ -2357,9 +2354,7 @@ class TestBuildConfigV2:
         )
         with raises(ConfigError) as excinfo:
             build.validate()
-        assert (
-            excinfo.value.message_id == ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED
-        )
+        assert excinfo.value.message_id == ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED
 
     def test_python_install_uv_multiple_entries_invalid(self, tmpdir):
         apply_fs(tmpdir, {"requirements.txt": ""})
@@ -2381,9 +2376,7 @@ class TestBuildConfigV2:
         )
         with raises(ConfigError) as excinfo:
             build.validate()
-        assert (
-            excinfo.value.message_id == ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID
-        )
+        assert excinfo.value.message_id == ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID
 
     def test_python_install_uv_sync_groups_empty_list_invalid(self, tmpdir):
         build = get_build_config(
