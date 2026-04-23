@@ -8,28 +8,28 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy()
 
     dependencies = [
-        ('builds', '0070_delete_build_old_config'),
+        ("builds", "0070_delete_build_old_config"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='build',
-            name='error',
+            model_name="build",
+            name="error",
         ),
         migrations.RemoveField(
-            model_name='build',
-            name='exit_code',
+            model_name="build",
+            name="exit_code",
         ),
         migrations.RemoveField(
-            model_name='build',
-            name='output',
+            model_name="build",
+            name="output",
         ),
         migrations.RemoveField(
-            model_name='build',
-            name='setup',
+            model_name="build",
+            name="setup",
         ),
         migrations.RemoveField(
-            model_name='build',
-            name='setup_error',
+            model_name="build",
+            name="setup_error",
         ),
     ]
