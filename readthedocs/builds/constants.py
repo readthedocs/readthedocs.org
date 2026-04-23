@@ -1,99 +1,73 @@
 """Constants for the builds app."""
 
 from django.conf import settings
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class BuildState(models.TextChoices):
-    """Internal state of a build.
+# BUILD_STATE is our *INTERNAL* representation of build states.
+# This is not to be confused with external representations of 'status'
+# that are sent back to Git providers.
+BUILD_STATE_TRIGGERED = "triggered"
+BUILD_STATE_CLONING = "cloning"
+BUILD_STATE_INSTALLING = "installing"
+BUILD_STATE_BUILDING = "building"
+BUILD_STATE_UPLOADING = "uploading"
+BUILD_STATE_FINISHED = "finished"
+BUILD_STATE_CANCELLED = "cancelled"
 
-    This is not to be confused with external representations of 'status'
-    that are sent back to Git providers.
-    """
-
-    TRIGGERED = "triggered", _("Triggered")
-    CLONING = "cloning", _("Cloning")
-    INSTALLING = "installing", _("Installing")
-    BUILDING = "building", _("Building")
-    UPLOADING = "uploading", _("Uploading")
-    FINISHED = "finished", _("Finished")
-    CANCELLED = "cancelled", _("Cancelled")
-
-
-# Backward-compatible aliases for BuildState
-BUILD_STATE_TRIGGERED = BuildState.TRIGGERED
-BUILD_STATE_CLONING = BuildState.CLONING
-BUILD_STATE_INSTALLING = BuildState.INSTALLING
-BUILD_STATE_BUILDING = BuildState.BUILDING
-BUILD_STATE_UPLOADING = BuildState.UPLOADING
-BUILD_STATE_FINISHED = BuildState.FINISHED
-BUILD_STATE_CANCELLED = BuildState.CANCELLED
-
-BUILD_STATE = BuildState.choices
-
-BUILD_FINAL_STATES = (
-    BuildState.FINISHED,
-    BuildState.CANCELLED,
+BUILD_STATE = (
+    (BUILD_STATE_TRIGGERED, _("Triggered")),
+    (BUILD_STATE_CLONING, _("Cloning")),
+    (BUILD_STATE_INSTALLING, _("Installing")),
+    (BUILD_STATE_BUILDING, _("Building")),
+    (BUILD_STATE_UPLOADING, _("Uploading")),
+    (BUILD_STATE_FINISHED, _("Finished")),
+    (BUILD_STATE_CANCELLED, _("Cancelled")),
 )
 
+BUILD_FINAL_STATES = (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_CANCELLED,
+)
 
-class BuildType(models.TextChoices):
-    """Output format type for a build."""
-
-    HTML = "html", _("HTML")
-    PDF = "pdf", _("PDF")
-    EPUB = "epub", _("Epub")
+BUILD_TYPES = (
+    ("html", _("HTML")),
+    ("pdf", _("PDF")),
+    ("epub", _("Epub")),
     # There is currently no support for building man/dash formats, but we keep
     # it there since the DB might still contain those values for legacy
     # projects.
-    MAN = "man", _("Manpage")
-    DASH = "dash", _("Dash")
-
-
-# Backward-compatible alias
-BUILD_TYPES = BuildType.choices
+    ("man", _("Manpage")),
+    ("dash", _("Dash")),
+)
 
 # Manager name for Internal Versions or Builds.
 # ie: Versions and Builds Excluding pull request/merge request Versions and Builds.
 INTERNAL = "internal"
-
-
-class VersionType(models.TextChoices):
-    """Type of a version."""
-
-    BRANCH = "branch", _("Branch")
-    TAG = "tag", _("Tag")
-    # Manager name for External Versions or Builds.
-    # ie: Only pull request/merge request Versions and Builds.
-    EXTERNAL = "external", _("External")
-    UNKNOWN = "unknown", _("Unknown")
-
-
-# Backward-compatible aliases for VersionType
-BRANCH = VersionType.BRANCH
-BRANCH_TEXT = _("Branch")
-TAG = VersionType.TAG
-TAG_TEXT = _("Tag")
-EXTERNAL = VersionType.EXTERNAL
+# Manager name for External Versions or Builds.
+# ie: Only pull request/merge request Versions and Builds.
+EXTERNAL = "external"
 EXTERNAL_TEXT = _("External")
-UNKNOWN = VersionType.UNKNOWN
+
+BRANCH = "branch"
+BRANCH_TEXT = _("Branch")
+TAG = "tag"
+TAG_TEXT = _("Tag")
+UNKNOWN = "unknown"
 UNKNOWN_TEXT = _("Unknown")
 
-VERSION_TYPES = VersionType.choices
-
-
-class ExternalVersionState(models.TextChoices):
-    """State of an external version (pull/merge request)."""
-
-    OPEN = "open", _("Open")
-    CLOSED = "closed", _("Closed")
-
-
-# Backward-compatible aliases for ExternalVersionState
-EXTERNAL_VERSION_STATE_OPEN = ExternalVersionState.OPEN
-EXTERNAL_VERSION_STATE_CLOSED = ExternalVersionState.CLOSED
-EXTERNAL_VERSION_STATES = ExternalVersionState.choices
+VERSION_TYPES = (
+    (BRANCH, BRANCH_TEXT),
+    (TAG, TAG_TEXT),
+    (EXTERNAL, EXTERNAL_TEXT),
+    (UNKNOWN, UNKNOWN_TEXT),
+)
+EXTERNAL_VERSION_STATE_OPEN = "open"
+EXTERNAL_VERSION_STATE_CLOSED = "closed"
+EXTERNAL_VERSION_STATES = (
+    (EXTERNAL_VERSION_STATE_OPEN, _("Open")),
+    (EXTERNAL_VERSION_STATE_CLOSED, _("Closed")),
+)
 
 LATEST = settings.RTD_LATEST
 LATEST_VERBOSE_NAME = settings.RTD_LATEST_VERBOSE_NAME
