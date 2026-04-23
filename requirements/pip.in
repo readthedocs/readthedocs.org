@@ -45,7 +45,9 @@ Pygments
 pydantic
 
 # Used to interact with the GitHub API using the GitHub App
-PyGithub
+# Pinned to 2.8.1 because 2.9.0 fails with:
+# E       requests_mock.exceptions.NoMockAddress: No mock address: POST https://api.github.com:443/repositories/78/statuses/1234abc
+PyGithub==2.8.1
 
 dnspython
 
@@ -117,8 +119,7 @@ django-storages[s3]
 
 
 # Required only in development and linting
-# There is a recursion bug with 6.2.0 caching
-django-debug-toolbar==6.1.0
+django-debug-toolbar
 
 # For enabling content-security-policy
 # Pinned to 3.8 because we need to take some manual actions before upgrading to 4.x
