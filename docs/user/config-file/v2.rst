@@ -114,6 +114,7 @@ Example:
 
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
+   However, you can use :ref:`build-customization:where to put files` with custom build commands to generate offline formats for any documentation framework.
 
    With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
 
@@ -139,11 +140,18 @@ Configuration of the Python environment to be used.
 python.install
 ``````````````
 
-Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead.
+Read the Docs uses :doc:`pip <pip:index>` by default to install your Python packages.
+It also supports `uv <https://docs.astral.sh/uv/>`__ through ``python.install``.
+If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build,
+you'll need to use the Conda ``environment`` file instead.
 If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
 
 List of installation methods of packages and requirements.
 You can have several of the following methods.
+
+.. note::
+
+   When using ``method: uv``, currently only one entry is allowed under ``python.install``.
 
 :Type: ``list``
 :Default: ``[]``
@@ -185,7 +193,7 @@ The path to the package, relative to the root of the project.
 The installation method.
 
 :Key: ``method``
-:Options: ``pip``, ``setuptools`` (deprecated)
+:Options: ``pip``, ``setuptools`` (deprecated), ``uv``
 :Default: ``pip``
 
 `Extra requirements`_ section to install in addition to the `package dependencies`_.
@@ -209,6 +217,91 @@ For example, to run ``pip install .[docs]``:
          path: .
          extra_requirements:
            - docs
+
+uv
+''
+
+Install dependencies using `uv <https://docs.astral.sh/uv/>`__.
+
+Set ``method: uv`` and choose one of the following commands:
+
+- ``command: sync`` to run ``uv sync`` using your ``pyproject.toml`` and, if present, ``uv.lock``
+- ``command: pip`` to run ``uv pip install`` from a requirements file or a local path
+
+:Key: ``command``
+:Options: ``sync``, ``pip``
+:Required: ``true``
+
+Use ``path`` to point uv at a project that is not located at the repository root.
+
+:Key: ``path``
+:Type: ``path``
+:Required: ``false``
+
+With ``command: sync``, you can select dependency groups from ``pyproject.toml``.
+Use either a list of group names or ``all``.
+
+:Key: ``groups``
+:Type: ``list`` or ``all``
+:Required: ``false``
+
+With either uv command, you can install optional dependencies.
+Use either a list of extras or ``all``.
+
+:Key: ``extras``
+:Type: ``list`` or ``all``
+:Required: ``false``
+
+With ``command: pip``, you can install from a requirements file.
+
+:Key: ``requirements``
+:Type: ``path``
+:Required: ``false``
+
+.. note::
+
+    ``command: sync`` doesn't allow ``requirements``.
+    ``command: pip`` requires either ``requirements`` or ``path``.
+    ``groups`` is only supported with ``command: sync``.
+
+For example, to run ``uv sync --group docs``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: sync
+             groups:
+                - docs
+
+For example, to run ``uv pip install -r docs/requirements.txt``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: pip
+             requirements: docs/requirements.txt
+
+For example, to run ``uv pip install .[docs]``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: pip
+             path: .
+             extras:
+                - docs
 
 conda
 ~~~~~

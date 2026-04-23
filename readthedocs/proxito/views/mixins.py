@@ -15,7 +15,6 @@ from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
 from readthedocs.audit.models import AuditLog
-from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
@@ -40,10 +39,6 @@ class StorageFileNotFound(Exception):
 class ServeDocsMixin:
     """Class implementing all the logic to serve a document."""
 
-    # We force all storage calls to use internal versions
-    # unless explicitly set to external.
-    version_type = INTERNAL
-
     def _serve_docs(self, request, project, version, filename, check_if_exists=False):
         """
         Serve a documentation file.
@@ -53,14 +48,7 @@ class ServeDocsMixin:
          Useful to make sure were are serving a file that exists in storage,
          checking if the file exists will make one additional request to the storage.
         """
-        base_storage_path = project.get_storage_path(
-            type_=MEDIA_TYPE_HTML,
-            version_slug=version.slug,
-            include_file=False,
-            # Force to always read from the internal or extrernal storage,
-            # according to the current request.
-            version_type=self.version_type,
-        )
+        base_storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
 
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
@@ -100,14 +88,7 @@ class ServeDocsMixin:
         filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
         or "docs-celeryproject-org-kombu-en-stable.pdf").
         """
-        storage_path = project.get_storage_path(
-            type_=type_,
-            version_slug=version.slug,
-            # Force to always read from the internal or extrernal storage,
-            # according to the current request.
-            version_type=self.version_type,
-            include_file=True,
-        )
+        storage_path = version.get_download_storage_path(media_type=type_)
         self._track_pageview(
             project=project,
             path=storage_path,

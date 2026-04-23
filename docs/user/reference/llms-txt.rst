@@ -73,3 +73,6 @@ This gives you more control over which version serves the file.
 .. seealso::
 
    :doc:`/guides/redirects`
+
+   :doc:`/reference/markdown-for-agents`
+     Read the Docs also serves a Markdown version of your documentation pages to AI agents that request it, via content negotiation.
