@@ -629,7 +629,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version(self):
+    def test_download_external_version_on_main_domain(self):
+        """Downloading an external version from the main domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",
@@ -646,7 +647,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version_from_main_domain(self):
+    def test_download_internal_version_on_external_domain(self):
+        """Downloading an internal version from an external domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",
@@ -1027,6 +1029,16 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_custom_sitemap_xml(self):
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/sitemap.xml",
+        )
 
     def test_custom_llms_txt(self):
         """Test serving a custom llms.txt file from the default version."""
@@ -1487,7 +1499,9 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(r.status_code, 404)
         storage_open.assert_not_called()
 
-    def test_sitemap_xml(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True)
         private_version = fixture.get(
             Version,
@@ -1616,14 +1630,17 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertNotContains(response, "<changefreq>")
         self.assertNotContains(response, "<priority>")
 
-    def test_sitemap_all_private_versions(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_all_private_versions(self, storage_exists):
+        storage_exists.return_value = False
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_sitemap_xml_single_version_project_with_multiple_versions(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml_single_version_project_with_multiple_versions(self, storage_exists):
         """
         Single-version projects may still have more than one active version.
 
@@ -1631,6 +1648,7 @@ class TestAdditionalDocViews(BaseDocServing):
         Only the default version should appear in the sitemap since all other version paths
         resolve to ``/``.
         """
+        storage_exists.return_value = False
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         self.project.versions.update(active=True, built=True)
@@ -1655,7 +1673,8 @@ class TestAdditionalDocViews(BaseDocServing):
         # Only one <loc> entry should be present (the extra version is excluded).
         assert response.content.decode().count("<loc>") == 1
 
-    def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self, storage_exists):
         """
         Extra hidden versions in a single-version project should not appear in the sitemap.
 
@@ -1663,6 +1682,7 @@ class TestAdditionalDocViews(BaseDocServing):
         the single-version filter is applied before the hidden filter, so paths that would
         incorrectly resolve to ``/`` are never considered.
         """
+        storage_exists.return_value = False
         self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         self.project.versions.update(active=True, built=True)

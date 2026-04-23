@@ -57,3 +57,6 @@ See the `Read the Docs Skills repository <https://github.com/readthedocs/skills>
 
    :doc:`/api/index`
      Read the Read the Docs API documentation.
+
+   :doc:`/reference/markdown-for-agents`
+     Read the Docs serves a Markdown version of documentation pages to AI agents via content negotiation.

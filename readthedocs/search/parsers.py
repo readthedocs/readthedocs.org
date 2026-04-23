@@ -7,6 +7,7 @@ import re
 import structlog
 from selectolax.parser import HTMLParser
 
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
 
 
@@ -71,13 +72,7 @@ class GenericParser:
         """Gets the page content from storage."""
         content = None
         try:
-            storage_path = self.project.get_storage_path(
-                type_="html",
-                version_slug=self.version.slug,
-                include_file=False,
-                version_type=self.version.type,
-            )
-            file_path = self.storage.join(storage_path, page)
+            file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
             with self.storage.open(file_path, mode="r") as f:
                 content = f.read()
         except Exception:
