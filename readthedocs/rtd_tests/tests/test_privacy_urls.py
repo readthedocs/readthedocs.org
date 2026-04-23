@@ -137,7 +137,14 @@ class URLAccessMixin:
                 continue
 
             request_data = self.request_data.get(name, {}).copy()
-            for key in list(re.compile(regex).groupindex.keys()):
+            # Extract named URL parameters from both path() routes and re_path() patterns.
+            # path() uses route strings like ``<slug:tag>`` while re_path() uses regex
+            # named groups like ``(?P<tag>...)``.
+            if "(?P<" in regex:
+                named_keys = list(re.compile(regex).groupindex.keys())
+            else:
+                named_keys = re.findall(r"<(?:[\w]+:)?(\w+)>", regex)
+            for key in named_keys:
                 if key in list(request_data.keys()):
                     added_kwargs[key] = request_data[key]
                     continue
