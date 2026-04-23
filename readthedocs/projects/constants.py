@@ -8,6 +8,7 @@ theme names and repository types.
 import os
 import re
 
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
@@ -88,13 +89,18 @@ REPO_TYPE_GIT = "git"
 # TODO: Remove this since we only have 1 type.
 REPO_CHOICES = ((REPO_TYPE_GIT, _("Git")),)
 
-PUBLIC = "public"
-PRIVATE = "private"
 
-PRIVACY_CHOICES = (
-    (PUBLIC, _("Public")),
-    (PRIVATE, _("Private")),
-)
+class Privacy(models.TextChoices):
+    """Privacy level for a project or version."""
+
+    PUBLIC = "public", _("Public")
+    PRIVATE = "private", _("Private")
+
+
+# Backward-compatible aliases for Privacy
+PUBLIC = Privacy.PUBLIC
+PRIVATE = Privacy.PRIVATE
+PRIVACY_CHOICES = Privacy.choices
 
 IMPORTANT_VERSION_FILTERS = {
     "slug": "important",
@@ -385,58 +391,70 @@ GITLAB_MR_PULL_PATTERN = "merge-requests/{id}/head:external-{id}"
 GITHUB_BRAND = "GitHub"
 GITLAB_BRAND = "GitLab"
 
-# SSL statuses
-SSL_STATUS_VALID = "valid"
-SSL_STATUS_INVALID = "invalid"
-SSL_STATUS_PENDING = "pending"
-SSL_STATUS_UNKNOWN = "unknown"
-SSL_STATUS_CHOICES = (
-    (SSL_STATUS_VALID, _("Valid and active")),
-    (SSL_STATUS_INVALID, _("Invalid")),
-    (SSL_STATUS_PENDING, _("Pending")),
-    (SSL_STATUS_UNKNOWN, _("Unknown")),
-)
 
-MULTIPLE_VERSIONS_WITH_TRANSLATIONS = "multiple_versions_with_translations"
-MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS = "multiple_versions_without_translations"
-SINGLE_VERSION_WITHOUT_TRANSLATIONS = "single_version_without_translations"
-VERSIONING_SCHEME_CHOICES = (
-    (
-        MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+class SSLStatus(models.TextChoices):
+    """SSL certificate status for a custom domain."""
+
+    VALID = "valid", _("Valid and active")
+    INVALID = "invalid", _("Invalid")
+    PENDING = "pending", _("Pending")
+    UNKNOWN = "unknown", _("Unknown")
+
+
+# Backward-compatible aliases for SSLStatus
+SSL_STATUS_VALID = SSLStatus.VALID
+SSL_STATUS_INVALID = SSLStatus.INVALID
+SSL_STATUS_PENDING = SSLStatus.PENDING
+SSL_STATUS_UNKNOWN = SSLStatus.UNKNOWN
+SSL_STATUS_CHOICES = SSLStatus.choices
+
+
+class VersioningScheme(models.TextChoices):
+    """URL scheme for serving documentation."""
+
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS = (
+        "multiple_versions_with_translations",
         _("Multiple versions with translations (/<language>/<version>/<filename>)"),
-    ),
-    (
-        MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    )
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS = (
+        "multiple_versions_without_translations",
         _("Multiple versions without translations (/<version>/<filename>)"),
-    ),
-    (
-        SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+    )
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS = (
+        "single_version_without_translations",
         _("Single version without translations (/<filename>)"),
-    ),
-)
+    )
 
 
-ADDONS_FLYOUT_SORTING_ALPHABETICALLY = "alphabetically"
-# Compatibility to keep the behavior of the old flyout.
-# This isn't a good algorithm, but it's a way to keep the old behavior in case we need it.
-ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE = "semver-readthedocs-compatible"
-# https://pypi.org/project/packaging/
-ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING = "python-packaging"
-ADDONS_FLYOUT_SORTING_CALVER = "calver"
-# Let the user to define a custom pattern and use BumpVer to parse and sort the versions.
-# https://github.com/mbarkhau/bumpver#pattern-examples
-ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN = "custom-pattern"
+# Backward-compatible aliases for VersioningScheme
+MULTIPLE_VERSIONS_WITH_TRANSLATIONS = VersioningScheme.MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS = VersioningScheme.MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+SINGLE_VERSION_WITHOUT_TRANSLATIONS = VersioningScheme.SINGLE_VERSION_WITHOUT_TRANSLATIONS
+VERSIONING_SCHEME_CHOICES = VersioningScheme.choices
 
-ADDONS_FLYOUT_SORTING_CHOICES = (
-    (ADDONS_FLYOUT_SORTING_ALPHABETICALLY, _("Alphabetically")),
-    (ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE, _("SemVer (Read the Docs)")),
-    (
-        ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING,
-        _("Python Packaging (PEP 440 and PEP 425)"),
-    ),
-    (ADDONS_FLYOUT_SORTING_CALVER, _("CalVer (YYYY.0M.0M)")),
-    (ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN, _("Define your own pattern")),
-)
+
+class FlyoutSorting(models.TextChoices):
+    """Sorting algorithm for the version flyout."""
+
+    ALPHABETICALLY = "alphabetically", _("Alphabetically")
+    # Compatibility to keep the behavior of the old flyout.
+    # This isn't a good algorithm, but it's a way to keep the old behavior in case we need it.
+    SEMVER_READTHEDOCS_COMPATIBLE = "semver-readthedocs-compatible", _("SemVer (Read the Docs)")
+    # https://pypi.org/project/packaging/
+    PYTHON_PACKAGING = "python-packaging", _("Python Packaging (PEP 440 and PEP 425)")
+    CALVER = "calver", _("CalVer (YYYY.0M.0M)")
+    # Let the user to define a custom pattern and use BumpVer to parse and sort the versions.
+    # https://github.com/mbarkhau/bumpver#pattern-examples
+    CUSTOM_PATTERN = "custom-pattern", _("Define your own pattern")
+
+
+# Backward-compatible aliases for FlyoutSorting
+ADDONS_FLYOUT_SORTING_ALPHABETICALLY = FlyoutSorting.ALPHABETICALLY
+ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE = FlyoutSorting.SEMVER_READTHEDOCS_COMPATIBLE
+ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING = FlyoutSorting.PYTHON_PACKAGING
+ADDONS_FLYOUT_SORTING_CALVER = FlyoutSorting.CALVER
+ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN = FlyoutSorting.CUSTOM_PATTERN
+ADDONS_FLYOUT_SORTING_CHOICES = FlyoutSorting.choices
 
 ADDONS_FLYOUT_POSITION_BOTTOM_LEFT = "bottom-left"
 ADDONS_FLYOUT_POSITION_BOTTOM_RIGHT = "bottom-right"
