@@ -69,9 +69,10 @@ messages = [
             textwrap.dedent(
                 """
         Could not send {{provider_name}} build status report for "{{instance.name}}".
-        Make sure you have the correct {{provider_name}} repository permissions</a> and
+        Make sure you have the correct {{provider_name}} repository permissions and
         your <a href="{{url_connect_account}}">{{provider_name}} account</a>
         is connected to Read the Docs.
+        See <a href="https://docs.readthedocs.com/platform/stable/guides/pull-requests.html#troubleshooting">our troubleshooting guide</a> for more information.
             """
             ).strip(),
         ),

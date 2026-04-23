@@ -4,8 +4,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
+from django.db.models import Exists
+from django.db.models import IntegerField
+from django.db.models import OuterRef
 from django.db.models import Sum
+from django.db.models import Value
 from django.forms import BaseInlineFormSet
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
@@ -211,7 +216,15 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     """Project model admin view."""
 
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ("name", "slug", "repo")
+    list_display = (
+        "name",
+        "slug",
+        "repo",
+        "is_spam",
+        "spam_score_display",
+        "owner_banned_display",
+        "pub_date",
+    )
 
     list_filter = tuple()
     if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
@@ -248,6 +261,54 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         "reindex_active_versions",
         "import_tags_from_vcs",
     ]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        # Annotate spam score from spam rules if spamfighting is installed.
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            qs = qs.annotate(_spam_score=Sum("spam_rules__value"))
+        else:
+            qs = qs.annotate(
+                _spam_score=Value(None, output_field=IntegerField()),
+            )
+
+        # Subquery: does any owner have a banned profile?
+        from readthedocs.core.models import UserProfile
+
+        qs = qs.annotate(
+            _owner_banned=Exists(
+                UserProfile.objects.filter(
+                    user__projects=OuterRef("pk"),
+                    banned=True,
+                ),
+            ),
+        )
+        return qs
+
+    @admin.display(
+        description="Spam Score",
+        ordering="_spam_score",
+    )
+    def spam_score_display(self, obj):
+        score = obj._spam_score
+        if score is None:
+            return "-"
+        if score >= settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT:
+            return format_html('<span style="color: red; font-weight: bold;">{}</span>', score)
+        if score >= settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS:
+            return format_html('<span style="color: orange; font-weight: bold;">{}</span>', score)
+        if score >= 1:
+            return format_html('<span style="color: goldenrod;">{}</span>', score)
+        return score
+
+    @admin.display(
+        description="Owner Banned",
+        boolean=True,
+        ordering="_owner_banned",
+    )
+    def owner_banned_display(self, obj):
+        return obj._owner_banned
 
     def matching_spam_rules(self, obj):
         result = []
@@ -464,6 +525,18 @@ class AddonsConfigAdmin(admin.ModelAdmin):
     list_editable = ("enabled",)
 
 
-admin.site.register(EmailHook)
-admin.site.register(WebHook)
+@admin.register(EmailHook)
+class EmailHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("email", "project")
+    search_fields = ("email", "project__slug", "project__name")
+
+
+@admin.register(WebHook)
+class WebHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("url", "project")
+    search_fields = ("url", "project__slug", "project__name")
+
+
 admin.site.register(WebHookEvent)

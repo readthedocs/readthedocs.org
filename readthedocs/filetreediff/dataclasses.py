@@ -175,3 +175,8 @@ class FileTreeDiff:
     def modified(self):
         """List of modified files."""
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
+
+    @cached_property
+    def should_auto_expand(self):
+        """Auto-expand the details view when there are few files."""
+        return len(self.files) < 5

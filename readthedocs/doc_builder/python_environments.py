@@ -12,6 +12,7 @@ from readthedocs.config import ParseError
 from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall
 from readthedocs.config.models import PythonInstallRequirements
+from readthedocs.config.models import UvInstall
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.projects.constants import GENERIC
@@ -45,8 +46,21 @@ class PythonEnvironment:
         for install in self.config.python.install:
             if isinstance(install, PythonInstallRequirements):
                 self.install_requirements_file(install)
-            if isinstance(install, PythonInstall):
+            elif isinstance(install, PythonInstall):
                 self.install_package(install)
+            elif isinstance(install, UvInstall):
+                self.install_uv(install)
+
+    def install_uv(self, install):
+        """
+        Install using uv package manager.
+
+        This is a stub method that subclasses should override.
+
+        :param install: A UvInstall install object from the config module.
+        :type install: readthedocs.config.models.UvInstall
+        """
+        raise NotImplementedError(f"{self.__class__.__name__} does not support uv installs")
 
     def install_package(self, install):
         """
@@ -217,6 +231,79 @@ class Virtualenv(PythonEnvironment):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+
+class UvEnv(Virtualenv):
+    """A uv-managed virtual environment."""
+
+    def setup_base(self):
+        """Create the base environment using ``uv venv``."""
+        self.build_env.run(
+            "uv",
+            "venv",
+            "$READTHEDOCS_VIRTUALENV_PATH",
+            # Don't use virtualenv bin that doesn't exist yet
+            bin_path=None,
+            # Don't use the project's root, some config files can interfere
+            cwd=None,
+        )
+
+    def install_core_requirements(self):
+        """Skip RTD core pip/sphinx bootstrap for uv-managed environments."""
+
+    def install_uv(self, install):
+        """
+        Install using uv package manager.
+
+        :param install: A UvInstall object from the config module.
+        :type install: readthedocs.config.models.UvInstall
+        """
+        if install.command == "sync":
+            self._install_uv_sync(install)
+        elif install.command == "pip":
+            self._install_uv_pip(install)
+
+    def _install_uv_sync(self, install):
+        """Execute uv sync with appropriate flags."""
+        args = ["uv", "sync"]
+
+        if install.groups:
+            if install.groups == "all":
+                args.append("--all-groups")
+            else:
+                for group in install.groups:
+                    args.extend(["--group", group])
+
+        if install.extras:
+            if install.extras == "all":
+                args.append("--all-extras")
+            else:
+                for extra in install.extras:
+                    args.extend(["--extra", extra])
+
+        self.build_env.run(
+            *args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
+
+    def _install_uv_pip(self, install):
+        """Execute uv pip install with appropriate flags."""
+        args = ["uv", "pip", "install"]
+
+        if install.requirements:
+            args.extend(["-r", install.requirements])
+        elif install.path:
+            local_path = install.path
+            if install.extras and isinstance(install.extras, list):
+                local_path = f"{local_path}[{','.join(install.extras)}]"
+            args.append(local_path)
+
+        self.build_env.run(
+            *args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
 
 
 class Conda(PythonEnvironment):

@@ -54,6 +54,7 @@ Read the Docs: documentation simplified
    /reference/404-not-found
    /reference/robots
    /reference/llms-txt
+   /reference/markdown-for-agents
 
 .. toctree::
    :maxdepth: 2
