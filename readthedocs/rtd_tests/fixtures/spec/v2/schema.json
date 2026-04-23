@@ -52,6 +52,7 @@
             "ubuntu-20.04",
             "ubuntu-22.04",
             "ubuntu-24.04",
+            "ubuntu-26.04",
             "ubuntu-lts-latest"
           ]
         },
@@ -194,6 +195,7 @@
                 "3.11",
                 "3.12",
                 "3.13",
+                "3.14",
                 "latest",
                 "miniconda3-4.7",
                 "miniconda3-3.12-24.1",
@@ -202,11 +204,13 @@
                 "mambaforge-4.10",
                 "mambaforge-22.9",
                 "mambaforge-23.11",
-                "mambaforge-latest"
+                "mambaforge-latest",
+                "miniforge3-25.11",
+                "miniforge3-latest"
               ]
             },
             "nodejs": {
-              "enum": ["14", "16", "18", "19", "20", "22", "23", "latest"]
+              "enum": ["14", "16", "18", "19", "20", "22", "23", "24", "25", "latest"]
             },
             "ruby": {
               "enum": ["3.3", "3.4", "latest"]
@@ -221,6 +225,7 @@
                 "1.78",
                 "1.82",
                 "1.86",
+                "1.91",
                 "latest"
               ]
             },
@@ -234,6 +239,7 @@
                 "1.22",
                 "1.23",
                 "1.24",
+                "1.25",
                 "latest"
               ]
             }
@@ -280,16 +286,24 @@
           "items": {
             "anyOf": [
               {
+                "type": "object",
                 "properties": {
                   "requirements": {
                     "title": "Requirements",
                     "description": "The path to the requirements file from the root of the project.",
                     "type": "string"
+                  },
+                  "method": {
+                    "title": "Method",
+                    "description": "Install method.",
+                    "enum": ["pip", "setuptools"]
                   }
                 },
-                "required": ["requirements"]
+                "required": ["requirements"],
+                "additionalProperties": false
               },
               {
+                "type": "object",
                 "properties": {
                   "path": {
                     "title": "Path",
@@ -312,10 +326,127 @@
                     "default": []
                   }
                 },
-                "required": ["path"]
+                "required": ["path"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "title": "Method",
+                    "description": "Install using uv.",
+                    "enum": ["uv"]
+                  },
+                  "command": {
+                    "title": "Command",
+                    "description": "uv command to execute.",
+                    "enum": ["sync", "pip"]
+                  },
+                  "path": {
+                    "title": "Path",
+                    "description": "The path to the project to be installed.",
+                    "type": "string"
+                  },
+                  "requirements": {
+                    "title": "Requirements",
+                    "description": "The path to the requirements file from the root of the project.",
+                    "type": "string"
+                  },
+                  "groups": {
+                    "title": "Groups",
+                    "description": "Dependency groups to install with uv sync.",
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "enum": ["all"]
+                      }
+                    ]
+                  },
+                  "extras": {
+                    "title": "Extras",
+                    "description": "Optional dependencies to install.",
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      {
+                        "enum": ["all"]
+                      }
+                    ]
+                  }
+                },
+                "required": ["method", "command"],
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "command": {
+                          "const": "sync"
+                        }
+                      }
+                    },
+                    "then": {
+                      "not": {
+                        "required": ["requirements"]
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "command": {
+                          "const": "pip"
+                        }
+                      }
+                    },
+                    "then": {
+                      "not": {
+                        "required": ["groups"]
+                      },
+                      "anyOf": [
+                        {
+                          "required": ["requirements"]
+                        },
+                        {
+                          "required": ["path"]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "additionalProperties": false
               }
             ]
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "method": {
+                      "const": "uv"
+                    }
+                  },
+                  "required": ["method"]
+                }
+              },
+              "then": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          ]
         }
       },
       "additionalProperties": false

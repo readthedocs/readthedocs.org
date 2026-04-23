@@ -8,15 +8,22 @@ from urllib.parse import urlparse
 import dns.name
 import dns.resolver
 from allauth.socialaccount.models import SocialAccount
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field
+from crispy_forms.layout import Layout
+from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.forms import PrevalidatedForm
+from readthedocs.core.forms import RichChoice
+from readthedocs.core.forms import RichSelect
 from readthedocs.core.forms import RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
@@ -25,6 +32,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -36,8 +44,31 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
+from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
+
+
+class ProjectRemoteRepositorySelect(RichSelect):
+    """
+    Rich select for user's remote repository listing
+
+    Some attributes, passed in through ``attrs``, are defined and used by the base :py:class:`RichSelect`.
+    In addition to those, this class and its templates use:
+
+    ``can_connect_remote_repository``
+        Show the remote repository part of the field as usable if the current
+        user able to connect a remote repository.
+    """
+
+    can_connect_remote_repository = False
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("can_connect_remote_repository", self.can_connect_remote_repository)
+        super().__init__(attrs)
 
 
 class ProjectForm(SimpleHistoryModelForm):
@@ -66,13 +97,8 @@ class ProjectForm(SimpleHistoryModelForm):
             empty_value=None,
             help_text=self.fields["remote_repository"].help_text,
             label=self.fields["remote_repository"].label,
+            widget=ProjectRemoteRepositorySelect(attrs={"use_data_binding": False}),
         )
-
-        # The clone URL will be set from the remote repository.
-        if self.instance.remote_repository and not self.instance.has_feature(
-            Feature.DONT_SYNC_WITH_REMOTE_REPO
-        ):
-            self.fields["repo"].disabled = True
 
     def _get_remote_repository_choices(self):
         """
@@ -91,14 +117,39 @@ class ProjectForm(SimpleHistoryModelForm):
         """
         queryset = RemoteRepository.objects.for_project_linking(self.user)
         current_remote_repo = self.instance.remote_repository if self.instance.pk else None
-        options = [
-            (None, _("No connected repository")),
+        choices = [
+            (
+                None,
+                RichChoice(
+                    text=_("No connected repository"),
+                    description=_("This project uses a manually configured repository URL"),
+                    value=None,
+                ),
+            ),
         ]
+        # Show currently connected remote repository instance even if the
+        # maintainer does not control this remote repository through their
+        # connected account.
         if current_remote_repo and current_remote_repo not in queryset:
-            options.append((current_remote_repo.pk, str(current_remote_repo)))
+            choice = RichChoice(
+                text=current_remote_repo.full_name,
+                description=current_remote_repo.clone_url,
+                extra=_("This repository is connected through another user's account"),
+                value=current_remote_repo.pk,
+                image_url=current_remote_repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
 
-        options.extend((repo.pk, repo.clone_url) for repo in queryset)
-        return options
+        for repo in queryset:
+            choice = RichChoice(
+                text=repo.full_name,
+                description=repo.clone_url,
+                value=repo.pk,
+                image_url=repo.avatar_url,
+            )
+            choices.append((choice.value, choice))
+
+        return choices
 
     def save(self, commit=True):
         project = super().save(commit)
@@ -246,9 +297,12 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
         url = reverse("projects_integrations", args=[self.instance.slug])
 
         if not has_supported_integration:
-            msg = _(
-                "To build from pull requests you need a "
-                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            msg = format_html(
+                _(
+                    "To build from pull requests you need a "
+                    'GitHub or GitLab <a href="{url}">integration</a>.'
+                ),
+                url=url,
             )
 
         if has_supported_integration and not can_build_external_versions:
@@ -258,10 +312,13 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
                     "projects_integrations_detail",
                     args=[self.instance.slug, integrations[0].pk],
                 )
-            msg = _(
-                "To build from pull requests your repository's webhook "
-                "needs to send pull request events. "
-                f'Try to <a href="{url}">resync your integration</a>.'
+            msg = format_html(
+                _(
+                    "To build from pull requests your repository's webhook "
+                    "needs to send pull request events. "
+                    'Try to <a href="{url}">resync your integration</a>.'
+                ),
+                url=url,
             )
 
         if msg:
@@ -335,10 +392,13 @@ class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
         if not self.user_has_connected_account:
             url = reverse("socialaccount_connections")
             raise RichValidationError(
-                _(
-                    f"You must first <a href='{url}'>add a connected service "
-                    f"to your account</a> to enable automatic configuration of "
-                    f"repositories."
+                format_html(
+                    _(
+                        "You must first <a href='{url}'>add a connected service "
+                        "to your account</a> to enable automatic configuration of "
+                        "repositories."
+                    ),
+                    url=url,
                 ),
                 header=_("No connected services found"),
             )
@@ -431,6 +491,9 @@ class UpdateProjectForm(
             "versioning_scheme",
             "default_branch",
             "readthedocs_yaml_path",
+            "git_checkout_command",
+            "search_indexing_enabled",
+            "n_consecutive_failed_builds",
             # Meta data
             "programming_language",
             "project_url",
@@ -449,8 +512,28 @@ class UpdateProjectForm(
         help_text=_("Short description of this project"),
     )
 
+    # Custom field for git_checkout_command to provide help text
+    git_checkout_command = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 5,
+                "placeholder": "\n".join(
+                    [
+                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+                        "git sparse-checkout init --cone",
+                        "git sparse-checkout set projects/$READTHEDOCS_PROJECT_SLUG",
+                        "git checkout $READTHEDOCS_GIT_IDENTIFIER",
+                    ],
+                ),
+            }
+        ),
+        help_text=_("Custom Git checkout commands (one command per line)."),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.had_search_disabled = not self.instance.search_indexing_enabled
 
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
@@ -466,6 +549,16 @@ class UpdateProjectForm(
                 f'This setting is inherited from the <a href="{link}">parent translation</a>.',
             )
             self.fields["versioning_scheme"].disabled = True
+
+        # Only show this field if search is disabled for the project.
+        # We allow enabling it from the form, but not disabling it.
+        if self.instance.search_indexing_enabled:
+            self.fields.pop("search_indexing_enabled")
+
+        # Only show this field if building for this project is disabled due to N+ consecutive builds failing
+        # We allow disabling it from the form, but not enabling it.
+        if not self.instance.n_consecutive_failed_builds:
+            self.fields.pop("n_consecutive_failed_builds")
 
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
@@ -497,18 +590,39 @@ class UpdateProjectForm(
         else:
             self.fields["default_version"].widget.attrs["readonly"] = True
 
+        # Represent the JSON field as a textarea with one command per line.
+        if self.instance.git_checkout_command:
+            self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
+
         self.setup_external_builds_option()
 
-    def clean_readthedocs_yaml_path(self):
-        """
-        Validate user input to help user.
+        # We use crispy layout here strictly for multifield and field ordering,
+        # There's no HTML in Python, it's all in templates and web components.
+        self.helper = FormHelper()
+        # Let templates close form tag and add submit button
+        self.helper.form_tag = False
 
-        We also validate this path during the build process, so this validation step is
-        only considered as helpful to a user, not a security measure.
-        """
-        filename = self.cleaned_data.get("readthedocs_yaml_path")
-        filename = (filename or "").strip()
-        return filename
+        multifield_attrs = {}
+        if not SocialAccount.objects.filter(user=self.user).exists():
+            multifield_attrs["show_connected_service_warning"] = True
+        if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            multifield_attrs["dont_sync"] = True
+        multifield = MultiField(
+            _("Repository"),
+            Field("remote_repository"),
+            Field("repo"),
+            template="projects/includes/crispy/repository.html",
+            **multifield_attrs,
+        )
+
+        # We only care about the order of the first fields, the rest of the
+        # fields are dictated by Meta class configuration.
+        fields_other = [
+            field
+            for field in self.fields.keys()
+            if field not in ["name", "repo", "remote_repository"]
+        ]
+        self.helper.layout = Layout("name", multifield, *fields_other)
 
     def get_all_active_versions(self):
         """
@@ -565,6 +679,24 @@ class UpdateProjectForm(
                 )
         return tags
 
+    def clean_git_checkout_command(self):
+        """Parse and validate git_checkout_command as a JSON array."""
+        value = self.cleaned_data.get("git_checkout_command")
+        if not value:
+            return None
+        return [line.strip() for line in value.splitlines() if line.strip()]
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        # Trigger a reindex when enabling search from the form.
+        if self.had_search_disabled and instance.search_indexing_enabled:
+            index_project.delay(project_slug=instance.slug)
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+                attached_to=instance,
+            )
+        return instance
+
 
 class ProjectRelationshipForm(forms.ModelForm):
     """Form to add/update project relationships."""
@@ -604,6 +736,11 @@ class ProjectRelationshipForm(forms.ModelForm):
 class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
     """Project pull requests configuration form."""
 
+    # The underlying field lives on ``AddonsConfig`` -- label, help text
+    # and initial value all come from that model field so there is a
+    # single source of truth.
+    notifications_show_on_external = forms.BooleanField(required=False)
+
     class Meta:
         model = Project
         fields = [
@@ -623,6 +760,27 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("external_builds_privacy_level")
+
+        # Seed label, help text and initial value from the underlying
+        # ``AddonsConfig`` model field.
+        model_field = AddonsConfig._meta.get_field("notifications_show_on_external")
+        form_field = self.fields["notifications_show_on_external"]
+        form_field.label = model_field.verbose_name
+        form_field.help_text = model_field.help_text
+        addons = getattr(self.instance, "addons", None)
+        if addons is not None:
+            form_field.initial = addons.notifications_show_on_external
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        addons = getattr(project, "addons", None)
+        if addons is not None:
+            addons.notifications_show_on_external = self.cleaned_data.get(
+                "notifications_show_on_external", False
+            )
+            if commit:
+                addons.save()
+        return project
 
 
 class OnePerLineList(forms.Field):
@@ -676,6 +834,8 @@ class AddonsConfigForm(forms.ModelForm):
             "project",
             "options_root_selector",
             "analytics_enabled",
+            "customscript_enabled",
+            "customscript_src",
             "doc_diff_enabled",
             "filetreediff_enabled",
             "filetreediff_ignored_files",
@@ -686,6 +846,7 @@ class AddonsConfigForm(forms.ModelForm):
             "flyout_position",
             "hotkeys_enabled",
             "search_enabled",
+            "search_show_subprojects_filter",
             "linkpreviews_enabled",
             "linkpreviews_selector",
             "notifications_enabled",
@@ -695,10 +856,11 @@ class AddonsConfigForm(forms.ModelForm):
         )
         labels = {
             "enabled": _("Enable Addons"),
+            "customscript_enabled": _("Custom script enabled"),
+            "customscript_src": _("Source URL"),
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
@@ -1020,7 +1182,9 @@ class DomainForm(forms.ModelForm):
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(f"{invalid_domain} is not a valid domain.")
 
-        self._check_for_suspicious_cname(domain_string)
+        # Run this check only on domain creation.
+        if not self.instance.pk:
+            self._check_for_suspicious_cname(domain_string)
 
         return domain_string
 
@@ -1220,3 +1384,20 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+# TODO if you are extending this form or reusing this pattern for any similar views,
+# be advised we probably want this form to be a project form instead. This is
+# especially true if we want to mix addons and backend configuration options.
+# We won't want the form tightly tied to addons models in this case.
+class AddonsConfigSearchSettingsForm(forms.ModelForm):
+    """Form to configure addons search settings."""
+
+    class Meta:
+        model = AddonsConfig
+        fields = ["search_enabled", "search_show_subprojects_filter"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = self.project.addons
+        super().__init__(*args, **kwargs)

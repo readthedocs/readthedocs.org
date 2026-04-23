@@ -183,8 +183,8 @@ class BaseTestDocumentSearch:
         assert resp.data["count"] == 61
         # Check there are next url
         assert resp.data["next"] is not None
-        # There should be only 50 data as the pagination is 50 by default
-        assert len(resp.data["results"]) == 50
+        # Pagination default page size is 15
+        assert len(resp.data["results"]) == 15
 
         # Check for page 2
         search_params["page"] = 2
@@ -193,10 +193,22 @@ class BaseTestDocumentSearch:
 
         # Check the count is 61 (1 existing and 60 new created)
         assert resp.data["count"] == 61
-        # We don't have more results after this page
+        # We istill have more results.
+        assert resp.data["next"] is not None
+        # Pagination default page size is 15
+        assert len(resp.data["results"]) == 15
+
+        # Check for last page
+        search_params["page"] = 5
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # Check the count is 61 (1 existing and 60 new created)
+        assert resp.data["count"] == 61
+        # No more results after this
         assert resp.data["next"] is None
-        # There should be only the 11 left
-        assert len(resp.data["results"]) == 11
+        # We have only 1 result in the last page
+        assert len(resp.data["results"]) == 1
 
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params["page_size"] = 5

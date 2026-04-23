@@ -7,6 +7,7 @@ from functools import namedtuple
 from textwrap import dedent
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
 from rest_framework import permissions
@@ -20,12 +21,13 @@ from rest_framework.views import APIView
 
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
 from readthedocs.core.signals import webhook_bitbucket
 from readthedocs.core.signals import webhook_github
 from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import VersionInfo
-from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
@@ -152,12 +154,20 @@ class WebhookMixin:
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, "project") and self.project:
-            HttpExchange.objects.from_exchange(
-                req,
-                resp,
-                related_object=self.get_integration(),
-                payload=self.data,
-            )
+            try:
+                integration = self.get_integration()
+            except (Http404, ParseError):
+                # If we can't get a single integration (either none or multiple exist),
+                # we can't store the HTTP exchange
+                integration = None
+
+            if integration:
+                HttpExchange.objects.from_exchange(
+                    req,
+                    resp,
+                    related_object=integration,
+                    payload=self.data,
+                )
         return resp
 
     def get_data(self):
@@ -203,11 +213,21 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        self.integration = get_object_or_404(
-            Integration,
+
+        integrations = Integration.objects.filter(
             project=self.project,
             integration_type=self.integration_type,
         )
+
+        if not integrations.exists():
+            raise Http404("No Integration matches the given query.")
+        elif integrations.count() > 1:
+            raise ParseError(
+                "Multiple integrations found for this project. "
+                "Please use the webhook URL with an explicit integration ID."
+            )
+
+        self.integration = integrations.first()
         return self.integration
 
     def get_response_push(self, project, versions_info: list[VersionInfo]):
@@ -276,9 +296,12 @@ class WebhookMixin:
             version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
-        to_build = build_external_version(
+        to_build = external_version.verbose_name
+        trigger_build(
             project=project,
             version=external_version,
+            commit=external_version.identifier,
+            from_webhook=True,
         )
 
         return {
@@ -315,7 +338,7 @@ class WebhookMixin:
 
     def update_default_branch(self, default_branch):
         """
-        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+        Update the `Version.identifier` for `latest` with the VCS's `default_branch`.
 
         The VCS's `default_branch` is the branch cloned when there is no specific branch specified
         (e.g. `git clone <URL>`).
@@ -337,7 +360,9 @@ class WebhookMixin:
             # Always check for the machine attribute, since latest can be user created.
             # RTD doesn't manage those.
             self.project.versions.filter(slug=LATEST, machine=True).update(
-                identifier=default_branch
+                identifier=default_branch,
+                verbose_name=LATEST_VERBOSE_NAME,
+                type=BRANCH,
             )
 
 

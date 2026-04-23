@@ -27,6 +27,7 @@ from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import ARTIFACT_TYPES
 from readthedocs.builds.constants import ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
@@ -42,6 +43,7 @@ from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
@@ -117,6 +119,10 @@ class TaskData:
     config: BuildConfigV2 = None
     project: APIProject = None
     version: APIVersion = None
+    # Default branch for the repository.
+    # Only set when building the latest version, and the project
+    # doesn't have an explicit default branch.
+    default_branch: str | None = None
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
@@ -202,13 +208,21 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             clean_build(self.data.version)
 
     def execute(self):
+        env_vars = {
+            "GIT_TERMINAL_PROMPT": "0",
+            "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
+        }
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            env_vars["GIT_SSH_COMMAND"] = (
+                "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            )
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
-            environment={
-                "GIT_TERMINAL_PROMPT": "0",
-                "READTHEDOCS_GIT_CLONE_TOKEN": self.data.project.clone_token,
-            },
+            environment=env_vars,
             # Pass the api_client so that all environments have it.
             # This is needed for ``readthedocs-corporate``.
             api_client=self.data.api_client,
@@ -567,6 +581,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 status=status,
             )
 
+        # Trigger task to check number of failed builds and disable the project if needed (only for community)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+
         # Update build object
         self.data.build["success"] = False
 
@@ -665,18 +686,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # NOTE: we are updating the db version instance *only* when
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
+            data = {
+                "built": True,
+                "documentation_type": self.data.version.documentation_type,
+                "has_pdf": "pdf" in valid_artifacts,
+                "has_epub": "epub" in valid_artifacts,
+                "has_htmlzip": "htmlzip" in valid_artifacts,
+                "build_data": self.data.version.build_data,
+                "addons": self.data.version.addons,
+            }
+            # Update the latest version to point to the current VCS default branch
+            # if the project doesn't have an explicit default branch set.
+            if self.data.default_branch:
+                data["identifier"] = self.data.default_branch
+                data["type"] = BRANCH
             try:
-                self.data.api_client.version(self.data.version.pk).patch(
-                    {
-                        "built": True,
-                        "documentation_type": self.data.version.documentation_type,
-                        "has_pdf": "pdf" in valid_artifacts,
-                        "has_epub": "epub" in valid_artifacts,
-                        "has_htmlzip": "htmlzip" in valid_artifacts,
-                        "build_data": self.data.version.build_data,
-                        "addons": self.data.version.addons,
-                    }
-                )
+                self.data.api_client.version(self.data.version.pk).patch(data)
             except HttpClientError:
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
@@ -938,7 +963,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         build_media_storage = get_storage(
-            project=self.data.project,
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,
@@ -957,13 +981,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=media_type,
             )
-            to_path = self.data.project.get_storage_path(
-                type_=media_type,
-                version_slug=self.data.version.slug,
-                include_file=False,
-                version_type=self.data.version.type,
-            )
-
+            to_path = self.data.version.get_storage_path(media_type=media_type)
             self._log_directory_size(from_path, media_type)
 
             try:
@@ -989,12 +1007,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Delete formats
         for media_type in types_to_delete:
-            media_path = self.data.version.project.get_storage_path(
-                type_=media_type,
-                version_slug=self.data.version.slug,
-                include_file=False,
-                version_type=self.data.version.type,
-            )
+            media_path = self.data.version.get_storage_path(media_type=media_type)
             try:
                 build_media_storage.delete_directory(media_path)
             except Exception as exc:

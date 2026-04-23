@@ -104,7 +104,16 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         if version and version.is_external:
             return
 
-        absolute_uri_parsed = urlparse(absolute_uri)
+        try:
+            absolute_uri_parsed = urlparse(absolute_uri)
+        except ValueError as e:
+            log.info(
+                "Skipping page view count due to URL parsing error",
+                url=absolute_uri,
+                error=str(e),
+            )
+            return
+
         try:
             unresolved = unresolver.unresolve_url(absolute_uri)
             filename = unresolved.filename

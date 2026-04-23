@@ -353,6 +353,74 @@ class SearchAPITest(SearchTestBase):
         self.assertEqual(len(results), 1)
         self.assertEqual(resp.data["query"], "test")
 
+    def test_search_pagination_max_result_window(self):
+        """Test that pagination respects the max_result_window limit."""
+        # Test that requesting a page that would exceed max_result_window (1000) fails
+        # With page_size=15 (default), page 67 would end at 1005 (67*15),
+        # which exceeds the max_result_window of 1000.
+        # Page 67 is the first page that exceeds the limit with default page_size.
+        resp = self.get(self.url, data={"q": "project:project test", "page": 67})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+        # Test that page 66 is allowed (ends at 990, which is <= 1000)
+        resp = self.get(self.url, data={"q": "project:project test", "page": 66})
+        self.assertEqual(resp.status_code, 200)
+
+        # Test with custom page_size
+        # With page_size=30, page 167 would end at 5010 (167*30),
+        # which exceeds the max_result_window of 1000
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 167, "page_size": 30}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+        # Test that page 33 is allowed with page_size=30 (ends at 990, which is <= 1000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 33, "page_size": 30}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Test edge case: exactly at the limit
+        # page_size=10, page 100 would end exactly at 1000 (100*10),
+        # which should be allowed (not greater than 1000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 100, "page_size": 10}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # page 101 with page_size=10 would exceed the limit (101*10 = 1010, which is > 1000)
+        resp = self.get(
+            self.url, data={"q": "project:project test", "page": 101, "page_size": 10}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Page number is too high", str(resp.data))
+
+    def test_search_pagination_invalid_page(self):
+        """Test that invalid page numbers are rejected."""
+        # Test negative page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": -1})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test zero page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": 0})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test non-numeric page number
+        resp = self.get(self.url, data={"q": "project:project test", "page": "invalid"})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
+        # Test float page number
+        # The pagination code converts floats to int, but non-integer floats
+        # should be rejected as invalid
+        resp = self.get(self.url, data={"q": "project:project test", "page": 1.5})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Invalid page", str(resp.data))
+
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
@@ -361,6 +429,157 @@ class ProxiedSearchAPITest(SearchAPITest):
 
     def get(self, *args, **kwargs):
         return self.client.get(*args, HTTP_HOST=self.host, **kwargs)
+
+    def test_search_project_number_of_queries(self):
+        # Default version
+        with self.assertNumQueries(11):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(17):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(16):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch.delay", new=mock.MagicMock())
+    def test_search_project_number_of_queries_without_search_recording(self):
+        # Default version
+        with self.assertNumQueries(8):
+            resp = self.get(self.url, data={"q": "project:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(12):
+            resp = self.get(
+                self.url, data={"q": "project:project project:another-project test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # With explicit version
+        with self.assertNumQueries(8):
+            resp = self.get(self.url, data={"q": "project:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        with self.assertNumQueries(12):
+            resp = self.get(
+                self.url, data={"q": "project:project/latest project:another-project/latest test"}
+            )
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @mock.patch("readthedocs.subscriptions.signals.get_stripe_client", new=mock.MagicMock())
+    def test_search_subprojects_number_of_queries(self):
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(16):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(14):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(26):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(23):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch.delay", new=mock.MagicMock())
+    def test_search_subprojects_number_of_queries_without_search_recording(self):
+        subproject = get(
+            Project,
+            slug="subproject",
+            users=[self.user],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.create_index(subproject.versions.first())
+        self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(10):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Add subprojects.
+        for i in range(3):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+            self.create_index(subproject.versions.first())
+            self.project.add_subproject(subproject)
+
+        # Search on default version.
+        with self.assertNumQueries(13):
+            resp = self.get(self.url, data={"q": "subprojects:project test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
+
+        # Search on explicit version.
+        with self.assertNumQueries(13):
+            resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
+            assert resp.status_code == 200
+            assert resp.data["results"]
 
 
 @override_settings(ALLOW_PRIVATE_REPOS=True)

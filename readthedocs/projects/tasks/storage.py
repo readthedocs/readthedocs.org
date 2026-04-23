@@ -2,11 +2,9 @@ from enum import StrEnum
 from enum import auto
 
 import structlog
-from django.conf import settings
-from django.utils.module_loading import import_string
+from django.core.files.storage import storages
 
 from readthedocs.doc_builder.exceptions import BuildAppError
-from readthedocs.projects.models import Feature
 
 
 log = structlog.get_logger(__name__)
@@ -17,7 +15,7 @@ class StorageType(StrEnum):
     build_tools = auto()
 
 
-def get_storage(*, project, build_id, api_client, storage_type: StorageType):
+def get_storage(*, build_id, api_client, storage_type: StorageType):
     """
     Get a storage class instance to interact with storage from the build.
 
@@ -28,11 +26,9 @@ def get_storage(*, project, build_id, api_client, storage_type: StorageType):
         so we need to dynamically create the storage class instance
     """
     storage_class = _get_storage_class(storage_type)
-    extra_kwargs = {}
-    if settings.USING_AWS:
-        extra_kwargs = _get_s3_scoped_credentials(
-            project=project, build_id=build_id, api_client=api_client, storage_type=storage_type
-        )
+    extra_kwargs = _get_s3_scoped_credentials(
+        build_id=build_id, api_client=api_client, storage_type=storage_type
+    )
     return storage_class(**extra_kwargs)
 
 
@@ -53,13 +49,24 @@ def _get_storage_class(storage_type: StorageType):
     raise ValueError("Invalid storage type")
 
 
+def _get_storage_backend_class(alias: str):
+    """
+    Get the storage backend class for a given alias from STORAGES setting.
+
+    This returns the class, not an instance, so it can be instantiated
+    with custom kwargs (e.g., per-build credentials).
+    """
+    storage = storages[alias]
+    return type(storage)
+
+
 def _get_build_media_storage_class():
     """
     Get a storage class to use for syncing build artifacts.
 
     This is done in a separate method to make it easier to mock in tests.
     """
-    return import_string(settings.RTD_BUILD_MEDIA_STORAGE)
+    return _get_storage_backend_class("build-media")
 
 
 def _get_build_tools_storage_class():
@@ -68,15 +75,11 @@ def _get_build_tools_storage_class():
 
     This is done in a separate method to make it easier to mock in tests.
     """
-    return import_string(settings.RTD_BUILD_TOOLS_STORAGE)
+    return _get_storage_backend_class("build-tools")
 
 
-def _get_s3_scoped_credentials(*, project, build_id, api_client, storage_type: StorageType):
+def _get_s3_scoped_credentials(*, build_id, api_client, storage_type: StorageType):
     """Get the scoped credentials for the build using our internal API."""
-    if not project.has_feature(Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS):
-        # Use the default credentials defined in the settings.
-        return {}
-
     try:
         credentials = api_client.build(f"{build_id}/credentials/storage").post(
             {"type": storage_type.value}

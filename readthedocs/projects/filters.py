@@ -4,13 +4,16 @@ import structlog
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from django_filters import CharFilter
 from django_filters import ChoiceFilter
 from django_filters import OrderingFilter
 
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import TYPE_CHOICES
 
 
 log = structlog.get_logger(__name__)
@@ -138,8 +141,8 @@ class ProjectSortOrderingFilter(OrderingFilter):
             else:
                 order_bys.append(field_ordered)
 
-        # prefetch_latest_build does some extra optimizations to avoid additional queries.
-        return qs.prefetch_latest_build().annotate(**annotations).order_by(*order_bys)
+        # annotate_has_successful_build does some extra optimizations to avoid additional queries.
+        return qs.annotate_has_successful_build().annotate(**annotations).order_by(*order_bys)
 
 
 class ProjectListFilterSet(ModelFilterSet):
@@ -242,3 +245,28 @@ class ProjectVersionListFilterSet(ModelFilterSet):
         if value == self.VISIBILITY_VISIBLE:
             return queryset.filter(hidden=False)
         return queryset
+
+
+class RedirectListFilterSet(ModelFilterSet):
+    """
+    Filter for the project redirects listing page.
+
+    Addresses https://github.com/readthedocs/readthedocs.org/issues/12214.
+    """
+
+    redirect_type = ChoiceFilter(
+        field_name="redirect_type",
+        label=_("Redirect type"),
+        choices=TYPE_CHOICES,
+        empty_label=_("All types"),
+    )
+
+    # Matches against either end of the redirect in a single field so the UI
+    # stays a single input.
+    url = CharFilter(
+        label=_("URL contains"),
+        method="filter_url_contains",
+    )
+
+    def filter_url_contains(self, queryset, field_name, value):
+        return queryset.filter(Q(from_url__icontains=value) | Q(to_url__icontains=value))

@@ -10,7 +10,7 @@ __all__ = (
     "TaskNoPermission",
 )
 
-STATUS_UPDATES_ENABLED = not settings.CELERY_ALWAYS_EAGER
+STATUS_UPDATES_ENABLED = not settings.CELERY_TASK_ALWAYS_EAGER
 
 
 # pylint: disable=abstract-method

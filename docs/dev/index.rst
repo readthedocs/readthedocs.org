@@ -12,7 +12,6 @@ or taking the open source Read the Docs codebase for your own custom installatio
    code-of-conduct
    issue-labels
    roadmap
-   design/index
 
 .. toctree::
    :caption: Development

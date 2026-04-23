@@ -172,7 +172,7 @@ class OrganizationOwnerView(OrganizationMixin):
     def get_queryset(self):
         return OrganizationOwner.objects.filter(
             organization=self.get_organization(),
-        ).prefetch_related("owner")
+        ).select_related("owner")
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs["organization"] = self.get_organization()

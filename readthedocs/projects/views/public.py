@@ -135,17 +135,17 @@ class ProjectDetailViewBase(
             protocol = "https"
 
         default_version_slug = project.get_default_version()
-        default_version = project.versions.get(slug=default_version_slug)
-
-        context["badge_url"] = ProjectBadgeView.get_badge_url(
-            project.slug,
-            default_version_slug,
-            protocol=protocol,
-        )
-        context["site_url"] = "{url}?badge={version}".format(
-            url=Resolver().resolve_version(project, version=default_version),
-            version=default_version_slug,
-        )
+        default_version = project.versions.filter(slug=default_version_slug).first()
+        if default_version:
+            context["badge_url"] = ProjectBadgeView.get_badge_url(
+                project.slug,
+                default_version_slug,
+                protocol=protocol,
+            )
+            context["site_url"] = "{url}?badge={version}".format(
+                url=Resolver().resolve_version(project, version=default_version),
+                version=default_version_slug,
+            )
 
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
@@ -332,12 +332,6 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
             unresolved_domain = request.unresolved_domain
             is_external = request.unresolved_domain.is_from_external_domain
             manager = EXTERNAL if is_external else INTERNAL
-
-            # Additional protection to force all storage calls
-            # to use the external or internal versions storage.
-            # TODO: We already force the manager to match the type,
-            # so we could probably just remove this.
-            self.version_type = manager
 
             # It uses the request to get the ``project``.
             # The rest of arguments come from the URL.

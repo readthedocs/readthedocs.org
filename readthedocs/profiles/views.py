@@ -3,8 +3,10 @@
 from enum import StrEnum
 from enum import auto
 
+import structlog
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
+from allauth.socialaccount import providers
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
 from django.contrib import messages
@@ -13,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -41,6 +44,7 @@ from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migrated_projects
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_projects_requiring_manual_migration
 from readthedocs.oauth.migrate import get_valid_projects_missing_migration
 from readthedocs.oauth.migrate import has_projects_pending_migration
 from readthedocs.oauth.migrate import migrate_project_to_github_app
@@ -52,8 +56,29 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
 
 
+log = structlog.get_logger(__name__)
+
+
 class LoginViewBase(AllAuthLoginView):
-    pass
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        last_login_method = self.request.COOKIES.get("last-login-method")
+        context_data["last_login_method"] = last_login_method
+
+        last_login_tab = "vcs"  # Default tab"
+        if last_login_method == "email":
+            last_login_tab = "email"
+        if last_login_method in providers.registry.provider_map.keys():
+            last_login_tab = "vcs"
+        if last_login_method == "sso":
+            last_login_tab = "sso"
+        log.debug(
+            "Login method.",
+            last_login_method=last_login_method,
+            last_login_tab=last_login_tab,
+        )
+        context_data["last_login_tab"] = last_login_tab
+        return context_data
 
 
 class LoginView(SettingsOverrideObject):
@@ -208,8 +233,8 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     http_method_names = ["post"]
 
-    def get_object(self, queryset=None):  # noqa
-        return self.request.user.auth_token
+    def get_object(self):
+        return get_object_or_404(Token, user=self.request.user)
 
 
 class UserSecurityLogView(PrivateViewMixin, ListView):
@@ -352,6 +377,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_accounts_revoked()
         context["old_github_accounts"] = self._get_old_github_accounts()
+        context["manual_migration_required"] = get_projects_requiring_manual_migration(user)
 
         # These can take some time, so we only load them when needed.
         if step == MigrationSteps.install:

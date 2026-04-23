@@ -119,6 +119,14 @@ class DetailSubscription(OrganizationMixin, DetailView):
             features = {}
             for item in stripe_subscription.items.all().select_related("price__product"):
                 rtd_product = get_product(item.price.product.id)
+                if not rtd_product:
+                    # Skip products that are not defined in RTD_PRODUCTS
+                    log.warning(
+                        "Product not found in RTD_PRODUCTS",
+                        stripe_product_id=item.price.product.id,
+                    )
+                    continue
+
                 product = {
                     "stripe_price": item.price,
                     "quantity": item.quantity,

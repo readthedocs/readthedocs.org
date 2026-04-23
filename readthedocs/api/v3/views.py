@@ -433,7 +433,7 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         data = {
             "build": BuildSerializer(build).data,
             "project": ProjectSerializer(project).data,
-            "version": VersionSerializer(build.version).data,
+            "version": VersionSerializer(version).data,
         }
 
         if build:

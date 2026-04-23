@@ -13,6 +13,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -21,8 +22,8 @@ from readthedocs.projects.models import Project
 class CancelBuildViewTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
-        self.project = self._get_project(owners=[self.user])
-        self.version = get(Version, project=self.project)
+        self.project = self._get_project(owners=[self.user], privacy_level=PUBLIC)
+        self.version = get(Version, project=self.project, privacy_level=PUBLIC)
         self.build = get(
             Build,
             project=self.project,
@@ -66,7 +67,8 @@ class CancelBuildViewTests(TestCase):
 
     def test_cancel_build_from_another_project(self, app):
         another_user = get(User)
-        another_project = self._get_project(owners=[another_user])
+        another_project = self._get_project(owners=[another_user], privacy_level=PUBLIC)
+        another_project.versions.update(privacy_level=PUBLIC)
         another_build = get(
             Build,
             project=another_project,
@@ -110,8 +112,8 @@ class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
 class BuildViewsTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
-        self.project = get(Project, users=[self.user])
-        self.version = get(Version, project=self.project)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+        self.version = get(Version, project=self.project, privacy_level=PUBLIC)
         self.build = get(
             Build,
             project=self.project,

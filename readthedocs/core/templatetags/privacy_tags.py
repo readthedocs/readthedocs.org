@@ -24,6 +24,6 @@ def get_public_projects(context, user):
     projects = Project.objects.for_user_and_viewer(
         user=user,
         viewer=context["request"].user,
-    ).prefetch_latest_build()
+    ).annotate_has_successful_build()
     context["public_projects"] = projects
     return ""

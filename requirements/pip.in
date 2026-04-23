@@ -45,7 +45,9 @@ Pygments
 pydantic
 
 # Used to interact with the GitHub API using the GitHub App
-PyGithub
+# Pinned to 2.8.1 because 2.9.0 fails with:
+# E       requests_mock.exceptions.NoMockAddress: No mock address: POST https://api.github.com:443/repositories/78/statuses/1234abc
+PyGithub==2.8.1
 
 dnspython
 
@@ -61,9 +63,8 @@ django-allauth[socialaccount,saml,mfa]==65.12.1
 requests-oauthlib
 
 # Search
-elasticsearch~=8.0
-elasticsearch-dsl~=8.0
-django-elasticsearch-dsl~=8.0
+elasticsearch~=9.0
+django-elasticsearch-dsl~=9.0
 
 selectolax
 

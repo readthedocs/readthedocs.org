@@ -401,7 +401,7 @@ class TestPrivateViews(TestCase):
 
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
-        # see comment in prefetch_latest_build.
+        # see comment in annotate_has_successful_build.
         with self.assertNumQueries(26):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
@@ -469,7 +469,6 @@ class TestPrivateViews(TestCase):
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
             integration=integration.first(),
-            user_pk=None,
         )
 
     @mock.patch("readthedocs.projects.views.private.attach_webhook")
@@ -750,6 +749,8 @@ class TestWebhooksViews(TestCase):
         self.version = get(Version, slug="1.0", project=self.project)
         self.webhook = get(WebHook, project=self.project)
         self.client.force_login(self.user)
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     def test_list(self):
         resp = self.client.get(

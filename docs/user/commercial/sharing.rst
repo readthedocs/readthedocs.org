@@ -12,6 +12,11 @@ Common sharing use cases include:
 * Sharing documentation for your product only to specific customers.
 * Embedding documentation in a SaaS application dashboard.
 
+.. seealso::
+
+   :doc:`/api/v3`
+     You can automate sharing methods via ``/api/v3/projects/<project_slug>/sharing/``.
+
 Creating a shared item
 ----------------------
 
@@ -82,6 +87,18 @@ For example:
 .. prompt:: bash $
 
    curl -H "Authorization: Token $TOKEN" https://docs.example.com/en/latest/example.html
+
+If you want to access a subproject,
+create the HTTP header token on the subproject itself and then request the subproject URL.
+For example,
+if ``plugin`` is a subproject served under ``https://docs.example.com/projects/plugin/``,
+use:
+
+.. prompt:: bash $
+
+   curl -H "Authorization: Token $TOKEN" https://docs.example.com/projects/plugin/en/latest/example.html
+
+An HTTP header token created on the parent project does not grant access to its subprojects.
 
 Basic Authorization
 ~~~~~~~~~~~~~~~~~~~

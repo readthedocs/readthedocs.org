@@ -539,6 +539,8 @@ class ResolverTests(ResolverBase):
             canonical=True,
             https=False,
         )
+        # Purge the cached domain.
+        del self.pip.canonical_custom_domain
         url = Resolver().resolve(project=self.pip)
         self.assertEqual(url, "http://docs.foobar.com/en/latest/")
         url = Resolver().resolve(project=self.pip)

@@ -168,6 +168,50 @@ But we recommend using :ref:`config-file/v2:build.jobs` instead:
 but in a more structured way that allows you to define different commands for each format,
 while also supporting installing system dependencies via ``build.apt_packages``.
 
+Custom Git checkout commands (advanced)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs supports overriding the default :term:`checkout job <pre-defined build jobs>`
+with a custom sequence of :program:`git` commands.
+This is useful for advanced workflows like sparse checkouts or custom cloning strategies.
+
+To enable this feature, go to your project's :term:`dashboard` and update
+:menuselection:`Settings --> Custom Git checkout commands`.
+Enter one command per line.
+
+.. note::
+
+  When you define custom Git checkout commands, Read the Docs will not run the default Git clone or checkout.
+  Your commands must perform the clone and checkout of the desired revision.
+
+.. tip::
+
+  If you just want to run some extra commands after the default Git checkout,
+  like unshallowing the clone or fetching extra branches,
+  you should use the ``build.jobs.post_checkout`` user-defined job instead.
+
+  In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
+
+
+Commands are executed in order, in the repository working directory.
+You can use :doc:`pre-defined environment variables </reference/environment-variables>`
+such as :envvar:`READTHEDOCS_GIT_CLONE_URL`, :envvar:`READTHEDOCS_GIT_IDENTIFIER`,
+and :envvar:`READTHEDOCS_REPOSITORY_PATH`.
+
+.. code-block:: text
+  :caption: Example of custom Git checkout commands
+
+  git clone --no-checkout --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .
+  git sparse-checkout init --cone
+  git sparse-checkout set docs
+  git checkout $READTHEDOCS_GIT_IDENTIFIER
+
+.. warning::
+
+  This is an advanced feature.
+  Incorrect commands can prevent builds from checking out code or can expose sensitive files in your repository.
+  If you are unsure, use :doc:`build customization with build.jobs </build-customization>` instead.
+
 Examples
 --------
 
@@ -210,70 +254,6 @@ If your build also relies on the contents of other branches, it may also be nece
          - git fetch --unshallow || true
          - git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || true
          - git fetch --all --tags || true
-
-
-Cancel build based on a condition
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When a command exits with code ``183``,
-Read the Docs will cancel the build immediately.
-You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
-
-.. note:: Why 183 was chosen for the exit code?
-
-   It's the word "skip" encoded in ASCII.
-   Then it's taken the 256 modulo of it because
-   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
-   for exit codes greater than 255.
-
-   .. code-block:: pycon
-
-      >>> sum(list("skip".encode("ascii")))
-      439
-      >>> 439 % 256
-      183
-
-
-Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
-         # You can add any other files or directories that you'd like here as well,
-         # like your docs requirements file, or other files that will change your docs build.
-         #
-         # If there are no changes (git diff exits with 0) we force the command to return with 183.
-         # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
-           then
-             exit 183;
-           fi
-
-
-This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
@@ -449,40 +429,36 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects managed with `uv <https://github.com/astral-sh/uv/>`__ can install `uv` with asdf,
-and then rely on it to set up the environment and install the python project and its dependencies.
-Read the Docs' own build steps expect it by setting the ``UV_PROJECT_ENVIRONMENT`` variable,
-usually reducing the time taken to install compared to pip.
+Read the Docs supports `uv <https://docs.astral.sh/uv/>`__ natively in
+``python.install``.
+Projects using uv can use the configuration methods referenced at
+:ref:`config-file/v2:python.install` instead of overriding ``build.jobs``.
 
-The following examples assumes a uv project as described in its
-`projects concept <https://docs.astral.sh/uv/concepts/projects/>`__. As an introduction
-refer to its `Working on projects guide <https://docs.astral.sh/uv/guides/projects/>`__.
-The ``docs`` dependency group which should is pulled in during the ``uv sync`` step (if additional
-extras are required they can be added with the `--extra attribute <https://docs.astral.sh/uv/concepts/projects/sync/#syncing-optional-dependencies>`__).
-
-If a ``uv.lock`` file exists it is respected.
+The following example uses ``uv sync`` with a dependency group named ``docs``.
+If a ``uv.lock`` file exists, it is respected.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
    version: 2
 
-   sphinx:
-      configuration: docs/conf.py
-
    build:
-      os: ubuntu-24.04
-      tools:
-         python: "3.13"
-      jobs:
-         pre_create_environment:
-            - asdf plugin add uv
-            - asdf install uv latest
-            - asdf global uv latest
-         create_environment:
-            - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
-         install:
-            - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+     os: ubuntu-24.04
+     tools:
+       python: "3.13"
+
+   python:
+     install:
+       - method: uv
+         command: sync
+         groups:
+           - docs
+
+   sphinx:
+       configuration: docs/conf.py
+
+Use ``build.jobs`` only when you need an advanced uv workflow that isn't covered by
+``python.install``, such as adding specific arguments to the ``uv`` command.
 
 Install dependencies from Dependency Groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

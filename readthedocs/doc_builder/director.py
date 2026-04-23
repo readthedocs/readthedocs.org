@@ -25,6 +25,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
@@ -145,6 +146,8 @@ class BuildDirector:
         language_environment_cls = Virtualenv
         if self.data.config.is_using_conda:
             language_environment_cls = Conda
+        elif self.data.config.is_using_uv:
+            language_environment_cls = UvEnv
 
         self.language_environment = language_environment_cls(
             version=self.data.version,
@@ -232,9 +235,26 @@ class BuildDirector:
                         dismissable=True,
                     )
 
-        identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Checking out.", identifier=identifier)
-        self.vcs_repository.checkout(identifier)
+        # Get the default branch of the repository if the project doesn't
+        # have an explicit default branch set and we are building latest.
+        # The identifier from latest will be updated with this value
+        # if the build succeeds.
+        is_latest_without_default_branch = (
+            self.data.version.is_machine_latest and not self.data.project.default_branch
+        )
+        if is_latest_without_default_branch:
+            self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+            log.info(
+                "Default branch for the repository detected.",
+                default_branch=self.data.default_branch,
+            )
+
+        # We can skip the checkout step since we just cloned the repository,
+        # and the default branch is already checked out.
+        if not is_latest_without_default_branch:
+            identifier = self.data.build_commit or self.data.version.identifier
+            log.info("Checking out.", identifier=identifier)
+            self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
@@ -554,7 +574,6 @@ class BuildDirector:
             )
 
         build_tools_storage = get_storage(
-            project=self.data.project,
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
             storage_type=StorageType.build_tools,
@@ -644,6 +663,37 @@ class BuildDirector:
                 record=False,
             )
 
+            # Install UV if the tool is Python and the user has selected to use UV
+            if tool == "python" and self.data.config.is_using_uv:
+                cmd = ["asdf", "plugin", "add", "uv"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "install", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "global", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                # Save the Python path under UV_PYTHON to define it as an environment variable
+                cmd = ["asdf", "which", "python"]
+                command = self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                # Add UV_PYTHON to build environment variables now we have Python installed.
+                # NOTE: we can't do this at `get_build_env_vars` because we need to have Python installed to get the path of it.
+                self.build_environment._environment.update(
+                    {
+                        "UV_PYTHON": command.output.strip(),
+                    },
+                )
+
             if all(
                 [
                     tool == "python",
@@ -708,12 +758,25 @@ class BuildDirector:
         success = builder.build()
         return success
 
+    def _add_git_ssh_command_env_var(self, env):
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            env.update(
+                {
+                    "GIT_SSH_COMMAND": git_ssh_command,
+                }
+            )
+
     def get_vcs_env_vars(self):
         """Get environment variables to be included in the VCS setup step."""
         env = self.get_rtd_env_vars()
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
         env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
+        self._add_git_ssh_command_env_var(env)
         return env
 
     def get_rtd_env_vars(self):
@@ -760,6 +823,7 @@ class BuildDirector:
                     ),
                 }
             )
+
         else:
             env.update(
                 {
@@ -769,6 +833,31 @@ class BuildDirector:
                         self.data.version.slug,
                         "bin",
                     ),
+                }
+            )
+
+        if self.data.config.is_using_uv:
+            try:
+                UV_PROJECT = self.data.config.python.install[0].path
+            except (AttributeError, IndexError):
+                UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
+            env.update(
+                {
+                    # UV_PYTHON is set in `install_build_tools` once we have Python installed,
+                    # here I'm setting just an empty string.
+                    "UV_PYTHON": "",
+                    "UV_PROJECT": UV_PROJECT,
+                    # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
+                    "UV_PROJECT_ENVIRONMENT": os.path.join(
+                        self.data.project.doc_path,
+                        "envs",
+                        self.data.version.slug,
+                    ),
+                }
+            )
+        else:
+            env.update(
+                {
                     "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
                         self.data.project.doc_path, "envs", self.data.version.slug
                     ),
@@ -780,6 +869,8 @@ class BuildDirector:
                 "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
             }
         )
+
+        self._add_git_ssh_command_env_var(env)
 
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables

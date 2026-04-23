@@ -7,7 +7,6 @@ from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
-from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -103,12 +102,6 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             uid=sociallogin.account.uid,
         ).first()
 
-        # If there is an existing GH account, we check if that user can use the GH App,
-        # otherwise we check for the current user.
-        user_to_check = social_account.user if social_account else request.user
-        if not self._can_use_github_app(user_to_check):
-            raise ImmediateHttpResponse(HttpResponseRedirect(reverse("account_login")))
-
         # If there isn't an existing GH account, nothing to do,
         # just let allauth create the new account.
         if not social_account:
@@ -128,14 +121,6 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             raise ImmediateHttpResponse(HttpResponseRedirect(url))
 
         sociallogin.connect(request, social_account.user)
-
-    def _can_use_github_app(self, user):
-        """
-        Check if the user can use the GitHub App.
-
-        Only staff users can use the GitHub App for now.
-        """
-        return settings.RTD_ALLOW_GITHUB_APP or user.is_staff
 
     def _block_use_of_old_github_oauth_app(self, request, sociallogin):
         """

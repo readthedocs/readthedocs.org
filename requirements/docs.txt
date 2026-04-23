@@ -6,21 +6,21 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.11.0
+anyio==4.13.0
     # via
     #   starlette
     #   watchfiles
-babel==2.17.0
+babel==2.18.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2025.10.5
+certifi==2026.2.25
     # via
     #   requests
     #   sphinx-prompt
-charset-normalizer==3.4.4
+charset-normalizer==3.4.7
     # via requests
-click==8.3.0
+click==8.3.2
     # via
     #   sphinx-intl
     #   uvicorn
@@ -37,7 +37,7 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.60.1
+fonttools==4.62.1
     # via matplotlib
 h11==0.16.0
     # via uvicorn
@@ -46,64 +46,62 @@ idna==3.11
     #   anyio
     #   requests
     #   sphinx-prompt
-imagesize==1.4.1
+imagesize==2.0.0
     # via sphinx
 jinja2==3.1.6
     # via
     #   myst-parser
     #   sphinx
     #   sphinx-prompt
-kiwisolver==1.4.9
+kiwisolver==1.5.0
     # via matplotlib
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-matplotlib==3.10.7
+matplotlib==3.10.8
     # via -r requirements/docs.in
 mdit-py-plugins==0.5.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==4.0.1
+myst-parser==5.0.0
     # via -r requirements/docs.in
-numpy==2.3.4
+numpy==2.4.4
     # via
     #   contourpy
     #   matplotlib
-packaging==25.0
+packaging==26.1
     # via
     #   matplotlib
     #   sphinx
-pbr==7.0.2
+pbr==7.0.3
     # via sphinxcontrib-video
-pillow==12.0.0
+pillow==12.2.0
     # via matplotlib
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.2.5
+pyparsing==3.3.2
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.3
     # via myst-parser
-requests==2.32.4
+requests==2.33.1
     # via
     #   sphinx
     #   sphinx-prompt
-roman-numerals-py==3.1.0
+roman-numerals==4.1.0
+    # via roman-numerals-py
+roman-numerals-py==4.1.0
     # via sphinx
 six==1.17.0
-    # via
-    #   python-dateutil
-    #   sphinxcontrib-httpdomain
-sniffio==1.3.1
-    # via anyio
+    # via python-dateutil
 snowballstemmer==3.0.1
     # via sphinx
 sphinx==8.2.3
@@ -126,7 +124,7 @@ sphinx-autobuild==2025.8.25
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
-sphinx-design==0.6.1
+sphinx-design==0.7.0
     # via -r requirements/docs.in
 sphinx-intl==2.3.2
     # via -r requirements/docs.in
@@ -134,11 +132,11 @@ sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
 sphinx-notfound-page==1.1.0
     # via -r requirements/docs.in
-sphinx-prompt==1.10.1
+sphinx-prompt==1.10.2
     # via -r requirements/docs.in
-sphinx-rtd-theme==3.0.2
+sphinx-rtd-theme==3.1.0
     # via -r requirements/docs.in
-sphinx-tabs==3.4.7
+sphinx-tabs==3.5.0
     # via -r requirements/docs.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -146,7 +144,7 @@ sphinxcontrib-devhelp==2.0.0
     # via sphinx
 sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
-sphinxcontrib-httpdomain==1.8.1
+sphinxcontrib-httpdomain==2.0.0
     # via -r requirements/docs.in
 sphinxcontrib-jquery==4.1
     # via sphinx-rtd-theme
@@ -158,25 +156,25 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
     # via -r requirements/docs.in
-sphinxemoji==0.3.1
+sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==0.50.0
+starlette==1.0.0
     # via sphinx-autobuild
 typing-extensions==4.15.0
     # via
     #   anyio
     #   starlette
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.38.0
+uvicorn==0.44.0
     # via sphinx-autobuild
 watchfiles==1.1.1
     # via sphinx-autobuild
-websockets==15.0.1
+websockets==16.0
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:

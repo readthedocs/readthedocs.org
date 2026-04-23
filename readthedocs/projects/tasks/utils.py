@@ -4,8 +4,10 @@ import re
 
 import boto3
 import structlog
+from botocore.exceptions import ClientError
 from celery.worker.request import Request
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import timezone
 
@@ -222,8 +224,12 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
             AutoScalingGroupName=scaling_group,
             ProtectedFromScaleIn=protected_from_scale_in,
         )
+    except (ValidationError, ClientError):
+        # Don't log these as exceptions,
+        # since there isn't much we can do about it here.
+        log.info("Failed when trying to set instance protection.")
     except Exception:
-        log.exception("Failed when trying to set instance protection.")
+        log.exception("Unexpected error when trying to set instance protection.")
 
 
 class BuildRequest(Request):

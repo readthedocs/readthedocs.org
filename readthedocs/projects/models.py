@@ -37,10 +37,12 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -58,13 +60,11 @@ from readthedocs.projects.validators import validate_no_ip
 from readthedocs.projects.validators import validate_repository_url
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
-from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import ADDONS_FLYOUT_POSITION_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
-from .constants import DOWNLOADABLE_MEDIA_TYPES
 from .constants import MEDIA_TYPES
 from .constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 from .constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
@@ -236,8 +236,13 @@ class AddonsConfig(TimeStampedModel):
     hotkeys_enabled = models.BooleanField(default=True)
 
     # Search
-    search_enabled = models.BooleanField(default=True)
+    search_enabled = models.BooleanField(_("Enable search modal"), default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+    search_show_subprojects_filter = models.BooleanField(
+        "Show subprojects filter in search modal",
+        default=True,
+        db_default=True,
+    )
 
     # User JavaScript File
     customscript_enabled = models.BooleanField(default=False)
@@ -255,7 +260,15 @@ class AddonsConfig(TimeStampedModel):
     notifications_enabled = models.BooleanField(default=True)
     notifications_show_on_latest = models.BooleanField(default=True)
     notifications_show_on_non_stable = models.BooleanField(default=True)
-    notifications_show_on_external = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(
+        default=False,
+        verbose_name=_("Show a notification on builds from pull requests"),
+        help_text=_(
+            "Display a notification on the rendered documentation of pull "
+            "request previews. Readers will see a toast linking to the "
+            "build and the pull request."
+        ),
+    )
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
@@ -523,6 +536,14 @@ class Project(models.Model):
     featured = models.BooleanField(_("Featured"), default=False)
 
     skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+    n_consecutive_failed_builds = models.BooleanField(
+        _("Disable builds for this project"),
+        default=False,
+        db_default=False,
+        help_text=_(
+            "Builds on this project were automatically disabled due to many consecutive failures. Uncheck this field to re-enable building."
+        ),
+    )
 
     # null=True can be removed in a later migration
     # be careful if adding new queries on this, .filter(delisted=False) does not work
@@ -535,6 +556,13 @@ class Project(models.Model):
             "Delisting a project removes it from Read the Docs search indexing and asks external "
             "search engines to remove it via robots.txt"
         ),
+    )
+
+    search_indexing_enabled = models.BooleanField(
+        _("Enable search indexing"),
+        default=True,
+        db_default=True,
+        help_text=_("Enable/disable search indexing for this project"),
     )
 
     privacy_level = models.CharField(
@@ -685,10 +713,16 @@ class Project(models.Model):
         if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
 
+        # Normalize user input for the path to ``.readthedocs.yaml``
+        self.readthedocs_yaml_path = (
+            self.readthedocs_yaml_path.strip() if self.readthedocs_yaml_path else None
+        )
+
         super().save(*args, **kwargs)
         self.update_latest_version()
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # NOTE: We use _raw_delete to avoid Django fetching all objects
@@ -700,8 +734,29 @@ class Project(models.Model):
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
 
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
+
         # Remove extra resources
         clean_project_resources(self)
+
+        # NOTE: we delete in batches to avoid expensive queries when we have lots
+        # of versions to delete. The PageView table can sometimes timeout when querying
+        # several versions like PageView.objects.filter(version_id__in=[....]).
+        # When querying more than ~67 versions, postgres will ignore the index,
+        # and do a sequential scan, which is expensive on this table.
+        delete_in_batches(self.versions.all(), batch_size=50)
 
         super().delete(*args, **kwargs)
 
@@ -750,47 +805,11 @@ class Project(models.Model):
         """
         Get the paths of all artifacts used by the project.
 
-        :return: the path to an item in storage
-                 (can be used with ``storage.url`` to get the URL).
+        :return: A list of paths where the project's artifacts are stored.
         """
         storage_paths = [f"{type_}/{self.slug}" for type_ in MEDIA_TYPES]
+        storage_paths.extend(f"{EXTERNAL}/{type_}/{self.slug}" for type_ in MEDIA_TYPES)
         return storage_paths
-
-    def get_storage_path(self, type_, version_slug=LATEST, include_file=True, version_type=None):
-        """
-        Get a path to a build artifact for use with Django's storage system.
-
-        :param type_: Media content type, ie - 'pdf', 'htmlzip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :param version_type: Project version type
-        :return: the path to an item in storage
-            (can be used with ``storage.url`` to get the URL)
-        """
-        if type_ not in MEDIA_TYPES:
-            raise ValueError("Invalid content type.")
-
-        if include_file and type_ not in DOWNLOADABLE_MEDIA_TYPES:
-            raise ValueError("Invalid content type for downloadable file.")
-
-        type_dir = type_
-        # Add `external/` prefix for external versions
-        if version_type == EXTERNAL:
-            type_dir = f"{EXTERNAL}/{type_}"
-
-        # Version slug may come from an unstrusted input,
-        # so we use join to avoid any path traversal.
-        # All other values are already validated.
-        folder_path = build_media_storage.join(f"{type_dir}/{self.slug}", version_slug)
-
-        if include_file:
-            extension = type_.replace("htmlzip", "zip")
-            return "{}/{}.{}".format(
-                folder_path,
-                self.slug,
-                extension,
-            )
-        return folder_path
 
     def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
@@ -855,6 +874,10 @@ class Project(models.Model):
         if self.custom_prefix and self.has_feature(Feature.USE_PROXIED_APIS_WITH_PREFIX):
             return self.custom_prefix
         return None
+
+    @property
+    def is_public(self):
+        return self.privacy_level == PUBLIC
 
     @cached_property
     def subproject_prefix(self):
@@ -951,6 +974,20 @@ class Project(models.Model):
         if match:
             return f"https://{match.group('host')}/{match.group('repo')}"
         return self.repo
+
+    @property
+    def repository_full_name(self):
+        """
+        Return the full name of the repository.
+
+        If the project is linked to a remote repository,
+        it uses the remote repository full name. Otherwise,
+        it returns the path part of the repository URL.
+        """
+        if self.remote_repository:
+            return self.remote_repository.full_name
+        parsed = urlparse(self.repository_html_url)
+        return parsed.path.strip("/").removesuffix(".git")
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
@@ -1081,6 +1118,24 @@ class Project(models.Model):
         return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
+    def old_github_remote_repository(self):
+        """
+        Get the old GitHub OAuth repository for GitHub App projects.
+
+        This is mainly used for projects that migrated to the new GitHub App,
+        but its users have not yet connected their accounts to the new GitHub App.
+        We still need to reference the old repository for permissions when using GH as SSO method.
+        """
+        from readthedocs.oauth.models import RemoteRepository
+
+        if self.is_github_app_project:
+            return RemoteRepository.objects.filter(
+                vcs_provider=GITHUB,
+                remote_id=self.remote_repository.remote_id,
+            ).first()
+        return None
+
+    @property
     def is_gitlab_project(self):
         from readthedocs.oauth.services import GitLabService
 
@@ -1175,15 +1230,21 @@ class Project(models.Model):
         When latest is machine created, it's basically an alias
         for the default branch/tag (like main/master),
 
-        Returns None if the current default version doesn't point to a valid version.
+        Returns None if latest doesn't point to a valid version,
+        or if isn't managed by RTD (machine=False).
         """
-        default_version_name = self.get_default_branch()
+        # For latest, the identifier is the name of the branch/tag.
+        latest_version_identifier = (
+            self.versions.filter(slug=LATEST, machine=True)
+            .values_list("identifier", flat=True)
+            .first()
+        )
+        if not latest_version_identifier:
+            return None
         return (
             self.versions(manager=INTERNAL)
             .exclude(slug=LATEST)
-            .filter(
-                verbose_name=default_version_name,
-            )
+            .filter(verbose_name=latest_version_identifier)
             .first()
         )
 
@@ -1201,8 +1262,22 @@ class Project(models.Model):
             return
 
         # default_branch can be a tag or a branch name!
-        default_version_name = self.get_default_branch()
-        original_latest = self.get_original_latest_version()
+        default_version_name = self.get_default_branch(fallback_to_vcs=False)
+        # If the default_branch is not set, it means that the user
+        # wants to use the default branch of the respository, but
+        # we don't know what that is here, `latest` will be updated
+        # on the next build.
+        if not default_version_name:
+            return
+
+        # Search for a branch or tag with the name of the default branch,
+        # so we can sync latest with it.
+        original_latest = (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(verbose_name=default_version_name)
+            .first()
+        )
         latest.verbose_name = LATEST_VERBOSE_NAME
         latest.type = original_latest.type if original_latest else BRANCH
         # For latest, the identifier is the name of the branch/tag.
@@ -1302,13 +1377,21 @@ class Project(models.Model):
             return self.default_version
         return LATEST
 
-    def get_default_branch(self):
-        """Get the version representing 'latest'."""
+    def get_default_branch(self, fallback_to_vcs=True):
+        """
+        Get the name of the branch or tag that the user wants to use as 'latest'.
+
+        In case the user explicitly set a default branch, we use that,
+        otherwise we try to get it from the remote repository.
+        """
         if self.default_branch:
             return self.default_branch
 
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
+
+        if not fallback_to_vcs:
+            return None
 
         vcs_class = self.vcs_class()
         if vcs_class:
@@ -1341,7 +1424,8 @@ class Project(models.Model):
 
         return self.superprojects.select_related("parent").first()
 
-    def get_canonical_custom_domain(self):
+    @cached_property
+    def canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains
@@ -1435,7 +1519,7 @@ class Project(models.Model):
 
         Both projects need to share the same owner/admin.
         """
-        organization = self.organizations.first()
+        organization = self.organization
         queryset = (
             Project.objects.for_admin_user(user)
             .filter(organizations=organization)
@@ -1445,8 +1529,17 @@ class Project(models.Model):
         )
         return queryset
 
-    @property
+    @cached_property
     def organization(self):
+        # If organizations aren't supported,
+        # we don't need to query the database.
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return None
+
+        if hasattr(self, "_organizations"):
+            if self._organizations:
+                return self._organizations[0]
+            return None
         return self.organizations.first()
 
     @property
@@ -1725,7 +1818,7 @@ class WebHook(Notification):
             return None
 
         project = version.project
-        organization = project.organizations.first()
+        organization = project.organization
 
         organization_name = ""
         organization_slug = ""
@@ -1981,10 +2074,10 @@ class Feature(models.Model):
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
-    USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
     BUILD_FULL_CLEAN = "build_full_clean"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
+    BUILD_IN_PARALLEL = "build_in_parallel"
 
     FEATURES = (
         (
@@ -2035,10 +2128,6 @@ class Feature(models.Model):
             _("Build: Set scale-in protection before/after building."),
         ),
         (
-            USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
-            _("Build: Use S3 scoped credentials for uploading build artifacts."),
-        ),
-        (
             BUILD_FULL_CLEAN,
             _("Build: Clean all build directories to avoid leftovers from other projects."),
         ),
@@ -2049,6 +2138,10 @@ class Feature(models.Model):
         (
             BUILD_NO_ACKS_LATE,
             _("Build: Do not use Celery ASK_LATE config for this project."),
+        ),
+        (
+            BUILD_IN_PARALLEL,
+            _("Build: Enable parallel building."),
         ),
     )
 

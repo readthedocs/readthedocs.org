@@ -55,7 +55,7 @@ def canonical_redirect(request, project, redirect_type, external_version_slug=No
         to = parsed_from._replace(scheme="https").geturl()
     elif redirect_type == RedirectType.to_canonical_domain:
         # We need to change the domain and protocol.
-        canonical_domain = project.get_canonical_custom_domain()
+        canonical_domain = project.canonical_custom_domain
         protocol = "https" if canonical_domain.https else "http"
         to = parsed_from._replace(scheme=protocol, netloc=canonical_domain.domain).geturl()
     elif redirect_type == RedirectType.subproject_to_main_domain:

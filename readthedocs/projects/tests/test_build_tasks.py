@@ -302,12 +302,20 @@ class TestBuildTask(BuildEnvironmentBase):
             )
         ).touch()
 
+        # Create "mkdocs.yml" for the "cat" command to find it
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "mkdocs.yml",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         # Update version state
-        assert self.requests_mock.request_history[8]._request.method == "PATCH"
-        assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
-        assert self.requests_mock.request_history[8].json() == {
+        assert self.requests_mock.request_history[10]._request.method == "PATCH"
+        assert self.requests_mock.request_history[10].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[10].json() == {
             "addons": False,
             "build_data": None,
             "built": True,
@@ -315,6 +323,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_pdf": True,
             "has_epub": True,
             "has_htmlzip": False,
+            "identifier": mock.ANY,
+            "type": "branch",
         }
 
     @pytest.mark.parametrize(
@@ -381,6 +391,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         }
 
+        if settings.ALLOW_PRIVATE_REPOS:
+            common_env_vars.update({
+                "GIT_SSH_COMMAND": "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
+            })
+
         self._trigger_update_docs_task()
 
         vcs_env_vars = build_environment.call_args_list[0][1]["environment"]
@@ -411,7 +426,11 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
-    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
+    @override_settings(
+        DOCROOT="/tmp/readthedocs-tests/git-repository/",
+        RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
+        S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
+    )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
@@ -583,286 +602,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.13.3",
-                            "version": "3",
-                        }
-                    },
-                    "apt_packages": [],
-                },
-                "doctype": "sphinx",
-                "sphinx": {
-                    "builder": "sphinx",
-                    "configuration": "docs/conf.py",
-                    "fail_on_warning": False,
-                },
-                "mkdocs": None,
-                "submodules": {
-                    "include": [],
-                    "exclude": "all",
-                    "recursive": False,
-                },
-                "search": {
-                    "ranking": {},
-                    "ignore": [
-                        "search.html",
-                        "search/index.html",
-                        "404.html",
-                        "404/index.html",
-                    ],
-                },
-            },
-        }
-        # Update build state: building
-        assert self.requests_mock.request_history[6].json() == {
-            "id": 1,
-            "state": "building",
-            "commit": "a1b2c3",
-            "readthedocs_yaml_path": None,
-            "config": mock.ANY,
-            "builder": mock.ANY,
-            "task_executed_at": mock.ANY,
-            "error": "",
-        }
-        # Update build state: uploading
-        assert self.requests_mock.request_history[7].json() == {
-            "id": 1,
-            "state": "uploading",
-            "commit": "a1b2c3",
-            "readthedocs_yaml_path": None,
-            "config": mock.ANY,
-            "builder": mock.ANY,
-            "task_executed_at": mock.ANY,
-            "error": "",
-        }
-        # Update version state
-        assert self.requests_mock.request_history[8]._request.method == "PATCH"
-        assert self.requests_mock.request_history[8].path == "/api/v2/version/1/"
-        assert self.requests_mock.request_history[8].json() == {
-            "addons": False,
-            "build_data": None,
-            "built": True,
-            "documentation_type": "sphinx",
-            "has_pdf": True,
-            "has_epub": True,
-            "has_htmlzip": True,
-        }
-        # Set project has valid clone
-        assert self.requests_mock.request_history[9]._request.method == "PATCH"
-        assert self.requests_mock.request_history[9].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[9].json() == {"has_valid_clone": True}
-        # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[10].json() == {
-            "id": 1,
-            "state": "finished",
-            "commit": "a1b2c3",
-            "readthedocs_yaml_path": None,
-            "config": mock.ANY,
-            "builder": mock.ANY,
-            "task_executed_at": mock.ANY,
-            "length": mock.ANY,
-            "success": True,
-            "error": "",
-        }
-
-        assert self.requests_mock.request_history[11]._request.method == "POST"
-        assert self.requests_mock.request_history[11].path == "/api/v2/revoke/"
-
-        assert BuildData.objects.all().exists()
-
-        self.mocker.mocks["get_build_media_storage_class"]()().rclone_sync_directory.assert_has_calls(
-            [
-                mock.call(mock.ANY, "html/project/latest"),
-                mock.call(mock.ANY, "json/project/latest"),
-                mock.call(mock.ANY, "htmlzip/project/latest"),
-                mock.call(mock.ANY, "pdf/project/latest"),
-                mock.call(mock.ANY, "epub/project/latest"),
-            ]
-        )
-        # TODO: find a directory to remove here :)
-        # build_media_storage.delete_directory
-
-    @override_settings(
-        DOCROOT="/tmp/readthedocs-tests/git-repository/",
-        RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
-        S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
-    )
-    @mock.patch("readthedocs.projects.tasks.builds.shutil")
-    @mock.patch("readthedocs.projects.tasks.builds.index_build")
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
-    @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
-    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_successful_build_with_temporary_s3_credentials(
-        self,
-        load_yaml_config,
-        clean_build,
-        send_notifications,
-        send_external_build_status,
-        build_complete,
-        index_build,
-        shutilmock,
-    ):
-        get(
-            Feature,
-            feature_id=Feature.USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
-            projects=[self.project],
-        )
-        load_yaml_config.return_value = get_build_config(
-            {
-                "formats": "all",
-                "sphinx": {
-                    "configuration": "docs/conf.py",
-                },
-            },
-            validate=True,
-        )
-
-        assert not BuildData.objects.all().exists()
-
-        # Create the artifact paths, so it's detected by the builder
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
-        filename = str(uuid.uuid4())
-        for f in ("htmlzip", "epub", "pdf"):
-            extension = "zip" if f == "htmlzip" else f
-            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
-            pathlib.Path(
-                os.path.join(
-                    self.project.artifact_path(version=self.version.slug, type_=f),
-                    # Use a random name for the offline format.
-                    # We will automatically rename this file to filename El Proxito expects.
-                    f"{filename}.{extension}",
-                )
-            ).touch()
-
-        # Create an "index.html" at root to avoid failing the builds
-        pathlib.Path(
-            os.path.join(
-                self.project.artifact_path(version=self.version.slug, type_="html"),
-                "index.html",
-            )
-        ).touch()
-
-        self._trigger_update_docs_task()
-
-        # Offline formats were renamed to the correct filename.
-        shutilmock.move.assert_has_calls(
-            [
-                mock.call(
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{filename}.zip"
-                    ),
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{self.project.slug}.zip"
-                    ),
-                ),
-                mock.call(
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{filename}.pdf"
-                    ),
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{self.project.slug}.pdf"
-                    ),
-                ),
-                mock.call(
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{filename}.epub"
-                    ),
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{self.project.slug}.epub"
-                    ),
-                ),
-            ]
-        )
-
-        # It has to be called twice, ``before_start`` and ``after_return``
-        clean_build.assert_has_calls(
-            [mock.call(mock.ANY), mock.call(mock.ANY)]  # the argument is an APIVersion
-        )
-
-        # TODO: mock `build_tasks.send_build_notifications` instead and add
-        # another tests to check that they are not sent for EXTERNAL versions
-        send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
-            event=WebHookEvent.BUILD_PASSED,
-        )
-
-        send_external_build_status.assert_called_once_with(
-            version_type=self.version.type,
-            build_pk=self.build.pk,
-            commit=self.build.commit,
-            status=BUILD_STATUS_SUCCESS,
-        )
-
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
-        )
-
-        index_build.delay.assert_called_once_with(build_id=self.build.pk)
-
-        # TODO: assert the verb and the path for each API call as well
-
-        # Build reset
-        assert self.requests_mock.request_history[3]._request.method == "POST"
-        assert self.requests_mock.request_history[3].path == "/api/v2/build/1/reset/"
-
-        # Update build state: cloning
-        assert self.requests_mock.request_history[4].json() == {
-            "id": 1,
-            "state": "cloning",
-            "commit": "a1b2c3",
-            "error": "",
-            "builder": mock.ANY,
-            "task_executed_at": mock.ANY,
-        }
-
-        # Update build state: installing
-        assert self.requests_mock.request_history[5].json() == {
-            "id": 1,
-            "state": "installing",
-            "commit": "a1b2c3",
-            "builder": mock.ANY,
-            "task_executed_at": mock.ANY,
-            "readthedocs_yaml_path": None,
-            "error": "",
-            # We update the `config` field at the same time we send the
-            # `installing` state, to reduce one API call
-            "config": {
-                "version": "2",
-                "formats": ["htmlzip", "pdf", "epub"],
-                "python": {
-                    "install": [],
-                },
-                "conda": None,
-                "build": {
-                    "os": "ubuntu-22.04",
-                    "commands": [],
-                    "jobs": {
-                        "pre_checkout": [],
-                        "post_checkout": [],
-                        "pre_system_dependencies": [],
-                        "post_system_dependencies": [],
-                        "pre_create_environment": [],
-                        "create_environment": None,
-                        "post_create_environment": [],
-                        "pre_install": [],
-                        "install": None,
-                        "post_install": [],
-                        "pre_build": [],
-                        "build": {
-                            "html": None,
-                            "pdf": None,
-                            "epub": None,
-                            "htmlzip": None,
-                        },
-                        "post_build": [],
-                    },
-                    "tools": {
-                        "python": {
-                            "full_version": "3.13.3",
+                            "full_version": "3.14.0",
                             "version": "3",
                         }
                     },
@@ -940,6 +680,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_pdf": True,
             "has_epub": True,
             "has_htmlzip": True,
+            "identifier": mock.ANY,
+            "type": "branch",
         }
         # Set project has valid clone
         assert self.requests_mock.request_history[11]._request.method == "PATCH"
@@ -1106,7 +848,7 @@ class TestBuildTask(BuildEnvironmentBase):
         }
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_build_commands_executed(
+    def test_build_commands_executed_latest_version(
         self,
         load_yaml_config,
     ):
@@ -1144,18 +886,16 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--prune-tags",
                     "--depth",
                     "50",
-                    "refs/heads/master:refs/remotes/origin/master",
+                    "HEAD",
                 ),
                 mock.call(
                     "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    "--",
-                    "refs/remotes/origin/a1b2c3",
+                    "symbolic-ref",
+                    "--short",
+                    "refs/remotes/origin/HEAD",
+                    demux=True,
                     record=False,
                 ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "ls-remote",
@@ -1386,6 +1126,271 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_commands_executed_non_machine_version(
+        self,
+        load_yaml_config,
+    ):
+        self.version.machine = False
+        self.version.save()
+
+        load_yaml_config.return_value = get_build_config(
+            {
+                "version": 2,
+                "formats": "all",
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            },
+            validate=True,
+        )
+
+        # Create the artifact paths, so it's detected by the builder
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
+        os.makedirs(
+            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
+        )
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
+                mock.call(
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
+                    "refs/heads/latest:refs/remotes/origin/latest",
+                ),
+                mock.call(
+                    "git",
+                    "show-ref",
+                    "--verify",
+                    "--quiet",
+                    "--",
+                    "refs/remotes/origin/a1b2c3",
+                    record=False,
+                ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
+                mock.call(
+                    "git",
+                    "ls-remote",
+                    "--tags",
+                    "--heads",
+                    mock.ANY,
+                    demux=True,
+                    record=False,
+                ),
+            ]
+        )
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "python",
+                    "-mvirtualenv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pip",
+                    "setuptools",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "sphinx",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "html",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/html",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "singlehtml",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/htmlzip",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mktemp",
+                    "--directory",
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "zip",
+                    "--recurse-paths",
+                    "--symlinks",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "latex",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/pdf",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call("cat", "latexmkrc", cwd=mock.ANY),
+                # NOTE: pdf `mv` commands and others are not here because the
+                # PDF resulting file is not found in the process (`_post_build`)
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-b",
+                    "epub",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    "/tmp/project-latest.epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "rm",
+                    "--recursive",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.epub",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call("lsb_release", "--description", record=False, demux=True),
+                mock.call("python", "--version", record=False, demux=True),
+                mock.call(
+                    "dpkg-query",
+                    "--showformat",
+                    "${package} ${version}\\n",
+                    "--show",
+                    record=False,
+                    demux=True,
+                ),
+                mock.call(
+                    "python",
+                    "-m",
+                    "pip",
+                    "list",
+                    "--pre",
+                    "--local",
+                    "--format",
+                    "json",
+                    record=False,
+                    demux=True,
+                ),
+            ]
+        )
+
     @mock.patch.object(GitHubAppService, "get_clone_token")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed_with_clone_token(
@@ -1413,7 +1418,7 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
 
-        get_clone_token.return_value = "toke:1234"
+        get_clone_token.return_value = "token:1234"
         github_app_installation = get(
             GitHubAppInstallation,
             installation_id=1234,
@@ -1444,18 +1449,16 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--prune-tags",
                     "--depth",
                     "50",
-                    "refs/heads/master:refs/remotes/origin/master",
+                    "HEAD",
                 ),
                 mock.call(
                     "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    "--",
-                    "refs/remotes/origin/a1b2c3",
+                    "symbolic-ref",
+                    "--short",
+                    "refs/remotes/origin/HEAD",
+                    demux=True,
                     record=False,
                 ),
-                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call(
                     "git",
                     "ls-remote",
@@ -2626,6 +2629,16 @@ class TestBuildTask(BuildEnvironmentBase):
             validate=True,
         )
 
+        # Create "mkdocs.yaml" for the "cat" command to find it
+        os.makedirs(os.path.join(self.project.checkout_path(version=self.version.slug), "docs"))
+        pathlib.Path(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "docs",
+                "mkdocs.yaml",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         self.mocker.mocks["environment.run"].assert_has_calls(
@@ -3047,3 +3060,41 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
         lsremote.side_effect = RepositoryError(RepositoryError.FAILED_TO_GET_VERSIONS)
         self._trigger_sync_repository_task()
         sync_versions_task.assert_not_called()
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    def test_git_ssh_command_set_when_syncing_versions(self, build_environment):
+        """Test that GIT_SSH_COMMAND is set when ALLOW_PRIVATE_REPOS is True during sync."""
+        self._trigger_sync_repository_task()
+
+        # The environment is created in SyncRepositoryTask.execute()
+        # We need to verify it was called with the correct environment variables
+        build_environment.assert_called_once()
+        call_kwargs = build_environment.call_args[1]
+        env_vars = call_kwargs["environment"]
+
+        # Verify GIT_SSH_COMMAND is set with the correct value
+        assert "GIT_SSH_COMMAND" in env_vars
+        assert env_vars["GIT_SSH_COMMAND"] == "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+        # Also verify the other expected environment variables are set
+        assert env_vars["GIT_TERMINAL_PROMPT"] == "0"
+        assert "READTHEDOCS_GIT_CLONE_TOKEN" in env_vars
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    def test_git_ssh_command_not_set_when_syncing_versions(self, build_environment):
+        """Test that GIT_SSH_COMMAND is not set when ALLOW_PRIVATE_REPOS is False during sync."""
+        self._trigger_sync_repository_task()
+
+        # The environment is created in SyncRepositoryTask.execute()
+        build_environment.assert_called_once()
+        call_kwargs = build_environment.call_args[1]
+        env_vars = call_kwargs["environment"]
+
+        # Verify GIT_SSH_COMMAND is NOT set
+        assert "GIT_SSH_COMMAND" not in env_vars
+
+        # But other environment variables should still be set
+        assert env_vars["GIT_TERMINAL_PROMPT"] == "0"
+        assert "READTHEDOCS_GIT_CLONE_TOKEN" in env_vars

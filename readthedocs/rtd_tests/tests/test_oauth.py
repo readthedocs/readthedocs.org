@@ -291,10 +291,11 @@ class GitHubAppTests(TestCase):
     def _get_pull_request_json(self, number: int, repo_full_name, **kwargs):
         user, repo = repo_full_name.split("/")
         default = {
-            "url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
+            "url": f"https://api.github.com/repos/{repo_full_name}/pulls/{number}",
             "id": 1,
             "html_url": f"https://github.com/{repo_full_name}/pull/{number}",
             "comments_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}/comments",
+            "issue_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
             "number": number,
             "state": "open",
             "locked": False,
@@ -984,6 +985,47 @@ class GitHubAppTests(TestCase):
         }
 
     @requests_mock.Mocker(kw="request")
+    def test_send_build_status_success_when_not_built(self, request):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This is specifically for external versions (PR builds) which are read-only and should
+        always link to the build detail page when not built.
+        """
+        commit = "1234abc"
+        # Create an external version (PR build) that is not built
+        version = get(Version, project=self.project, type=EXTERNAL, built=False)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build succeeded!",
+            "state": "success",
+            # Should link to build detail page, not version docs
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
     def test_send_build_status_failure(self, request):
         commit = "1234abc"
         version = self.project.versions.get(slug=LATEST)
@@ -1047,7 +1089,7 @@ class GitHubAppTests(TestCase):
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
             json=self._get_pull_request_json(
                 number=int(version.verbose_name),
                 repo_full_name=self.remote_repository.full_name,
@@ -1164,7 +1206,7 @@ class GitHubAppTests(TestCase):
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
             json=self._get_pull_request_json(
                 number=int(version.verbose_name),
                 repo_full_name=self.remote_repository.full_name,
@@ -1211,6 +1253,41 @@ class GitHubAppTests(TestCase):
         assert request_patch_comment.last_request.json() == {
             "body": f"<!-- readthedocs-{self.project.id} -->\nComment!",
         }
+
+    @requests_mock.Mocker(kw="request")
+    def test_post_comment_skip_on_closed_pr(self, request):
+        version = get(
+            Version,
+            verbose_name="1234",
+            project=self.project,
+            type=EXTERNAL,
+        )
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
+            json=self._get_pull_request_json(
+                number=int(version.verbose_name),
+                repo_full_name=self.remote_repository.full_name,
+                state="closed",
+            ),
+        )
+        request_post_comment = request.post(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+        )
+
+        service = self.installation.service
+
+        service.post_comment(build, "Comment!")
+        assert not request_post_comment.called
 
     def test_integration_attributes(self):
         assert self.integration.is_active
@@ -1560,6 +1637,38 @@ class GitHubOAuthTests(TestCase):
         mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_on_pr_builds(self, session, mock_logger, mock_structlog):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This happens when a build has exit code 183 (skipped) - it reports SUCCESS
+        to GitHub so the PR can be merged, but the version is never marked as built.
+        """
+        # external_version.built is False by default
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SUCCESS,
+        )
+
+        self.assertTrue(success)
+        # Verify that the target_url points to the build detail page, not the version docs
+        call_args = mock_structlog.contextvars.bind_contextvars.call_args_list
+        # Find the call with target_url
+        target_url = None
+        for call in call_args:
+            if 'target_url' in call[1]:
+                target_url = call[1]['target_url']
+                break
+
+        self.assertIsNotNone(target_url)
+        # Should link to build detail page, not version URL
+        self.assertIn(f'/projects/{self.project.slug}/builds/{self.external_build.pk}/', target_url)
+        self.assertNotIn('.readthedocs.io', target_url)
 
     @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
@@ -1979,7 +2088,7 @@ class GitHubOAuthTests(TestCase):
         assert not remote_repo.users.filter(id=self.user.id).exists()
 
     @requests_mock.Mocker(kw="request")
-    def test_update_remote_repository_remove_user_relation_public_repo(self, request):
+    def test_update_remote_repository_update_user_relation_public_repo(self, request):
         remote_repo = get(
             RemoteRepository,
             vcs_provider=GITHUB,
@@ -2005,8 +2114,8 @@ class GitHubOAuthTests(TestCase):
         assert remote_repo.name == "testrepo"
         assert remote_repo.full_name == "testuser/testrepo"
         assert remote_repo.description == "Test Repo"
-        assert not remote_repo.users.filter(id=self.user.id).exists()
-
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert not relation.admin
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -2476,6 +2585,173 @@ class BitbucketOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
+    def _make_workspace_access_response(self, slug, uuid):
+        """Build a minimal workspace access payload returned by the /2.0/user/workspaces/ endpoint."""
+        return {
+            "type": "workspace_access",
+            "administrator": True,
+            "workspace": {
+                "type": "workspace_base",
+                "slug": slug,
+                "uuid": uuid,
+                "links": {
+                    "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                    "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+                },
+            }
+        }
+
+    def _make_workspace_response(self, slug, uuid):
+        """Build a minimal workspace payload returned by the /2.0/workspaces/ endpoint."""
+        return {
+            "slug": slug,
+            "name": slug.title(),
+            "uuid": uuid,
+            "type": "workspace",
+            "links": {
+                "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                "html": {"href": f"https://bitbucket.org/{slug}"},
+                "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+            },
+        }
+
+    def _make_repo_response(self, workspace_slug, name, uuid):
+        """Build a minimal repository payload returned by the /2.0/repositories/ endpoint."""
+        workspace = self._make_workspace_response(workspace_slug, f"{{ws-{workspace_slug}}}")
+        return {
+            "scm": "git",
+            "uuid": uuid,
+            "name": name,
+            "full_name": f"{workspace_slug}/{name}",
+            "description": f"Repository {name}",
+            "is_private": False,
+            "workspace": workspace,
+            "mainbranch": {"type": "branch", "name": "main"},
+            "links": {
+                "html": {"href": f"https://bitbucket.org/{workspace_slug}/{name}"},
+                "avatar": {"href": ""},
+                "clone": [
+                    {
+                        "href": f"https://bitbucket.org/{workspace_slug}/{name}.git",
+                        "name": "https",
+                    },
+                    {
+                        "href": f"git@bitbucket.org:{workspace_slug}/{name}.git",
+                        "name": "ssh",
+                    },
+                ],
+            },
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_iterates_workspaces(self, request):
+        """
+        sync_repositories must query each workspace individually.
+
+        The cross-workspace ``/2.0/repositories/?role=<role>`` endpoint was
+        deprecated by Bitbucket on 2026-04-14, so the sync must enumerate
+        workspaces first and hit ``/2.0/repositories/{workspace}`` per workspace.
+        """
+        workspace_a = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        workspace_b = self._make_workspace_access_response("workspace-b", "{uuid-b}")
+        repo_a = self._make_repo_response("workspace-a", "repo-a", "{repo-a}")
+        repo_b = self._make_repo_response("workspace-b", "repo-b", "{repo-b}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [workspace_a, workspace_b]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a",
+            json={"values": [repo_a]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-b",
+            json={"values": [repo_b]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-a}", "{repo-b}"]
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-a}"
+        ).exists()
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-b}"
+        ).exists()
+
+        # Ensure the deprecated cross-workspace endpoint is never hit.
+        for req in request.request_history:
+            assert req.path != "/2.0/repositories/", (
+                "sync_repositories must not call the deprecated "
+                "cross-workspace /2.0/repositories/ endpoint"
+            )
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_sets_admin_flag_per_workspace(self, request):
+        """Repositories returned by the ``role=admin`` query get admin=True."""
+        workspace = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        admin_repo = self._make_repo_response("workspace-a", "admin-repo", "{repo-admin}")
+        member_repo = self._make_repo_response("workspace-a", "member-repo", "{repo-member}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [workspace]},
+        )
+        # ``?role=admin`` returns the admin-accessible repo, ``?role=member``
+        # returns every repo the user can see.
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=admin",
+            json={"values": [admin_repo]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=member",
+            json={"values": [admin_repo, member_repo]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-admin}", "{repo-member}"]
+
+        admin_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-admin}",
+        )
+        member_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-member}",
+        )
+        assert admin_relation.admin is True
+        assert member_relation.admin is False
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_no_workspaces(self, request):
+        """A user with no workspaces returns an empty list without API errors."""
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": []},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert remote_ids == []
+        # Only the workspaces endpoint should have been called.
+        assert [req.path for req in request.request_history] == ["/2.0/user/workspaces/"]
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_invalid_token_raises(self, request):
+        """A 401 from Bitbucket maps to ``SyncServiceError``."""
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            status_code=401,
+            json={"error": {"message": "Unauthorized"}},
+        )
+
+        with self.assertRaises(SyncServiceError):
+            self.service.sync_repositories()
+
     @requests_mock.Mocker(kw="request")
     def test_update_remote_repository(self, request):
         remote_repo = get(
@@ -2485,9 +2761,18 @@ class BitbucketOAuthTests(TestCase):
             remote_id=self.repo_response_data["uuid"],
         )
         assert not remote_repo.users.filter(id=self.user.id).exists()
-
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": [self.repo_response_data]})
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": [self.repo_response_data]})
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": [self.repo_response_data]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": [self.repo_response_data]},
+        )
         self.service.update_repository(remote_repo)
         remote_repo.refresh_from_db()
 
@@ -2516,8 +2801,18 @@ class BitbucketOAuthTests(TestCase):
         )
         assert remote_repo.users.filter(id=self.user.id).exists()
 
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=admin", json={"values": []})
-        request.get(f"https://api.bitbucket.org/2.0/repositories/?role=member", json={"values": []})
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": []},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": []},
+        )
         self.service.update_repository(remote_repo)
         remote_repo.refresh_from_db()
 

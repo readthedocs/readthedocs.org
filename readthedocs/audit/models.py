@@ -223,7 +223,7 @@ class AuditLog(TimeStampedModel):
         if self.project:
             self.log_project_id = self.project.id
             self.log_project_slug = self.project.slug
-            organization = self.project.organizations.first()
+            organization = self.project.organization
             if organization:
                 self.organization = organization
         if self.organization:

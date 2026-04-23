@@ -13,5 +13,11 @@ class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
             "SHOW_TOOLBAR_CALLBACK": lambda request: False,
         }
 
+    # Override the setting from base.py only in proxito.
+    # Cookies with samesite=none are allowed over https only.
+    # On development we use http, the cookie will be rejected
+    # and produce an infinite redirect.
+    SESSION_COOKIE_SAMESITE = "Lax"
+
 
 ProxitoDevSettings.load_settings(__name__)

@@ -168,9 +168,9 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
-    BROKER_URL = f"redis://:redispassword@cache:6379/0"
+    CELERY_BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
-    CELERY_ALWAYS_EAGER = False
+    CELERY_TASK_ALWAYS_EAGER = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -188,7 +188,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     S3_STATIC_STORAGE_BUCKET = os.environ.get("RTD_S3_STATIC_STORAGE_BUCKET", "static")
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
-    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "minio")
+    S3_PROVIDER = os.environ.get("RTD_S3_PROVIDER", "rustfs")
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
@@ -198,7 +198,7 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     @property
     def AWS_S3_ENDPOINT_URL(self):
-        if self.S3_PROVIDER == "minio":
+        if self.S3_PROVIDER == "rustfs":
             return "http://storage:9000/"
         return None
 
@@ -243,8 +243,23 @@ class DockerBaseSettings(CommunityBaseSettings):
     @property
     def STORAGES(self):
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "storages.backends.s3.S3Storage",

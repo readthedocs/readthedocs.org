@@ -19,7 +19,7 @@ def forwards_func(apps, schema_editor):
     Invitation = apps.get_model("invitations", "Invitation")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
-    queryset = TeamInvite.objects.filter(teammember__member__isnull=True).prefetch_related(
+    queryset = TeamInvite.objects.filter(teammember__member__isnull=True).select_related(
         "organization"
     )
     for team_invite in queryset:

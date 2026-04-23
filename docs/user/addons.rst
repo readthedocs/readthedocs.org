@@ -32,6 +32,9 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`Search analytics </search-analytics>`
     Understand what your users are searching for
 
+:doc:`Custom script </custom-script>`
+    Inject custom JavaScript into your documentation
+
 Configuring Read the Docs Addons
 --------------------------------
 

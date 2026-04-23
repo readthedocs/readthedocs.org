@@ -1,3 +1,6 @@
+import csv
+from unittest import mock
+
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
@@ -5,6 +8,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
@@ -317,3 +321,318 @@ class TestProjectDownloads(TestCase):
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class TestProjectEditView(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user], repo="https://github.com/user/repo")
+        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    @mock.patch("readthedocs.projects.forms.index_project")
+    def test_search_indexing_enabled(self, index_project, trigger_build):
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        form = resp.context["form"]
+        assert "search_indexing_enabled" not in form.fields
+
+        self.project.search_indexing_enabled = False
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        form = resp.context["form"]
+        assert "search_indexing_enabled" in form.fields
+
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+        }
+
+        data["search_indexing_enabled"] = False
+        resp = self.client.post(
+            self.url,
+            data=data,
+        )
+        assert resp.status_code == 302
+        self.project.refresh_from_db()
+        assert not self.project.search_indexing_enabled
+        index_project.delay.assert_not_called()
+
+        data["search_indexing_enabled"] = True
+        resp = self.client.post(
+            self.url,
+            data=data,
+        )
+        assert resp.status_code == 302
+        self.project.refresh_from_db()
+        assert self.project.search_indexing_enabled
+        index_project.delay.assert_called_once_with(project_slug=self.project.slug)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class TestGitCheckoutCommandField(TestCase):
+    """Tests for the git_checkout_command form field."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(
+            Project,
+            users=[self.user],
+            repo="https://github.com/user/repo"
+        )
+        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_git_checkout_command_field_appears_in_form(self):
+        """Test that git_checkout_command field is present in the form."""
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("git_checkout_command", resp.context["form"].fields)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_save_valid_json(self, trigger_build):
+        """Test that multiline input can be saved to git_checkout_command."""
+        commands = [
+            "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "\n".join(commands),
+        }
+
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.git_checkout_command, commands)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_empty_value(self, trigger_build):
+        """Test that empty value sets git_checkout_command to None."""
+        data = {
+            "name": self.project.name,
+            "repo": self.project.repo,
+            "language": self.project.language,
+            "default_version": self.project.default_version,
+            "versioning_scheme": self.project.versioning_scheme,
+            "git_checkout_command": "",
+        }
+
+        resp = self.client.post(self.url, data=data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.project.refresh_from_db()
+        self.assertIsNone(self.project.git_checkout_command)
+
+    @mock.patch("readthedocs.projects.forms.trigger_build")
+    def test_git_checkout_command_display_existing_value(self, trigger_build):
+        """Test that existing git_checkout_command is displayed as formatted JSON."""
+        commands = [
+            "git clone --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+            "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+        ]
+        self.project.git_checkout_command = commands
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+
+        # The field should have the initial value as formatted JSON
+        initial = resp.context["form"].initial["git_checkout_command"]
+        expected_json = "\n".join(commands)
+        self.assertEqual(initial, expected_json)
+
+
+class TestProjectDetailView(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+
+    def test_view(self):
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+        assert resp.status_code == 200
+
+        assert "badge_url" in resp.context
+        assert "site_url" in resp.context
+
+    def test_project_detail_view_no_valid_default_version(self):
+        self.project.default_version = "404"
+        self.project.save()
+        self.project.versions.all().delete()
+
+        url = reverse("projects_detail", args=[self.project.slug])
+        resp = self.client.get(url)
+
+        # Should return 200 and not error
+        assert resp.status_code == 200
+
+        # badge_url and site_url should not be in context when default version doesn't exist
+        assert "badge_url" not in resp.context
+        assert "site_url" not in resp.context
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestTrafficAnalyticsView(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.version = self.project.versions.first()
+        self.url = reverse("projects_traffic_analytics", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_download_traffic_200_csv(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/index.html",
+            status=200,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv")
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        self.assertEqual(csv_data[0], ["Date", "Version", "Path", "Views"])
+        paths = [row[2] for row in csv_data[1:]]
+        self.assertIn("/en/latest/index.html", paths)
+        # filename should be for traffic analytics (200)
+        content_disposition = resp["Content-Disposition"]
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http200_", content_disposition)
+
+    def test_download_traffic_404_csv(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/missing.html",
+            status=404,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv")
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        self.assertEqual(csv_data[0], ["Date", "Version", "Path", "Views"])
+        paths = [row[2] for row in csv_data[1:]]
+        self.assertIn("/en/latest/missing.html", paths)
+        # filename should be for 404 analytics
+        content_disposition = resp["Content-Disposition"]
+        self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http404_", content_disposition)
+
+    def test_download_traffic_404_csv_excludes_200_pages(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/index.html",
+            status=200,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "404"})
+        self.assertEqual(resp.status_code, 200)
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        # Only header row, no data rows
+        self.assertEqual(len(csv_data), 1)
+
+    def test_download_traffic_200_csv_excludes_404_pages(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/en/latest/missing.html",
+            status=404,
+        )
+        resp = self.client.get(self.url, {"download": "true", "status": "200"})
+        self.assertEqual(resp.status_code, 200)
+
+        content = [
+            line.decode() for line in b"".join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        # Only header row, no data rows
+        self.assertEqual(len(csv_data), 1)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectSearchSettingsUpdate(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.url = reverse("projects_search_settings", args=[self.project.slug])
+        self.client.force_login(self.user)
+
+    def test_get_returns_200_for_admin(self):
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+
+    def test_get_returns_404_for_non_admin(self):
+        other_user = get(User)
+        self.client.force_login(other_user)
+        resp = self.client.get(self.url)
+        assert resp.status_code == 404
+
+    def test_get_redirects_unauthenticated_user(self):
+        self.client.logout()
+        resp = self.client.get(self.url)
+        assert resp.status_code == 302
+        assert "/accounts/login/" in resp["Location"]
+
+    def test_post_updates_search_settings(self):
+        addons = self.project.addons
+        assert addons.search_enabled is True
+        assert addons.search_show_subprojects_filter is True
+
+        data = {
+            "search_enabled": False,
+            "search_show_subprojects_filter": False,
+        }
+        resp = self.client.post(self.url, data=data)
+        assert resp.status_code == 302
+        assert resp["Location"] == self.url
+
+        addons.refresh_from_db()
+        assert addons.search_enabled is False
+        assert addons.search_show_subprojects_filter is False
+
+    def test_post_updates_partial_search_settings(self):
+        addons = self.project.addons
+        addons.search_enabled = False
+        addons.search_show_subprojects_filter = True
+        addons.save()
+
+        data = {
+            "search_enabled": True,
+            "search_show_subprojects_filter": False,
+        }
+        resp = self.client.post(self.url, data=data)
+        assert resp.status_code == 302
+
+        addons.refresh_from_db()
+        assert addons.search_enabled is True
+        assert addons.search_show_subprojects_filter is False
