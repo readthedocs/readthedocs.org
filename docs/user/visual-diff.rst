@@ -82,6 +82,15 @@ This is useful if your ``latest`` version doesn't point the default branch of yo
 
    This option can be changed by contacting :doc:`/support`.
 
+When the first successful build of a pull request runs, Read the Docs takes a
+snapshot of the base version's current file manifest and pins it as the
+baseline for that pull request.
+Subsequent builds of the pull request are compared against this pinned
+snapshot instead of whatever the base version happens to contain at that
+moment.
+This prevents unrelated files from appearing as changed when the base branch
+moves forward while the pull request is open.
+
 How main content is detected
 ----------------------------
 
@@ -101,7 +110,8 @@ Limitations and known issues
 
 - The diff considers HTML files only.
 - The diff is done between the files from the latest successful build of the pull request and the default base version (latest by default).
-  If your pull request gets out of sync with its base branch, the diff may not be accurate, and may show unrelated files and sections as changed.
+  A snapshot of the base version's manifest is saved on the first successful build of the pull request, so the diff stays stable as the base branch moves forward.
+  If the pull request is later updated against a newer base, the snapshot is not currently refreshed automatically, and the diff may show stale differences until this is addressed in a future update.
 - Invisible changes. Some sections may be highlighted as changed, even when they haven't actually visually changed.
   This can happen when the underlying HTML changes without a corresponding visual change, for example, if a link's URL is updated
 - Tables may be shown to have changes when they have not actually changed.
