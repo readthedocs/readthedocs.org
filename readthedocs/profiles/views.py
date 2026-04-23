@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -232,8 +233,8 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     http_method_names = ["post"]
 
-    def get_object(self, queryset=None):  # noqa
-        return self.request.user.auth_token
+    def get_object(self):
+        return get_object_or_404(Token, user=self.request.user)
 
 
 class UserSecurityLogView(PrivateViewMixin, ListView):

@@ -1,9 +1,9 @@
 import json
-from io import BytesIO
 
 import requests
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -11,7 +11,6 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
@@ -23,7 +22,6 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import LOCK_EXPIRE
-from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
@@ -32,6 +30,7 @@ from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
@@ -45,7 +44,7 @@ log = structlog.get_logger(__name__)
 
 
 @app.task(queue="web", bind=True)
-def archive_builds_task(self, days=14, limit=200, delete=False):
+def archive_builds_task(self, days=14, limit=200):
     """
     Task to archive old builds to cold storage.
 
@@ -71,33 +70,8 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
             .prefetch_related("commands")
             .only("date", "cold_storage")[:limit]
         )
-
         for build in queryset:
-            commands = BuildCommandSerializer(build.commands, many=True).data
-            if commands:
-                for cmd in commands:
-                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
-                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
-                        cmd["output"] = (
-                            "\n\n"
-                            "... (truncated) ..."
-                            "\n\n"
-                            "Command output too long. Truncated to last 1MB."
-                            "\n\n" + cmd["output"]
-                        )  # noqa
-                        log.debug("Truncating build command for build.", build_id=build.id)
-                output = BytesIO(json.dumps(commands).encode("utf8"))
-                filename = "{date}/{id}.json".format(date=str(build.date.date()), id=build.id)
-                try:
-                    build_commands_storage.save(name=filename, content=output)
-                    if delete:
-                        build.commands.all().delete()
-                except IOError:
-                    log.exception("Cold Storage save failure")
-                    continue
-
-            build.cold_storage = True
-            build.save()
+            build.move_to_cold_storage()
 
 
 @app.task(queue="web")
@@ -606,3 +580,106 @@ def remove_orphan_build_config():
     count = orphan_buildconfigs.count()
     orphan_buildconfigs.delete()
     log.info("Removed orphan BuildConfig objects.", count=count)
+
+
+@app.task(queue="web", bind=True)
+def delete_old_build_objects(
+    self, days=365 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
+):
+    """
+    Delete old Build objects that are not needed anymore.
+
+    We keep the most recent `keep_recent` builds per version,
+    and delete builds that are older than `days` days.
+
+    :param limit: Maximum number of builds to delete in one execution.
+     Keep our DB from being overwhelmed by deleting too many builds at once.
+    :param max_projects: Maximum number of projects to process in one execution.
+     Avoids iterating over all projects in one execution.
+    :param start: Starting index for processing projects.
+     Normally, this value comes from the cache, and is updated after each execution to continue from where it left off.
+     But it can also be set to a specific value for manual execution.
+    """
+    cache_key = "rtd-task:delete_old_build_objects_start"
+    max_count = Project.objects.count()
+    use_cache = start is None
+    if use_cache:
+        start = cache.get(cache_key, 0)
+    if start >= max_count:
+        start = 0
+
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 2, self.app.oid) as acquired:
+        if not acquired:
+            log.warning("Delete old build objects task still locked")
+            return
+
+        cutoff_date = timezone.now() - timezone.timedelta(days=days)
+        projects = (
+            Project.objects.all().order_by("pub_date").only("pk")[start : start + max_projects]
+        )
+        for n, project in enumerate(projects, start=1):
+            # Delete builds associated with versions, keeping
+            # the most recent `keep_recent` builds per version.
+            for version in project.versions.exclude(builds=None).only("pk").iterator():
+                builds_to_delete = version.builds.filter(date__lt=cutoff_date).order_by("-date")
+                n_builds_deleted = _delete_builds(
+                    builds_to_delete, start=keep_recent, end=keep_recent + limit
+                )
+                limit -= n_builds_deleted
+                if limit <= 0:
+                    if use_cache:
+                        cache.set(cache_key, start + n)
+                    return
+
+            # Delete builds that are not associated with any version,
+            # keeping the most recent `keep_recent` builds per project.
+            builds_to_delete = project.builds.filter(version=None, date__lt=cutoff_date).order_by(
+                "-date"
+            )
+            n_builds_deleted = _delete_builds(
+                builds_to_delete, start=keep_recent, end=keep_recent + limit
+            )
+            limit -= n_builds_deleted
+            if limit <= 0:
+                if use_cache:
+                    cache.set(cache_key, start + n)
+                return
+
+        if use_cache:
+            cache.set(cache_key, start + max_projects)
+
+
+def _delete_builds(builds, start: int, end: int) -> int:
+    """
+    Delete builds from the queryset, starting from `start` index and ending at `end` index.
+
+    This also deletes the storage paths associated with the builds if they are in cold storage.
+
+    :returns: The number of builds deleted.
+    """
+    # NOTE: we can't use a filter over an sliced queryset.
+    paths_to_delete = []
+    for build in builds[start:end]:
+        if build.cold_storage:
+            paths_to_delete.append(build.storage_path)
+
+    try:
+        _, deleted = delete_in_batches(builds, start=start, end=end)
+        return deleted.get("builds.Build", 0)
+    finally:
+        # If there was an error during deletion, we still want to
+        # delete the storage paths, otherwise we end up with orphan
+        # files in storage. The builds will be empty, but they are
+        # already scheduled for deletion.
+        remove_build_commands_storage_paths(paths_to_delete)
+
+
+@app.task(queue="web")
+def remove_build_commands_storage_paths(paths):
+    """Remove the build commands from storage for the given paths."""
+    log.info("Removing paths from build commands storage.", paths=paths[:10])
+    try:
+        build_commands_storage.delete_paths(paths)
+    except Exception:
+        log.info("Failed to delete build commands from storage.", exc_info=True)
