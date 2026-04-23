@@ -15,6 +15,7 @@ from readthedocs.redirects.constants import EXACT_REDIRECT
 from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
 from readthedocs.redirects.constants import HTTP_STATUS_CHOICES
 from readthedocs.redirects.constants import PAGE_REDIRECT
+from readthedocs.redirects.constants import SPLAT_PLACEHOLDER
 from readthedocs.redirects.constants import TYPE_CHOICES
 from readthedocs.redirects.validators import validate_redirect
 
@@ -263,7 +264,7 @@ class Redirect(models.Model):
                 return None
 
             splat = current_path[len(self.from_url_without_rest) :]
-            to_url = self.to_url.replace(":splat", splat)
+            to_url = self.to_url.replace(SPLAT_PLACEHOLDER, splat)
             return to_url
         return self.to_url
 
@@ -282,8 +283,8 @@ class Redirect(models.Model):
         We do this by checking if we will redirect to a subdirectory of the current path,
         and if the current path already starts with the path we will redirect to.
         """
-        if self.from_url.endswith("*") and ":splat" in self.to_url:
-            to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
+        if self.from_url.endswith("*") and SPLAT_PLACEHOLDER in self.to_url:
+            to_url_without_splat = self.to_url.split(SPLAT_PLACEHOLDER, maxsplit=1)[0]
 
             redirects_to_subpath = to_url_without_splat.startswith(self.from_url_without_rest)
             if redirects_to_subpath and current_path.startswith(to_url_without_splat):
