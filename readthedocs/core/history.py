@@ -8,8 +8,6 @@ from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
 
-from readthedocs.analytics.utils import get_client_ip
-
 
 log = structlog.get_logger(__name__)
 
@@ -18,14 +16,12 @@ def get_audit_context():
     """
     Return ``(user, ip, browser)`` for the current actor.
 
-    Reads from the simple-history request middleware when invoked during an
-    HTTP request, and falls back to thread-local attributes set by the
-    ``delete_object`` Celery task when no request is available.
+    These are populated on ``HistoricalRecords.context`` by the
+    ``delete_object`` Celery task, which is invoked from every deletion path
+    that needs audit attribution. When no task has set them (e.g. direct
+    ``Model.delete()`` calls in tests or management commands), all three are
+    ``None`` and the caller should skip writing an audit log.
     """
-    request = getattr(HistoricalRecords.context, "request", None)
-    if request:
-        user = request.user if request.user.is_authenticated else None
-        return user, get_client_ip(request), request.headers.get("User-Agent")
     return (
         getattr(HistoricalRecords.context, "acting_user", None),
         getattr(HistoricalRecords.context, "ip", None),

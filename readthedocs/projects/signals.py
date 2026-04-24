@@ -42,10 +42,14 @@ def audit_project_deletion(sender, instance, **kwargs):
     Log the deletion in each project admin's security log.
 
     Fires for both direct deletions and cascade deletions (e.g. when an
-    organization is deleted).
+    organization is deleted). If no acting user is set on the context (e.g.
+    tests or management commands that bypass ``delete_object``), we skip the
+    audit log entirely — there's no one to attribute the deletion to.
     """
     acting_user, ip, browser = get_audit_context()
-    data = {"deleted_by": acting_user.username} if acting_user else None
+    if not acting_user:
+        return
+    data = {"deleted_by": acting_user.username}
     for admin in instance.users.all():
         AuditLog.objects.create(
             user=admin,
