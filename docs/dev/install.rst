@@ -271,6 +271,53 @@ The ``rdb`` debugger is similar to ``pdb``, there is no ``ipdb`` for remote
 debugging currently.
 
 
+Using a local Git repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When doing local development, it's useful to use a local Git repository as the source for builds,
+rather than a remote repository (e.g. GitHub or Bitbucket).
+This reduces the iteration cycle considerably and avoids needing to fork or push to a remote repository.
+
+Since ``file://`` URLs are not supported,
+you need to serve the local repository over the ``git://`` protocol using ``git daemon``.
+
+#. Clone (or create) a repository on your host machine.
+   For example, to test a local copy of the Read the Docs documentation:
+
+   .. prompt:: bash
+
+      git clone https://github.com/readthedocs/readthedocs.org /tmp/readthedocs.org
+
+#. Start ``git daemon`` to expose the repository to the Docker containers:
+
+   .. prompt:: bash
+
+      git daemon --verbose --export-all --base-path=/tmp /tmp
+
+   This serves all repositories under ``/tmp`` on port 9418 (the default ``git://`` port).
+   Leave this process running in a separate terminal.
+
+   .. note::
+
+      ``--export-all`` allows the daemon to serve any repository,
+      without needing a ``git-daemon-export-ok`` marker file in each repo.
+      ``--base-path=/tmp`` means that ``/tmp`` is stripped from the path in URLs,
+      so ``/tmp/readthedocs.org`` is served as ``git://HOST/readthedocs.org``.
+
+#. Go to http://devthedocs.org/dashboard/import/manual/
+   and import the project manually using the ``git://`` URL.
+   The Docker network defined in ``docker-compose.override.yml`` uses the subnet ``10.10.0.0/16``,
+   so the host machine is reachable from inside the containers at ``10.10.0.1``:
+
+   .. code-block:: text
+
+      git://10.10.0.1/readthedocs.org
+
+Any subsequent builds triggered in your local Read the Docs instance will clone from your local repository.
+This means you can make changes to the repository on your host machine
+and trigger a new build without having to push to a remote.
+
+
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
