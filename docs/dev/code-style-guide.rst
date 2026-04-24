@@ -37,7 +37,7 @@ Imports and logging
      log.info("Stable version updated.", project_slug=project.slug)
 
 - ``log.exception(...)`` inside ``except`` blocks; ``log.error`` only when
-  there is no live traceback.
+  there is no live exception context.
 
 
 Django and DRF
@@ -55,8 +55,8 @@ Django and DRF
   Split serializers by action (``ProjectCreateSerializer``,
   ``ProjectUpdateSerializer``, ``ProjectSerializer``) rather than switching
   fields per verb.
-- **Celery tasks** take only JSON-serializable args (pass ``project.pk``, not
-  ``project``). Build-affecting tasks use ``memcache_lock``
+- **Celery tasks** take only JSON-serializable arguments (pass ``project.pk``,
+  not ``project``). Build-affecting tasks use ``memcache_lock``
   (``readthedocs/builds/utils.py``) to prevent duplicate runs.
 - **Signals.** Keep receivers thin; prefer explicit calls from the code path
   that caused the change over business logic in ``post_save``.
@@ -78,7 +78,7 @@ Errors and notifications
   ``readthedocs/notifications/messages.py`` with a stable ``id`` and raise a
   typed exception from ``<app>/exceptions.py`` (``BuildUserError``,
   ``ProjectConfigurationError``, …) — don't raise bare ``Exception`` or
-  surface tracebacks.
+  surface stack traces.
 
 
 Testing
@@ -101,4 +101,4 @@ Security
 - External HTTP uses ``readthedocs.core.utils.requests`` (timeouts,
   allowed-host checks), not ``requests`` directly.
 - Never interpolate user values into ``subprocess`` with ``shell=True``; pass
-  args as a list or use ``shlex.quote``.
+  arguments as a list or use ``shlex.quote``.
