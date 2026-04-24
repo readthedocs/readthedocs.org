@@ -32,5 +32,4 @@ Teams
 .. note::
 
    **Please don't email us personally for support on Read the Docs.**
-   You can `use our support form <https://app.readthedocs.org/support/>`_
-   for any issues you may have.
+   See our :doc:`support page </support>` for the right way to reach us.
