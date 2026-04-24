@@ -32,6 +32,6 @@ Projects can update to use these new pages in their documentation at any
 point. If you would like to update your project to use these pages
 before then, contact us:
 
-https://app.readthedocs.com/support
+{{ production_uri }}{% url 'support' %}
 
 {% endblock content %}

@@ -5,7 +5,7 @@
     original user interface and replace it with a completely new dashboard.
   </p>
   <p>
-    Documentation hosted on <a href="https://readthedocs.com">Read the Docs Business</a>
+    Documentation hosted on <a href="https://about.readthedocs.com/">Read the Docs Business</a>
     will display this new dashboard in several places where documentation
     readers interact with our application: documentation authentication and our
     default documentation error pages.
@@ -24,7 +24,7 @@
 
   <p>
     On <strong>Dec 10th</strong> we will make our new dashboard the default
-    dashboard for users logging into <a href="https://readthedocs.com">Read the Docs Business</a>
+    dashboard for users logging into <a href="https://about.readthedocs.com/">Read the Docs Business</a>
     from our website. This change will mainly affect project maintainers,
     especially maintainers that have not yet switched to the new dashboard.
   </p>
@@ -42,6 +42,6 @@
   <p>
     Projects can update to use these new pages in their documentation at
     any point. If you would like to update your project to use these pages
-    before then, <a href="https://app.readthedocs.com/support">contact us</a>.
+    before then, <a href="{{ production_uri }}{% url 'support' %}">contact us</a>.
   </p>
 {% endblock content %}
