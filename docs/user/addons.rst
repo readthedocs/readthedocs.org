@@ -32,14 +32,17 @@ and can be accessed via hotkeys or on screen UI elements.
 :doc:`Search analytics </search-analytics>`
     Understand what your users are searching for
 
+:doc:`Custom script </custom-script>`
+    Inject custom JavaScript into your documentation
+
 Configuring Read the Docs Addons
 --------------------------------
 
 Individual configuration options for each addon are available in :guilabel:`Settings`.
 
-#. Go to the new :term:`dashboard`:
+#. Go to the new :term:`dashboard`.
 #. Click on a project name.
-#. Go to :guilabel:`Settings`
+#. Go to :guilabel:`Settings`.
 #. In the left bar, go to :guilabel:`Addons`.
 #. Configure each Addon individually.
 
@@ -219,9 +222,9 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                 },
                 "success": true,
                 "urls": {
-                    "build": "https://readthedocs.org/projects/docs/builds/26773762/",
-                    "project": "https://readthedocs.org/projects/docs/",
-                    "version": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                    "build": "https://app.readthedocs.org/projects/docs/builds/26773762/",
+                    "project": "https://app.readthedocs.org/projects/docs/",
+                    "version": "https://app.readthedocs.org/projects/docs/version/stable/edit/"
                 },
                 "version": "stable"
             }
@@ -262,11 +265,11 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                 ],
                 "translation_of": null,
                 "urls": {
-                    "builds": "https://readthedocs.org/projects/docs/builds/",
+                    "builds": "https://app.readthedocs.org/projects/docs/builds/",
                     "documentation": "https://docs.readthedocs.io/en/stable/",
-                    "downloads": "https://readthedocs.org/projects/docs/downloads/",
-                    "home": "https://readthedocs.org/projects/docs/",
-                    "versions": "https://readthedocs.org/projects/docs/versions/"
+                    "downloads": null,
+                    "home": "https://app.readthedocs.org/projects/docs/",
+                    "versions": "https://app.readthedocs.org/projects/docs/versions/"
                 },
                 "users": [
                     {
@@ -316,7 +319,7 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                     "type": "tag",
                     "urls": {
                         "dashboard": {
-                            "edit": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                            "edit": "https://app.readthedocs.org/projects/docs/version/stable/edit/"
                         },
                         "documentation": "https://docs.readthedocs.io/en/stable/",
                         "vcs": "https://github.com/readthedocs/readthedocs.org/tree/11.18.0/"
@@ -341,7 +344,7 @@ The ``event.detail.data()`` object contains all the Addons configuration, includ
                 "type": "tag",
                 "urls": {
                     "dashboard": {
-                        "edit": "https://readthedocs.org/projects/docs/version/stable/edit/"
+                        "edit": "https://app.readthedocs.org/projects/docs/version/stable/edit/"
                     },
                     "documentation": "https://docs.readthedocs.io/en/stable/",
                     "vcs": "https://github.com/readthedocs/readthedocs.org/tree/11.18.0/"

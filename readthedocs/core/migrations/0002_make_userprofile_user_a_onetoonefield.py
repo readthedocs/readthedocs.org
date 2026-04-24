@@ -1,8 +1,11 @@
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         ("core", "0001_initial"),
     ]

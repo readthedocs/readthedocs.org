@@ -59,11 +59,11 @@ but you should also disable our OAuth Application from your Git provider.
 
 * On GitHub, navigate to `Authorized OAuth Apps`_.
 * On Bitbucket, navigate to `Application Authorizations`_.
-* On GitLab, navigat to `Applications`_
+* On GitLab, navigate to `Applications`_
 
 .. _Authorized OAuth Apps: https://github.com/settings/applications
 .. _Application Authorizations: https://bitbucket.org/account/settings/app-authorizations/
 .. _Applications: https://gitlab.com/-/profile/applications
 
-.. [#f1] `Connected Services on readthedocs.org <https://readthedocs.org/accounts/social/connections/>`_
-.. [#f2] `Connected Services on readthedocs.com <https://readthedocs.com/accounts/social/connections/>`_
+.. [#f1] `Connected Services on readthedocs.org <https://app.readthedocs.org/accounts/social/connections/>`_
+.. [#f2] `Connected Services on readthedocs.com <https://app.readthedocs.com/accounts/social/connections/>`_

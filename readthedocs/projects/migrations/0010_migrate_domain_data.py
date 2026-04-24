@@ -1,6 +1,8 @@
 from urllib.parse import urlparse
 
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
+from django_safemigrate import Safe
 
 import readthedocs.projects.validators
 
@@ -25,16 +27,10 @@ def migrate_url(apps, schema_editor):
         try:
             domain.domain = domain_string
             domain.save()
-            print(
-                "Added {domain} from {url}".format(url=domain.url, domain=domain_string)
-            )
+            print("Added {domain} from {url}".format(url=domain.url, domain=domain_string))
         except Exception as e:
             print(e)
-            print(
-                "Failed {domain} from {url}".format(
-                    url=domain.url, domain=domain_string
-                )
-            )
+            print("Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
 
         dms = Domain.objects.filter(domain=domain_string).order_by("-count")
         if dms.count() > 1:
@@ -43,6 +39,7 @@ def migrate_url(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    safe = Safe.after_deploy()
     dependencies = [
         ("projects", "0009_add_domain_field"),
     ]

@@ -5,13 +5,21 @@ import textwrap
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.notifications.constants import ERROR
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.constants import WARNING
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+
 
 MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
 MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"
 MESSAGE_OAUTH_WEBHOOK_INVALID = "oauth:webhook:invalid"
 MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
+MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
+MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
+MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES = "oauth:syncing-remote-repositories"
+MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:projects-to-migrate-to-github-app"
 
 messages = [
     Message(
@@ -61,9 +69,10 @@ messages = [
             textwrap.dedent(
                 """
         Could not send {{provider_name}} build status report for "{{instance.name}}".
-        Make sure you have the correct {{provider_name}} repository permissions</a> and
+        Make sure you have the correct {{provider_name}} repository permissions and
         your <a href="{{url_connect_account}}">{{provider_name}} account</a>
         is connected to Read the Docs.
+        See <a href="https://docs.readthedocs.com/platform/stable/guides/pull-requests.html#troubleshooting">our troubleshooting guide</a> for more information.
             """
             ).strip(),
         ),
@@ -75,11 +84,66 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Failed to add deploy key to {{provider_name}} project, ensure you have the correct permissions and try importing again.
-            """
+                Failed to add deploy key to {{provider_name}} project,
+                ensure you have the correct permissions and try
+                <a href="https://docs.readthedocs.com/platform/stable/guides/creating-project-private-repository.html#configuring-your-repository">
+                  adding the key manually
+                </a>.
+                """
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED,
+        header=_("Failed to remove webhook"),
+        body=_(
+            textwrap.dedent(
+                """
+                Failed to remove webhook from the <a href="https://github.com/{{ repo_full_name }}">{{ repo_full_name }}</a> repository, please remove it manually
+                from the <a href="https://github.com/{{ repo_full_name }}/settings/hooks">repository settings</a> (search for a webhook containing "{{ project_slug }}" in the URL).
+                """
+            ).strip(),
+        ),
+        type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED,
+        header=_("Failed to remove deploy key"),
+        body=_(
+            textwrap.dedent(
+                """
+                Failed to remove deploy key from the <a href="https://github.com/{{ repo_full_name }}">{{ repo_full_name }}</a> repository, please remove it manually
+                from the <a href="https://github.com/{{ repo_full_name }}/settings/keys">repository settings</a> (search for a deploy key containing "{{ project_slug }}" in the title).
+                """
+            )
+        ),
+        type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+        header=_("Syncing repositories from VCS providers"),
+        body=_(
+            textwrap.dedent(
+                """
+                We are syncing your repositories from your connected VCS providers.
+                Access to some projects and repositories might be temporarily unavailable until the sync is complete.
+                """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,
+        header=_("You have projects that need to be migrated to the new GitHub App"),
+        body=_(
+            textwrap.dedent(
+                """
+                Migrate your projects automatically using the <a href="{% url "migrate_to_github_app" %}">migration page</a>.
+                """
+            ).strip(),
+        ),
+        type=INFO,
     ),
 ]
 registry.add(messages)

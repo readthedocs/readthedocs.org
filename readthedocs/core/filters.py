@@ -1,14 +1,16 @@
 """Extended classes for django-filter."""
 
 import structlog
-from django_filters import FilterSet, ModelChoiceFilter, views
+from django_filters import FilterSet
+from django_filters import ModelChoiceFilter
+from django_filters import views
 from django_filters.fields import ModelChoiceField
+
 
 log = structlog.get_logger(__name__)
 
 
 class ModelFilterSet(FilterSet):
-
     """
     Filterset that supports empty querysets.
 
@@ -24,7 +26,6 @@ class ModelFilterSet(FilterSet):
 
 
 class FilteredModelChoiceField(ModelChoiceField):
-
     """
     Choice field for tuning model choices.
 
@@ -53,7 +54,6 @@ class FilteredModelChoiceField(ModelChoiceField):
 
 
 class FilteredModelChoiceFilter(ModelChoiceFilter):
-
     """
     A model choice field for customizing choice querysets at initialization.
 
@@ -90,7 +90,6 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
 
 
 class FilterContextMixin(views.FilterMixin):
-
     """
     Django-filter filterset mixin class for context data.
 

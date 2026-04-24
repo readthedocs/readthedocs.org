@@ -1,9 +1,9 @@
-import structlog
-
 import markdown
+import structlog
 from django.conf import settings
 from django.core.mail import send_mail
-from django.template import Context, Engine
+from django.template import Context
+from django.template import Engine
 
 
 log = structlog.get_logger(__name__)
@@ -72,9 +72,7 @@ def contact_users(
             email_html_content = markdown.markdown(email_txt_content)
 
             # Now render it using the base email templates.
-            email_txt_rendered = email_txt_template.render(
-                Context({"content": email_txt_content})
-            )
+            email_txt_rendered = email_txt_template.render(Context({"content": email_txt_content}))
             email_html_rendered = email_html_template.render(
                 Context({"content": email_html_content})
             )

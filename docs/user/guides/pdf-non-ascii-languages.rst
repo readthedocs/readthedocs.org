@@ -6,7 +6,7 @@ relevant for instance for Japanese or Chinese.
 
 .. _LaTeX engines: http://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_engine
 
-To build your documentation in PDF format, you need to configure Sphinx properly in your project's ``conf.py``.
+To build your documentation in PDF, you need to configure Sphinx properly in your project's ``conf.py``.
 Read the Docs will execute the proper commands depending on these settings.
 There are `several settings that can be defined`_ (all the ones starting with ``latex_``),
 to modify Sphinx and Read the Docs behavior to make your documentation to build properly.

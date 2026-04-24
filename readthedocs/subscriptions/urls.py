@@ -1,6 +1,8 @@
 from django.urls import path
 
-from readthedocs.subscriptions.views import DetailSubscription, StripeCustomerPortal
+from readthedocs.subscriptions.views import DetailSubscription
+from readthedocs.subscriptions.views import StripeCustomerPortal
+
 
 urlpatterns = [
     path(

@@ -3,22 +3,31 @@ from fnmatch import fnmatch
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, INTERNAL, LATEST
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.utils import index_objects, remove_indexed_files
+from readthedocs.search.utils import index_objects
+from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
 
 class Indexer:
-
     """
     Base class for doing operations over each file from a build.
 
@@ -37,7 +46,6 @@ class Indexer:
 
 
 class SearchIndexer(Indexer):
-
     """
     Index HTML files in ElasticSearch.
 
@@ -97,7 +105,6 @@ class SearchIndexer(Indexer):
 
 
 class IndexFileIndexer(Indexer):
-
     """
     Create imported files of interest in the DB.
 
@@ -124,10 +131,11 @@ class IndexFileIndexer(Indexer):
 
 
 class FileManifestIndexer(Indexer):
-    def __init__(self, version: Version, build: Build):
+    def __init__(self, version: Version, build: Build, post_build_overview: bool = True):
         self.version = version
         self.build = build
         self._hashes = {}
+        self.post_build_overview = post_build_overview
 
     def process(self, html_file: HTMLFile, sync_id: int):
         self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
@@ -136,14 +144,37 @@ class FileManifestIndexer(Indexer):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffFile(path=path, main_content_hash=hash)
-                for path, hash in self._hashes.items()
+                FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
+                for path, content_hash in self._hashes.items()
             ],
         )
         write_manifest(self.version, manifest)
 
+        # For PR previews, snapshot the base version's manifest on the first
+        # PR build where the snapshot can be created.
+        # This pins the diff baseline so that subsequent builds compare against
+        # that snapshotted base-version state instead of the base version's
+        # current state. This prevents false file changes when the base branch
+        # moves forward (the "stale branch" problem).
+        if self.version.is_external:
+            base_version = (
+                self.version.project.addons.options_base_version
+                or self.version.project.get_latest_version()
+            )
+            if base_version:
+                snapshot_base_manifest(self.version, base_version)
 
-def _get_indexers(*, version: Version, build: Build, search_index_name=None):
+        if (
+            self.post_build_overview
+            and self.version.is_external
+            and self.version.project.show_build_overview_in_comment
+        ):
+            post_build_overview.delay(self.build.id)
+
+
+def _get_indexers(
+    *, version: Version, build: Build, search_index_name=None, post_build_overview=True
+):
     build_config = build.config or {}
     search_config = build_config.get("search", {})
     search_ranking = search_config.get("ranking", {})
@@ -154,8 +185,16 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
     # This is because saving the objects in the DB will give them an id,
     # and we neeed this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
-    # NOTE: If the version is external, we don't create a search index for it.
-    if not version.is_external:
+    # NOTE: We don't create a search indexer for:
+    # - External versions
+    # - Versions from projects with search indexing disabled
+    # - Versions from delisted projects
+    skip_search_indexing = (
+        not version.project.search_indexing_enabled
+        or version.is_external
+        or version.project.delisted
+    )
+    if not skip_search_indexing:
         search_indexer = SearchIndexer(
             project=version.project,
             version=version,
@@ -165,22 +204,21 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
         )
         indexers.append(search_indexer)
 
-    # File tree diff is under a feature flag for now,
-    # and we only allow to compare PR previews against the latest version.
+    # We compare PR previews against the latest version,
+    # unless the project has a specific options_base_version set.
     base_version = (
         version.project.addons.options_base_version.slug
         if version.project.addons.options_base_version
         else LATEST
     )
-    create_manifest = version.project.addons.filetreediff_enabled and (
-        version.is_external
-        or version.slug == base_version
-        or settings.RTD_FILETREEDIFF_ALL
+    create_manifest = (
+        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(
             version=version,
             build=build,
+            post_build_overview=post_build_overview,
         )
         indexers.append(file_manifest_indexer)
 
@@ -193,19 +231,16 @@ def _get_indexers(*, version: Version, build: Build, search_index_name=None):
 
 
 def _process_files(*, version: Version, indexers: list[Indexer]):
-    storage_path = version.project.get_storage_path(
-        type_="html",
-        version_slug=version.slug,
-        include_file=False,
-        version_type=version.type,
-    )
+    storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.
-    # See https://github.com/readthedocs/readthedocs.org/issues/10734.
-    imported_file_build_id = version.imported_files.values_list(
-        "build", flat=True
-    ).first()
+    # NOTE: we use an slice instead of `.first()` to avoid Djagno using an ORDER BY clause,
+    # which makes the query slower, we don't need any specific order here, just the current sync_id.
+    # Next step is to not rely on the DB for this https://github.com/readthedocs/readthedocs.org/issues/10734.
+    imported_file_build_id = next(
+        iter(version.imported_files.values_list("build", flat=True)[:1]), None
+    )
     sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
     log.debug(
@@ -235,10 +270,25 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 build=sync_id,
             )
             for indexer in indexers:
-                indexer.process(html_file, sync_id)
+                try:
+                    indexer.process(html_file, sync_id)
+                except Exception:
+                    log.exception(
+                        "Failed to process HTML file",
+                        html_file=html_file.path,
+                        indexer=indexer.__class__.__name__,
+                        version_slug=version.slug,
+                    )
 
     for indexer in indexers:
-        indexer.collect(sync_id)
+        try:
+            indexer.collect(sync_id)
+        except Exception:
+            log.exception(
+                "Failed to collect indexer results",
+                indexer=indexer.__class__.__name__,
+                version_slug=version.slug,
+            )
 
     # This signal is used for purging the CDN.
     files_changed.send(
@@ -252,15 +302,9 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
 @app.task(queue="reindex")
 def index_build(build_id):
     """Create imported files and search index for the build."""
-    build = (
-        Build.objects.filter(pk=build_id)
-        .select_related("version", "version__project")
-        .first()
-    )
+    build = Build.objects.filter(pk=build_id).select_related("version", "version__project").first()
     if not build:
-        log.debug(
-            "Skipping search indexing. Build object doesn't exists.", build_id=build_id
-        )
+        log.debug("Skipping search indexing. Build object doesn't exists.", build_id=build_id)
         return
 
     # The version may have been deleted.
@@ -272,7 +316,7 @@ def index_build(build_id):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build.id,
@@ -304,9 +348,7 @@ def reindex_version(version_id, search_index_name=None):
         return
 
     latest_successful_build = (
-        version.builds.filter(state=BUILD_STATE_FINISHED, success=True)
-        .order_by("-date")
-        .first()
+        version.builds.filter(state=BUILD_STATE_FINISHED, success=True).order_by("-date").first()
     )
     # If the version doesn't have a successful
     # build, we don't have files to index.
@@ -317,7 +359,7 @@ def reindex_version(version_id, search_index_name=None):
         )
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=latest_successful_build.id,
@@ -327,6 +369,7 @@ def reindex_version(version_id, search_index_name=None):
             version=version,
             build=latest_successful_build,
             search_index_name=search_index_name,
+            post_build_overview=False,
         )
         _process_files(version=version, indexers=indexers)
     except Exception:
@@ -342,7 +385,7 @@ def index_project(project_slug, skip_if_exists=False):
     the project has at least one version indexed,
     and skip the re-indexing if it does.
     """
-    log.bind(project_slug=project_slug)
+    structlog.contextvars.bind_contextvars(project_slug=project_slug)
     project = Project.objects.filter(slug=project_slug).first()
     if not project:
         log.debug("Project doesn't exist.")

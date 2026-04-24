@@ -2,15 +2,15 @@ import os
 from unittest import mock
 
 import pytest
-from django.conf import settings
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import storages
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest, FileTreeDiffManifestFile
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
@@ -21,7 +21,9 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class ImportedFileTests(TestCase):
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    @property
+    def storage(self):
+        return storages["build-media"]
 
     def setUp(self):
         self.project = get(Project)
@@ -58,14 +60,9 @@ class ImportedFileTests(TestCase):
 
     def _copy_storage_dir(self, version):
         """Copy the test directory (rtd_tests/files) to storage"""
-        self.storage.copy_directory(
+        self.storage.rclone_sync_directory(
             self.test_dir,
-            self.project.get_storage_path(
-                type_="html",
-                version_slug=version.slug,
-                include_file=False,
-                version_type=version.type,
-            ),
+            version.get_storage_path(media_type=MEDIA_TYPE_HTML),
         )
 
     def test_properly_created(self):
@@ -364,19 +361,19 @@ class ImportedFileTests(TestCase):
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
             files=[
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="index.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="404.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="test.html",
                     main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="api/index.html",
                     main_content_hash=mock.ANY,
                 ),

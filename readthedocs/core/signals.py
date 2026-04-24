@@ -5,7 +5,8 @@ import structlog
 from allauth.account.signals import email_confirmed
 from django.conf import settings
 from django.db.models.signals import pre_delete
-from django.dispatch import Signal, receiver
+from django.dispatch import Signal
+from django.dispatch import receiver
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
 
@@ -13,6 +14,7 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.core.models import UserProfile
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -41,7 +43,7 @@ def process_email_confirmed(request, email_address, **kwargs):
     profile = UserProfile.objects.filter(user=user).first()
     if profile and profile.mailing_list:
         # TODO: Unsubscribe users if they unset `mailing_list`.
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             email=email_address.email,
             username=user.username,
         )
@@ -55,8 +57,10 @@ def process_email_confirmed(request, email_address, **kwargs):
         payload = {
             "email": email_address.email,
             "resubscribe": True,
+            "type": "active",
         }
         headers = {
+            "Content-Type": "application/json",
             "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
         }
         try:

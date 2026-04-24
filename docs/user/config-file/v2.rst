@@ -6,6 +6,13 @@ This file is named ``.readthedocs.yaml`` and should be placed in the top level o
 
 The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
 
+.. note::
+
+   When using a monorepo, it is possible to place the ``.readthedocs.yaml`` file
+   in a subdirectory and configure a custom path from the project settings
+   dashboard. See the :doc:`/guides/setup/monorepo` documentation for more details.
+
+
 Because the file is stored in Git,
 the configuration will apply to the exact version that is being built.
 **This allows you to store different configurations for different versions of your documentation.**
@@ -105,6 +112,7 @@ Example:
 
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
+   However, you can use :ref:`build-customization:where to put files` with custom build commands to generate offline formats for any documentation framework.
 
    With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
 
@@ -130,11 +138,18 @@ Configuration of the Python environment to be used.
 python.install
 ``````````````
 
-Read the Docs uses :doc:`pip <pip:index>` by  default to install your Python packages, however if you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build, you'll need to use the Conda ``environment`` file instead.
+Read the Docs uses :doc:`pip <pip:index>` by default to install your Python packages.
+It also supports `uv <https://docs.astral.sh/uv/>`__ through ``python.install``.
+If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage your build,
+you'll need to use the Conda ``environment`` file instead.
 If you have a commercial plan you can also install :doc:`private dependencies </guides/private-python-packages>`.
 
 List of installation methods of packages and requirements.
 You can have several of the following methods.
+
+.. note::
+
+   When using ``method: uv``, currently only one entry is allowed under ``python.install``.
 
 :Type: ``list``
 :Default: ``[]``
@@ -176,7 +191,7 @@ The path to the package, relative to the root of the project.
 The installation method.
 
 :Key: ``method``
-:Options: ``pip``, ``setuptools`` (deprecated)
+:Options: ``pip``, ``setuptools`` (deprecated), ``uv``
 :Default: ``pip``
 
 `Extra requirements`_ section to install in addition to the `package dependencies`_.
@@ -200,6 +215,91 @@ For example, to run ``pip install .[docs]``:
          path: .
          extra_requirements:
            - docs
+
+uv
+''
+
+Install dependencies using `uv <https://docs.astral.sh/uv/>`__.
+
+Set ``method: uv`` and choose one of the following commands:
+
+- ``command: sync`` to run ``uv sync`` using your ``pyproject.toml`` and, if present, ``uv.lock``
+- ``command: pip`` to run ``uv pip install`` from a requirements file or a local path
+
+:Key: ``command``
+:Options: ``sync``, ``pip``
+:Required: ``true``
+
+Use ``path`` to point uv at a project that is not located at the repository root.
+
+:Key: ``path``
+:Type: ``path``
+:Required: ``false``
+
+With ``command: sync``, you can select dependency groups from ``pyproject.toml``.
+Use either a list of group names or ``all``.
+
+:Key: ``groups``
+:Type: ``list`` or ``all``
+:Required: ``false``
+
+With either uv command, you can install optional dependencies.
+Use either a list of extras or ``all``.
+
+:Key: ``extras``
+:Type: ``list`` or ``all``
+:Required: ``false``
+
+With ``command: pip``, you can install from a requirements file.
+
+:Key: ``requirements``
+:Type: ``path``
+:Required: ``false``
+
+.. note::
+
+    ``command: sync`` doesn't allow ``requirements``.
+    ``command: pip`` requires either ``requirements`` or ``path``.
+    ``groups`` is only supported with ``command: sync``.
+
+For example, to run ``uv sync --group docs``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: sync
+             groups:
+                - docs
+
+For example, to run ``uv pip install -r docs/requirements.txt``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: pip
+             requirements: docs/requirements.txt
+
+For example, to run ``uv pip install .[docs]``:
+
+.. code-block:: yaml
+
+    version: 2
+
+    python:
+       install:
+          - method: uv
+             command: pip
+             path: .
+             extras:
+                - docs
 
 conda
 ~~~~~
@@ -262,7 +362,7 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-24.04``, ``ubuntu-lts-latest``
+:Options: ``ubuntu-20.04`` (deprecated), ``ubuntu-22.04``, ``ubuntu-24.04``, ``ubuntu-26.04``, ``ubuntu-lts-latest``
 :Required: ``true``
 
 .. note::
@@ -317,15 +417,18 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.11``
   - ``3.12``
   - ``3.13``
+  - ``3.14``
   - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
   - ``miniconda3-3.12-24.1``
   - ``miniconda3-3.12-24.9``
   - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
-  - ``mambaforge-4.10``
-  - ``mambaforge-22.9``
-  - ``mambaforge-23.11``
-  - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
+  - ``mambaforge-4.10`` (deprecated)
+  - ``mambaforge-22.9`` (deprecated)
+  - ``mambaforge-23.11`` (deprecated)
+  - ``mambaforge-latest`` (deprecated - alias for the latest version available on Read the Docs)
+  - ``miniforge3-25.11``
+  - ``miniforge3-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
 ``````````````````
@@ -341,6 +444,7 @@ Node.js version to use.
    - ``20``
    - ``22``
    - ``23``
+   - ``24``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.ruby
@@ -351,6 +455,7 @@ Ruby version to use.
 :Type: ``string``
 :Options:
    - ``3.3``
+   - ``3.4``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.rust
@@ -367,6 +472,8 @@ Rust version to use.
    - ``1.75``
    - ``1.78``
    - ``1.82``
+   - ``1.86``
+   - ``1.91``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
@@ -383,6 +490,8 @@ Go version to use.
    - ``1.21``
    - ``1.22``
    - ``1.23``
+   - ``1.24``
+   - ``1.25``
    - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages
@@ -553,6 +662,11 @@ See :doc:`/build-customization` for more details.
 .. note::
 
    ``build.os`` and ``build.tools`` are also required when using ``build.commands``.
+
+.. note::
+
+   All items in the ``build.commands`` array are executed in a clean shell environment, i.e. environment changes do not
+   persist and the working directory always start from the git repo.
 
 :Type: ``list``
 :Required: ``false``

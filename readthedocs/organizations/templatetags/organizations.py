@@ -5,8 +5,10 @@ from django.contrib.auth.models import User
 from django.core.exceptions import FieldError
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
 from readthedocs.projects.models import Project
+
 
 register = template.Library()
 

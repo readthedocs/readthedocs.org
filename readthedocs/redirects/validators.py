@@ -2,19 +2,16 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.redirects.constants import (
-    CLEAN_URL_TO_HTML_REDIRECT,
-    EXACT_REDIRECT,
-    HTML_TO_CLEAN_URL_REDIRECT,
-    PAGE_REDIRECT,
-)
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import HTML_TO_CLEAN_URL_REDIRECT
+from readthedocs.redirects.constants import PAGE_REDIRECT
+from readthedocs.redirects.constants import SPLAT_PLACEHOLDER
 from readthedocs.subscriptions.constants import TYPE_REDIRECTS_LIMIT
 from readthedocs.subscriptions.products import get_feature
 
 
-def validate_redirect(
-    *, project, pk, redirect_type, from_url, to_url, error_class=ValidationError
-):
+def validate_redirect(*, project, pk, redirect_type, from_url, to_url, error_class=ValidationError):
     """
     Validations for redirects.
 
@@ -31,16 +28,14 @@ def validate_redirect(
             raise error_class("The $rest wildcard has been removed in favor of *.")
         if "*" in from_url and not from_url.endswith("*"):
             raise error_class("The * wildcard must be at the end of the path.")
-        if ":splat" in to_url and not from_url.endswith("*"):
+        if SPLAT_PLACEHOLDER in to_url and not from_url.endswith("*"):
             raise error_class(
-                "The * wildcard must be at the end of from_url to use the :splat placeholder in to_url."
+                f"The * wildcard must be at the end of from_url to use the {SPLAT_PLACEHOLDER} placeholder in to_url."
             )
 
     if redirect_type in [CLEAN_URL_TO_HTML_REDIRECT, HTML_TO_CLEAN_URL_REDIRECT]:
         redirect_exists = (
-            project.redirects.filter(redirect_type=redirect_type)
-            .exclude(pk=pk)
-            .exists()
+            project.redirects.filter(redirect_type=redirect_type).exclude(pk=pk).exists()
         )
         if redirect_exists:
             raise error_class(

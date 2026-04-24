@@ -19,7 +19,7 @@ Versioning the configuration
 
 Configuration as code
   Configuration uses the same workflow as your source code,
-  including being reviewed and tested in a Pull Request.
+  including being reviewed and tested in a pull request.
 
 Options that are not found in the configuration file
   Not everything is suitable for version-specific configuration,

@@ -9,23 +9,26 @@ import structlog
 from django.conf import settings
 from django.core.cache import cache
 from rest_framework import status
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
-from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
+
 
 log = structlog.get_logger(__name__)
 
 
 class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
-
     """
     Checks if the user from the request has permissions to get content from the version.
 
@@ -54,7 +57,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     ### Example
 
-    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23full-text-search
+    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.com/platform/stable/reference/features.html%23feature-reference
 
     """  # noqa
 
@@ -78,9 +81,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             log.debug("Cached response.", url=url)
             return cached_response
 
-        response = requests.get(
-            url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT
-        )
+        response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         if response.ok:
             # NOTE: we use ``response.content`` to get its binary
             # representation. Then ``selectolax`` is in charge to auto-detect
@@ -92,32 +93,19 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
             return response.content
 
-    def _get_page_content_from_storage(self, project, version, filename):
-        storage_path = project.get_storage_path(
-            "html",
-            version_slug=version.slug,
-            include_file=False,
-            version_type=version.type,
-        )
-
+    def _get_page_content_from_storage(self, version, filename):
         # Decode encoded URLs (e.g. convert %20 into a whitespace)
         filename = urllib.parse.unquote(filename)
-
-        # If the filename starts with `/`, the join will fail,
-        # so we strip it before joining it.
-        relative_filename = filename.lstrip("/")
-        file_path = build_media_storage.join(
-            storage_path,
-            relative_filename,
-        )
-
-        tryfiles = [file_path, build_media_storage.join(file_path, "index.html")]
+        tryfiles = [filename, build_media_storage.join(filename, "index.html")]
         for tryfile in tryfiles:
+            storage_file_path = version.get_storage_path(
+                media_type=MEDIA_TYPE_HTML, filename=tryfile
+            )
             try:
-                with build_media_storage.open(tryfile) as fd:
+                with build_media_storage.open(storage_file_path) as fd:
                     return fd.read()
             except Exception:  # noqa
-                log.warning("Unable to read file.", file_path=file_path)
+                log.warning("Unable to read file.", file_path=storage_file_path)
 
         return None
 
@@ -132,12 +120,9 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if self.external:
             page_content = self._download_page_content(url)
         else:
-            project = self.unresolved_url.project
             version = self.unresolved_url.version
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(
-                project, version, filename
-            )
+            page_content = self._get_page_content_from_storage(version, filename)
 
         return self._parse_based_on_doctool(
             page_content,
@@ -149,7 +134,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     def _find_main_node(self, html, selector):
         if selector:
-            return html.css_first(selector)
+            try:
+                return html.css_first(selector)
+            except ValueError:
+                log.warning("Invalid CSS selector provided.", selector=selector)
+                return None
 
         main_node = html.css_first("[role=main]")
         if main_node:
@@ -185,7 +174,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             # characters as the `id=` HTML attribute
             # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
             selector = f'[id="{fragment}"]'
-            node = HTMLParser(page_content).css_first(selector)
+            try:
+                node = HTMLParser(page_content).css_first(selector)
+            except ValueError:
+                log.warning("Invalid CSS selector from fragment.", fragment=fragment)
+                node = None
         else:
             html = HTMLParser(page_content)
             node = self._find_main_node(html, selector)
@@ -309,7 +302,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
         if not url:
             return Response(
-                {"error": ("Invalid arguments. " 'Please provide "url".')},
+                {"error": ('Invalid arguments. Please provide "url".')},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -317,7 +310,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
             return Response(
-                {"error": ("The URL requested is malformed. " f"url={url}")},
+                {"error": (f"The URL requested is malformed. url={url}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -328,24 +321,18 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             else:
                 log.info("Domain not allowed.", domain=domain, url=url)
                 return Response(
-                    {"error": ("External domain not allowed. " f"domain={domain}")},
+                    {"error": (f"External domain not allowed. domain={domain}")},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             # Check rate-limit for this particular domain
             cache_key = f"embed-api-{domain}"
-            cache.get_or_set(
-                cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT
-            )
+            cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
                 log.warning("Too many requests for this domain.", domain=domain)
                 return Response(
-                    {
-                        "error": (
-                            "Too many requests for this domain. " f"domain={domain}"
-                        )
-                    },
+                    {"error": (f"Too many requests for this domain. domain={domain}")},
                     status=status.HTTP_429_TOO_MANY_REQUESTS,
                 )
 
@@ -365,11 +352,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         except requests.exceptions.TooManyRedirects:
             log.exception("Too many redirects.", url=url)
             return Response(
-                {
-                    "error": (
-                        "The URL requested generates too many redirects. " f"url={url}"
-                    )
-                },
+                {"error": (f"The URL requested generates too many redirects. url={url}")},
                 # TODO: review these status codes to find out which on is better here
                 # 400 Bad Request
                 # 502 Bad Gateway
@@ -379,11 +362,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         except Exception:  # noqa
             log.exception("There was an error reading the URL requested.", url=url)
             return Response(
-                {
-                    "error": (
-                        "There was an error reading the URL requested. " f"url={url}"
-                    )
-                },
+                {"error": (f"There was an error reading the URL requested. url={url}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -421,9 +400,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         }
         log.info(
             "EmbedAPI successful response.",
-            project_slug=self.unresolved_url.project.slug
-            if not self.external
-            else None,
+            project_slug=self.unresolved_url.project.slug if not self.external else None,
             domain=domain if self.external else None,
             doctool=doctool,
             doctoolversion=doctoolversion,

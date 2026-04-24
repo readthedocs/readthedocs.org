@@ -4,19 +4,18 @@ import structlog
 from django.utils.translation import gettext_lazy as _
 from django_filters import ChoiceFilter
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-    BUILD_STATE_FINISHED,
-    EXTERNAL,
-)
-from readthedocs.builds.models import Version
-from readthedocs.core.filters import FilteredModelChoiceFilter, ModelFilterSet
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.filters import FilteredModelChoiceFilter
+from readthedocs.core.filters import ModelFilterSet
+
 
 log = structlog.get_logger(__name__)
 
 
 class BuildListFilter(ModelFilterSet):
-
     """Project build list dashboard filter."""
 
     STATE_ACTIVE = "active"
@@ -68,9 +67,8 @@ class BuildListFilter(ModelFilterSet):
         # Copied from the version listing view. We need this here as this is
         # what allows the build version list to populate. Otherwise the
         # ``all()`` queryset method is used.
-        return Version.internal.public(
+        return self.project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=self.project,
         )
 
     def get_state(self, queryset, _, value):

@@ -1,70 +1,61 @@
 """Views pertaining to builds."""
 
+from dataclasses import dataclass
+from typing import Literal
+
 import structlog
 
 from readthedocs.api.v2.models import BuildAPIKey
-from readthedocs.builds.constants import (
-    EXTERNAL,
-    EXTERNAL_VERSION_STATE_CLOSED,
-    EXTERNAL_VERSION_STATE_OPEN,
-)
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.builds import sync_repository_task
+
+
+@dataclass
+class VersionInfo:
+    """
+    Version information.
+
+    If type is None, it means that the version can be either a branch or a tag.
+    """
+
+    name: str
+    type: Literal["branch", "tag", None]
+
 
 log = structlog.get_logger(__name__)
 
 
-def _build_version(project, slug, already_built=()):
+def build_versions_from_names(project, versions_info: list[VersionInfo]):
     """
-    Where we actually trigger builds for a project and slug.
+    Build the branches or tags from the project.
 
-    All webhook logic should route here to call ``trigger_build``.
-    """
-    if not project.has_valid_webhook:
-        project.has_valid_webhook = True
-        project.save()
-    # Previously we were building the latest version (inactive or active)
-    # when building the default version,
-    # some users may have relied on this to update the version list #4450
-    version = project.versions.filter(active=True, slug=slug).first()
-    if version and slug not in already_built:
-        log.info(
-            "Building.",
-            project_slug=project.slug,
-            version_slug=version.slug,
-        )
-        trigger_build(project=project, version=version)
-        return slug
-
-    log.info("Not building.", version_slug=slug)
-    return None
-
-
-def build_branches(project, branch_list):
-    """
-    Build the branches for a specific project.
-
-    Returns:
-        to_build - a list of branches that were built
-        not_building - a list of branches that we won't build
+    :param project: Project instance
+    :returns: A tuple with the versions that were built and the versions that were not built.
     """
     to_build = set()
     not_building = set()
-    for branch in branch_list:
-        versions = project.versions_from_branch_name(branch)
-        for version in versions:
+    for version_info in versions_info:
+        for version in project.versions_from_name(version_info.name, version_info.type):
             log.debug(
                 "Processing.",
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            ret = _build_version(project, version.slug, already_built=to_build)
-            if ret:
-                to_build.add(ret)
+            if version.slug in to_build:
+                continue
+
+            if version.active:
+                trigger_build(project=project, version=version, from_webhook=True)
+                to_build.add(version.slug)
             else:
+                log.info("Not building.", version_slug=version.slug)
                 not_building.add(version.slug)
-    return (to_build, not_building)
+    return to_build, not_building
 
 
 def trigger_sync_versions(project):
@@ -88,14 +79,9 @@ def trigger_sync_versions(project):
         return None
 
     try:
-        version_identifier = project.get_default_branch()
-        version = project.versions.filter(
-            identifier=version_identifier,
-        ).first()
+        version = project.get_latest_version()
         if not version:
-            log.info(
-                "Unable to sync from version.", version_identifier=version_identifier
-            )
+            log.info("Unable to sync versions, project doesn't have a valid latest version.")
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
@@ -109,9 +95,17 @@ def trigger_sync_versions(project):
             project_slug=version.project.slug,
             version_slug=version.slug,
         )
+
+        options = {}
+        # Use custom queue if defined, as some repositories need to
+        # be synced from a specific queue (like IP restricted ones).
+        if project.build_queue:
+            options["queue"] = project.build_queue
+
         sync_repository_task.apply_async(
             args=[version.pk],
             kwargs={"build_api_key": build_api_key},
+            **options,
         )
         return version.slug
     except Exception:
@@ -152,6 +146,7 @@ def get_or_create_external_version(project, version_data):
         external_version.identifier = version_data.commit
         # If the PR was previously closed it was marked as closed
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
+        external_version.active = True
         external_version.save()
         log.info(
             "External version updated.",
@@ -174,12 +169,7 @@ def close_external_version(project, version_data):
     :rtype: str
     """
     external_version = (
-        project.versions(manager=EXTERNAL)
-        .filter(
-            verbose_name=version_data.id,
-            identifier=version_data.commit,
-        )
-        .first()
+        project.versions(manager=EXTERNAL).filter(verbose_name=version_data.id).first()
     )
 
     if external_version:
@@ -192,24 +182,3 @@ def close_external_version(project, version_data):
         )
         return external_version.verbose_name
     return None
-
-
-def build_external_version(project, version):
-    """
-    Where we actually trigger builds for external versions.
-
-    All pull/merge request webhook logic should route here to call ``trigger_build``.
-    """
-    if not project.has_valid_webhook:
-        project.has_valid_webhook = True
-        project.save()
-
-    # Build External version
-    log.info(
-        "Building external version",
-        project_slug=project.slug,
-        version_slug=version.slug,
-    )
-    trigger_build(project=project, version=version, commit=version.identifier)
-
-    return version.verbose_name

@@ -64,6 +64,6 @@ you may want to verify those changes locally before pushing upstream.
    .. code-block:: console
 
       (.venv) $ cd docs
-      (.venv) $ RTD_DOCSET=dev make livehtml
+      (.venv) $ PROJECT=dev make livehtml
 
 #. Check the changes locally at http://127.0.0.1:4444/ (rebuilds each time you edit and save a file).

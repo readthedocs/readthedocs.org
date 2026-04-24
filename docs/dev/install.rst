@@ -91,7 +91,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.up  --ext-theme --webpack --init
+      inv docker.up  --init
 
    .. warning::
 
@@ -140,8 +140,6 @@ save some work while typing docker compose commands. This section explains these
     * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
       Note that https proxies aren't supported.
       There will also be issues with "suspicious domain" failures on Proxito.
-    * ``--ext-theme`` to use the new dashboard templates
-    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -152,9 +150,42 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.manage {command}``
     Executes a Django management command in a container.
 
+    * ``--backupdb`` creates a database backup before running the command.
+      The backup is saved to the current directory with a timestamped filename:
+      ``dump_<DD-MM-YYYY>_<HH_MM_SS>__<git-hash>.sql``
+
     .. tip::
 
        Useful when modifying models to run ``makemigrations``.
+
+    .. tip::
+
+       Use ``--backupdb`` when running ``migrate`` to create a backup before applying migrations:
+
+       .. code-block:: bash
+
+          inv docker.manage --backupdb migrate
+
+       To restore from this backup, follow these steps:
+
+       .. code-block:: bash
+
+          # Start only the database container
+          inv docker.compose 'start database'
+
+          # Copy the backup file into the container (replace with your actual filename)
+          docker cp dump_24-11-2025_10_30_00__abc1234.sql community-database-1:/tmp/dump.sql
+
+          # Open a shell in the database container
+          inv docker.shell --container database
+
+       Then inside the database container:
+
+       .. code-block:: bash
+
+          dropdb -U docs_user docs_db
+          createdb -U docs_user docs_db
+          psql -U docs_user docs_db < /tmp/dump.sql
 
 ``inv docker.down``
     Stops and removes all containers running.
@@ -240,6 +271,53 @@ The ``rdb`` debugger is similar to ``pdb``, there is no ``ipdb`` for remote
 debugging currently.
 
 
+Using a local Git repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When doing local development, it's useful to use a local Git repository as the source for builds,
+rather than a remote repository (e.g. GitHub or Bitbucket).
+This reduces the iteration cycle considerably and avoids needing to fork or push to a remote repository.
+
+Since ``file://`` URLs are not supported,
+you need to serve the local repository over the ``git://`` protocol using ``git daemon``.
+
+#. Clone (or create) a repository on your host machine.
+   For example, to test a local copy of the Read the Docs documentation:
+
+   .. prompt:: bash
+
+      git clone https://github.com/readthedocs/readthedocs.org /tmp/readthedocs.org
+
+#. Start ``git daemon`` to expose the repository to the Docker containers:
+
+   .. prompt:: bash
+
+      git daemon --verbose --export-all --base-path=/tmp /tmp
+
+   This serves all repositories under ``/tmp`` on port 9418 (the default ``git://`` port).
+   Leave this process running in a separate terminal.
+
+   .. note::
+
+      ``--export-all`` allows the daemon to serve any repository,
+      without needing a ``git-daemon-export-ok`` marker file in each repo.
+      ``--base-path=/tmp`` means that ``/tmp`` is stripped from the path in URLs,
+      so ``/tmp/readthedocs.org`` is served as ``git://HOST/readthedocs.org``.
+
+#. Go to http://devthedocs.org/dashboard/import/manual/
+   and import the project manually using the ``git://`` URL.
+   The Docker network defined in ``docker-compose.override.yml`` uses the subnet ``10.10.0.0/16``,
+   so the host machine is reachable from inside the containers at ``10.10.0.1``:
+
+   .. code-block:: text
+
+      git://10.10.0.1/readthedocs.org
+
+Any subsequent builds triggered in your local Read the Docs instance will clone from your local repository.
+This means you can make changes to the repository on your host machine
+and trigger a new build without having to push to a remote.
+
+
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -262,9 +340,71 @@ For others, the webhook will simply fail to connect when there are new commits t
 
 * Configure the applications on GitHub, Bitbucket, and GitLab.
   For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
-  where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
+  where ``<provider>`` is one of ``github``, ``githubapp``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
 * Take the "Client ID" and "Secret" for each service and set them as :ref:`environment variables <settings:Allauth secrets>`.
+
+Configuring GitHub App
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Create a new GitHub app from https://github.com/settings/apps/new.
+- ``Callback URL`` should be ``http://devthedocs.org/accounts/githubapp/login/callback/``.
+- Keep marked ``Expire user authorization tokens``
+- Activate the webhook, and set the ``Webhook URL`` to one provided by a service like `Webhook.site <https://docs.webhook.site/>`__ to forward all incoming webhooks to your local development instance. Example: ``https://webhook.site/e6e53a09-1551-4942-a750-c967bc577846``
+- In permissions, select the following:
+
+  - Repository permissions
+
+    - ``Commit statuses`` (read and write, so we can create commit statuses),
+    - ``Contents`` (read only, so we can clone repos with a token),
+    - ``Metadata`` (read only, so we read the repo collaborators),
+    - ``Pull requests`` (read and write, so we can post a comment on PRs in the future).
+    - ``Checks`` (read and write, so we can use the GitHub Checks API to report the status of a build)
+
+  - Organization permissions
+
+    - ``Members`` (read only so we can read the organization members).
+
+  - Account Permissions
+
+    - ``Email addresses`` (read only, so allauth can fetch all verified emails).
+
+- Subscribe to the following events
+
+  - ``Installation target``
+  - ``Member``
+  - ``Organization``
+  - ``Membership``
+  - ``Pull request``
+  - ``Push``
+  - ``Repository``
+
+- Copy the ``Client ID`` and ``Client Secret`` and set them as :ref:`environment variables <settings:Allauth secrets>`
+
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID``
+  - ``RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET``
+
+- Generate a webhook secret (e.g. with ``openssl rand -hex 32``) and a private key from the GitHub App settings,
+  and set them as :ref:`environment variables <settings:GitHub App>`.
+
+  - ``RTD_GITHUB_APP_ID``
+  - ``RTD_GITHUB_APP_NAME`` (e.g. ``read-the-docs-development``)
+  - ``RTD_GITHUB_APP_PRIVATE_KEY`` (you can use ``$(cat read-the-docs.private-key.pem)`` as the value of this variable)
+  - ``RTD_GITHUB_APP_WEBHOOK_SECRET``
+
+- Then, to receive the webhooks in your local development instance using the `Webhook.site CLI <https://docs.webhook.site/cli.html>`_,
+  first install the client with:
+
+  .. prompt:: bash
+
+    npm install @webhooksite/cli
+
+  and run the following command updating the ``<hash>`` part:
+
+  .. prompt:: bash
+
+    whcli forward --token=<hash> --target=http://devthedocs.org/webhook/githubapp/
+
 
 Troubleshooting
 ---------------
@@ -366,9 +506,9 @@ Celery is isolated from database
 Use NGINX as web server
     All the site is served via NGINX with the ability to change some configuration locally.
 
-MinIO as Django storage backend
-    All static and media files are served using Minio --an emulator of S3,
-    which is the one used in production.
+RustFS as Django storage backend
+    All static and media files are served using RustFS --an S3-compatible object storage,
+    which emulates the S3 interface used in production.
 
 Serve documentation via El Proxito
     El Proxito is a small application put in front of the documentation to serve files

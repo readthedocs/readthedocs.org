@@ -9,7 +9,6 @@ from django.contrib.staticfiles.finders import FileSystemFinder
 
 
 class SelectiveFileSystemFinder(FileSystemFinder):
-
     """
     Add user media paths in ``media/`` to ignore patterns.
 

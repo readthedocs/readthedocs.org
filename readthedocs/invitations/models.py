@@ -16,11 +16,11 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.audit.models import AuditLog
 from readthedocs.invitations.backends import get_backend
 
+
 log = structlog.get_logger(__name__)
 
 
 class InvitationQueryset(models.QuerySet):
-
     """Invitation queryset."""
 
     def expired(self, obj=None):
@@ -83,7 +83,6 @@ class InvitationQueryset(models.QuerySet):
 
 
 class Invitation(TimeStampedModel):
-
     """
     Invitation model.
 

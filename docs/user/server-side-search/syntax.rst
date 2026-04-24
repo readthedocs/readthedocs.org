@@ -77,7 +77,7 @@ If the resulting query includes more than 100 projects,
 they will be omitted from the final search.
 
 This syntax is only available when using our search API V3
-or when using the global search (https://readthedocs.org/search/).
+or when using the global search (https://app.readthedocs.org/search/).
 
 Searching multiple versions of the same project isn't supported,
 the last version will override the previous one.

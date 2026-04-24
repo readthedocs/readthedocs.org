@@ -1,39 +1,43 @@
 """Django administration interface for `projects.models`."""
 
 from django.conf import settings
-from django.contrib import admin, messages
+from django.contrib import admin
+from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
+from django.db.models import Exists
+from django.db.models import IntegerField
+from django.db.models import OuterRef
 from django.db.models import Sum
+from django.db.models import Value
 from django.forms import BaseInlineFormSet
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
+from readthedocs.core.history import ExtraSimpleHistoryAdmin
+from readthedocs.core.history import set_change_reason
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.tasks.search import reindex_version
 from readthedocs.redirects.models import Redirect
 
 from .forms import FeatureForm
-from .models import (
-    AddonsConfig,
-    Domain,
-    EmailHook,
-    EnvironmentVariable,
-    Feature,
-    HTMLFile,
-    HTTPHeader,
-    ImportedFile,
-    Project,
-    ProjectRelationship,
-    WebHook,
-    WebHookEvent,
-)
+from .models import AddonsConfig
+from .models import Domain
+from .models import EmailHook
+from .models import EnvironmentVariable
+from .models import Feature
+from .models import HTMLFile
+from .models import HTTPHeader
+from .models import ImportedFile
+from .models import Project
+from .models import ProjectRelationship
+from .models import WebHook
+from .models import WebHookEvent
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
 
 class ReadOnlyInlineMixin:
-
     """Make admin inlines read-only."""
 
     show_change_link = True
@@ -49,7 +53,6 @@ class ReadOnlyInlineMixin:
 
 
 class ProjectRelationshipInline(admin.TabularInline):
-
     """Project inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = ProjectRelationship
@@ -58,7 +61,6 @@ class ProjectRelationshipInline(admin.TabularInline):
 
 
 class VersionInlineFormSet(BaseInlineFormSet):
-
     """Limit the number of versions displayed in the inline."""
 
     LIMIT = 200
@@ -69,7 +71,6 @@ class VersionInlineFormSet(BaseInlineFormSet):
 
 
 class VersionInline(ReadOnlyInlineMixin, admin.TabularInline):
-
     """Version inline relationship view for :py:class:`ProjectAdmin`."""
 
     formset = VersionInlineFormSet
@@ -81,7 +82,6 @@ class VersionInline(ReadOnlyInlineMixin, admin.TabularInline):
 
 
 class RedirectInline(admin.TabularInline):
-
     """Redirect inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = Redirect
@@ -93,7 +93,6 @@ class DomainInline(admin.TabularInline):
 
 
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
-
     """
     Filter for projects with banned owners.
 
@@ -122,7 +121,6 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
 
 class ProjectSpamThreshold(admin.SimpleListFilter):
-
     """Filter for projects that are potentially SPAM."""
 
     title = "Spam Threshold"
@@ -215,11 +213,18 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
 @admin.register(Project)
 class ProjectAdmin(ExtraSimpleHistoryAdmin):
-
     """Project model admin view."""
 
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ("name", "slug", "repo")
+    list_display = (
+        "name",
+        "slug",
+        "repo",
+        "is_spam",
+        "spam_score_display",
+        "owner_banned_display",
+        "pub_date",
+    )
 
     list_filter = tuple()
     if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
@@ -248,7 +253,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         "feature_flags",
         "matching_spam_rules",
     )
-    raw_id_fields = ("users", "main_language_project", "remote_repository")
+    raw_id_fields = ("users", "main_language_project", "remote_repository", "latest_build")
     actions = [
         "ban_owner",
         "run_spam_rule_checks",
@@ -256,6 +261,54 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         "reindex_active_versions",
         "import_tags_from_vcs",
     ]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        # Annotate spam score from spam rules if spamfighting is installed.
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            qs = qs.annotate(_spam_score=Sum("spam_rules__value"))
+        else:
+            qs = qs.annotate(
+                _spam_score=Value(None, output_field=IntegerField()),
+            )
+
+        # Subquery: does any owner have a banned profile?
+        from readthedocs.core.models import UserProfile
+
+        qs = qs.annotate(
+            _owner_banned=Exists(
+                UserProfile.objects.filter(
+                    user__projects=OuterRef("pk"),
+                    banned=True,
+                ),
+            ),
+        )
+        return qs
+
+    @admin.display(
+        description="Spam Score",
+        ordering="_spam_score",
+    )
+    def spam_score_display(self, obj):
+        score = obj._spam_score
+        if score is None:
+            return "-"
+        if score >= settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT:
+            return format_html('<span style="color: red; font-weight: bold;">{}</span>', score)
+        if score >= settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS:
+            return format_html('<span style="color: orange; font-weight: bold;">{}</span>', score)
+        if score >= 1:
+            return format_html('<span style="color: goldenrod;">{}</span>', score)
+        return score
+
+    @admin.display(
+        description="Owner Banned",
+        boolean=True,
+        ordering="_owner_banned",
+    )
+    def owner_banned_display(self, obj):
+        return obj._owner_banned
 
     def matching_spam_rules(self, obj):
         result = []
@@ -344,9 +397,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         """Reindex all active versions of the selected projects to ES."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            versions_id_to_reindex = project.versions.for_reindex().values_list(
-                "pk", flat=True
-            )
+            versions_id_to_reindex = project.versions.for_reindex().values_list("pk", flat=True)
 
             if not versions_id_to_reindex.exists():
                 self.message_user(
@@ -375,9 +426,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                     messages.SUCCESS,
                 )
             else:
-                self.message_user(
-                    request, "No tags found for {}".format(project), messages.WARNING
-                )
+                self.message_user(request, "No tags found for {}".format(project), messages.WARNING)
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -391,7 +440,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
 @admin.register(HTMLFile, ImportedFile)
 class ImportedFileAdmin(admin.ModelAdmin):
-
     """Admin view for :py:class:`ImportedFile`."""
 
     raw_id_fields = ("project", "version")
@@ -477,6 +525,18 @@ class AddonsConfigAdmin(admin.ModelAdmin):
     list_editable = ("enabled",)
 
 
-admin.site.register(EmailHook)
-admin.site.register(WebHook)
+@admin.register(EmailHook)
+class EmailHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("email", "project")
+    search_fields = ("email", "project__slug", "project__name")
+
+
+@admin.register(WebHook)
+class WebHookAdmin(admin.ModelAdmin):
+    raw_id_fields = ("project",)
+    list_display = ("url", "project")
+    search_fields = ("url", "project__slug", "project__name")
+
+
 admin.site.register(WebHookEvent)

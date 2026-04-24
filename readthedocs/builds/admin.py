@@ -1,15 +1,16 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
-from django.contrib import admin, messages
-from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin
+from django.contrib import admin
+from django.contrib import messages
+from polymorphic.admin import PolymorphicChildModelAdmin
+from polymorphic.admin import PolymorphicParentModelAdmin
 
-from readthedocs.builds.models import (
-    Build,
-    BuildCommandResult,
-    RegexAutomationRule,
-    Version,
-    VersionAutomationRule,
-)
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import BuildConfig
+from readthedocs.builds.models import RegexAutomationRule
+from readthedocs.builds.models import Version
+from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.admin import pretty_json_field
 from readthedocs.projects.tasks.search import reindex_version
@@ -19,6 +20,26 @@ class BuildCommandResultInline(admin.TabularInline):
     model = BuildCommandResult
     fields = ("command", "exit_code", "output")
     classes = ["collapse"]
+
+
+@admin.register(BuildConfig)
+class BuildConfigAdmin(admin.ModelAdmin):
+    fields = ("created", "modified", "builds", "projects", "pretty_config")
+    readonly_fields = ("created", "modified", "builds", "projects", "pretty_config")
+    list_display = ("created", "modified")
+    search_fields = ("data",)
+
+    @admin.display(description="Config file")
+    def pretty_config(self, instance):
+        return pretty_json_field(instance, "data")
+
+    @admin.display(description="Builds using this config")
+    def builds(self, instance):
+        return instance.builds.count()
+
+    @admin.display(description="Projects using this config")
+    def projects(self, instance):
+        return instance.builds.all().values_list("project__slug", flat=True).distinct().count()
 
 
 @admin.register(Build)

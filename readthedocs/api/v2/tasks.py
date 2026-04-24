@@ -6,6 +6,7 @@ from django.utils import timezone
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.worker import app
 
+
 log = structlog.get_logger(__name__)
 
 

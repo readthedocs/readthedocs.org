@@ -6,6 +6,7 @@ from readthedocs.core.views import ErrorView
 
 from ..exceptions import ContextualizedHttp404
 
+
 log = structlog.get_logger(__name__)  # noqa
 
 
@@ -23,9 +24,7 @@ def fast_404(request, *args, **kwargs):
     return HttpResponse("Not Found.", status=404)
 
 
-def proxito_404_page_handler(
-    request, template_name="errors/proxito/404/base.html", exception=None
-):
+def proxito_404_page_handler(request, template_name="errors/proxito/404/base.html", exception=None):
     """
     Serves a 404 error message, handling 404 exception types raised throughout the app.
 
@@ -36,10 +35,7 @@ def proxito_404_page_handler(
 
     # 404 exceptions that don't originate from our proxito 404 handler should have a fast response
     # with no HTML rendered, since they will be forwarded to our 404 handler again.
-    if (
-        request.resolver_match
-        and request.resolver_match.url_name != "proxito_404_handler"
-    ):
+    if request.resolver_match and request.resolver_match.url_name != "proxito_404_handler":
         return fast_404(request, exception, template_name)
 
     context = {}

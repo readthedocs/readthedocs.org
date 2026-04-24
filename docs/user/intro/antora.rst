@@ -1,5 +1,6 @@
-Antora
-======
+
+Deploying Antora on Read the Docs
+=================================
 
 .. meta::
    :description lang=en: Hosting Antora documentation on Read the Docs.

@@ -1,14 +1,13 @@
 How-to guides: build process
 ============================
 
-⏩️ :doc:`Setup email notifications </guides/build/email-notifications>`
+⏩️ :doc:`Set up email notifications </guides/build/email-notifications>`
     Email notifications can alert you when your builds fail.
-    This is the most simple way to monitor your documentation builds,
-    it only requires you to switch it on.
+    This is the most simple way to monitor your documentation builds.
 
-⏩️ :doc:`Setup webhook notifications </guides/build/webhooks>`
-    Webhook notifications can alert you when your builds fail so you can take immediate action.
-    We show examples of how to use the webhooks on popular platforms like Slack and Discord.
+⏩️ :doc:`/guides/build/webhooks`
+    Outgoing webhooks can used to send updates on builds to other services.
+    We show examples using webhooks to connect to popular platforms like Slack and Discord.
 
 ⏩️ :doc:`Configuring pull request builds </guides/pull-requests>`
     Have your documentation built and access a preview for every :doc:`pull request builds </pull-requests>`.
@@ -21,6 +20,10 @@ How-to guides: build process
     Learn how to define rules to automate creation of new versions on Read the Docs,
     entirely using your Git repository's version logic.
 
+⏩️ :doc:`Skip builds based on conditions </guides/build/skip-build>`
+    Use the special exit code 183 to programmatically cancel builds based on custom conditions.
+    This helps save resources by avoiding unnecessary documentation builds.
+
 
 .. seealso:
 
@@ -32,7 +35,8 @@ How-to guides: build process
    :hidden:
 
    Setup email notifications </guides/build/email-notifications>
-   Setup webhook notifications </guides/build/webhooks>
+   /guides/build/webhooks
    Configuring pull request builds </guides/pull-requests>
    Using custom environment variables </guides/environment-variables>
    Managing versions automatically </guides/automation-rules>
+   Skip builds based on conditions </guides/build/skip-build>

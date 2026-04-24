@@ -10,52 +10,104 @@ in our Docker Development environment.
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
 from functools import cached_property
+from itertools import batched
 
+import structlog
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from storages.backends.s3boto3 import S3Boto3Storage, S3ManifestStaticStorage
+from django.core.exceptions import SuspiciousFileOperation
+from storages.backends.s3boto3 import S3Boto3Storage
+from storages.backends.s3boto3 import S3ManifestStaticStorage
+from storages.utils import clean_name
 
-from readthedocs.builds.storage import BuildMediaStorageMixin
+from readthedocs.storage.mixins import RTDBaseStorage
 from readthedocs.storage.rclone import RCloneS3Remote
+from readthedocs.storage.utils import safe_join
 
-from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
+from .mixins import OverrideHostnameMixin
+from .mixins import S3PrivateBucketMixin
 
 
-class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
+log = structlog.get_logger(__name__)
+
+
+class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
     @cached_property
     def _rclone(self):
         provider = settings.S3_PROVIDER
-
         return RCloneS3Remote(
             bucket_name=self.bucket_name,
             access_key_id=self.access_key,
-            secret_acces_key=self.secret_key,
+            secret_access_key=self.secret_key,
+            session_token=self.security_token,
             region=self.region_name or "",
             acl=self.default_acl,
             endpoint=self.endpoint_url,
             provider=provider,
         )
 
+    def join(self, directory, filepath):
+        return safe_join(directory, filepath)
 
-class S3BuildMediaStorage(OverrideHostnameMixin, S3BuildMediaStorageMixin):
+    def delete_directory(self, path):
+        """
+        Delete all files under a certain path from storage.
 
+        Many storage backends (S3, Azure storage) don't care about "directories".
+        The directory effectively doesn't exist if there are no files in it.
+        However, in these backends, there is no "rmdir" operation,
+        but boto3 allows batch actions over a prefix, so we can delete
+        all files with a certain prefix to achieve the same result
+        with fewer API calls than deleting each file one by one.
+
+        :param path: the path to the directory to remove
+        """
+        # S3Boto3Storage does this normalization before interacting with
+        # the path in all its methods, following the same pattern here.
+        path = self._normalize_name(clean_name(path))
+
+        # The path needs to end with a slash.
+        if not path.endswith("/"):
+            path += "/"
+
+        location = self.location.rstrip("/") + "/"
+        if path == location:
+            raise SuspiciousFileOperation("Deleting all storage cannot be right")
+
+        log.debug("Deleting path from storage", path=path)
+        self.bucket.objects.filter(Prefix=path).delete()
+
+    def delete_paths(self, paths):
+        """
+        Delete multiple paths from storage in batches.
+
+        S3 has a limit of 1000 objects per delete request, so we batch the deletions accordingly.
+        See https://docs.aws.amazon.com/boto3/latest/reference/services/s3/bucket/delete_objects.html#S3.Bucket.delete_objects.
+        """
+        for batch in batched(paths, 1000):
+            objects = [{"Key": path} for path in batch]
+            self.bucket.delete_objects(Delete={"Objects": objects, "Quiet": True})
+
+
+class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
     """An AWS S3 Storage backend for build artifacts."""
 
     bucket_name = getattr(settings, "S3_MEDIA_STORAGE_BUCKET", None)
     override_hostname = getattr(settings, "S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME", None)
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if not self.bucket_name:
             raise ImproperlyConfigured(
-                "AWS S3 not configured correctly. "
-                "Ensure S3_MEDIA_STORAGE_BUCKET is defined.",
+                "AWS S3 not configured correctly. Ensure S3_MEDIA_STORAGE_BUCKET is defined.",
             )
 
 
-class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
-
+class S3BuildCommandsStorage(S3PrivateBucketMixin, RTDS3Storage):
     """An AWS S3 Storage backend for build commands."""
 
     bucket_name = getattr(settings, "S3_BUILD_COMMANDS_STORAGE_BUCKET", None)
@@ -79,20 +131,16 @@ class S3StaticStorageMixin:
 
         if not self.bucket_name:
             raise ImproperlyConfigured(
-                "AWS S3 not configured correctly. "
-                "Ensure S3_STATIC_STORAGE_BUCKET is defined.",
+                "AWS S3 not configured correctly. Ensure S3_STATIC_STORAGE_BUCKET is defined.",
             )
 
-        self.bucket_acl = "public-read"
-        self.default_acl = "public-read"
         self.querystring_auth = False
 
 
 # pylint: disable=too-many-ancestors
 class S3StaticStorage(
-    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage
+    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, RTDS3Storage
 ):
-
     """
     An AWS S3 Storage backend for static media.
 
@@ -100,10 +148,7 @@ class S3StaticStorage(
     """
 
 
-class NoManifestS3StaticStorage(
-    S3StaticStorageMixin, OverrideHostnameMixin, S3Boto3Storage
-):
-
+class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Storage):
     """
     Storage backend for static files used outside Django's static files.
 
@@ -116,20 +161,7 @@ class NoManifestS3StaticStorage(
     internal_redirect_root_path = "proxito-static"
 
 
-class S3BuildEnvironmentStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
-    bucket_name = getattr(settings, "S3_BUILD_ENVIRONMENT_STORAGE_BUCKET", None)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if not self.bucket_name:
-            raise ImproperlyConfigured(
-                "AWS S3 not configured correctly. "
-                "Ensure S3_BUILD_ENVIRONMENT_STORAGE_BUCKET is defined.",
-            )
-
-
-class S3BuildToolsStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
+class S3BuildToolsStorage(S3PrivateBucketMixin, RTDS3Storage):
     bucket_name = getattr(settings, "S3_BUILD_TOOLS_STORAGE_BUCKET", None)
 
     def __init__(self, *args, **kwargs):
@@ -137,6 +169,5 @@ class S3BuildToolsStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
 
         if not self.bucket_name:
             raise ImproperlyConfigured(
-                "AWS S3 not configured correctly. "
-                "Ensure S3_BUILD_TOOLS_STORAGE_BUCKET is defined.",
+                "AWS S3 not configured correctly. Ensure S3_BUILD_TOOLS_STORAGE_BUCKET is defined.",
             )

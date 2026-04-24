@@ -1,12 +1,16 @@
 """Notifications related to Read the Docs YAML config file."""
+
 import textwrap
 
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.notifications.constants import ERROR
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
 
-from .exceptions import ConfigError, ConfigValidationError
+from .exceptions import ConfigError
+from .exceptions import ConfigValidationError
+
 
 # General errors
 messages = [
@@ -244,6 +248,109 @@ messages = [
             textwrap.dedent(
                 """
             The key <code>conda.environment</code> is required when using Conda or Mamba.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_COMMAND_REQUIRED,
+        header=_("Missing required key"),
+        body=_(
+            textwrap.dedent(
+                """
+            The key <code>python.install.command</code> is required when using <code>method: uv</code>.
+            Allowed values are <code>sync</code> or <code>pip</code>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID,
+        header=_("Invalid configuration for uv"),
+        body=_(
+            textwrap.dedent(
+                """
+            When using <code>method: uv</code>, only one entry is allowed under <code>python.install</code>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_SYNC_REQUIREMENTS_INVALID,
+        header=_("Invalid configuration for uv sync"),
+        body=_(
+            textwrap.dedent(
+                """
+            The key <code>python.install.requirements</code> is not allowed with <code>command: sync</code>.
+            Use <code>command: pip</code> instead when specifying a requirements file.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED,
+        header=_("Missing configuration key"),
+        body=_(
+            textwrap.dedent(
+                """
+            When using <code>method: uv</code> with <code>command: pip</code>,
+            one of the following keys is required: <code>python.install.path</code> or <code>python.install.requirements</code>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_PIP_REQUIREMENTS_AND_PATH_MUTUALLY_EXCLUSIVE,
+        header=_("Invalid configuration key"),
+        body=_(
+            textwrap.dedent(
+                """
+            When using <code>method: uv</code> with <code>command: pip</code>,
+            both <code>python.install.path</code> and <code>python.install.requirements</code> cannot be specified at the same time.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_PIP_GROUPS_NOT_ALLOWED,
+        header=_("Invalid configuration for uv pip"),
+        body=_(
+            textwrap.dedent(
+                """
+            The key <code>python.install.groups</code> is not allowed with <code>command: pip</code>.
+            Use <code>command: sync</code> instead when you need to select dependency groups.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+        header=_("Invalid configuration for uv"),
+        body=_(
+            textwrap.dedent(
+                """
+            The <code>python.install.{{field}}</code> list cannot be empty.
+            Either remove the key or provide a non-empty list or the value <code>all</code>.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+        header=_("Invalid configuration for uv"),
+        body=_(
+            textwrap.dedent(
+                """
+            The <code>python.install.{{field}}</code> must be a list of strings or the value <code>all</code>.
+            Got type <code>{{value|to_class_name}}</code>.
             """
             ).strip(),
         ),

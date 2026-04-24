@@ -8,6 +8,7 @@ from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
+from readthedocs.projects.models import APIProject
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.environments import (
     BuildCommand,
@@ -38,7 +39,10 @@ class TestLocalBuildEnvironment(TestCase):
 
     def test_record_command_as_success(self):
         api_client = mock.MagicMock()
-        project = get(Project)
+        api_client.command().patch.return_value = {
+            "id": 1,
+        }
+        project = APIProject(**get(Project).__dict__)
         build_env = LocalBuildEnvironment(
             project=project,
             build={
@@ -57,8 +61,19 @@ class TestLocalBuildEnvironment(TestCase):
         self.assertEqual(len(build_env.commands), 1)
 
         command = build_env.commands[0]
-        self.assertEqual(command.exit_code, 0)
+        assert command.exit_code == 0
+        assert command.id == 1
         api_client.command.post.assert_called_once_with(
+            {
+                "build": mock.ANY,
+                "command": command.get_command(),
+                "output": "",
+                "exit_code": None,
+                "start_time": None,
+                "end_time": None,
+            }
+        )
+        api_client.command().patch.assert_called_once_with(
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
@@ -244,7 +259,7 @@ class TestBuildCommand(TestCase):
 
     def test_output(self):
         """Test output command."""
-        project = get(Project)
+        project = APIProject(**get(Project).__dict__)
         api_client = mock.MagicMock()
         build_env = LocalBuildEnvironment(
             project=project,
@@ -292,6 +307,34 @@ class TestBuildCommand(TestCase):
             ("Hola", "Hola"),
             ("H\x00i", "Hi"),
             ("H\x00i \x00\x00\x00You!\x00", "Hi You!"),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
+
+    def test_obfuscate_output_private_variables(self):
+        build_env = mock.MagicMock()
+        build_env.project = mock.MagicMock()
+        build_env.project._environment_variables = mock.MagicMock()
+        build_env.project._environment_variables.items.return_value = [
+            (
+                "PUBLIC",
+                {
+                    "public": True,
+                    "value": "public-value",
+                },
+            ),
+            (
+                "PRIVATE",
+                {
+                    "public": False,
+                    "value": "private-value",
+                },
+            ),
+        ]
+        cmd = BuildCommand(["/bin/bash", "-c", "echo"], build_env=build_env)
+        checks = (
+            ("public-value", "public-value"),
+            ("private-value", "priv****"),
         )
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)

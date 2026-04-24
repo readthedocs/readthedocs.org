@@ -1,4 +1,4 @@
-Single Sign-On (SSO)
+Single sign-on (SSO)
 ====================
 
 .. include:: /shared/admonition-rtd-business.rst
@@ -15,7 +15,7 @@ Currently, we support two different types of single sign-on:
 
 .. _sso_git_provider:
 
-Single Sign-on with GitHub, Bitbucket, or GitLab
+Single sign-on with GitHub, Bitbucket, or GitLab
 ------------------------------------------------
 
 Using an identity provider that supports authentication and authorization allows organization owners to manage
@@ -27,7 +27,7 @@ that user just needs to be granted permissions in the Git repository associated 
 Once you enable this option,
 your existing Read the Docs teams will not be used.
 All authentication will be done using your git provider,
-including any two-factor authentication and additional Single Sign-on that they support.
+including any two-factor authentication and additional single sign-on that they support.
 
 Learn how to configure this SSO method with our :doc:`/guides/setup-single-sign-on-github-gitlab-bitbucket`.
 

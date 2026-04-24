@@ -1,9 +1,9 @@
-How to setup Single Sign-On (SSO) with Google Workspace
+How to setup single sign-on (SSO) with Google Workspace
 =======================================================
 
 .. include:: /shared/admonition-rtd-business.rst
 
-This how-to guide will provide instructions on how to enable :abbr:`SSO (Single Sign-on)` with Google Workspace.
+This how-to guide will provide instructions on how to enable :abbr:`SSO (single sign-on)` with Google Workspace.
 If you want more information on this feature,
 please read :doc:`/commercial/single-sign-on`
 
@@ -39,7 +39,7 @@ Enabling SSO
 By default, users that sign up with a Google account do not have any permissions over any project.
 However, you can define which teams users matching your company's domain email address will auto-join when they sign up.
 
-1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
+1. Navigate to the `authorization setting page <https://app.readthedocs.com/organizations/choose/organization_sso/>`__.
 2. Select **Google** in the :guilabel:`Provider` drop-down.
 3. Press :guilabel:`Save`.
 
@@ -57,7 +57,7 @@ Configure team for all users to join
 You can mark one or many teams that users are automatically joined when they sign up with a matching email address.
 Configure this option by:
 
-1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+1. Navigate to the `teams management page <https://app.readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click the :guilabel:`<team name>`.
 3. Click :guilabel:`Edit team`
 4. Enable *Auto join users with an organization's email address to this team*.
@@ -94,4 +94,4 @@ and disable login on Read the Docs completely for that user.
    :doc:`/guides/manage-read-the-docs-teams`
      Additional user management options
    :doc:`/commercial/single-sign-on`
-     Information about choosing a Single Sign-on approach
+     Information about choosing a single sign-on approach

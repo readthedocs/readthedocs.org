@@ -1,9 +1,9 @@
 import datetime
 import json
 
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from readthedocs.oauth.tasks import sync_remote_repositories
 
@@ -78,16 +78,13 @@ class Command(BaseCommand):
 
         if logged_in_days_ago > 0:
             users = users.filter(
-                last_login__gte=timezone.now()
-                - datetime.timedelta(days=logged_in_days_ago),
+                last_login__gte=timezone.now() - datetime.timedelta(days=logged_in_days_ago),
             )
 
         if not force_sync:
             users = users.filter(remote_repository_relations__isnull=True).distinct()
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Total {users.count()} user(s) can be synced")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Total {users.count()} user(s) can be synced"))
 
         if sync_users:
             users = users.filter(username__in=sync_users)
@@ -102,15 +99,11 @@ class Command(BaseCommand):
             # pylint: disable=consider-using-with disable=unspecified-encoding
             revoked_users = json.load(open("revoked-users.json", "r"))
             users = users.exclude(username__in=revoked_users)
-            self.stdout.write(
-                self.style.WARNING(f"Excluding {len(revoked_users)} revoked users.")
-            )
+            self.stdout.write(self.style.WARNING(f"Excluding {len(revoked_users)} revoked users."))
 
         if sync_users or skip_users or revoked_users:
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Found {users.count()} user(s) with the given parameters"
-                )
+                self.style.SUCCESS(f"Found {users.count()} user(s) with the given parameters")
             )
 
         # Don't trigger VCS provider re-sync tasks if --dry-run is provided

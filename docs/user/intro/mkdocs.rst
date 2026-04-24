@@ -1,5 +1,6 @@
-MkDocs
-======
+
+Deploying MkDocs on Read the Docs
+=================================
 
 .. meta::
    :description lang=en: Hosting MkDocs sites on Read the Docs.
@@ -158,6 +159,13 @@ To integrate the :ref:`flyout-menu:Addons flyout menu` version menu into your si
         </ul>
         </div>`;
 
+            // Check if we already added versions and remove them if so.
+            // This happens when using the "Instant loading" feature.
+            // See https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#instant-loading
+            const currentVersions = document.querySelector(".md-version");
+            if (currentVersions !== null) {
+              currentVersions.remove();
+            }
             document.querySelector(".md-header__topic").insertAdjacentHTML("beforeend", versioning);
         });
 

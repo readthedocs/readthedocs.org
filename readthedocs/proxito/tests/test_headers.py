@@ -372,3 +372,51 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
         self.assertEqual(r["Cache-Tag"], "project,project:sitemap.xml")
+
+    def test_cache_headers_at_browser_level_on_external_domain(self):
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("no-cache", r.headers)
+
+        get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Cache-Control"], "no-cache")
+
+    def test_x_robots_tag_header(self):
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("X-Robots-Tag", r.headers)
+
+        get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["X-Robots-Tag"], "noindex")

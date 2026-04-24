@@ -1,0 +1,301 @@
+/* Left for CSS overrides we need to make in the future */
+
+/* Fix badge on RTD Theme */
+
+/* Please keep RTD badge displayed on your site */
+.rst-versions.rst-badge {
+    display: block;
+
+    bottom: 50px;
+
+    /* Workaround for mkdocs which set a specific height for this element */
+    height: auto;
+}
+
+.rst-other-versions {
+    text-align: left;
+}
+
+.rst-other-versions a {
+    border: 0;
+}
+
+.rst-other-versions dl {
+    margin: 0;
+}
+
+.rtd-current-item {
+    font-weight: bold;
+}
+
+
+/* Fix RTD theme bottom margin */
+.rst-content .line-block {
+    margin-bottom: 24px
+}
+
+/* Fix for nav bottom padding with flyout */
+nav.wy-nav-side {
+    padding-bottom: 3em;
+}
+
+/* bookmark icon */
+.bookmark-added-msg {display: none;}
+.bookmark-active {display: none;}
+.bookmark-inactive {display: none;}
+
+
+/* Read the Docs promotional block, only applicable to RTD.org
+
+To support sphinx_rtd_theme, a `wy-menu` element is added. Other themes are
+targeted using the theme identifier and use custom elements instead of a CSS
+framework html structure.
+
+*/
+
+div.ethical-sidebar,
+div.ethical-footer {
+    display: block !important;
+}
+.ethical-sidebar,
+.ethical-footer {
+    padding: 0.5em;
+    margin: 1em 0;
+}
+.ethical-sidebar img,
+.ethical-footer img {
+    width: 120px;
+    height: 90px;
+    display: inline-block;
+}
+.ethical-sidebar .ethical-callout,
+.ethical-footer .ethical-callout {
+    padding-top: 1em;
+    clear: both;
+}
+.ethical-sidebar .ethical-pixel,
+.ethical-footer .ethical-pixel,
+.ethical-fixedfooter .ethical-pixel {
+    display: none !important;
+}
+.ethical-sidebar .ethical-text,
+.ethical-footer .ethical-text {
+    margin-top: 1em;
+}
+.ethical-sidebar .ethical-image-link,
+.ethical-footer .ethical-image-link {
+    border: 0;
+}
+
+.ethical-sidebar,
+.ethical-footer {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #0a0a0a;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+/* Techstack badging */
+.ethical-sidebar ul {
+    margin: 0 !important;
+    padding-left: 0;
+    list-style: none;
+}
+.ethical-sidebar ul li {
+    display: inline-block;
+    background-color: lightskyblue;
+    color: black;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    margin: 0.25em;
+    border-radius: 0.25rem;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    line-height: 1.41;
+}
+.ethical-sidebar ul li:not(:last-child) {
+    margin-right: .25rem;
+}
+
+.ethical-sidebar a,
+.ethical-sidebar a:visited,
+.ethical-sidebar a:hover,
+.ethical-sidebar a:active,
+.ethical-footer a,
+.ethical-footer a:visited,
+.ethical-footer a:hover,
+.ethical-footer a:active {
+    color: #0a0a0a;
+    text-decoration: none !important;
+    border-bottom: 0 !important;
+}
+
+.ethical-callout a {
+    color: #707070 !important;
+    text-decoration: none !important;
+}
+
+/* Sidebar promotions */
+.ethical-sidebar {
+    text-align: center;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Footer promotions */
+.ethical-footer {
+    text-align: left;
+
+    font-size: 14px;
+    line-height: 20px;
+}
+.ethical-footer img {
+    float: right;
+    margin-left: 25px;
+}
+.ethical-footer .ethical-callout {
+    text-align: center;
+}
+.ethical-footer small {
+    font-size: 10px;
+}
+
+/* Fixed footer promotions */
+.ethical-fixedfooter {
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    background-color: #eee;
+    border-top: 1px solid #bfbfbf;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 0.5em 1.5em;
+    text-align: center;
+    color: #404040;
+    width: 100%;    /* Fallback for Opera Mini */
+    width: 100vw;
+}
+@media (min-width: 769px) {
+    /* Improve viewing on non-mobile */
+    .ethical-fixedfooter {
+        font-size: 13px;
+        padding: 1em 1.5em;
+    }
+}
+.ethical-fixedfooter .ethical-text:before {
+    margin-right: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: #4caf50;
+    color: #fff;
+    content: "Sponsored";
+}
+.ethical-fixedfooter .ethical-callout {
+    color: #999;
+    padding-left: 6px;
+    white-space: nowrap;
+}
+.ethical-fixedfooter a,
+.ethical-fixedfooter a:hover,
+.ethical-fixedfooter a:active,
+.ethical-fixedfooter a:visited {
+    color: #404040;
+    text-decoration: none;
+}
+.ethical-fixedfooter .ethical-close {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    font-size: 20px;
+    line-height: 20px;
+}
+
+/* RTD Theme specific customizations */
+.wy-nav-side .ethical-rtd {
+    /* RTD theme doesn't correctly set the sidebar width */
+    max-width: 300px;
+    padding: 0 1em;
+}
+.ethical-rtd .ethical-sidebar {
+    /* RTD theme doesn't set sidebar text color */
+    color: #b3b3b3;
+
+    font-size: 14px;
+    line-height: 20px;
+}
+
+@media (min-width: 769px) {
+    /* Make sure the fixed footer ad is under the RTD theme version selector */
+    .wy-body-for-nav .ethical-fixedfooter {
+        padding-left: 300px;
+    }
+}
+
+/* Alabaster specific customizations */
+.ethical-alabaster a.ethical-image-link {
+    /* Alabaster adds a border even to image links on hover */
+    border: 0 !important;
+}
+.ethical-alabaster hr {
+    /* Alabaster needs some extra spacing before the footer ad */
+    margin-top: 2em;
+}
+.ethical-alabaster::before {
+    /* Alabaster's search box above the ad is floating */
+    clear: both;
+    content: '';
+    display: table;
+    margin-top: 3em;
+}
+
+/* Dark theme */
+.ethical-dark-theme .ethical-sidebar {
+    background-color: #4e4b4b;
+    border: 1px solid #a0a0a0;
+    color: #c2c2c2 !important;
+}
+.ethical-dark-theme a,
+.ethical-dark-theme a:visited {
+    color: #e6e6e6 !important;
+    border-bottom: 0 !important;
+}
+.ethical-dark-theme .ethical-callout a {
+    color: #b3b3b3 !important;
+}
+
+
+/* Ad block nag */
+.keep-us-sustainable {
+    padding: .5em;
+    margin: 1em auto;
+    text-align: center;
+    border: 1px dotted #8ECC4C;
+    max-width: 300px;
+}
+.keep-us-sustainable a,
+.keep-us-sustainable a:hover,
+.keep-us-sustainable a:visited {
+    text-decoration: none;
+}
+/* Read the Docs theme specific fixes */
+.wy-nav-side .keep-us-sustainable {
+    margin: 1em 2em 1em 1em;
+    color: #b3b3b3;
+}
+.wy-nav-side .keep-us-sustainable a {
+    color: #efefef;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+/* Margin between the search results */
+.rtd_search_hits_spacing {
+    margin: 10px 0;
+}

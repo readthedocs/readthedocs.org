@@ -1,0 +1,14 @@
+# https://docs.github.com/en/repositories/working-with-files/using-files/viewing-and-understanding-files#ignore-commits-in-the-blame-view
+
+# Ruff migration
+2a6af433b42faa53950d5c23e82774deb4f015d8
+
+# Black
+8cae85b14d2dbc99300f17d33a493922ef0481c1
+
+# Docs
+7cd99714bc415ec72fe7463646a98a3d8b32ec14
+dc34fb87d9bf0d213c9b299ce142a52612b40242
+
+# Translations
+6261427e662d9c3733568c33f760c5f5a2100c6d

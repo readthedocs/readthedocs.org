@@ -1,9 +1,13 @@
 import structlog
 from django.conf import settings
-from django_elasticsearch_dsl import Document, Index, fields
+from django_elasticsearch_dsl import Document
+from django_elasticsearch_dsl import Index
+from django_elasticsearch_dsl import fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
+
 
 project_conf = settings.ES_INDEXES["project"]
 project_index = Index(project_conf["name"])
@@ -28,7 +32,6 @@ class RTDDocTypeMixin:
 
 @project_index.document
 class ProjectDocument(RTDDocTypeMixin, Document):
-
     """Document representation of a Project."""
 
     # Metadata
@@ -56,7 +59,13 @@ class ProjectDocument(RTDDocTypeMixin, Document):
         but it's not a priority to find a solution for this as long as "delisted" projects are
         understood to be projects with a negative reason for being delisted.
         """
-        return super().get_queryset().exclude(delisted=True).exclude(is_spam=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(search_indexing_enabled=True)
+            .exclude(delisted=True)
+            .exclude(is_spam=True)
+        )
 
     class Django:
         model = Project
@@ -66,7 +75,6 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 
 @page_index.document
 class PageDocument(RTDDocTypeMixin, Document):
-
     """
     Document representation of a Page.
 
@@ -120,7 +128,8 @@ class PageDocument(RTDDocTypeMixin, Document):
         """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
-            queryset.exclude(ignore=True)
+            queryset.filter(project__search_indexing_enabled=True)
+            .exclude(ignore=True)
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
             .select_related("version", "project")

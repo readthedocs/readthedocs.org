@@ -1,9 +1,11 @@
 import django_filters.rest_framework as filters
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Project
 
 

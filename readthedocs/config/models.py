@@ -11,7 +11,8 @@ in a separate step.
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from pydantic import ConfigDict
 
 
 class ConfigBaseModel(BaseModel):
@@ -79,8 +80,17 @@ class PythonInstall(ConfigBaseModel):
     extra_requirements: list[str] = []
 
 
+class UvInstall(ConfigBaseModel):
+    method: Literal["uv"]
+    command: Literal["sync", "pip"]
+    path: str | None = None
+    requirements: str | None = None
+    groups: list[str] | Literal["all"] | None = None
+    extras: list[str] | Literal["all"] | None = None
+
+
 class Python(ConfigBaseModel):
-    install: list[PythonInstall | PythonInstallRequirements] = []
+    install: list[PythonInstall | PythonInstallRequirements | UvInstall] = []
 
 
 class Conda(ConfigBaseModel):

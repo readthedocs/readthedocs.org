@@ -98,7 +98,7 @@ Where to put files
 It is your responsibility to generate HTML and other formats of your documentation when overriding the steps from :ref:`config-file/v2:build.jobs.build`.
 The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted as part of your documentation.
 
-We store the the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
+We store the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
 Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
 
@@ -168,6 +168,50 @@ But we recommend using :ref:`config-file/v2:build.jobs` instead:
 but in a more structured way that allows you to define different commands for each format,
 while also supporting installing system dependencies via ``build.apt_packages``.
 
+Custom Git checkout commands (advanced)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs supports overriding the default :term:`checkout job <pre-defined build jobs>`
+with a custom sequence of :program:`git` commands.
+This is useful for advanced workflows like sparse checkouts or custom cloning strategies.
+
+To enable this feature, go to your project's :term:`dashboard` and update
+:menuselection:`Settings --> Custom Git checkout commands`.
+Enter one command per line.
+
+.. note::
+
+  When you define custom Git checkout commands, Read the Docs will not run the default Git clone or checkout.
+  Your commands must perform the clone and checkout of the desired revision.
+
+.. tip::
+
+  If you just want to run some extra commands after the default Git checkout,
+  like unshallowing the clone or fetching extra branches,
+  you should use the ``build.jobs.post_checkout`` user-defined job instead.
+
+  In case you want to clone submodules, you can use the :ref:`config-file/v2:submodules` config key for that.
+
+
+Commands are executed in order, in the repository working directory.
+You can use :doc:`pre-defined environment variables </reference/environment-variables>`
+such as :envvar:`READTHEDOCS_GIT_CLONE_URL`, :envvar:`READTHEDOCS_GIT_IDENTIFIER`,
+and :envvar:`READTHEDOCS_REPOSITORY_PATH`.
+
+.. code-block:: text
+  :caption: Example of custom Git checkout commands
+
+  git clone --no-checkout --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .
+  git sparse-checkout init --cone
+  git sparse-checkout set docs
+  git checkout $READTHEDOCS_GIT_IDENTIFIER
+
+.. warning::
+
+  This is an advanced feature.
+  Incorrect commands can prevent builds from checking out code or can expose sensitive files in your repository.
+  If you are unsure, use :doc:`build customization with build.jobs </build-customization>` instead.
+
 Examples
 --------
 
@@ -210,70 +254,6 @@ If your build also relies on the contents of other branches, it may also be nece
          - git fetch --unshallow || true
          - git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || true
          - git fetch --all --tags || true
-
-
-Cancel build based on a condition
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When a command exits with code ``183``,
-Read the Docs will cancel the build immediately.
-You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
-
-.. note:: Why 183 was chosen for the exit code?
-
-   It's the word "skip" encoded in ASCII.
-   Then it's taken the 256 modulo of it because
-   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
-   for exit codes greater than 255.
-
-   .. code-block:: pycon
-
-      >>> sum(list("skip".encode("ascii")))
-      439
-      >>> 439 % 256
-      183
-
-
-Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
-         # You can add any other files or directories that you'd like here as well,
-         # like your docs requirements file, or other files that will change your docs build.
-         #
-         # If there are no changes (git diff exits with 0) we force the command to return with 183.
-         # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
-           then
-             exit 183;
-           fi
-
-
-This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       python: "3.12"
-     jobs:
-       post_checkout:
-         # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 183 to cancel the build
-         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | paste -s -d " " | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
@@ -379,7 +359,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
          # Download and uncompress the binary
          # https://git-lfs.github.com/
          - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
-         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz
+         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz git-lfs
          # Modify LFS config paths to point where git-lfs binary was downloaded
          - git config filter.lfs.process "`pwd`/git-lfs filter-process"
          - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
@@ -422,7 +402,6 @@ Projects managed with `Poetry <https://python-poetry.org/>`__,
 can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
-
 .. code-block:: yaml
    :caption: .readthedocs.yaml
 
@@ -450,10 +429,45 @@ Take a look at the following example:
 Install dependencies with ``uv``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects can use `uv <https://github.com/astral-sh/uv/>`__,
-to install Python dependencies, usually reducing the time taken to install compared to pip.
-Take a look at the following example:
+Read the Docs supports `uv <https://docs.astral.sh/uv/>`__ natively in
+``python.install``.
+Projects using uv can use the configuration methods referenced at
+:ref:`config-file/v2:python.install` instead of overriding ``build.jobs``.
 
+The following example uses ``uv sync`` with a dependency group named ``docs``.
+If a ``uv.lock`` file exists, it is respected.
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-24.04
+     tools:
+       python: "3.13"
+
+   python:
+     install:
+       - method: uv
+         command: sync
+         groups:
+           - docs
+
+   sphinx:
+       configuration: docs/conf.py
+
+Use ``build.jobs`` only when you need an advanced uv workflow that isn't covered by
+``python.install``, such as adding specific arguments to the ``uv`` command.
+
+Install dependencies from Dependency Groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python `Dependency Groups <https://packaging.python.org/en/latest/specifications/dependency-groups/>`_
+are a way of storing lists of dependencies in your ``pyproject.toml``.
+
+``pip`` version 25.1+ as well as many other tools support Dependency Groups.
+This example uses ``pip`` and installs from a group named ``docs``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -465,18 +479,44 @@ Take a look at the following example:
       tools:
          python: "3.13"
       jobs:
-         create_environment:
-            - asdf plugin add uv
-            - asdf install uv latest
-            - asdf global uv latest
-            - uv venv
          install:
-            - uv pip install -r requirements.txt
+            # Since the install step is overridden, pip is no longer updated automatically.
+            - pip install --upgrade pip
+            - pip install --group 'docs'
+
+For more information on relevant ``pip`` usage, see the
+`pip user guide on Dependency Groups <https://pip.pypa.io/en/stable/user_guide/#dependency-groups>`_.
+
+Install dependencies with ``pixi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Projects can use `pixi <https://github.com/prefix-dev/pixi/>`__,
+to install Python dependencies, usually reducing the time taken to install compared to conda or pip.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+      os: ubuntu-24.04
+      tools:
+          python: "latest"
+      jobs:
+         create_environment:
+            - asdf plugin add pixi
+            - asdf install pixi latest
+            - asdf global pixi latest
+         install:
+            # assuming you have an environment called "docs"
+            - pixi install -e docs
          build:
             html:
-               - uv run sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+               - pixi run -e docs sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
 
-MkDocs projects could use ``NO_COLOR=1 uv run mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
+MkDocs projects could use ``NO_COLOR=1 pixi run -e docs mkdocs build --strict --site-dir $READTHEDOCS_OUTPUT/html`` instead.
 
 Update Conda version
 ~~~~~~~~~~~~~~~~~~~~
@@ -567,3 +607,65 @@ Here is an example configuration file:
        build:
          html:
            - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
+
+Using pydoctor
+~~~~~~~~~~~~~~
+
+`Pydoctor <https://github.com/twisted/pydoctor>`_ is an easy-to-use standalone API documentation tool for Python.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     jobs:
+       install:
+         - pip install pydoctor
+       build:
+         html:
+           - |
+             pydoctor \
+               --project-version=${READTHEDOCS_GIT_IDENTIFIER} \
+               --project-url=${READTHEDOCS_GIT_CLONE_URL%*.git} \
+               --html-viewsource-base=${READTHEDOCS_GIT_CLONE_URL%*.git}/tree/${READTHEDOCS_GIT_COMMIT_HASH} \
+               --html-base-url=${READTHEDOCS_CANONICAL_URL} \
+               --html-output $READTHEDOCS_OUTPUT/html/ \
+               ./src/my_project
+
+Generate text format with Sphinx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There might be various reasons why would you want to generate your
+documentation in `text` format (secondary to `html`). One of such reasons
+would be generating LLM friendly documentation.
+
+See the following example for how to add generation of additional `text`
+format to your existing documentation. Deviations from standard build
+configuration are highlighted/emphasized:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 14-
+
+   version: 2
+
+   sphinx:
+     configuration: docs/conf.py
+
+   python:
+     install:
+     - requirements: docs/requirements.txt
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.12"
+     jobs:
+       post_build:
+         - mkdir -p $READTHEDOCS_OUTPUT/html/
+         - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+
+The generated ``.txt`` files will be placed in the `html` directory, together
+with ``.html`` files.

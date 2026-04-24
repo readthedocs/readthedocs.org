@@ -30,7 +30,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.utils import finish_inactive_builds
 
 
 class ProjectMixin:
@@ -39,6 +38,8 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username="eric", password="test")
         self.pip = Project.objects.get(slug="pip")
+        self.pip.save()
+        self.version = self.pip.versions.get(slug=LATEST)
         # Create a External Version. ie: pull/merge request Version.
         self.external_version = get(
             Version,
@@ -106,62 +107,70 @@ class TestProject(ProjectMixin, TestCase):
             ProjectConfigurationError.MULTIPLE_CONF_FILES,
         )
 
+    def test_get_storage_paths(self):
+        assert self.pip.get_storage_paths() == [
+            "html/pip",
+            "pdf/pip",
+            "epub/pip",
+            "htmlzip/pip",
+            "json/pip",
+            "diff/pip",
+            "external/html/pip",
+            "external/pdf/pip",
+            "external/epub/pip",
+            "external/htmlzip/pip",
+            "external/json/pip",
+            "external/diff/pip",
+        ]
+
     def test_get_storage_path(self):
         for type_ in MEDIA_TYPES:
             self.assertEqual(
-                self.pip.get_storage_path(type_, LATEST, include_file=False),
+                self.version.get_storage_path(type_),
                 f"{type_}/pip/latest",
             )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_PDF, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_PDF),
             "pdf/pip/latest/pip.pdf",
         )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_EPUB, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_EPUB),
             "epub/pip/latest/pip.epub",
         )
         self.assertEqual(
-            self.pip.get_storage_path(MEDIA_TYPE_HTMLZIP, LATEST),
+            self.version.get_download_storage_path(MEDIA_TYPE_HTMLZIP),
             "htmlzip/pip/latest/pip.zip",
         )
 
     def test_get_storage_path_invalid_inputs(self):
         # Invalid type.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path("foo")
+            self.version.get_storage_path("foo")
 
         # Trying to get a file from a non-downloadable type.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path(MEDIA_TYPE_HTML, include_file=True)
+            self.version.get_download_storage_path(MEDIA_TYPE_HTML)
 
         # Trying path traversal.
         with pytest.raises(ValueError):
-            self.pip.get_storage_path(
-                MEDIA_TYPE_HTML, version_slug="../sneaky/index.html", include_file=False
-            )
+            self.version.get_storage_path(MEDIA_TYPE_HTML, version_slug="../sneaky/index.html")
 
     def test_get_storage_path_for_external_versions(self):
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "pdf",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/pdf/pip/99/pip.pdf",
         )
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "epub",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/epub/pip/99/pip.epub",
         )
         self.assertEqual(
-            self.pip.get_storage_path(
+            self.external_version.get_download_storage_path(
                 "htmlzip",
-                self.external_version.slug,
-                version_type=self.external_version.type,
             ),
             "external/htmlzip/pip/99/pip.zip",
         )
@@ -223,11 +232,11 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
 
-    def test_get_latest_build_excludes_external_versions(self):
+    def test_latest_internal_build_excludes_external_versions(self):
         # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
-        # Test that External Version is not considered for get_latest_build.
-        self.assertEqual(self.pip.get_latest_build(), None)
+        # Test that External Version is not considered for latest_internal_build.
+        self.assertEqual(self.pip.latest_internal_build, None)
 
     def test_git_provider_github(self):
         self.pip.repo = "https://github.com/pypa/pip"
@@ -577,62 +586,3 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "There is already a")
-
-
-class TestFinishInactiveBuildsTask(TestCase):
-    fixtures = ["eric", "test_data"]
-
-    def setUp(self):
-        self.client.login(username="eric", password="test")
-        self.pip = Project.objects.get(slug="pip")
-
-        self.taggit = Project.objects.get(slug="taggit")
-        self.taggit.container_time_limit = 7200  # 2 hours
-        self.taggit.save()
-
-        # Build just started with the default time
-        self.build_1 = Build.objects.create(
-            project=self.pip,
-            version=self.pip.get_stable_version(),
-            state=BUILD_STATE_CLONING,
-        )
-
-        # Build started an hour ago with default time
-        self.build_2 = Build.objects.create(
-            project=self.pip,
-            version=self.pip.get_stable_version(),
-            state=BUILD_STATE_TRIGGERED,
-        )
-        self.build_2.date = timezone.now() - datetime.timedelta(hours=1)
-        self.build_2.save()
-
-        # Build started an hour ago with custom time (2 hours)
-        self.build_3 = Build.objects.create(
-            project=self.taggit,
-            version=self.taggit.get_stable_version(),
-            state=BUILD_STATE_TRIGGERED,
-        )
-        self.build_3.date = timezone.now() - datetime.timedelta(hours=1)
-        self.build_3.save()
-
-    @pytest.mark.xfail(reason="Fails while we work out Docker time limits", strict=True)
-    def test_finish_inactive_builds_task(self):
-        finish_inactive_builds()
-
-        # Legitimate build (just started) not finished
-        self.build_1.refresh_from_db()
-        self.assertTrue(self.build_1.success)
-        self.assertEqual(self.build_1.error, "")
-        self.assertEqual(self.build_1.state, BUILD_STATE_CLONING)
-
-        # Build with default time finished
-        self.build_2.refresh_from_db()
-        self.assertFalse(self.build_2.success)
-        self.assertNotEqual(self.build_2.error, "")
-        self.assertEqual(self.build_2.state, BUILD_STATE_FINISHED)
-
-        # Build with custom time not finished
-        self.build_3.refresh_from_db()
-        self.assertTrue(self.build_3.success)
-        self.assertEqual(self.build_3.error, "")
-        self.assertEqual(self.build_3.state, BUILD_STATE_TRIGGERED)

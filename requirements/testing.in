@@ -2,6 +2,9 @@
 
 -r pip.txt
 
+# Pin due to a bug that makes Sphinx to install 3.5.3 otherwise.
+docutils==0.21.2
+
 sphinx[test]
 django-dynamic-fixture
 pytest

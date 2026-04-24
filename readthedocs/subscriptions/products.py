@@ -4,6 +4,7 @@ Read the Docs products.
 This module contains the dataclasses that represent the products available.
 The available products are defined in the ``RTD_PRODUCTS`` setting.
 """
+
 import copy
 from dataclasses import dataclass
 
@@ -62,7 +63,6 @@ class RTDProductFeature:
 
 @dataclass(slots=True)
 class RTDProduct:
-
     """A local representation of a Stripe product."""
 
     stripe_id: str
@@ -95,9 +95,7 @@ def get_listed_products():
 def get_products_with_feature(feature_type) -> list[RTDProduct]:
     """Return a list of products that have the given feature."""
     return [
-        product
-        for product in settings.RTD_PRODUCTS.values()
-        if feature_type in product.features
+        product for product in settings.RTD_PRODUCTS.values() if feature_type in product.features
     ]
 
 
@@ -118,7 +116,8 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
     from readthedocs.projects.models import Project
 
     if isinstance(obj, Project):
-        organization = obj.organizations.first()
+        # Fetch the subscription as well, as it's used just below.
+        organization = obj.organizations.select_related("stripe_subscription").first()
     elif isinstance(obj, Organization):
         organization = obj
     else:
@@ -141,9 +140,9 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
         ).select_related("price__product")
         final_rtd_feature = None
         for subscription_item in subscription_items:
-            rtd_feature = settings.RTD_PRODUCTS[
-                subscription_item.price.product.id
-            ].features[feature_type]
+            rtd_feature = settings.RTD_PRODUCTS[subscription_item.price.product.id].features[
+                feature_type
+            ]
             if final_rtd_feature is None:
                 final_rtd_feature = rtd_feature * subscription_item.quantity
             else:

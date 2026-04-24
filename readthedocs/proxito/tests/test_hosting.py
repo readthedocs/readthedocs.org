@@ -16,7 +16,8 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import (
     FileTreeDiff,
-    FileTreeDiffFile,
+    FileTreeDiffManifestFile,
+    FileTreeDiffFileStatus,
     FileTreeDiffManifest,
 )
 from readthedocs.projects.constants import (
@@ -72,6 +73,8 @@ class TestReadTheDocsConfigJson(TestCase):
             identifier="a1b2c3",
         )
         self.version = self.project.versions.get(slug=LATEST)
+        self.version.identifier = "master"
+        self.version.save()
         self.build = fixture.get(
             Build,
             project=self.project,
@@ -88,10 +91,17 @@ class TestReadTheDocsConfigJson(TestCase):
         return json.load(open(filename))
 
     def _normalize_datetime_fields(self, obj):
-        obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
-        obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
-        obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
-        obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
+        try:
+            obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
+            obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
+        except:
+            pass
+
+        try:
+            obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
+            obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
+        except:
+            pass
         return obj
 
     def test_get_config_v1(self):
@@ -383,6 +393,36 @@ class TestReadTheDocsConfigJson(TestCase):
         }
         assert r.json()["versions"]["current"]["downloads"] == expected
 
+    def test_number_of_queries_versions_with_downloads(self):
+        for i in range(10):
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=f"offline-{i}",
+                verbose_name=f"offline-{i}",
+                built=True,
+                has_pdf=True,
+                has_epub=True,
+                has_htmlzip=True,
+                active=True,
+            )
+
+        with self.assertNumQueries(12):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/offline/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+            assert r.status_code == 200
+
     def test_flyout_single_version_project(self):
         self.version.has_pdf = True
         self.version.has_epub = True
@@ -547,6 +587,88 @@ class TestReadTheDocsConfigJson(TestCase):
             == "https://github.com/readthedocs/subproject"
         )
 
+    def test_search_subprojects_filter(self):
+        subproject = fixture.get(
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
+        self.project.add_subproject(subproject)
+
+        assert self.project.addons.search_show_subprojects_filter
+        assert subproject.addons.search_show_subprojects_filter
+
+        # Filter is present in parent project.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == [["Include subprojects", "subprojects:project/latest", True]]
+
+        # Filter is present in subproject.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == [["Include subprojects", "subprojects:project/latest", True]]
+
+        self.project.addons.search_show_subprojects_filter = False
+        self.project.addons.save()
+        subproject.addons.search_show_subprojects_filter = False
+        subproject.addons.save()
+
+        # Filter is not present in parent project.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == []
+
+        # Filter is not present in subproject.
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["search"]["filters"] == []
+
     def test_flyout_subproject_urls(self):
         translation = fixture.get(
             Project,
@@ -696,6 +818,32 @@ class TestReadTheDocsConfigJson(TestCase):
             "v1"
         )
 
+    def test_send_project_slug_and_notfound_version_slug(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "1.0.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+                "version-slug": "not-found",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+
+        expected_response = self._get_response_dict("v1")
+
+        # Since there is no version, there are some fields that we need to change from the default response
+        del expected_response["addons"]["doc_diff"]
+        expected_response["builds"]["current"] = None
+        expected_response["versions"]["current"] = None
+        expected_response["readthedocs"]["resolver"]["filename"] = None
+        expected_response["addons"]["search"]["default_filter"] = f"project:{self.project.slug}"
+        assert self._normalize_datetime_fields(r.json()) == expected_response
+
     def test_custom_domain_url(self):
         fixture.get(
             Domain,
@@ -741,6 +889,7 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         expected = {
             "enabled": True,
+            "selector": None,
         }
 
         assert r.status_code == 200
@@ -783,7 +932,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -812,7 +961,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(15):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -848,7 +997,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -864,7 +1013,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(15):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -890,7 +1039,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(42):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -920,9 +1069,18 @@ class TestReadTheDocsConfigJson(TestCase):
         self.project.addons.save()
 
         get_diff.return_value = FileTreeDiff(
-            added=["tags/newtag.html"],
-            modified=["ignored.html", "archives/2025.html", "changelog/2025.2.html"],
-            deleted=["deleted.html"],
+            current_version=self.version,
+            current_version_build=self.build,
+            base_version=self.version,
+            base_version_build=self.build,
+            files=[
+                ("tags/newtag.html", FileTreeDiffFileStatus.added),
+                ("ignored.html", FileTreeDiffFileStatus.modified),
+                ("archives/2025.html", FileTreeDiffFileStatus.modified),
+                ("changelog/2025.2.html", FileTreeDiffFileStatus.modified),
+                ("deleted.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
         )
 
         r = self.client.get(
@@ -999,15 +1157,15 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=pr_build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="new-file.html",
                         main_content_hash="hash1",
                     ),
@@ -1016,22 +1174,22 @@ class TestReadTheDocsConfigJson(TestCase):
             FileTreeDiffManifest(
                 build_id=self.build.id,
                 files=[
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="index.html",
                         main_content_hash="hash1",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="tutorial/index.html",
                         main_content_hash="hash-changed",
                     ),
-                    FileTreeDiffFile(
+                    FileTreeDiffManifestFile(
                         path="deleted.html",
                         main_content_hash="hash-deleted",
                     ),
                 ],
             ),
         ]
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(18):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

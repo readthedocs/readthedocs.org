@@ -14,7 +14,6 @@ from readthedocs.search.utils import _last_30_days_iter
 
 
 class SearchQuery(TimeStampedModel):
-
     """Information about the search queries."""
 
     project = models.ForeignKey(

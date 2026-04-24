@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
+
 HTTP_STATUS_CHOICES = (
     (302, _("302 - Temporary Redirect")),
     (301, _("301 - Permanent Redirect")),
@@ -9,6 +10,8 @@ PAGE_REDIRECT = "page"
 EXACT_REDIRECT = "exact"
 CLEAN_URL_TO_HTML_REDIRECT = "clean_url_to_html"
 HTML_TO_CLEAN_URL_REDIRECT = "html_to_clean_url"
+
+SPLAT_PLACEHOLDER = ":splat"
 
 TYPE_CHOICES = (
     (PAGE_REDIRECT, _("Page Redirect")),

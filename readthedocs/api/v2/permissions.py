@@ -1,14 +1,13 @@
 """Defines access permissions for the API."""
 
 from rest_framework import permissions
-from rest_framework_api_key.permissions import BaseHasAPIKey, KeyParser
+from rest_framework_api_key.permissions import BaseHasAPIKey
+from rest_framework_api_key.permissions import KeyParser
 
 from readthedocs.api.v2.models import BuildAPIKey
-from readthedocs.builds.models import Version
 
 
 class IsOwner(permissions.BasePermission):
-
     """Custom permission to only allow owners of an object to edit it."""
 
     def has_object_permission(self, request, view, obj):
@@ -17,7 +16,6 @@ class IsOwner(permissions.BasePermission):
 
 
 class ReadOnlyPermission(permissions.BasePermission):
-
     """Allow read-only access to authenticated and anonymous users."""
 
     def has_permission(self, request, view):
@@ -25,7 +23,6 @@ class ReadOnlyPermission(permissions.BasePermission):
 
 
 class IsAuthorizedToViewVersion(permissions.BasePermission):
-
     """
     Checks if the user from the request has permissions to see the version.
 
@@ -41,9 +38,9 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
         project = view._get_project()
         version = view._get_version()
         has_access = (
-            Version.objects.public(
+            version.is_public
+            or project.versions.public(
                 user=request.user,
-                project=project,
                 only_active=False,
             )
             .filter(pk=version.pk)
@@ -53,7 +50,6 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
 
 
 class TokenKeyParser(KeyParser):
-
     """
     Custom key parser to use ``Token {TOKEN}`` as format.
 
@@ -64,7 +60,6 @@ class TokenKeyParser(KeyParser):
 
 
 class HasBuildAPIKey(BaseHasAPIKey):
-
     """
     Custom permission to inject the build API key into the request.
 

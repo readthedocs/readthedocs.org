@@ -11,19 +11,23 @@ from pathlib import Path
 
 import structlog
 
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
-from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
+from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import UserFileNotFound
+from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder
 from ..constants import PDF_RE
-from ..environments import BuildCommand, DockerBuildCommand
+from ..environments import BuildCommand
+from ..environments import DockerBuildCommand
 from ..exceptions import BuildUserError
+
 
 log = structlog.get_logger(__name__)
 
 
 class BaseSphinx(BaseBuilder):
-
     """The parent for most sphinx builders."""
 
     # Sphinx reads and parses all source files before it can write
@@ -140,6 +144,10 @@ class BaseSphinx(BaseBuilder):
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
         language = self.get_language(project)
+
+        if self.project.has_feature(Feature.BUILD_IN_PARALLEL):
+            build_command.extend(["-j", "auto"])
+
         build_command.extend(
             [
                 "-b",
@@ -169,6 +177,13 @@ class BaseSphinx(BaseBuilder):
         return cmd_ret.successful
 
     def get_sphinx_cmd(self):
+        if isinstance(self.python_env, UvEnv):
+            return (
+                "uv",
+                "run",
+                "sphinx-build",
+            )
+
         return (
             self.python_env.venv_bin(filename="python"),
             "-m",
@@ -254,16 +269,12 @@ class EpubBuilder(BaseSphinx):
             f"{self.project.slug}.epub",
         )
 
-        epub_sphinx_filepaths = glob(
-            os.path.join(self.absolute_host_output_dir, "*.epub")
-        )
+        epub_sphinx_filepaths = glob(os.path.join(self.absolute_host_output_dir, "*.epub"))
         if epub_sphinx_filepaths:
             # NOTE: we currently support only one .epub per version
             epub_filepath = epub_sphinx_filepaths[0]
 
-            self.run(
-                "mv", epub_filepath, temp_epub_file, cwd=self.project_path, record=False
-            )
+            self.run("mv", epub_filepath, temp_epub_file, cwd=self.project_path, record=False)
             self.run(
                 "rm",
                 "--recursive",
@@ -278,13 +289,10 @@ class EpubBuilder(BaseSphinx):
                 cwd=self.project_path,
                 record=False,
             )
-            self.run(
-                "mv", temp_epub_file, target_file, cwd=self.project_path, record=False
-            )
+            self.run("mv", temp_epub_file, target_file, cwd=self.project_path, record=False)
 
 
 class LatexBuildCommand(BuildCommand):
-
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
@@ -296,7 +304,6 @@ class LatexBuildCommand(BuildCommand):
 
 
 class DockerLatexBuildCommand(DockerBuildCommand):
-
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
@@ -308,7 +315,6 @@ class DockerLatexBuildCommand(DockerBuildCommand):
 
 
 class PdfBuilder(BaseSphinx):
-
     """Builder to generate PDF documentation."""
 
     relative_output_dir = "pdf"
@@ -429,9 +435,7 @@ class PdfBuilder(BaseSphinx):
         )
 
         # NOTE: we currently support only one .pdf per version
-        pdf_sphinx_filepath = os.path.join(
-            self.absolute_container_output_dir, self.pdf_file_name
-        )
+        pdf_sphinx_filepath = os.path.join(self.absolute_container_output_dir, self.pdf_file_name)
         pdf_sphinx_filepath_host = os.path.join(
             self.absolute_host_output_dir,
             self.pdf_file_name,
@@ -458,6 +462,4 @@ class PdfBuilder(BaseSphinx):
                 cwd=self.project_path,
                 record=False,
             )
-            self.run(
-                "mv", temp_pdf_file, target_file, cwd=self.project_path, record=False
-            )
+            self.run("mv", temp_pdf_file, target_file, cwd=self.project_path, record=False)

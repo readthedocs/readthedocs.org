@@ -1,3 +1,284 @@
+.. note::
+
+   Starting on June 30, 2025, the changelog is published as a GitHub release
+   and `listed in the repository itself <https://github.com/readthedocs/readthedocs.org/releases>`_.
+
+
+Version 14.0.0
+--------------
+
+:Date: June 24, 2025
+
+Trying out the GitHub auto-generated Changelog.
+
+* New dashboard: delete legacy HTML templates (part 4) by @humitos in https://github.com/readthedocs/readthedocs.org/pull/12201
+* feat(viz-diff-doc): update viz diff doc by @joleecl in https://github.com/readthedocs/readthedocs.org/pull/12185
+* Clarification on PR build webhooks and GitHub Action by @k4kfh in https://github.com/readthedocs/readthedocs.org/pull/11998
+* Build: show the command that's currently being executed by @stsewd in https://github.com/readthedocs/readthedocs.org/pull/12243
+* Update doc URLs from readthedocs.org/com to app.readthedocs.org/com by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12251
+* Add pixi example by @pavelzw in https://github.com/readthedocs/readthedocs.org/pull/12155
+* Normalize usage of "single sign-on" by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12256
+* Add vale and fix issues detected by @ericholscher in https://github.com/readthedocs/readthedocs.org/pull/12257
+* Update import private repository UI shots and directions by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12255
+* GitHub App: open beta by @stsewd in https://github.com/readthedocs/readthedocs.org/pull/12217
+* Dependencies: all packages updated via pip-tools by @github-actions in https://github.com/readthedocs/readthedocs.org/pull/12263
+* Add TheEconomist and proselist rules from WTD by @ericholscher in https://github.com/readthedocs/readthedocs.org/pull/12258
+* Update UI screenshots and directions on outgoing webhooks by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12261
+* Update subproject guide screenshots and directions by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12262
+* Try some more vale fixes by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12260
+* Use Allauth settings for app name and hiding on login/connect forms by @agjohnson in https://github.com/readthedocs/readthedocs.org/pull/12242
+* doc: Document `build.commands` working directory by @LecrisUT in https://github.com/readthedocs/readthedocs.org/pull/11218
+* Fix bumpver because we removed package.json by @ericholscher in https://github.com/readthedocs/readthedocs.org/pull/12266
+* Release 14.0.0 by @ericholscher in https://github.com/readthedocs/readthedocs.org/pull/12267
+
+New Contributors
+~~~~~~~~~~~~~~~~
+
+* @joleecl made their first contribution in https://github.com/readthedocs/readthedocs.org/pull/12185
+* @k4kfh made their first contribution in https://github.com/readthedocs/readthedocs.org/pull/11998
+* @pavelzw made their first contribution in https://github.com/readthedocs/readthedocs.org/pull/12155
+* @LecrisUT made their first contribution in https://github.com/readthedocs/readthedocs.org/pull/11218
+
+**Full Changelog**: https://github.com/readthedocs/readthedocs.org/compare/13.5.0...14.0.0
+
+Version 13.5.0
+--------------
+
+:Date: June 17, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12250 <https://github.com/readthedocs/readthedocs.org/pull/12250>`__)
+* `@humitos <https://github.com/humitos>`__: Delete /projects/<slug>/downloads/ URL (`#12247 <https://github.com/readthedocs/readthedocs.org/pull/12247>`__)
+* `@humitos <https://github.com/humitos>`__: Delete old URLs (`#12246 <https://github.com/readthedocs/readthedocs.org/pull/12246>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12240 <https://github.com/readthedocs/readthedocs.org/pull/12240>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirect: fix infinite redirect in 404 view (`#12237 <https://github.com/readthedocs/readthedocs.org/pull/12237>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: Use full path for GitLab groups/organizations (`#12236 <https://github.com/readthedocs/readthedocs.org/pull/12236>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: return an iterator for pagination (`#12235 <https://github.com/readthedocs/readthedocs.org/pull/12235>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab: handle when a repository is moved to another group (`#12233 <https://github.com/readthedocs/readthedocs.org/pull/12233>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 13.4.0 (`#12229 <https://github.com/readthedocs/readthedocs.org/pull/12229>`__)
+* `@humitos <https://github.com/humitos>`__: Publish canceled subscriptions into `#rtd-notifications` channel (`#12228 <https://github.com/readthedocs/readthedocs.org/pull/12228>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: handle webhook events in task (`#12223 <https://github.com/readthedocs/readthedocs.org/pull/12223>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 3) (`#12200 <https://github.com/readthedocs/readthedocs.org/pull/12200>`__)
+
+Version 13.4.0
+--------------
+
+:Date: June 03, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12226 <https://github.com/readthedocs/readthedocs.org/pull/12226>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add Project queryset `prefetch_latest_build()` to project filter (`#12225 <https://github.com/readthedocs/readthedocs.org/pull/12225>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: fix canceling subscription (`#12224 <https://github.com/readthedocs/readthedocs.org/pull/12224>`__)
+* `@henryiii <https://github.com/henryiii>`__: fix(schema): require tools or commands (`#12222 <https://github.com/readthedocs/readthedocs.org/pull/12222>`__)
+* `@humitos <https://github.com/humitos>`__: Upload staticfiles to S3 (`#12220 <https://github.com/readthedocs/readthedocs.org/pull/12220>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix sitemap by moving comment. (`#12216 <https://github.com/readthedocs/readthedocs.org/pull/12216>`__)
+* `@humitos <https://github.com/humitos>`__: Gold: `subscription` is the subscription id as string (`#12212 <https://github.com/readthedocs/readthedocs.org/pull/12212>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.3.0 (`#12209 <https://github.com/readthedocs/readthedocs.org/pull/12209>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 2) (`#12197 <https://github.com/readthedocs/readthedocs.org/pull/12197>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: faster migration page (`#12186 <https://github.com/readthedocs/readthedocs.org/pull/12186>`__)
+
+Version 13.3.0
+--------------
+
+:Date: May 27, 2025
+
+* `@humitos <https://github.com/humitos>`__: Tests: call `super().setUp()` (`#12208 <https://github.com/readthedocs/readthedocs.org/pull/12208>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12204 <https://github.com/readthedocs/readthedocs.org/pull/12204>`__)
+* `@humitos <https://github.com/humitos>`__: Remove allauth warning (`#12198 <https://github.com/readthedocs/readthedocs.org/pull/12198>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update AWS temporary credentials documentation (`#12196 <https://github.com/readthedocs/readthedocs.org/pull/12196>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.2.0 (`#12195 <https://github.com/readthedocs/readthedocs.org/pull/12195>`__)
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: delete legacy HTML templates (part 1) (`#12183 <https://github.com/readthedocs/readthedocs.org/pull/12183>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12176 <https://github.com/readthedocs/readthedocs.org/pull/12176>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@humitos <https://github.com/humitos>`__: Djstripe cleanup (`#12160 <https://github.com/readthedocs/readthedocs.org/pull/12160>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
+Version 13.2.0
+--------------
+
+:Date: May 20, 2025
+
+* `@barseghyanartur <https://github.com/barseghyanartur>`__: Add info on generating docs in `.txt` format (`#12194 <https://github.com/readthedocs/readthedocs.org/pull/12194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: add is_github_app_project helper method (`#12193 <https://github.com/readthedocs/readthedocs.org/pull/12193>`__)
+* `@pjfan <https://github.com/pjfan>`__: Delete how to change url versioning page (`#12192 <https://github.com/readthedocs/readthedocs.org/pull/12192>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Add note about contributing to other RTD projects (`#12191 <https://github.com/readthedocs/readthedocs.org/pull/12191>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update dev site build step (`#12190 <https://github.com/readthedocs/readthedocs.org/pull/12190>`__)
+* `@sirosen <https://github.com/sirosen>`__: Add an example of `pip install --group` (`#12189 <https://github.com/readthedocs/readthedocs.org/pull/12189>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Remove mention of Gitter from contributor docs (`#12188 <https://github.com/readthedocs/readthedocs.org/pull/12188>`__)
+* `@pjfan <https://github.com/pjfan>`__: Link previews docs update (`#12187 <https://github.com/readthedocs/readthedocs.org/pull/12187>`__)
+* `@pavithraes <https://github.com/pavithraes>`__: Update faq about changing project slugs (`#12184 <https://github.com/readthedocs/readthedocs.org/pull/12184>`__)
+* `@humitos <https://github.com/humitos>`__: Development: always use webpack on development (`#12182 <https://github.com/readthedocs/readthedocs.org/pull/12182>`__)
+* `@verisimilidude2 <https://github.com/verisimilidude2>`__: Update 'built in' info (`#12180 <https://github.com/readthedocs/readthedocs.org/pull/12180>`__)
+* `@MilaZhou22 <https://github.com/MilaZhou22>`__: Add doc tools to frontpage (`#12179 <https://github.com/readthedocs/readthedocs.org/pull/12179>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: block GH app users to re-connect to old OAuth app (`#12175 <https://github.com/readthedocs/readthedocs.org/pull/12175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade redis (`#12173 <https://github.com/readthedocs/readthedocs.org/pull/12173>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Downgrade Redis back to 5.2.1 (`#12172 <https://github.com/readthedocs/readthedocs.org/pull/12172>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 13.1.1 (`#12170 <https://github.com/readthedocs/readthedocs.org/pull/12170>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: support cloning private repos with token (`#12115 <https://github.com/readthedocs/readthedocs.org/pull/12115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use scoped credentials for interacting with S3 (`#12078 <https://github.com/readthedocs/readthedocs.org/pull/12078>`__)
+* `@coroa <https://github.com/coroa>`__: More concise uv example with docs (`#12064 <https://github.com/readthedocs/readthedocs.org/pull/12064>`__)
+
+Version 13.1.1
+--------------
+
+:Date: May 13, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Document ability to set `public` on EnvironmentVariable API v3 (`#12169 <https://github.com/readthedocs/readthedocs.org/pull/12169>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade `lxml` to avoid mismatch versions (`#12167 <https://github.com/readthedocs/readthedocs.org/pull/12167>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12166 <https://github.com/readthedocs/readthedocs.org/pull/12166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add comment to Sitemap explaining how to customize it (`#12164 <https://github.com/readthedocs/readthedocs.org/pull/12164>`__)
+* `@humitos <https://github.com/humitos>`__: Redirect for `/` and `/welcome` URLs (`#12163 <https://github.com/readthedocs/readthedocs.org/pull/12163>`__)
+* `@humitos <https://github.com/humitos>`__: Do not run `djstripe` checks on builders (`#12159 <https://github.com/readthedocs/readthedocs.org/pull/12159>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.1.0 (`#12157 <https://github.com/readthedocs/readthedocs.org/pull/12157>`__)
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: escape all whitespaces (`#12152 <https://github.com/readthedocs/readthedocs.org/pull/12152>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 5.2 (`#12149 <https://github.com/readthedocs/readthedocs.org/pull/12149>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update build tools (`#12143 <https://github.com/readthedocs/readthedocs.org/pull/12143>`__)
+
+Version 13.1.0
+--------------
+
+:Date: May 06, 2025
+
+* `@humitos <https://github.com/humitos>`__: Update djstripe handlers (`webhook.handler` was deleted) (`#12156 <https://github.com/readthedocs/readthedocs.org/pull/12156>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: don't check for limit on existing domains (`#12154 <https://github.com/readthedocs/readthedocs.org/pull/12154>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `djstripe` (`#12148 <https://github.com/readthedocs/readthedocs.org/pull/12148>`__)
+* `@humitos <https://github.com/humitos>`__: Condiontally homepage redirect based on domain and logged in status (`#12147 <https://github.com/readthedocs/readthedocs.org/pull/12147>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: truncate contents before indexing (`#12146 <https://github.com/readthedocs/readthedocs.org/pull/12146>`__)
+* `@humitos <https://github.com/humitos>`__: Downgrade to Django 4.2.x due to `djstripe` (`#12145 <https://github.com/readthedocs/readthedocs.org/pull/12145>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: handle versions when "instant loading" feature enabled (`#12142 <https://github.com/readthedocs/readthedocs.org/pull/12142>`__)
+* `@humitos <https://github.com/humitos>`__: Release 13.0.0 (`#12141 <https://github.com/readthedocs/readthedocs.org/pull/12141>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: remove legacy dashboard (`#12091 <https://github.com/readthedocs/readthedocs.org/pull/12091>`__)
+
+Version 13.0.0
+--------------
+
+:Date: April 29, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Revert "Dependencies: all packages updated via pip-tools" (`#12136 <https://github.com/readthedocs/readthedocs.org/pull/12136>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12135 <https://github.com/readthedocs/readthedocs.org/pull/12135>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#12131 <https://github.com/readthedocs/readthedocs.org/pull/12131>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub App: fix PR builds and import (`#12126 <https://github.com/readthedocs/readthedocs.org/pull/12126>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.5 (`#12125 <https://github.com/readthedocs/readthedocs.org/pull/12125>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Django 5.x (`#12104 <https://github.com/readthedocs/readthedocs.org/pull/12104>`__)
+* `@humitos <https://github.com/humitos>`__: New dashboard: remove legacy dashboard (`#12091 <https://github.com/readthedocs/readthedocs.org/pull/12091>`__)
+
+Version 12.0.5
+--------------
+
+:Date: April 22, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12123 <https://github.com/readthedocs/readthedocs.org/pull/12123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: always keep latest in sync with default branch/tag (`#12121 <https://github.com/readthedocs/readthedocs.org/pull/12121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update log (`#12120 <https://github.com/readthedocs/readthedocs.org/pull/12120>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12118 <https://github.com/readthedocs/readthedocs.org/pull/12118>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub: show repos from old or new GH integration only (`#12113 <https://github.com/readthedocs/readthedocs.org/pull/12113>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add migration page for GitHub App (`#12112 <https://github.com/readthedocs/readthedocs.org/pull/12112>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#12111 <https://github.com/readthedocs/readthedocs.org/pull/12111>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 12.0.4 (`#12110 <https://github.com/readthedocs/readthedocs.org/pull/12110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App service (`#12072 <https://github.com/readthedocs/readthedocs.org/pull/12072>`__)
+
+Version 12.0.4
+--------------
+
+:Date: April 15, 2025
+
+* `@TheMathix <https://github.com/TheMathix>`__: Update README.rst (`#12107 <https://github.com/readthedocs/readthedocs.org/pull/12107>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12103 <https://github.com/readthedocs/readthedocs.org/pull/12103>`__)
+* `@stsewd <https://github.com/stsewd>`__: VCS: pass a version object to git provider (`#12101 <https://github.com/readthedocs/readthedocs.org/pull/12101>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version: document how to change the version slug and expose it to everyone (`#12096 <https://github.com/readthedocs/readthedocs.org/pull/12096>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't set secret key on builders (`#12095 <https://github.com/readthedocs/readthedocs.org/pull/12095>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin newrelic (`#12092 <https://github.com/readthedocs/readthedocs.org/pull/12092>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.3 (`#12089 <https://github.com/readthedocs/readthedocs.org/pull/12089>`__)
+
+Version 12.0.3
+--------------
+
+:Date: April 08, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: Remove cacheops (`#12087 <https://github.com/readthedocs/readthedocs.org/pull/12087>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12083 <https://github.com/readthedocs/readthedocs.org/pull/12083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Storage: remove build environment storage (`#12077 <https://github.com/readthedocs/readthedocs.org/pull/12077>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12075 <https://github.com/readthedocs/readthedocs.org/pull/12075>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: mention fine-grained personal access token for GitHub (`#12074 <https://github.com/readthedocs/readthedocs.org/pull/12074>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Requirements: use xmlsec with `--no-binary` option" (`#12071 <https://github.com/readthedocs/readthedocs.org/pull/12071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add models for GitHub App (`#12070 <https://github.com/readthedocs/readthedocs.org/pull/12070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 12.0.2 (`#12068 <https://github.com/readthedocs/readthedocs.org/pull/12068>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12065 <https://github.com/readthedocs/readthedocs.org/pull/12065>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#12060 <https://github.com/readthedocs/readthedocs.org/pull/12060>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: use xmlsec with `--no-binary` option (`#12056 <https://github.com/readthedocs/readthedocs.org/pull/12056>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: refactor branch/tag building (`#12014 <https://github.com/readthedocs/readthedocs.org/pull/12014>`__)
+
+Version 12.0.2
+--------------
+
+:Date: March 25, 2025
+
+* `@stsewd <https://github.com/stsewd>`__: API v3: document rate limit and pagination (`#12063 <https://github.com/readthedocs/readthedocs.org/pull/12063>`__)
+* `@stsewd <https://github.com/stsewd>`__: Social accounts: sync remote repositories when a new connection is added (`#12062 <https://github.com/readthedocs/readthedocs.org/pull/12062>`__)
+* `@stsewd <https://github.com/stsewd>`__: Small improvements on PR previews handling (`#12061 <https://github.com/readthedocs/readthedocs.org/pull/12061>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allauth: update deprecated settings (`#12058 <https://github.com/readthedocs/readthedocs.org/pull/12058>`__)
+* `@humitos <https://github.com/humitos>`__: pip tools: use Python 3.12 (`#12055 <https://github.com/readthedocs/readthedocs.org/pull/12055>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: pin and downgrade `xmlsec` (`#12054 <https://github.com/readthedocs/readthedocs.org/pull/12054>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.1 (`#12053 <https://github.com/readthedocs/readthedocs.org/pull/12053>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: improve subscription detection and respect never_disable (`#12046 <https://github.com/readthedocs/readthedocs.org/pull/12046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repositories: filter by vcs provider when deleting (`#12015 <https://github.com/readthedocs/readthedocs.org/pull/12015>`__)
+
+Version 12.0.1
+--------------
+
+:Date: March 18, 2025
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12048 <https://github.com/readthedocs/readthedocs.org/pull/12048>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: don't stop at first error while syncing (`#12045 <https://github.com/readthedocs/readthedocs.org/pull/12045>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ignore revs for the major linting commits (`#12043 <https://github.com/readthedocs/readthedocs.org/pull/12043>`__)
+* `@stsewd <https://github.com/stsewd>`__: Explicitly define virtual environment used in Docker (`#12040 <https://github.com/readthedocs/readthedocs.org/pull/12040>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use Ruff for linting (`#12037 <https://github.com/readthedocs/readthedocs.org/pull/12037>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12034 <https://github.com/readthedocs/readthedocs.org/pull/12034>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update URLs for SAML to point to new dashboard (`#12031 <https://github.com/readthedocs/readthedocs.org/pull/12031>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: update pr links (`#12028 <https://github.com/readthedocs/readthedocs.org/pull/12028>`__)
+* `@humitos <https://github.com/humitos>`__: Release 12.0.0 (`#12023 <https://github.com/readthedocs/readthedocs.org/pull/12023>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add GitHub App OAuth provider (`#12020 <https://github.com/readthedocs/readthedocs.org/pull/12020>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@stsewd <https://github.com/stsewd>`__: Projects: require users to have admin permissions to link repositories to projects (`#12005 <https://github.com/readthedocs/readthedocs.org/pull/12005>`__)
+
+Version 12.0.0
+--------------
+
+:Date: February 25, 2025
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix mkdocs link (`#12019 <https://github.com/readthedocs/readthedocs.org/pull/12019>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#12017 <https://github.com/readthedocs/readthedocs.org/pull/12017>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: add method to sync user access to remote repositories (`#12016 <https://github.com/readthedocs/readthedocs.org/pull/12016>`__)
+* `@stsewd <https://github.com/stsewd>`__: SAML: add flag to allow SAML with old dashboard (`#12013 <https://github.com/readthedocs/readthedocs.org/pull/12013>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: small documentation to mention the file selector (`#12011 <https://github.com/readthedocs/readthedocs.org/pull/12011>`__)
+* `@humitos <https://github.com/humitos>`__: File Tree Diff: enabled by default (`#12010 <https://github.com/readthedocs/readthedocs.org/pull/12010>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: don't depend on the brand name (`#12008 <https://github.com/readthedocs/readthedocs.org/pull/12008>`__)
+* `@stsewd <https://github.com/stsewd>`__: Service: kwargs only when sending build statuses (`#12007 <https://github.com/readthedocs/readthedocs.org/pull/12007>`__)
+* `@stsewd <https://github.com/stsewd>`__: CSP: add helper middleware (`#12004 <https://github.com/readthedocs/readthedocs.org/pull/12004>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Increase docker memory limit (`#12003 <https://github.com/readthedocs/readthedocs.org/pull/12003>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Ubuntu 24.04 for our application (`#12002 <https://github.com/readthedocs/readthedocs.org/pull/12002>`__)
+* `@humitos <https://github.com/humitos>`__: Release 11.21.1 (`#12001 <https://github.com/readthedocs/readthedocs.org/pull/12001>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git service: attach each service to an allauth provider (`#11995 <https://github.com/readthedocs/readthedocs.org/pull/11995>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Hosting: Don't check for superprojects on subprojects (`#11683 <https://github.com/readthedocs/readthedocs.org/pull/11683>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove indexes that aren't used and that are large (`#11623 <https://github.com/readthedocs/readthedocs.org/pull/11623>`__)
+
+
+.. vale off
+
 Version 11.21.1
 ---------------
 
@@ -11,6 +292,9 @@ Version 11.21.1
 * `@humitos <https://github.com/humitos>`__: Release 11.21.0 (`#11989 <https://github.com/readthedocs/readthedocs.org/pull/11989>`__)
 * `@humitos <https://github.com/humitos>`__: File Tree Diff: normalize ignore files (`#11987 <https://github.com/readthedocs/readthedocs.org/pull/11987>`__)
 * `@stsewd <https://github.com/stsewd>`__: Git service: depend on the project instead of users (`#11983 <https://github.com/readthedocs/readthedocs.org/pull/11983>`__)
+
+.. vale on
+
 
 Version 11.21.0
 ---------------

@@ -12,11 +12,11 @@ from django.utils._os import safe_join as safe_join_fs
 
 from readthedocs.storage.utils import safe_join
 
+
 log = structlog.get_logger(__name__)
 
 
 class BaseRClone:
-
     """
     RClone base class.
 
@@ -125,7 +125,6 @@ class BaseRClone:
 
 
 class RCloneLocal(BaseRClone):
-
     """
     RClone remote implementation for the local file system.
 
@@ -146,17 +145,19 @@ class RCloneLocal(BaseRClone):
 
 
 class RCloneS3Remote(BaseRClone):
-
     """
     RClone remote implementation for S3.
 
     All secrets will be passed as environ variables to the rclone command.
 
-    See https://rclone.org/s3/.
+    See https://rclone.org/s3/ and https://rclone.org/s3/#configuration.
 
     :params bucket_name: Name of the S3 bucket.
     :params access_key_id: AWS access key id.
-    :params secret_acces_key: AWS secret access key.
+    :params secret_access_key: AWS secret access key.
+    :params session_token: AWS session token,
+     useful for temporary credentials from AWS STS.
+     See https://docs.readthedocs.com/dev/latest/aws-temporary-credentials.html.
     :params region: AWS region.
     :params provider: S3 provider, defaults to ``AWS``.
      Useful to use Minio during development.
@@ -172,9 +173,10 @@ class RCloneS3Remote(BaseRClone):
         self,
         bucket_name,
         access_key_id,
-        secret_acces_key,
+        secret_access_key,
         region,
         provider="AWS",
+        session_token=None,
         acl=None,
         endpoint=None,
     ):
@@ -183,10 +185,12 @@ class RCloneS3Remote(BaseRClone):
         self.env_vars = {
             "RCLONE_S3_PROVIDER": provider,
             "RCLONE_S3_ACCESS_KEY_ID": access_key_id,
-            "RCLONE_S3_SECRET_ACCESS_KEY": secret_acces_key,
+            "RCLONE_S3_SECRET_ACCESS_KEY": secret_access_key,
             "RCLONE_S3_REGION": region,
             "RCLONE_S3_LOCATION_CONSTRAINT": region,
         }
+        if session_token:
+            self.env_vars["RCLONE_S3_SESSION_TOKEN"] = session_token
         if acl:
             self.env_vars["RCLONE_S3_ACL"] = acl
         if endpoint:

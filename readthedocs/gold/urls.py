@@ -1,9 +1,11 @@
 """Gold subscription URLs."""
 
-from django.urls import path, re_path
+from django.urls import path
+from django.urls import re_path
 
 from readthedocs.gold import views
 from readthedocs.projects.constants import PROJECT_SLUG_REGEX
+
 
 urlpatterns = [
     path(

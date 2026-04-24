@@ -12,6 +12,11 @@ Common sharing use cases include:
 * Sharing documentation for your product only to specific customers.
 * Embedding documentation in a SaaS application dashboard.
 
+.. seealso::
+
+   :doc:`/api/v3`
+     You can automate sharing methods via ``/api/v3/projects/<project_slug>/sharing/``.
+
 Creating a shared item
 ----------------------
 
@@ -83,6 +88,18 @@ For example:
 
    curl -H "Authorization: Token $TOKEN" https://docs.example.com/en/latest/example.html
 
+If you want to access a subproject,
+create the HTTP header token on the subproject itself and then request the subproject URL.
+For example,
+if ``plugin`` is a subproject served under ``https://docs.example.com/projects/plugin/``,
+use:
+
+.. prompt:: bash $
+
+   curl -H "Authorization: Token $TOKEN" https://docs.example.com/projects/plugin/en/latest/example.html
+
+An HTTP header token created on the parent project does not grant access to its subprojects.
+
 Basic Authorization
 ~~~~~~~~~~~~~~~~~~~
 
@@ -119,7 +136,7 @@ you need to authenticate those users against your own system first.
 The simplest way to do this is to create an authenticated redirect on your site,
 which then redirects to the Read the Docs :ref:`commercial/sharing:secret link`.
 
-This should require very little customization,
+This should require minimal customization,
 and will ensure that only authenticated users can access the documentation.
 The downside is that users won't be able to access the documentation directly from a bookmark,
 and will have to go through your site first.

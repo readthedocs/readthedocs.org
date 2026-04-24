@@ -11,6 +11,7 @@ from tempfile import mkdtemp
 import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
+from djstripe.models import APIKey
 
 from readthedocs.doc_builder.base import restoring_chdir
 
@@ -141,7 +142,7 @@ def make_git_repo(directory, name="sample_repo"):
     chdir(directory)
 
     # Initialize and configure
-    check_output(["git", "init"] + [directory], env=env)
+    check_output(["git", "init", "--initial-branch=master"] + [directory], env=env)
     check_output(
         ["git", "config", "user.email", "dev@readthedocs.org"],
         env=env,
@@ -197,7 +198,7 @@ def get_git_latest_commit_hash(directory, branch):
     chdir(directory)
 
     command = ["git", "rev-parse", branch]
-    return check_output(command, env=env).strip()
+    return check_output(command, env=env).decode().strip()
 
 
 @restoring_chdir

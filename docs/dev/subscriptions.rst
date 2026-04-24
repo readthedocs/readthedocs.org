@@ -9,17 +9,12 @@ Local testing
 -------------
 
 To test subscriptions locally, you need to have access to the Stripe account,
-and define the following environment variables with the keys from Stripe test mode:
+and define add the API key and webhook using the Django Admin.
 
-- ``RTD_STRIPE_SECRET``: https://dashboard.stripe.com/test/apikeys
-- ``RTD_DJSTRIPE_WEBHOOK_SECRET``: https://dashboard.stripe.com/test/webhooks
+- API key: https://dashboard.stripe.com/test/apikeys
+- Webhook: https://dashboard.stripe.com/test/webhooks
 
-To test the webhook locally, you need to run your local instance with ngrok, for example:
-
-.. code-block:: bash
-
-   ngrok http 80
-   inv docker.up --http-domain xxx.ngrok.io
+To test the webhook locally, follow `the official guide from djstripe <https://dj-stripe.dev/2.9/usage/local_webhook_testing/>`_
 
 If this is your first time setting up subscriptions, you will to re-sync djstripe with Stripe:
 

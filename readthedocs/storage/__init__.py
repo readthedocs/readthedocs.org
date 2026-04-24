@@ -5,38 +5,32 @@ For static files storage, use django.contrib.staticfiles.storage.staticfiles_sto
 Some storage backends (notably S3) have a slow instantiation time
 so doing those upfront improves performance.
 """
-from django.conf import settings
-from django.core.files.storage import get_storage_class
+
+from django.core.files.storage import storages
 from django.utils.functional import LazyObject
 
 
 class ConfiguredBuildMediaStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
-
-class ConfiguredBuildEnvironmentStorage(LazyObject):
-    def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        self._wrapped = storages["build-media"]
 
 
 class ConfiguredBuildCommandsStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+        self._wrapped = storages["build-commands"]
 
 
 class ConfiguredBuildToolsStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_BUILD_TOOLS_STORAGE)()
+        self._wrapped = storages["build-tools"]
 
 
 class ConfiguredStaticStorage(LazyObject):
     def _setup(self):
-        self._wrapped = get_storage_class(settings.RTD_STATICFILES_STORAGE)()
+        self._wrapped = storages["proxito-staticfiles"]
 
 
 build_media_storage = ConfiguredBuildMediaStorage()
-build_environment_storage = ConfiguredBuildEnvironmentStorage()
 build_commands_storage = ConfiguredBuildCommandsStorage()
 build_tools_storage = ConfiguredBuildToolsStorage()
 staticfiles_storage = ConfiguredStaticStorage()

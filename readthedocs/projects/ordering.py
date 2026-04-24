@@ -22,9 +22,20 @@ class ProjectItemPositionManager:
         model = item._meta.model
         total = model.objects.filter(project=item.project).count()
 
+        # We are creating new AutomationRules passing `id=` attribute in the migration,
+        # so we cannot check for `if item.pk` to know if the item is new or not.
+        current_position = None
+        try:
+            current_position = model.objects.values_list(
+                self.position_field_name,
+                flat=True,
+            ).get(pk=item.pk)
+        except model.DoesNotExist:
+            pass
+
         # If the item was just created, we just need to insert it at the given position.
         # We do this by moving the other items down before saving.
-        if not item.pk:
+        if current_position is None:
             # A new item can be created at the end as max.
             position = min(getattr(item, self.position_field_name), total)
             setattr(item, self.position_field_name, position)
@@ -34,9 +45,8 @@ class ProjectItemPositionManager:
             setattr(item, self.position_field_name, position)
 
             items = (
-                model.objects.filter(project=item.project).filter(
-                    **{self.position_field_name + "__gte": position}
-                )
+                model.objects.filter(project=item.project)
+                .filter(**{self.position_field_name + "__gte": position})
                 # We sort the queryset in desc order
                 # to be updated in that order
                 # to avoid hitting the unique constraint (project, position).
@@ -44,11 +54,6 @@ class ProjectItemPositionManager:
             )
             expression = F(self.position_field_name) + 1
         else:
-            current_position = model.objects.values_list(
-                self.position_field_name,
-                flat=True,
-            ).get(pk=item.pk)
-
             # An existing item can't be moved past the end.
             position = min(getattr(item, self.position_field_name), total - 1)
             setattr(item, self.position_field_name, position)
@@ -64,7 +69,8 @@ class ProjectItemPositionManager:
             if position > current_position:
                 # It was moved down, so we need to move the other items up.
                 items = (
-                    model.objects.filter(project=item.project).filter(
+                    model.objects.filter(project=item.project)
+                    .filter(
                         **{
                             self.position_field_name + "__gt": current_position,
                             self.position_field_name + "__lte": position,
@@ -79,7 +85,8 @@ class ProjectItemPositionManager:
             else:
                 # It was moved up, so we need to move the other items down.
                 items = (
-                    model.objects.filter(project=item.project).filter(
+                    model.objects.filter(project=item.project)
+                    .filter(
                         **{
                             self.position_field_name + "__lt": current_position,
                             self.position_field_name + "__gte": position,
@@ -96,9 +103,7 @@ class ProjectItemPositionManager:
         # the unique constraint (project, position) while updating.
         # We use update() instead of save() to avoid calling the save() method again.
         if item.pk:
-            model.objects.filter(pk=item.pk).update(
-                **{self.position_field_name: total + 99}
-            )
+            model.objects.filter(pk=item.pk).update(**{self.position_field_name: total + 99})
 
         # NOTE: we can't use items.update(position=expression), because SQLite is used
         # in tests and hits a UNIQUE constraint error. PostgreSQL doesn't have this issue.
@@ -119,9 +124,8 @@ class ProjectItemPositionManager:
         model = item._meta.model
         previous_position = getattr(item, self.position_field_name)
         items = (
-            model.objects.filter(project=item.project).filter(
-                **{self.position_field_name + "__gte": previous_position}
-            )
+            model.objects.filter(project=item.project)
+            .filter(**{self.position_field_name + "__gte": previous_position})
             # We sort the queryset in asc order
             # to be updated in that order
             # to avoid hitting the unique constraint (project, position).

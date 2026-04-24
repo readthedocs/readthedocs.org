@@ -14,15 +14,25 @@ Below is a list of popular documentation tools that you can use to write your do
 
 .. grid:: 2
 
-    .. grid-item-card::  Material for MkDocs
+    .. grid-item-card::  MkDocs
         :link: mkdocs.html
 
-        Material for MkDocs is a powerful documentation framework on top of MkDocs.
+        MkDocs is a powerful documentation tool for markdown.
 
         Supported formats
              :bdg-success:`md`
         Written in
              :bdg-info:`python`
+
+    .. grid-item-card::  Zensical
+        :link: zensical.html
+
+        Zensical is a static-site generator built by the creators of Material for MkDocs.
+
+        Supported formats
+             :bdg-success:`md`
+        Written in
+             :bdg-info:`rust` :bdg-info:`python`
 
     .. grid-item-card::  Sphinx
         :link: sphinx.html
@@ -72,6 +82,9 @@ Below is a list of popular documentation tools that you can use to write your do
         Supported formats
              :bdg-success:`md`
 
+        Written in
+             :bdg-info:`typescript`
+
     .. grid-item-card::  Antora
         :link: antora.html
 
@@ -79,6 +92,17 @@ Below is a list of popular documentation tools that you can use to write your do
 
         Supported formats
              :bdg-success:`adoc`
+
+        Written in
+             :bdg-info:`javascript`
+
+    .. grid-item-card::  MyST Markdown
+        :link: mystmd.html
+
+        MyST Markdown is a powerful authoring framework for scientific communication including blogs, books, papers, and articles.
+
+        Supported formats
+             :bdg-success:`md` :bdg-success:`ipynb`
 
         Written in
              :bdg-info:`javascript`
@@ -93,3 +117,5 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/mdbook
    /intro/vitepress
    /intro/antora
+   /intro/zensical
+   /intro/mystmd

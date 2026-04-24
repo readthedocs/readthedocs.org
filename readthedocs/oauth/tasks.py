@@ -1,6 +1,7 @@
 """Tasks for OAuth services."""
 
 import datetime
+from functools import cached_property
 
 import structlog
 from django.contrib.auth.models import User
@@ -8,22 +9,36 @@ from django.db.models.functions import ExtractIsoWeekDay
 from django.urls import reverse
 from django.utils import timezone
 
-from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils.tasks import PublicTask, user_id_matches_or_superuser
+from readthedocs.api.v2.views.integrations import ExternalVersionData
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.tasks import PublicTask
+from readthedocs.core.utils.tasks import user_id_matches_or_superuser
+from readthedocs.core.views.hooks import VersionInfo
+from readthedocs.core.views.hooks import build_versions_from_names
+from readthedocs.core.views.hooks import close_external_version
+from readthedocs.core.views.hooks import get_or_create_external_version
+from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.notifications import (
-    MESSAGE_OAUTH_WEBHOOK_INVALID,
-    MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
-    MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
-)
+from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.constants import GITHUB_APP
+from readthedocs.oauth.models import GitHubAppInstallation
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
+from readthedocs.oauth.services import GitHubAppService
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
+from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
 
-from .services import registry
 
 log = structlog.get_logger(__name__)
 
@@ -38,17 +53,25 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id):
+def sync_remote_repositories(user_id, skip_githubapp=False):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
+        if skip_githubapp and service_cls == GitHubAppService:
+            continue
+
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
             failed_services.add(service_cls.allauth_provider.name)
+
+    Notification.objects.cancel(
+        message_id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+        attached_to=user,
+    )
 
     if failed_services:
         raise SyncServiceError(
@@ -58,62 +81,59 @@ def sync_remote_repositories(user_id):
         )
 
 
-@app.task(queue="web")
-def sync_remote_repositories_organizations(organization_slugs=None):
+@app.task(
+    queue="web",
+    # This is a long running task, since it syncs all repositories one by one.
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
+def sync_remote_repositories_from_sso_organizations():
     """
-    Re-sync users member of organizations.
+    Re-sync all remote repositories from organizations with SSO enabled.
 
-    It will trigger one `sync_remote_repositories` task per user.
+    This is useful, so all the remote repositories are up to date with the
+    latest permissions from their providers.
 
-    :param organization_slugs: list containg organization's slugs to sync. If
-    not passed, all organizations with ALLAUTH SSO enabled will be synced
-
-    :type organization_slugs: list
+    We ignore repositories from GitHub App installations, since they are kept
+    up to date via webhooks. For all the other services, we need to sync the
+    repository for each user that has access to it, since we need to check for
+    their permissions individually.
     """
-    if organization_slugs:
-        query = Organization.objects.filter(slug__in=organization_slugs)
-        log.info(
-            "Triggering SSO re-sync for organizations.",
-            organization_slugs=organization_slugs,
-            count=query.count(),
+    repositories = (
+        RemoteRepository.objects.filter(
+            projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
         )
-    else:
-        organization_ids = SSOIntegration.objects.filter(
-            provider=SSOIntegration.PROVIDER_ALLAUTH
-        ).values_list("organization", flat=True)
-        query = Organization.objects.filter(id__in=organization_ids)
-        log.info(
-            "Triggering SSO re-sync for all organizations.",
-            count=query.count(),
-        )
-
-    n_task = -1
-    for organization in query:
-        members = AdminPermission.members(organization)
-        log.info(
-            "Triggering SSO re-sync for organization.",
-            organization_slug=organization.slug,
-            count=members.count(),
-        )
-        for user in members:
-            n_task += 1
-            sync_remote_repositories.apply_async(
-                args=[user.pk],
-                # delay the task by 0, 5, 10, 15, ... seconds
-                countdown=n_task * 5,
-            )
+        .exclude(vcs_provider=GITHUB_APP)
+        .distinct()
+    )
+    for repository in repositories.iterator():
+        service_class = repository.get_service_class()
+        relations = repository.remote_repository_relations.select_related("user", "account")
+        for relation in relations.iterator():
+            service = service_class(user=relation.user, account=relation.account)
+            try:
+                service.update_repository(repository)
+            except Exception:
+                log.info(
+                    "There was a problem updating repository for user.",
+                    user_username=relation.user.username,
+                    account_uid=relation.account.uid,
+                    repository_remote_id=repository.remote_id,
+                    repository_name=repository.full_name,
+                )
 
 
 @app.task(
     queue="web",
     time_limit=60 * 60 * 3,  # 3h
     soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+    bind=True,
 )
-def sync_active_users_remote_repositories():
+def sync_active_users_remote_repositories(self):
     """
     Sync ``RemoteRepository`` for active users.
 
-    We consider active users those that logged in at least once in the last 90 days.
+    We consider active users those that logged in at least once in the last 45 days.
 
     This task is thought to be executed daily. It checks the weekday of the
     last login of the user with today's weekday. If they match, the re-sync is
@@ -122,34 +142,50 @@ def sync_active_users_remote_repositories():
     Note this is a long running task syncronizhing all the users in the same Celery process,
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
-    today_weekday = timezone.now().isoweekday()
-    three_months_ago = timezone.now() - datetime.timedelta(days=90)
-    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=three_months_ago,
-        socialaccount__isnull=False,
-        weekday=today_weekday,
-    )
+    # This task is expensive, and we run it daily.
+    # We have had issues with it being triggered multiple times per day,
+    # so we use a lock (12 hours) to avoid that.
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
+        if not acquired:
+            log.exception("Task has already been run recently, exiting.")
+            return
 
-    users_count = users.count()
-    log.bind(total_users=users_count)
-    log.info("Triggering re-sync of RemoteRepository for active users.")
-
-    for i, user in enumerate(users):
-        log.bind(
-            user_username=user.username,
-            progress=f"{i}/{users_count}",
+        today_weekday = timezone.now().isoweekday()
+        days_ago = timezone.now() - datetime.timedelta(days=45)
+        users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+            last_login__gt=days_ago,
+            socialaccount__isnull=False,
+            weekday=today_weekday,
         )
 
-        # Log an update every 50 users
-        if i % 50 == 0:
-            log.info("Progress on re-syncing RemoteRepository for active users.")
+        users_count = users.count()
+        structlog.contextvars.bind_contextvars(total_users=users_count)
+        log.info("Triggering re-sync of RemoteRepository for active users.")
 
-        try:
-            # NOTE: sync all the users/repositories in the same Celery process.
-            # Do not trigger a new task per user.
-            sync_remote_repositories(user.pk)
-        except Exception:
-            log.exception("There was a problem re-syncing RemoteRepository.")
+        for i, user in enumerate(users.iterator()):
+            structlog.contextvars.bind_contextvars(
+                user_username=user.username,
+                progress=f"{i}/{users_count}",
+            )
+
+            # Log an update every 50 users
+            if i % 50 == 0:
+                log.info("Progress on re-syncing RemoteRepository for active users.")
+
+            try:
+                # NOTE: sync all the users/repositories in the same Celery process.
+                # Do not trigger a new task per user.
+                # NOTE: We skip the GitHub App, since all the repositories
+                # and permissions are kept up to date via webhooks.
+                # Triggering a sync per-user, will re-sync the same installation
+                # multiple times.
+                sync_remote_repositories(
+                    user.pk,
+                    skip_githubapp=True,
+                )
+            except Exception:
+                log.exception("There was a problem re-syncing RemoteRepository.")
 
 
 # TODO: remove user_pk from the signature on the next release.
@@ -210,7 +246,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         return False
 
     for service in services:
-        success, _ = service.setup_webhook(project, integration=integration)
+        success = service.setup_webhook(project, integration=integration)
         if success:
             project.has_valid_webhook = True
             project.save()
@@ -226,3 +262,708 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         },
     )
     return False
+
+
+class GitHubAppWebhookHandler:
+    """
+    Handle GitHub App webhooks.
+
+    All event handlers try to create the installation object if it doesn't exist in our database,
+    except for events related to the installation being deleted or suspended.
+    This guarantees that our application can easily recover if we missed an event
+    in case our application or GitHub were down.
+    """
+
+    def __init__(self, data: dict, event: str):
+        self.data = data
+        self.event = event
+        self.event_handlers = {
+            "installation": self._handle_installation_event,
+            "installation_repositories": self._handle_installation_repositories_event,
+            "installation_target": self._handle_installation_target_event,
+            "push": self._handle_push_event,
+            "pull_request": self._handle_pull_request_event,
+            "repository": self._handle_repository_event,
+            "organization": self._handle_organization_event,
+            "member": self._handle_member_event,
+            "github_app_authorization": self._handle_github_app_authorization_event,
+        }
+
+    @cached_property
+    def gh_app_client(self):
+        return get_gh_app_client()
+
+    def handle(self):
+        # Most of the events have an installation object and action.
+        installation_id = self.data.get("installation", {}).get("id", "unknown")
+        action = self.data.get("action", "unknown")
+        structlog.contextvars.bind_contextvars(
+            installation_id=installation_id,
+            action=action,
+            event_name=self.event,
+        )
+        if self.event not in self.event_handlers:
+            log.debug("Unsupported event")
+            raise ValueError(f"Unsupported event: {self.event}")
+
+        log.info("Handling event from GitHubAppWebhookHandler.")
+        self.event_handlers[self.event]()
+
+    def _handle_installation_event(self):
+        """
+        Handle the installation event.
+
+        Triggered when a user installs or uninstalls the GitHub App under an account (user or organization).
+        We create the installation object and sync the repositories, or delete the installation accordingly.
+
+        Payload example:
+
+        .. code-block:: json
+
+           {
+             "action": "created",
+             "installation": {
+                 "id": 1234,
+                 "client_id": "12345",
+                 "account": {
+                     "login": "user",
+                     "id": 12345,
+                     "type": "User"
+                 },
+                 "repository_selection": "selected",
+                 "html_url": "https://github.com/settings/installations/1234",
+                 "app_id": 12345,
+                 "app_slug": "app-slug",
+                 "target_id": 12345,
+                 "target_type": "User",
+                 "permissions": {
+                     "contents": "read",
+                     "metadata": "read",
+                     "pull_requests": "write",
+                     "statuses": "write"
+                 },
+                 "events": [
+                     "create",
+                     "delete",
+                     "public",
+                     "pull_request",
+                     "push"
+                 ],
+                 "created_at": "2025-01-29T12:04:11.000-05:00",
+                 "updated_at": "2025-01-29T12:04:12.000-05:00",
+                 "single_file_name": null,
+                 "has_multiple_single_files": false,
+                 "single_file_paths": [],
+                 "suspended_by": null,
+                 "suspended_at": null
+             },
+             "repositories": [
+                 {
+                     "id": 770738492,
+                     "name": "test-public",
+                     "full_name": "user/test-public",
+                     "private": false
+                 },
+                 {
+                     "id": 917825438,
+                     "name": "test-private",
+                     "full_name": "user/test-private",
+                     "private": true
+                 }
+             ],
+             "requester": null,
+             "sender": {
+                 "login": "user",
+                 "id": 1234,
+                 "type": "User"
+              }
+           }
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation.
+        """
+        action = self.data["action"]
+        gh_installation = self.data["installation"]
+        installation_id = gh_installation["id"]
+
+        if action in ["created", "unsuspended"]:
+            installation, created = self._get_or_create_installation()
+            # If the installation was just created, we already synced the repositories.
+            if created:
+                return
+            installation.service.sync()
+
+        if action in ["deleted", "suspended"]:
+            # NOTE: When an installation is deleted/suspended, it doesn't trigger an installation_repositories event.
+            # So we need to call the delete method explicitly here, so we delete its repositories.
+            installation = GitHubAppInstallation.objects.filter(
+                installation_id=installation_id
+            ).first()
+            if installation:
+                installation.delete()
+                log.info("Installation deleted")
+            else:
+                log.info("Installation not found")
+            return
+
+        # Ignore other actions:
+        # - new_permissions_accepted: We don't need to do anything here for now.
+        return
+
+    def _handle_installation_repositories_event(self):
+        """
+        Handle the installation_repositories event.
+
+        Triggered when a repository is added or removed from an installation.
+
+        If the installation had access to a repository, and the repository is deleted,
+        this event will be triggered.
+
+        When a repository is deleted, we delete its remote repository object,
+        but only if it's not linked to any project.
+
+        Payload example:
+
+        .. code-block:: json
+           {
+             "action": "added",
+             "installation": {
+               "id": 1234,
+               "client_id": "1234",
+               "account": {
+                 "login": "user",
+                 "id": 12345,
+                 "type": "User"
+               },
+               "repository_selection": "selected",
+               "html_url": "https://github.com/settings/installations/60240360",
+               "app_id": 12345,
+               "app_slug": "app-slug",
+               "target_id": 12345,
+               "target_type": "User",
+               "permissions": {
+                 "contents": "read",
+                 "metadata": "read",
+                 "pull_requests": "write",
+                 "statuses": "write"
+               },
+               "events": ["create", "delete", "public", "pull_request", "push"],
+               "created_at": "2025-01-29T12:04:11.000-05:00",
+               "updated_at": "2025-01-29T16:05:45.000-05:00",
+               "single_file_name": null,
+               "has_multiple_single_files": false,
+               "single_file_paths": [],
+               "suspended_by": null,
+               "suspended_at": null
+             },
+             "repository_selection": "selected",
+             "repositories_added": [
+               {
+                 "id": 258664698,
+                 "name": "test-public",
+                 "full_name": "user/test-public",
+                 "private": false
+               }
+             ],
+             "repositories_removed": [],
+             "requester": null,
+             "sender": {
+               "login": "user",
+               "id": 4975310,
+               "type": "User"
+             }
+           }
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation_repositories.
+        """
+        action = self.data["action"]
+        installation, created = self._get_or_create_installation()
+
+        # If we didn't have the installation, all repositories were synced on creation.
+        if created:
+            return
+
+        if action == "added":
+            installation.service.update_or_create_repositories(
+                [repo["id"] for repo in self.data["repositories_added"]]
+            )
+            return
+
+        if action == "removed":
+            installation.delete_repositories(
+                [repo["id"] for repo in self.data["repositories_removed"]]
+            )
+            return
+
+        # NOTE: this should never happen.
+        raise ValueError(f"Unsupported action: {action}")
+
+    def _handle_installation_target_event(self):
+        """
+        Handle the installation_target event.
+
+        Triggered when the target of an installation changes,
+        like when the user or organization changes its username/slug.
+
+        .. note::
+
+           Looks like this is only triggered when a username is changed,
+           when an organization is renamed, it doesn't trigger this event
+           (maybe a bug?).
+
+        When this happens, we re-sync all the repositories, so they use the new name.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#installation_target.
+        """
+        installation, created = self._get_or_create_installation()
+
+        # If we didn't have the installation, all repositories were synced on creation.
+        if created:
+            return
+
+        installation.service.sync()
+
+    def _handle_repository_event(self):
+        """
+        Handle the repository event.
+
+        Triggered when a repository is created, deleted, or updated.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#repository.
+        """
+        action = self.data["action"]
+
+        installation, created = self._get_or_create_installation()
+
+        # If the installation was just created, we already synced the repositories.
+        if created:
+            return
+
+        if action in ("edited", "privatized", "publicized", "renamed", "transferred"):
+            installation.service.update_or_create_repositories([self.data["repository"]["id"]])
+            return
+
+        # Ignore other actions:
+        # - created: If the user granted access to all repositories,
+        #   GH will trigger an installation_repositories event.
+        # - deleted: If the repository was linked to an installation,
+        #   GH will be trigger an installation_repositories event.
+        # - archived/unarchived: We don't do anything with archived repositories.
+        return
+
+    def _handle_push_event(self):
+        """
+        Handle the push event.
+
+        Triggered when a commit is pushed (including a new branch or tag is created),
+        when a branch or tag is deleted, or when a repository is created from a template.
+
+        If a new branch or tag is created, we trigger a sync of the versions,
+        if the version already exists, we build it if it's active.
+
+        If webhook automation rules are configured, they are checked to decide whether
+        a build should be triggered based on the files that were modified.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
+        """
+        created = self.data.get("created", False)
+        deleted = self.data.get("deleted", False)
+        if created or deleted:
+            for project in self._get_projects():
+                trigger_sync_versions(project)
+            return
+
+        version_name, version_type = parse_version_from_ref(self.data["ref"])
+        for project in self._get_projects():
+            # If the project has webhook automation rules,
+            # we check if any of them matches.
+            # If none one matches, it finishes here.
+            # However, if there are no webhook automation rules configured,
+            # we continue with the build as usual.
+            webhook_rules = project.automation_rules.filter(
+                enabled=True,
+                action__in=AutomationRule.BUILD_ACTIONS,
+                # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                # We are using `rule.match_version` below to check this instead.
+                # version_types__contains=version_type,
+            )
+            if webhook_rules.exists():
+                changed_files = self._get_changed_files_from_push_event()
+                commit_message = self.data["head_commit"]["message"]
+                labels = []  # We don't have labels in push events, so we leave it empty.
+
+                rule_triggered_for_project = False
+                for version in project.versions_from_name(version_name, version_type):
+                    rule_triggered_for_version = False
+                    for rule in webhook_rules.iterator():
+                        if rule.match_version(version=version) and rule.match_webhook(
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
+                            log.info(
+                                "Automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                                rule_version_types=rule.version_types,
+                                version_slug=version.slug,
+                                version_name=version_name,
+                                version_type=version_type,
+                            )
+                            rule_triggered_for_project = True
+                            rule_triggered_for_version = True
+                            rule.run(version)
+
+                        # We only trigger the first matching rule per version
+                        # to avoid triggering multiple builds for the same tag/branches.
+                        if rule_triggered_for_version:
+                            break
+
+                if not rule_triggered_for_project:
+                    log.info(
+                        "No automation rule matched, skipping build.",
+                        project_slug=project.slug,
+                    )
+            else:
+                build_versions_from_names(
+                    project, [VersionInfo(name=version_name, type=version_type)]
+                )
+
+    def _handle_pull_request_event(self):
+        """
+        Handle the pull_request event.
+
+        Triggered when there is activity on a pull request.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request.
+        """
+        action = self.data["action"]
+
+        pr = self.data["pull_request"]
+        external_version_data = ExternalVersionData(
+            id=str(pr["number"]),
+            commit=pr["head"]["sha"],
+            source_branch=pr["head"]["ref"],
+            base_branch=pr["base"]["ref"],
+        )
+
+        if action in ("opened", "reopened", "synchronize"):
+            for project in self._get_projects().filter(external_builds_enabled=True):
+                external_version = get_or_create_external_version(
+                    project=project,
+                    version_data=external_version_data,
+                )
+
+                # NOTE: skip building PR if there are webhook automation rules matching.
+                # If the project has webhook automation rules,
+                # we check if any of them matches.
+                # If none one matches, it finishes here.
+                # However, if there are no webhook automation rules configured,
+                # we continue with the build as usual.
+                webhook_rules = project.automation_rules.filter(
+                    enabled=True,
+                    action__in=AutomationRule.BUILD_ACTIONS,
+                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                    # We are using `rule.match_version` below to check this instead.
+                    # version_types__contains=EXTERNAL,
+                )
+                if webhook_rules.exists():
+                    rule_triggered = False
+                    changed_files = self._get_changed_files_from_pull_request_event(
+                        project,
+                        action,
+                    )
+                    commit_message = self._get_commit_message_from_pull_request_event(project)
+                    labels = self._get_labels_from_pull_request_event()
+
+                    for rule in webhook_rules.iterator():
+                        if rule.match_version(version=external_version) and rule.match_webhook(
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
+                            log.info(
+                                "Automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                                rule_version_types=rule.version_types,
+                                version_slug=external_version.slug,
+                                version_type=EXTERNAL,
+                            )
+                            rule_triggered = True
+                            rule.run(external_version)
+
+                            # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
+                            break
+
+                    if not rule_triggered:
+                        log.info(
+                            "No automation rule matched, skipping build.",
+                            project_slug=project.slug,
+                        )
+                else:
+                    trigger_build(
+                        project=project,
+                        version=external_version,
+                        commit=external_version.identifier,
+                        from_webhook=True,
+                    )
+            return
+
+        if action == "closed":
+            # Queue the external version for deletion.
+            for project in self._get_projects():
+                close_external_version(
+                    project=project,
+                    version_data=external_version_data,
+                )
+            return
+
+        # We don't care about the other actions.
+        return
+
+    def _handle_organization_event(self):
+        """
+        Handle the organization event.
+
+        Triggered when an member is added or removed from an organization,
+        or when the organization is renamed or deleted.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#organization.
+        """
+        action = self.data["action"]
+
+        installation, created = self._get_or_create_installation()
+
+        # If the installation was just created, we already synced the repositories and organization.
+        if created:
+            return
+
+        # We need to do a full sync of the repositories if members were added or removed,
+        # this is since we don't know to which repositories the members have access.
+        # GH doesn't send a member event for this.
+        if action in ("member_added", "member_removed"):
+            installation.service.sync()
+            return
+
+        # NOTE: installation_target should handle this instead?
+        # But I wasn't able to trigger neither of those events when renaming an organization.
+        # Maybe a bug?
+        # If the organization is renamed, we need to sync the repositories, so they use the new name.
+        if action == "renamed":
+            installation.service.sync()
+            return
+
+        if action == "deleted":
+            # Delete the organization only if it's not linked to any project.
+            # GH sends a repository and installation_repositories events for each repository
+            # when the organization is deleted.
+            # I didn't see GH send the deleted action for the organization event...
+            # But handle it just in case.
+            installation.delete_organization(self.data["organization"]["id"])
+            return
+
+        # Ignore other actions:
+        # - member_invited: We don't do anything with invited members.
+        return
+
+    def _handle_member_event(self):
+        """
+        Handle the member event.
+
+        Triggered when a user is added or removed from a repository.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#member.
+        """
+        action = self.data["action"]
+
+        installation, created = self._get_or_create_installation()
+
+        # If we didn't have the installation, all repositories were synced on creation.
+        if created:
+            return
+
+        if action in ("added", "edited", "removed"):
+            # Sync collaborators
+            installation.service.update_or_create_repositories([self.data["repository"]["id"]])
+            return
+
+        # NOTE: this should never happen.
+        raise ValueError(f"Unsupported action: {action}")
+
+    def _handle_github_app_authorization_event(self):
+        """
+        Handle the github_app_authorization event.
+
+        Triggered when a user revokes the authorization of a GitHub App ("log in with GitHub" will no longer work).
+
+        .. note::
+
+           Revoking the authorization of a GitHub App does not uninstall the GitHub App,
+           it only revokes the OAuth2 token.
+
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads#github_app_authorization.
+        """
+        # A GitHub App receives this webhook by default and cannot unsubscribe from this event.
+        # We don't need to do anything here for now.
+
+    def _get_projects(self):
+        """
+        Get all projects linked to the repository that triggered the event.
+
+        .. note::
+
+           This should only be used for events that have a repository object.
+        """
+        remote_repository = self._get_remote_repository()
+        if not remote_repository:
+            return Project.objects.none()
+        return remote_repository.projects.all()
+
+    def _get_remote_repository(self):
+        """
+        Get the remote repository from the request data.
+
+        If the repository doesn't exist, return None.
+
+        .. note::
+
+           This should only be used for events that have a repository object.
+        """
+        remote_id = self.data["repository"]["id"]
+        installation, _ = self._get_or_create_installation()
+        return installation.repositories.filter(remote_id=str(remote_id)).first()
+
+    def _get_or_create_installation(self, sync_repositories_on_create: bool = True):
+        """
+        Get or create the GitHub App installation.
+
+        If the installation didn't exist, and `sync_repositories_on_create` is True,
+        we sync the repositories.
+        """
+        data = self.data.copy()
+        # All webhook payloads should have an installation object.
+        gh_installation = self.data["installation"]
+        installation_id = gh_installation["id"]
+
+        # These fields are not always present in all payloads.
+        target_id = gh_installation.get("target_id")
+        target_type = gh_installation.get("target_type")
+        # If they aren't present, fetch them from the API,
+        # so we can create the installation object if needed.
+        if not target_id or not target_type:
+            log.debug("Incomplete installation object, fetching from the API")
+            gh_installation = self.gh_app_client.get_app_installation(installation_id)
+            target_id = gh_installation.target_id
+            target_type = gh_installation.target_type
+            data["installation"] = gh_installation.raw_data
+
+        (
+            installation,
+            created,
+        ) = GitHubAppInstallation.objects.get_or_create_installation(
+            installation_id=installation_id,
+            target_id=target_id,
+            target_type=target_type,
+            extra_data=data,
+        )
+        if created and sync_repositories_on_create:
+            installation.service.sync()
+        return installation, created
+
+    def _get_changed_files_from_push_event(self):
+        """
+        Get the list of changed files from the push event.
+
+        It considers the changes from all commits that were pushed.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        commits = self.data.get("commits", [])
+        for commit in commits:
+            changed_files.update(commit.get("added", []))
+            changed_files.update(commit.get("modified", []))
+            changed_files.update(commit.get("removed", []))
+        return changed_files
+
+    def _get_changed_files_from_pull_request_event(self, project, action):
+        """
+        Get the list of changed files from the pull request event.
+
+        It considers the changes on all the files affected by the pull request for `opened`/`reopened` actions.
+        For `synchronize` action, it considers the changes from the commits that were pushed.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        installation, _ = self._get_or_create_installation()
+
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id),
+            lazy=True,
+        )
+
+        if action == "synchronize":
+            # If the PR is updated with new commits,
+            # we check the files changed between the "before" and "after" commits.
+            before_sha = self.data["before"]
+            after_sha = self.data["after"]
+            comparison = gh_repository.compare(before_sha, after_sha)
+            for file in comparison.files:
+                changed_files.add(file.filename)
+
+        elif action in ("opened", "reopened"):
+            # If the PR is opened or reopened, we check for all the files changed in the pull request.
+            files = gh_repository.get_pull(int(self.data["pull_request"]["number"])).get_files()
+
+            for f in files:
+                changed_files.add(f.filename)
+
+        return changed_files
+
+    def _get_commit_message_from_pull_request_event(self, project):
+        """
+        Get latest commit message from the pull request event.
+
+        :return: latest commit message
+        """
+        installation, _ = self._get_or_create_installation()
+
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id),
+            lazy=True,
+        )
+
+        gh_commit = gh_repository.get_commit(
+            self.data["pull_request"]["head"]["sha"],
+        )
+        return gh_commit.commit.message
+
+    def _get_labels_from_pull_request_event(self):
+        """
+        Get the list of labels from the pull request event.
+
+        :return: List of labels
+        """
+        labels = set()
+        for label in self.data["pull_request"]["labels"]:
+            labels.add(label["name"])
+
+        return labels
+
+
+@app.task(queue="web")
+def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown"):
+    """
+    Handle GitHub App webhooks asynchronously.
+
+    :param data: The webhook payload data.
+    :param event: The event type of the webhook.
+    """
+    structlog.contextvars.bind_contextvars(
+        event=event,
+        event_id=event_id,
+    )
+    log.info("Handling GitHub App webhook from Celery task.")
+    handler = GitHubAppWebhookHandler(data, event)
+    handler.handle()

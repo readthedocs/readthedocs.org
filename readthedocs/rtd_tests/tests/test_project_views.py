@@ -1,8 +1,6 @@
 from unittest import mock
 
-import pytest
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -139,6 +137,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -221,13 +220,13 @@ class TestBasicsForm(WizardTestCase):
         invalid_remote_repos_pk = [
             remote_repository_not_admin_private.pk,
             remote_repository_other_user.pk,
+            remote_repository_not_admin_public.pk,
             # Doesn't exist
             99,
         ]
         valid_remote_repos_pk = [
             remote_repository_admin_private.pk,
             remote_repository_admin_public.pk,
-            remote_repository_not_admin_public.pk,
         ]
 
         for remote_repo_pk in invalid_remote_repos_pk:
@@ -253,6 +252,7 @@ class TestBasicsForm(WizardTestCase):
             remote_repository=remote_repo,
             user=user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -323,6 +323,7 @@ class TestAdvancedForm(TestBasicsForm):
             remote_repository=remote_repo,
             user=self.user,
             account=socialaccount,
+            admin=True,
         )
         self.step_data["basics"]["remote_repository"] = remote_repo.pk
         resp = self.post_step("basics")
@@ -358,22 +359,6 @@ class TestPublicViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
 
-    def test_project_downloads_only_shows_internal_versons(self):
-        url = reverse("project_downloads", args=[self.pip.slug])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context["versions"])
-
-    @pytest.mark.skipif(
-        settings.RTD_EXT_THEME_ENABLED, reason="Not applicable for new theme"
-    )
-    def test_project_versions_only_shows_internal_versons(self):
-        url = reverse("project_version_list", args=[self.pip.slug])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context["active_versions"])
-        self.assertNotIn(self.external_version, response.context["inactive_versions"])
-
     @mock.patch(
         "readthedocs.projects.views.base.ProjectSpamMixin.is_show_dashboard_denied_wrapper",
         mock.MagicMock(return_value=True),
@@ -392,6 +377,34 @@ class TestPrivateViews(TestCase):
         self.user.save()
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
+
+    def test_dashboard_number_of_queries(self):
+        # NOTE: create more than 15 projects, as we paginate by 15.
+        for i in range(30):
+            project = get(
+                Project,
+                slug=f"project-{i}",
+                users=[self.user],
+            )
+            version = project.versions.first()
+            version.active = True
+            version.built = True
+            version.save()
+            for _ in range(3):
+                get(
+                    Build,
+                    project=project,
+                    version=version,
+                    success=True,
+                    state=BUILD_STATE_FINISHED,
+                )
+
+        # This number is bit higher, but for projects with lots of builds
+        # is better to have more queries than optimizing with a prefetch,
+        # see comment in annotate_has_successful_build.
+        with self.assertNumQueries(26):
+            r = self.client.get(reverse(("projects_dashboard")))
+        assert r.status_code == 200
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
@@ -456,7 +469,6 @@ class TestPrivateViews(TestCase):
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
             integration=integration.first(),
-            user_pk=None,
         )
 
     @mock.patch("readthedocs.projects.views.private.attach_webhook")
@@ -737,6 +749,8 @@ class TestWebhooksViews(TestCase):
         self.version = get(Version, slug="1.0", project=self.project)
         self.webhook = get(WebHook, project=self.project)
         self.client.force_login(self.user)
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     def test_list(self):
         resp = self.client.get(

@@ -21,7 +21,8 @@ This version should always exist and is the default version for your project.
 
 If your project has any tags or branches with a name following
 `semantic versioning <https://semver.org/>`_ (with or without a ``v`` prefix),
-we also create a ``stable`` version tracking your most recent release.
+we also create a ``stable`` version tracking your greatest stable semantic version number release.
+It excludes pre-release versions indicated by alphas, betas, and similar unstable notations, according to semantic versioning.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
@@ -57,7 +58,7 @@ Each version of your documentation has a state that changes the visibility of it
   Hidden versions are listed as ``Disallow: /path/to/version/``
   in the default :doc:`/reference/robots` created by Read the Docs.
 
-**Public** or **Private** (only available on on :doc:`/commercial/index`)
+**Public** or **Private** (only available on :doc:`/commercial/index`)
   - **Public** versions are visible to everyone, and are browsable by unauthenticated users.
   - **Private** versions are available only to people who have permissions to see them.
     They will return a `404 Not Found` when visited by people without viewing permissions.
@@ -87,6 +88,39 @@ When you deactivate a version,
 all of the artifacts of your version will be deleted and a ``404 Not Found`` page will be served for it.
 
 You can change the state for each version of your documentation in the :guilabel:`Versions` tab of your project.
+
+Version URL identifier (slug)
+-----------------------------
+
+Each version of your project has a unique URL identifier (slug).
+This identifier is used to reference the version in your documentation, :term:`dashboard`, and :doc:`API </api/index>`.
+
+A version slug is automatically generated from the name of the branch or tag in your repository,
+some special characters like spaces and ``/`` are replaced with a dash (``-``), and the name is lowercased.
+If the resulting slug collides with another one, a suffix is added (``_a``, ``_b``, etc.).
+
+You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your versions>`,
+but you should take the following into account:
+
+- Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
+  Be careful when renaming active versions, specially old ones that might not build anymore.
+- Any URL referencing your version with the old slug will return a ``404 Not Found`` page.
+  You can use :ref:`an exact redirect <user-defined-redirects:Redirecting an old version to a new one>` to redirect users to the new URL,
+- You may still see the original name of the version in some places,
+  as changing the slug only affects the URL used in your documentation and how the APIs identify that version.
+  `We are considering adding another field to be used for display in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
+- Sorting of versions in the version selector is done based on the slug,
+  changing the slug of a version may change the order in which they are shown to your users.
+  `We are considering adding another field to be used for sorting in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.
+- You can't change the slug of versions that are managed by Read the Docs, like ``latest`` and ``stable``.
+- Slugs must be unique for each version of your project.
+- The slug can contain lowercase letters, numbers, dashes (``-``), underscores (``_``) and dots (``.``).
+  If you try to use a slug that contains any other character, you'll get an error message with a suggestion of a valid slug.
+
+.. warning::
+
+   Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
+   Be careful when renaming active versions, specially old ones that might not build anymore.
 
 Disabling versioning completely
 -------------------------------

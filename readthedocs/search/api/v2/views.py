@@ -9,19 +9,20 @@ from rest_framework.generics import GenericAPIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v2.serializers import PageSearchSerializer
 from readthedocs.search.faceted_search import PageSearch
 
+
 log = structlog.get_logger(__name__)
 
 
 class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
-
     """
     Server side search API.
 
@@ -115,9 +116,9 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal.public(
+            project.versions(manager=INTERNAL)
+            .public(
                 user=self.request.user,
-                project=project,
                 only_built=True,
                 include_hidden=include_hidden,
             )
@@ -147,9 +148,8 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         query = self._get_search_query().lower().strip()
 
         # Record the query with a celery task
-        tasks.record_search_query.delay(
-            project_slug,
-            version_slug,
+        tasks.record_search_query_batch.delay(
+            [(project_slug, version_slug)],
             query,
             total_results,
             time.isoformat(),
@@ -170,8 +170,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
            is compatible with DRF's paginator.
         """
         projects = {
-            project.slug: version.slug
-            for project, version in self._get_projects_to_search()
+            project.slug: version.slug for project, version in self._get_projects_to_search()
         }
         # Check to avoid searching all projects in case it's empty.
         if not projects:
@@ -201,9 +200,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             self.request,
             view=self,
         )
-        serializer = self.get_serializer(
-            page, many=True, projects=self._get_projects_to_search()
-        )
+        serializer = self.get_serializer(page, many=True, projects=self._get_projects_to_search())
         return self.paginator.get_paginated_response(serializer.data)
 
 

@@ -2,20 +2,24 @@ import copy
 import textwrap
 
 import structlog
-from django.template import Context, Template
+from django.template import Context
+from django.template import Template
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.core.context_processors import readthedocs_processor
-from readthedocs.doc_builder.exceptions import (
-    BuildAppError,
-    BuildCancelled,
-    BuildMaxConcurrencyError,
-    BuildUserError,
-    MkDocsYAMLParseError,
-)
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
-from .constants import ERROR, INFO, NOTE, TIP, WARNING
+from .constants import ERROR
+from .constants import INFO
+from .constants import NOTE
+from .constants import TIP
+from .constants import WARNING
+
 
 log = structlog.get_logger(__name__)
 
@@ -210,6 +214,21 @@ BUILD_MESSAGES = [
                 {{vcs}} VCS is not supported anymore.
                 Read more about this in our blog post <a href="https://about.readthedocs.com/blog/2024/02/drop-support-for-subversion-mercurial-bazaar/">Dropping support for Subversion, Mercurial, and Bazaar</a>.
             """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.SSH_KEY_WITH_WRITE_ACCESS,
+        header=_("Build aborted due to SSH key with write access."),
+        body=_(
+            textwrap.dedent(
+                """
+                This build has failed because the current deploy key on the repository was created with write permission.
+                For protection against abuse we've restricted use of these deploy keys.
+                A read-only deploy key will need to be set up <b>before December 1st, 2025</b> to continue building this project.
+                Read more about this in our <a href="https://about.readthedocs.com/blog/2025/07/ssh-keys-with-write-access/">blog post</a>.
+                """
             ).strip(),
         ),
         type=ERROR,
@@ -456,9 +475,7 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-        header=_(
-            "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
-        ),
+        header=_("MkDocs <code>{{extra_config}}</code> configuration option is invalid"),
         body=_(
             textwrap.dedent(
                 """
@@ -532,9 +549,7 @@ class MessagesRegistry:
     def add(self, messages):
         if not isinstance(messages, list):
             if not isinstance(messages, Message):
-                raise ValueError(
-                    "A message should be instance of Message or a list of Messages."
-                )
+                raise ValueError("A message should be instance of Message or a list of Messages.")
 
             messages = [messages]
 

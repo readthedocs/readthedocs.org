@@ -3,46 +3,65 @@ Dj-stripe webhook handlers.
 
 https://docs.dj-stripe.dev/en/master/usage/webhooks/.
 """
+
 import requests
 import structlog
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags import humanize
 from django.db.models import Sum
 from django.utils import timezone
+from djstripe import event_handlers
 from djstripe import models as djstripe
-from djstripe import webhooks
-from djstripe.enums import ChargeStatus, SubscriptionStatus
+from djstripe.enums import ChargeStatus
+from djstripe.enums import SubscriptionStatus
 
+from readthedocs.gold.models import GoldUser
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
 from readthedocs.projects.models import Domain
 from readthedocs.sso.models import SSOIntegration
-from readthedocs.subscriptions.notifications import (
-    SubscriptionEndedNotification,
-    SubscriptionRequiredNotification,
-)
+from readthedocs.subscriptions.notifications import SubscriptionEndedNotification
+from readthedocs.subscriptions.notifications import SubscriptionRequiredNotification
+
 
 log = structlog.get_logger(__name__)
 
 
-def handler(*args, **kwargs):
+def djstripe_receiver_gold_membership(signal_names):
     """
-    Register handlers only if organizations are enabled.
+    Register handlers only if USE_PROMOS is enabled.
 
-    Wrapper around the djstripe's webhooks.handler decorator,
+    Wrapper around the djstripe's ``event_handlers.djstripe_receiver`` decorator,
     to register the handler only if organizations are enabled.
     """
 
     def decorator(func):
-        if settings.RTD_ALLOW_ORGANIZATIONS:
-            return webhooks.handler(*args, **kwargs)(func)
+        if settings.USE_PROMOS:
+            return event_handlers.djstripe_receiver(signal_names)(func)
         return func
 
     return decorator
 
 
-@handler("customer.subscription.created")
-def subscription_created_event(event):
+def djstripe_receiver_organization(signal_names):
+    """
+    Register handlers only if organizations are enabled.
+
+    Wrapper around the djstripe's ``event_handlers.djstripe_receiver`` decorator,
+    to register the handler only if organizations are enabled.
+    """
+
+    def decorator(func):
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            return event_handlers.djstripe_receiver(signal_names)(func)
+        return func
+
+    return decorator
+
+
+@djstripe_receiver_organization("customer.subscription.created")
+def subscription_created_event(event, **kwargs):
     """
     Handle the creation of a new subscription.
 
@@ -53,11 +72,9 @@ def subscription_created_event(event):
     we re-enable it, since the user just subscribed to a plan.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
+    structlog.contextvars.bind_contextvars(stripe_subscription_id=stripe_subscription_id)
 
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
@@ -72,9 +89,7 @@ def subscription_created_event(event):
         organization.disabled = False
 
     old_subscription_id = (
-        organization.stripe_subscription.id
-        if organization.stripe_subscription
-        else None
+        organization.stripe_subscription.id if organization.stripe_subscription else None
     )
     log.info(
         "Attaching new subscription to organization.",
@@ -85,8 +100,8 @@ def subscription_created_event(event):
     organization.save()
 
 
-@handler("customer.subscription.updated", "customer.subscription.deleted")
-def subscription_updated_event(event):
+@djstripe_receiver_organization(["customer.subscription.updated", "customer.subscription.deleted"])
+def subscription_updated_event(event, **kwargs):
     """
     Handle subscription updates.
 
@@ -100,17 +115,13 @@ def subscription_updated_event(event):
     in case it changed.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    structlog.contextvars.bind_contextvars(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
 
-    trial_ended = (
-        stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
-    )
+    trial_ended = stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
     is_trial_subscription = stripe_subscription.items.filter(
         price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
@@ -130,42 +141,40 @@ def subscription_updated_event(event):
         log.error("Subscription isn't attached to an organization")
         return
 
-    if (
-        stripe_subscription.status == SubscriptionStatus.active
-        and organization.disabled
-    ):
+    if stripe_subscription.status == SubscriptionStatus.active and organization.disabled:
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
 
-    if stripe_subscription.status not in (
-        SubscriptionStatus.active,
-        SubscriptionStatus.trialing,
-    ):
-        log.info(
-            "Organization disabled due its subscription is not active anymore.",
-            organization_slug=organization.slug,
-        )
-        organization.disabled = True
+    if stripe_subscription.status not in (SubscriptionStatus.active, SubscriptionStatus.trialing):
+        if organization.never_disable:
+            log.info(
+                "Organization can't be disabled, skipping deactivation.",
+                organization_slug=organization.slug,
+            )
+        else:
+            log.info(
+                "Organization disabled due its subscription is not active anymore.",
+                organization_slug=organization.slug,
+            )
+            organization.disabled = True
 
     new_stripe_subscription = organization.get_stripe_subscription()
     if organization.stripe_subscription != new_stripe_subscription:
         old_subscription_id = (
-            organization.stripe_subscription.id
-            if organization.stripe_subscription
-            else None
+            organization.stripe_subscription.id if organization.stripe_subscription else None
         )
         log.info(
             "Attaching new subscription to organization.",
             organization_slug=organization.slug,
             old_stripe_subscription_id=old_subscription_id,
         )
-        organization.stripe_subscription = stripe_subscription
+        organization.stripe_subscription = new_stripe_subscription
 
     organization.save()
 
 
-@handler("customer.subscription.deleted")
-def subscription_canceled(event):
+@djstripe_receiver_organization("customer.subscription.deleted")
+def subscription_canceled(event, **kwargs):
     """
     Send a notification to all owners if the subscription has ended.
 
@@ -174,10 +183,8 @@ def subscription_canceled(event):
     since those are from new users.
     """
     stripe_subscription_id = event.data["object"]["id"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
+    structlog.contextvars.bind_contextvars(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
     if not stripe_subscription:
         log.info("Stripe subscription not found.")
         return
@@ -188,7 +195,7 @@ def subscription_canceled(event):
         .get("total")
         or 0
     )
-    log.bind(total_spent=total_spent)
+    structlog.contextvars.bind_contextvars(total_spent=total_spent)
 
     # Using `getattr` to avoid the `RelatedObjectDoesNotExist` exception
     # when the subscription doesn't have an organization attached to it.
@@ -197,14 +204,19 @@ def subscription_canceled(event):
         log.error("Subscription isn't attached to an organization")
         return
 
-    log.bind(organization_slug=organization.slug)
+    if organization.never_disable:
+        log.info(
+            "Organization can't be disabled, skipping notification.",
+            organization_slug=organization.slug,
+        )
+        return
+
+    structlog.contextvars.bind_contextvars(organization_slug=organization.slug)
     is_trial_subscription = stripe_subscription.items.filter(
         price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
     notification_class = (
-        SubscriptionRequiredNotification
-        if is_trial_subscription
-        else SubscriptionEndedNotification
+        SubscriptionRequiredNotification if is_trial_subscription else SubscriptionEndedNotification
     )
     for owner in organization.owners.all():
         notification = notification_class(
@@ -218,12 +230,10 @@ def subscription_canceled(event):
             organization_slug=organization.slug,
         )
 
-    if settings.SLACK_WEBHOOK_SALES_CHANNEL and total_spent > 0:
+    if settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL and total_spent > 0:
         start_date = stripe_subscription.start_date.strftime("%b %-d, %Y")
         timesince = humanize.naturaltime(stripe_subscription.start_date).split(",")[0]
-        domains = Domain.objects.filter(
-            project__organizations__in=[organization]
-        ).count()
+        domains = Domain.objects.filter(project__organizations__in=[organization]).count()
         try:
             sso_integration = organization.ssointegration.provider
         except SSOIntegration.DoesNotExist:
@@ -280,7 +290,7 @@ def subscription_canceled(event):
         }
         try:
             response = requests.post(
-                settings.SLACK_WEBHOOK_SALES_CHANNEL,
+                settings.SLACK_WEBHOOK_RTD_NOTIFICATIONS_CHANNEL,
                 json=slack_message,
                 timeout=3,
             )
@@ -291,14 +301,15 @@ def subscription_canceled(event):
             log.warning("Timeout sending a message to Slack webhook")
 
 
-@handler("customer.updated")
-def customer_updated_event(event):
+@djstripe_receiver_organization("customer.updated")
+def customer_updated_event(event, **kwargs):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
-    log.bind(stripe_customer_id=stripe_customer["id"])
+    structlog.contextvars.bind_contextvars(stripe_customer_id=stripe_customer["id"])
     organization = Organization.objects.filter(stripe_id=stripe_customer["id"]).first()
     if not organization:
         log.error("Customer isn't attached to an organization.")
+        return
 
     new_email = stripe_customer["email"]
     if organization.email != new_email:
@@ -308,4 +319,71 @@ def customer_updated_event(event):
             "Organization billing email updated.",
             organization_slug=organization.slug,
             email=new_email,
+        )
+
+
+@djstripe_receiver_gold_membership("checkout.session.async_payment_failed")
+def gold_membership_payment_failed(event, **kwargs):
+    username = event.data["object"]["client_reference_id"]
+    structlog.contextvars.bind_contextvars(user_username=username)
+    # TODO: add user notification saying it failed
+    # Notification.objects.add()
+    log.exception("Gold User payment failed.")
+
+
+@djstripe_receiver_gold_membership("checkout.session.completed")
+def gold_membership_new_subscription(event, **kwargs):
+    stripe_subscription_id = event.data["object"]["subscription"]
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    structlog.contextvars.bind_contextvars(stripe_subscription=stripe_subscription)
+    stripe_price = stripe_subscription.items.first().price
+    username = event.data["object"]["client_reference_id"]
+    structlog.contextvars.bind_contextvars(user_username=username)
+    mode = event.data["object"]["mode"]
+    if mode == "subscription":
+        # Gold Membership
+        user = User.objects.get(username=username)
+
+        structlog.contextvars.bind_contextvars(stripe_price=stripe_price.id)
+        log.info("Gold Membership subscription.")
+        gold, _ = GoldUser.objects.get_or_create(
+            user=user,
+            stripe_id=stripe_subscription.customer.id,
+        )
+        gold.level = stripe_price.id
+        gold.subscribed = True
+        gold.save()
+        # TODO: add user notification saying it was successful
+        # Notification.objects.add()
+
+
+@djstripe_receiver_gold_membership("customer.subscription.updated")
+def gold_membership_subscription_updated(event, **kwargs):
+    stripe_subscription_id = event.data["object"]["id"]
+    structlog.contextvars.bind_contextvars(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(id=stripe_subscription_id).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    structlog.contextvars.bind_contextvars(stripe_subscription=stripe_subscription)
+    stripe_price = stripe_subscription.items.first().price
+    log.info(
+        "Gold User subscription updated.",
+        stripe_price=stripe_price.id,
+    )
+    (
+        GoldUser.objects.filter(stripe_id=stripe_subscription.customer.id).update(
+            level=stripe_price.id,
+            modified_date=timezone.now(),
+        )
+    )
+
+    if stripe_subscription.status != "active":
+        log.warning(
+            "GoldUser is not active anymore.",
         )

@@ -34,6 +34,11 @@ def clean_references(obj, url, html_raw_response=False):
     for tag in obj.find("a") + obj.find("img"):
         base_url = urlparse(url)
         attribute = "href" if tag.tag == "a" else "src"
+
+        # Skip if the attribute doesn't exist
+        if attribute not in tag.attrib:
+            continue
+
         value = tag.attrib[attribute]
 
         # We need to make all internal links/images, to be absolute

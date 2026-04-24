@@ -59,7 +59,7 @@ Creating a Read the Docs account
 --------------------------------
 
 To create a Read the Docs account:
-navigate to the `Sign Up page <https://readthedocs.org/accounts/signup/>`_
+navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub`.
 On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
 
@@ -81,7 +81,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
 open your :term:`dashboard`.
 
-When you have clicked the link in your emaill from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
+When you have clicked the link in your email from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
 
 .. figure:: /_static/images/tutorial/rtd-empty-dashboard.png
    :width: 80%
@@ -95,7 +95,7 @@ Importing the project to Read the Docs
 
 To import your GitHub project to Read the Docs:
 
-#. Click the :guilabel:`Import a Project` button on your `dashboard <https://readthedocs.org/dashboard/>`_.
+#. Click the :guilabel:`Import a Project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
 
 #. Click the |:heavy_plus_sign:| button to the right of your ``rtd-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
 
@@ -163,7 +163,7 @@ To see the build logs:
    Advertisement is one of our main sources of revenue.
    If you want to learn more about how do we fund our operations
    and explore options to go ad-free,
-   check out our `Sustainability page <https://readthedocs.org/sustainability/>`_.
+   check out our `Sustainability page <https://app.readthedocs.org/sustainability/>`_.
 
    If you don't see the ad, you might be using an ad blocker.
    Our EthicalAds network respects your privacy, doesn't target you,
@@ -301,7 +301,7 @@ Making build warnings more visible
 If you navigate to your HTML documentation,
 you will notice that the index page looks correct
 but the API section is empty.
-This is a very common issue with Sphinx,
+This is a common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
 click on the :guilabel:`View raw` link on the top right,
@@ -447,7 +447,7 @@ rather than ``latest``,
 so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation:
 
-#. In the the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
+#. In the :guilabel:`⚙ Admin` menu of your project home, go to the :guilabel:`Settings` link, choose ``stable`` in the "Default version*" dropdown, and hit :guilabel:`Save` at the bottom.
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~
@@ -525,7 +525,7 @@ Read the Docs has traffic and search analytics tools to help you find answers to
 Understanding traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitor privacy by not storing identifying information about your them.
+The Traffic Analytics view gives you a simple overview of how your readers browse your documentation. It respects visitors' privacy by not storing identifying information about them.
 
 This page shows the most viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.

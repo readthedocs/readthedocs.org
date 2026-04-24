@@ -1,23 +1,19 @@
 Interesting settings
 ====================
 
-DOCKER_LIMITS
--------------
+BUILD_MEMORY_LIMIT
+------------------
 
-A dictionary of limits to virtual machines. These limits include:
+The maximum memory allocated to the virtual machine.
+If this limit is hit, build processes will be automatically killed.
+Examples: '200m' for 200MB of total memory, or '2g' for 2GB of total memory.
 
-time
-    An integer representing the total allowed time limit (in
-    seconds) of build processes. This time limit affects the parent
-    process to the virtual machine and will force a virtual machine
-    to die if a build is still running after the allotted time
-    expires.
+BUILD_TIME_LIMIT
+----------------
 
-memory
-    The maximum memory allocated to the virtual machine. If this
-    limit is hit, build processes will be automatically killed.
-    Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
-    total memory.
+An integer representing the total allowed time limit (in seconds) of build processes.
+This time limit affects the parent process to the virtual machine and will force a virtual machine
+to die if a build is still running after the allotted time expires.
 
 PRODUCTION_DOMAIN
 ------------------
@@ -158,6 +154,8 @@ providers using the following environment variables:
 
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUB_SECRET
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_CLIENT_ID
+.. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITHUBAPP_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GITLAB_SECRET
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_BITBUCKET_OAUTH2_CLIENT_ID
@@ -165,14 +163,31 @@ providers using the following environment variables:
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_CLIENT_ID
 .. envvar:: RTD_SOCIALACCOUNT_PROVIDERS_GOOGLE_SECRET
 
-Stripe secrets
-~~~~~~~~~~~~~~
+AWS configuration
+~~~~~~~~~~~~~~~~~
 
-The following secrets are required to use ``djstripe`` and our Stripe integration.
+The following variables can be used to use AWS in your local environment.
+Useful for testing :doc:`temporary credentials </aws-temporary-credentials>`.
 
-.. envvar:: RTD_STRIPE_SECRET
-.. envvar:: RTD_STRIPE_PUBLISHABLE
-.. envvar:: RTD_DJSTRIPE_WEBHOOK_SECRET
+.. envvar:: RTD_S3_PROVIDER
+.. envvar:: RTD_AWS_ACCESS_KEY_ID
+.. envvar:: RTD_AWS_SECRET_ACCESS_KEY
+.. envvar:: RTD_AWS_STS_ASSUME_ROLE_ARN
+.. envvar:: RTD_S3_MEDIA_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_TOOLS_STORAGE_BUCKET
+.. envvar:: RTD_S3_STATIC_STORAGE_BUCKET
+.. envvar:: RTD_AWS_S3_REGION_NAME
+
+GitHub App
+~~~~~~~~~~
+
+You can use the following environment variables to set the settings used by the GitHub App:
+
+.. envvar:: RTD_GITHUB_APP_ID
+.. envvar:: RTD_GITHUB_APP_NAME
+.. envvar:: RTD_GITHUB_APP_PRIVATE_KEY
+.. envvar:: RTD_GITHUB_APP_WEBHOOK_SECRET
 
 Ethical Ads variables
 ~~~~~~~~~~~~~~~~~~~~~

@@ -60,7 +60,7 @@ but it requires users to be previously authenticated in the embedded domain.
 
 It's important to note that embedding documentation pages in an iframe does not grant the parent page access the iframe's content.
 Documentation pages serve static content only, and the exposed APIs are read-only,
-making the exploitation of a clickjacking vulnerability very unlikely.
+making the exploitation of a clickjacking vulnerability extremely unlikely.
 
 If needed, the ``X-Frame-Options`` and ``Content-Security-Policy`` headers can be set on your documentation pages by :doc:`contacting support </support>`.
 **You are responsible for providing the correct values for these headers, and making sure they don't break your documentation pages.**

@@ -1,185 +1,50 @@
 import json
-from io import BytesIO
 
 import requests
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildCommandSerializer
-from readthedocs.api.v2.utils import (
-    delete_versions_from_db,
-    get_deleted_active_versions,
-    run_automation_rules,
-    sync_versions_to_db,
-)
-from readthedocs.builds.constants import (
-    BRANCH,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_PENDING,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    EXTERNAL_VERSION_STATE_CLOSED,
-    LOCK_EXPIRE,
-    MAX_BUILD_COMMAND_SIZE,
-    TAG,
-)
-from readthedocs.builds.models import Build, Version
+from readthedocs.api.v2.utils import delete_versions_from_db
+from readthedocs.api.v2.utils import get_deleted_active_versions
+from readthedocs.api.v2.utils import run_version_automation_rules
+from readthedocs.api.v2.utils import sync_versions_to_db
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
+from readthedocs.builds.constants import LOCK_EXPIRE
+from readthedocs.builds.constants import TAG
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildConfig
+from readthedocs.builds.models import Version
+from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
-from readthedocs.core.utils import send_email, trigger_build
+from readthedocs.core.utils import send_email
+from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
-from readthedocs.projects.models import Project, WebHookEvent
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import WebHookEvent
 from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
 
-class TaskRouter:
-
-    """
-    Celery tasks router.
-
-    It allows us to decide which queue is where we want to execute the task
-    based on project's settings.
-
-    1. the project is using conda
-    2. new project with less than N successful builds
-    3. version to be built is external
-
-    It ignores projects that have already set ``build_queue`` attribute.
-
-    https://docs.celeryproject.org/en/stable/userguide/routing.html#manual-routing
-    https://docs.celeryproject.org/en/stable/userguide/configuration.html#std:setting-task_routes
-    """
-
-    MIN_SUCCESSFUL_BUILDS = 5
-    N_LAST_BUILDS = 15
-    TIME_AVERAGE = 350
-
-    BUILD_DEFAULT_QUEUE = "build:default"
-    BUILD_LARGE_QUEUE = "build:large"
-
-    def route_for_task(self, task, args, kwargs, **__):
-        log.debug("Executing TaskRouter.", task=task)
-        if task not in (
-            "readthedocs.projects.tasks.builds.update_docs_task",
-            "readthedocs.projects.tasks.builds.sync_repository_task",
-        ):
-            log.debug("Skipping routing non-build task.", task=task)
-            return
-
-        version = self._get_version(task, args, kwargs)
-        if not version:
-            log.debug("No Build/Version found. No routing task.", task=task)
-            return
-
-        project = version.project
-
-        # Do not override the queue defined in the project itself
-        if project.build_queue:
-            log.info(
-                "Skipping routing task because project has a custom queue.",
-                project_slug=project.slug,
-                queue=project.build_queue,
-            )
-            return project.build_queue
-
-        # Use last queue used by the default version for external versions
-        # We always want the same queue as the previous default version,
-        # so that users will have the same outcome for PR's as normal builds.
-        if version.type == EXTERNAL:
-            last_build_for_default_version = (
-                project.builds.filter(
-                    version__slug=project.get_default_version(), builder__isnull=False
-                )
-                .order_by("-date")
-                .first()
-            )
-            if last_build_for_default_version:
-                if "default" in last_build_for_default_version.builder:
-                    routing_queue = self.BUILD_DEFAULT_QUEUE
-                else:
-                    routing_queue = self.BUILD_LARGE_QUEUE
-                log.info(
-                    "Routing task because is a external version.",
-                    project_slug=project.slug,
-                    queue=routing_queue,
-                )
-                return routing_queue
-
-        last_builds = version.builds.order_by("-date")[: self.N_LAST_BUILDS]
-        # Version has used conda in previous builds
-        for build in last_builds.iterator():
-            build_tools_python = ""
-            conda = None
-            if build.config:
-                build_tools_python = (
-                    build.config.get("build", {})
-                    .get("tools", {})
-                    .get("python", {})
-                    .get("version", "")
-                )
-                conda = build.config.get("conda", None)
-
-            uses_conda = any(
-                [
-                    conda,
-                    build_tools_python.startswith("miniconda"),
-                ]
-            )
-            if uses_conda:
-                log.info(
-                    "Routing task because project uses conda.",
-                    project_slug=project.slug,
-                    queue=self.BUILD_LARGE_QUEUE,
-                )
-                return self.BUILD_LARGE_QUEUE
-
-        successful_builds_count = (
-            version.builds.filter(success=True).order_by("-date").count()
-        )
-        # We do not have enough builds for this version yet
-        if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
-            log.info(
-                "Routing task because it does not have enough successful builds yet.",
-                project_slug=project.slug,
-                queue=self.BUILD_LARGE_QUEUE,
-            )
-            return self.BUILD_LARGE_QUEUE
-
-        log.debug(
-            "No routing task because no conditions were met.",
-            project_slug=project.slug,
-        )
-        return
-
-    def _get_version(self, task, args, kwargs):
-        tasks = [
-            "readthedocs.projects.tasks.builds.update_docs_task",
-            "readthedocs.projects.tasks.builds.sync_repository_task",
-        ]
-        version = None
-        if task in tasks:
-            version_pk = args[0]
-            try:
-                version = Version.objects.get(pk=version_pk)
-            except Version.DoesNotExist:
-                log.debug(
-                    "Version does not exist. Routing task to default queue.",
-                    version_id=version_pk,
-                )
-        return version
-
-
 @app.task(queue="web", bind=True)
-def archive_builds_task(self, days=14, limit=200, delete=False):
+def archive_builds_task(self, days=14, limit=200):
     """
     Task to archive old builds to cold storage.
 
@@ -205,37 +70,8 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
             .prefetch_related("commands")
             .only("date", "cold_storage")[:limit]
         )
-
         for build in queryset:
-            commands = BuildCommandSerializer(build.commands, many=True).data
-            if commands:
-                for cmd in commands:
-                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
-                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
-                        cmd["output"] = (
-                            "\n\n"
-                            "... (truncated) ..."
-                            "\n\n"
-                            "Command output too long. Truncated to last 1MB."
-                            "\n\n" + cmd["output"]
-                        )  # noqa
-                        log.debug(
-                            "Truncating build command for build.", build_id=build.id
-                        )
-                output = BytesIO(json.dumps(commands).encode("utf8"))
-                filename = "{date}/{id}.json".format(
-                    date=str(build.date.date()), id=build.id
-                )
-                try:
-                    build_commands_storage.save(name=filename, content=output)
-                    if delete:
-                        build.commands.all().delete()
-                except IOError:
-                    log.exception("Cold Storage save failure")
-                    continue
-
-            build.cold_storage = True
-            build.save()
+            build.move_to_cold_storage()
 
 
 @app.task(queue="web")
@@ -256,11 +92,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
             if last_build:
                 status = BUILD_STATUS_PENDING
                 if last_build.finished:
-                    status = (
-                        BUILD_STATUS_SUCCESS
-                        if last_build.success
-                        else BUILD_STATUS_FAILURE
-                    )
+                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
                 send_build_status(
                     build_pk=last_build.pk,
                     commit=last_build.commit,
@@ -348,7 +180,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         # The order of added_versions isn't deterministic.
         # We don't track the commit time or any other metadata.
         # We usually have one version added per webhook.
-        run_automation_rules(project, added_versions, deleted_active_versions)
+        run_version_automation_rules(project, added_versions, deleted_active_versions)
     except Exception:
         # Don't interrupt the request if something goes wrong
         # in the automation rules.
@@ -389,11 +221,13 @@ def send_build_status(build_pk, commit, status):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    build = Build.objects.filter(pk=build_pk).first()
-    if not build:
+    build = Build.objects.filter(pk=build_pk).select_related("version").first()
+    # Bulds without a verion shouldn't send status, it can happen when
+    # a build from a deleted version is being processed (race condition).
+    if not build or not build.version:
         return
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         build_id=build.pk,
         project_slug=build.project.slug,
         commit=commit,
@@ -434,10 +268,62 @@ def send_build_status(build_pk, commit, status):
         dismissable=True,
     )
 
-    log.info(
-        "No social account or repository permission available, no build status sent."
-    )
+    log.info("No social account or repository permission available, no build status sent.")
     return False
+
+
+@app.task(max_retries=3, default_retry_delay=60, queue="web")
+def post_build_overview(build_pk):
+    """
+    Post an overview about the build to the project's Git service.
+
+    The overview contains information about the build,
+    and the list of files that were changed in the build.
+
+    If no files changed in the build,
+    we only update the build overview if there is an existing comment.
+
+    Only GitHub is supported at the moment.
+    """
+    build = Build.objects.filter(pk=build_pk).first()
+    if not build:
+        return
+
+    version = build.version
+    structlog.contextvars.bind_contextvars(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        version_slug=version.slug,
+    )
+
+    if not version.is_external:
+        log.debug("Build is not for an external version, skipping build overview.")
+        return
+
+    service_class = build.project.get_git_service_class()
+    if not service_class:
+        log.debug("Project isn't connected to a Git service, skipping build overview.")
+        return
+
+    if not service_class.supports_commenting:
+        log.debug("Git service doesn't support creating comments.")
+        return
+
+    build_overview = get_build_overview(build)
+    if not build_overview:
+        log.debug("No build overview available, skipping posting comment.")
+        return
+
+    for service in service_class.for_project(build.project):
+        service.post_comment(
+            build=build,
+            comment=build_overview.content,
+            create_new=bool(build_overview.diff.files),
+        )
+        log.debug("PR comment posted successfully.")
+        return
+
+    log.debug("No service available, no build overview posted.")
 
 
 @app.task(queue="web")
@@ -541,9 +427,7 @@ class BuildNotificationSender:
                 **context,
             )
         else:
-            title = _("Failed: {project[name]} ({version[verbose_name]})").format(
-                **context
-            )
+            title = _("Failed: {project[name]} ({version[verbose_name]})").format(**context)
 
         log.info(
             "Sending email notification.",
@@ -626,3 +510,176 @@ class BuildNotificationSender:
                 webhook_id=webhook.id,
                 webhook_url=webhook.url,
             )
+
+
+@app.task(queue="web")
+def check_and_disable_project_for_consecutive_failed_builds(project_slug, version_slug):
+    """
+    Check if a project has too many consecutive failed builds and disable it.
+
+    When a project has more than RTD_BUILDS_MAX_CONSECUTIVE_FAILURES consecutive failed builds
+    on the default version, we attach a notification to the project and disable builds (skip=True).
+    This helps reduce resource consumption from projects that are not being monitored.
+    """
+    from readthedocs.builds.constants import BUILD_STATE_FINISHED
+    from readthedocs.projects.notifications import (
+        MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+    )
+
+    try:
+        project = Project.objects.get(slug=project_slug)
+    except Project.DoesNotExist:
+        return
+
+    # Only check for the default version
+    if version_slug != project.get_default_version():
+        return
+
+    # Skip if the project is already disabled
+    if project.skip or project.n_consecutive_failed_builds:
+        return
+
+    # Count consecutive failed builds on the default version
+    builds = list(
+        Build.objects.filter(
+            project=project,
+            version_slug=version_slug,
+            state=BUILD_STATE_FINISHED,
+        )
+        .order_by("-date")
+        .values_list("success", flat=True)[: settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES]
+    )
+    if not any(builds) and len(builds) >= settings.RTD_BUILDS_MAX_CONSECUTIVE_FAILURES:
+        consecutive_failed_builds = builds.count(False)
+        log.info(
+            "Disabling project due to consecutive failed builds.",
+            project_slug=project.slug,
+            version_slug=version_slug,
+            consecutive_failed_builds=consecutive_failed_builds,
+        )
+
+        # Disable the project
+        project.n_consecutive_failed_builds = True
+        project.save()
+
+        # Attach notification to the project
+        Notification.objects.add(
+            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+            attached_to=project,
+            dismissable=False,
+            format_values={
+                "consecutive_failed_builds": consecutive_failed_builds,
+            },
+        )
+
+
+@app.task(queue="web")
+def remove_orphan_build_config():
+    """Remove BuildConfig objects that are not referenced by any Build."""
+    orphan_buildconfigs = BuildConfig.objects.filter(builds=None)
+    count = orphan_buildconfigs.count()
+    orphan_buildconfigs.delete()
+    log.info("Removed orphan BuildConfig objects.", count=count)
+
+
+@app.task(queue="web", bind=True)
+def delete_old_build_objects(
+    self, days=365 * 3, keep_recent=250, limit=20_000, max_projects=5_000, start=None
+):
+    """
+    Delete old Build objects that are not needed anymore.
+
+    We keep the most recent `keep_recent` builds per version,
+    and delete builds that are older than `days` days.
+
+    :param limit: Maximum number of builds to delete in one execution.
+     Keep our DB from being overwhelmed by deleting too many builds at once.
+    :param max_projects: Maximum number of projects to process in one execution.
+     Avoids iterating over all projects in one execution.
+    :param start: Starting index for processing projects.
+     Normally, this value comes from the cache, and is updated after each execution to continue from where it left off.
+     But it can also be set to a specific value for manual execution.
+    """
+    cache_key = "rtd-task:delete_old_build_objects_start"
+    max_count = Project.objects.count()
+    use_cache = start is None
+    if use_cache:
+        start = cache.get(cache_key, 0)
+    if start >= max_count:
+        start = 0
+
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 2, self.app.oid) as acquired:
+        if not acquired:
+            log.warning("Delete old build objects task still locked")
+            return
+
+        cutoff_date = timezone.now() - timezone.timedelta(days=days)
+        projects = (
+            Project.objects.all().order_by("pub_date").only("pk")[start : start + max_projects]
+        )
+        for n, project in enumerate(projects, start=1):
+            # Delete builds associated with versions, keeping
+            # the most recent `keep_recent` builds per version.
+            for version in project.versions.exclude(builds=None).only("pk").iterator():
+                builds_to_delete = version.builds.filter(date__lt=cutoff_date).order_by("-date")
+                n_builds_deleted = _delete_builds(
+                    builds_to_delete, start=keep_recent, end=keep_recent + limit
+                )
+                limit -= n_builds_deleted
+                if limit <= 0:
+                    if use_cache:
+                        cache.set(cache_key, start + n)
+                    return
+
+            # Delete builds that are not associated with any version,
+            # keeping the most recent `keep_recent` builds per project.
+            builds_to_delete = project.builds.filter(version=None, date__lt=cutoff_date).order_by(
+                "-date"
+            )
+            n_builds_deleted = _delete_builds(
+                builds_to_delete, start=keep_recent, end=keep_recent + limit
+            )
+            limit -= n_builds_deleted
+            if limit <= 0:
+                if use_cache:
+                    cache.set(cache_key, start + n)
+                return
+
+        if use_cache:
+            cache.set(cache_key, start + max_projects)
+
+
+def _delete_builds(builds, start: int, end: int) -> int:
+    """
+    Delete builds from the queryset, starting from `start` index and ending at `end` index.
+
+    This also deletes the storage paths associated with the builds if they are in cold storage.
+
+    :returns: The number of builds deleted.
+    """
+    # NOTE: we can't use a filter over an sliced queryset.
+    paths_to_delete = []
+    for build in builds[start:end]:
+        if build.cold_storage:
+            paths_to_delete.append(build.storage_path)
+
+    try:
+        _, deleted = delete_in_batches(builds, start=start, end=end)
+        return deleted.get("builds.Build", 0)
+    finally:
+        # If there was an error during deletion, we still want to
+        # delete the storage paths, otherwise we end up with orphan
+        # files in storage. The builds will be empty, but they are
+        # already scheduled for deletion.
+        remove_build_commands_storage_paths(paths_to_delete)
+
+
+@app.task(queue="web")
+def remove_build_commands_storage_paths(paths):
+    """Remove the build commands from storage for the given paths."""
+    log.info("Removing paths from build commands storage.", paths=paths[:10])
+    try:
+        build_commands_storage.delete_paths(paths)
+    except Exception:
+        log.info("Failed to delete build commands from storage.", exc_info=True)

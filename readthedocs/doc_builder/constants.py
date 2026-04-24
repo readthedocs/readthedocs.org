@@ -5,6 +5,7 @@ import re
 import structlog
 from django.conf import settings
 
+
 log = structlog.get_logger(__name__)
 
 PDF_RE = re.compile("Output written on (.*?)")
@@ -13,7 +14,6 @@ PDF_RE = re.compile("Output written on (.*?)")
 DOCKER_SOCKET = settings.DOCKER_SOCKET
 DOCKER_VERSION = settings.DOCKER_VERSION
 DOCKER_IMAGE = settings.DOCKER_IMAGE
-DOCKER_LIMITS = settings.DOCKER_LIMITS
 DOCKER_TIMEOUT_EXIT_CODE = 42
 DOCKER_OOM_EXIT_CODE = 137
 

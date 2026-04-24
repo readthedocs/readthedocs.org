@@ -1,8 +1,12 @@
 """Models for the builds app."""
+
 import datetime
+import fnmatch
+import json
 import os.path
 import re
 from functools import partial
+from io import BytesIO
 
 import regex
 import structlog
@@ -16,76 +20,71 @@ from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
-from readthedocs.builds.constants import (
-    BRANCH,
-    BUILD_FINAL_STATES,
-    BUILD_STATE,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_CHOICES,
-    BUILD_TYPES,
-    EXTERNAL,
-    EXTERNAL_VERSION_STATES,
-    INTERNAL,
-    LATEST,
-    PREDEFINED_MATCH_ARGS,
-    PREDEFINED_MATCH_ARGS_VALUES,
-    STABLE,
-    VERSION_TYPES,
-)
-from readthedocs.builds.managers import (
-    AutomationRuleMatchManager,
-    ExternalBuildManager,
-    ExternalVersionManager,
-    InternalBuildManager,
-    InternalVersionManager,
-    VersionManager,
-)
-from readthedocs.builds.querysets import (
-    BuildQuerySet,
-    RelatedBuildQuerySet,
-    VersionQuerySet,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATUS_CHOICES
+from readthedocs.builds.constants import BUILD_TYPES
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
+from readthedocs.builds.constants import VERSION_TYPES
+from readthedocs.builds.managers import BuildConfigManager
+from readthedocs.builds.managers import ExternalBuildManager
+from readthedocs.builds.managers import ExternalVersionManager
+from readthedocs.builds.managers import InternalBuildManager
+from readthedocs.builds.managers import InternalVersionManager
+from readthedocs.builds.managers import VersionManager
+from readthedocs.builds.querysets import BuildQuerySet
+from readthedocs.builds.querysets import RelatedBuildQuerySet
+from readthedocs.builds.querysets import VersionQuerySet
 from readthedocs.builds.signals import version_changed
-from readthedocs.builds.utils import (
-    external_version_name,
-    get_bitbucket_username_repo,
-    get_github_username_repo,
-    get_gitlab_username_repo,
-    get_vcs_url,
-)
-from readthedocs.builds.version_slug import (
-    generate_unique_version_slug,
-    version_slug_validator,
-)
-from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
+from readthedocs.builds.utils import external_version_name
+from readthedocs.builds.utils import get_bitbucket_username_repo
+from readthedocs.builds.utils import get_github_username_repo
+from readthedocs.builds.utils import get_gitlab_username_repo
+from readthedocs.builds.utils import get_vcs_url
+from readthedocs.builds.version_slug import generate_unique_version_slug
+from readthedocs.builds.version_slug import version_slug_validator
+from readthedocs.core.utils import extract_valid_attributes_for_model
+from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
-from readthedocs.projects.constants import (
-    BITBUCKET_COMMIT_URL,
-    DOCTYPE_CHOICES,
-    GITHUB_COMMIT_URL,
-    GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITLAB_COMMIT_URL,
-    GITLAB_MERGE_REQUEST_COMMIT_URL,
-    MEDIA_TYPES,
-    MKDOCS,
-    MKDOCS_HTML,
-    PRIVACY_CHOICES,
-    PRIVATE,
-    SPHINX,
-    SPHINX_HTMLDIR,
-    SPHINX_SINGLEHTML,
-)
-from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.constants import BITBUCKET_COMMIT_URL
+from readthedocs.projects.constants import DOCTYPE_CHOICES
+from readthedocs.projects.constants import DOWNLOADABLE_MEDIA_TYPES
+from readthedocs.projects.constants import GITHUB_COMMIT_URL
+from readthedocs.projects.constants import GITHUB_PULL_REQUEST_COMMIT_URL
+from readthedocs.projects.constants import GITLAB_COMMIT_URL
+from readthedocs.projects.constants import GITLAB_MERGE_REQUEST_COMMIT_URL
+from readthedocs.projects.constants import MEDIA_TYPES
+from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.constants import MKDOCS_HTML
+from readthedocs.projects.constants import PRIVACY_CHOICES
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import SPHINX
+from readthedocs.projects.constants import SPHINX_HTMLDIR
+from readthedocs.projects.constants import SPHINX_SINGLEHTML
+from readthedocs.projects.managers import AutomationRuleMatchManager
+from readthedocs.projects.models import APIProject
+from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_commands_storage
+from readthedocs.storage import build_media_storage
+
 
 log = structlog.get_logger(__name__)
 
 
 class Version(TimeStampedModel):
-
     """Version of a ``Project``."""
 
     project = models.ForeignKey(
@@ -108,9 +107,7 @@ class Version(TimeStampedModel):
     #: If the this version is pointing to a branch,
     #: then ``identifier`` will contain the branch name.
     #: `None`/`null` means it will use the VCS default branch.
-    identifier = models.CharField(
-        _("Identifier"), max_length=255, null=True, blank=True
-    )
+    identifier = models.CharField(_("Identifier"), max_length=255, null=True, blank=True)
 
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
@@ -163,9 +160,7 @@ class Version(TimeStampedModel):
     hidden = models.BooleanField(
         _("Hidden"),
         default=False,
-        help_text=_(
-            "Hide this version from the version (flyout) menu and search results?"
-        ),
+        help_text=_("Hide this version from the version (flyout) menu and search results?"),
     )
     machine = models.BooleanField(_("Machine Created"), default=False)
 
@@ -198,13 +193,9 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(
-        partial(VersionQuerySet, internal_only=True)
-    )()
+    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(
-        partial(VersionQuerySet, external_only=True)
-    )()
+    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
     class Meta:
         unique_together = [("project", "slug")]
@@ -240,6 +231,10 @@ class Version(TimeStampedModel):
         return self.type == EXTERNAL
 
     @property
+    def is_machine_latest(self):
+        return self.machine and self.slug == LATEST
+
+    @property
     def explicit_name(self):
         """
         Version name that is explicit about external origins.
@@ -272,26 +267,16 @@ class Version(TimeStampedModel):
         It returns None when the version is not stable (machine created).
         """
         if self.slug == STABLE and self.machine:
-            stable = determine_stable_version(
-                self.project.versions(manager=INTERNAL).all()
-            )
+            stable = determine_stable_version(self.project.versions(manager=INTERNAL).all())
             if stable:
                 return stable.slug
 
     @property
     def vcs_url(self):
-        version_name = self.verbose_name
-        if self.slug == STABLE and self.machine:
-            stable_version = self.project.get_original_stable_version()
-            if stable_version:
-                version_name = stable_version.verbose_name
-        elif self.slug == LATEST and self.machine:
-            version_name = self.project.get_default_branch()
-
         return get_vcs_url(
             project=self.project,
             version_type=self.type,
-            version_name=version_name,
+            version_name=self.git_identifier,
         )
 
     @property
@@ -323,17 +308,17 @@ class Version(TimeStampedModel):
         :returns: The configuration used in the last successful build.
         :rtype: dict
         """
-        last_build = (
+        last_successful_build_config = (
             self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             )
             .order_by("-date")
-            .only("_config")
+            .values_list("readthedocs_yaml_config__data", flat=True)
             .first()
         )
-        if last_build:
-            return last_build.config
+        if last_successful_build_config:
+            return last_successful_build_config
         return None
 
     @property
@@ -348,9 +333,10 @@ class Version(TimeStampedModel):
         - If the version is stable (machine created), we resolve to the branch that the stable version points to.
         - If the version is external, we return the PR identifier, since we don't have access to the name of the branch.
         """
-        # Latest is special as it doesn't contain the actual name in verbose_name.
+        # Latest is special as it doesn't contain the actual name in verbose_name,
+        # but in the identifier field.
         if self.slug == LATEST and self.machine:
-            return self.project.get_default_branch()
+            return self.identifier
 
         # Stable is special as it doesn't contain the actual name in verbose_name.
         if self.slug == STABLE and self.machine:
@@ -368,13 +354,23 @@ class Version(TimeStampedModel):
         """
         Get the absolute URL to the docs of the version.
 
-        If the version doesn't have a successfully uploaded build, then we return the project's
-        dashboard page.
+        For external versions (PR builds), if the version is not built, we return the
+        build detail page since these versions are ephemeral and read-only.
+
+        For internal versions, if not built, we return the project's version dashboard page.
 
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
         if not self.built and not self.uploaded:
+            # External versions (PR builds) should link to the build detail page
+            # since they're read-only and we can't "edit" them
+            if self.type == EXTERNAL:
+                latest_build = self.latest_build
+                if latest_build:
+                    return latest_build.get_full_url()
+
+            # For internal versions, fall back to the project version detail page
             # TODO: Stop assuming protocol based on settings.DEBUG
             # (this pattern is also used in builds.tasks for sending emails)
             protocol = "http" if settings.DEBUG else "https"
@@ -396,7 +392,22 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         log.info("Removing files for version.", version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -474,9 +485,7 @@ class Version(TimeStampedModel):
          since slugs can change, we need to be able to provide a different slug
          sometimes to clean old resources.
         """
-        version_changed.send(
-            sender=self.__class__, version=self, version_slug=version_slug
-        )
+        version_changed.send(sender=self.__class__, version=self, version_slug=version_slug)
 
     @property
     def identifier_friendly(self):
@@ -510,7 +519,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def get_downloads(self, pretty=False):
+    def get_downloads(self, pretty=False, resolver=None):
         project = self.project
         data = {}
 
@@ -521,17 +530,20 @@ class Version(TimeStampedModel):
             data[prettify("PDF")] = project.get_production_media_url(
                 "pdf",
                 self.slug,
+                resolver=resolver,
             )
 
         if self.has_htmlzip:
             data[prettify("HTML")] = project.get_production_media_url(
                 "htmlzip",
                 self.slug,
+                resolver=resolver,
             )
         if self.has_epub:
             data[prettify("Epub")] = project.get_production_media_url(
                 "epub",
                 self.slug,
+                resolver=resolver,
             )
         return data
 
@@ -551,24 +563,61 @@ class Version(TimeStampedModel):
          sometimes to clean old resources.
         :rtype: list
         """
-        paths = []
+        return [
+            self.get_storage_path(media_type=media_type, version_slug=version_slug)
+            for media_type in MEDIA_TYPES
+        ]
 
-        slug = version_slug or self.slug
-        for type_ in MEDIA_TYPES:
-            paths.append(
-                self.project.get_storage_path(
-                    type_=type_,
-                    version_slug=slug,
-                    include_file=False,
-                    version_type=self.type,
-                )
-            )
+    def get_storage_path(self, media_type, filename=None, version_slug=None):
+        """
+        Get a path in storage for a given media type and filename for this version.
 
-        return paths
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        :param filename: Optional filename to append to the path.
+         If not provided, the directory path for the media type will be returned.
+        :param version_slug: Override the version slug to use in the path.
+         This is useful when the version slug has changed but we need to access old resources.
+        """
+        if media_type not in MEDIA_TYPES:
+            raise ValueError("Invalid type.")
+
+        version_slug = version_slug or self.slug
+
+        path = media_type
+        if self.is_external:
+            path = f"{EXTERNAL}/{media_type}"
+
+        # Version slug may come from an untrusted input,
+        # so we use join to avoid any path traversal.
+        # All other values are already validated.
+        path = build_media_storage.join(f"{path}/{self.project.slug}", version_slug)
+
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
+        filename = (filename or "").lstrip("/")
+        if not filename:
+            return path
+
+        return build_media_storage.join(path, filename)
+
+    def get_download_storage_path(self, media_type):
+        """
+        Get the storage path for a downloadable artifact of this version.
+
+        This is basically a shortcut to `get_storage_path` that also adds the
+        filename based on the version slug and media type.
+
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        """
+        if media_type not in DOWNLOADABLE_MEDIA_TYPES:
+            raise ValueError("Invalid type for downloadable file.")
+
+        extension = media_type.replace("htmlzip", "zip")
+        filename = f"{self.project.slug}.{extension}"
+        return self.get_storage_path(media_type=media_type, filename=filename)
 
 
 class APIVersion(Version):
-
     """
     Version proxy model for API data deserialization.
 
@@ -619,8 +668,41 @@ class APIVersion(Version):
         return 0
 
 
-class Build(models.Model):
+class BuildConfig(TimeStampedModel):
+    """
+    Build configuration data.
 
+    Stores the rendered YAML configuration used in builds.
+    The unique constraint ensures we don't duplicate identical configs.
+    """
+
+    data = models.JSONField(
+        _("Configuration data"),
+        help_text=_("The rendered YAML configuration used in the build"),
+    )
+
+    # Used to quickly identify identical configurations.
+    # Using `unique=True` on a JSONField can be problematic due to limitations on its size,
+    # so we use a hash instead.
+    data_hash = models.CharField(
+        unique=True,
+        max_length=64,
+        null=True,
+        editable=False,
+    )
+
+    # Manager to handle creation based on data hash uniqueness.
+    objects = BuildConfigManager()
+
+    class Meta:
+        verbose_name = _("Build configuration")
+        verbose_name_plural = _("Build configurations")
+
+    def __str__(self):
+        return f"BuildConfig {self.pk}"
+
+
+class Build(models.Model):
     """Build data."""
 
     project = models.ForeignKey(
@@ -667,6 +749,7 @@ class Build(models.Model):
         blank=True,
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
+    healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
     success = models.BooleanField(_("Success"), default=True)
 
     # TODO: remove these fields (setup, setup_error, output, error, exit_code)
@@ -705,10 +788,15 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    _config = models.JSONField(
-        _("Configuration used in the build"),
+
+    readthedocs_yaml_config = models.ForeignKey(
+        "BuildConfig",
+        verbose_name=_("Build configuration data"),
         null=True,
         blank=True,
+        on_delete=models.SET_NULL,
+        related_name="builds",
+        help_text=_("The rendered YAML configuration used in the build"),
     )
     readthedocs_yaml_path = models.CharField(
         _("Custom build configuration file path used in this build"),
@@ -740,6 +828,11 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+    task_executed_at = models.DateTimeField(
+        _("Task executed at datetime"),
+        null=True,
+        blank=True,
+    )
 
     notifications = GenericRelation(
         Notification,
@@ -755,97 +848,68 @@ class Build(models.Model):
     # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
-    CONFIG_KEY = "__config"
-
     class Meta:
         ordering = ["-date"]
         get_latest_by = "date"
-        index_together = [
-            # Useful for `/_/addons/` API endpoint.
-            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
-            ["version", "state", "date", "success"],
-            ["version", "state", "type"],
-        ]
         indexes = [
             models.Index(fields=["project", "date"]),
             models.Index(fields=["version", "date"]),
+            # Useful for `/_/addons/` API endpoint.
+            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
+            models.Index(fields=["version", "state", "date", "success"]),
+            models.Index(fields=["version", "state", "type"]),
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._config_changed = False
-
-    @property
-    def previous(self):
-        """
-        Returns the previous build to the current one.
-
-        Matching the project and version.
-        """
-        date = self.date or timezone.now()
-        if self.project is not None and self.version is not None:
-            return (
-                Build.objects.filter(
-                    project=self.project,
-                    version=self.version,
-                    date__lt=date,
-                )
-                .order_by("-date")
-                .first()
-            )
-        return None
+        self._readthedocs_yaml_config = None
+        self._readthedocs_yaml_config_changed = False
 
     @property
     def config(self):
         """
-        Get the config used for this build.
+        Helper to get the build config data as a dict.
 
-        Since we are saving the config into the JSON field only when it differs
-        from the previous one, this helper returns the correct JSON used in this
-        Build object (it could be stored in this object or one of the previous
-        ones).
+        Keeping it for backwards compatibility for now.
+        We could use `readthedocs_yaml_config` directly instead if we want.
         """
-        # TODO: now that we are using a proper JSONField here, we could
-        # probably change this field to be a ForeignKey to avoid repeating the
-        # config file over and over again and re-use them to save db data as
-        # well
-        if self._config and self.CONFIG_KEY in self._config:
-            return (
-                Build.objects.only("_config")
-                .get(pk=self._config[self.CONFIG_KEY])
-                ._config
-            )
-        return self._config
+        return self.readthedocs_yaml_config.data if self.readthedocs_yaml_config else {}
 
     @config.setter
     def config(self, value):
         """
-        Set `_config` to value.
+        Helper to create a `BuildConfig` from a dict.
 
-        `_config` should never be set directly from outside the class.
+        Keeping it for backwards compatibility for now. We are using it as:
+
+          build.config = {
+            "search": {
+                "ranking": {
+                    "*index.html": 5,
+                }
+            }
+          }
+
+        We could remove this and create `BuildConfig` objects directly instead if we want.
         """
-        self._config = value
-        self._config_changed = True
+        self._readthedocs_yaml_config = value
+        self._readthedocs_yaml_config_changed = True
 
     def save(self, *args, **kwargs):  # noqa
-        """
-        Save object.
-
-        To save space on the db we only save the config if it's different
-        from the previous one.
-
-        If the config is the same, we save the pk of the object
-        that has the **real** config under the `CONFIG_KEY` key.
-        """
-        if self.pk is None or self._config_changed:
-            previous = self.previous
-            if (
-                previous is not None
-                and self._config
-                and self._config == previous.config
-            ):
-                previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
-                self._config = {self.CONFIG_KEY: previous_pk}
+        if self._readthedocs_yaml_config_changed:
+            if self._readthedocs_yaml_config is None:
+                self.readthedocs_yaml_config = None
+            else:
+                build_config, _ = BuildConfig.objects.get_or_create(
+                    data=self._readthedocs_yaml_config
+                )
+                self.readthedocs_yaml_config = build_config
+                log.warning(
+                    "Creating BuildConfig using `build.config` setter.",
+                    build_id=self.id,
+                    build_config_data=self._readthedocs_yaml_config,
+                    build_config_id=build_config.id,
+                )
 
         if self.version:
             self.version_name = self.version.verbose_name
@@ -853,7 +917,70 @@ class Build(models.Model):
             self.version_type = self.version.type
 
         super().save(*args, **kwargs)
-        self._config_changed = False
+        self._readthedocs_yaml_config = None
+        self._readthedocs_yaml_config_changed = False
+
+    def delete(self, *args, **kwargs):
+        # Delete from storage if the build steps are stored outside the database.
+        if self.cold_storage:
+            try:
+                build_commands_storage.delete(self.storage_path)
+            except Exception:
+                log.info(
+                    "Failed to delete build commands from storage.",
+                    build_id=self.id,
+                    storage_path=self.storage_path,
+                    exc_info=True,
+                )
+        return super().delete(*args, **kwargs)
+
+    def move_to_cold_storage(self):
+        """
+        Move build steps to cold storage if they are not already there.
+
+        Build steps are removed from the database and stored in a file in the storage backend.
+        This is useful for old builds that are not accessed frequently, to save space in the database.
+        """
+        from readthedocs.api.v2.serializers import BuildCommandSerializer
+
+        if self.cold_storage:
+            return
+
+        commands = BuildCommandSerializer(self.commands, many=True).data
+        if commands:
+            for cmd in commands:
+                if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                    cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                    cmd["output"] = (
+                        "\n\n"
+                        "... (truncated) ..."
+                        "\n\n"
+                        "Command output too long. Truncated to last 1MB."
+                        "\n\n" + cmd["output"]
+                    )
+                    log.debug("Truncating build command for build.", build_id=self.id)
+            output = BytesIO(json.dumps(commands).encode("utf8"))
+            try:
+                build_commands_storage.save(name=self.storage_path, content=output)
+                self.commands.all().delete()
+            except IOError:
+                log.exception("Cold Storage save failure")
+                return
+
+        self.cold_storage = True
+        self.save()
+
+    @property
+    def storage_path(self):
+        """
+        Storage path where the build commands will be stored.
+
+        The path is in the format: <date>/<build_id>.json
+
+        Example: 2024-01-01/1111.json
+        """
+        date = self.date.date()
+        return f"{date}/{self.id}.json"
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
@@ -930,25 +1057,19 @@ class Build(models.Model):
                 if not user and not repo:
                     return ""
 
-                return GITHUB_COMMIT_URL.format(
-                    user=user, repo=repo, commit=self.commit
-                )
+                return GITHUB_COMMIT_URL.format(user=user, repo=repo, commit=self.commit)
             if "gitlab" in repo_url:
                 user, repo = get_gitlab_username_repo(repo_url)
                 if not user and not repo:
                     return ""
 
-                return GITLAB_COMMIT_URL.format(
-                    user=user, repo=repo, commit=self.commit
-                )
+                return GITLAB_COMMIT_URL.format(user=user, repo=repo, commit=self.commit)
             if "bitbucket" in repo_url:
                 user, repo = get_bitbucket_username_repo(repo_url)
                 if not user and not repo:
                     return ""
 
-                return BITBUCKET_COMMIT_URL.format(
-                    user=user, repo=repo, commit=self.commit
-                )
+                return BITBUCKET_COMMIT_URL.format(user=user, repo=repo, commit=self.commit)
 
         return None
 
@@ -1015,12 +1136,11 @@ class Build(models.Model):
 
 
 class BuildCommandResultMixin:
-
     """
     Mixin for common command result methods/properties.
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
-    non-model respresentations of build command results from the API
+    non-model representations of build command results from the API
     """
 
     @property
@@ -1037,9 +1157,17 @@ class BuildCommandResultMixin:
         """
         return not self.successful
 
+    @property
+    def finished(self):
+        """
+        Check if the command has finished running.
+
+        This is determined by checking if the `end_time` is not None.
+        """
+        return self.end_time is not None
+
 
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
-
     """Build command for a ``Build``."""
 
     build = models.ForeignKey(
@@ -1052,10 +1180,10 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     command = models.TextField(_("Command"))
     description = models.TextField(_("Description"), blank=True)
     output = models.TextField(_("Command output"), blank=True)
-    exit_code = models.IntegerField(_("Command exit code"))
+    exit_code = models.IntegerField(_("Command exit code"), null=True, blank=True)
 
-    start_time = models.DateTimeField(_("Start time"))
-    end_time = models.DateTimeField(_("End time"))
+    start_time = models.DateTimeField(_("Start time"), null=True, blank=True)
+    end_time = models.DateTimeField(_("End time"), null=True, blank=True)
 
     class Meta:
         ordering = ["start_time"]
@@ -1071,8 +1199,8 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
+# TODO: delete VersionAutomationRule model after we are fully migrated
 class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
-
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = "activate-version"
@@ -1081,6 +1209,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
     MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
     SET_DEFAULT_VERSION_ACTION = "set-default-version"
+    TRIGGER_BUILD_ACTION = "trigger-build"
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _("Activate version")),
@@ -1089,14 +1218,16 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
         (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
         (DELETE_VERSION_ACTION, _("Delete version")),
+        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
     allowed_actions_on_create = {}
     allowed_actions_on_delete = {}
+    allowed_actions_on_existing = {}
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1122,7 +1253,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1155,14 +1286,14 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
 
     def run(self, version, **kwargs):
         """
-        Run an action if `version` matches the rule.
+        Run an action if `version` matches the version type.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
@@ -1170,42 +1301,39 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if version.type != self.version_type:
             return False
 
-        match, result = self.match(version, self.get_match_arg())
-        if match:
-            self.apply_action(version, result)
-            AutomationRuleMatch.objects.register_match(
-                rule=self,
-                version=version,
-            )
-            return True
-        return False
+        self.apply_action(version)
+        AutomationRuleMatch.objects.register_match(
+            rule=self,
+            version=version,
+        )
+        return True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
-        Returns True and the match result if the version matches the rule.
+        Checks if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match
-        :returns: A tuple of (boolean, match_resul).
-                  The result will be passed to `apply_action`.
+        :returns: True if the version matches the rule, False otherwise
         """
-        return False, None
+        return False
 
-    def apply_action(self, version, match_result):
+    def apply_action(self, version):
         """
         Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
-        :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions_on_create.get(
-            self.action
-        ) or self.allowed_actions_on_delete.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+            or self.allowed_actions_on_existing.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
-        action(version, match_result, self.action_arg)
+        action(version, self.action_arg)
 
     def move(self, steps):
         """
@@ -1226,7 +1354,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._position_manager.change_position_before_save(self)
+
+        # TODO: update the position manager to be able to handle the WebhookAutomationRule case
+        if self._meta.model != WebhookAutomationRule:
+            self._position_manager.change_position_before_save(self)
+
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
@@ -1249,6 +1381,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
+# TODO: delete RegexAutomationRule model after we are fully migrated
 class RegexAutomationRule(VersionAutomationRule):
     TIMEOUT = 1  # timeout in seconds
 
@@ -1267,7 +1400,7 @@ class RegexAutomationRule(VersionAutomationRule):
     class Meta:
         proxy = True
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg=None):
         """
         Find a match using regex.search.
 
@@ -1279,6 +1412,9 @@ class RegexAutomationRule(VersionAutomationRule):
            We could use a finite state machine type of regex too,
            but there isn't a stable library at the time of writing this code.
         """
+        if match_arg is None:
+            match_arg = self.get_match_arg()
+
         try:
             match = regex.search(
                 match_arg,
@@ -1287,7 +1423,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 flags=regex.VERSION0,
                 timeout=self.TIMEOUT,
             )
-            return bool(match), match
+            return bool(match)
         except TimeoutError:
             log.warning(
                 "Timeout while parsing regex.",
@@ -1296,7 +1432,7 @@ class RegexAutomationRule(VersionAutomationRule):
             )
         except Exception:
             log.exception("Error parsing regex.", exc_info=True)
-        return False, None
+        return False
 
     def get_edit_url(self):
         return reverse(
@@ -1305,18 +1441,53 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete WebhookAutomationRule model after we are fully migrated
+class WebhookAutomationRule(VersionAutomationRule):
+    """
+    Automation rule for filtering builds based on files changed in webhook events.
+
+    This rule is executed when a webhook push event is received, and checks if the
+    files modified/added/deleted in the push match the rule patterns. If they do,
+    the build is triggered for the affected version.
+    """
+
+    allowed_actions_on_existing = {
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
+    }
+
+    class Meta:
+        proxy = True
+
+    def match(self, changed_files):
+        """
+        Check if any file in the list matches the rule pattern using ``fnmatch``.
+
+        :param changed_files: List of file paths that were modified/added/deleted
+        :return: True if any file matches the rule pattern, False otherwise
+        """
+        match_arg = self.get_match_arg()
+        for file_path in changed_files:
+            if fnmatch.fnmatch(file_path, match_arg):
+                return True
+        return False
+
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_webhook_edit",
+            args=[self.project.slug, self.pk],
+        )
+
+
+# TODO: delete AutomationRuleMatch model after we are fully migrated
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
         VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
-        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _(
-            "Version set to public privacy"
-        ),
-        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _(
-            "Version set to private privacy"
-        ),
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
         VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        VersionAutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
     }
 
     rule = models.ForeignKey(

@@ -8,7 +8,6 @@ from collections import defaultdict
 
 
 class MapAppsRouter:
-
     """
     Router to map Django applications to a specific database.
 
@@ -27,10 +26,7 @@ class MapAppsRouter:
         return self.apps_to_db[model._meta.app_label]
 
     def allow_relation(self, obj1, obj2, **hints):
-        return (
-            self.apps_to_db[obj1._meta.app_label]
-            == self.apps_to_db[obj2._meta.app_label]
-        )
+        return self.apps_to_db[obj1._meta.app_label] == self.apps_to_db[obj2._meta.app_label]
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         return self.apps_to_db[app_label] == db

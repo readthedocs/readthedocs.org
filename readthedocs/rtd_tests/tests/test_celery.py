@@ -6,12 +6,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.constants import GITHUB, GITLAB
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.constants import GITHUB, GITHUB_APP, GITLAB
+from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository, RemoteRepositoryRelation
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
 
@@ -153,6 +154,40 @@ class TestCeleryBuilding(TestCase):
                 "url_connect_account": "/accounts/3rdparty/",
             },
         )
+
+    @patch("readthedocs.oauth.services.githubapp.GitHubAppService.send_build_status")
+    def test_send_build_status_with_remote_repo_github_app(self, send_build_status):
+        self.project.repo = "https://github.com/test/test/"
+        self.project.save()
+        social_account = get(SocialAccount, user=self.eric, provider=GitHubAppProvider.id, uid="1234")
+
+        github_app_installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=int(social_account.uid),
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repo = get(RemoteRepository, vcs_provider=GITHUB_APP, github_app_installation=github_app_installation)
+        remote_repo.projects.add(self.project)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.eric,
+            account=social_account,
+        )
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(Build, project=self.project, version=external_version)
+        build_tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_called_once_with(
+            build=external_build,
+            commit=external_build.commit,
+            status=BUILD_STATUS_SUCCESS,
+        )
+        self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
     def test_send_build_status_with_remote_repo_gitlab(self, send_build_status):

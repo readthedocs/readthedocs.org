@@ -1,7 +1,7 @@
 import django_dynamic_fixture as fixture
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -12,6 +12,8 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from django_dynamic_fixture import get
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
@@ -64,7 +66,7 @@ class GitHubOAuthSyncTests(TestCase):
         self.socialaccount = fixture.get(
             SocialAccount,
             user=self.user,
-            provider=GitHubOAuth2Adapter.provider_id,
+            provider=GitHubProvider.id,
         )
         self.token = fixture.get(
             SocialToken,
@@ -122,6 +124,25 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount,
         )
 
+        # Project from another provider (GitLab) that has the same ID should not be removed.
+        gitlab_socialaccount = fixture.get(
+            SocialAccount,
+            user=self.user,
+            provider=GitLabProvider.id,
+        )
+        gitlab_repo = fixture.get(
+            RemoteRepository,
+            full_name="user/repo",
+            remote_id=repo_3.remote_id,
+            vcs_provider=GitLabProvider.id,
+        )
+        fixture.get(
+            RemoteRepositoryRelation,
+            remote_repository=gitlab_repo,
+            user=self.user,
+            account=gitlab_socialaccount,
+        )
+
         org = fixture.get(
             RemoteOrganization,
             name="organization",
@@ -133,18 +154,21 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount,
         )
 
-        self.assertEqual(RemoteRepository.objects.count(), 3)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 3)
+        self.assertEqual(RemoteRepository.objects.count(), 4)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 4)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
+
+        assert self.socialaccount.remote_repository_relations.count() == 3
+        assert self.socialaccount.remote_organization_relations.count() == 1
 
         self.service.sync()
 
         # After calling .sync, old-repository remote relation should be deleted,
         # project-linked-repository remote relation should be conserved,
         # and only the one's returned by the API should be present (organization/repository)
-        self.assertEqual(RemoteRepository.objects.count(), 3)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
+        self.assertEqual(RemoteRepository.objects.count(), 4)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 2)
         self.assertTrue(
             RemoteRepository.objects.filter(
                 full_name="organization/repository"
@@ -158,6 +182,9 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
+        assert self.socialaccount.remote_repository_relations.count() == 1
+        assert self.socialaccount.remote_organization_relations.count() == 0
+
     @requests_mock.Mocker(kw="mock_request")
     def test_sync_repositories(self, mock_request):
         mock_request.get(
@@ -167,13 +194,14 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertEqual(RemoteRepository.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
 
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertFalse(remote_repository.remote_repository_relations.first().admin)
@@ -207,15 +235,15 @@ class GitHubOAuthSyncTests(TestCase):
             organization=remote_organization,
             vcs_provider="github",
         )
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
 
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertEqual(remote_repository.organization.slug, "organization")
@@ -249,15 +277,15 @@ class GitHubOAuthSyncTests(TestCase):
             organization=remote_organization,
             vcs_provider="github",
         )
-        remote_repositories = self.service.sync_repositories()
+        repository_remote_ids = self.service.sync_repositories()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
 
-        self.assertEqual(len(remote_repositories), 1)
-        remote_repository = remote_repositories[0]
-        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(len(repository_remote_ids), 1)
+        remote_repository = RemoteRepository.objects.first()
+        self.assertEqual(repository_remote_ids[0], remote_repository.remote_id)
         self.assertEqual(remote_repository.full_name, "organization/repository")
         self.assertEqual(remote_repository.name, "repository")
         self.assertIsNone(remote_repository.organization)
@@ -284,7 +312,7 @@ class GitHubOAuthSyncTests(TestCase):
         user_2_socialaccount = fixture.get(
             SocialAccount,
             user=user_2,
-            provider=GitHubOAuth2Adapter.provider_id,
+            provider=GitHubProvider.id,
         )
         fixture.get(
             SocialToken,
@@ -332,62 +360,18 @@ class GitHubOAuthSyncTests(TestCase):
         }
         mock_request.get("https://api.github.com/orgs/organization", json=payload)
 
-        payload = [
-            {
-                "id": 11111,
-                "node_id": "a1b2c3",
-                "name": "repository",
-                "full_name": "organization/repository",
-                "private": False,
-                "owner": {
-                    "login": "organization",
-                    "id": 11111,
-                    "node_id": "a1b2c3",
-                    "avatar_url": "https://avatars3.githubusercontent.com/u/11111?v=4",
-                    "gravatar_id": "",
-                    "url": "https://api.github.com/users/organization",
-                    "type": "User",
-                    "site_admin": False,
-                },
-                "html_url": "https://github.com/organization/repository",
-                "description": "",
-                "fork": True,
-                "url": "https://api.github.com/repos/organization/repository",
-                "created_at": "2019-06-14T14:11:29Z",
-                "updated_at": "2019-06-15T15:05:33Z",
-                "pushed_at": "2019-06-15T15:11:19Z",
-                "git_url": "git://github.com/organization/repository.git",
-                "ssh_url": "git@github.com:organization/repository.git",
-                "clone_url": "https://github.com/organization/repository.git",
-                "svn_url": "https://github.com/organization/repository",
-                "homepage": None,
-                "language": "Python",
-                "archived": False,
-                "disabled": False,
-                "open_issues_count": 0,
-                "default_branch": "master",
-                "permissions": {
-                    "admin": False,
-                    "push": True,
-                    "pull": True,
-                },
-            }
-        ]
-        mock_request.get("https://api.github.com/orgs/organization/repos", json=payload)
-
         self.assertEqual(RemoteRepository.objects.count(), 0)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
-        remote_organizations, remote_repositories = self.service.sync_organizations()
+        organization_remote_ids, repository_remote_ids = self.service.sync_organizations()
 
-        self.assertEqual(RemoteRepository.objects.count(), 1)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
+        self.assertEqual(RemoteRepository.objects.count(), 0)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
         self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
-        self.assertEqual(len(remote_organizations), 1)
-        self.assertEqual(len(remote_repositories), 1)
-        remote_organization = remote_organizations[0]
-        self.assertIsInstance(remote_organization, RemoteOrganization)
-        self.assertEqual(remote_organization.name, "Organization")
+        self.assertEqual(len(organization_remote_ids), 1)
+        self.assertEqual(len(repository_remote_ids), 0)
+        remote_organization = RemoteOrganization.objects.first()
+        self.assertEqual(organization_remote_ids[0], remote_organization.remote_id)

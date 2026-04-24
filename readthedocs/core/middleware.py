@@ -1,12 +1,13 @@
 import structlog
 from django.conf import settings
+from django.core.exceptions import TooManyFieldsSent
 from django.http import HttpResponse
+
 
 log = structlog.get_logger(__name__)
 
 
 class NullCharactersMiddleware:
-
     """
     Block all requests that contains NULL characters (0x00) on their GET attributes.
 
@@ -21,7 +22,19 @@ class NullCharactersMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        for key, value in request.GET.items():
+        try:
+            query_params = request.GET.items()
+        except TooManyFieldsSent:
+            log.info(
+                "Too many GET parameters in request.",
+                url=request.build_absolute_uri(),
+            )
+            return HttpResponse(
+                "The number of GET parameters exceeded the maximum allowed.",
+                status=400,
+            )
+
+        for key, value in query_params:
             if "\x00" in value:
                 log.info(
                     "NULL (0x00) characters in GET attributes.",
@@ -69,7 +82,7 @@ class UpdateCSPMiddleware:
 
         url_name = resolver_match.url_name
         update_csp_headers = settings.RTD_CSP_UPDATE_HEADERS
-        if settings.RTD_EXT_THEME_ENABLED and url_name in update_csp_headers:
+        if url_name in update_csp_headers:
             if hasattr(response, "_csp_update"):
                 raise ValueError(
                     "Can't update CSP headers at the view and middleware at the same time, use one or the other."

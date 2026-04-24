@@ -10,6 +10,7 @@ import re
 
 from django.utils.translation import gettext_lazy as _
 
+
 SPHINX = "sphinx"
 MKDOCS = "mkdocs"
 SPHINX_HTMLDIR = "sphinx_htmldir"
@@ -303,15 +304,10 @@ old_language_codes = [
     "zh_CN",
     "zh_TW",
 ]
-OLD_LANGUAGES_CODE_MAPPING = {
-    code.lower().replace("_", "-"): code for code in old_language_codes
-}
+OLD_LANGUAGES_CODE_MAPPING = {code.lower().replace("_", "-"): code for code in old_language_codes}
 
 LANGUAGES_REGEX = "|".join(
-    [
-        re.escape(code)
-        for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())
-    ]
+    [re.escape(code) for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())]
     # Add "zh" here to be able to keep serving projects with this old invalid language code.
     # We don't allow new projects to select this language code anymore.
     #
@@ -373,9 +369,7 @@ GITLAB_REGEXS = [
 ]
 GITHUB_COMMIT_URL = "https://github.com/{user}/{repo}/commit/{commit}"
 GITHUB_PULL_REQUEST_URL = "https://github.com/{user}/{repo}/pull/{number}"
-GITHUB_PULL_REQUEST_COMMIT_URL = (
-    "https://github.com/{user}/{repo}/pull/{number}/commits/{commit}"
-)
+GITHUB_PULL_REQUEST_COMMIT_URL = "https://github.com/{user}/{repo}/pull/{number}/commits/{commit}"
 BITBUCKET_COMMIT_URL = "https://bitbucket.org/{user}/{repo}/commits/{commit}"
 GITLAB_COMMIT_URL = "https://gitlab.com/{user}/{repo}/commit/{commit}"
 GITLAB_MERGE_REQUEST_COMMIT_URL = (

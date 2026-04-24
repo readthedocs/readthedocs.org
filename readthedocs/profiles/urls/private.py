@@ -4,6 +4,7 @@ from django.urls import path
 
 from readthedocs.profiles import views
 
+
 # Split URLs into different lists to be able to selectively import them from a
 # another application (like Read the Docs Corporate), where we may don't need to
 # define Token URLs, for example.
@@ -39,6 +40,11 @@ account_urls = [
         "advertising/",
         views.AccountAdvertisingEdit.as_view(),
         name="account_advertising",
+    ),
+    path(
+        "migrate-to-github-app/",
+        views.MigrateToGitHubAppView.as_view(),
+        name="migrate_to_github_app",
     ),
 ]
 

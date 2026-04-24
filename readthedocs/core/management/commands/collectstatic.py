@@ -5,7 +5,9 @@ Override to send ``pre_collectstatic`` and ``post_collectstatic`` signal.
 """
 
 from django.contrib.staticfiles.management.commands import collectstatic
-from readthedocs.core.signals import pre_collectstatic, post_collectstatic
+
+from readthedocs.core.signals import post_collectstatic
+from readthedocs.core.signals import pre_collectstatic
 
 
 class Command(collectstatic.Command):
