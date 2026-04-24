@@ -21,7 +21,7 @@ We have identified that the following projects which you maintain, and were buil
 {% endif %}
 
 Please use "build.os" on your configuration file to ensure that they continue building successfully and to stop receiving these notifications.
-If you want to opt-out from these emails, you can edit your preferences in your account settings, at https://readthedocs.org/accounts/edit/.
+If you want to opt-out from these emails, you can edit your preferences in your account settings, at {{ production_uri }}/accounts/edit/.
 
 For more information on how to use "build.os",
 read our blog post at https://blog.readthedocs.com/use-build-os-config/
