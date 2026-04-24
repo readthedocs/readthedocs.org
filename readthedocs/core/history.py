@@ -8,8 +8,29 @@ from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
 
+from readthedocs.analytics.utils import get_client_ip
+
 
 log = structlog.get_logger(__name__)
+
+
+def get_audit_context():
+    """
+    Return ``(user, ip, browser)`` for the current actor.
+
+    Reads from the simple-history request middleware when invoked during an
+    HTTP request, and falls back to thread-local attributes set by the
+    ``delete_object`` Celery task when no request is available.
+    """
+    request = getattr(HistoricalRecords.context, "request", None)
+    if request:
+        user = request.user if request.user.is_authenticated else None
+        return user, get_client_ip(request), request.headers.get("User-Agent")
+    return (
+        getattr(HistoricalRecords.context, "acting_user", None),
+        getattr(HistoricalRecords.context, "ip", None),
+        getattr(HistoricalRecords.context, "browser", None),
+    )
 
 
 def set_change_reason(instance, reason, user=None):

@@ -7,10 +7,9 @@ import structlog
 from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from simple_history.models import HistoricalRecords
 
-from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
+from readthedocs.core.history import get_audit_context
 from readthedocs.integrations.models import GitHubAppIntegrationProviderData
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import AddonsConfig
@@ -40,36 +39,18 @@ def create_addons_on_new_projects(instance, *args, **kwargs):
 @receiver(pre_delete, sender=Project)
 def audit_project_deletion(sender, instance, **kwargs):
     """
-    Create an audit log entry for each project admin when a project is deleted.
+    Log the deletion in each project admin's security log.
 
-    This fires for both direct deletions and cascade deletions (e.g. when an
-    organization is deleted). The acting user, IP, and browser are read from
-    ``HistoricalRecords.context``, which is populated by simple-history's
-    request middleware for HTTP requests, and by the ``delete_object`` Celery
-    task when running asynchronously.
+    Fires for both direct deletions and cascade deletions (e.g. when an
+    organization is deleted).
     """
-    project = instance
-    acting_user = None
-    ip = None
-    browser = None
-
-    request = getattr(HistoricalRecords.context, "request", None)
-    if request:
-        if request.user.is_authenticated:
-            acting_user = request.user
-        ip = get_client_ip(request)
-        browser = request.headers.get("User-Agent")
-    else:
-        acting_user = getattr(HistoricalRecords.context, "acting_user", None)
-        ip = getattr(HistoricalRecords.context, "ip", None)
-        browser = getattr(HistoricalRecords.context, "browser", None)
-
+    acting_user, ip, browser = get_audit_context()
     data = {"deleted_by": acting_user.username} if acting_user else None
-    for admin in project.users.all():
+    for admin in instance.users.all():
         AuditLog.objects.create(
             user=admin,
             action=AuditLog.PROJECT_DELETE,
-            project=project,
+            project=instance,
             ip=ip,
             browser=browser,
             data=data,
