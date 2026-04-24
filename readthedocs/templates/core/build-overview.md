@@ -17,7 +17,7 @@ Markdown inside <details> requires a blank line after </summary>.
 <summary>{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed</summary>
 <br>
 {% for file in diff.added %}<code>+</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
-{% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
+{% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a> · <a href="{{ file.diff_url }}">visual diff</a><br>
 {% endfor %}{% for file in diff.deleted %}<code>-</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
 {% endfor %}</details>
 {% else %}
@@ -30,7 +30,7 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more...*
 {% endif %}{% endif %}{% if diff.modified %}
 `±` **Modified**
-{% for file in diff.modified|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
+{% for file in diff.modified|slice:":10" %}- [`{{ file.path }}`]({{ file.url }}) · [visual diff]({{ file.diff_url }})
 {% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more...*
 {% endif %}{% endif %}{% if diff.deleted %}
 `-` **Deleted**

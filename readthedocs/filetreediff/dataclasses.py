@@ -101,6 +101,16 @@ class FileTreeDiffFile:
         )
 
     @property
+    def diff_url(self):
+        """URL to the file in the current version with visual diff enabled."""
+        url = self._resolver.resolve_version(
+            project=self.current_version.project,
+            version=self.current_version,
+            filename=self.path,
+        )
+        return f"{url}?readthedocs-diff=true"
+
+    @property
     def base_url(self):
         """URL to the file in the base version."""
         return self._resolver.resolve_version(
