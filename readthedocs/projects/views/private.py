@@ -31,12 +31,9 @@ from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.forms import WebhookAutomationRuleForm
 from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
-from readthedocs.builds.models import VersionAutomationRule
-from readthedocs.builds.models import WebhookAutomationRule
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import AsyncDeleteViewWithMessage
@@ -54,7 +51,10 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
+from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
+from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
+from readthedocs.projects.forms import AutomationRuleForm
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
@@ -71,6 +71,7 @@ from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.forms import UserForm
 from readthedocs.projects.forms import WebHookForm
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
@@ -786,9 +787,16 @@ class ProjectRedirectsMixin(PrivateViewMixin, ProjectAdminMixin):
         return self.get_project().redirects.all()
 
 
-class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
+class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
     template_name = "redirects/redirect_list.html"
     context_object_name = "redirects"
+    filterset_class = RedirectListFilterSet
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["filter"] = self.get_filterset(queryset=self.get_queryset())
+        context["redirects"] = self.get_filtered_queryset()
+        return context
 
 
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
@@ -1074,7 +1082,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 
 
 class AutomationRuleMixin(PrivateViewMixin, ProjectAdminMixin):
-    model = VersionAutomationRule
+    model = AutomationRule
     lookup_url_kwarg = "automation_rule_pk"
 
     def get_success_url(self):
@@ -1125,18 +1133,18 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 
-class WebhookAutomationRuleMixin(AutomationRuleMixin):
-    model = WebhookAutomationRule
-    form_class = WebhookAutomationRuleForm
-    lookup_url_kwarg = "webhook_automation_rule_pk"
+class AutomationRuleMixin(AutomationRuleMixin):
+    model = AutomationRule
+    form_class = AutomationRuleForm
+    lookup_url_kwarg = "automation_rule_pk"
 
 
-class WebhookAutomationRuleCreate(WebhookAutomationRuleMixin, CreateView):
-    success_message = _("Webhook automation rule created")
+class AutomationRuleCreate(AutomationRuleMixin, CreateView):
+    success_message = _("Automation rule created")
 
 
-class WebhookAutomationRuleUpdate(WebhookAutomationRuleMixin, UpdateView):
-    success_message = _("Webhook automation rule updated")
+class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
+    success_message = _("Automation rule updated")
 
 
 class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
@@ -1336,3 +1344,18 @@ class ProjectPullRequestsUpdate(PrivateViewMixin, SuccessMessageMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_pull_requests", args=[self.object.slug])
+
+
+class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateView):
+    model = Project
+    success_message = _("Search settings have been updated")
+    template_name = "projects/search_settings_form.html"
+    lookup_url_kwarg = "project_slug"
+    lookup_field = "slug"
+    form_class = AddonsConfigSearchSettingsForm
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+    def get_success_url(self):
+        return reverse("projects_search_settings", args=[self.get_project().slug])

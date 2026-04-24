@@ -2,9 +2,11 @@
 
 import datetime
 import fnmatch
+import json
 import os.path
 import re
 from functools import partial
+from io import BytesIO
 
 import regex
 import structlog
@@ -29,11 +31,11 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
-from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
 from readthedocs.builds.managers import ExternalVersionManager
@@ -56,6 +58,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import BITBUCKET_COMMIT_URL
 from readthedocs.projects.constants import DOCTYPE_CHOICES
+from readthedocs.projects.constants import DOWNLOADABLE_MEDIA_TYPES
 from readthedocs.projects.constants import GITHUB_COMMIT_URL
 from readthedocs.projects.constants import GITHUB_PULL_REQUEST_COMMIT_URL
 from readthedocs.projects.constants import GITLAB_COMMIT_URL
@@ -68,11 +71,14 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_commands_storage
+from readthedocs.storage import build_media_storage
 
 
 log = structlog.get_logger(__name__)
@@ -386,7 +392,22 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         log.info("Removing files for version.", version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -542,20 +563,58 @@ class Version(TimeStampedModel):
          sometimes to clean old resources.
         :rtype: list
         """
-        paths = []
+        return [
+            self.get_storage_path(media_type=media_type, version_slug=version_slug)
+            for media_type in MEDIA_TYPES
+        ]
 
-        slug = version_slug or self.slug
-        for type_ in MEDIA_TYPES:
-            paths.append(
-                self.project.get_storage_path(
-                    type_=type_,
-                    version_slug=slug,
-                    include_file=False,
-                    version_type=self.type,
-                )
-            )
+    def get_storage_path(self, media_type, filename=None, version_slug=None):
+        """
+        Get a path in storage for a given media type and filename for this version.
 
-        return paths
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        :param filename: Optional filename to append to the path.
+         If not provided, the directory path for the media type will be returned.
+        :param version_slug: Override the version slug to use in the path.
+         This is useful when the version slug has changed but we need to access old resources.
+        """
+        if media_type not in MEDIA_TYPES:
+            raise ValueError("Invalid type.")
+
+        version_slug = version_slug or self.slug
+
+        path = media_type
+        if self.is_external:
+            path = f"{EXTERNAL}/{media_type}"
+
+        # Version slug may come from an untrusted input,
+        # so we use join to avoid any path traversal.
+        # All other values are already validated.
+        path = build_media_storage.join(f"{path}/{self.project.slug}", version_slug)
+
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
+        filename = (filename or "").lstrip("/")
+        if not filename:
+            return path
+
+        return build_media_storage.join(path, filename)
+
+    def get_download_storage_path(self, media_type):
+        """
+        Get the storage path for a downloadable artifact of this version.
+
+        This is basically a shortcut to `get_storage_path` that also adds the
+        filename based on the version slug and media type.
+
+        :param media_type: The type of media (e.g. "pdf", "epub", "htmlzip").
+        """
+        if media_type not in DOWNLOADABLE_MEDIA_TYPES:
+            raise ValueError("Invalid type for downloadable file.")
+
+        extension = media_type.replace("htmlzip", "zip")
+        filename = f"{self.project.slug}.{extension}"
+        return self.get_storage_path(media_type=media_type, filename=filename)
 
 
 class APIVersion(Version):
@@ -861,6 +920,68 @@ class Build(models.Model):
         self._readthedocs_yaml_config = None
         self._readthedocs_yaml_config_changed = False
 
+    def delete(self, *args, **kwargs):
+        # Delete from storage if the build steps are stored outside the database.
+        if self.cold_storage:
+            try:
+                build_commands_storage.delete(self.storage_path)
+            except Exception:
+                log.info(
+                    "Failed to delete build commands from storage.",
+                    build_id=self.id,
+                    storage_path=self.storage_path,
+                    exc_info=True,
+                )
+        return super().delete(*args, **kwargs)
+
+    def move_to_cold_storage(self):
+        """
+        Move build steps to cold storage if they are not already there.
+
+        Build steps are removed from the database and stored in a file in the storage backend.
+        This is useful for old builds that are not accessed frequently, to save space in the database.
+        """
+        from readthedocs.api.v2.serializers import BuildCommandSerializer
+
+        if self.cold_storage:
+            return
+
+        commands = BuildCommandSerializer(self.commands, many=True).data
+        if commands:
+            for cmd in commands:
+                if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                    cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                    cmd["output"] = (
+                        "\n\n"
+                        "... (truncated) ..."
+                        "\n\n"
+                        "Command output too long. Truncated to last 1MB."
+                        "\n\n" + cmd["output"]
+                    )
+                    log.debug("Truncating build command for build.", build_id=self.id)
+            output = BytesIO(json.dumps(commands).encode("utf8"))
+            try:
+                build_commands_storage.save(name=self.storage_path, content=output)
+                self.commands.all().delete()
+            except IOError:
+                log.exception("Cold Storage save failure")
+                return
+
+        self.cold_storage = True
+        self.save()
+
+    @property
+    def storage_path(self):
+        """
+        Storage path where the build commands will be stored.
+
+        The path is in the format: <date>/<build_id>.json
+
+        Example: 2024-01-01/1111.json
+        """
+        date = self.date.date()
+        return f"{date}/{self.id}.json"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1078,6 +1199,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
+# TODO: delete VersionAutomationRule model after we are fully migrated
 class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
@@ -1105,7 +1227,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1131,7 +1253,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1164,7 +1286,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
@@ -1259,6 +1381,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
+# TODO: delete RegexAutomationRule model after we are fully migrated
 class RegexAutomationRule(VersionAutomationRule):
     TIMEOUT = 1  # timeout in seconds
 
@@ -1318,6 +1441,7 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete WebhookAutomationRule model after we are fully migrated
 class WebhookAutomationRule(VersionAutomationRule):
     """
     Automation rule for filtering builds based on files changed in webhook events.
@@ -1354,6 +1478,7 @@ class WebhookAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete AutomationRuleMatch model after we are fully migrated
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),

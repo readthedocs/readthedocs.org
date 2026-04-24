@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0158_add_search_subproject_filter_option"),
+        ("projects", "0163_automationrule_data_migration"),
     ]
 
     operations = [

@@ -886,6 +886,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--prune-tags",
                     "--depth",
                     "50",
+                    "HEAD",
                 ),
                 mock.call(
                     "git",
@@ -1448,6 +1449,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--prune-tags",
                     "--depth",
                     "50",
+                    "HEAD",
                 ),
                 mock.call(
                     "git",

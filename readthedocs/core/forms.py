@@ -191,8 +191,10 @@ class RichChoice:
     text: str
     #: Choice input value
     value: str
-    #: Right floated content for dropdown item
+    #: Optional content beneath/to the side for dropdown item
     description: str
+    #: Extra content below text and description
+    extra: str = None
     #: Optional image URL for item
     image_url: str = None
     #: Optional image alt text
@@ -217,7 +219,20 @@ class RichSelect(forms.Select):
             widget=RichSelect(),
             choices=[(choice.value, choice)]
         )
+
+    Attributes used by templates:
+
+    use_data_binding
+        Set up Knockout data-bindings, disable this if using a web component instead.
     """
+
+    use_data_binding = True
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("use_data_binding", self.use_data_binding)
+        super().__init__(attrs)
 
 
 class FacetField(forms.MultipleChoiceField):

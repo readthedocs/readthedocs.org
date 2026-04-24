@@ -11,6 +11,8 @@ EXACT_REDIRECT = "exact"
 CLEAN_URL_TO_HTML_REDIRECT = "clean_url_to_html"
 HTML_TO_CLEAN_URL_REDIRECT = "html_to_clean_url"
 
+SPLAT_PLACEHOLDER = ":splat"
+
 TYPE_CHOICES = (
     (PAGE_REDIRECT, _("Page Redirect")),
     (EXACT_REDIRECT, _("Exact Redirect")),

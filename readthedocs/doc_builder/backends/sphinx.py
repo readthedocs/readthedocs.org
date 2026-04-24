@@ -12,6 +12,7 @@ from pathlib import Path
 import structlog
 from django.utils.translation import to_locale
 
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -175,6 +176,13 @@ class BaseSphinx(BaseBuilder):
         return cmd_ret.successful
 
     def get_sphinx_cmd(self):
+        if isinstance(self.python_env, UvEnv):
+            return (
+                "uv",
+                "run",
+                "sphinx-build",
+            )
+
         return (
             self.python_env.venv_bin(filename="python"),
             "-m",

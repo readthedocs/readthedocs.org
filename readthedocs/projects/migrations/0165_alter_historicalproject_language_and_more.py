@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy()
 
     dependencies = [
-        ("projects", "0159_migrate_language_codes_to_django"),
+        ("projects", "0164_migrate_language_codes_to_django"),
     ]
 
     operations = [
