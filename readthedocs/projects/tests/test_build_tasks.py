@@ -13,6 +13,7 @@ from django.test.utils import override_settings
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
+    BUILD_STATUS_CANCELLED,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -812,11 +813,14 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self._trigger_update_docs_task()
 
+        # Cancelled builds (either by user action or supersession by a new
+        # build on the same version) must not report as FAILURE to the Git
+        # provider -- the commit is not failing review.
         send_external_build_status.assert_called_once_with(
             version_type=self.version.type,
             build_pk=self.build.pk,
             commit=self.build.commit,
-            status=BUILD_STATUS_FAILURE,
+            status=BUILD_STATUS_CANCELLED,
         )
 
         notification_request = self.requests_mock.request_history[-3]
