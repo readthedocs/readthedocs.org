@@ -16,16 +16,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="automationrulematch",
-            name="rule",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="matches",
-                to="projects.automationrule",
-                verbose_name="Matched rule",
-            ),
-        ),
-        migrations.AlterField(
             model_name="versionautomationrule",
             name="project",
             field=models.ForeignKey(

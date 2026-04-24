@@ -2,9 +2,11 @@
 
 import datetime
 import fnmatch
+import json
 import os.path
 import re
 from functools import partial
+from io import BytesIO
 
 import regex
 import structlog
@@ -29,11 +31,11 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
-from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
 from readthedocs.builds.managers import ExternalVersionManager
@@ -69,11 +71,13 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_commands_storage
 from readthedocs.storage import build_media_storage
 
 
@@ -388,7 +392,22 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         log.info("Removing files for version.", version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -901,6 +920,68 @@ class Build(models.Model):
         self._readthedocs_yaml_config = None
         self._readthedocs_yaml_config_changed = False
 
+    def delete(self, *args, **kwargs):
+        # Delete from storage if the build steps are stored outside the database.
+        if self.cold_storage:
+            try:
+                build_commands_storage.delete(self.storage_path)
+            except Exception:
+                log.info(
+                    "Failed to delete build commands from storage.",
+                    build_id=self.id,
+                    storage_path=self.storage_path,
+                    exc_info=True,
+                )
+        return super().delete(*args, **kwargs)
+
+    def move_to_cold_storage(self):
+        """
+        Move build steps to cold storage if they are not already there.
+
+        Build steps are removed from the database and stored in a file in the storage backend.
+        This is useful for old builds that are not accessed frequently, to save space in the database.
+        """
+        from readthedocs.api.v2.serializers import BuildCommandSerializer
+
+        if self.cold_storage:
+            return
+
+        commands = BuildCommandSerializer(self.commands, many=True).data
+        if commands:
+            for cmd in commands:
+                if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                    cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                    cmd["output"] = (
+                        "\n\n"
+                        "... (truncated) ..."
+                        "\n\n"
+                        "Command output too long. Truncated to last 1MB."
+                        "\n\n" + cmd["output"]
+                    )
+                    log.debug("Truncating build command for build.", build_id=self.id)
+            output = BytesIO(json.dumps(commands).encode("utf8"))
+            try:
+                build_commands_storage.save(name=self.storage_path, content=output)
+                self.commands.all().delete()
+            except IOError:
+                log.exception("Cold Storage save failure")
+                return
+
+        self.cold_storage = True
+        self.save()
+
+    @property
+    def storage_path(self):
+        """
+        Storage path where the build commands will be stored.
+
+        The path is in the format: <date>/<build_id>.json
+
+        Example: 2024-01-01/1111.json
+        """
+        date = self.date.date()
+        return f"{date}/{self.id}.json"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1118,6 +1199,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
+# TODO: delete VersionAutomationRule model after we are fully migrated
 class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
@@ -1299,6 +1381,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
+# TODO: delete RegexAutomationRule model after we are fully migrated
 class RegexAutomationRule(VersionAutomationRule):
     TIMEOUT = 1  # timeout in seconds
 
@@ -1358,6 +1441,7 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete WebhookAutomationRule model after we are fully migrated
 class WebhookAutomationRule(VersionAutomationRule):
     """
     Automation rule for filtering builds based on files changed in webhook events.
@@ -1394,6 +1478,7 @@ class WebhookAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete AutomationRuleMatch model after we are fully migrated
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
@@ -1406,7 +1491,7 @@ class AutomationRuleMatch(TimeStampedModel):
     }
 
     rule = models.ForeignKey(
-        "projects.AutomationRule",
+        VersionAutomationRule,
         verbose_name=_("Matched rule"),
         related_name="matches",
         on_delete=models.CASCADE,

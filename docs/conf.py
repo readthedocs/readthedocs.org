@@ -70,7 +70,7 @@ ogp_custom_meta_tags = (
 ogp_enable_meta_description = True
 ogp_description_length = 300
 
-templates_path = ["_templates"]
+templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 
 # This may be elevated as a general issue for documentation and behavioral
 # change to the Sphinx build:
@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "2026.4.14"
+version = "2026.4.21"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 # Exclude design docs from dev documentation
