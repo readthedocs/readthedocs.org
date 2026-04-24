@@ -178,6 +178,10 @@ class AddonsConfig(TimeStampedModel):
     options_base_version = models.ForeignKey(
         "builds.Version",
         verbose_name=_("Base version to compare against (eg. DocDiff, File Tree Diff)"),
+        help_text=_(
+            "Visual Diff and File Tree Diff compare the current page against this version. "
+            "Defaults to <b>stable</b> (or <b>latest</b> when there is no stable version)."
+        ),
         null=True,
         blank=True,
         on_delete=models.SET_NULL,

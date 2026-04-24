@@ -22,6 +22,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import CUSTOM_MATCH
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
@@ -855,6 +856,7 @@ class AddonsConfigForm(forms.ModelForm):
             "enabled",
             "project",
             "options_root_selector",
+            "options_base_version",
             "analytics_enabled",
             "customscript_enabled",
             "customscript_src",
@@ -889,6 +891,7 @@ class AddonsConfigForm(forms.ModelForm):
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
+            "options_base_version": _("Base version for diffing"),
         }
 
         widgets = {
@@ -903,6 +906,13 @@ class AddonsConfigForm(forms.ModelForm):
         # Keep the ability to disable addons completely on Read the Docs for Business
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
+
+        # External (pull-request) versions are transient and not meaningful as a
+        # diff baseline; only show internal (branch/tag) versions for this project.
+        self.fields["options_base_version"].queryset = self.project.versions.exclude(
+            type=EXTERNAL,
+        )
+        self.fields["options_base_version"].empty_label = _("Default (stable or latest)")
 
     def clean(self):
         if (
