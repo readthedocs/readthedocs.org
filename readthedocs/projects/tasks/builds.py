@@ -36,6 +36,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_INSTALLING
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATE_UPLOADING
+from readthedocs.builds.constants import BUILD_STATUS_CANCELLED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
@@ -576,6 +577,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # "success" but uses a distinct description so reviewers can tell
                 # the build was intentionally skipped rather than actually built.
                 status = BUILD_STATUS_SKIPPED
+            elif message_id == BuildCancelled.CANCELLED_BY_USER:
+                # Raised for both user-triggered cancels and supersession by
+                # a newer build. Neither is a real failure.
+                status = BUILD_STATUS_CANCELLED
 
             send_external_build_status(
                 version_type=version_type,

@@ -92,6 +92,9 @@ BUILD_STATUS_SUCCESS = "success"
 # but communicates in the description that the build was intentionally
 # skipped via exit code 183.
 BUILD_STATUS_SKIPPED = "skipped"
+# Same mapping as SKIPPED: reported as provider "success" so PRs can merge,
+# with a distinct description. Used for user-cancelled and superseded builds.
+BUILD_STATUS_CANCELLED = "cancelled"
 
 # GitHub Build Statuses
 GITHUB_BUILD_STATUS_FAILURE = "failure"
@@ -124,6 +127,11 @@ SELECT_BUILD_STATUS = {
         "github": GITHUB_BUILD_STATUS_SUCCESS,
         "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
         "description": "Read the Docs build skipped.",
+    },
+    BUILD_STATUS_CANCELLED: {
+        "github": GITHUB_BUILD_STATUS_SUCCESS,
+        "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
+        "description": "Read the Docs build cancelled.",
     },
 }
 
