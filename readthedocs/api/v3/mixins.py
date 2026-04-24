@@ -3,14 +3,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
-from readthedocs.builds.models import Build, Version
-from readthedocs.core.history import safe_update_change_reason, set_change_reason
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.core.history import safe_update_change_reason
+from readthedocs.core.history import set_change_reason
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
 class UpdateChangeReasonMixin:
-
     """
     Set the change_reason on the model changed through this API view.
 
@@ -141,7 +142,6 @@ class NestedParentObjectMixin:
 
 
 class ProjectQuerySetMixin(NestedParentObjectMixin):
-
     """
     Mixin to define queryset permissions for ViewSet only in one place.
 
@@ -173,7 +173,6 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
 
 class OrganizationQuerySetMixin(NestedParentObjectMixin):
-
     """
     Mixin to define queryset permissions for ViewSet only in one place.
 
@@ -214,7 +213,6 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
 
 
 class UserQuerySetMixin(NestedParentObjectMixin):
-
     """
     Mixin to define queryset permissions for ViewSet only in one place.
 
@@ -230,7 +228,6 @@ class UserQuerySetMixin(NestedParentObjectMixin):
 
 
 class UpdateMixin:
-
     """Make PUT to return 204 on success like PATCH does."""
 
     def update(self, request, *args, **kwargs):

@@ -40,13 +40,13 @@ readthedocs.com ("Read the Docs for Business")
     This Privacy Policy applies to this site in full without reservation.
 
 readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
-    These websites are where Read the Docs hosts documentation (":ref:`User-Generated Content <terms-of-service:User-Generated Content>`")
+    These websites are where Read the Docs hosts documentation (`User-Generated Content <https://about.readthedocs.com/terms-of-service/#user-generated-content>`_)
     on behalf of documentation authors.
     A best effort is made to apply
     this Privacy Policy to these sites but the documentation
     may contain content and files created by documentation authors.
 
-All use of Read the Docs is subject to this Privacy Policy, together with our :doc:`Terms of service <terms-of-service>`.
+All use of Read the Docs is subject to this Privacy Policy, together with our `Terms of Service <https://about.readthedocs.com/terms-of-service/>`_.
 
 
 What information Read the Docs collects and why
@@ -104,7 +104,7 @@ Why do we collect this information?
 - We limit our use of your User Personal Information to the purposes listed in this Privacy Statement.
   If we need to use your User Personal Information for other purposes, we will ask your permission first.
   You can always see what information we have in your
-  `user account <https://readthedocs.org/accounts/edit/>`__.
+  `user account <https://app.readthedocs.org/accounts/edit/>`__.
 
 What information Read the Docs does not collect
 -----------------------------------------------
@@ -117,7 +117,7 @@ anyone (including us) may view their contents.
 If you have included private or sensitive information in your Documentation Site,
 such as email addresses, that information may be indexed by search engines or used by third parties.
 
-Read the Docs for Business may host :ref:`private projects <terms-of-service:Private projects>` which we treat as confidential
+Read the Docs for Business may host `private projects <https://about.readthedocs.com/terms-of-service/#private-projects>`_ which we treat as confidential
 and we only access them for support reasons, with your consent, or if required to for security reasons
 
 If you're a **child under the age of 13**, you may not have an account on Read the Docs.
@@ -176,8 +176,8 @@ or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
-.. _Gold membership: https://readthedocs.org/accounts/gold/
-.. _Supporter: https://readthedocs.org/sustainability/
+.. _Gold membership: https://app.readthedocs.org/accounts/gold/
+.. _Supporter: https://app.readthedocs.org/sustainability/
 
 Site monitoring
 +++++++++++++++
@@ -255,7 +255,7 @@ For more details about DNT, visit `All About Do Not Track`_.
 
 .. _W3C's tracking preference expression: https://www.w3.org/TR/tracking-dnt/
 .. _EFF's DNT Policy: https://www.eff.org/issues/do-not-track
-.. _available here: https://readthedocs.org/.well-known/dnt-policy.txt
+.. _available here: https://app.readthedocs.org/.well-known/dnt-policy.txt
 .. _All About Do Not Track: https://www.allaboutdnt.com
 
 Cookies
@@ -362,7 +362,7 @@ How you can access and control the information we collect
 
 If you're already a Read the Docs user, you may access, update, alter,
 or delete your basic user profile information by
-`editing your user account <https://readthedocs.org/accounts/edit/>`__.
+`editing your user account <https://app.readthedocs.org/accounts/edit/>`__.
 
 
 Data retention and deletion
@@ -378,7 +378,7 @@ so unless you choose to delete your account,
 we will retain your account information indefinitely.
 
 If you would like to delete your User Personal Information,
-you may do so in your `user account <https://readthedocs.org/accounts/delete/>`__.
+you may do so in your `user account <https://app.readthedocs.org/accounts/delete/>`__.
 We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.

@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+
 # BUILD_STATE is our *INTERNAL* representation of build states.
 # This is not to be confused with external representations of 'status'
 # that are sent back to Git providers.
@@ -127,6 +128,7 @@ GENERIC_EXTERNAL_VERSION_NAME = "External Version"
 ALL_VERSIONS = "all-versions"
 ALL_VERSIONS_REGEX = r".*"
 SEMVER_VERSIONS = "semver-versions"
+CUSTOM_MATCH = "custom-match"
 
 # Pattern referred from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -134,14 +136,19 @@ SEMVER_VERSIONS = "semver-versions"
 # allowing an optional "v" prefix.
 SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
-
-PREDEFINED_MATCH_ARGS = (
+OLD_VERSION_PREDEFINED_MATCH_PATTERNS = (
     (ALL_VERSIONS, _("Any version")),
     (SEMVER_VERSIONS, _("SemVer versions")),
     (None, _("Custom match")),
 )
 
-PREDEFINED_MATCH_ARGS_VALUES = {
+VERSION_PREDEFINED_MATCH_PATTERNS = (
+    (ALL_VERSIONS, _("Any version")),
+    (SEMVER_VERSIONS, _("SemVer versions")),
+    (CUSTOM_MATCH, _("Custom match")),
+)
+
+VERSION_PREDEFINED_MATCH_PATTERN_VALUES = {
     ALL_VERSIONS: ALL_VERSIONS_REGEX,
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }

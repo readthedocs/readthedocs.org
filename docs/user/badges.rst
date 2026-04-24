@@ -31,7 +31,7 @@ Badges are generated on-demand for all Read the Docs projects, using the followi
 
 .. code-block:: text
 
-   https://readthedocs.org/projects/<project-slug>/badge/?version=<version>&style=<style>
+   https://app.readthedocs.org/projects/<project-slug>/badge/?version=<version>&style=<style>
 
 Style
 -----
@@ -54,11 +54,11 @@ By default, the ``flat`` style is used.
 | social        | |Social Badge|      |
 +---------------+---------------------+
 
-.. |Flat Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=flat
-.. |Flat-Square Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=flat-square
-.. |Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=for-the-badge
-.. |Plastic Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic
-.. |Social Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=social
+.. |Flat Badge| image:: https://app.readthedocs.org/projects/pip/badge/?version=latest&style=flat
+.. |Flat-Square Badge| image:: https://app.readthedocs.org/projects/pip/badge/?version=latest&style=flat-square
+.. |Badge| image:: https://app.readthedocs.org/projects/pip/badge/?version=latest&style=for-the-badge
+.. |Plastic Badge| image:: https://app.readthedocs.org/projects/pip/badge/?version=latest&style=plastic
+.. |Social Badge| image:: https://app.readthedocs.org/projects/pip/badge/?version=latest&style=social
 
 
 Version-specific badges
@@ -72,7 +72,7 @@ The badge URL looks like this:
 
 .. code-block:: text
 
-    https://readthedocs.org/projects/<project-slug>/badge/?version=latest
+    https://app.readthedocs.org/projects/<project-slug>/badge/?version=latest
 
 
 Badges on dashboard pages

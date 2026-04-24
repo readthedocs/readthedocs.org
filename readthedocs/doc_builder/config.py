@@ -1,6 +1,5 @@
 """An API to load config from a readthedocs.yml file."""
 
-
 from readthedocs.config import load as load_config
 
 

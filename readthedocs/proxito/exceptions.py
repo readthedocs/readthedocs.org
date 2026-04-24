@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.utils.translation import pgettext_lazy
 
+
 _not_found_subject_translation_context = (
     "Names a subject that was not found in a 404 error message. Used like "
     "'The {{ not_found_subject }} you are looking for at <code>{{ path_not_found }}</code> "
@@ -9,7 +10,6 @@ _not_found_subject_translation_context = (
 
 
 class ContextualizedHttp404(Http404):
-
     """
     Base class for contextualized HTTP 404 handling.
 
@@ -45,7 +45,6 @@ class ContextualizedHttp404(Http404):
 
 
 class DomainDNSHttp404(ContextualizedHttp404):
-
     """Raised if a DNS record points to us and we don't know the domain."""
 
     template_name = "errors/proxito/404/dns.html"
@@ -62,8 +61,11 @@ class DomainDNSHttp404(ContextualizedHttp404):
         super().__init__(**kwargs)
 
 
+# All the following exceptions use the same template from ext-theme.
+# That template uses `not_found_subject` as a heading and copy of the page,
+# the rest of the page is exactly the same.
+# This can be tested by using `DEBUG = False` in El Proxito.
 class ProjectHttp404(ContextualizedHttp404):
-
     """
     Raised if a domain did not resolve to a project.
 
@@ -86,13 +88,10 @@ class ProjectHttp404(ContextualizedHttp404):
 
 
 class SubprojectHttp404(ContextualizedHttp404):
-
     """Raised if a subproject was not found."""
 
-    template_name = "errors/proxito/404/no_subproject.html"
-    not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "subproject"
-    )
+    template_name = "errors/proxito/404/no_project.html"
+    not_found_subject = pgettext_lazy("Names an object not found in a 404 error", "subproject")
 
     def __init__(self, project, **kwargs):
         """
@@ -106,13 +105,10 @@ class SubprojectHttp404(ContextualizedHttp404):
 
 
 class ProjectFilenameHttp404(ContextualizedHttp404):
-
     """Raised if a page inside an existing project was not found."""
 
-    template_name = "errors/proxito/404/no_project_page.html"
-    not_found_subject = pgettext_lazy(
-        _not_found_subject_translation_context, "documentation page"
-    )
+    template_name = "errors/proxito/404/no_project.html"
+    not_found_subject = pgettext_lazy(_not_found_subject_translation_context, "documentation page")
 
     def __init__(self, project, **kwargs):
         """
@@ -126,7 +122,6 @@ class ProjectFilenameHttp404(ContextualizedHttp404):
 
 
 class ProjectTranslationHttp404(ContextualizedHttp404):
-
     """
     Raised if a translation of a project was not found.
 
@@ -134,10 +129,8 @@ class ProjectTranslationHttp404(ContextualizedHttp404):
     If a page isn't found, raise a ProjectPageHttp404.
     """
 
-    template_name = "errors/proxito/404/no_language.html"
-    not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "translation"
-    )
+    template_name = "errors/proxito/404/no_project.html"
+    not_found_subject = pgettext_lazy("Names an object not found in a 404 error", "translation")
 
     def __init__(self, project, **kwargs):
         """
@@ -151,14 +144,13 @@ class ProjectTranslationHttp404(ContextualizedHttp404):
 
 
 class ProjectVersionHttp404(ContextualizedHttp404):
-
     """
     Raised if a version was not found.
 
     Note: The containing project can be a subproject.
     """
 
-    template_name = "errors/proxito/404/no_version.html"
+    template_name = "errors/proxito/404/no_project.html"
     not_found_subject = pgettext_lazy(
         _not_found_subject_translation_context, "documentation version"
     )

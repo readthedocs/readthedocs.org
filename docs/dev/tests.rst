@@ -1,8 +1,6 @@
 Testing
 =======
 
-.. TODO: upgrade this guide to mention how to do this with ``inv docker.test``.
-
 Before contributing to Read the Docs, make sure your patch passes our test suite
 and your code style passes our code linting suite.
 
@@ -15,66 +13,67 @@ paths. Before testing, make sure you have Tox installed:
 
    pip install tox
 
-To run the full test and lint suite against your changes, simply run Tox. Tox
-should return without any errors. You can run Tox against all of our
-environments by running:
+Running tests
+-------------
+
+The test suite is split into separate tox environments
+that match the CI pipeline:
 
 .. prompt:: bash
 
-   tox
+   tox -e py312          # Core tests (no search, no proxito)
+   tox -e search         # Search tests (requires Elasticsearch)
+   tox -e proxito        # Proxito tests
 
-By default, tox won't run tests from search,
-in order to run all test including the search tests,
-you need to override tox's posargs.
-If you don't have any additional arguments to pass,
-you can also set the ``TOX_POSARGS`` environment variable to an empty string:
+To run all test suites at once:
 
 .. prompt:: bash
 
-   TOX_POSARGS='' tox
-
-.. note::
-
-   If you need to override tox's posargs, but you still don't want to run the search tests,
-   you need to include ``-m 'not search'`` to your command:
-
-.. prompt:: bash
-
-   tox -- -m 'not search' -x
-
-To target a specific environment:
-
-.. prompt:: bash
-
-   tox -e py310
+   tox -e py312,search,proxito
 
 To run a subset of tests:
 
 .. prompt:: bash
 
-   tox -e py310 -- -k test_celery
+   tox -e py312 -- -k test_celery
 
-The ``tox`` configuration has the following environments configured. You can
-target a single environment to limit the test suite:
+.. tip::
 
-py310
-    Run our test suite using Python 3.10
+   Install ``tox-uv`` alongside tox for faster virtualenv creation
+   and dependency resolution:
 
-py310-debug
-    Same as ``py310``, but there are some useful debugging tools available in the environment.
+   .. prompt:: bash
 
-lint
-    Run code linting using `Prospector`_. This currently runs `pylint`_,
-    `pyflakes`_, `pep8`_ and other linting tools.
+      pip install tox tox-uv
+
+Tox environments
+~~~~~~~~~~~~~~~~
+
+The ``tox`` configuration has the following environments configured.
+You can target a single environment to limit the test suite:
+
+py312
+    Core tests — excludes search, proxito, and embed API markers.
+
+search
+    Search tests — requires an Elasticsearch instance.
+
+proxito
+    Proxito tests — uses ``readthedocs.settings.proxito.test``.
+
+pre-commit
+    Run linting and formatting checks via pre-commit.
+
+migrations
+    Check for missing Django migrations.
 
 docs
-    Test documentation compilation with Sphinx.
+    Build user documentation with Sphinx.
+
+docs-dev
+    Build developer documentation with Sphinx.
 
 .. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
-.. _`Prospector`: https://prospector.readthedocs.io/en/master/
-.. _`pylint`: https://pylint.readthedocs.io/
-.. _`pyflakes`: https://github.com/pyflakes/pyflakes
-.. _`pep8`: https://pep8.readthedocs.io/en/latest/index.html
 
 
 Pytest marks
@@ -84,28 +83,32 @@ The Read the Docs code base is deployed as three instances:
 
 - Main: where you can see the dashboard.
 - Build: where the builds happen.
-- Serve/proxito: It is in charge of serving the documentation pages.
+- Serve/proxito: it is in charge of serving the documentation pages.
 
-Each instance has its own settings.
+Each instance has its own Django settings.
 To make sure we test each part as close as possible to its real settings,
-we use `pytest marks <https://docs.pytest.org/en/latest/mark.html>`__.
-This allow us to run each set of tests with different settings files,
-or skip some (like search tests)::
-
-
-  DJANGO_SETTINGS_MODULE=custom.settings.file pytest -m mark
-  DJANGO_SETTINGS_MODULE=another.settings.file pytest -m "not mark"
+we use `pytest marks <https://docs.pytest.org/en/latest/mark.html>`__
+and separate tox environments.
 
 Current marks are:
 
-- search (tests that require Elastic Search)
-- proxito (tests from the serve/proxito instance)
+- ``search`` — tests that require Elasticsearch
+- ``proxito`` — tests for the serve/proxito instance
+- ``embed_api`` — tests for the embed API
 
-Tests without mark are from the main instance.
+Tests without a mark are from the main instance.
 
-Continuous Integration
+Continuous integration
 ----------------------
 
-The RTD test suite is exercised by Circle CI on every push to our repo at
-GitHub. You can check out the current build status:
+The CI pipeline runs on Circle CI for every push.
+Tests are split into parallel jobs:
+
+- **checks** — pre-commit linting + migration checks
+- **tests** — core tests (no Elasticsearch needed)
+- **tests-proxito** — proxito tests
+- **tests-search** — search tests (requires Elasticsearch, runs after the above pass)
+- **tests-embedapi** — embed API tests across multiple Sphinx versions
+
+You can check out the current build status:
 https://app.circleci.com/pipelines/github/readthedocs/readthedocs.org

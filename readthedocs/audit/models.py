@@ -10,7 +10,6 @@ from readthedocs.analytics.utils import get_client_ip
 
 
 class AuditLogManager(models.Manager):
-
     """AuditLog manager."""
 
     def new(self, action, user=None, request=None, **kwargs):
@@ -31,9 +30,7 @@ class AuditLogManager(models.Manager):
             AuditLog.INVITATION_REVOKED,
         )
         if action in actions_requiring_user and (not user or not request):
-            raise TypeError(
-                f"A user and a request are required for the {action} action."
-            )
+            raise TypeError(f"A user and a request are required for the {action} action.")
         if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and "project" not in kwargs:
             raise TypeError(f"A project is required for the {action} action.")
 
@@ -61,7 +58,6 @@ class AuditLogManager(models.Manager):
 
 
 class AuditLog(TimeStampedModel):
-
     """
     Track user actions for audit purposes.
 
@@ -227,7 +223,7 @@ class AuditLog(TimeStampedModel):
         if self.project:
             self.log_project_id = self.project.id
             self.log_project_slug = self.project.slug
-            organization = self.project.organizations.first()
+            organization = self.project.organization
             if organization:
                 self.organization = organization
         if self.organization:

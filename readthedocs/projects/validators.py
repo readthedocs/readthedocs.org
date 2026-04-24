@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.constants import LANGUAGES
 
+
 MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 
 
@@ -21,9 +22,7 @@ MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 class DomainNameValidator(RegexValidator):
     message = _("Enter a valid plain or internationalized domain name value")
     # Based on the domain name pattern from https://api.cloudflare.com/#zone-list-zones.
-    regex = re.compile(
-        r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$"
-    )
+    regex = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$")
 
 
 validate_domain_name = DomainNameValidator()
@@ -41,13 +40,11 @@ validate_no_ip = NoIPValidator()
 
 @deconstructible
 class RepositoryURLValidator:
-    disallow_relative_url = True
-
     # Pattern for ``git@github.com:user/repo`` pattern
     re_git_user = re.compile(r"^[\w]+@.+")
 
     def __call__(self, value):
-        public_schemes = ["https", "http", "git", "ftps", "ftp"]
+        public_schemes = ["https", "http", "git"]
         private_schemes = ["ssh", "ssh+git"]
         local_schemes = ["file"]
         valid_schemes = public_schemes
@@ -68,9 +65,7 @@ class RepositoryURLValidator:
         # Launchpad
         if value.startswith("lp:"):
             return value
-        # Relative paths are conditionally supported
-        if value.startswith(".") and not self.disallow_relative_url:
-            return value
+
         # SSH cloning and ``git@github.com:user/project.git``
         if self.re_git_user.search(value) or url.scheme in private_schemes:
             if settings.ALLOW_PRIVATE_REPOS:
@@ -233,9 +228,7 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
-def validate_environment_variable_size(
-    project, new_env_value, error_class=ValidationError
-):
+def validate_environment_variable_size(project, new_env_value, error_class=ValidationError):
     existing_size = (
         project.environmentvariable_set.annotate(size=Length("value")).aggregate(
             total_size=Sum("size")
@@ -244,7 +237,5 @@ def validate_environment_variable_size(
     )
     if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
         raise error_class(
-            _(
-                "The total size of all environment variables in the project cannot exceed 256 KB."
-            )
+            _("The total size of all environment variables in the project cannot exceed 256 KB.")
         )

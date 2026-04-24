@@ -13,7 +13,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import LATEST, TAG
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildConfig, Version
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.notifications.models import Notification
@@ -96,6 +96,10 @@ class APIEndpointMixin(TestCase):
             privacy_level=PUBLIC,
         )
 
+        self.readthedocs_yaml_config = fixture.get(
+            BuildConfig,
+            data={"property": "test value"},
+        )
         self.build = fixture.get(
             Build,
             id=1,
@@ -104,7 +108,7 @@ class APIEndpointMixin(TestCase):
             state="finished",
             error="",
             success=True,
-            _config={"property": "test value"},
+            readthedocs_yaml_config=self.readthedocs_yaml_config,
             version=self.version,
             project=self.project,
             builder="builder01",
@@ -134,7 +138,7 @@ class APIEndpointMixin(TestCase):
             state="finished",
             error="",
             success=True,
-            _config={"property": "test value"},
+            readthedocs_yaml_config=self.readthedocs_yaml_config,
             version=self.others_version,
             project=self.others_project,
             builder="builder01",
@@ -147,6 +151,7 @@ class APIEndpointMixin(TestCase):
             has_pdf=True,
             has_epub=True,
             has_htmlzip=True,
+            privacy_level=PUBLIC,
         )
 
         self.organization = fixture.get(

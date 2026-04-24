@@ -44,7 +44,11 @@ class TestNewsletterSignup(TestCase):
             json={
                 "email": self.form_data["email"],
                 "resubscribe": True,
+                "type": "active",
             },
-            headers={"X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY},
+            headers={
+                "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
+                "Content-Type": "application/json",
+            },
             timeout=3,
         )

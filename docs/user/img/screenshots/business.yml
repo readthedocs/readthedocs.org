@@ -1,0 +1,71 @@
+# Team select on project manual creation form, mock select value
+- url: https://app.readthedocs.com/dashboard/import/manual/
+  javascript: |-
+    document
+      .getElementById("div_id_organization_team-organization_team")
+      .querySelector(".text")
+      .innerHTML = "Example Company / Admins";
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.column[class*="eleven wide computer"]
+  output: business-project-manual-team-select.png
+
+# Project manual creation form, have to submit with a team first. The JS looks
+# funny becuase Playwright needs to wait for the page to load before submitting.
+- url: https://app.readthedocs.com/dashboard/import/manual/
+  javascript: |-
+    const _submit = () => {
+      document
+        .querySelector('form[action="/dashboard/import/manual/"]')
+        .submit();
+    }
+
+    if (document.readyState !== "loading") {
+      _submit();
+    } else {
+      document.addEventListener("DOMContentLoaded", _submit);
+    }
+  wait_for: |-
+    document.querySelector("#id_basics-name");
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.column[class*="eleven wide computer"]
+  output: business-project-manual-form.png
+
+# TODO load a project key via JS or dedicate a user/project/local fixture for screenshots
+- url: https://app.readthedocs.com/dashboard/read-the-docs-qa-test-builds-en/keys/3460/
+  # Obfuscate fields
+  javascript: |-
+    const fingerprint = "01:23:45:67:89:aa:bb:cc:dd:ee:ff:01:23:45:67:89";
+    const public_key = "ssh-rsa AAAA00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 support@readthedocs.com";
+    document
+      .querySelector("h2.ui.dividing.header > .sub.header div.active.section")
+      .innerHTML = fingerprint;
+    document.querySelector("input#ssh-key-fingerprint").value = fingerprint;
+    document.querySelector("input#ssh-key-public").value = public_key;
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  output: business-project-ssh-key.png
+
+# TODO set up this fixture project on community instead
+- url: https://app.readthedocs.com/dashboard/read-the-docs-qa-superproject/subprojects/
+  javascript: |-
+    document
+      .querySelectorAll("#edit-content table tr:nth-child(n+2)")
+      .forEach((el) => { el.remove() });
+    document
+      .querySelector("#edit-content table tr td > .ui.tiny.header > .content")
+      .innerHTML = "<a href='#'>example-subproject</a><a href='#' class='sub header'>https://docs.example.com/projects/example</a>";
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  output: community-project-subproject-list.png

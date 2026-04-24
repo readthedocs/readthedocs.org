@@ -13,7 +13,7 @@ we check if there is a ``404.html`` or ``404/index.html`` in the root of your pr
 The following locations are checked, in order:
 
 * ``/404.html`` or ``404/index.html`` in the *current* documentation version.
-* ``/404.html`` or ``404/index.html`` in the  *default* documentation version.
+* ``/404.html`` or ``404/index.html`` in the *default* documentation version.
 
 Tool integration
 ----------------
@@ -32,7 +32,7 @@ We have examples for some of the most popular tools below.
       See its documentation_ for how to install and customize it.
 
       If you want to create a custom ``404.html``,
-      Sphinx uses `html_extra_path`_ option to add static files to the output.
+      Sphinx uses the `html_extra_path`_ option to add static files to the output.
       You need to create a ``404.html`` file and put it under the path defined in ``html_extra_path``.
 
       If you are using the ``DirHTML`` builder,

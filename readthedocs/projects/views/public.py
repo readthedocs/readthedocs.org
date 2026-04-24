@@ -3,30 +3,32 @@
 import hashlib
 import mimetypes
 import os
-from collections import OrderedDict
 
 import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic import ListView
 from taggit.models import Tag
 
-from readthedocs.builds.constants import (
-    BUILD_STATE_FINISHED,
-    EXTERNAL,
-    INTERNAL,
-    LATEST,
-)
+from readthedocs.api.mixins import CDNCacheTagsMixin
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
@@ -35,12 +37,13 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 
 from ..constants import PRIVATE
-from .base import ProjectOnboardMixin, ProjectSpamMixin
+from .base import ProjectOnboardMixin
+from .base import ProjectSpamMixin
+
 
 log = structlog.get_logger(__name__)
 search_log = structlog.get_logger(__name__ + ".search")
@@ -48,7 +51,6 @@ mimetypes.add_type("application/epub+zip", ".epub")
 
 
 class ProjectTagIndex(ListView):
-
     """List view of public :py:class:`Project` instances."""
 
     model = Project
@@ -93,17 +95,20 @@ class ProjectDetailViewBase(
     FilterContextMixin,
     ProjectSpamMixin,
     ProjectRelationListMixin,
-    BuildTriggerMixin,
     ProjectOnboardMixin,
     DetailView,
 ):
-
     """Display project onboard steps."""
 
     model = Project
     slug_url_kwarg = "project_slug"
 
     filterset_class = ProjectVersionListFilterSet
+
+    def _get_versions(self, project):
+        return project.versions(manager=INTERNAL).public(
+            user=self.request.user,
+        )
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
@@ -118,12 +123,11 @@ class ProjectDetailViewBase(
 
         # Get filtered and sorted versions
         versions = self._get_versions(project)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=versions,
-                project=project,
-            )
-            versions = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            queryset=versions,
+            project=project,
+        )
+        versions = self.get_filtered_queryset()
         context["versions"] = versions
 
         protocol = "http"
@@ -131,17 +135,17 @@ class ProjectDetailViewBase(
             protocol = "https"
 
         default_version_slug = project.get_default_version()
-        default_version = project.versions.get(slug=default_version_slug)
-
-        context["badge_url"] = ProjectBadgeView.get_badge_url(
-            project.slug,
-            default_version_slug,
-            protocol=protocol,
-        )
-        context["site_url"] = "{url}?badge={version}".format(
-            url=Resolver().resolve_version(project, version=default_version),
-            version=default_version_slug,
-        )
+        default_version = project.versions.filter(slug=default_version_slug).first()
+        if default_version:
+            context["badge_url"] = ProjectBadgeView.get_badge_url(
+                project.slug,
+                default_version_slug,
+                protocol=protocol,
+            )
+            context["site_url"] = "{url}?badge={version}".format(
+                url=Resolver().resolve_version(project, version=default_version),
+                version=default_version_slug,
+            )
 
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
@@ -160,7 +164,6 @@ class ProjectDetailView(SettingsOverrideObject):
 
 
 class ProjectBadgeView(View):
-
     """
     Return a sweet badge for the project.
 
@@ -296,33 +299,7 @@ class ProjectBadgeView(View):
 project_badge = never_cache(ProjectBadgeView.as_view())
 
 
-def project_downloads(request, project_slug):
-    """A detail view for a project with various downloads."""
-    project = get_object_or_404(
-        Project.objects.public(request.user),
-        slug=project_slug,
-    )
-    versions = Version.internal.public(user=request.user, project=project)
-    versions = sort_version_aware(versions)
-    version_data = OrderedDict()
-    for version in versions:
-        data = version.get_downloads()
-        # Don't show ones that have no downloads.
-        if data:
-            version_data[version] = data
-
-    return render(
-        request,
-        "projects/project_downloads.html",
-        {
-            "project": project,
-            "version_data": version_data,
-            "versions": versions,
-        },
-    )
-
-
-class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
@@ -356,21 +333,13 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
             is_external = request.unresolved_domain.is_from_external_domain
             manager = EXTERNAL if is_external else INTERNAL
 
-            # Additional protection to force all storage calls
-            # to use the external or internal versions storage.
-            # TODO: We already force the manager to match the type,
-            # so we could probably just remove this.
-            self.version_type = manager
-
             # It uses the request to get the ``project``.
             # The rest of arguments come from the URL.
             project = unresolved_domain.project
 
             # Use the project from the domain, or use the subproject slug.
             if subproject_slug:
-                project = get_object_or_404(
-                    project.subprojects, alias=subproject_slug
-                ).child
+                project = get_object_or_404(project.subprojects, alias=subproject_slug).child
 
             # Redirect old language codes with underscores to new ones with dashes and lowercase.
             normalized_language_code = lang_slug.lower().replace("_", "-")
@@ -407,12 +376,27 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 slug=version_slug,
             )
 
+        # TODO don't do this, it's a leftover of trying to use CDNCacheTagsMixin
+        # without class level variables. See proxito.views.serve for
+        # other instances of this pattern to update.
+        # See: https://github.com/readthedocs/readthedocs.org/pull/12495
+        self.project = version.project
+        self.version = version
+
         return self._serve_dowload(
             request=request,
             project=version.project,
             version=version,
             type_=type_,
         )
+
+    def _get_project(self):
+        """Hack for CDNCacheTagsMixin, get project set in `get()`."""
+        return self.project
+
+    def _get_version(self):
+        """Hack for CDNCacheTagsMixin, get version set in `get()`."""
+        return self.version
 
 
 class ProjectDownloadMedia(SettingsOverrideObject):
@@ -432,9 +416,8 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.internal.public(
+    versions = project.versions(manager=INTERNAL).public(
         user=request.user,
-        project=project,
         only_active=False,
     )
     active_versions = versions.filter(active=True)
@@ -444,9 +427,7 @@ def project_versions(request, project_slug):
     inactive_versions = versions.filter(active=False)
     version_filter = request.GET.get("version_filter", "")
     if version_filter:
-        inactive_versions = inactive_versions.filter(
-            verbose_name__icontains=version_filter
-        )
+        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
     total_inactive_versions_count = inactive_versions.count()
     inactive_versions = inactive_versions[:max_inactive_versions]
 

@@ -9,6 +9,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 from readthedocs.projects.constants import GENERIC, MKDOCS, SPHINX
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.parsers import GenericParser
 
 data_path = Path(__file__).parent.resolve() / "data"
 
@@ -344,3 +345,40 @@ class TestParsers:
         parsed_json = [file.processed_json]
         expected_json = json.load(open(data_path / "pelican/out/default.json"))
         assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_truncate_content(self, storage_open, storage_exists):
+        html_content = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Title of the page</title>
+            </head>
+            <body>
+        """
+        # More than ~1.5 MB of content
+        html_content += "A" * (GenericParser.max_content_length + 100) + "!" + "B" * 1000
+        html_content += "</body></html>"
+        storage_open.side_effect = self._mock_open(html_content)
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="page.html",
+        )
+
+        parsed_json = page_file.processed_json
+        assert parsed_json["path"] == "page.html"
+        assert parsed_json["title"] == "Title of the page"
+        assert len(parsed_json["sections"]) == 1
+        section = parsed_json["sections"][0]
+        assert section["title"] == "Title of the page"
+        assert len(section["content"]) <= GenericParser.max_content_length
+        assert section["content"].startswith("A")
+        assert not section["content"].endswith("B")

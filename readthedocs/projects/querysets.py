@@ -1,6 +1,12 @@
 """Project model QuerySet classes."""
+
+from django.conf import settings
 from django.db import models
-from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
+from django.db.models import Count
+from django.db.models import Exists
+from django.db.models import OuterRef
+from django.db.models import Prefetch
+from django.db.models import Q
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
@@ -10,7 +16,6 @@ from readthedocs.subscriptions.products import get_feature
 
 
 class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
-
     """Projects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
@@ -33,12 +38,8 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         - Projects where both are member
         - Public projects from `user`
         """
-        viewer_projects = self._add_user_projects(
-            self.none(), viewer, admin=True, member=True
-        )
-        owner_projects = self._add_user_projects(
-            self.none(), user, admin=True, member=True
-        )
+        viewer_projects = self._add_user_projects(self.none(), viewer, admin=True, member=True)
+        owner_projects = self._add_user_projects(self.none(), user, admin=True, member=True)
         owner_public_projects = owner_projects.filter(privacy_level=constants.PUBLIC)
         queryset = (viewer_projects & owner_projects) | owner_public_projects
         return queryset.distinct()
@@ -74,6 +75,7 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
         * the Project shouldn't be marked as skipped.
         * any of the project's owners shouldn't be banned.
+        * the project shouldn't have a high spam score.
         * the organization associated to the project should not be disabled.
 
         :param project: project to be checked
@@ -82,9 +84,23 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         :returns: whether or not the project is active
         :rtype: bool
         """
+        spam_project = False
         any_owner_banned = any(u.profile.banned for u in project.users.all())
-        organization = project.organizations.first()
-        if project.skip or any_owner_banned or (organization and organization.disabled):
+        organization = project.organization
+
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import spam_score  # noqa
+
+            if spam_score(project) > settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS:
+                spam_project = True
+
+        if (
+            project.skip
+            or project.n_consecutive_failed_builds
+            or any_owner_banned
+            or (organization and organization.disabled)
+            or spam_project
+        ):
             return False
 
         return True
@@ -109,21 +125,20 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
         max_concurrent_organization = None
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             max_concurrent_organization = organization.max_concurrent_builds
 
         feature = get_feature(project, feature_type=TYPE_CONCURRENT_BUILDS)
         feature_value = feature.value if feature else 1
-        return (
-            project.max_concurrent_builds
-            or max_concurrent_organization
-            or feature_value
-        )
+        return project.max_concurrent_builds or max_concurrent_organization or feature_value
 
-    def prefetch_latest_build(self):
+    def annotate_has_successful_build(self):
         """
-        Prefetch "latest build" for each project.
+        Annotate projects with whether they have a successful build.
+
+        Adds a boolean annotation `_has_good_build` to avoid N+1 queries
+        when checking if a project has any successful builds.
 
         .. note::
 
@@ -131,18 +146,47 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         """
         from readthedocs.builds.models import Build
 
-        # Prefetch the latest build for each project.
-        subquery = Subquery(
-            Build.internal.filter(project=OuterRef("project_id"))
-            .order_by("-date")
-            .values_list("id", flat=True)[:1]
+        # NOTE: prefetching the latest build will perform worse than just
+        # accessing the latest build for each project.
+        # While prefetching reduces the number of queries,
+        # the query used to fetch the latest build can be quite expensive,
+        # specially in projects with lots of builds.
+        # Not prefetching here is fine, as this query is paginated by 15
+        # items per page, so it will generate at most 15 queries.
+
+        # This annotation performs fine in all cases.
+        # Annotate whether the project has a successful build or not,
+        # to avoid N+1 queries when showing the build status.
+        return self.annotate(
+            _has_good_build=Exists(Build.internal.filter(project=OuterRef("pk"), success=True))
         )
-        latest_build = Prefetch(
-            "builds",
-            Build.internal.filter(pk__in=subquery),
-            to_attr=self.model.LATEST_BUILD_CACHE,
+
+    def prefetch_organization(self, select_related: list[str] | None = None):
+        """
+        Prefetch the organizations related to the projects.
+
+        :param select_related: List of related fields to select_related
+         when fetching the organizations.
+
+        .. note::
+
+           This would normally be a select_related call,
+           but since our relationship is ManyToMany,
+           we need to use prefetch_related.
+        """
+        # If organizations aren't supported,
+        # we don't need to query the database.
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return self
+
+        from readthedocs.organizations.models import Organization
+
+        query = Organization.objects.all()
+        if select_related:
+            query = query.select_related(*select_related)
+        return self.prefetch_related(
+            Prefetch("organizations", queryset=query, to_attr="_organizations")
         )
-        return self.prefetch_related(latest_build)
 
     # Aliases
 
@@ -155,6 +199,11 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
     def single_owner(self, user):
         """
@@ -174,7 +223,6 @@ class ProjectQuerySet(SettingsOverrideObject):
 
 
 class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     Useful for objects that relate to Project and its permissions.
 
@@ -212,6 +260,11 @@ class RelatedProjectQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
 
 
 class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):

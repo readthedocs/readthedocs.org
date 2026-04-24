@@ -1,19 +1,20 @@
 """Utility endpoints relating to canonical urls, embedded content, etc."""
+
 from django.shortcuts import get_object_or_404
-from rest_framework import decorators, permissions, status
+from rest_framework import decorators
+from rest_framework import permissions
+from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
 from readthedocs.core.templatetags.core_tags import make_document_url
 from readthedocs.projects.models import Project
 
 
 class RevokeBuildAPIKeyView(APIView):
-
     """
     Revoke a build API key.
 
@@ -59,7 +60,7 @@ def docurl(request):
 
     project = get_object_or_404(Project, slug=project)
     version = get_object_or_404(
-        Version.objects.public(request.user, project=project, only_active=False),
+        project.versions.public(request.user, only_active=False),
         slug=version,
     )
     return Response(

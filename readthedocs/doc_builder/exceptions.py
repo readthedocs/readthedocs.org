@@ -52,6 +52,8 @@ class BuildUserError(BuildBaseException):
     BUILD_EXCESSIVE_MEMORY = "build:user:excessive-memory"
     VCS_DEPRECATED = "build:vcs:deprecated"
 
+    SSH_KEY_WITH_WRITE_ACCESS = "build:user:ssh-key-with-write-access"
+
 
 class BuildMaxConcurrencyError(BuildUserError):
     LIMIT_REACHED = "build:user:concurrency-limit-reached"

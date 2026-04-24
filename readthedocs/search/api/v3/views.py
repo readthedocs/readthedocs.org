@@ -6,7 +6,8 @@ from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
-from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import UserRateThrottle
 
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -16,6 +17,7 @@ from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -23,21 +25,18 @@ RATE_LIMIT = "100/minute"
 
 
 class SearchAnonRateThrottle(AnonRateThrottle):
-
     """Rate limit for the search API for anonymous users."""
 
     rate = RATE_LIMIT
 
 
 class SearchUserRateThrottle(UserRateThrottle):
-
     """Rate limit for the search API for authenticated users."""
 
     rate = RATE_LIMIT
 
 
 class SearchAPI(APIv3Settings, GenericAPIView):
-
     """
     Server side search API V3.
 
@@ -127,14 +126,15 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         # since the number of results is the total
         # of searching on all projects, this specific project
         # could have had 0 results.
-        for project, version in self._get_projects_to_search():
-            tasks.record_search_query.delay(
-                project.slug,
-                version.slug,
-                query,
-                total_results,
-                time.isoformat(),
-            )
+        projects_and_versions = [
+            (project.slug, version.slug) for project, version in self._get_projects_to_search()
+        ]
+        tasks.record_search_query_batch.delay(
+            projects_and_versions=projects_and_versions,
+            query=query,
+            total_results=total_results,
+            time_string=time.isoformat(),
+        )
 
     def list(self):
         queryset = self.get_queryset()
@@ -143,9 +143,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
             self.request,
             view=self,
         )
-        serializer = self.get_serializer(
-            page, many=True, projects=self._get_projects_to_search()
-        )
+        serializer = self.get_serializer(page, many=True, projects=self._get_projects_to_search())
         response = self.paginator.get_paginated_response(serializer.data)
         self._add_extra_fields(response)
         return response
@@ -168,7 +166,6 @@ class SearchAPI(APIv3Settings, GenericAPIView):
 
 
 class BaseProxiedSearchAPI(SearchAPI):
-
     """
     Use a separate class for the proxied version of this view.
 

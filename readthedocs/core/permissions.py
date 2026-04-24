@@ -1,10 +1,12 @@
 """Objects for User permission checks."""
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
+from readthedocs.organizations.constants import ADMIN_ACCESS
+from readthedocs.organizations.constants import READ_ONLY_ACCESS
 
 
 class AdminPermissionBase:
@@ -43,36 +45,48 @@ class AdminPermissionBase:
             # when we aren't using organizations.
             return user.projects.all()
 
+        projects_from_sso = Project.objects.none()
+        projects_from_teams = Project.objects.none()
+        projects_from_owners = Project.objects.none()
+
+        if admin or member:
+            # Projects from VCS SSO.
+            projects_from_sso = cls._get_projects_for_sso_user(user, admin=admin, member=member)
+
+            # Projects from teams that don't have VCS SSO enabled.
+            team_filters = Q(teams__members=user)
+            if admin and not member:
+                team_filters &= Q(teams__access=ADMIN_ACCESS)
+            elif member and not admin:
+                team_filters &= Q(teams__access=READ_ONLY_ACCESS)
+            else:
+                # If both admin and member are True, we don't need to filter the queryset.
+                pass
+
+            # SECURITY: don't chain filters when filtering by related models
+            # (query.filter(teams__members=user).filter(teams__access='admin')),
+            # that produces two seprate joins and will return projects where the user is a member,
+            # as long as the project belongs to a team with admin access, even if the user is not
+            # a member of that team.
+            projects_from_teams = Project.objects.filter(team_filters).exclude(
+                organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+            )
+
+        # Projects from organizations that don't have VCS SSO enabled,
+        # where the user is an owner.
         if admin:
-            # Project Team Admin
-            admin_teams = user.teams.filter(access=ADMIN_ACCESS)
-            for team in admin_teams:
-                if not cls.has_sso_enabled(
-                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
-                ):
-                    projects |= team.projects.all()
+            projects_from_owners = Project.objects.filter(organizations__owners=user).exclude(
+                organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+            )
 
-            # Org Admin
-            for org in user.owner_organizations.all():
-                if not cls.has_sso_enabled(org, SSOIntegration.PROVIDER_ALLAUTH):
-                    # Do not grant admin access on projects for owners if the
-                    # organization has SSO enabled with Authorization on the provider.
-                    projects |= org.projects.all()
-
-            projects |= cls._get_projects_for_sso_user(user, admin=True)
-
-        if member:
-            # Project Team Member
-            member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
-            for team in member_teams:
-                if not cls.has_sso_enabled(
-                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
-                ):
-                    projects |= team.projects.all()
-
-            projects |= cls._get_projects_for_sso_user(user, admin=False)
-
-        return projects
+        # NOTE: We use a filter with Q objects instead of several union operations
+        # (e.g projects_from_sso | projects_from_teams | projects_from_owners),
+        # as the latter can generate a very complex and slow query.
+        return Project.objects.filter(
+            Q(id__in=projects_from_sso)
+            | Q(id__in=projects_from_teams)
+            | Q(id__in=projects_from_owners)
+        )
 
     @classmethod
     def organizations(cls, user, owner=False, member=False):
@@ -95,7 +109,7 @@ class AdminPermissionBase:
         return False
 
     @classmethod
-    def _get_projects_for_sso_user(cls, user, admin=False):
+    def _get_projects_for_sso_user(cls, user, admin=False, member=False):
         from readthedocs.projects.models import Project
 
         return Project.objects.none()
@@ -113,7 +127,7 @@ class AdminPermissionBase:
 
         if isinstance(obj, Project):
             if settings.RTD_ALLOW_ORGANIZATIONS:
-                obj = obj.organizations.first()
+                obj = obj.organization
             else:
                 return obj.users.all()
 
@@ -141,7 +155,8 @@ class AdminPermissionBase:
         and for an organization, this means the users that are on the same teams as `user`,
         including the organization owners.
         """
-        from readthedocs.organizations.models import Organization, Team
+        from readthedocs.organizations.models import Organization
+        from readthedocs.organizations.models import Team
         from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):

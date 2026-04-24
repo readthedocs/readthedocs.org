@@ -4,7 +4,7 @@ Server side search API
 You can integrate our :doc:`server side search </server-side-search/index>` in your documentation by using our API.
 
 If you are using :doc:`/commercial/index` you will need to replace
-https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
+https://app.readthedocs.org/ with https://app.readthedocs.com/ in all the URLs used in the following examples.
 Check :ref:`server-side-search/api:authentication and authorization` if you are using private versions.
 
 API v3
@@ -49,12 +49,12 @@ API v3
 
       .. code-tab:: bash
 
-         $ curl "https://readthedocs.org/api/v3/search/?q=project:docs%20server%20side%20search"
+         $ curl "https://app.readthedocs.org/api/v3/search/?q=project:docs%20server%20side%20search"
 
       .. code-tab:: python
 
          import requests
-         URL = 'https://readthedocs.org/api/v3/search/'
+         URL = 'https://app.readthedocs.org/api/v3/search/'
          params = {
             'q': 'project:docs server side search',
          }
@@ -67,7 +67,7 @@ API v3
 
       {
           "count": 41,
-          "next": "https://readthedocs.org/api/v3/search/?page=2&q=project:docs%20server+side+search",
+          "next": "https://app.readthedocs.org/api/v3/search/?page=2&q=project:docs%20server+side+search",
           "previous": null,
           "projects": [
              {
@@ -163,6 +163,11 @@ users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
+.. seealso::
+
+   :doc:`/api/v3`
+     You can create and revoke sharing methods programmatically from ``/api/v3/projects/<project_slug>/sharing/``.
+
 To be able to use the user's current session you need to use the API from the domain where your docs are being served
 (``<you-docs-domain>/_/api/v3/search/``).
 This is ``https://docs.readthedocs-hosted.com/_/api/v3/search/``
@@ -219,12 +224,12 @@ API v2 (deprecated)
 
       .. code-tab:: bash
 
-         $ curl "https://readthedocs.org/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
+         $ curl "https://app.readthedocs.org/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
 
       .. code-tab:: python
 
          import requests
-         URL = 'https://readthedocs.org/api/v2/search/'
+         URL = 'https://app.readthedocs.org/api/v2/search/'
          params = {
             'q': 'server side search',
             'project': 'docs',
@@ -239,7 +244,7 @@ API v2 (deprecated)
 
       {
           "count": 41,
-          "next": "https://readthedocs.org/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
+          "next": "https://app.readthedocs.org/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
           "previous": null,
           "results": [
               {

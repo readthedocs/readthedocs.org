@@ -1,11 +1,13 @@
 """Build configuration for rtd."""
 
 import copy
+import datetime
 import os
 import re
 from contextlib import contextmanager
 from functools import lru_cache
 
+import pytz
 from django.conf import settings
 from pydantic import BaseModel
 
@@ -13,31 +15,31 @@ from readthedocs.config.utils import list_to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
-from .exceptions import ConfigError, ConfigValidationError
+from .exceptions import ConfigError
+from .exceptions import ConfigValidationError
 from .find import find_one
-from .models import (
-    BuildJobs,
-    BuildJobsBuildTypes,
-    BuildTool,
-    BuildWithOs,
-    Conda,
-    Mkdocs,
-    Python,
-    PythonInstall,
-    Search,
-    Sphinx,
-    Submodules,
-)
-from .parser import ParseError, parse
-from .validation import (
-    validate_bool,
-    validate_choice,
-    validate_dict,
-    validate_list,
-    validate_path,
-    validate_path_pattern,
-    validate_string,
-)
+from .models import BuildJobs
+from .models import BuildJobsBuildTypes
+from .models import BuildTool
+from .models import BuildWithOs
+from .models import Conda
+from .models import Mkdocs
+from .models import Python
+from .models import PythonInstall
+from .models import Search
+from .models import Sphinx
+from .models import Submodules
+from .models import UvInstall
+from .parser import ParseError
+from .parser import parse
+from .validation import validate_bool
+from .validation import validate_choice
+from .validation import validate_dict
+from .validation import validate_list
+from .validation import validate_path
+from .validation import validate_path_pattern
+from .validation import validate_string
+
 
 __all__ = (
     "ALL",
@@ -45,19 +47,20 @@ __all__ = (
     "BuildConfigV2",
     "PIP",
     "SETUPTOOLS",
+    "UV",
     "LATEST_CONFIGURATION_VERSION",
 )
 
 ALL = "all"
 PIP = "pip"
 SETUPTOOLS = "setuptools"
+UV = "uv"
 CONFIG_FILENAME_REGEX = r"^\.?readthedocs.ya?ml$"
 
 LATEST_CONFIGURATION_VERSION = 2
 
 
 class BuildConfigBase:
-
     """
     Config that handles the build of one particular documentation.
 
@@ -87,7 +90,13 @@ class BuildConfigBase:
 
     version = None
 
-    def __init__(self, raw_config, source_file, base_path=None):
+    def __init__(
+        self,
+        raw_config,
+        source_file,
+        base_path=None,
+        deprecate_implicit_keys=None,
+    ):
         self._raw_config = copy.deepcopy(raw_config)
         self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
@@ -101,6 +110,25 @@ class BuildConfigBase:
                 self.base_path = os.path.dirname(self.source_file)
 
         self._config = {}
+
+        if deprecate_implicit_keys is not None:
+            self.deprecate_implicit_keys = deprecate_implicit_keys
+        elif settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+            tzinfo = pytz.timezone("America/Los_Angeles")
+            now = datetime.datetime.now(tz=tzinfo)
+            # Dates as per https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/
+            # fmt: off
+            self.deprecate_implicit_keys = (
+                # 12 hours brownout.
+                datetime.datetime(2025, 1, 6, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 6, 12, 0, 0, tzinfo=tzinfo)
+                # 24 hours brownout.
+                or datetime.datetime(2025, 1, 13, 0, 0, 0, tzinfo=tzinfo) < now < datetime.datetime(2025, 1, 14, 0, 0, 0, tzinfo=tzinfo)
+                # Permanent removal.
+                or datetime.datetime(2025, 1, 20, 0, 0, 0, tzinfo=tzinfo) < now
+            )
+            # fmt: on
+        else:
+            self.deprecate_implicit_keys = False
 
     @contextmanager
     def catch_validation_error(self, key):
@@ -189,11 +217,19 @@ class BuildConfigBase:
         return False
 
     @property
+    def is_using_uv(self):
+        """Check if this project has at least one uv install entry."""
+        for install in self.python.install:
+            if isinstance(install, UvInstall):
+                return True
+        return False
+
+    @property
     def python_interpreter(self):
         tool = self.build.tools.get("python")
         if tool and tool.version.startswith("mamba"):
             return "mamba"
-        if tool and tool.version.startswith("miniconda"):
+        if tool and (tool.version.startswith("miniconda") or tool.version.startswith("miniforge")):
             return "conda"
         if tool:
             return "python"
@@ -219,12 +255,10 @@ class BuildConfigBase:
 
 
 class BuildConfigV2(BuildConfigBase):
-
     """Version 2 of the configuration file."""
 
     version = "2"
     valid_formats = ["htmlzip", "pdf", "epub"]
-    valid_install_method = [PIP, SETUPTOOLS]
     valid_sphinx_builders = {
         "html": "sphinx",
         "htmldir": "sphinx_htmldir",
@@ -251,6 +285,8 @@ class BuildConfigV2(BuildConfigBase):
         self._config["sphinx"] = self.validate_sphinx()
         self._config["submodules"] = self.validate_submodules()
         self._config["search"] = self.validate_search()
+        if self.deprecate_implicit_keys:
+            self.validate_deprecated_implicit_keys()
         self.validate_keys()
 
     def validate_formats(self):
@@ -356,8 +392,7 @@ class BuildConfigV2(BuildConfigBase):
         for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
-                    validate_string(job_command)
-                    for job_command in validate_list(job_commands)
+                    validate_string(job_command) for job_command in validate_list(job_commands)
                 ]
 
         build["commands"] = []
@@ -406,13 +441,9 @@ class BuildConfigV2(BuildConfigBase):
             raw_packages = self._raw_config.get("build", {}).get("apt_packages", [])
             validate_list(raw_packages)
             # Transform to a dict, so is easy to validate individual entries.
-            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(
-                raw_packages
-            )
+            self._raw_config.setdefault("build", {})["apt_packages"] = list_to_dict(raw_packages)
 
-            apt_packages = [
-                self.validate_apt_package(index) for index in range(len(raw_packages))
-            ]
+            apt_packages = [self.validate_apt_package(index) for index in range(len(raw_packages))]
             if not raw_packages:
                 self.pop_config("build.apt_packages")
 
@@ -473,7 +504,7 @@ class BuildConfigV2(BuildConfigBase):
         Validates the python key.
 
         validate_build should be called before this, since it initialize the
-        build.image attribute.
+        build attribute.
 
         .. note::
            - ``version`` can be a string or number type.
@@ -489,9 +520,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self._raw_config.setdefault("python", {})["install"] = list_to_dict(
-                    raw_install
-                )
+                self._raw_config.setdefault("python", {})["install"] = list_to_dict(raw_install)
             else:
                 self.pop_config("python.install")
 
@@ -499,6 +528,17 @@ class BuildConfigV2(BuildConfigBase):
         python["install"] = [
             self.validate_python_install(index) for index in range(len(raw_install))
         ]
+
+        # uv entries currently support a single python.install item only.
+        has_uv_install = any(
+            install.get("method") == UV
+            for install in python["install"]
+            if isinstance(install, dict)
+        )
+        if has_uv_install and len(python["install"]) > 1:
+            raise ConfigError(
+                message_id=ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID,
+            )
 
         return python
 
@@ -510,7 +550,17 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error(key):
             validate_dict(raw_install)
 
-        if "requirements" in raw_install:
+        # Detect which type of install this is: uv, requirements file, or path-based
+        method = raw_install.get("method", PIP)
+        has_requirements = "requirements" in raw_install
+        has_path = "path" in raw_install
+
+        # Case 1: method: uv
+        if method == UV:
+            return self._validate_uv_install(key)
+
+        # Case 2: requirements file (legacy pip)
+        if has_requirements:
             requirements_key = key + ".requirements"
             with self.catch_validation_error(requirements_key):
                 requirements = validate_path(
@@ -518,7 +568,10 @@ class BuildConfigV2(BuildConfigBase):
                     self.base_path,
                 )
                 python_install["requirements"] = requirements
-        elif "path" in raw_install:
+            return python_install
+
+        # Case 3: path-based install (pip/setuptools)
+        if has_path:
             path_key = key + ".path"
             with self.catch_validation_error(path_key):
                 path = validate_path(
@@ -531,7 +584,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
-                    self.valid_install_method,
+                    [PIP, SETUPTOOLS, UV],
                 )
                 python_install["method"] = method
 
@@ -545,13 +598,140 @@ class BuildConfigV2(BuildConfigBase):
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
                     )
                 python_install["extra_requirements"] = extra_requirements
-        else:
-            raise ConfigError(
-                message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
-                format_values={
-                    "key": key,
-                },
-            )
+            return python_install
+
+        # No valid combination found
+        raise ConfigError(
+            message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
+            format_values={
+                "key": key,
+            },
+        )
+
+    def _validate_uv_install(self, key):
+        """Validate a uv install entry."""
+        method_key = key + ".method"
+        self.pop_config(method_key)
+        python_install = {"method": UV}
+
+        # command is required
+        command_key = key + ".command"
+        with self.catch_validation_error(command_key):
+            command = self.pop_config(command_key)
+            if command is None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_COMMAND_REQUIRED,
+                )
+            command = validate_choice(command, ["sync", "pip"])
+            python_install["command"] = command
+
+        # path (optional, None when not provided by user)
+        path_key = key + ".path"
+        path = self.pop_config(path_key)
+        with self.catch_validation_error(path_key):
+            if path:
+                path = validate_path(path, self.base_path)
+            python_install["path"] = path
+
+        requirements_key = key + ".requirements"
+        requirements = self.pop_config(requirements_key)
+
+        groups_key = key + ".groups"
+        groups = self.pop_config(groups_key, None)
+
+        extras_key = key + ".extras"
+        extras = self.pop_config(extras_key)
+
+        # Validate based on command type
+        if command == "sync":
+            # requirements not allowed with sync
+            if requirements is not None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_SYNC_REQUIREMENTS_INVALID,
+                )
+
+            # groups (optional)
+            if groups is not None:
+                with self.catch_validation_error(groups_key):
+                    if isinstance(groups, list):
+                        if not groups:
+                            raise ConfigError(
+                                message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                                format_values={"field": "groups"},
+                            )
+                        groups = validate_list(groups)
+                    elif groups == ALL:
+                        pass  # "all" is valid
+                    else:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                            format_values={"field": "groups"},
+                        )
+                    python_install["groups"] = groups
+
+            # extras (optional)
+            if extras is not None:
+                with self.catch_validation_error(extras_key):
+                    if isinstance(extras, list):
+                        if not extras:
+                            raise ConfigError(
+                                message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                                format_values={"field": "extras"},
+                            )
+                        extras = validate_list(extras)
+                    elif extras == ALL:
+                        pass  # "all" is valid
+                    else:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                            format_values={"field": "extras"},
+                        )
+                    python_install["extras"] = extras
+
+        else:  # command == "pip"
+            # groups not allowed with uv pip
+            if groups is not None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_PIP_GROUPS_NOT_ALLOWED,
+                )
+
+            if requirements is None and path is None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED,
+                )
+
+            if requirements is not None and path is not None:
+                raise ConfigError(
+                    message_id=ConfigError.UV_PIP_REQUIREMENTS_AND_PATH_MUTUALLY_EXCLUSIVE,
+                )
+
+            # If requirements is specified, handle it
+            if requirements is not None:
+                with self.catch_validation_error(requirements_key):
+                    requirements = validate_path(
+                        requirements,
+                        self.base_path,
+                    )
+                    python_install["requirements"] = requirements
+
+            # extras (optional, allowed for local path install)
+            if extras is not None:
+                with self.catch_validation_error(extras_key):
+                    if isinstance(extras, list):
+                        if not extras:
+                            raise ConfigError(
+                                message_id=ConfigError.UV_GROUPS_EXTRAS_EMPTY,
+                                format_values={"field": "extras"},
+                            )
+                        extras = validate_list(extras)
+                    elif extras == ALL:
+                        pass  # "all" is valid
+                    else:
+                        raise ConfigError(
+                            message_id=ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE,
+                            format_values={"field": "extras"},
+                        )
+                    python_install["extras"] = extras
 
         return python_install
 
@@ -651,18 +831,14 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error("submodules.include"):
             include = self.pop_config("submodules.include", [])
             if include != ALL:
-                include = [
-                    validate_string(submodule) for submodule in validate_list(include)
-                ]
+                include = [validate_string(submodule) for submodule in validate_list(include)]
             submodules["include"] = include
 
         with self.catch_validation_error("submodules.exclude"):
             default = [] if submodules["include"] else ALL
             exclude = self.pop_config("submodules.exclude", default)
             if exclude != ALL:
-                exclude = [
-                    validate_string(submodule) for submodule in validate_list(exclude)
-                ]
+                exclude = [validate_string(submodule) for submodule in validate_list(exclude)]
             submodules["exclude"] = exclude
 
         with self.catch_validation_error("submodules"):
@@ -721,6 +897,54 @@ class BuildConfigV2(BuildConfigBase):
             search["ignore"] = final_ignore
 
         return search
+
+    def validate_deprecated_implicit_keys(self):
+        """
+        Check for deprecated usages and raise an exception if found.
+
+        - If the user is using build.commands, we don't need the sphinx or mkdocs keys.
+        - If the sphinx key is used, a path to the configuration file is required.
+        - If the mkdocs key is used, a path to the configuration file is required.
+        - If none of the sphinx or mkdocs keys are used,
+          and the user isn't overriding the new build jobs,
+          the sphinx key is explicitly required.
+        """
+        if self.is_using_build_commands:
+            return
+
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if has_sphinx_key and not self.sphinx.configuration:
+            raise ConfigError(
+                message_id=ConfigError.SPHINX_CONFIG_MISSING,
+            )
+
+        if has_mkdocs_key and not self.mkdocs.configuration:
+            raise ConfigError(
+                message_id=ConfigError.MKDOCS_CONFIG_MISSING,
+            )
+
+        if not self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
+            raise ConfigError(
+                message_id=ConfigError.SPHINX_CONFIG_MISSING,
+            )
+
+    @property
+    def new_jobs_overriden(self):
+        """Check if any of the new (undocumented) build jobs are overridden."""
+        build_jobs = self.build.jobs
+        new_jobs = (
+            build_jobs.create_environment,
+            build_jobs.install,
+            build_jobs.build.html,
+            build_jobs.build.pdf,
+            build_jobs.build.epub,
+            build_jobs.build.htmlzip,
+        )
+        for job in new_jobs:
+            if job is not None:
+                return True
+        return False
 
     def validate_keys(self):
         """
@@ -812,6 +1036,11 @@ class BuildConfigV2(BuildConfigBase):
         if "commands" in self._config["build"] and self._config["build"]["commands"]:
             return GENERIC
 
+        has_sphinx_key = "sphinx" in self.source_config
+        has_mkdocs_key = "mkdocs" in self.source_config
+        if self.new_jobs_overriden and not has_sphinx_key and not has_mkdocs_key:
+            return GENERIC
+
         if self.mkdocs:
             return "mkdocs"
         return self.sphinx.builder
@@ -846,9 +1075,7 @@ def load(path, readthedocs_yaml_path=None):
             raise ConfigError(ConfigError.DEFAULT_PATH_NOT_FOUND)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
-    with safe_open(
-        filename, "r", allow_symlinks=True, base_path=path
-    ) as configuration_file:
+    with safe_open(filename, "r", allow_symlinks=True, base_path=path) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:

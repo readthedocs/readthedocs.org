@@ -8,9 +8,8 @@ How to use private Git submodules
 If you are using private Git repositories and they also contain private Git submodules,
 you need to follow a few special steps.
 
-Read the Docs uses SSH keys (with read only permissions) in order to clone private repositories.
-A SSH key is automatically generated and added to your main repository, but not to your submodules.
-In order to give Read the Docs access to clone your submodules you'll need to add the public SSH key to each repository of your submodules.
+When a project is created, a SSH key is automatically generated.
+You can use this SSH key to give Read the Docs access to clone your private submodules.
 
 .. note::
 
@@ -35,6 +34,11 @@ to give read access to several repositories using only one SSH key.
 
 #. Remove the SSH deploy key that was added to the main repository on GitHub
 
+   .. note::
+
+      If you are using our :ref:`reference/git-integration:GitHub App` to connect your repository to Read the Docs,
+      you can skip this step, because access to your repository is controlled through the App instead of a deploy key.
+
    #. Go to your project on GitHub
    #. Click on :guilabel:`Settings`
    #. Click on :guilabel:`Deploy Keys`
@@ -53,7 +57,7 @@ to give read access to several repositories using only one SSH key.
    #. Click on :guilabel:`SSH and GPG keys`
    #. Click on :guilabel:`New SSH key`
    #. Put a descriptive title and paste the
-      :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      :ref:`public SSH key from your Read the Docs project <guides/creating-project-private-repository:Configuring your repository>`
    #. Click on :guilabel:`Add SSH key`
 
 Azure DevOps
@@ -65,7 +69,7 @@ Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
 
-   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:Add the public key to your project>`.
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/creating-project-private-repository:Configuring your repository>`.
 
 Others
 ------
@@ -76,4 +80,4 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
-   :doc:`/guides/importing-private-repositories`
+   :doc:`/guides/creating-project-private-repository`

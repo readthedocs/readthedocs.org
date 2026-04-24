@@ -10,7 +10,7 @@ Organizations allow you to define both individual and team permissions for your 
 .. seealso::
 
    :doc:`/guides/manage-read-the-docs-teams`
-     A step-by-step guide to managing teams.
+     A step-by-step guide to managing organization owners and teams.
 
 Important objects
 ~~~~~~~~~~~~~~~~~
@@ -25,7 +25,7 @@ The best way to think about this relationship is:
 
 .. warning::
 
-   Owners, Members and Teams behave differently if you are using
+   Owners, Members, and Teams behave differently if you are using
    :ref:`sso_git_provider`.
 
 Team types
@@ -40,7 +40,7 @@ Example
 ~~~~~~~
 
 ACME would set up *Owners* of their organization,
-for example Frank Roadrunner would be an owner.
+for example, Frank Roadrunner would be an owner.
 He has full access to the organization and all projects.
 
 Wile E. Coyote is a contractor,

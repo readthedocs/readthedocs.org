@@ -1,8 +1,9 @@
 """Customizations to Django Taggit."""
+
+import requests
 from allauth.socialaccount.models import SocialApp
 from django.db.models import Count
 from django.utils.text import slugify
-import requests
 from taggit.models import Tag
 from taggit.utils import _parse_tags
 
@@ -31,12 +32,7 @@ def rtd_parse_tags(tag_string):
 
 def remove_unused_tags():
     """Removes all tags that have no corresponding items (projects)."""
-    return (
-        Tag.objects.all()
-        .annotate(num=Count("taggit_taggeditem_items"))
-        .filter(num=0)
-        .delete()
-    )
+    return Tag.objects.all().annotate(num=Count("taggit_taggeditem_items")).filter(num=0).delete()
 
 
 def import_tags(project):

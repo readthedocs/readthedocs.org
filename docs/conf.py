@@ -17,6 +17,7 @@ import sys
 from multiproject.utils import get_project
 
 sys.path.append(os.path.abspath("_ext"))
+
 extensions = [
     "multiproject",
     "myst_parser",
@@ -25,7 +26,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_tabs.tabs",
-    "sphinx-prompt",
+    "sphinx_prompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.extlinks",
@@ -63,13 +64,13 @@ ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
 ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
 # Inspired by https://github.com/executablebooks/MyST-Parser/pull/404/
-ogp_custom_meta_tags = [
+ogp_custom_meta_tags = (
     '<meta name="twitter:card" content="summary_large_image" />',
-]
+)
 ogp_enable_meta_description = True
 ogp_description_length = 300
 
-templates_path = ["_templates"]
+templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 
 # This may be elevated as a general issue for documentation and behavioral
 # change to the Sphinx build:
@@ -80,9 +81,12 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "11.16.0"
+version = "2026.4.21"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
+# Exclude design docs from dev documentation
+if docset == "dev":
+    exclude_patterns.append("design")
 default_role = "obj"
 intersphinx_cache_limit = 14  # cache for 2 weeks
 intersphinx_timeout = 3  # 3 seconds timeout

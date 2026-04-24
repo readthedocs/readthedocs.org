@@ -3,31 +3,42 @@
 import hashlib
 import hmac
 import json
-import re
 from functools import namedtuple
 from textwrap import dedent
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
-from rest_framework import permissions, status
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import LATEST
-from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
-from readthedocs.core.views.hooks import (
-    build_branches,
-    build_external_version,
-    close_external_version,
-    get_or_create_external_version,
-    trigger_sync_versions,
-)
-from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import TAG
+from readthedocs.core.signals import webhook_bitbucket
+from readthedocs.core.signals import webhook_github
+from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.utils import trigger_build
+from readthedocs.core.views.hooks import VersionInfo
+from readthedocs.core.views.hooks import build_versions_from_names
+from readthedocs.core.views.hooks import close_external_version
+from readthedocs.core.views.hooks import get_or_create_external_version
+from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
+from readthedocs.vcs_support.backends.git import parse_version_from_ref
+
 
 log = structlog.get_logger(__name__)
 
@@ -64,7 +75,6 @@ ExternalVersionData = namedtuple(
 
 
 class WebhookMixin:
-
     """Base class for Webhook mixins."""
 
     permission_classes = (permissions.AllowAny,)
@@ -84,7 +94,7 @@ class WebhookMixin:
         """Set up webhook post view with request and project objects."""
         self.request = request
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project_slug,
             integration_type=self.integration_type,
         )
@@ -144,12 +154,20 @@ class WebhookMixin:
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, "project") and self.project:
-            HttpExchange.objects.from_exchange(
-                req,
-                resp,
-                related_object=self.get_integration(),
-                payload=self.data,
-            )
+            try:
+                integration = self.get_integration()
+            except (Http404, ParseError):
+                # If we can't get a single integration (either none or multiple exist),
+                # we can't store the HTTP exchange
+                integration = None
+
+            if integration:
+                HttpExchange.objects.from_exchange(
+                    req,
+                    resp,
+                    related_object=integration,
+                    payload=self.data,
+                )
         return resp
 
     def get_data(self):
@@ -195,14 +213,24 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        self.integration = get_object_or_404(
-            Integration,
+
+        integrations = Integration.objects.filter(
             project=self.project,
             integration_type=self.integration_type,
         )
+
+        if not integrations.exists():
+            raise Http404("No Integration matches the given query.")
+        elif integrations.count() > 1:
+            raise ParseError(
+                "Multiple integrations found for this project. "
+                "Please use the webhook URL with an explicit integration ID."
+            )
+
+        self.integration = integrations.first()
         return self.integration
 
-    def get_response_push(self, project, branches):
+    def get_response_push(self, project, versions_info: list[VersionInfo]):
         """
         Build branches on push events and return API response.
 
@@ -216,14 +244,12 @@ class WebhookMixin:
 
         :param project: Project instance
         :type project: Project
-        :param branches: List of branch/tag names to build
-        :type branches: list(str)
         """
-        to_build, not_building = build_branches(project, branches)
+        to_build, not_building = build_versions_from_names(project, versions_info)
         if not_building:
             log.info(
-                "Skipping project branches.",
-                branches=branches,
+                "Skipping project versions.",
+                versions=not_building,
             )
         triggered = bool(to_build)
         return {
@@ -270,9 +296,12 @@ class WebhookMixin:
             version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
-        to_build = build_external_version(
+        to_build = external_version.verbose_name
+        trigger_build(
             project=project,
             version=external_version,
+            commit=external_version.identifier,
+            from_webhook=True,
         )
 
         return {
@@ -309,7 +338,7 @@ class WebhookMixin:
 
     def update_default_branch(self, default_branch):
         """
-        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+        Update the `Version.identifier` for `latest` with the VCS's `default_branch`.
 
         The VCS's `default_branch` is the branch cloned when there is no specific branch specified
         (e.g. `git clone <URL>`).
@@ -331,12 +360,13 @@ class WebhookMixin:
             # Always check for the machine attribute, since latest can be user created.
             # RTD doesn't manage those.
             self.project.versions.filter(slug=LATEST, machine=True).update(
-                identifier=default_branch
+                identifier=default_branch,
+                verbose_name=LATEST_VERBOSE_NAME,
+                type=BRANCH,
             )
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for GitHub.
 
@@ -445,12 +475,35 @@ class GitHubWebhookView(WebhookMixin, APIView):
         See https://developer.github.com/v3/activity/events/types/
 
         """
+        if self.project.is_github_app_project:
+            Notification.objects.add(
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+                attached_to=self.project,
+                dismissable=True,
+            )
+            return Response(
+                {
+                    "detail": " ".join(
+                        dedent(
+                            """
+                            This project is connected to our GitHub App and doesn't require a separate webhook, ignoring webhook event.
+                            Remove the deprecated webhook from your repository to avoid duplicate events,
+                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project.
+                            """
+                        )
+                        .strip()
+                        .splitlines()
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Get event and trigger other webhook events
         action = self.data.get("action", None)
         created = self.data.get("created", False)
         deleted = self.data.get("deleted", False)
         event = self.request.headers.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_github.send(
             Project,
             project=self.project,
@@ -496,9 +549,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             ]
         ):
             events = (
-                integration.provider_data.get("events", [])
-                if integration.provider_data
-                else []
+                integration.provider_data.get("events", []) if integration.provider_data else []
             )  # noqa
             if any(
                 [
@@ -520,21 +571,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Trigger a build for all branches in the push
         if event == GITHUB_PUSH:
             try:
-                branch = self._normalize_ref(self.data["ref"])
-                return self.get_response_push(self.project, [branch])
+                version_name, version_type = parse_version_from_ref(self.data["ref"])
+                return self.get_response_push(
+                    self.project, [VersionInfo(name=version_name, type=version_type)]
+                )
             except KeyError as exc:
                 raise ParseError('Parameter "ref" is required') from exc
 
         return None
 
-    def _normalize_ref(self, ref):
-        """Remove `ref/(heads|tags)/` from the reference to match a Version on the db."""
-        pattern = re.compile(r"^refs/(heads|tags)/")
-        return pattern.sub("", ref)
-
 
 class GitLabWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for GitLab.
 
@@ -612,7 +659,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """
         event = self.request.data.get("object_kind", GITLAB_PUSH)
         action = self.data.get("object_attributes", {}).get("action", None)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -641,8 +688,10 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                branch = self._normalize_ref(data["ref"])
-                return self.get_response_push(self.project, [branch])
+                version_name, version_type = parse_version_from_ref(self.data["ref"])
+                return self.get_response_push(
+                    self.project, [VersionInfo(name=version_name, type=version_type)]
+                )
             except KeyError as exc:
                 raise ParseError('Parameter "ref" is required') from exc
 
@@ -660,13 +709,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.get_closed_external_version_response(self.project)
         return None
 
-    def _normalize_ref(self, ref):
-        pattern = re.compile(r"^refs/(heads|tags)/")
-        return pattern.sub("", ref)
-
 
 class BitbucketWebhookView(WebhookMixin, APIView):
-
     """
     Webhook consumer for Bitbucket.
 
@@ -708,7 +752,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         attribute (null if it is a creation).
         """
         event = self.request.headers.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_bitbucket.send(
             Project,
             project=self.project,
@@ -724,21 +768,22 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             try:
                 data = self.request.data
                 changes = data["push"]["changes"]
-                branches = []
+                versions_info = []
                 for change in changes:
                     old = change["old"]
                     new = change["new"]
                     # Normal push to master
                     if old is not None and new is not None:
-                        branches.append(new["name"])
+                        version_type = BRANCH if new["type"] == "branch" else TAG
+                        versions_info.append(VersionInfo(name=new["name"], type=version_type))
                 # BitBuck returns an array of changes rather than
                 # one webhook per change. If we have at least one normal push
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
-                if branches:
+                if versions_info:
                     return self.get_response_push(
                         self.project,
-                        branches,
+                        versions_info,
                     )
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
@@ -768,7 +813,6 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
-
     """
     Allow authenticated users and requests with token auth through.
 
@@ -782,7 +826,6 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
 
 class APIWebhookView(WebhookMixin, APIView):
-
     """
     API webhook consumer.
 
@@ -837,7 +880,9 @@ class APIWebhookView(WebhookMixin, APIView):
             if default_branch and isinstance(default_branch, str):
                 self.update_default_branch(default_branch)
 
-            return self.get_response_push(self.project, branches)
+            # branches can be a branch or a tag, so we set it to None, so both types are considered.
+            versions_info = [VersionInfo(name=branch, type=None) for branch in branches]
+            return self.get_response_push(self.project, versions_info)
         except TypeError as exc:
             raise ParseError("Invalid request") from exc
 
@@ -852,7 +897,6 @@ class APIWebhookView(WebhookMixin, APIView):
 
 
 class WebhookView(APIView):
-
     """
     Main webhook view for webhooks with an ID.
 

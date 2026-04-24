@@ -52,6 +52,30 @@ You can sort by:
 You can also choose whether ``latest`` and ``stable`` should be sorted first,
 as those are special versions that Read the Docs uses.
 
+Position
+^^^^^^^^
+
+The flyout can be configured in the :term:`dashboard` with the following positions:
+
+- :guilabel:`Default (from theme or Read the Docs)` - **Default**. If the theme author defines a specific position for the flyout, that position will be used.
+  Otherwise, the default position from Read the Docs will be used: ``Bottom right``.
+- :guilabel:`Bottom left` - Show the flyout at the bottom left.
+- :guilabel:`Bottom right` - Show the flyout at the bottom right.
+- :guilabel:`Top left` - Show the flyout at the top left.
+- :guilabel:`Top right` - Show the flyout at the top right.
+
+.. note::
+
+   If you are a theme author and want to define a default flyout position for your theme,
+   you can explicitly define the flyout web component with the ``position`` attribute in your HTML:
+
+   .. code:: html
+
+     <readthedocs-flyout position="bottom-left"></readthedocs-flyout>
+
+
+   Available positions: ``bottom-left``, ``bottom-right``, ``top-left`` and ``top-right``.
+
 Custom event integration
 ------------------------
 

@@ -22,7 +22,7 @@ Sphinx example with versioning and Python doc autogeneration.
 Markup language
   reStructuredText, Markdown or MyST
 Rendered version
-  https://example-sphinx-basic.readthedocs.io/en/latest/>
+  https://example-sphinx-basic.readthedocs.io/en/latest/
 Repository
   https://github.com/readthedocs-examples/example-sphinx-basic/
 

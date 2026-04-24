@@ -1,11 +1,13 @@
 """Notifications related to custom domains."""
+
 import textwrap
 
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.notifications.constants import INFO
 from readthedocs.notifications.email import EmailNotification
-from readthedocs.notifications.messages import Message, registry
+from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
 
 
 class PendingCustomDomainValidation(EmailNotification):

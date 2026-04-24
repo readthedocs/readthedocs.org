@@ -3,11 +3,13 @@
 import structlog
 from django.core.cache import cache
 from django.urls import reverse
-from rest_framework import decorators, permissions
+from rest_framework import decorators
+from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.oauth import tasks
+
 
 log = structlog.get_logger(__name__)
 

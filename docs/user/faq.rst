@@ -88,10 +88,8 @@ We have documented how to set this up in :doc:`/reference/robots`.
 How do I change the version slug of my project?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We don't support allowing folks to change the slug for their versions.
-But you can rename the branch/tag to achieve this.
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
+You can change the slug of your versions from the versions tab of your project,
+see :ref:`versions:Version URL identifier (slug)` for more information.
 
 
 What commit of Read the Docs is in production?
@@ -111,7 +109,7 @@ How do I add additional software dependencies for my documentation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For most Python dependencies,
-you can can specify a requirements file which details your dependencies.
+you can specify a requirements file which details your dependencies.
 You can also set your project documentation to install your Python project itself as a dependency.
 
 .. seealso::
@@ -191,6 +189,9 @@ The main reason for this is that all existing URLs to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
+
+Instead, you can consider *migrating your documentation to another domain*
+with :doc:`/user-defined-redirects`.
 
 If that isn't enough,
 you can request the change sending an email to support@readthedocs.org.

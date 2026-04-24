@@ -24,24 +24,19 @@
         "type": "git",
         "url": "https://github.com/readthedocs/project"
       },
+      "readthedocs_yaml_path": null,
       "single_version": false,
       "versioning_scheme": "multiple_versions_with_translations",
       "slug": "project",
       "subproject_of": null,
-      "tags": ["project", "tag", "test"],
       "translation_of": null,
       "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
         "documentation": "https://project.dev.readthedocs.io/en/latest/",
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/",
-        "downloads": "https://readthedocs.org/projects/project/downloads/"
-      },
-      "users": [
-        {
-          "username": "testuser"
-        }
-      ]
+        "downloads": null
+      }
     }
   },
   "versions": {
@@ -52,7 +47,7 @@
       "built": true,
       "downloads": {},
       "id": 1,
-      "identifier": "a1b2c3",
+      "identifier": "master",
       "privacy_level": "public",
       "ref": null,
       "slug": "latest",
@@ -74,7 +69,7 @@
         "downloads": {},
         "hidden": false,
         "id": 1,
-        "identifier": "a1b2c3",
+        "identifier": "master",
         "privacy_level": "public",
         "ref": null,
         "slug": "latest",
@@ -118,6 +113,9 @@
   "readthedocs": {
     "analytics": {
       "code": null
+    },
+    "resolver": {
+      "filename": "/index.html"
     }
   },
   "addons": {
@@ -142,7 +140,7 @@
     },
     "notifications": {
       "enabled": true,
-      "show_on_external": true,
+      "show_on_external": false,
       "show_on_latest": true,
       "show_on_non_stable": true
     },
@@ -152,10 +150,11 @@
       "inject_styles": true
     },
     "filetreediff": {
-      "enabled": false
+      "enabled": true
     },
     "flyout": {
-      "enabled": true
+      "enabled": true,
+      "position": null
     },
     "search": {
       "enabled": true,
@@ -167,7 +166,8 @@
       "src": null
     },
     "linkpreviews": {
-      "enabled": false
+      "enabled": false,
+      "selector": null
     }
   }
 }

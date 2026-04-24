@@ -52,7 +52,7 @@ There are two noteworthy exceptions for *custom environment variables*:
 
 Build checkout step
   Custom environment variables are **not** available during the checkout step of the :doc:`build process </builds>`
-Pull Request builds
+Pull request builds
   Custom environment variables that are not marked as :guilabel:`Public` will not be available in :doc:`pull request builds </pull-requests>`
 
 .. the presence of this section is intended to evolve into a better explanation

@@ -1,12 +1,15 @@
 """We define custom Django signals to trigger before executing searches."""
 
 import structlog
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
 
 from readthedocs.projects.models import Project
-from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
+from readthedocs.search.tasks import delete_objects_in_es
+from readthedocs.search.tasks import index_objects_to_es
+
 
 log = structlog.get_logger(__name__)
 

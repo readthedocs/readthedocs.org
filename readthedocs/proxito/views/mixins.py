@@ -1,49 +1,43 @@
 import mimetypes
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
 from django.core.exceptions import BadRequest
-from django.http import (
-    HttpResponse,
-    HttpResponsePermanentRedirect,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponse
+from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
 from readthedocs.audit.models import AuditLog
-from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.storage import build_media_storage
+from readthedocs.storage import staticfiles_storage
 from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
 from readthedocs.subscriptions.products import get_feature
+
 
 log = structlog.get_logger(__name__)
 
 
 class InvalidPathError(Exception):
-
     """An invalid path was passed to storage."""
 
 
 class StorageFileNotFound(Exception):
-
     """The file wasn't found in the storage backend."""
 
 
 class ServeDocsMixin:
-
     """Class implementing all the logic to serve a document."""
-
-    # We force all storage calls to use internal versions
-    # unless explicitly set to external.
-    version_type = INTERNAL
 
     def _serve_docs(self, request, project, version, filename, check_if_exists=False):
         """
@@ -54,14 +48,7 @@ class ServeDocsMixin:
          Useful to make sure were are serving a file that exists in storage,
          checking if the file exists will make one additional request to the storage.
         """
-        base_storage_path = project.get_storage_path(
-            type_=MEDIA_TYPE_HTML,
-            version_slug=version.slug,
-            include_file=False,
-            # Force to always read from the internal or extrernal storage,
-            # according to the current request.
-            version_type=self.version_type,
-        )
+        base_storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
 
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
@@ -71,9 +58,7 @@ class ServeDocsMixin:
         # If the filename starts with `/`, the join will fail,
         # so we strip it before joining it.
         try:
-            storage_path = build_media_storage.join(
-                base_storage_path, filename.lstrip("/")
-            )
+            storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
         except ValueError:
             # We expect this exception from the django storages safe_join
             # function, when the filename resolves to a higher relative path.
@@ -103,14 +88,7 @@ class ServeDocsMixin:
         filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
         or "docs-celeryproject-org-kombu-en-stable.pdf").
         """
-        storage_path = project.get_storage_path(
-            type_=type_,
-            version_slug=version.slug,
-            # Force to always read from the internal or extrernal storage,
-            # according to the current request.
-            version_type=self.version_type,
-            include_file=True,
-        )
+        storage_path = version.get_download_storage_path(media_type=type_)
         self._track_pageview(
             project=project,
             path=storage_path,
@@ -272,9 +250,7 @@ class ServeDocsMixin:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
 
             if is_serve_docs_denied(project):
-                return render(
-                    request, template_name="errors/proxito/spam.html", status=410
-                )
+                return render(request, template_name="errors/proxito/spam.html", status=410)
 
 
 class ServeRedirectMixin:
@@ -300,9 +276,7 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=is_external_version,
         )
-        log.debug(
-            "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
-        )
+        log.debug("System Redirect.", host=request.get_host(), from_url=filename, to_url=to)
 
         new_path_parsed = urlparse(to)
         old_path_parsed = urlparse(request.build_absolute_uri())
@@ -407,10 +381,9 @@ class ServeRedirectMixin:
 
         # Check explicitly only the path and hostname, since a different
         # protocol or query parameters could lead to a infinite redirect.
-        if (
-            new_url_parsed.hostname == current_url_parsed.hostname
-            and new_url_parsed.path == current_url_parsed.path
-        ):
+        # NOTE: we compare against the `path` parameter, since requests
+        # from the 404 handler will have a different path (/_proxito_404/path/to/file.html).
+        if new_url_parsed.hostname == current_url_parsed.hostname and new_url_parsed.path == path:
             # check that we do have a response and avoid infinite redirect
             log.debug(
                 "Infinite Redirect: FROM URL is the same than TO URL.",

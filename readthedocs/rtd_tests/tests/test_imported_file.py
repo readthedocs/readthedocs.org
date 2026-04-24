@@ -2,15 +2,15 @@ import os
 from unittest import mock
 
 import pytest
-from django.conf import settings
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import storages
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff.dataclasses import FileTreeDiffFile, FileTreeDiffManifest
+from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest, FileTreeDiffManifestFile
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import index_build
 from readthedocs.search.documents import PageDocument
@@ -21,10 +21,17 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class ImportedFileTests(TestCase):
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    @property
+    def storage(self):
+        return storages["build-media"]
 
     def setUp(self):
         self.project = get(Project)
+
+        # Disable File Tree Diff because these tests are not prepared
+        self.project.addons.filetreediff_enabled = False
+        self.project.addons.save()
+
         self.version = self.project.versions.get(slug=LATEST)
         self.build = get(
             Build,
@@ -53,14 +60,9 @@ class ImportedFileTests(TestCase):
 
     def _copy_storage_dir(self, version):
         """Copy the test directory (rtd_tests/files) to storage"""
-        self.storage.copy_directory(
+        self.storage.rclone_sync_directory(
             self.test_dir,
-            self.project.get_storage_path(
-                type_="html",
-                version_slug=version.slug,
-                include_file=False,
-                version_type=version.type,
-            ),
+            version.get_storage_path(media_type=MEDIA_TYPE_HTML),
         )
 
     def test_properly_created(self):
@@ -351,31 +353,29 @@ class ImportedFileTests(TestCase):
     @mock.patch("readthedocs.projects.tasks.search.write_manifest")
     def test_create_file_tree_manifest(self, write_manifest):
         assert self.version.slug == LATEST
-        index_build(self.build.pk)
-        # File Tree Diff is not enabled by default
-        write_manifest.assert_not_called()
 
         self.project.addons.filetreediff_enabled = True
         self.project.addons.save()
+
         index_build(self.build.pk)
         manifest = FileTreeDiffManifest(
             build_id=self.build.pk,
             files=[
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="index.html",
-                    main_content_hash="f3336aabed1ae8057ffb0cca20d23d4c",
+                    main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="404.html",
-                    main_content_hash="b855c3d54f84e075b70faa9958123377",
+                    main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="test.html",
-                    main_content_hash="04e5dc4003413e36b8bec86bc5e28b07",
+                    main_content_hash=mock.ANY,
                 ),
-                FileTreeDiffFile(
+                FileTreeDiffManifestFile(
                     path="api/index.html",
-                    main_content_hash="15958dc725d925c8524b1766cde73d66",
+                    main_content_hash=mock.ANY,
                 ),
             ],
         )

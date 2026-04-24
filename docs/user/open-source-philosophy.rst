@@ -9,7 +9,7 @@ However,
 as a project there are things that we care about more than others.
 We built Read the Docs to support documentation in the open source community.
 The code is open for people to contribute to,
-so that they may build features into https://readthedocs.org that they want.
+so that they may build features into https://app.readthedocs.org that they want.
 We also believe sharing the code openly is a valuable learning tool,
 especially for demonstrating how to collaborate and maintain an enormous website.
 
@@ -21,8 +21,8 @@ The time of the core developers of Read the Docs is limited.
 We provide official support for the following things:
 
 * Local development on the Python code base
-* Usage of https://readthedocs.org for open source projects
-* Bug fixes in the code base, as it applies to running it on https://readthedocs.org
+* Usage of https://app.readthedocs.org for open source projects
+* Bug fixes in the code base, as it applies to running it on https://app.readthedocs.org
 
 Unsupported
 ~~~~~~~~~~~

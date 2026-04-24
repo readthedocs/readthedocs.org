@@ -1,55 +1,72 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
+
 import json
+from dataclasses import asdict
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import BooleanField, Case, Value, When
+from django.db.models import BooleanField
+from django.db.models import Case
+from django.db.models import Value
+from django.db.models import When
 from django.http import Http404
 from django.template.loader import render_to_string
-from rest_framework import decorators, status, viewsets
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
-from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.renderers import BaseRenderer, JSONRenderer
+from django.utils import timezone
+from rest_framework import decorators
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.parsers import JSONParser
+from rest_framework.parsers import MultiPartParser
+from rest_framework.renderers import BaseRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPermission
+from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import IsOwner
+from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
+from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import Version
 from readthedocs.notifications.models import Notification
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
 
-from ..serializers import (
-    BuildAdminReadOnlySerializer,
-    BuildAdminSerializer,
-    BuildCommandSerializer,
-    BuildSerializer,
-    DomainSerializer,
-    NotificationSerializer,
-    ProjectAdminSerializer,
-    ProjectSerializer,
-    RemoteOrganizationSerializer,
-    RemoteRepositorySerializer,
-    SocialAccountSerializer,
-    VersionAdminSerializer,
-    VersionSerializer,
-)
-from ..utils import (
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
+from ..serializers import BuildAdminReadOnlySerializer
+from ..serializers import BuildAdminSerializer
+from ..serializers import BuildCommandSerializer
+from ..serializers import BuildSerializer
+from ..serializers import DomainSerializer
+from ..serializers import NotificationSerializer
+from ..serializers import ProjectAdminSerializer
+from ..serializers import ProjectSerializer
+from ..serializers import RemoteOrganizationSerializer
+from ..serializers import RemoteRepositorySerializer
+from ..serializers import SocialAccountSerializer
+from ..serializers import VersionAdminSerializer
+from ..serializers import VersionSerializer
+from ..utils import ProjectPagination
+from ..utils import RemoteOrganizationPagination
+from ..utils import RemoteProjectPagination
+
 
 log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
-
     """
     Custom renderer for text/plain format.
 
@@ -72,7 +89,6 @@ class PlainTextBuildRenderer(BaseRenderer):
 
 
 class DisableListEndpoint:
-
     """
     Helper to disable APIv2 listing endpoint.
 
@@ -95,15 +111,17 @@ class DisableListEndpoint:
 
         disabled = True
 
+        # DRF strips whitespaces from query params, and if the final string is empty
+        # the filter is ignored. So we do the same to check if the filter is going to be used or not.
+        project_slug = self.request.GET.get("project__slug", "").strip()
+        commit = self.request.GET.get("commit", "").strip()
+        slug = self.request.GET.get("slug", "").strip()
         # NOTE: keep list endpoint that specifies a resource
         if any(
             [
-                self.basename == "version" and "project__slug" in self.request.GET,
-                self.basename == "build"
-                and (
-                    "commit" in self.request.GET or "project__slug" in self.request.GET
-                ),
-                self.basename == "project" and "slug" in self.request.GET,
+                self.basename == "version" and project_slug,
+                self.basename == "build" and (commit or project_slug),
+                self.basename == "project" and slug,
             ]
         ):
             disabled = False
@@ -125,7 +143,6 @@ class DisableListEndpoint:
 
 
 class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
-
     """
     View set that varies serializer class based on request user credentials.
 
@@ -161,11 +178,10 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
         api_key = getattr(self.request, "build_api_key", None)
         if api_key:
             return self.get_queryset_for_api_key(api_key)
-        return self.model.objects.api(self.request.user)
+        return self.model.objects.api_v2(self.request.user)
 
 
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-
     """List, filter, etc, Projects."""
 
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
@@ -283,6 +299,36 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         }
         return Response(data)
 
+    @decorators.action(
+        detail=True,
+        # We make this endpoint public because we don't want to expose the build API key inside the user's container.
+        # To emulate "auth" we check for the builder hostname to match the `Build.builder` defined in the database.
+        permission_classes=[],
+        # We can't use the default `get_queryset()` method because it's filtered by build API key and/or user access.
+        # Since we don't want to check for permissions here we need to use a custom queryset here.
+        get_queryset=lambda: Build.objects.all(),
+        methods=["post"],
+    )
+    def healthcheck(self, request, **kwargs):
+        build = self.get_object()
+        builder_hostname = request.GET.get("builder")
+        structlog.contextvars.bind_contextvars(
+            build_id=build.pk,
+            project_slug=build.project.slug,
+            builder_hostname=builder_hostname,
+        )
+
+        log.info("Healthcheck received.")
+        if build.state in BUILD_FINAL_STATES or build.builder != builder_hostname:
+            log.warning(
+                "Build is not running anymore or builder hostname doesn't match.",
+            )
+            raise Http404()
+
+        build.healthcheck = timezone.now()
+        build.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def retrieve(self, *args, **kwargs):
         """
         Retrieves command data from storage.
@@ -312,7 +358,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                         buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
                             instance.project.slug,
-                            instance.version.slug,
+                            instance.get_version_slug(),
                         )
                 except Exception:
                     log.exception(
@@ -335,8 +381,48 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
 
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="credentials/storage",
+    )
+    def credentials_for_storage(self, request, **kwargs):
+        """
+        Generate temporary credentials for interacting with storage.
 
-class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
+        This can generate temporary credentials for interacting with S3 only for now.
+        """
+        build = self.get_object()
+        credentials_type = request.data.get("type")
+
+        if credentials_type == "build_media":
+            method = get_s3_build_media_scoped_credentials
+            # 30 minutes should be enough for uploading build artifacts.
+            duration = 30 * 60
+        elif credentials_type == "build_tools":
+            method = get_s3_build_tools_scoped_credentials
+            # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        else:
+            return Response(
+                {"error": "Invalid storage type"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            credentials = method(build=build, duration=duration)
+        except AWSTemporaryCredentialsError:
+            return Response(
+                {"error": "Failed to generate temporary credentials"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        return Response({"s3": asdict(credentials)})
+
+
+class BuildCommandViewSet(
+    DisableListEndpoint, CreateModelMixin, UpdateModelMixin, UserSelectViewSet
+):
     parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
@@ -364,7 +450,6 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
 
 class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
-
     """
     Create a notification attached to an object (User, Project, Build, Organization).
 
@@ -415,10 +500,10 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            self.model.objects.api(self.request.user)
+            self.model.objects.api_v2(self.request.user)
             .filter(
                 remote_organization_relations__account__provider__in=[
-                    service.adapter.provider_id for service in registry
+                    service.allauth_provider.id for service in registry
                 ]
             )
             .distinct()
@@ -437,7 +522,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             return self.model.objects.none()
 
         # TODO: Optimize this query after deployment
-        query = self.model.objects.api(self.request.user).annotate(
+        query = self.model.objects.api_v2(self.request.user).annotate(
             admin=Case(
                 When(
                     remote_repository_relations__user=self.request.user,
@@ -464,14 +549,12 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         query = query.filter(
             remote_repository_relations__account__provider__in=[
-                service.adapter.provider_id for service in registry
+                service.allauth_provider.id for service in registry
             ],
         ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related("organization").order_by(
-            "organization__name", "full_name"
-        )
+        query = query.select_related("organization").order_by("organization__name", "full_name")
 
         return query
 

@@ -45,7 +45,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
                    "downloads": {"pdf": str, "htmlzip": str, "epub": str},
                    "links": [
                        {
-                           "href": "https://readthedocs.org/api/v2/version/{id}/",
+                           "href": "https://app.readthedocs.org/api/v2/version/{id}/",
                            "rel": "self",
                        }
                    ],
@@ -67,7 +67,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
                            "canonical_url": str,
                            "links": [
                                {
-                                   "href": "https://readthedocs.org/api/v2/project/{id}/",
+                                   "href": "https://app.readthedocs.org/api/v2/project/{id}/",
                                    "rel": "self",
                                }
                            ],
@@ -75,7 +75,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
                    ],
                    "links": [
                        {
-                           "href": "https://readthedocs.org/api/v2/project/{id}/",
+                           "href": "https://app.readthedocs.org/api/v2/project/{id}/",
                            "rel": "self",
                        }
                    ],

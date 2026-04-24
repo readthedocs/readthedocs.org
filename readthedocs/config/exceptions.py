@@ -7,15 +7,11 @@ class ConfigError(BuildUserError):
     CONFIG_PATH_NOT_FOUND = "config:path:not-found"
     KEY_NOT_SUPPORTED_IN_VERSION = "config:key:not-supported-in-version"
     PYTHON_SYSTEM_PACKAGES_REMOVED = "config:python:system-packages-removed"
-    PYTHON_USE_SYSTEM_SITE_PACKAGES_REMOVED = (
-        "config:python:use-system-site-packages-removed"
-    )
+    PYTHON_USE_SYSTEM_SITE_PACKAGES_REMOVED = "config:python:use-system-site-packages-removed"
     INVALID_VERSION = "config:base:invalid-version"
     NOT_BUILD_TOOLS_OR_COMMANDS = "config:build:missing-build-tools-commands"
     BUILD_JOBS_AND_COMMANDS = "config:build:jobs-and-commands"
-    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = (
-        "config:build:jobs:build:missing-in-formats"
-    )
+    BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = "config:build:jobs:build:missing-in-formats"
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"
     APT_INVALID_PACKAGE_NAME = "config:apt:invalid-package-name"
     USE_PIP_FOR_EXTRA_REQUIREMENTS = "config:python:pip-required"
@@ -25,6 +21,19 @@ class ConfigError(BuildUserError):
     INVALID_KEY_NAME = "config:base:invalid-key-name"
     SYNTAX_INVALID = "config:base:invalid-syntax"
     CONDA_KEY_REQUIRED = "config:conda:required"
+    UV_COMMAND_REQUIRED = "config:python:uv-command-required"
+    UV_MULTIPLE_INSTALL_ENTRIES_INVALID = "config:python:uv-multiple-install-entries-invalid"
+    UV_SYNC_REQUIREMENTS_INVALID = "config:python:uv-sync-requirements-invalid"
+    UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED = "config:python:uv-pip-requirements-or-path-required"
+    UV_PIP_REQUIREMENTS_AND_PATH_MUTUALLY_EXCLUSIVE = (
+        "config:python:uv-pip-requirements-and-path-mutually-exclusive"
+    )
+    UV_PIP_GROUPS_NOT_ALLOWED = "config:python:uv-pip-groups-not-allowed"
+    UV_GROUPS_EXTRAS_EMPTY = "config:python:uv-groups-extras-empty"
+    UV_GROUPS_EXTRAS_INVALID_TYPE = "config:python:uv-groups-extras-invalid-type"
+
+    SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
+    MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"
 
 
 # TODO: improve these error messages shown to the user

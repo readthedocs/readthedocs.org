@@ -2,30 +2,30 @@
 
 from functools import lru_cache
 
-import stripe
 import structlog
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from djstripe import models as djstripe
 from djstripe.enums import SubscriptionStatus
-from vanilla import DetailView, GenericView
+from vanilla import DetailView
+from vanilla import GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.payments.utils import get_stripe_client
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.products import get_product
-from readthedocs.subscriptions.utils import (
-    get_or_create_stripe_customer,
-    get_or_create_stripe_subscription,
-)
+from readthedocs.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
+
 
 log = structlog.get_logger(__name__)
 
 
 class DetailSubscription(OrganizationMixin, DetailView):
-
     """Detail for the subscription of a organization."""
 
     model = djstripe.Subscription
@@ -58,11 +58,9 @@ class DetailSubscription(OrganizationMixin, DetailView):
         Users can buy a new subscription if the current one
         has been deleted after they canceled it.
         """
+        stripe_client = get_stripe_client()
         stripe_subscription = self.get_object()
-        if (
-            not stripe_subscription
-            or stripe_subscription.status != SubscriptionStatus.canceled
-        ):
+        if not stripe_subscription or stripe_subscription.status != SubscriptionStatus.canceled:
             raise Http404()
 
         stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["plan"])
@@ -72,18 +70,20 @@ class DetailSubscription(OrganizationMixin, DetailView):
         # pylint: disable=broad-except
         try:
             stripe_customer = get_or_create_stripe_customer(organization)
-            checkout_session = stripe.checkout.Session.create(
-                customer=stripe_customer.id,
-                payment_method_types=["card"],
-                line_items=[
-                    {
-                        "price": stripe_price.id,
-                        "quantity": 1,
-                    }
-                ],
-                mode="subscription",
-                success_url=url + "?upgraded=true",
-                cancel_url=url,
+            checkout_session = stripe_client.checkout.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "payment_method_types": ["card"],
+                    "line_items": [
+                        {
+                            "price": stripe_price.id,
+                            "quantity": 1,
+                        }
+                    ],
+                    "mode": "subscription",
+                    "success_url": url + "?upgraded: true",
+                    "cancel_url": url,
+                }
             )
             return HttpResponseRedirect(checkout_session.url)
         except Exception:
@@ -94,9 +94,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             )
             messages.error(
                 self.request,
-                _(
-                    "There was an error connecting to Stripe, please try again in a few minutes."
-                ),
+                _("There was an error connecting to Stripe, please try again in a few minutes."),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -119,10 +117,16 @@ class DetailSubscription(OrganizationMixin, DetailView):
             main_product = None
             extra_products = []
             features = {}
-            for item in stripe_subscription.items.all().select_related(
-                "price__product"
-            ):
+            for item in stripe_subscription.items.all().select_related("price__product"):
                 rtd_product = get_product(item.price.product.id)
+                if not rtd_product:
+                    # Skip products that are not defined in RTD_PRODUCTS
+                    log.warning(
+                        "Product not found in RTD_PRODUCTS",
+                        stripe_product_id=item.price.product.id,
+                    )
+                    continue
+
                 product = {
                     "stripe_price": item.price,
                     "quantity": item.quantity,
@@ -144,12 +148,15 @@ class DetailSubscription(OrganizationMixin, DetailView):
             context["features"] = features.values()
             # When Stripe marks the subscription as ``past_due``,
             # it means the usage of RTD service for the current period/month was not paid at all.
-            # Show the end date as the last period the customer paid.
+            # Show the end date as the last period the customer paid,
+            # or in case the subscription is not paid at all,
+            # default to the first unpaid invoice end date.
             context["subscription_end_date"] = stripe_subscription.current_period_end
             if stripe_subscription.status == SubscriptionStatus.past_due:
-                latest_paid_invoice = stripe_subscription.invoices.filter(
-                    paid=True
-                ).first()
+                latest_paid_invoice = (
+                    stripe_subscription.invoices.filter(paid=True).first()
+                    or stripe_subscription.invoices.filter(paid=False).last()
+                )
                 context["subscription_end_date"] = latest_paid_invoice.period_end
 
         return context
@@ -162,7 +169,6 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
 
 class StripeCustomerPortal(OrganizationMixin, GenericView):
-
     """Create a stripe billing portal session for the user to manage their subscription."""
 
     http_method_names = ["post"]
@@ -175,13 +181,16 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
 
     def post(self, request, *args, **kwargs):
         """Redirect the user to the Stripe billing portal."""
+        stripe_client = get_stripe_client()
         organization = self.get_organization()
         stripe_customer = organization.stripe_customer
         return_url = request.build_absolute_uri(self.get_success_url())
         try:
-            billing_portal = stripe.billing_portal.Session.create(
-                customer=stripe_customer.id,
-                return_url=return_url,
+            billing_portal = stripe_client.billing_portal.sessions.create(
+                params={
+                    "customer": stripe_customer.id,
+                    "return_url": return_url,
+                }
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
@@ -192,8 +201,6 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
             )
             messages.error(
                 request,
-                _(
-                    "There was an error connecting to Stripe, please try again in a few minutes"
-                ),
+                _("There was an error connecting to Stripe, please try again in a few minutes"),
             )
             return HttpResponseRedirect(self.get_success_url())

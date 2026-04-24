@@ -40,8 +40,7 @@ class GoldViewTests(TestCase):
             reverse("gold_projects"), data={"project": self.project2.slug}
         )
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field=None,
             errors="You already have the max number of supported projects.",
         )

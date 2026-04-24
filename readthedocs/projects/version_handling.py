@@ -1,18 +1,18 @@
 """Project version handling."""
+
 import operator
 import unicodedata
 
 from bumpver.v2version import parse_version_info
 from bumpver.version import PatternError
-from packaging.version import InvalidVersion, Version
+from packaging.version import InvalidVersion
+from packaging.version import Version
 
-from readthedocs.builds.constants import (
-    LATEST,
-    LATEST_VERBOSE_NAME,
-    STABLE,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import TAG
 from readthedocs.vcs_support.backends import backend_cls
 
 
@@ -124,18 +124,6 @@ def sort_versions(version_list):
         reverse=True,
     )
     return versions
-
-
-def highest_version(version_list):
-    """
-    Return the highest version for a given ``version_list``.
-
-    :rtype: tupe(readthedocs.builds.models.Version, packaging.version.Version)
-    """
-    versions = sort_versions(version_list)
-    if versions:
-        return versions[0]
-    return (None, None)
 
 
 def determine_stable_version(version_list):

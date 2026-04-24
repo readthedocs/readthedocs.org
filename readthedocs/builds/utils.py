@@ -1,24 +1,19 @@
 """Utilities for the builds app."""
+
 from contextlib import contextmanager
 from time import monotonic
 
 from django.core.cache import cache
 
-from readthedocs.builds.constants import (
-    EXTERNAL,
-    GENERIC_EXTERNAL_VERSION_NAME,
-    GITHUB_EXTERNAL_VERSION_NAME,
-    GITLAB_EXTERNAL_VERSION_NAME,
-)
-from readthedocs.projects.constants import (
-    BITBUCKET_REGEXS,
-    GITHUB_BRAND,
-    GITHUB_PULL_REQUEST_URL,
-    GITHUB_REGEXS,
-    GITLAB_BRAND,
-    GITLAB_MERGE_REQUEST_URL,
-    GITLAB_REGEXS,
-)
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import GENERIC_EXTERNAL_VERSION_NAME
+from readthedocs.builds.constants import GITHUB_EXTERNAL_VERSION_NAME
+from readthedocs.builds.constants import GITLAB_EXTERNAL_VERSION_NAME
+from readthedocs.projects.constants import BITBUCKET_REGEXS
+from readthedocs.projects.constants import GITHUB_PULL_REQUEST_URL
+from readthedocs.projects.constants import GITHUB_REGEXS
+from readthedocs.projects.constants import GITLAB_MERGE_REQUEST_URL
+from readthedocs.projects.constants import GITLAB_REGEXS
 
 
 def get_github_username_repo(url):
@@ -90,10 +85,10 @@ def external_version_name(build_or_version):
 
     project = build_or_version.project
 
-    if project.git_provider_name == GITHUB_BRAND:
+    if project.is_github_project:
         return GITHUB_EXTERNAL_VERSION_NAME
 
-    if project.git_provider_name == GITLAB_BRAND:
+    if project.is_gitlab_project:
         return GITLAB_EXTERNAL_VERSION_NAME
 
     # TODO: Add External Version Name for Bitbucket.

@@ -1,6 +1,6 @@
-import structlog
 from functools import partial
 
+import structlog
 from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -8,10 +8,11 @@ from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
 
+
 log = structlog.get_logger(__name__)
 
 
-def set_change_reason(instance, reason):
+def set_change_reason(instance, reason, user=None):
     """
     Set the change reason for the historical record created from the instance.
 
@@ -19,9 +20,17 @@ def set_change_reason(instance, reason):
     It sets `reason` to the `_change_reason` attribute of the instance,
     that's used to create the historical record on the save/delete signals.
 
-    https://django-simple-history.readthedocs.io/en/latest/historical_model.html#change-reason  # noqa
+    `user` is useful to track who made the change, this is only needed
+    if this method is called outside of a request context,
+    as the middleware already sets the user from the request.
+
+    See:
+    - https://django-simple-history.readthedocs.io/en/latest/historical_model.html#change-reason
+    - https://django-simple-history.readthedocs.io/en/latest/user_tracking.html
     """
     instance._change_reason = reason
+    if user:
+        instance._history_user = user
 
 
 def safe_update_change_reason(instance, reason):
@@ -52,7 +61,6 @@ def safe_update_change_reason(instance, reason):
 
 
 class ExtraFieldsHistoricalModel(models.Model):
-
     """
     Abstract model to allow history models track extra data.
 
@@ -66,13 +74,11 @@ class ExtraFieldsHistoricalModel(models.Model):
         _("ID"),
         blank=True,
         null=True,
-        db_index=True,
     )
     extra_history_user_username = models.CharField(
         _("username"),
         max_length=150,
         null=True,
-        db_index=True,
     )
     extra_history_ip = models.CharField(
         _("IP address"),
@@ -96,7 +102,6 @@ ExtraHistoricalRecords = partial(HistoricalRecords, bases=[ExtraFieldsHistorical
 
 
 class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
-
     """Set the change_reason on the model changed through this admin view."""
 
     change_reason = None
@@ -119,7 +124,6 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
 
 
 class SimpleHistoryModelForm(forms.ModelForm):
-
     """Set the change_reason on the model changed through this form."""
 
     change_reason = None
@@ -137,7 +141,6 @@ class SimpleHistoryModelForm(forms.ModelForm):
 
 
 class UpdateChangeReasonPostView:
-
     """
     Set the change_reason on the model changed through the POST method of this view.
 

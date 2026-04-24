@@ -4,9 +4,11 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count
+from django.db.models import Q
 from django.utils import timezone
-from djstripe.enums import InvoiceStatus, SubscriptionStatus
+from djstripe.enums import InvoiceStatus
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -14,7 +16,6 @@ from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
 
 class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
-
     """Organizations queryset."""
 
     def for_user(self, user):

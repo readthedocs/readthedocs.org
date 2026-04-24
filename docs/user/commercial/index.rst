@@ -37,7 +37,7 @@ Advertising-free
 
 Business features
     Enjoy additional functionality specifically for larger organizations such as
-    team management, single-sign on, and audit logging.
+    team management, single sign-on, and audit logging.
 
     .. seealso::
 

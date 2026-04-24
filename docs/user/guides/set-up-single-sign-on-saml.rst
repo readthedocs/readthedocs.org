@@ -1,4 +1,4 @@
-How to set up Single Sign-On (SSO) with SAML
+How to set up single sign-on (SSO) with SAML
 ============================================
 
 .. include:: /shared/admonition-rtd-business.rst
@@ -10,7 +10,7 @@ How to set up Single Sign-On (SSO) with SAML
 
    **At the moment only Okta is supported as a SAML identity provider.**
 
-This how-to guide will provide instructions on how to enable :abbr:`SSO (Single Sign-on)` using Okta as a SAML identity provider.
+This how-to guide will provide instructions on how to enable :abbr:`SSO (single sign-on)` using Okta as a SAML identity provider.
 If you want more information on this feature, please read :doc:`/commercial/single-sign-on`
 
 Prerequisites
@@ -23,33 +23,39 @@ Create a SAML application in Okta
 
 In order to enable SSO with Okta, you need to create a new SAML application in your Okta account.
 
+.. vale RTD.features = NO
+
 1. Log in to your Okta account.
 2. Click on :guilabel:`Applications`.
 3. Click on :guilabel:`Create App Integration`.
 4. Choose :guilabel:`SAML 2.0`, and click :guilabel:`Next`.
-5. Fill in the following fields with the information from `your SAML integration <https://readthedocs.com/organizations/choose/organization_saml/>`__:
+5. Fill the following fields:
 
-   * :guilabel:`App name`: Read the Docs
+   * :guilabel:`App name`: Read the Docs (or any name you want)
    * :guilabel:`App logo`: Optionally you can use the `Read the Docs logo <https://brand-guidelines.readthedocs.org/_images/logo-wordmark-vertical-compact-dark.png>`__.
    * :guilabel:`App visibility`: (optional)
-   * :guilabel:`Single Sign On URL`: ``https://readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
-   * :guilabel:`Audience URI (SP Entity ID)`: ``https://readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
+
+6. Click :guilabel:`Next`.
+7. Fill in the following fields with the information from `your SAML integration <https://app.readthedocs.com/organizations/choose/organization_saml/>`__:
+
+   * :guilabel:`Single Sign On URL`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/acs/`` (replace ``<organization-slug>`` with your organization slug)
+   * :guilabel:`Audience URI (SP Entity ID)`: ``https://app.readthedocs.com/accounts/saml/<organization-slug>/metadata/`` (replace ``<organization-slug>`` with your organization slug)
    * :guilabel:`Name ID format`: ``EmailAddress``
    * :guilabel:`Application username`: ``Email``
    * Leave the rest of the fields as default.
 
-6. Add the following "attribute statements" to be used when creating a new user:
-
-   .. csv-table::
-      :header: "Name", "Format", "Value"
-
-      "user.id", "Basic", "user.id"
-      "user.firstName", "Basic", "user.firstName"
-      "user.lastName", "Basic", "user.lastName"
-
-7. Click :guilabel:`Next`.
 8. Select ``This is an internal app that we have created``.
 9. Click :guilabel:`Finish`.
+10. After creating the application, go to the "Attribute statements" section, and add the following statements:
+
+   .. csv-table::
+      :header: "Name", "Expression"
+
+      "user.id", "user.id"
+      "user.firstName", "user.profile.firstName"
+      "user.lastName", "user.profile.lastName"
+
+.. vale RTD.features = YES
 
 Enable SAML on your Read the Docs organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,7 +69,7 @@ Once you have created the SAML application in Okta, you need to enable SAML on R
    * Click on the :guilabel:`Sign On` tab.
    * Copy the :guilabel:`Metadata URL`.
 
-2. Go you your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+2. Go you your `organization's SAML settings page <https://app.readthedocs.com/organizations/choose/organization_saml/>`__.
 3. Paste the Metadata URL in the :guilabel:`Metadata URL` field.
 4. Leave the domain field empty.
 5. Click :guilabel:`Save`.
@@ -81,7 +87,7 @@ You can delete this team, or configure a different team or teams for users to jo
 
 To configure a team for users to join automatically:
 
-1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+1. Navigate to the `teams management page <https://app.readthedocs.com/organizations/choose/organization_team_list/>`__.
 2. Click the :guilabel:`<team name>`.
 3. Click :guilabel:`Edit team`
 4. Enable *Auto join users with an organization's email address to this team*.
@@ -89,6 +95,16 @@ To configure a team for users to join automatically:
 
 User management
 ---------------
+
+Signing in with SAML
+~~~~~~~~~~~~~~~~~~~~
+
+Once SAML is enabled for your organization, users can sign in using SAML by following these steps:
+
+1. Go to `https://app.readthedocs.com/ <https://app.readthedocs.com/>`__.
+2. Click on the :guilabel:`Single sign-on` tab.
+3. Enter your company email address.
+4. Click :guilabel:`Continue` to be redirected to your organization's identity provider to complete the sign-in process.
 
 New users
 ~~~~~~~~~
@@ -107,8 +123,8 @@ If you want to enforce SAML for existing users, you have the following options:
 
 - Users can delete their accounts, and sign up again using SAML.
 - Users can link their existing accounts to their SAML identity by following this link while logged in their Read the Docs account:
-  ``https://readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
-  You can find this link in your `organization's SAML settings page <https://readthedocs.com/organizations/choose/organization_saml/>`__.
+  ``https://app.readthedocs.com/accounts/saml/<organization-slug>/login/?process=connect`` (replace ``<organization-slug>`` with your organization slug).
+  You can find this link in your `organization's SAML settings page <https://app.readthedocs.com/organizations/choose/organization_saml/>`__.
 
 Outside collaborators
 ~~~~~~~~~~~~~~~~~~~~~
@@ -146,4 +162,4 @@ and disable login on Read the Docs completely for that user.
    :doc:`/guides/manage-read-the-docs-teams`
      Additional user management options
    :doc:`/commercial/single-sign-on`
-     Information about choosing a Single Sign-on approach
+     Information about choosing a single sign-on approach

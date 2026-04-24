@@ -1,35 +1,33 @@
 """Views that don't require login."""
+
 # pylint: disable=too-many-ancestors
 import structlog
-from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
-from vanilla import DetailView, GenericView, ListView
+from vanilla import DetailView
+from vanilla import GenericView
+from vanilla import ListView
 
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.notifications.models import Notification
-from readthedocs.organizations.filters import (
-    OrganizationProjectListFilterSet,
-    OrganizationTeamListFilterSet,
-    OrganizationTeamMemberListFilterSet,
-)
-from readthedocs.organizations.models import Team
-from readthedocs.organizations.views.base import (
-    CheckOrganizationsEnabled,
-    OrganizationMixin,
-    OrganizationTeamMemberView,
-    OrganizationTeamView,
-    OrganizationView,
-)
+from readthedocs.organizations.filters import OrganizationProjectListFilterSet
+from readthedocs.organizations.filters import OrganizationTeamListFilterSet
+from readthedocs.organizations.filters import OrganizationTeamMemberListFilterSet
+from readthedocs.organizations.views.base import CheckOrganizationsEnabled
+from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.organizations.views.base import OrganizationTeamMemberView
+from readthedocs.organizations.views.base import OrganizationTeamView
+from readthedocs.organizations.views.base import OrganizationView
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
 
 class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
-
     """Wrapper around `TemplateView` to check if organizations are enabled."""
 
 
@@ -37,7 +35,6 @@ class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
 
 
 class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
-
     """Display information about an organization."""
 
     template_name = "organizations/organization_detail.html"
@@ -49,23 +46,12 @@ class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         org = self.get_object()
-        projects = (
-            Project.objects.for_user(self.request.user).filter(organizations=org).all()
+        projects = Project.objects.for_user(self.request.user).filter(organizations=org).all()
+        context["filter"] = self.get_filterset(
+            queryset=projects,
+            organization=org,
         )
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                queryset=projects,
-                organization=org,
-            )
-            projects = self.get_filtered_queryset()
-        else:
-            teams = (
-                Team.objects.member(self.request.user, organization=org)
-                .prefetch_related("organization")
-                .all()
-            )
-            context["teams"] = teams
-            context["owners"] = org.owners.all()
+        projects = self.get_filtered_queryset()
 
         context["projects"] = projects
         context["notifications"] = Notification.objects.for_user(
@@ -86,17 +72,14 @@ class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if settings.RTD_EXT_THEME_ENABLED:
-            context["filter"] = self.get_filterset(
-                organization=self.get_organization(),
-            )
-            context[self.get_context_object_name()] = self.get_filtered_queryset()
+        context["filter"] = self.get_filterset(
+            organization=self.get_organization(),
+        )
+        context[self.get_context_object_name()] = self.get_filtered_queryset()
         return context
 
     def get_queryset(self):
-        return AdminPermission.members(
-            obj=self.get_organization(), user=self.request.user
-        )
+        return AdminPermission.members(obj=self.get_organization(), user=self.request.user)
 
     def get_success_url(self):
         return reverse_lazy(
@@ -118,16 +101,13 @@ class ListOrganizationTeams(FilterContextMixin, OrganizationTeamView, ListView):
         context = super().get_context_data(**kwargs)
         org = self.get_organization()
 
-        if settings.RTD_EXT_THEME_ENABLED:
-            # TODO the team queryset, used through ``get_queryset()`` defines
-            # sorting. Sorting should only happen in the filterset, so it can be
-            # controlled in the UI.
-            context["filter"] = self.get_filterset(
-                organization=org,
-            )
-            context[self.get_context_object_name()] = self.get_filtered_queryset()
-        else:
-            context["owners"] = org.owners.all()
+        # TODO the team queryset, used through ``get_queryset()`` defines
+        # sorting. Sorting should only happen in the filterset, so it can be
+        # controlled in the UI.
+        context["filter"] = self.get_filterset(
+            organization=org,
+        )
+        context[self.get_context_object_name()] = self.get_filtered_queryset()
         return context
 
 
@@ -143,10 +123,7 @@ class ListOrganizationTeamMembers(OrganizationTeamMemberView, ListView):
 
 
 class RedirectRedeemTeamInvitation(CheckOrganizationsEnabled, GenericView):
-
     """Redirect invitation links to the new view."""
 
     def get(self, request, *args, **kwargs):
-        return HttpResponseRedirect(
-            reverse("invitations_redeem", args=[kwargs["hash"]])
-        )
+        return HttpResponseRedirect(reverse("invitations_redeem", args=[kwargs["hash"]]))

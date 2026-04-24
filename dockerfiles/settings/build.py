@@ -7,6 +7,13 @@ class BuildDevSettings(DockerBaseSettings):
         return {}
 
     DONT_HIT_DB = True
-
+    SHOW_DEBUG_TOOLBAR = False
+    # The secret key is not needed from the builders.
+    # If you get an error about it missing, you may be doing
+    # something that shouldn't be done from the builders.
+    SECRET_KEY = None
+    SECRET_KEY_FALLBACKS = []
+    AWS_ACCESS_KEY_ID = None
+    AWS_SECRET_ACCESS_KEY = None
 
 BuildDevSettings.load_settings(__name__)

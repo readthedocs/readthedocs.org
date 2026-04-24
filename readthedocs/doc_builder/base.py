@@ -5,6 +5,7 @@ from functools import wraps
 
 import structlog
 
+
 log = structlog.get_logger(__name__)
 
 
@@ -22,7 +23,6 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder:
-
     """The Base for all Builders. Defines the API for subclasses."""
 
     ignore_patterns = []
@@ -40,8 +40,8 @@ class BaseBuilder:
         """Some builders may have a different doctype at build time."""
         return self.config.doctype
 
-    def append_conf(self):
-        """Set custom configurations for this builder."""
+    def show_conf(self):
+        """Show the configuration used for this builder."""
 
     def build(self):
         """Do the actual building of the documentation."""

@@ -173,6 +173,60 @@ class TestDomainViews(TestCase):
         domain = self.project.domains.first()
         assert domain.domain == "docs.example.com"
 
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_editing_domain_doesnt_trigger_cname_validation(self, dns_resolve_mock):
+        domain = get(Domain, project=self.project, domain="docs.example.com")
+        assert not domain.canonical
+        resp = self.client.post(
+            reverse("projects_domains_edit", args=[self.project.slug, domain.pk]),
+            data={"canonical": True},
+        )
+        assert resp.status_code == 302
+        domain.refresh_from_db()
+        assert domain.canonical
+        dns_resolve_mock.assert_not_called()
+
+    @override_settings(
+        RTD_DEFAULT_FEATURES=dict(
+            [RTDProductFeature(type=TYPE_CNAME, value=1).to_item()]
+        ),
+    )
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_domains_limit(self, dns_resolve_mock):
+        dns_resolve_mock.side_effect = dns.resolver.NoAnswer
+        assert self.project.domains.count() == 0
+
+        # Create the first domain
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "test1.example.com"},
+        )
+        assert resp.status_code == 302
+        assert self.project.domains.count() == 1
+
+        # Create the second domain
+        resp = self.client.post(
+            reverse("projects_domains_create", args=[self.project.slug]),
+            data={"domain": "test2.example.com"},
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "has reached the limit" in form.errors["__all__"][0]
+        assert self.project.domains.count() == 1
+
+        # Edit the existing domain
+        domain = self.project.domains.first()
+        assert not domain.canonical
+        resp = self.client.post(
+            reverse("projects_domains_edit", args=[self.project.slug, domain.pk]),
+            data={"canonical": True},
+        )
+        assert resp.status_code == 302
+        assert self.project.domains.count() == 1
+        domain = self.project.domains.first()
+        assert domain.canonical
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestDomainViewsWithOrganizations(TestDomainViews):

@@ -22,15 +22,19 @@ These provide step-by-step solutions to common user requests.
 
    .. tab:: |com_brand|
 
-        Please fill out the form at https://readthedocs.com/support/.
+        Please fill out the form at https://app.readthedocs.com/support/.
 
         Our team responds to support requests within 2 business days or earlier for most plans.
         Faster support response times and support SLAs are available with plan upgrades.
 
+        If you are unable to create or access your account, you can email us at support@readthedocs.com.
+
    .. tab:: |org_brand|
 
-        Please fill out the form at https://readthedocs.org/support/,
+        Please fill out the form at https://app.readthedocs.org/support/,
         and we will reply as soon as possible.
+
+        If you are unable to create or access your account, you can email us at support@readthedocs.org.
 
 External resources
 ------------------

@@ -34,7 +34,7 @@ services:
       - NGINX_PROXITO_SERVER_NAME=${NGINX_PROXITO_SERVER_NAME:-*.devthedocs.org *.build.devthedocs.org}
 
   proxito:
-    image: community_server:latest
+    image: community-server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito_docker.py
@@ -42,7 +42,7 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito_docker
 
   web:
-    image: community_server:latest
+    image: community-server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web_docker.py
@@ -53,7 +53,7 @@ services:
       - "${NGINX_WEB_SERVER_NAME:-devthedocs.org}:10.10.0.100"
 
   celery:
-    image: community_server:latest
+    image: community-server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery_docker.py
@@ -62,7 +62,7 @@ services:
       - CELERY_APP_NAME=readthedocs
 
   celery-beat:
-    image: community_server:latest
+    image: community-server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery_docker.py
@@ -71,7 +71,7 @@ services:
       - CELERY_APP_NAME=readthedocs
 
   build:
-    image: community_server:latest
+    image: community-server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build_docker.py

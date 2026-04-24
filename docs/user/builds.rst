@@ -39,6 +39,10 @@ The build process includes the following jobs:
    Depending on what's defined by the project,
    a :term:`virtualenv` or a :ref:`conda environment <config-file/v2:conda>` will be used.
 
+   .. note::
+
+      This step is only executed if the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` keys are defined.
+
 :install:
 
    Installs :doc:`default and project dependencies </build-default-versions>`.
@@ -49,7 +53,11 @@ The build process includes the following jobs:
 
    .. tip::
 
-    We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
+      We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
+
+   .. note::
+
+      This step is only executed if the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` keys are defined.
 
 :build:
 
@@ -102,7 +110,26 @@ Read the Docs supports three different mechanisms to cancel a running build:
 
    .. tip::
 
-      Take a look at :ref:`build-customization:cancel build based on a condition` section for some examples.
+      Take a look at :doc:`/guides/build/skip-build` page for some examples.
+
+Automatic disabling of builds
+-----------------------------
+
+To reduce resource consumption and improve build queue times for all users,
+Read the Docs will automatically disable builds for projects that have too many consecutive failed builds on their default version.
+
+When a project has **25 consecutive failed builds** on its default version,
+we will disable builds for the project.
+
+This helps ensure that projects with persistent build issues don't consume resources that could be used by active projects.
+
+.. note::
+
+   This only applies to the default version of a project.
+   Builds on other versions (branches, tags, pull requests) are not counted towards this limit.
+
+If your project has been disabled due to consecutive build failures, you'll need to re-enable from your project settings.
+Make sure to fix the underlying issue to avoid being disabled again.
 
 Build resources
 ---------------
@@ -114,7 +141,7 @@ Our build limits are:
 
    .. tab:: |com_brand|
 
-      * 30 minutes build time
+      * 30 minutes build time (upgradable)
       * 7GB of memory (upgradable)
       * Concurrent builds vary based on your pricing plan
 
@@ -126,8 +153,9 @@ Our build limits are:
       * 15 minutes build time
       * 7GB of memory
       * 2 concurrent builds
+      * 5GB of disk storage (soft limit)
 
-      We can increase build length on a per-project basis.
+      We can increase build time on a per-project basis.
       Send an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
 
       If your business is hitting build limits hosting documentation on Read the Docs,

@@ -1,4 +1,4 @@
-Privacy Levels
+Privacy levels
 --------------
 
 .. include:: /shared/admonition-rtd-business.rst

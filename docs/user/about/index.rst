@@ -8,7 +8,7 @@ This allows us to **focus 100% on our users**.
 
 We have two main sources of revenue:
 
-* |com_brand| - where we `provide <https://readthedocs.com>`__ a valuable paid service to companies.
+* |com_brand| - where we `provide <https://app.readthedocs.com>`__ a valuable paid service to companies.
 * |org_brand| - where we provide a free service to the open source community, funded via :doc:`/advertising/ethical-advertising`.
 
 We believe that having both paying customers and ethical advertising is the best way to create a sustainable platform for our users.

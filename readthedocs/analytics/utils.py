@@ -6,8 +6,10 @@ import ipaddress
 import structlog
 from django.conf import settings
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_bytes, force_str
+from django.utils.encoding import force_bytes
+from django.utils.encoding import force_str
 from user_agents import parse
+
 
 log = structlog.get_logger(__name__)  # noqa
 

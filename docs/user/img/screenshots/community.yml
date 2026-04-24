@@ -1,0 +1,47 @@
+# Webhook creation
+- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/create/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  output: community-project-webhook-create.png
+
+- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
+  javascript: |-
+    document
+      .querySelectorAll("#edit-content > .ui.segment > .ui.list > .item:nth-child(n+4)")
+      .forEach((el) => { el.remove() });
+  selector_all: |-
+    #edit-content > .ui.small.header,
+    #edit-content > .ui.segment > .ui.list
+  padding: 20
+  output: community-project-webhook-activity.png
+
+# Just the edit/delete icons
+- url: https://app.readthedocs.org/dashboard/test-builds/integrations/
+  selector: .button:has(> i.fa-wrench.icon)
+  output: community-edit-button.png
+- url: https://app.readthedocs.org/dashboard/test-builds/integrations/
+  selector: .button:has(> i.fa-trash.icon)
+  output: community-delete-button.png
+
+- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
+  javascript: |-
+    document
+      .querySelector("#id_secret")
+      .value = "7tt135QRvfzCxjRLR8kfE1EXR607TwnO";
+  selector_all: |-
+    #div_id_secret
+  padding: 20
+  output: community-project-webhook-secret.png
+
+- url: https://app.readthedocs.org/dashboard/test-builds/subprojects/create/
+  selector_all: |-
+    body
+    > div.ui.very.padded.container
+    .ui.grid > .column[class*="eleven wide computer"]
+    > *
+  padding: 20
+  output: community-project-subproject-create.png

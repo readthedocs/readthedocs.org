@@ -1,5 +1,3 @@
-.. TODO: Write feature page for hoverxref
-
 How to embed content from your documentation
 ============================================
 
@@ -18,27 +16,10 @@ Contextualized tooltips on documentation pages
 ----------------------------------------------
 
 Tooltips on your own documentation are really useful to add more context to the current page the user is reading.
-You can embed any content that is available via reference in Sphinx, including:
+You can embed any content that is available via an HTML id.
 
-* Python object references
-* Full documentation pages
-* Sphinx references
-* Term definitions
-
-We built a Sphinx extension called ``sphinx-hoverxref`` on top of our Embed API
-you can install in your project with minimal configuration.
-
-Here is an example showing a tooltip when you hover with the mouse a reference:
-
-.. figure:: /_static/images/guides/sphinx-hoverxref-example.png
-   :width: 80%
-   :align: center
-
-   Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
-
-You can find more information about this extension, how to install and configure it in the `hoverxref documentation`_.
-
-.. _hoverxref documentation: https://sphinx-hoverxref.readthedocs.io/
+We built an addon called :doc:`Link previews </link-previews>` on top of our Embed API
+that you can enable from the addons settings of your project using the :term:`dashboard`.
 
 Inline help on application website
 ----------------------------------
@@ -65,7 +46,7 @@ from our own docs and will populate the content of it into the ``#help-container
       // 'doctoolversion': '4.2.0',
       // 'maincontent': 'div#main',
     };
-    var url = 'https://readthedocs.org/api/v3/embed/?' + $.param(params);
+    var url = 'https://app.readthedocs.org/api/v3/embed/?' + $.param(params);
     $.get(url, function(data) {
       $('#help-container').content(data['content']);
     });
@@ -121,14 +102,14 @@ and show a modal when the user clicks in a "Help" link.
 Calling the Embed API directly
 ------------------------------
 
-Embed API lives under ``https://readthedocs.org/api/v3/embed/`` URL and accept the URL of the content you want to embed.
+Embed API lives under ``https://app.readthedocs.org/api/v3/embed/`` URL and accept the URL of the content you want to embed.
 Take a look at :ref:`its own documentation <api/v3:embed>` to find out more details.
 
 You can click on the following links and check a live response directly in the browser as examples:
 
-* https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/stable/features.html%23automatic-documentation-deployment
-* https://readthedocs.org/api/v3/embed/?url=https://sphinx-hoverxref.readthedocs.io/en/latest/configuration.html%23confval-hoverxref_role_types&doctool=sphinx&doctoolversion=4.2.0
-* https://readthedocs.org/api/v3/embed/?url=https://docs.sympy.org/latest/tutorial/gotchas.html%23equals-signs
+* https://app.readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/stable/features.html%23automatic-documentation-deployment
+* https://app.readthedocs.org/api/v3/embed/?url=https://sphinx-hoverxref.readthedocs.io/en/latest/configuration.html%23confval-hoverxref_role_types&doctool=sphinx&doctoolversion=4.2.0
+* https://app.readthedocs.org/api/v3/embed/?url=https://docs.sympy.org/latest/tutorial/gotchas.html%23equals-signs
 
 .. note::
 

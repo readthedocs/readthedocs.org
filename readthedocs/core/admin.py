@@ -10,12 +10,14 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from impersonate.admin import UserAdminImpersonateMixin
 from rest_framework.authtoken.admin import TokenAdmin
 
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Project
+
 
 # Monkeypatch raw_id_fields onto the TokenAdmin
 # https://www.django-rest-framework.org/api-guide/authentication/#with-django-admin
@@ -31,7 +33,6 @@ class UserProjectInline(admin.TabularInline):
 
 
 class UserProjectFilter(admin.SimpleListFilter):
-
     """Filter users based on project properties."""
 
     parameter_name = "project_state"
@@ -64,8 +65,7 @@ class UserProjectFilter(admin.SimpleListFilter):
             return queryset.filter(projects__builds__date__gt=recent_date)
 
 
-class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
-
+class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdminImpersonateMixin, UserAdmin):
     """Admin configuration for User."""
 
     list_display = (
@@ -79,6 +79,9 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
     actions = ["ban_user", "sync_remote_repositories_action"]
     inlines = [UserProjectInline]
+
+    # Open a new tab when impersonating a user.
+    open_new_window = True
 
     @admin.display(
         description="Banned",
@@ -102,9 +105,7 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
 
         for user_id, username in queryset.values_list("id", "username"):
             result = sync_remote_repositories.delay(user_id=user_id)
-            job_status_url = reverse(
-                "api_job_status", kwargs={"task_id": result.task_id}
-            )
+            job_status_url = reverse("api_job_status", kwargs={"task_id": result.task_id})
             formatted_task_urls.append(
                 format_html("<a href='{}'>{} task</a>", job_status_url, username)
             )
@@ -112,8 +113,9 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
         self.message_user(
             request,
             mark_safe(
-                "Following sync remote repository tasks were "
-                "triggered: {}".format(", ".join(formatted_task_urls))
+                "Following sync remote repository tasks were triggered: {}".format(
+                    ", ".join(formatted_task_urls)
+                )
             ),
         )
 

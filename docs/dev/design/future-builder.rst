@@ -16,7 +16,7 @@ proposing a clear direction to move forward with intermediate steps keeping back
    A lot of things have changed since this document was written.
    We have had multiple discussions where we already took some decisions and discarded some of the ideas/details proposed here.
    The document was merged as-is without a cleaned up and there could be some inconsistencies.
-   Note that ``build.jobs`` and ``build.commands`` are already implemented *without definig a contract* yet,
+   Note that ``build.jobs`` and ``build.commands`` are already implemented *without defining a contract* yet,
    and with small differences from the idea described here.
 
    Please, refer to the following links to read more about all the discussions we already had:

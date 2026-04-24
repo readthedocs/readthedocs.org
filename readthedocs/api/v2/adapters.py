@@ -3,7 +3,6 @@ from requests_toolbelt.adapters.host_header_ssl import HostHeaderSSLAdapter
 
 
 class TimeoutAdapter:
-
     """
     Adapter to inject ``timeout`` to all the requests.
 

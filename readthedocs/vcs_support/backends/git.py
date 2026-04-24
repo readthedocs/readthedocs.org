@@ -2,65 +2,55 @@
 
 import re
 from typing import Iterable
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import TAG
 from readthedocs.config import ALL
-from readthedocs.projects.constants import (
-    GITHUB_BRAND,
-    GITHUB_PR_PULL_PATTERN,
-    GITLAB_BRAND,
-    GITLAB_MR_PULL_PATTERN,
-)
+from readthedocs.projects.constants import GITHUB_PR_PULL_PATTERN
+from readthedocs.projects.constants import GITLAB_MR_PULL_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.vcs_support.base import BaseVCS
+from readthedocs.vcs_support.base import VCSVersion
+
 
 log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
-
     """Git VCS backend."""
 
     fallback_branch = "master"  # default branch
     repo_depth = 50
 
-    def __init__(self, *args, **kwargs):
-        # The version_identifier is a Version.identifier value passed from the build process.
-        # It has a special meaning since it's unfortunately not consistent, you need to be aware of
-        # exactly how and where to use this.
-        # See more in the .get_remote_fetch_refspec() docstring
-        self.version_identifier = kwargs.pop("version_identifier")
-        # We also need to know about Version.machine
-        self.version_machine = kwargs.pop("version_machine")
+    def __init__(self, *args, use_token=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.token = kwargs.get("token")
+        self.use_token = use_token
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
-        if "://" in self.repo_url:
-            hacked_url = self.repo_url.split("://")[1]
-            hacked_url = re.sub(".git$", "", hacked_url)
-            clone_url = "https://%s" % hacked_url
-            if self.token:
-                clone_url = "https://{}@{}".format(self.token, hacked_url)
-                return clone_url
-            # Don't edit URL because all hosts aren't the same
-            # else:
-            #     clone_url = 'git://%s' % (hacked_url)
+        if self.repo_url.startswith(("https://", "http://")) and self.use_token:
+            parsed_url = urlparse(self.repo_url)
+            return f"{parsed_url.scheme}://$READTHEDOCS_GIT_CLONE_TOKEN@{parsed_url.netloc}{parsed_url.path}"
         return self.repo_url
 
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
+
+        if self.project.git_checkout_command:
+            # Run custom checkout step if defined
+            if isinstance(self.project.git_checkout_command, list):
+                for cmd in self.project.git_checkout_command:
+                    # NOTE: we need to pass ``escape_command=False`` here to be
+                    # able to expand environment variables.
+                    code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
+                return
 
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
@@ -100,61 +90,54 @@ class Backend(BaseVCS):
 
         :return: A refspec valid for fetch operation
         """
+        # Here we point directly to the remote branch name and update our local remote
+        # refspec to point here.
+        # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
+        # was an assumption in the .branches property that iterates over everything in
+        # refs/remotes/origin. We might still keep this pattern as it seems to be the most solid
+        # convention for storing a remote:local refspec mapping.
+        branch_ref = "refs/heads/{branch}:refs/remotes/origin/{branch}"
+        tag_ref = "refs/tags/{tag}:refs/tags/{tag}"
 
-        if not self.version_type:
-            log.warning(
-                "Trying to resolve a remote reference without setting version_type is not "
-                "possible",
-                project_slug=self.project.slug,
-            )
-            return None
+        if self.version.type == BRANCH:
+            branch = self.version.verbose_name
+            # For latest and stable, the identifier is the name of the branch.
+            if self.version.machine:
+                branch = self.version.identifier
+                # If there is't an identifier, it can be the case for an initial build that started BEFORE
+                # a webhook or sync versions task has concluded what the default branch is.
+                if not branch:
+                    log.error(
+                        "Machine created version without a branch name.",
+                        version_slug=self.version.slug,
+                    )
+                    return None
+            return branch_ref.format(branch=branch)
 
-        # Branches have the branch identifier set by the caller who instantiated the
-        # Git backend.
-        # If version_identifier is empty, then the fetch operation cannot know what to fetch
-        # and will fetch everything, in order to build what might be defined elsewhere
-        # as the "default branch". This can be the case for an initial build started BEFORE
-        # a webhook or sync versions task has concluded what the default branch is.
-        if self.version_type == BRANCH and self.version_identifier:
-            # Here we point directly to the remote branch name and update our local remote
-            # refspec to point here.
-            # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
-            # was an assumption in the .branches property that iterates over everything in
-            # refs/remotes/origin. We might still keep this pattern as it seems to be the most solid
-            # convention for storing a remote:local refspec mapping.
-            return (
-                f"refs/heads/{self.version_identifier}:refs/remotes/origin/"
-                f"{self.version_identifier}"
-            )
-        # Tags
-        if self.version_type == TAG and self.verbose_name:
-            # A "stable" tag is automatically created with Version.machine=True,
-            # denoting that it's not a branch/tag that really exists.
-            # Because we don't know if it originates from the default branch or some
-            # other tagged release, we will fetch the exact commit it points to.
-            if self.version_machine and self.verbose_name == STABLE_VERBOSE_NAME:
-                if self.version_identifier:
-                    return f"{self.version_identifier}"
-                log.error("'stable' version without a commit hash.")
-                return None
+        if self.version.type == TAG:
+            tag = self.version.verbose_name
+            if self.version.machine:
+                # For stable, the identifier is the commit hash.
+                # A "stable" tag is automatically created with Version.machine=True,
+                # denoting that it's not a branch/tag that really exists.
+                # Because we don't know if it originates from the default branch or some
+                # other tagged release, we will fetch the exact commit it points to.
+                if self.version.slug == STABLE:
+                    if not self.version.identifier:
+                        log.error("'stable' version without a commit hash.")
+                    return self.version.identifier
 
-            tag_name = self.verbose_name
-            # For a machine created "latest" tag, the name of the tag is set
-            # in the `Version.identifier` field, note that it isn't a commit
-            # hash, but the name of the tag.
-            if self.version_machine and self.verbose_name == LATEST_VERBOSE_NAME:
-                tag_name = self.version_identifier
-            return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
+                # For latest, the identifier is the tag name.
+                tag = self.version.identifier
 
-        if self.version_type == EXTERNAL:
-            # TODO: We should be able to resolve this without looking up in oauth registry
-            git_provider_name = self.project.git_provider_name
+            return tag_ref.format(tag=tag)
 
+        if self.version.type == EXTERNAL:
             # Remote reference for Git providers where pull request builds are supported
-            if git_provider_name == GITHUB_BRAND:
-                return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-            if self.project.git_provider_name == GITLAB_BRAND:
-                return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
+            if self.project.is_github_project:
+                return GITHUB_PR_PULL_PATTERN.format(id=self.version.verbose_name)
+            if self.project.is_gitlab_project:
+                return GITLAB_MR_PULL_PATTERN.format(id=self.version.verbose_name)
 
             log.warning(
                 "Asked to do an external build for a Git provider that does not support "
@@ -182,6 +165,112 @@ class Backend(BaseVCS):
                 message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
             raise RepositoryError(message_id=message_id) from exc
 
+    def has_ssh_key_with_write_access(self) -> bool:
+        """
+        Check if the SSH key has write access to the repository.
+
+        This is done by trying to push to the repository in dry-run mode.
+
+        We create a temporary remote to test the SSH key,
+        since we need the remote to be in the SSH format,
+        which isn't always the case for projects that are public,
+        and changing the URL of the default remote may be a breaking
+        change for some projects.
+
+        .. note::
+
+           This check is better done just after the clone step,
+           to ensure that no commands controled by the user are run.
+        """
+        remote_name = "rtd-test-ssh-key"
+        ssh_url = self.project.repo
+        if ssh_url.startswith("http"):
+            parsed_url = urlparse(ssh_url)
+            ssh_url = f"git@{parsed_url.netloc}:{parsed_url.path.lstrip('/')}"
+
+        try:
+            cmd = ["git", "remote", "add", remote_name, ssh_url]
+            self.run(*cmd, record=False)
+
+            # NOTE: We use timeout to avoid hanging the build.
+            # Azure DevOps is known to not fail immediately when trying to push
+            # with an SSH key without write access, but instead it hangs until
+            # it times out (this happens randomly).
+            cmd = ["timeout", "10s", "git", "push", "--dry-run", remote_name]
+            code, stdout, stderr = self.run(*cmd, record=False, demux=True)
+
+            if code == 0:
+                return True
+
+            # NOTE: if the command fails, it doesn't necessarily mean the key
+            # doesn't have write access, there are a couple of other reasons
+            # why this may fail, so we check for the error message.
+
+            # This error is shown when the repo is archived, but the key has write access.
+            if "ERROR: This repository was archived so it is read-only" in stderr:
+                return True
+
+            # This error is shown when the repo is empty, but we don't know if the key has write access or not.
+            # We assume it has write access just to be safe, future steps will fail after the repo is cloned anyway.
+            # Example: error: src refspec refs/heads/master does not match any
+            pattern = r"error: src refspec refs/heads/\w does not match any"
+            if re.search(pattern, stderr):
+                return True
+
+            # Example: ERROR: Permission to user/repo denied to deploy key
+            pattern = r"ERROR: Permission to .* denied to deploy key"
+            if re.search(pattern, stderr):
+                return False
+
+            errors_read_access_only = [
+                "ERROR: The key you are authenticating with has been marked as read only",
+                "ERROR: Write access to repository not granted",
+                # This error is shown when the key isn't registered in GH at all.
+                "git@github.com: Permission denied (publickey).",
+                # We don't know if the key has write access or not,
+                # but since the key can't be used from the builders,
+                # it should be safe to return False.
+                "ERROR: The repository owner has an IP allow list enabled",
+                # Gitlab:
+                "ERROR: This deploy key does not have write access to this project.",
+                "remote: This deploy key does not have write access to this project.",
+                # Bitbucket:
+                "fatal: Could not read from remote repository.",
+                # Azure:
+                "You need the Git 'GenericContribute' permission to perform this action.",
+            ]
+            for pattern in errors_read_access_only:
+                if pattern in stderr:
+                    return False
+
+            # This is an error when the repo URL is not a git+ssh URL,
+            # we don't know if the key has write access or not, as the URL is invalid.
+            # Log and return False for now.
+            if "fatal: could not read Username for" in stderr:
+                log.error(
+                    "Invalid repo URL for SSH key check.",
+                    project_slug=self.project.slug,
+                    repo_url=self.project.repo,
+                    ssh_url=ssh_url,
+                    exit_code=code,
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+                return False
+
+            # Log any other errors that we don't know about.
+            log.error(
+                "Unknown error when checking SSH key access.",
+                project_slug=self.project.slug,
+                exit_code=code,
+                stdout=stdout,
+                stderr=stderr,
+            )
+            return False
+        finally:
+            # Always remove the temporary remote.
+            self.run("git", "remote", "remove", remote_name, record=False)
+
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
@@ -199,27 +288,32 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
+        # Fetch from HEAD (symlink to the default branch) if we are building "latest",
+        # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
+        use_default_branch = self.version.is_machine_latest and not self.project.default_branch
+        if use_default_branch:
+            cmd.append("HEAD")
+        else:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.append(remote_reference)
 
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
-
-        # Log a warning, except for machine versions since it's a known bug that
-        # we haven't stored a remote refspec in Version for those "stable" versions.
-        # This could be the case for an unknown default branch.
-        elif not self.version_machine:
-            # We are doing a fetch without knowing the remote reference.
-            # This is expensive, so log the event.
-            log.warning(
-                "Git fetch: Could not decide a remote reference for version. "
-                "Is it an empty default branch?",
-                project_slug=self.project.slug,
-                verbose_name=self.verbose_name,
-                version_type=self.version_type,
-                version_identifier=self.version_identifier,
-            )
+            # Log a warning, except for machine versions since it's a known bug that
+            # we haven't stored a remote refspec in Version for those "stable" versions.
+            # This could be the case for an unknown default branch.
+            elif not self.version.machine:
+                # We are doing a fetch without knowing the remote reference.
+                # This is expensive, so log the event.
+                log.warning(
+                    "Git fetch: Could not decide a remote reference for version. "
+                    "Is it an empty default branch?",
+                    project_slug=self.project.slug,
+                    verbose_name=self.version.verbose_name,
+                    version_type=self.version.type,
+                    version_identifier=self.version.identifier,
+                )
 
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
@@ -227,9 +321,7 @@ class Backend(BaseVCS):
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
-        submodules_in_config = (
-            config.submodules.exclude != ALL or config.submodules.include
-        )
+        submodules_in_config = config.submodules.exclude != ALL or config.submodules.include
         if not submodules_in_config:
             return False
 
@@ -298,6 +390,25 @@ class Backend(BaseVCS):
                 },
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
@@ -316,7 +427,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.
@@ -419,6 +533,11 @@ class Backend(BaseVCS):
         """Checkout to identifier or latest."""
         super().checkout()
 
+        # Do not checkout anything else if the project has a custom Git checkout command.
+        # The ``git checkout`` command has to be executed inside the ``update()`` method.
+        if self.project.git_checkout_command:
+            return
+
         # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:
             return
@@ -474,3 +593,22 @@ class Backend(BaseVCS):
             "git", "show-ref", "--verify", "--quiet", "--", ref, record=False
         )
         return exit_code == 0
+
+
+def parse_version_from_ref(ref: str):
+    """
+    Parse the version name and type from a Git ref.
+
+    The ref can be a branch or a tag.
+
+    :param ref: The ref to parse (e.g. refs/heads/main, refs/tags/v1.0.0).
+    :returns: A tuple with the version name and type.
+    """
+    heads_prefix = "refs/heads/"
+    tags_prefix = "refs/tags/"
+    if ref.startswith(heads_prefix):
+        return ref.removeprefix(heads_prefix), BRANCH
+    if ref.startswith(tags_prefix):
+        return ref.removeprefix(tags_prefix), TAG
+
+    raise ValueError(f"Invalid ref: {ref}")

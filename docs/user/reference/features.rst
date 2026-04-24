@@ -42,7 +42,7 @@ Feature reference
   with advanced functionality like folder redirects.
 
 ⏩️ :doc:`/commercial/sharing`
-  It is possible to host private and password protected documentation on Read the Docs for Business.
+  It is possible to host private and password-protected documentation on Read the Docs for Business.
 
 ⏩️ :doc:`/reference/cdn`
   Documentation projects are primarily static HTML pages along with media files.

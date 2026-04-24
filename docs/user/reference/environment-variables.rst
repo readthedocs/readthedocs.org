@@ -28,7 +28,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     The locale name, or the identifier for the locale, for the project being built.
     This value comes from the project's configured language code,
-    which is in lowercase and use a dash as a separator.
+    which is in lowercase and uses a dash as a separator.
 
     :Example: ``en``
     :Example: ``it``
@@ -65,10 +65,10 @@ All :doc:`build processes </builds>` have the following environment variables au
 
 .. envvar:: READTHEDOCS_OUTPUT
 
-    Base path for well-known output directories. Files in these directories will automatically be found, uploaded and published.
+    Base path for well-known output directories. Files in these directories will automatically be found, uploaded, and published.
 
     You need to concatenate an output format to this variable.
-    Currently valid formats are ``html``, ``pdf``, ``htmlzip`` and ``epub``.
+    Currently valid formats are ``html``, ``pdf``, ``htmlzip``, and ``epub``.
     (e.g. ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``)
     You also need to create the directory before moving outputs into the destination.
     You can create it with the following command ``mkdir -p $READTHEDOCS_OUTPUT/html/``.
@@ -116,6 +116,11 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``bugfix/docs-typo``
     :Example: ``feature/signup``
     :Example: ``update-readme``
+
+    .. note::
+
+       When building pull requests, this variable contains the numeric ID of the pull request,
+       as we don't have access to the branch name.
 
 .. envvar:: READTHEDOCS_GIT_COMMIT_HASH
 

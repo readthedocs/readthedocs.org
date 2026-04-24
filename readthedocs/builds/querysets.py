@@ -1,4 +1,5 @@
 """Build and Version QuerySet classes."""
+
 import datetime
 
 import structlog
@@ -6,17 +7,16 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from readthedocs.builds.constants import (
-    BUILD_STATE_CANCELLED,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_TRIGGERED,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
+
 
 log = structlog.get_logger(__name__)
 
@@ -25,7 +25,6 @@ __all__ = ["VersionQuerySet", "BuildQuerySet", "RelatedBuildQuerySet"]
 
 
 class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
-
     """Versions take into account their own privacy_level setting."""
 
     use_for_related_fields = True
@@ -73,9 +72,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 project__external_builds_privacy_level=constants.PUBLIC,
             )
         else:
-            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(
-                type=EXTERNAL
-            )
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
             queryset |= self.filter(
                 type=EXTERNAL,
                 project__external_builds_privacy_level=constants.PUBLIC,
@@ -85,7 +82,6 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def public(
         self,
         user=None,
-        project=None,
         only_active=True,
         include_hidden=True,
         only_built=False,
@@ -97,17 +93,19 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
 
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
+
+        .. note::
+
+           Avoid filtering by reverse relationships in this method (like project),
+           and instead use project.builds or similar, so the same object is shared
+           between the results.
         """
         queryset = self._public_only()
         if user:
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_from_user_projects(
-                    queryset, user, admin=True, member=True
-                )
-        if project:
-            queryset = queryset.filter(project=project)
+                queryset = self._add_from_user_projects(queryset, user, admin=True, member=True)
         if only_active:
             queryset = queryset.filter(active=True)
         if only_built:
@@ -119,6 +117,11 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def for_reindex(self):
         """
         Get all versions that can be reindexed.
@@ -128,6 +131,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
         - It's active and has been built at least once successfully.
           Since that means that it has files to be indexed.
         - Its project is not delisted or marked as spam.
+        - Its project has search indexing enabled.
         """
         return (
             self.filter(
@@ -135,6 +139,7 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
                 built=True,
                 builds__state=BUILD_STATE_FINISHED,
                 builds__success=True,
+                project__search_indexing_enabled=True,
             )
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
@@ -147,7 +152,6 @@ class VersionQuerySet(SettingsOverrideObject):
 
 
 class BuildQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     Build objects that are privacy aware.
 
@@ -205,6 +209,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
     def api(self, user=None):
         return self.public(user)
 
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)
+
     def concurrent(self, project):
         """
         Check if the max build concurrency for this project was reached.
@@ -237,7 +246,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
         # If the project belongs to an organization, count all the projects
         # from this organization as well
-        organization = project.organizations.first()
+        organization = project.organization
         if organization:
             query |= Q(project__in=organization.projects.all())
 
@@ -271,7 +280,6 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
 
 class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
-
     """
     For models with association to a project through :py:class:`Build`.
 
@@ -305,3 +313,8 @@ class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def api_v2(self, *args, **kwargs):
+        # API v2 is the same as API v3 for .org, but it's
+        # different for .com, this method is overridden there.
+        return self.api(*args, **kwargs)

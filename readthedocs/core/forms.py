@@ -1,5 +1,7 @@
 """Forms for core app."""
 
+from dataclasses import dataclass
+
 import structlog
 from django import forms
 from django.conf import settings
@@ -11,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
+
 
 log = structlog.get_logger(__name__)
 
@@ -77,7 +80,6 @@ class UserAdvertisingForm(forms.ModelForm):
 
 
 class PrevalidatedForm(forms.Form):
-
     """
     Form class that allows raising form errors before form submission.
 
@@ -144,7 +146,6 @@ class PrevalidatedForm(forms.Form):
 
 
 class RichValidationError(forms.ValidationError):
-
     """
     Show non-field form errors as titled messages.
 
@@ -158,16 +159,83 @@ class RichValidationError(forms.ValidationError):
         etc. Default: "error".
     """
 
-    def __init__(
-        self, message, code=None, params=None, header=None, message_class=None
-    ):
+    def __init__(self, message, code=None, params=None, header=None, message_class=None):
         super().__init__(message, code, params)
         self.header = header
         self.message_class = message_class
 
 
-class FacetField(forms.MultipleChoiceField):
+@dataclass
+class RichChoice:
+    """
+    Data class for rich content dropdowns.
 
+    Instead of just value and text, :py:class:`RichSelect` displays multiple
+    attributes in each item content display. Choices can be passed as an array,
+    however with the default :py:class:`django.forms.fields.ChoiceField`
+    you should still pass in a tuple of ``(value, RichChoice(...))`` as the
+    tuple values are used in field validation:
+
+        choices = [
+            RichChoice(name="Foo", value="foo", ...),
+            RichChoice(name="Bar", value="bar", ...),
+        ]
+        field = forms.ChoiceField(
+            ...,
+            widget=RichSelect(),
+            choices=[(choice.value, choice) for choice in choices],
+        )
+    """
+
+    #: Choice verbose text display
+    text: str
+    #: Choice input value
+    value: str
+    #: Optional content beneath/to the side for dropdown item
+    description: str
+    #: Extra content below text and description
+    extra: str = None
+    #: Optional image URL for item
+    image_url: str = None
+    #: Optional image alt text
+    image_alt: str = None
+    #: Error string to display next to text
+    error: str = None
+    #: Is choice disabled?
+    disabled: bool = False
+
+
+class RichSelect(forms.Select):
+    """
+    Rich content dropdown field widget type used for complex content.
+
+    This class is mostly used for special casing in Crispy form templates, it
+    doesn't do anything special. This widget type requires use of the
+    :py:class:`RichChoice` data class. Usage might look something comparable to:
+
+        choice = RichChoice(...)
+        field = forms.ChoiceField(
+            ...,
+            widget=RichSelect(),
+            choices=[(choice.value, choice)]
+        )
+
+    Attributes used by templates:
+
+    use_data_binding
+        Set up Knockout data-bindings, disable this if using a web component instead.
+    """
+
+    use_data_binding = True
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault("use_data_binding", self.use_data_binding)
+        super().__init__(attrs)
+
+
+class FacetField(forms.MultipleChoiceField):
     """
     For filtering searches on a facet.
 

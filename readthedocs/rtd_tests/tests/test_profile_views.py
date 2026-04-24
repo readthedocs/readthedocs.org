@@ -61,20 +61,17 @@ class ProfileViewsTest(TestCase):
         FORM_ERROR_FORMAT = "Ensure this value has at most {} characters (it has {})."
 
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="first_name",
             errors=FORM_ERROR_FORMAT.format(30, 31),
         )
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="last_name",
             errors=FORM_ERROR_FORMAT.format(30, 31),
         )
         self.assertFormError(
-            resp,
-            form="form",
+            resp.context.get('form'),
             field="homepage",
             errors=FORM_ERROR_FORMAT.format(100, 101),
         )
@@ -158,6 +155,12 @@ class ProfileViewsTest(TestCase):
         resp = self.client.post(reverse("profiles_tokens_delete"))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+    def test_delete_api_token_without_token(self):
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+        resp = self.client.post(reverse("profiles_tokens_delete"))
+        assert resp.status_code == 404
 
     def test_list_security_logs(self):
         project = get(Project, users=[self.user], slug="project")

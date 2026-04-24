@@ -5,7 +5,11 @@ from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
+from readthedocs.notifications.models import Notification
+from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.search.documents import PageDocument
+
 
 log = structlog.get_logger(__name__)
 
@@ -28,9 +32,7 @@ def index_objects(document, objects, index_name=None, chunk_size=500):
         document._index._name = old_index_name
 
 
-def remove_indexed_files(
-    project_slug, version_slug=None, sync_id=None, index_name=None
-):
+def remove_indexed_files(project_slug, version_slug=None, sync_id=None, index_name=None):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 
@@ -41,7 +43,7 @@ def remove_indexed_files(
     :param build_id: Build id. If isn't given, all index from `version` are deleted.
     """
 
-    log.bind(
+    structlog.contextvars.bind_contextvars(
         project_slug=project_slug,
         version_slug=version_slug,
     )
@@ -115,3 +117,24 @@ def _get_last_30_days_str(date_format="%Y-%m-%d"):
         timezone.datetime.strftime(date, date_format) for date in _last_30_days_iter()
     ]
     return last_30_days_str
+
+
+def disable_search_indexing(project):
+    """
+    Disable search indexing for a project.
+
+    A notification is created to inform the user,
+    the user can re-enable it from the dashboard.
+    """
+    # Avoid triggering signals by using `update`,
+    # but still update the in-memory instance.
+    project.search_indexing_enabled = False
+    Project.objects.filter(pk=project.pk).update(
+        search_indexing_enabled=False,
+    )
+    remove_indexed_files(project_slug=project.slug)
+    Notification.objects.add(
+        message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+        attached_to=project,
+        dismissable=True,
+    )

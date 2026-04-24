@@ -10,6 +10,7 @@ on:
   schedule:
     # Run weekly on day 0 at 00:00 UTC
     - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,12 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'readthedocs' # do not run this job on forks
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Update submodules
         run: git submodule update --init
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install "pg_config" requirement
         run: sudo apt-get install libpq-dev
@@ -42,7 +45,7 @@ jobs:
         run: invoke requirements.update
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           add-paths: |
             requirements/*.txt

@@ -4,9 +4,7 @@ import json
 import re
 
 import structlog
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter,
-)
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from django.conf import settings
 from requests.exceptions import RequestException
 
@@ -14,100 +12,133 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
-from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
-from .base import Service, SyncServiceError
+from ..models import RemoteOrganization
+from ..models import RemoteRepository
+from ..models import RemoteRepositoryRelation
+from .base import SyncServiceError
+from .base import UserService
+
 
 log = structlog.get_logger(__name__)
 
 
-class BitbucketService(Service):
-
+class BitbucketService(UserService):
     """Provider service for Bitbucket."""
 
-    adapter = BitbucketOAuth2Adapter
+    vcs_provider_slug = BITBUCKET
+    allauth_provider = BitbucketOAuth2Provider
+    base_api_url = "https://api.bitbucket.org"
     # TODO replace this with a less naive check
     url_pattern = re.compile(r"bitbucket.org")
     https_url_pattern = re.compile(r"^https:\/\/[^@]+@bitbucket.org/")
-    vcs_provider_slug = BITBUCKET
+
+    def _get_workspaces_base(self):
+        """
+        Paginate the workspaces the user is a member of.
+
+        Bitbucket deprecated the cross-workspace ``/2.0/repositories/?role=<role>``
+        endpoint on 2026-04-14, so listing repositories now has to be done per workspace.
+        See https://developer.atlassian.com/cloud/bitbucket/changelog/#CHANGE-3022.
+
+        See https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/#api-user-workspaces-get.
+
+        NOTE: this endpoint doesn't return all the fields from the workspace object as the repositories endpoint does,
+        if you need more fields, you need to query the workspace endpoint for each workspace slug.
+        """
+        return (
+            workspace_access["workspace"]
+            for workspace_access in self.paginate(f"{self.base_api_url}/2.0/user/workspaces/")
+        )
 
     def sync_repositories(self):
-        """Sync repositories from Bitbucket API."""
-        remote_repositories = []
+        """Sync repositories from Bitbucket API, one workspace at a time."""
+        remote_ids = []
 
-        # Get user repos
         try:
-            repos = self.paginate(
-                "https://bitbucket.org/api/2.0/repositories/",
-                role="member",
-            )
-            for repo in repos:
-                remote_repository = self.create_repository(repo)
-                remote_repositories.append(remote_repository)
-
-        except (TypeError, ValueError):
-            log.warning("Error syncing Bitbucket repositories")
+            workspace_slugs = [
+                workspace_base["slug"] for workspace_base in self._get_workspaces_base()
+            ]
+        except (TypeError, ValueError, KeyError):
+            log.warning("Error syncing Bitbucket workspaces")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
-        # Because privileges aren't returned with repository data, run query
-        # again for repositories that user has admin role for, and update
-        # existing repositories.
-        try:
-            resp = self.paginate(
-                "https://bitbucket.org/api/2.0/repositories/",
-                role="admin",
-            )
-            admin_repo_relations = RemoteRepositoryRelation.objects.filter(
-                user=self.user,
-                account=self.account,
-                remote_repository__vcs_provider=self.vcs_provider_slug,
-                remote_repository__remote_id__in=[r["uuid"] for r in resp],
-            )
-            for remote_repository_relation in admin_repo_relations:
-                remote_repository_relation.admin = True
-                remote_repository_relation.save()
-        except (TypeError, ValueError):
-            pass
+        for workspace_slug in workspace_slugs:
+            try:
+                repos = self.paginate(
+                    f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
+                    role="member",
+                )
+                for repo in repos:
+                    remote_repository = self.create_repository(repo)
+                    if remote_repository:
+                        remote_ids.append(remote_repository.remote_id)
+            except (TypeError, ValueError):
+                log.warning(
+                    "Error syncing Bitbucket repositories for workspace.",
+                    workspace=workspace_slug,
+                )
+                raise SyncServiceError(
+                    SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                        provider=self.allauth_provider.name
+                    )
+                )
 
-        return remote_repositories
+            # Privileges aren't returned with repository data, so we query
+            # again for repositories the user has the admin role on.
+            try:
+                admin_repos = self.paginate(
+                    f"{self.base_api_url}/2.0/repositories/{workspace_slug}",
+                    role="admin",
+                )
+                admin_repos_ids = [repo["uuid"] for repo in admin_repos]
+                if admin_repos_ids:
+                    RemoteRepositoryRelation.objects.filter(
+                        user=self.user,
+                        account=self.account,
+                        remote_repository__vcs_provider=self.vcs_provider_slug,
+                        remote_repository__remote_id__in=admin_repos_ids,
+                    ).update(admin=True)
+            except (TypeError, ValueError):
+                log.warning(
+                    "Error syncing Bitbucket admin repositories for workspace.",
+                    workspace=workspace_slug,
+                )
+
+        return remote_ids
 
     def sync_organizations(self):
-        """Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories."""
-        remote_organizations = []
-        remote_repositories = []
+        """
+        Sync Bitbucket workspaces (organizations).
+
+        This method only creates the relationships between the
+        organizations and the user, as all the repositories
+        are already created in the sync_repositories method.
+        """
+        organization_remote_ids = []
 
         try:
-            workspaces = self.paginate(
-                "https://api.bitbucket.org/2.0/workspaces/",
-                role="member",
-            )
-            for workspace in workspaces:
+            for workspace_base in self._get_workspaces_base():
+                workspace = self.session.get(
+                    f"{self.base_api_url}/2.0/workspaces/{workspace_base['slug']}"
+                ).json()
                 remote_organization = self.create_organization(workspace)
-                repos = self.paginate(workspace["links"]["repositories"]["href"])
-
-                remote_organizations.append(remote_organization)
-
-                for repo in repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
-                    remote_repositories.append(remote_repository)
-
-        except ValueError:
+                remote_organization.get_remote_organization_relation(self.user, self.account)
+                organization_remote_ids.append(remote_organization.remote_id)
+        except (TypeError, ValueError):
             log.warning("Error syncing Bitbucket organizations")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
+                    provider=self.allauth_provider.name
                 )
             )
 
-        return remote_organizations, remote_repositories
+        return organization_remote_ids, []
 
-    def create_repository(self, fields, privacy=None, organization=None):
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from Bitbucket API response.
 
@@ -132,42 +163,15 @@ class BitbucketService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=fields["uuid"], vcs_provider=self.vcs_provider_slug
             )
-            repo.get_remote_repository_relation(self.user, self.account)
+            self._update_repository_from_fields(repo, fields)
 
-            if repo.organization and repo.organization != organization:
-                log.debug(
-                    "Not importing repository because mismatched orgs.",
-                    repository=fields["name"],
-                )
-                return None
-
-            repo.organization = organization
-            repo.name = fields["name"]
-            repo.full_name = fields["full_name"]
-            repo.description = fields["description"]
-            repo.private = fields["is_private"]
-
-            # Default to HTTPS, use SSH for private repositories
-            clone_urls = {u["name"]: u["href"] for u in fields["links"]["clone"]}
-            repo.clone_url = self.https_url_pattern.sub(
-                "https://bitbucket.org/",
-                clone_urls.get("https"),
+            # The repositories API doesn't return the admin status of the user,
+            # so we default to False, and then update it later using another API call.
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
             )
-            repo.ssh_url = clone_urls.get("ssh")
-            if repo.private:
-                repo.clone_url = repo.ssh_url
-
-            repo.html_url = fields["links"]["html"]["href"]
-            repo.vcs = fields["scm"]
-            mainbranch = fields.get("mainbranch") or {}
-            repo.default_branch = mainbranch.get("name")
-
-            avatar_url = fields["links"]["avatar"]["href"] or ""
-            repo.avatar_url = re.sub(r"\/16\/$", r"/32/", avatar_url)
-            if not repo.avatar_url:
-                repo.avatar_url = self.default_user_avatar_url
-
-            repo.save()
+            remote_repository_relation.admin = False
+            remote_repository_relation.save()
 
             return repo
 
@@ -176,17 +180,102 @@ class BitbucketService(Service):
             repository=fields["name"],
         )
 
+    def update_repository(self, remote_repository: RemoteRepository):
+        # Bitbucket doesn't return the admin status of the user,
+        # so we need to infer it by filtering the repositories the user has admin/read access to.
+        repo_from_admin_access = self._get_repository(remote_repository, role="admin")
+        repo_from_member_access = self._get_repository(remote_repository, role="member")
+        repo = repo_from_admin_access or repo_from_member_access
+        relation = remote_repository.get_remote_repository_relation(self.user, self.account)
+        if not repo:
+            log.info(
+                "User no longer has access to the repository, removing remote relationship.",
+                remote_repository_id=remote_repository.remote_id,
+            )
+            relation.delete()
+            return
+
+        self._update_repository_from_fields(remote_repository, repo)
+        relation.admin = bool(repo_from_admin_access)
+        relation.save()
+
+    def _get_repository(self, remote_repository, role):
+        """
+        Get a single repository by its remote ID where the user has a specific role.
+
+        Bitbucket doesn't provide an endpoint to get a single repository by its ID
+        (it requires the workspace as well), and it also doesn't return the user's
+        role in the repository, so we filter the repositories in the workspace by
+        role and then look for the repository with the matching ID.
+
+        The cross-workspace ``/2.0/repositories/?role=<role>`` endpoint was
+        deprecated on 2026-04-14, so we scope the query to the workspace the
+        repository belongs to.
+        """
+        for workspace_base in self._get_workspaces_base():
+            repos = self.paginate(
+                f"{self.base_api_url}/2.0/repositories/{workspace_base['slug']}",
+                role=role,
+                q=f'uuid="{remote_repository.remote_id}"',
+            )
+            for repo in repos:
+                if repo["uuid"] == remote_repository.remote_id:
+                    return repo
+        return None
+
+    def _update_repository_from_fields(self, repo, fields):
+        # All repositories are created under a workspace,
+        # which we consider an organization.
+        organization = self.create_organization(fields["workspace"])
+        repo.organization = organization
+        repo.name = fields["name"]
+        repo.full_name = fields["full_name"]
+        repo.description = fields["description"]
+        repo.private = fields["is_private"]
+
+        # Default to HTTPS, use SSH for private repositories
+        clone_urls = {u["name"]: u["href"] for u in fields["links"]["clone"]}
+        repo.clone_url = self.https_url_pattern.sub(
+            "https://bitbucket.org/",
+            clone_urls.get("https"),
+        )
+        repo.ssh_url = clone_urls.get("ssh")
+        if repo.private:
+            repo.clone_url = repo.ssh_url
+
+        repo.html_url = fields["links"]["html"]["href"]
+        repo.vcs = fields["scm"]
+        mainbranch = fields.get("mainbranch") or {}
+        repo.default_branch = mainbranch.get("name")
+
+        avatar_url = fields["links"]["avatar"]["href"] or ""
+        repo.avatar_url = re.sub(r"\/16\/$", r"/32/", avatar_url)
+        if not repo.avatar_url:
+            repo.avatar_url = self.default_user_avatar_url
+
+        repo.save()
+
     def create_organization(self, fields):
         """
         Update or create remote organization from Bitbucket API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
+
+        .. note::
+
+           This method caches organizations by their remote ID to avoid
+           unnecessary database queries, specially when creating
+           multiple repositories that belong to the same organization.
         """
+        organization_id = fields["uuid"]
+        if organization_id in self._organizations_cache:
+            return self._organizations_cache[organization_id]
+
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields["uuid"], vcs_provider=self.vcs_provider_slug
+            remote_id=organization_id,
+            vcs_provider=self.vcs_provider_slug,
         )
-        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.slug = fields.get("slug")
         organization.name = fields.get("name")
@@ -197,6 +286,7 @@ class BitbucketService(Service):
 
         organization.save()
 
+        self._organizations_cache[organization_id] = organization
         return organization
 
     def get_next_url_to_paginate(self, response):
@@ -234,19 +324,18 @@ class BitbucketService(Service):
         if integration.provider_data:
             return integration.provider_data
 
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
 
         rtd_webhook_url = self.get_webhook_url(project, integration)
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
         )
         try:
-            resp = session.get(url)
+            resp = self.session.get(url)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
@@ -272,7 +361,7 @@ class BitbucketService(Service):
 
         return integration.provider_data
 
-    def setup_webhook(self, project, integration=None):
+    def setup_webhook(self, project, integration=None) -> bool:
         """
         Set up Bitbucket project webhook for project.
 
@@ -281,11 +370,9 @@ class BitbucketService(Service):
         :param integration: Integration for the project
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
-        session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
+        url = f"{self.base_api_url}/2.0/repositories/{owner}/{repo}/hooks"
         if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
@@ -294,14 +381,14 @@ class BitbucketService(Service):
 
         data = self.get_webhook_data(project, integration)
         resp = None
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             integration_id=integration.pk,
             url=url,
         )
 
         try:
-            resp = session.post(
+            resp = self.session.post(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -313,7 +400,7 @@ class BitbucketService(Service):
                 log.debug(
                     "Bitbucket webhook creation successful for project.",
                 )
-                return (True, resp)
+                return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
@@ -333,9 +420,9 @@ class BitbucketService(Service):
         except (RequestException, ValueError):
             log.exception("Bitbucket webhook creation failed for project.")
 
-        return (False, resp)
+        return False
 
-    def update_webhook(self, project, integration):
+    def update_webhook(self, project, integration) -> bool:
         """
         Update webhook integration.
 
@@ -344,9 +431,8 @@ class BitbucketService(Service):
         :param integration: Webhook integration to update
         :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
-        :rtype: (Bool, Response)
         """
-        log.bind(project_slug=project.slug)
+        structlog.contextvars.bind_contextvars(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
 
         # Handle the case where we don't have a proper provider_data set
@@ -354,13 +440,12 @@ class BitbucketService(Service):
         if not provider_data:
             return self.setup_webhook(project, integration)
 
-        session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
             url = provider_data["links"]["self"]["href"]
-            resp = session.put(
+            resp = self.session.put(
                 url,
                 data=data,
                 headers={"content-type": "application/json"},
@@ -371,7 +456,7 @@ class BitbucketService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info("Bitbucket webhook update successful for project.")
-                return (True, resp)
+                return True
 
             # Bitbucket returns 404 when the webhook doesn't exist. In this
             # case, we call ``setup_webhook`` to re-configure it from scratch
@@ -392,4 +477,4 @@ class BitbucketService(Service):
         except (KeyError, RequestException, TypeError, ValueError):
             log.exception("Bitbucket webhook update failed for project.")
 
-        return (False, resp)
+        return False
