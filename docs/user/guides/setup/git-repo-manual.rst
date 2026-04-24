@@ -171,11 +171,28 @@ default_branch
 
     *Optional*
 
-For example, the cURL command to build the ``dev`` branch, using the token
-``1234``, would be::
+For example, to build the ``dev`` branch of project ``example-project``
+using the integration token ``1234``:
 
-    curl -X POST -d "branches=dev" -d "token=1234" -d "default_branch=main"
-    https://app.readthedocs.org/api/v2/webhook/example-project/1/
+.. tabs::
+
+   .. code-tab:: bash
+
+      $ curl \
+          --data "branches=dev&token=1234&default_branch=main" \
+          https://app.readthedocs.org/api/v2/webhook/example-project/1/
+
+   .. code-tab:: python
+
+      import requests
+
+      URL = "https://app.readthedocs.org/api/v2/webhook/example-project/1/"
+      TOKEN = "1234"
+      response = requests.post(
+          URL,
+          data={"branches": "dev", "token": TOKEN, "default_branch": "main"},
+      )
+      print(response.json())
 
 A command like the one above could be called from a cron job or from a `Git hook`_.
 
