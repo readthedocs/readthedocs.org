@@ -32,11 +32,10 @@ from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS
-from readthedocs.builds.constants import PREDEFINED_MATCH_ARGS_VALUES
+from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
-from readthedocs.builds.managers import AutomationRuleMatchManager
 from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
 from readthedocs.builds.managers import ExternalVersionManager
@@ -72,6 +71,7 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
@@ -1199,6 +1199,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
+# TODO: delete VersionAutomationRule model after we are fully migrated
 class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
@@ -1226,7 +1227,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name="automation_rules",
+        related_name="version_automation_rules",
         on_delete=models.CASCADE,
     )
     priority = models.PositiveIntegerField(
@@ -1252,7 +1253,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             "otherwise match_arg will be used."
         ),
         max_length=255,
-        choices=PREDEFINED_MATCH_ARGS,
+        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
         null=True,
         blank=True,
         default=None,
@@ -1285,7 +1286,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
             self.predefined_match_arg,
         )
         return match_arg or self.match_arg
@@ -1380,6 +1381,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         return f"({self.priority}) {class_name}/{self.get_action_display()}"
 
 
+# TODO: delete RegexAutomationRule model after we are fully migrated
 class RegexAutomationRule(VersionAutomationRule):
     TIMEOUT = 1  # timeout in seconds
 
@@ -1439,6 +1441,7 @@ class RegexAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete WebhookAutomationRule model after we are fully migrated
 class WebhookAutomationRule(VersionAutomationRule):
     """
     Automation rule for filtering builds based on files changed in webhook events.
@@ -1475,6 +1478,7 @@ class WebhookAutomationRule(VersionAutomationRule):
         )
 
 
+# TODO: delete AutomationRuleMatch model after we are fully migrated
 class AutomationRuleMatch(TimeStampedModel):
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
