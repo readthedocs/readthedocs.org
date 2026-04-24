@@ -775,6 +775,7 @@ class APIBuildTests(TestCase):
         assert r.data["version"] is None
         assert r.data["commands"][0]["command"] == command
 
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.api.v2.views.model_views.get_build_commands_from_storage")
     def test_build_detail_reads_commands_from_storage(self, get_build_commands_from_storage):
         build = get(
