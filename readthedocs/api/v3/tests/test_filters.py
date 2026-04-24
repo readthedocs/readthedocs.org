@@ -11,9 +11,8 @@ from django.test import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED, TAG
-from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, TAG
+from readthedocs.builds.models import Build
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
@@ -117,6 +116,7 @@ class VersionFilterTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
+        self.assertGreater(len(results), 0)
         self.assertTrue(
             all(self.version.slug in r["slug"] for r in results),
         )
@@ -128,7 +128,8 @@ class VersionFilterTests(APIEndpointMixin):
             data={"slug": self.version.slug[:3].upper()},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertGreater(len(response.json()["results"]), 0)
+        results = response.json()["results"]
+        self.assertIn(self.version.slug, [r["slug"] for r in results])
 
     def test_filter_by_slug_miss(self):
         response = self.client.get(
@@ -145,6 +146,7 @@ class VersionFilterTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
+        self.assertGreater(len(results), 0)
         self.assertTrue(all(r["active"] for r in results))
 
     def test_filter_by_type(self):
@@ -154,6 +156,7 @@ class VersionFilterTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
+        self.assertGreater(len(results), 0)
         self.assertTrue(all(r["type"] == TAG for r in results))
 
     def test_filter_by_built(self):
@@ -163,4 +166,5 @@ class VersionFilterTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
+        self.assertGreater(len(results), 0)
         self.assertTrue(all(r["built"] for r in results))
