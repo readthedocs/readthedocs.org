@@ -8,6 +8,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from simple_history.models import HistoricalRecords
 
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
@@ -99,12 +100,6 @@ def delete_object(
     :param ip: The IP address of the user performing the deletion.
     :param browser: The browser user-agent of the user performing the deletion.
     """
-    from simple_history.models import HistoricalRecords
-
-    from readthedocs.audit.models import AuditLog
-    from readthedocs.organizations.models import Organization
-    from readthedocs.projects.models import Project
-
     task_log = log.bind(model_name=model_name, object_pk=pk, user_id=user_id)
     lock_id = f"{self.name}-{model_name}-{pk}-lock"
     lock_expire = 60 * 60 * 2  # 2 hours
@@ -121,35 +116,14 @@ def delete_object(
         if obj:
             task_log.info("Deleting object.")
 
-            # Make IP/browser available to the django-simple-history
-            # signal handler, since there is no HTTP request in a Celery task.
+            # Make IP/browser/user available to signal handlers that need them,
+            # since there is no HTTP request in a Celery task.
             if ip:
                 HistoricalRecords.context.ip = ip
             if browser:
                 HistoricalRecords.context.browser = browser
-
-            # Collect projects to audit log before deletion.
-            # When an Organization is deleted, its projects are cascade-deleted
-            # via signal, so we need to capture them here.
-            projects_to_log = []
-            if isinstance(obj, Project):
-                projects_to_log = [obj]
-            elif isinstance(obj, Organization):
-                projects_to_log = list(obj.projects.all())
-
-            # Create an audit log entry for each project admin
-            # so that all of them can see the deletion in their
-            # personal security log, not just the user who deleted it.
-            for project in projects_to_log:
-                for admin in project.users.all():
-                    AuditLog.objects.create(
-                        user=admin,
-                        action=AuditLog.PROJECT_DELETE,
-                        project=project,
-                        ip=ip,
-                        browser=browser,
-                        data={"deleted_by": user.username} if user else None,
-                    )
+            if user:
+                HistoricalRecords.context.acting_user = user
 
             set_change_reason(obj, reason="Object deleted asynchronously", user=user)
             obj.delete()
