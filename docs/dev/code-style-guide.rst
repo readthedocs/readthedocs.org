@@ -1,187 +1,104 @@
 Code architecture and style guide
 =================================
 
-This is the canonical reference for code-level conventions in
-``readthedocs/readthedocs.org``. It complements :doc:`/style-guide` (which
-covers documentation prose) and the repo-level ``AGENTS.md`` (tooling and
-workflow).
-
-Agents and contributors should skim this before opening a PR. Keep it short —
-if a rule can be enforced by a linter or by reading the neighbouring file,
-prefer that over adding prose here.
-
-See also:
-
-- ``AGENTS.md`` — commits, tests, tox, package management (``uv``).
-- ``.ruff.toml`` — linter config is the source of truth for formatting.
-- :doc:`/style-guide` — prose and RST conventions for docs.
+Project-specific patterns for ``readthedocs/readthedocs.org``. Complements
+``AGENTS.md`` (tooling, workflow, PEP 8 basics) and :doc:`/style-guide` (prose).
+Only rules that reviewers repeat or that a linter can't enforce live here.
 
 
 Repository layout
 -----------------
 
-Django project apps live under ``readthedocs/``. A typical app follows:
+Django apps live under ``readthedocs/<app>/``. Non-obvious conventions:
 
-.. code-block:: text
-
-   readthedocs/<app>/
-       models.py          # Django models; thin, delegate to querysets/managers
-       querysets.py       # Custom QuerySet classes (one per model file)
-       managers.py        # Custom Manager classes when needed
-       views/             # Package preferred over single views.py for larger apps
-       forms.py
-       tasks/             # Celery tasks, split by concern (builds.py, search.py)
-       migrations/        # Use ``tox -e migrations`` after any change
-       signals.py
-       tests/             # Test files named ``test_<area>.py``
-       constants.py       # Module-level constants, UPPER_SNAKE_CASE
-       exceptions.py      # App-specific exceptions
-
-API code is split by version: ``readthedocs/api/v2/`` (internal, used by
-builders) and ``readthedocs/api/v3/`` (public, DRF ViewSets). Do not add new
-endpoints to v2 unless the builder needs them.
-
-Proxito (``readthedocs/proxito/``) serves built documentation and has its own
-settings module (``readthedocs.settings.proxito.*``). It must not import from
-the dashboard views.
+- Query logic goes in ``querysets.py`` / ``managers.py``, not ``models.py``.
+- ``tasks/`` as a package (split by concern: ``builds.py``, ``search.py``) is
+  preferred over a single ``tasks.py`` once an app grows past a few tasks.
+- ``views/`` as a package once an app has more than one view module.
+- API is split by version: v2 (``readthedocs/api/v2/``) is internal to the
+  builder; v3 (``readthedocs/api/v3/``) is public. Add new endpoints to v3.
+- Proxito (``readthedocs/proxito/``) serves built docs, uses its own settings
+  module, and must not import from dashboard views.
 
 
-Python style
-------------
+Imports and logging
+-------------------
 
-Formatting and imports are enforced by Ruff (``tox -e pre-commit``). The
-non-obvious conventions reviewers call out:
+- **One import per line**, enforced by Ruff's ``force-single-line``. Never
+  ``from x import A, B``.
+- Absolute imports (``from readthedocs.<app> import ...``) across apps;
+  relative imports only within the same app.
+- Logging uses ``structlog`` with keyword arguments — the message is a
+  constant, context goes in kwargs. No f-strings or ``%`` formatting in logs:
 
-- **One import per line.** ``from x import A`` then ``from x import B`` on the
-  next line — never ``from x import A, B``. Ruff's ``force-single-line`` is on.
-- **Absolute imports** from ``readthedocs.<app>`` across apps. Relative
-  (``from .constants import ...``) is fine inside the same app.
-- **Type hints** on new function signatures. Don't retrofit the whole file;
-  add them to what you touch.
-- **Docstrings** on public classes and non-trivial functions. One-line summary
-  in the imperative mood; expand below only if the "why" is non-obvious.
-- Module-level ``"""Short module docstring."""`` at the top of new files.
-- No comments that restate the code. Only write a comment when the *reason* is
-  non-obvious (workaround, invariant, hidden constraint).
+  .. code-block:: python
 
+     log = structlog.get_logger(__name__)
+     log.info("Stable version updated.", project_slug=project.slug)
 
-Logging
--------
-
-Use ``structlog`` with keyword arguments — never f-strings or ``%`` formatting
-in log calls. The log message stays a constant, context goes in kwargs:
-
-.. code-block:: python
-
-   import structlog
-   log = structlog.get_logger(__name__)
-
-   log.info(
-       "Stable version updated.",
-       project_slug=project.slug,
-       version_identifier=version.identifier,
-   )
-
-Use ``log.exception(...)`` inside ``except`` blocks. Reserve ``log.error`` for
-cases without a live traceback.
+- ``log.exception(...)`` inside ``except`` blocks; ``log.error`` only when
+  there is no live traceback.
 
 
-Django and DRF patterns
------------------------
+Django and DRF
+--------------
 
-**Models.** Keep ``models.py`` focused on fields, validation, and short
-methods. Push query logic into ``querysets.py``. Sensitive/extensible logic
-that differs between .org and .com should use ``SettingsOverrideObject`` (see
-``readthedocs/core/utils/extend.py``) instead of ``if settings.RTD_...``.
-
-**QuerySets.** Name classes ``<Model>QuerySet`` (or ``<Model>QuerySetBase``
-when the class is wrapped by ``SettingsOverrideObject``). Expose them on the
-model via ``objects = <Model>QuerySet.as_manager()``.
-
-**Views.** Class-based views for dashboard pages; DRF ViewSets for API v3.
-New v3 ViewSets inherit from ``APIv3Settings`` in
-``readthedocs/api/v3/views.py`` so throttling/auth/pagination stay consistent.
-
-**Serializers.** v3 uses ``rest_flex_fields``. Split serializers by action
-(``ProjectCreateSerializer``, ``ProjectUpdateSerializer``,
-``ProjectSerializer`` for read) rather than overriding fields per-verb.
-
-**Permissions.** Use the existing permission classes in
-``readthedocs/api/v3/permissions.py`` and ``readthedocs/core/permissions.py``
-(``AdminPermission``). Do not re-implement admin/member checks inline.
-
-**Celery tasks.** Live in ``<app>/tasks.py`` or ``<app>/tasks/<area>.py``.
-Task functions take only JSON-serializable arguments (pass ``project.pk``,
-not ``project``). Tasks that affect builds should use ``memcache_lock`` to
-prevent duplicate runs (see ``readthedocs/builds/utils.py``).
-
-**Signals.** Put receivers in ``signals.py`` or ``signals_receivers.py`` and
-connect them in ``apps.py``. Avoid business logic in ``post_save`` — prefer
-explicit calls from the code path that caused the change.
+- **QuerySets.** Named ``<Model>QuerySet``; exposed via
+  ``objects = <Model>QuerySet.as_manager()``. Use ``<Model>QuerySetBase`` when
+  the class is wrapped by ``SettingsOverrideObject``.
+- **.org vs .com branching.** Use ``SettingsOverrideObject`` (see
+  ``readthedocs/core/utils/extend.py``), not ``if settings.RTD_...``.
+- **Permissions.** Reuse ``AdminPermission`` and the classes in
+  ``readthedocs/api/v3/permissions.py``. Don't re-implement membership checks.
+- **API v3 ViewSets** inherit from ``APIv3Settings``
+  (``readthedocs/api/v3/views.py``) for consistent throttling/auth/pagination.
+  Split serializers by action (``ProjectCreateSerializer``,
+  ``ProjectUpdateSerializer``, ``ProjectSerializer``) rather than switching
+  fields per verb.
+- **Celery tasks** take only JSON-serializable args (pass ``project.pk``, not
+  ``project``). Build-affecting tasks use ``memcache_lock``
+  (``readthedocs/builds/utils.py``) to prevent duplicate runs.
+- **Signals.** Keep receivers thin; prefer explicit calls from the code path
+  that caused the change over business logic in ``post_save``.
 
 
 Migrations
 ----------
 
-- Always run ``tox -e migrations`` after touching a model or adding a
-  migration. CI will fail otherwise.
-- Name files descriptively:
-  ``NNNN_<what_changed_in_snake_case>.py`` (e.g. ``0161_addons_notifications_show_on_external_default_false.py``).
 - Set ``safe = Safe.before_deploy()`` / ``.after_deploy()`` on every new
-  migration (``django_safemigrate``). Choose based on whether the running app
-  can tolerate the old or new schema.
-- Data migrations go in their own file, separate from schema changes, with
-  both ``forwards`` and ``backwards`` (or ``migrations.RunPython.noop``).
+  migration (``django_safemigrate``).
+- Put data migrations in their own file, separate from schema changes, and
+  provide a reverse (or ``migrations.RunPython.noop``).
 
 
-Notifications and errors
+Errors and notifications
 ------------------------
 
-User-visible errors go through the notifications system, not ad-hoc strings:
-
-- Add a ``Message`` to ``readthedocs/notifications/messages.py`` with a stable
-  ``id`` (``generic-with-settings-link``, ``project:invalid:name``, etc.).
-- Raise typed exceptions from ``<app>/exceptions.py`` (e.g. ``BuildUserError``,
-  ``ProjectConfigurationError``) with the message ``id``. Don't raise bare
-  ``Exception`` or return HTTP 500 for user-caused problems.
-- Internal errors may use ``structlog`` only; don't expose tracebacks to users.
+- User-visible errors: add a ``Message`` to
+  ``readthedocs/notifications/messages.py`` with a stable ``id`` and raise a
+  typed exception from ``<app>/exceptions.py`` (``BuildUserError``,
+  ``ProjectConfigurationError``, …) — don't raise bare ``Exception`` or
+  surface tracebacks.
 
 
 Testing
 -------
 
-See ``AGENTS.md`` for tox commands. Conventions:
-
-- Use ``pytest`` style assertions (``assert foo == bar``). Legacy files use
-  ``self.assertEqual`` — match the surrounding file, don't mix in one class.
-- ``from django_dynamic_fixture import get`` to build model instances. Prefer
-  it over hand-building fixtures.
-- One behaviour per test. Name tests after what they assert:
-  ``test_repository_full_name_with_ssh_url``.
-- Put tests under ``<app>/tests/test_<area>.py``. Integration-style tests
-  that span apps go in ``readthedocs/rtd_tests/``.
-- Pytest marks (``search``, ``proxito``, ``embed_api``) are declared in
-  ``pytest.ini`` and excluded from the default ``py312`` env. Mark new
-  tests that need Elasticsearch or proxito settings accordingly.
+- Build fixtures with ``django_dynamic_fixture.get``.
+- Match the surrounding file's assertion style (``assert ==`` vs
+  ``self.assertEqual``); don't mix within a class.
+- Mark tests that need Elasticsearch / proxito settings with the ``search``,
+  ``proxito``, or ``embed_api`` pytest marks — the default ``py312`` env
+  excludes them.
 
 
 Security
 --------
 
-- Never trust data from ``.readthedocs.yaml``, webhook payloads, or
-  user-supplied URLs. Use the validators in ``<app>/validators.py``.
-- Filesystem paths derived from user input must go through
+- Validate user input via ``<app>/validators.py``.
+- Filesystem paths from user input go through
   ``readthedocs.core.utils.filesystem.assert_path_is_inside_docroot``.
-- External HTTP calls use ``readthedocs.core.utils.requests`` (timeouts,
-  allowed-host checks) rather than ``requests`` directly.
-- Shell interpolation: use ``shlex.quote`` or pass args as a list; never
-  ``f"... {user_value}"`` into ``subprocess`` with ``shell=True``.
-
-
-Front-end
----------
-
-Templates, CSS, and JS live in the separate ``readthedocs/ext-theme``
-repository. Changes in this repo are limited to template overrides in
-``readthedocs/templates/`` and server-rendered context. If a change requires
-new CSS/JS, open a companion PR in ``ext-theme``.
+- External HTTP uses ``readthedocs.core.utils.requests`` (timeouts,
+  allowed-host checks), not ``requests`` directly.
+- Never interpolate user values into ``subprocess`` with ``shell=True``; pass
+  args as a list or use ``shlex.quote``.
