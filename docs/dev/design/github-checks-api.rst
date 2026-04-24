@@ -122,7 +122,7 @@ Rollout
 -------
 
 The feature ships behind ``Feature.USE_GITHUB_CHECKS_API``, disabled by
-default. We enable it first for internal dogfood projects, monitor
+default. We enable it first for internal test projects, monitor
 ``X-RateLimit-*`` headers (there is no rate-limit instrumentation
 today), and then flip it on for all GitHub App installations. The old
 commit-status path stays in place for OAuth-only projects indefinitely.
