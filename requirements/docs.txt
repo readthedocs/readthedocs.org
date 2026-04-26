@@ -14,13 +14,13 @@ babel==2.18.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   requests
     #   sphinx-prompt
 charset-normalizer==3.4.7
     # via requests
-click==8.3.2
+click==8.3.3
     # via
     #   sphinx-intl
     #   uvicorn
@@ -41,7 +41,7 @@ fonttools==4.62.1
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.11
+idna==3.13
     # via
     #   anyio
     #   requests
@@ -61,7 +61,7 @@ markdown-it-py==4.0.0
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-matplotlib==3.10.8
+matplotlib==3.10.9
     # via -r requirements/docs.in
 mdit-py-plugins==0.5.0
     # via myst-parser
@@ -73,7 +73,7 @@ numpy==2.4.4
     # via
     #   contourpy
     #   matplotlib
-packaging==26.1
+packaging==26.2
     # via
     #   matplotlib
     #   sphinx
@@ -170,7 +170,7 @@ urllib3==2.6.3
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.44.0
+uvicorn==0.46.0
     # via sphinx-autobuild
 watchfiles==1.1.1
     # via sphinx-autobuild
