@@ -17,6 +17,7 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
+from readthedocs.proselint.indexer import ProselintIndexer
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
@@ -221,6 +222,9 @@ def _get_indexers(
             post_build_overview=post_build_overview,
         )
         indexers.append(file_manifest_indexer)
+
+    if version.project.addons.proselint_enabled or settings.RTD_PROSELINT_ALL:
+        indexers.append(ProselintIndexer(version=version, build=build))
 
     index_file_indexer = IndexFileIndexer(
         project=version.project,

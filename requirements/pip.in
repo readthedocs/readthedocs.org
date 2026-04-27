@@ -68,6 +68,9 @@ django-elasticsearch-dsl~=9.0
 
 selectolax
 
+# Prose linter run on built HTML by the proselint indexer
+proselint
+
 # embed
 pyquery
 

@@ -871,6 +871,7 @@ class AddonsConfigForm(forms.ModelForm):
             "search_show_subprojects_filter",
             "linkpreviews_enabled",
             "linkpreviews_selector",
+            "proselint_enabled",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
@@ -888,6 +889,7 @@ class AddonsConfigForm(forms.ModelForm):
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
+            "proselint_enabled": _("Run proselint on builds"),
             "options_root_selector": _("CSS main content selector"),
         }
 

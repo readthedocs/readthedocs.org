@@ -53,6 +53,8 @@ class CommunityBaseSettings(Settings):
 
     # Build FTD index for all versions
     RTD_FILETREEDIFF_ALL = False
+    # Run proselint on every build (overrides per-project AddonsConfig)
+    RTD_PROSELINT_ALL = False
 
     @property
     def DEBUG_TOOLBAR_CONFIG(self):

@@ -31,6 +31,8 @@ from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.filetreediff import get_diff
+from readthedocs.proselint import get_report_path as get_proselint_report_path
+from readthedocs.storage import build_media_storage
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -506,6 +508,9 @@ class AddonsResponseBase:
                 "filetreediff": {
                     "enabled": project.addons.filetreediff_enabled,
                 },
+                "proselint": {
+                    "enabled": project.addons.proselint_enabled,
+                },
             },
         }
 
@@ -518,6 +523,13 @@ class AddonsResponseBase:
             )
             if response:
                 data["addons"]["filetreediff"].update(response)
+
+            proselint_response = self._get_proselint_response(
+                project=project,
+                version=version,
+            )
+            if proselint_response:
+                data["addons"]["proselint"].update(proselint_response)
 
         if version and project.addons.search_show_subprojects_filter:
             # Show the subprojects filter on the parent project and subproject
@@ -685,6 +697,23 @@ class AddonsResponseBase:
                 "modified": _serialize_files(diff.modified),
             },
         }
+
+    def _get_proselint_response(self, *, project, version):
+        """
+        Get the proselint response for the given version.
+
+        Returns a URL to the JSON report stored in build media storage. The
+        frontend addon fetches this file and overlays the warnings on the
+        rendered page.
+        """
+        if not project.addons.proselint_enabled and not settings.RTD_PROSELINT_ALL:
+            return None
+
+        report_path = get_proselint_report_path(version)
+        if not build_media_storage.exists(report_path):
+            return None
+
+        return {"url": build_media_storage.url(report_path)}
 
     def _v2(self, project, version, build, filename, url, user):
         return {

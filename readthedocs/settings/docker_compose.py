@@ -239,6 +239,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     SUPPORT_EMAIL = "support@example.com"
 
     RTD_FILETREEDIFF_ALL = "RTD_FILETREEDIFF_ALL" in os.environ
+    RTD_PROSELINT_ALL = "RTD_PROSELINT_ALL" in os.environ
 
     @property
     def STORAGES(self):

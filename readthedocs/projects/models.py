@@ -286,6 +286,9 @@ class AddonsConfig(TimeStampedModel):
         help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
     )
 
+    # Proselint
+    proselint_enabled = models.BooleanField(default=False)
+
 
 class AddonSearchFilter(TimeStampedModel):
     """
