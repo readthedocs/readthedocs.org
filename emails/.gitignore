@@ -1,0 +1,7 @@
+node_modules/
+
+# Render & screenshot artifacts (regenerate locally with `node build.js` and
+# `node preview/screenshot.js`).
+preview/out/
+preview/out_before/
+preview/screenshots/

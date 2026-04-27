@@ -1,0 +1,14 @@
+{
+  "_comment": "Maps Django template namespace prefix -> filesystem template dir. Longest prefix wins; iterated in order.",
+  "mappings": {
+    "core/email/": "readthedocs/templates",
+    "account/email/": "readthedocs/templates",
+    "projects/email/": "readthedocs/templates",
+    "projects/notifications/": "readthedocs/templates",
+    "domains/notifications/": "readthedocs/domains/templates",
+    "organizations/email/": "readthedocs/organizations/templates",
+    "organizations/verify_email": "readthedocs/organizations/templates",
+    "invitations/email/": "readthedocs/invitations/templates",
+    "subscriptions/notifications/": "readthedocs/subscriptions/templates"
+  }
+}

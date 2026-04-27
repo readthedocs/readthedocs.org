@@ -1,0 +1,90 @@
+<mjml>
+  <mj-head>
+    <mj-title>Read the Docs</mj-title>
+    <mj-preview>{% block preview %}{% endblock %}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="14px" color="#444433" line-height="1.5" />
+      <mj-button background-color="#465158" color="#ffffff" font-weight="bold" border-radius="4px" inner-padding="12px 24px" />
+      <mj-class name="muted" color="#acacac" font-size="12px" />
+    </mj-attributes>
+    <!-- Rules that apply to runtime-emitted markup (leaf templates inject <a>,
+         <p>, <ul> at render time). Keep them in a non-inlined block so email
+         clients pick them up. -->
+    <mj-style>
+      a { color: #465158; }
+      p { color: #444433; margin: 0 0 12px 0; }
+      h1, h2, h3 { color: #444433; line-height: 1.25; }
+      ul, ol { color: #444433; padding-left: 20px; margin: 0 0 12px 0; }
+      em { color: inherit; }
+      strong { color: inherit; }
+    </mj-style>
+    <mj-raw>{% block extra-styles %}{% endblock %}</mj-raw>
+  </mj-head>
+
+  <mj-body background-color="#ececec" width="600px">
+    <!-- top-right note (build refs, etc.) -->
+    <mj-section padding="8px 8px 0 8px">
+      <mj-column>
+        <mj-text mj-class="muted" align="right" padding="0">
+          {% block top-right %}&nbsp;{% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- header -->
+    <mj-section background-color="#ffffff" padding="0">
+      <mj-column>
+        <mj-image src="https://assets.readthedocs.org/static/images/email-header.png" alt="Read the Docs" padding="0" />
+      </mj-column>
+    </mj-section>
+
+    <!-- salutation -->
+    <mj-section background-color="#ffffff" padding="16px 16px 0 16px">
+      <mj-column>
+        <mj-text font-weight="bold" padding="0">
+          {% block salutation %}{% trans "Hello," %}{% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- content -->
+    <mj-section background-color="#ffffff" padding="8px 16px 16px 16px">
+      <mj-column>
+        <mj-text padding="0">
+          {% block content %}{% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- signature -->
+    <mj-section background-color="#ffffff" padding="0 16px 24px 16px">
+      <mj-column>
+        <mj-text padding="0">
+          {% block signature %}
+            {% trans "Keep documenting," %}<br />
+            {% trans "Read the Docs" %}
+          {% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- footer -->
+    <mj-section background-color="#443f3f" padding="16px">
+      <mj-column>
+        <mj-text color="#bbbbaa" font-size="12px" padding="0">
+          {% block footer %}
+            Read&nbsp;the&nbsp;Docs<br />
+            <a href="https://readthedocs.org" style="color: #bbbbaa;">https://readthedocs.org</a>
+          {% endblock %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="16px 8px">
+      <mj-column>
+        <mj-text mj-class="muted" align="center" padding="0">&nbsp;</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

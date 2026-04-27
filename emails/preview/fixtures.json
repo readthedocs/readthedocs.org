@@ -1,0 +1,70 @@
+[
+  {
+    "name": "01_email_confirmation",
+    "template": "account/email/email_confirmation_message.html",
+    "context": {
+      "activate_url": "https://readthedocs.org/accounts/confirm-email/abc123def456/",
+      "user_display": "ericholscher"
+    }
+  },
+  {
+    "name": "02_build_failed",
+    "template": "projects/email/build_failed.html",
+    "context": {
+      "project": { "name": "pip", "slug": "pip" },
+      "version": { "verbose_name": "latest" },
+      "build": {
+        "pk": 24681012,
+        "error": "Command failed: pip install -r docs/requirements.txt"
+      },
+      "build_url": "https://readthedocs.org/projects/pip/builds/24681012/",
+      "build_raw": "https://readthedocs.org/projects/pip/builds/24681012/?format=raw",
+      "unsubscribe_url": "https://readthedocs.org/dashboard/pip/notifications/"
+    }
+  },
+  {
+    "name": "03_team_invite",
+    "template": "organizations/email/team_add.html",
+    "context": {
+      "sender_full_name": "Eric Holscher",
+      "sender_username": "ericholscher",
+      "organization_name": "ACME Documentation",
+      "organization_slug": "acme",
+      "uri": "https://app.readthedocs.com"
+    }
+  },
+  {
+    "name": "04_subscription_required",
+    "template": "subscriptions/notifications/subscription_required_email.html",
+    "context": {
+      "organization": { "name": "ACME Documentation", "slug": "acme" },
+      "production_uri": "https://app.readthedocs.com"
+    }
+  },
+  {
+    "name": "05_pending_domain_configuration",
+    "template": "domains/notifications/pending_domain_configuration_email.html",
+    "context": {
+      "domain": {
+        "domain": "docs.acme.example.com",
+        "project": { "slug": "acme-docs" },
+        "pk": 42,
+        "validation_process_expired": false,
+        "validation_process_expiration_date": "datetime:2026-05-15T00:00:00"
+      },
+      "production_uri": "https://app.readthedocs.com"
+    }
+  },
+  {
+    "name": "06_invitation",
+    "template": "invitations/email/invitation.html",
+    "context": {
+      "from_name": "Eric Holscher",
+      "object_description": "Read the Docs project pip",
+      "uri": "https://readthedocs.org",
+      "invite_url": "/invitations/abc123/accept/",
+      "expiration_date": "2026-05-15",
+      "valid_until": "2 weeks"
+    }
+  }
+]
