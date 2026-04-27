@@ -1203,6 +1203,48 @@ class TestBuildConfigV2:
         assert len(install) == 1
         assert install[0].extra_requirements == []
 
+    @pytest.mark.parametrize("value", [["docs"], ["docs", "tests"]])
+    def test_python_install_extra_requirements_valid_strings(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].extra_requirements == value
+
+    @pytest.mark.parametrize("value", [[["docs"]], [1], [{"key": "val"}]])
+    def test_python_install_extra_requirements_check_element_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
+        assert excinfo.value.format_values.get("key") == "python.install.0.extra_requirements"
+
     def test_python_install_several_respects_order(self, tmpdir):
         apply_fs(
             tmpdir,

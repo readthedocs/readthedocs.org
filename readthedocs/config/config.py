@@ -593,6 +593,7 @@ class BuildConfigV2(BuildConfigBase):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
+                extra_requirements = [validate_string(element) for element in extra_requirements]
                 if extra_requirements and python_install["method"] != PIP:
                     raise ConfigError(
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
