@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
 from django.db.models import Q
+from django.db.models import Sum
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -32,6 +33,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import AutomationRuleMatch
+from readthedocs.builds.models import Build
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
@@ -568,8 +570,9 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            # NOTE: don't include user input in the message, since it's a security risk.
-            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
+            return HttpResponseBadRequest(
+                _(f"{username} is the last owner, can't be removed")
+            )
 
         project = self.get_project()
         project.users.remove(user)
@@ -1359,3 +1362,31 @@ class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateVie
 
     def get_success_url(self):
         return reverse("projects_search_settings", args=[self.get_project().slug])
+
+
+class ProjectOverview(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+    template_name = "projects/project_overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+
+        context.update(
+            {
+                "project": project,
+                "concurrent_builds": {
+                    "limit_reached": limit_reached,
+                    "current": concurrent,
+                    "max": max_concurrent,
+                },
+                "successful_builds": project.builds.filter(success=True).count(),
+                "monthly_build_time": project.builds.aggregate(
+                    total_time=Sum("length")
+                )["total_time"]
+                or 0,
+                "active_versions_count": project.versions.filter(active=True).count(),
+            }
+        )
+
+        return context

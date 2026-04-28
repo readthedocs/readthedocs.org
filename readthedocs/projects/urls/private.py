@@ -35,6 +35,7 @@ from readthedocs.projects.views.private import ProjectDelete
 from readthedocs.projects.views.private import ProjectEmailNotificationsCreate
 from readthedocs.projects.views.private import ProjectNotifications
 from readthedocs.projects.views.private import ProjectNotificationsDelete
+from readthedocs.projects.views.private import ProjectOverview
 from readthedocs.projects.views.private import ProjectPullRequestsUpdate
 from readthedocs.projects.views.private import ProjectRedirectsCreate
 from readthedocs.projects.views.private import ProjectRedirectsDelete
@@ -80,6 +81,11 @@ urlpatterns = [
             RedirectView.as_view(pattern_name="projects_detail", permanent=True),
         ),
         name="projects_manage",
+    ),
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/overview/$",
+        ProjectOverview.as_view(),
+        name="projects_overview",
     ),
     re_path(
         r"^(?P<project_slug>[-\w]+)/edit/$",
