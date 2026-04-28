@@ -14,6 +14,15 @@ from readthedocs.core.history import ExtraHistoricalRecords
 class UserProfile(TimeStampedModel):
     """Additional information about a User."""
 
+    THEME_SYSTEM = "system"
+    THEME_DARK = "dark"
+    THEME_LIGHT = "light"
+    THEMES = (
+        (THEME_LIGHT, _("Light theme")),
+        (THEME_DARK, _("Dark theme")),
+        (THEME_SYSTEM, _("Use system theme")),
+    )
+
     user = AutoOneToOneField(
         User,
         verbose_name=_("User"),
@@ -39,6 +48,13 @@ class UserProfile(TimeStampedModel):
     whitelisted = models.BooleanField(_("Whitelisted"), default=False)
     banned = models.BooleanField(_("Banned"), default=False)
 
+    # Display settings
+    theme = models.CharField(
+        _("Dashboard theme"),
+        choices=THEMES,
+        default=THEME_LIGHT,
+    )
+
     # Model history
     history = ExtraHistoricalRecords()
 
@@ -47,6 +63,9 @@ class UserProfile(TimeStampedModel):
             "profiles_profile_detail",
             kwargs={"username": self.user.username},
         )
+
+    def use_dark_theme(self):
+        return self.theme == self.THEME_DARK
 
 
 register(User, records_class=ExtraHistoricalRecords, app=__package__)
