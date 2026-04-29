@@ -1,0 +1,14 @@
+{% extends "!breadcrumbs.html" %}
+
+{% block breadcrumbs %}
+  {# Close the parent <ul>, inject CTA, reopen <ul> — hacky but avoids copying the full template #}
+  </ul>
+  <div class="info admonition rst-footer-buttons">
+    <div class="wy-btn-group">
+      <a class="btn btn-link" href="https://about.readthedocs.com/">Learn more about Read the Docs</a>
+      <a class="btn btn-info btn-mini float-right" href="https://about.readthedocs.com/#signup">Sign up</a>
+    </div>
+  </div>
+  <ul class="wy-breadcrumbs">
+  {{ super() }}
+{% endblock %}

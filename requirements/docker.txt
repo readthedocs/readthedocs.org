@@ -29,25 +29,25 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.91
+boto3==1.42.96
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.91
+botocore==1.42.96
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2025.1131
     # via -r requirements/pip.txt
-cachetools==7.0.5
+cachetools==7.0.6
     # via tox
 celery==5.6.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -61,7 +61,7 @@ charset-normalizer==3.4.7
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.3.2
+click==8.3.3
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -90,7 +90,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==46.0.7
+cryptography==47.0.0
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -221,7 +221,7 @@ fido2==2.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.28.0
+filelock==3.29.0
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -229,14 +229,14 @@ filelock==3.28.0
     #   virtualenv
 gunicorn==25.3.0
     # via -r requirements/pip.txt
-idna==3.11
+idna==3.13
     # via
     #   -r requirements/pip.txt
     #   anyio
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==9.12.0
+ipython==9.13.0
     # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -282,7 +282,7 @@ oauthlib==3.3.1
     #   requests-oauthlib
 orjson==3.11.8
     # via -r requirements/pip.txt
-packaging==26.1
+packaging==26.2
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
@@ -314,6 +314,8 @@ prompt-toolkit==3.0.52
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
+psutil==7.2.2
+    # via ipython
 psycopg[binary,pool]==3.3.3
     # via -r requirements/pip.txt
 psycopg-binary==3.3.3
@@ -332,9 +334,9 @@ pycparser==3.0
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.13.2
+pydantic==2.13.3
     # via -r requirements/pip.txt
-pydantic-core==2.46.2
+pydantic-core==2.46.3
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -415,7 +417,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 rich==15.0.0
     # via -r requirements/docker.in
-s3transfer==0.16.0
+s3transfer==0.16.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -485,7 +487,7 @@ typing-inspection==0.4.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2026.1
+tzdata==2026.2
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
