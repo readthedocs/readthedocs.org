@@ -601,6 +601,16 @@ def delete_old_build_objects(
      But it can also be set to a specific value for manual execution.
     """
     cache_key = "rtd-task:delete_old_build_objects_start"
+
+    def set_cache(value):
+        """Helper function to set the cache value for the next execution of the task."""
+        cache.set(
+            cache_key,
+            value,
+            # 1 week. We want to make sure the value is there for the next run (default is 5 min).
+            timeout=60 * 60 * 24 * 7,
+        )
+
     max_count = Project.objects.count()
     use_cache = start is None
     if use_cache:
@@ -629,7 +639,7 @@ def delete_old_build_objects(
                 limit -= n_builds_deleted
                 if limit <= 0:
                     if use_cache:
-                        cache.set(cache_key, start + n)
+                        set_cache(start + n)
                     return
 
             # Delete builds that are not associated with any version,
@@ -643,11 +653,11 @@ def delete_old_build_objects(
             limit -= n_builds_deleted
             if limit <= 0:
                 if use_cache:
-                    cache.set(cache_key, start + n)
+                    set_cache(start + n)
                 return
 
         if use_cache:
-            cache.set(cache_key, start + max_projects)
+            set_cache(start + max_projects)
 
 
 def _delete_builds(builds, start: int, end: int) -> int:
@@ -672,7 +682,8 @@ def _delete_builds(builds, start: int, end: int) -> int:
         # delete the storage paths, otherwise we end up with orphan
         # files in storage. The builds will be empty, but they are
         # already scheduled for deletion.
-        remove_build_commands_storage_paths(paths_to_delete)
+        if paths_to_delete:
+            remove_build_commands_storage_paths(paths_to_delete)
 
 
 @app.task(queue="web")
