@@ -31,8 +31,16 @@
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
-#   - skip-if-docs-only compares against origin/main, so it only works for
-#     PRs targeting main. PRs targeting other branches will always run tests.
+#   - skip-if-no-relevant-changes compares against origin/main, so it only
+#     works for branches that diverged from main. Branches targeting other
+#     bases will always run tests. Each job passes an allow-list regex of paths whose changes
+#     should trigger it; if no changed file matches, the job is halted.
+#     Infrastructure changes (CI config, requirements, tox, settings, shared
+#     test helpers) always force every job to run, regardless of the regex.
+#     General jobs (tests, tests-proxito) use '^readthedocs/' — broad enough
+#     to catch any code change but still skips docs-only / README-only PRs.
+#     The expensive Stage 2 jobs (tests-search, tests-embedapi) use narrower
+#     patterns scoped to the modules they actually exercise.
 
 version: 2.1
 
@@ -55,27 +63,45 @@ commands:
           command: |
             git ls-remote https://github.com/readthedocs/ext-theme.git HEAD >> requirements-cache-key.txt
 
-  skip-if-docs-only:
-    description: Halt the job if only docs/ files changed
+  skip-if-no-relevant-changes:
+    description: |
+      Halt the job if no changed file matches the given grep -E pattern.
+      Infrastructure changes (CI config, requirements, tox, settings, shared
+      test helpers) always force the job to run regardless of the pattern.
+      Only active on non-main branches — on main, the job always runs.
+    parameters:
+      paths:
+        type: string
+        description: Extended regex (grep -E) of paths whose changes should trigger this job
     steps:
       - run:
-          name: Skip tests if only docs changed
+          name: Skip if no relevant changes
           command: |
-            # Only run this check on PR branches, not on main.
+            # Only run this check on non-main branches.
             if [ "$CIRCLE_BRANCH" = "main" ]; then
-              echo "On main branch — running tests."
+              echo "On main branch — running job."
               exit 0
             fi
             # Compare against the merge base with main to find changed files.
             changed_files=$(git diff --name-only $(git merge-base HEAD origin/main)..HEAD)
             if [ -z "$changed_files" ]; then
-              echo "No changed files detected — running tests."
+              echo "No changed files detected — running job."
               exit 0
             fi
-            # grep -v returns exit code 1 when all lines match, so || true
-            non_docs=$(echo "$changed_files" | grep -v '^docs/' || true)
-            if [ -z "$non_docs" ]; then
-              echo "Only docs changed — skipping tests."
+            # Infrastructure / config / shared test helper changes always run.
+            infra_pattern='^(\.circleci/|requirements/|tox(\.[a-z]+)?\.ini|common/|pyproject\.toml|readthedocs/settings/|readthedocs/conftest\.py|readthedocs/rtd_tests/)'
+            if echo "$changed_files" | grep -E "$infra_pattern" > /dev/null; then
+              echo "Infrastructure / config changed — running job."
+              echo "$changed_files" | grep -E "$infra_pattern"
+              exit 0
+            fi
+            # Otherwise require at least one changed file under the job's paths.
+            relevant_pattern='<< parameters.paths >>'
+            if echo "$changed_files" | grep -E "$relevant_pattern" > /dev/null; then
+              echo "Relevant changes detected — running job."
+              echo "$changed_files" | grep -E "$relevant_pattern"
+            else
+              echo "No changes to logic exercised by this job — skipping."
               circleci-agent step halt
             fi
 
@@ -89,7 +115,10 @@ jobs:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      # Core test job: runs on any change under readthedocs/. Docs-only,
+      # README-only, .github-only, and media-only PRs are halted.
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/'
       - restore_cache:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -126,7 +155,12 @@ jobs:
           xpack.security.transport.ssl.enabled: 'false'
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      # tests-search imports from: readthedocs.search.*, readthedocs.projects.*
+      # (models, tasks.search, constants), readthedocs.builds.*, and
+      # readthedocs.subscriptions.*. It also runs a subset under proxito
+      # settings, so proxito/ changes should trigger it too.
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/(search/|projects/|proxito/|builds/|subscriptions/)'
       - restore_cache:
           keys:
             - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -155,7 +189,8 @@ jobs:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/'
       - restore_cache:
           keys:
             - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -180,7 +215,11 @@ jobs:
       - image: 'cimg/python:3.12'
     steps:
       - setup-checkout
-      - skip-if-docs-only
+      # tests-embedapi exercises the embed API itself and the Sphinx build
+      # machinery it runs against, so it's gated on embed/ and doc_builder/.
+      # projects/ is included because embed tests pull in projects models.
+      - skip-if-no-relevant-changes:
+          paths: '^readthedocs/(embed/|doc_builder/|projects/)'
       - restore_cache:
           keys:
             - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
