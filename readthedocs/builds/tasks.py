@@ -607,8 +607,8 @@ def delete_old_build_objects(
         cache.set(
             cache_key,
             value,
-            # 24 hours. We want to make sure the value is there for the next run (default is 5 min).
-            timeout=60 * 60 * 24,
+            # 1 week. We want to make sure the value is there for the next run (default is 5 min).
+            timeout=60 * 60 * 24 * 7,
         )
 
     max_count = Project.objects.count()
