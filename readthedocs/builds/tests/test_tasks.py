@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from textwrap import dedent
 from unittest import mock
 
@@ -456,6 +457,9 @@ class TestDeleteOldBuildObjects(TestCase):
 )
 class TestPostBuildOverview(TestCase):
 
+    fixed_now = datetime(2026, 4, 29, 12, 0, tzinfo=dt_timezone.utc)
+    fixed_now_str = "2026-04-29 12:00 UTC"
+
     def setUp(self):
         self.user = get(User)
         self.github_app_installation = get(
@@ -508,6 +512,13 @@ class TestPostBuildOverview(TestCase):
             success=True,
         )
 
+        now_patcher = mock.patch(
+            "readthedocs.builds.reporting.timezone.now",
+            return_value=self.fixed_now,
+        )
+        now_patcher.start()
+        self.addCleanup(now_patcher.stop)
+
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
     def test_post_build_overview(self, get_diff, post_comment):
@@ -528,9 +539,17 @@ class TestPostBuildOverview(TestCase):
             f"""
             ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            ✅ **Build successful** · _Updated {self.fixed_now_str}_
 
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+            [![Preview build](https://img.shields.io/badge/%F0%9F%94%8D%20Preview%20build-0066CC?style=for-the-badge&labelColor=0066CC)](http://my-project--1.readthedocs.build/en/1/)
+
+            <details>
+            <summary>Build details</summary>
+            <br>
+
+            📚 [My project](https://readthedocs.org/projects/my-project/) · 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+
+            </details>
 
 
             <details open>
@@ -572,9 +591,17 @@ class TestPostBuildOverview(TestCase):
             f"""
             ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            ✅ **Build successful** · _Updated {self.fixed_now_str}_
 
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+            [![Preview build](https://img.shields.io/badge/%F0%9F%94%8D%20Preview%20build-0066CC?style=for-the-badge&labelColor=0066CC)](http://my-project--1.readthedocs.build/en/1/)
+
+            <details>
+            <summary>Build details</summary>
+            <br>
+
+            📚 [My project](https://readthedocs.org/projects/my-project/) · 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+
+            </details>
 
 
             <details>
@@ -620,9 +647,17 @@ class TestPostBuildOverview(TestCase):
             f"""
             ### Documentation build overview
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            ✅ **Build successful** · _Updated {self.fixed_now_str}_
 
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
+            [![Preview build](https://img.shields.io/badge/%F0%9F%94%8D%20Preview%20build-0066CC?style=for-the-badge&labelColor=0066CC)](http://my-project--1.readthedocs.build/en/1/)
+
+            <details>
+            <summary>Build details</summary>
+            <br>
+
+            📚 [My project](https://readthedocs.org/projects/my-project/) · 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+
+            </details>
 
 
             No files changed.

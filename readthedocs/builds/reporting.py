@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_diff
@@ -14,7 +16,7 @@ class BuildOverview:
     diff: FileTreeDiff
 
 
-def get_build_overview(build: Build) -> BuildOverview | None:
+def get_build_overview(build: Build, now: datetime | None = None) -> BuildOverview | None:
     """
     Generate a build overview for the given build.
 
@@ -46,6 +48,7 @@ def get_build_overview(build: Build) -> BuildOverview | None:
             "base_version": diff.base_version,
             "base_version_build": diff.base_version_build,
             "diff": diff,
+            "now": now or timezone.now(),
         },
     )
     return BuildOverview(
