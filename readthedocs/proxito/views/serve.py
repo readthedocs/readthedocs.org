@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.utils.translation import to_locale
 from django.views import View
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
@@ -22,8 +23,8 @@ from readthedocs.core.unresolver import TranslationWithoutVersionError
 from readthedocs.core.unresolver import VersionNotFoundError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import LANGUAGE_CODE_OLD_VARIANTS
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
-from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import HTMLFile
@@ -265,8 +266,11 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # will prevent a redirect loop.
         if (
             project.supports_translations
-            and project.language in OLD_LANGUAGES_CODE_MAPPING
-            and OLD_LANGUAGES_CODE_MAPPING[project.language] in path
+            and project.language in LANGUAGE_CODE_OLD_VARIANTS
+            and any(
+                path_segment in LANGUAGE_CODE_OLD_VARIANTS[project.language]
+                for path_segment in path.split("/")
+            )
         ):
             try:
                 return self.system_redirect(
@@ -828,12 +832,10 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
             """
             sitemap hreflang should follow correct format.
 
-            Use hyphen instead of underscore in language and country value.
+            Use locale casing with hyphens instead of underscores in language values.
             ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
             """
-            if "_" in lang:
-                return lang.replace("_", "-")
-            return lang
+            return to_locale(lang).replace("_", "-")
 
         project = request.unresolved_domain.project
 

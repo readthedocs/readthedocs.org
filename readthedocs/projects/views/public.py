@@ -35,6 +35,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
@@ -341,8 +342,12 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
             if subproject_slug:
                 project = get_object_or_404(project.subprojects, alias=subproject_slug).child
 
-            # Redirect old language codes with underscores to new ones with dashes and lowercase.
+            # Redirect deprecated language codes to the current canonical form.
             normalized_language_code = lang_slug.lower().replace("_", "-")
+            normalized_language_code = OLD_LANGUAGES_CODE_MAPPING.get(
+                normalized_language_code,
+                normalized_language_code,
+            )
             if normalized_language_code != lang_slug:
                 if project.language != normalized_language_code:
                     project = get_object_or_404(

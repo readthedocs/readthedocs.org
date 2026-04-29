@@ -10,9 +10,9 @@ from glob import glob
 from pathlib import Path
 
 import structlog
+from django.utils.translation import to_locale
 
 from readthedocs.doc_builder.python_environments import UvEnv
-from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -106,8 +106,7 @@ class BaseSphinx(BaseBuilder):
 
     def get_language(self, project):
         """Get a Sphinx compatible language code."""
-        language = project.language
-        return OLD_LANGUAGES_CODE_MAPPING.get(language, language)
+        return to_locale(project.language)
 
     def show_conf(self):
         """Show the current ``conf.py`` being used."""
