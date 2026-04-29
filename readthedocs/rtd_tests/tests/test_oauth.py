@@ -1,4 +1,5 @@
 import copy
+import json
 from unittest import mock
 
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
@@ -17,6 +18,7 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
+    BUILD_STATUS_SKIPPED,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
     LATEST,
@@ -1060,6 +1062,43 @@ class GitHubAppTests(TestCase):
         }
 
     @requests_mock.Mocker(kw="request")
+    def test_send_build_status_skipped(self, request):
+        """Skipped builds report as success to GitHub App with a distinct description."""
+        commit = "1234abc"
+        version = get(Version, project=self.project, type=EXTERNAL, built=False)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SKIPPED
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build skipped.",
+            "state": "success",
+            # Skipped builds link to the build detail page, not the version
+            # docs, since no new documentation was produced for this commit.
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
     def test_get_clone_token(self, request):
         token = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
         request.post(
@@ -1669,6 +1708,29 @@ class GitHubOAuthTests(TestCase):
         # Should link to build detail page, not version URL
         self.assertIn(f'/projects/{self.project.slug}/builds/{self.external_build.pk}/', target_url)
         self.assertNotIn('.readthedocs.io', target_url)
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_skipped(self, session, mock_logger, mock_structlog):
+        """Skipped builds report as success to GitHub with a distinct description."""
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SKIPPED,
+        )
+
+        self.assertTrue(success)
+        posted = json.loads(session.post.call_args.kwargs["data"])
+        self.assertEqual(posted["state"], "success")
+        self.assertEqual(posted["description"], "Read the Docs build skipped.")
+        # Skipped builds link to the build detail page, not the version docs,
+        # since no new documentation was produced for this commit.
+        self.assertIn(
+            f"/projects/{self.project.slug}/builds/{self.external_build.pk}/",
+            posted["target_url"],
+        )
 
     @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
@@ -3060,6 +3122,32 @@ class GitLabOAuthTests(TestCase):
         mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitLab commit status created for project.",
+        )
+
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
+    @mock.patch("readthedocs.oauth.services.gitlab.log")
+    @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
+    @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
+    def test_send_build_status_skipped(self, repo_id, session, mock_logger, mock_structlog):
+        """Skipped builds report as success to GitLab with a distinct description."""
+        session.post.return_value.status_code = 201
+        repo_id().return_value = "9999"
+
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SKIPPED,
+        )
+
+        self.assertTrue(success)
+        posted = json.loads(session.post.call_args.kwargs["data"])
+        self.assertEqual(posted["state"], "success")
+        self.assertEqual(posted["description"], "Read the Docs build skipped.")
+        # Skipped builds link to the build detail page, not the version docs,
+        # since no new documentation was produced for this commit.
+        self.assertIn(
+            f"/projects/{self.project.slug}/builds/{self.external_build.pk}/",
+            posted["target_url"],
         )
 
     @mock.patch("readthedocs.oauth.services.gitlab.structlog")

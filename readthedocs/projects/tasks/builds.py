@@ -37,6 +37,7 @@ from readthedocs.builds.constants import BUILD_STATE_INSTALLING
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
@@ -569,10 +570,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             status = BUILD_STATUS_FAILURE
             if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # The build was skipped by returning the magic exit code,
-                # marked as CANCELLED, but communicated to GitHub as successful.
-                # This is because the PR has to be available for merging when the build
-                # was skipped on purpose.
-                status = BUILD_STATUS_SUCCESS
+                # marked as CANCELLED, and communicated to the Git provider as
+                # a success so that the pull request is not blocked from merging.
+                # The SKIPPED status keeps the underlying provider state as
+                # "success" but uses a distinct description so reviewers can tell
+                # the build was intentionally skipped rather than actually built.
+                status = BUILD_STATUS_SKIPPED
 
             send_external_build_status(
                 version_type=version_type,

@@ -172,7 +172,7 @@ def send_external_build_status(version_type, build_pk, commit, status):
      :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
      :param build_pk: Build pk
      :param commit: commit sha of the pull/merge request
-     :param status: build status failed, pending, or success to be sent.
+     :param status: build status failed, pending, success, or skipped to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
