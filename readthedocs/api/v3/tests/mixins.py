@@ -249,7 +249,11 @@ class APIEndpointMixin(TestCase):
         filename = Path(filepath).absolute().parent / "responses" / f"{view_name}.json"
         return json.load(open(filename))
 
-    def assertDictEqual(self, d1, d2):
+    # Keep unittest.TestCase signature compatibility.
+    # assertEqual() dispatches dict comparisons to assertDictEqual and passes
+    # `msg` as a keyword argument:
+    # https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertEqual
+    def assertDictEqual(self, d1, d2, msg=None):
         """
         Show the differences between the dicts in a human readable way.
 
@@ -262,4 +266,10 @@ class APIEndpointMixin(TestCase):
             message = datadiff.diff(d1, d2)
         except ImportError:
             pass
+
+        if msg and message:
+            message = f"{message}\n{msg}"
+        elif msg:
+            message = msg
+
         return super().assertDictEqual(d1, d2, message)
