@@ -468,6 +468,9 @@ class CommunityBaseSettings(Settings):
             "https://plausible.io/api/event",
         ]
         CSP_CONNECT_SRC.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            # webpack-dev-server fetches source maps over XHR.
+            CSP_CONNECT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
         return CSP_CONNECT_SRC
 
     @property
@@ -481,7 +484,10 @@ class CommunityBaseSettings(Settings):
             # Stripe (used for Gold subscriptions)
             "https://js.stripe.com/",
         ]
-        CSP_SCRIPT_SRC.append(self.STATIC_URL)
+        # Skip STATIC_URL when relative (e.g. "/static/" in dev) — relative
+        # paths are invalid CSP sources and 'self' already covers them.
+        if self.STATIC_URL.startswith(("http://", "https://")):
+            CSP_SCRIPT_SRC.append(self.STATIC_URL)
         if self.RTD_EXT_THEME_DEV_SERVER:
             CSP_SCRIPT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
         return CSP_SCRIPT_SRC
@@ -494,7 +500,8 @@ class CommunityBaseSettings(Settings):
             "data:",
             "https://ka-p.fontawesome.com",
         ]
-        CSP_FONT_SRC.append(self.STATIC_URL)
+        if self.STATIC_URL.startswith(("http://", "https://")):
+            CSP_FONT_SRC.append(self.STATIC_URL)
         if self.RTD_EXT_THEME_DEV_SERVER:
             CSP_FONT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
         return CSP_FONT_SRC
@@ -507,7 +514,8 @@ class CommunityBaseSettings(Settings):
             # TODO: we should remove this.
             "'unsafe-inline'",
         ]
-        CSP_STYLE_SRC.append(self.STATIC_URL)
+        if self.STATIC_URL.startswith(("http://", "https://")):
+            CSP_STYLE_SRC.append(self.STATIC_URL)
         if self.RTD_EXT_THEME_DEV_SERVER:
             CSP_STYLE_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
         return CSP_STYLE_SRC
