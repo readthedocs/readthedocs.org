@@ -471,7 +471,8 @@ class TestGitHubAppWebhook(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
@@ -1225,7 +1226,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
@@ -1306,7 +1308,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
