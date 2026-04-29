@@ -83,6 +83,7 @@ before they cause `IntegrityError` failures at deploy time.
 - Use type hints for function signatures
 - Write clear, concise docstrings for public functions and classes
 - Run linters and formatters using `tox -e pre-commit` before committing code
+- Follow the code architecture and style guide at `docs/dev/code-style-guide.rst` for project-specific patterns (imports, logging, querysets, tasks, migrations, notifications, tests). Read it once at session start and refer back when adding new code.
 
 ## Front-end
 
