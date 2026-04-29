@@ -4,9 +4,7 @@ import structlog
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from django_filters import CharFilter
 from django_filters import ChoiceFilter
 from django_filters import OrderingFilter
 
@@ -261,12 +259,17 @@ class RedirectListFilterSet(ModelFilterSet):
         empty_label=_("All types"),
     )
 
-    # Matches against either end of the redirect in a single field so the UI
-    # stays a single input.
-    url = CharFilter(
-        label=_("URL contains"),
-        method="filter_url_contains",
+    url = FilteredModelChoiceFilter(
+        label=_("URL"),
+        empty_label=_("All URLs"),
+        to_field_name="pk",
+        queryset_method="get_redirect_queryset",
+        method="get_redirect",
+        label_attribute="from_url",
     )
 
-    def filter_url_contains(self, queryset, field_name, value):
-        return queryset.filter(Q(from_url__icontains=value) | Q(to_url__icontains=value))
+    def get_redirect_queryset(self):
+        return self.queryset
+
+    def get_redirect(self, queryset, field_name, redirect):
+        return queryset.filter(pk=redirect.pk)
