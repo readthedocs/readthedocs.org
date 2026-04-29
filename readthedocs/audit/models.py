@@ -95,6 +95,9 @@ class AuditLog(TimeStampedModel):
     INVITATION_DECLINED = "invitation-declined"
     INVITATION_DECLINED_TEXT = _("Invitation declined")
 
+    PROJECT_DELETE = "project-delete"
+    PROJECT_DELETE_TEXT = _("Project deleted")
+
     CHOICES = (
         (PAGEVIEW, PAGEVIEW_TEXT),
         (DOWNLOAD, DOWNLOAD_TEXT),
@@ -105,6 +108,7 @@ class AuditLog(TimeStampedModel):
         (INVITATION_REVOKED, INVITATION_REVOKED_TEXT),
         (INVITATION_ACCEPTED, INVITATION_ACCEPTED_TEXT),
         (INVITATION_DECLINED, INVITATION_DECLINED_TEXT),
+        (PROJECT_DELETE, PROJECT_DELETE_TEXT),
     )
 
     user = models.ForeignKey(

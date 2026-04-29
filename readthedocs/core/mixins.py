@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from vanilla import DeleteView
 from vanilla import ListView
 
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.core.tasks import delete_object
 from readthedocs.proxito.cache import cache_response
 from readthedocs.proxito.cache import private_response
@@ -97,6 +98,8 @@ class AsyncDeleteViewWithMessage(DeleteView):
             model_name=self.object._meta.label,
             pk=self.object.pk,
             user_id=request.user.pk,
+            ip=get_client_ip(request),
+            browser=request.headers.get("User-Agent"),
         )
         messages.success(request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
