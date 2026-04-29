@@ -49,7 +49,6 @@ class BuildAdmin(admin.ModelAdmin):
         "version",
         "type",
         "state",
-        "error",
         "success",
         "cold_storage",
         "date",

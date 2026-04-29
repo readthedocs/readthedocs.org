@@ -176,6 +176,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
+    # Kept for backward compatibility. The field was removed from the model,
+    # but we still return it as an empty string to avoid breaking API clients.
+    error = serializers.SerializerMethodField()
 
     class Meta:
         model = Build
@@ -195,6 +198,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {"config": (BuildConfigSerializer,)}
+
+    def get_error(self, obj):
+        return ""
 
     def get_finished(self, obj):
         if obj.date and obj.length:
