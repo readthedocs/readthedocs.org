@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.db.models.functions import Length
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
@@ -158,7 +159,6 @@ def _expand_regex(pattern):
             language=f"(?P<language>{pattern_opts['lang_slug']})",
             version=f"(?P<version>{pattern_opts['version_slug']})",
             filename=f"(?P<filename>{pattern_opts['filename_slug']})",
-            subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
         )
     )
 
@@ -184,16 +184,6 @@ class Unresolver:
         # The path must have a version slug,
         # optionally followed by a filename.
         "^/{version}(/{filename})?$"
-    )
-
-    # This pattern matches:
-    # - /projects/subproject
-    # - /projects/subproject/
-    # - /projects/subproject/file/name/
-    subproject_pattern = _expand_regex(
-        # The path must have the `project` alias,
-        # optionally a filename, which will be recursively resolved.
-        "^/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
@@ -385,6 +375,12 @@ class Unresolver:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
 
+        Aliases may contain slashes (e.g. ``api/python``), so we resolve by
+        finding the subproject whose alias is the longest path-segment prefix
+        of the request — alias ``api/python`` matches ``/api/python`` and
+        ``/api/python/en/latest/``, but not ``/api/python-extra``. When both
+        ``api`` and ``api/python`` exist, the longest one wins.
+
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
@@ -395,29 +391,30 @@ class Unresolver:
         # so syntax is black with noqa for pep8.
         path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
-        match = self.subproject_pattern.match(path)
-        if not match:
-            return None
-
-        subproject_alias = match.group("subproject")
-        filename = self._normalize_filename(match.group("filename"))
+        # Build the set of aliases the path could match — every prefix of the
+        # path that ends on a segment boundary. The DB then returns the
+        # longest matching one in a single indexed-set lookup.
+        segments = path.strip("/").split("/")
+        candidates = ["/".join(segments[: i + 1]) for i in range(len(segments))]
         project_relationship = (
-            parent_project.subprojects.filter(alias=subproject_alias)
+            parent_project.subprojects.filter(alias__in=candidates)
             .select_related("child")
+            .order_by(-Length("alias"))
             .first()
         )
-        if project_relationship:
-            # We use the subproject as the new parent project
-            # to resolve the rest of the path relative to it.
-            subproject = project_relationship.child
-            response = self._unresolve_path_with_parent_project(
-                parent_project=subproject,
-                path=filename,
-                check_subprojects=False,
-                external_version_slug=external_version_slug,
-            )
-            return response
-        return None
+        if project_relationship is None:
+            return None
+
+        # We use the subproject as the new parent project
+        # to resolve the rest of the path relative to it.
+        alias = project_relationship.alias
+        filename = self._normalize_filename(path[len(alias) + 1 :])  # noqa
+        return self._unresolve_path_with_parent_project(
+            parent_project=project_relationship.child,
+            path=filename,
+            check_subprojects=False,
+            external_version_slug=external_version_slug,
+        )
 
     def _match_single_version_without_translations_project(
         self, parent_project, path, external_version_slug=None
