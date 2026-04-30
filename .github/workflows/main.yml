@@ -17,19 +17,23 @@ jobs:
 
     steps:
     - name: Trigger tests in readthedocs-corporate
+      env:
+        CIRCLECI_USER_TOKEN: ${{ secrets.CIRCLECI_USER_TOKEN }}
       run: |
         curl --request POST \
         --silent --output /dev/null \
         --url https://circleci.com/api/v2/project/gh/readthedocs/readthedocs-corporate/pipeline \
-        --user '${{ secrets.CIRCLECI_USER_TOKEN }}:' \
+        --user "${CIRCLECI_USER_TOKEN}:" \
         --header 'content-type: application/json' \
         --data '{"branch": "main", "parameters":{"tests_only": true}}'
 
     - name: Trigger tests in readthedocs-ext
+      env:
+        CIRCLECI_USER_TOKEN: ${{ secrets.CIRCLECI_USER_TOKEN }}
       run: |
         curl --request POST \
         --silent --output /dev/null \
-        --url https:/circleci.com/api/v2/project/gh/readthedocs/readthedocs-ext/pipeline \
-        --user '${{ secrets.CIRCLECI_USER_TOKEN }}:' \
+        --url https://circleci.com/api/v2/project/gh/readthedocs/readthedocs-ext/pipeline \
+        --user "${CIRCLECI_USER_TOKEN}:" \
         --header 'content-type: application/json' \
         --data '{"branch": "main", "parameters":{"tests_only": true}}'
