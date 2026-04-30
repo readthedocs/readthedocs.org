@@ -269,6 +269,8 @@ class RedirectListFilterSet(ModelFilterSet):
     )
 
     def get_redirect_queryset(self):
+        # Scope choices to the project's redirects passed in at instantiation;
+        # otherwise the dropdown would show every Redirect across all projects.
         return self.queryset
 
     def get_redirect(self, queryset, field_name, redirect):
