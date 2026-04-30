@@ -14,10 +14,12 @@ from readthedocs.core.history import ExtraHistoricalRecords
 class UserProfile(TimeStampedModel):
     """Additional information about a User."""
 
+    THEME_DEFAULT = "default"
     THEME_SYSTEM = "system"
     THEME_DARK = "dark"
     THEME_LIGHT = "light"
     THEMES = (
+        (THEME_DEFAULT, _("Use default theme")),
         (THEME_LIGHT, _("Light theme")),
         (THEME_DARK, _("Dark theme")),
         (THEME_SYSTEM, _("Use system theme")),
@@ -52,7 +54,7 @@ class UserProfile(TimeStampedModel):
     theme = models.CharField(
         _("Dashboard theme"),
         choices=THEMES,
-        default=THEME_LIGHT,
+        default=THEME_DEFAULT,
     )
 
     # Model history

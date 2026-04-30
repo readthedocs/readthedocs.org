@@ -17,11 +17,12 @@ class Migration(migrations.Migration):
             name="theme",
             field=models.CharField(
                 choices=[
+                    ("default", "Use default theme"),
                     ("light", "Light theme"),
                     ("dark", "Dark theme"),
                     ("system", "Use system theme"),
                 ],
-                default="light",
+                default="default",
                 verbose_name="Dashboard theme",
             ),
         ),
@@ -30,11 +31,12 @@ class Migration(migrations.Migration):
             name="theme",
             field=models.CharField(
                 choices=[
+                    ("default", "Use default theme"),
                     ("light", "Light theme"),
                     ("dark", "Dark theme"),
                     ("system", "Use system theme"),
                 ],
-                default="light",
+                default="default",
                 verbose_name="Dashboard theme",
             ),
         ),
