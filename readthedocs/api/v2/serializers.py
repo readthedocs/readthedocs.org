@@ -145,6 +145,8 @@ class VersionSerializer(serializers.ModelSerializer):
             "has_epub",
             "has_htmlzip",
             "documentation_type",
+            "source_type",
+            "upload_content_hash",
         ]
 
     def __init__(self, *args, **kwargs):

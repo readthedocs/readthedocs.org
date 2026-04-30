@@ -11,6 +11,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.uploads import InvalidUploadArchiveError
+from readthedocs.projects.tasks.uploads import _is_ignorable
 from readthedocs.projects.tasks.uploads import validate_archive
 
 
@@ -117,3 +118,90 @@ def test_get_upload_storage_path(upload_version):
 
 def test_get_upload_storage_path_returns_none_without_hash(upload_version):
     assert upload_version.get_upload_storage_path() is None
+
+
+# --- Edge cases that real users will hit -----------------------------------
+
+
+def test_validate_silently_ignores_macos_resource_forks():
+    """``zip -r`` on macOS adds ``__MACOSX/`` siblings; users shouldn't see this fail."""
+    buf = _make_zip(
+        {
+            "html/index.html": b"<html></html>",
+            "__MACOSX/._.DS_Store": b"",
+            "__MACOSX/html/._index.html": b"",
+        }
+    )
+    archive = validate_archive(buf)
+    assert archive.top_level_dirs == frozenset({"html"})
+
+
+def test_validate_silently_ignores_dotfiles():
+    """``.DS_Store`` and friends would otherwise blow up the offline-format checks."""
+    buf = _make_zip(
+        {
+            "html/index.html": b"<html></html>",
+            "html/.DS_Store": b"",
+            ".DS_Store": b"",
+            "pdf/docs.pdf": b"%PDF-1.4",
+            "pdf/.DS_Store": b"",
+        }
+    )
+    archive = validate_archive(buf)
+    assert archive.top_level_dirs == frozenset({"html", "pdf"})
+
+
+def test_validate_normalizes_backslash_separators():
+    """Some Windows zip tools store paths with backslashes."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("html\\index.html", b"<html></html>")
+    buf.seek(0)
+    archive = validate_archive(buf)
+    assert archive.top_level_dirs == frozenset({"html"})
+
+
+def test_validate_accepts_directory_marker_entries():
+    """Some tools include zero-byte ``html/`` directory entries."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("html/", b"")
+        zf.writestr("html/index.html", b"<html></html>")
+    buf.seek(0)
+    archive = validate_archive(buf)
+    assert archive.top_level_dirs == frozenset({"html"})
+
+
+def test_validate_rejects_root_html_with_helpful_hint():
+    """The most common user mistake: ``zip -r docs.zip _build/html/*``."""
+    buf = _make_zip({"index.html": b"<html></html>"})
+    with pytest.raises(InvalidUploadArchiveError, match="must put HTML inside an 'html/'"):
+        validate_archive(buf)
+
+
+def test_validate_rejects_html_dir_without_index():
+    """``html/`` present but no ``html/index.html`` must fail at upload time, not at build time."""
+    buf = _make_zip({"html/about.html": b"<html></html>"})
+    with pytest.raises(InvalidUploadArchiveError, match="missing 'html/index.html'"):
+        validate_archive(buf)
+
+
+def test_validate_rejects_traversal_hidden_in_junk_path():
+    """Path traversal must be rejected even when the entry would otherwise be ignorable."""
+    buf = _make_zip(
+        {
+            "html/index.html": b"<html></html>",
+            "__MACOSX/../etc/passwd": b"x",
+        }
+    )
+    with pytest.raises(InvalidUploadArchiveError, match="Path traversal"):
+        validate_archive(buf)
+
+
+def test_is_ignorable():
+    assert _is_ignorable("__MACOSX/foo")
+    assert _is_ignorable("html/__MACOSX/foo")
+    assert _is_ignorable(".DS_Store")
+    assert _is_ignorable("html/.DS_Store")
+    assert not _is_ignorable("html/index.html")
+    assert not _is_ignorable("pdf/docs.pdf")

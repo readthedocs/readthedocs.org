@@ -71,6 +71,7 @@ from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
+from .uploads import MissingUploadedArchiveError
 from .uploads import extract_uploaded_archive
 from .utils import BuildRequest
 from .utils import clean_build
@@ -922,7 +923,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         os.makedirs(artifact_root, exist_ok=True)
 
         self.update_build(state=BUILD_STATE_BUILDING)
-        extract_uploaded_archive(self.data.version, artifact_root)
+        try:
+            extract_uploaded_archive(self.data.version, artifact_root)
+        except MissingUploadedArchiveError as exc:
+            # Surface as a user error so the dashboard shows a real message
+            # instead of an internal traceback.
+            raise BuildUserError(
+                message_id=BuildUserError.GENERIC,
+                exception_message=str(exc),
+            ) from exc
 
         self.store_build_artifacts()
 
