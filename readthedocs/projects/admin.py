@@ -1,5 +1,6 @@
 """Django administration interface for `projects.models`."""
 
+import re
 from urllib.parse import urlparse
 
 from django import forms
@@ -225,9 +226,45 @@ class SpamRuleChecksFromURLsForm(forms.Form):
         help_text=(
             "One URL per line. Both documentation URLs "
             "(https://&lt;slug&gt;.readthedocs.io/...) and dashboard URLs "
-            "(https://app.readthedocs.org/projects/&lt;slug&gt;/...) are accepted."
+            "(https://app.readthedocs.org/projects/&lt;slug&gt;/...) are accepted. "
+            "Messy inputs from automated reports are tolerated: defanged URLs "
+            "(hxxps://, [.] / (.)), surrounding brackets or quotes, missing "
+            "scheme, and trailing punctuation are normalized automatically."
         ),
     )
+
+
+# Surrounding characters often added by mail clients, markdown, defanging
+# tools, or word-wrapping that should be stripped before parsing the URL.
+_URL_STRIP_CHARS = " \t\r\n\"'<>()[]{}.,;!?`"
+
+
+def _normalize_url(value):
+    """
+    Best-effort normalization of a possibly-defanged or messy URL.
+
+    Handles forms commonly seen in abuse reports and emails: ``hxxps://``,
+    ``[.]``/``(.)`` separators, surrounding angle/square brackets, markdown
+    ``[text](url)`` links, trailing punctuation, missing scheme, etc.
+    """
+    if not value:
+        return ""
+
+    value = value.strip()
+
+    # Markdown link: [label](http...)
+    md_link = re.match(r"^\[[^\]]*\]\((.+)\)$", value)
+    if md_link:
+        value = md_link.group(1)
+
+    value = value.strip(_URL_STRIP_CHARS)
+
+    # Undefang common patterns used in security reports.
+    value = re.sub(r"^hxxp(s?)\b", r"http\1", value, flags=re.IGNORECASE)
+    value = value.replace("[.]", ".").replace("(.)", ".").replace("{.}", ".")
+    value = value.replace("[:]", ":").replace("[/]", "/")
+
+    return value
 
 
 def _extract_project_slug_from_url(url):
@@ -235,11 +272,24 @@ def _extract_project_slug_from_url(url):
     Extract a project slug from a Read the Docs URL.
 
     Supports docs subdomain URLs like ``https://<slug>.readthedocs.io/...`` and
-    dashboard URLs like ``https://readthedocs.org/projects/<slug>/...``.
-    Returns ``None`` when no slug can be extracted.
+    dashboard URLs like ``https://readthedocs.org/projects/<slug>/...``. Tries
+    to be tolerant of messy inputs (defanged URLs, missing scheme, surrounding
+    brackets/quotes) so admins can paste output from automated reporting tools
+    directly. Returns ``None`` when no slug can be extracted.
     """
+    if url is None:
+        return None
+
+    cleaned = _normalize_url(url)
+    if not cleaned:
+        return None
+
+    # urlparse needs a scheme to populate ``hostname``. Add one if missing.
+    if "://" not in cleaned:
+        cleaned = "https://" + cleaned.lstrip("/")
+
     try:
-        parsed = urlparse(url.strip())
+        parsed = urlparse(cleaned)
     except ValueError:
         return None
 
@@ -248,7 +298,7 @@ def _extract_project_slug_from_url(url):
     # Dashboard URLs: <something>/projects/<slug>/...
     path_parts = [p for p in parsed.path.split("/") if p]
     if len(path_parts) >= 2 and path_parts[0] == "projects":
-        return path_parts[1]
+        return path_parts[1] or None
 
     # Docs subdomain URLs: <slug>.<PUBLIC_DOMAIN>
     public_domain = (settings.PUBLIC_DOMAIN or "").lower()

@@ -75,6 +75,38 @@ class ProjectAdminActionsTest(TestCase):
     def test_extract_project_slug_from_unknown_url_returns_none(self):
         assert _extract_project_slug_from_url("https://example.com/foo/bar") is None
 
+    def test_extract_project_slug_from_messy_urls(self):
+        cases = {
+            # Defanged with hxxps and [.]
+            "hxxps://pip[.]readthedocs[.]io/en/latest/": "pip",
+            # Defanged with (.)
+            "hxxp://pip(.)readthedocs(.)io/": "pip",
+            # Wrapped in angle brackets (mail clients)
+            "<https://pip.readthedocs.io/>": "pip",
+            # Trailing punctuation
+            "https://pip.readthedocs.io/.": "pip",
+            "https://pip.readthedocs.io/,": "pip",
+            # Surrounding quotes
+            '"https://pip.readthedocs.io/"': "pip",
+            # Markdown link form
+            "[pip docs](https://pip.readthedocs.io/en/latest/)": "pip",
+            # No scheme, just hostname
+            "pip.readthedocs.io": "pip",
+            # No scheme, dashboard path
+            "readthedocs.org/projects/pip/": "pip",
+            # Surrounding whitespace
+            "   https://pip.readthedocs.io/   ": "pip",
+        }
+        for raw, expected in cases.items():
+            assert _extract_project_slug_from_url(raw) == expected, (
+                f"failed for {raw!r}"
+            )
+
+    def test_extract_project_slug_handles_none_and_empty(self):
+        assert _extract_project_slug_from_url(None) is None
+        assert _extract_project_slug_from_url("") is None
+        assert _extract_project_slug_from_url("   ") is None
+
     def test_spam_rule_checks_from_urls_view_get(self):
         resp = self.client.get(
             urls.reverse("admin:projects_project_spam_rule_checks_from_urls"),
