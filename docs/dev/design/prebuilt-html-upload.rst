@@ -63,8 +63,9 @@ Run on the web side **before** anything is persisted
   (``__MACOSX/../etc/passwd``) still rejects.
 * Top-level entries ⊆ ``{html, htmlzip, pdf, epub}``. ``html/`` is
   required and must contain ``index.html``.
-* Silently tolerated: ``__MACOSX/`` resource forks, dotfiles
-  (``.DS_Store`` etc.), backslash separators, directory marker entries.
+* Silently tolerated: ``__MACOSX/`` resource forks, hidden
+  ``.DS_Store``-style files, backslash separators, directory marker
+  entries.
 
 Limits live as constants in ``uploads.py`` for now; promote to settings
 once we have a number we like.
@@ -94,8 +95,9 @@ In ``UpdateDocsTask.execute()``::
 ``execute_upload`` does:
 
 1. ``CLONING`` — wipe and recreate the build's ``_readthedocs/`` dir.
-2. ``BUILDING`` — stage the SHA-keyed archive to a tempfile (so
-   ``zipfile`` is seekable on any storage backend) and unzip it.
+2. ``BUILDING`` — stage the SHA-keyed archive to a local temporary
+   file (so ``zipfile`` always has a ``seek()``-capable input on any
+   storage backend) and unzip it.
 3. ``UPLOADING`` — call the existing ``store_build_artifacts()``, which
    already handles per-format validation, single-file rename, and
    rclone-sync to permanent storage.
@@ -126,7 +128,7 @@ Tests
 
 * ``projects/tests/test_uploads.py`` — validator: minimal, all formats,
   missing html, no index, root-file hint, traversal, absolute path,
-  symlink, empty, non-zip, ``__MACOSX``, dotfiles, backslashes,
+  symlink, empty, non-zip, ``__MACOSX``, hidden files, backslashes,
   directory entries, traversal-in-junk.
 * ``api/v3/tests/test_uploads.py`` — endpoint: trigger, non-upload
   reject, invalid-archive reject, auth, cross-user.
