@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from readthedocs.core.models import UserProfile
+from readthedocs.projects.admin import _extract_project_slug_from_url
 from readthedocs.projects.models import Project
 
 
@@ -56,6 +57,79 @@ class ProjectAdminActionsTest(TestCase):
         )
         self.assertFalse(self.project.users.filter(profile__banned=True).exists())
         self.assertEqual(self.project.users.filter(profile__banned=False).count(), 2)
+
+    def test_extract_project_slug_from_dashboard_url(self):
+        assert (
+            _extract_project_slug_from_url(
+                "https://readthedocs.org/projects/pip/builds/12345/"
+            )
+            == "pip"
+        )
+
+    def test_extract_project_slug_from_subdomain_url(self):
+        assert (
+            _extract_project_slug_from_url("https://pip.readthedocs.io/en/latest/")
+            == "pip"
+        )
+
+    def test_extract_project_slug_from_unknown_url_returns_none(self):
+        assert _extract_project_slug_from_url("https://example.com/foo/bar") is None
+
+    def test_extract_project_slug_from_messy_urls(self):
+        cases = {
+            # Defanged with hxxps and [.]
+            "hxxps://pip[.]readthedocs[.]io/en/latest/": "pip",
+            # Defanged with (.)
+            "hxxp://pip(.)readthedocs(.)io/": "pip",
+            # Wrapped in angle brackets (mail clients)
+            "<https://pip.readthedocs.io/>": "pip",
+            # Trailing punctuation
+            "https://pip.readthedocs.io/.": "pip",
+            "https://pip.readthedocs.io/,": "pip",
+            # Surrounding quotes
+            '"https://pip.readthedocs.io/"': "pip",
+            # Markdown link form
+            "[pip docs](https://pip.readthedocs.io/en/latest/)": "pip",
+            # No scheme, just hostname
+            "pip.readthedocs.io": "pip",
+            # No scheme, dashboard path
+            "readthedocs.org/projects/pip/": "pip",
+            # Surrounding whitespace
+            "   https://pip.readthedocs.io/   ": "pip",
+        }
+        for raw, expected in cases.items():
+            assert _extract_project_slug_from_url(raw) == expected, (
+                f"failed for {raw!r}"
+            )
+
+    def test_extract_project_slug_handles_none_and_empty(self):
+        assert _extract_project_slug_from_url(None) is None
+        assert _extract_project_slug_from_url("") is None
+        assert _extract_project_slug_from_url("   ") is None
+
+    def test_spam_rule_checks_from_urls_view_get(self):
+        resp = self.client.get(
+            urls.reverse("admin:projects_project_spam_rule_checks_from_urls"),
+        )
+        assert resp.status_code == 200
+
+    def test_spam_rule_checks_from_urls_view_post(self):
+        urls_text = "\n".join(
+            [
+                f"https://{self.project.slug}.readthedocs.io/en/latest/",
+                "https://no-such-project-slug.readthedocs.io/",
+                "https://example.com/not/a/project",
+            ]
+        )
+        resp = self.client.post(
+            urls.reverse("admin:projects_project_spam_rule_checks_from_urls"),
+            {"urls": urls_text},
+        )
+        assert resp.status_code == 200
+        content = resp.content.decode()
+        assert self.project.slug in content
+        assert "no-such-project-slug" in content
+        assert "example.com" in content
 
     @mock.patch("readthedocs.projects.admin.clean_project_resources")
     def test_project_delete(self, clean_project_resources):
