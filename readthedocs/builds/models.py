@@ -33,6 +33,9 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
+from readthedocs.builds.constants import SOURCE_TYPE_UPLOAD
+from readthedocs.builds.constants import SOURCE_TYPE_VCS
+from readthedocs.builds.constants import SOURCE_TYPES
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
@@ -164,6 +167,26 @@ class Version(TimeStampedModel):
     )
     machine = models.BooleanField(_("Machine Created"), default=False)
 
+    #: Where the version's source comes from. ``vcs`` clones the project repo
+    #: and runs the configured build tool. ``upload`` skips the clone and
+    #: unzips a pre-built archive uploaded by the user.
+    source_type = models.CharField(
+        _("Source type"),
+        max_length=16,
+        choices=SOURCE_TYPES,
+        default=SOURCE_TYPE_VCS,
+    )
+
+    #: SHA256 of the latest pre-built archive uploaded for this version.
+    #: Used as the storage key under ``uploads/<project>/<version>/<sha>.zip``
+    #: and to skip rebuilds when the same archive is uploaded twice.
+    upload_content_hash = models.CharField(
+        _("Upload content hash"),
+        max_length=64,
+        null=True,
+        blank=True,
+    )
+
     # Whether the latest successful build for this version contains certain media types
     has_pdf = models.BooleanField(_("Has PDF"), default=False)
     has_epub = models.BooleanField(_("Has ePub"), default=False)
@@ -233,6 +256,22 @@ class Version(TimeStampedModel):
     @property
     def is_machine_latest(self):
         return self.machine and self.slug == LATEST
+
+    @property
+    def is_upload(self):
+        """Whether this version is built from a user-uploaded archive."""
+        return self.source_type == SOURCE_TYPE_UPLOAD
+
+    def get_upload_storage_path(self, content_hash=None):
+        """
+        Return the ``build_media_storage`` key for this version's uploaded archive.
+
+        Falls back to ``self.upload_content_hash`` when ``content_hash`` is not given.
+        """
+        sha = content_hash or self.upload_content_hash
+        if not sha:
+            return None
+        return f"uploads/{self.project.slug}/{self.slug}/{sha}.zip"
 
     @property
     def explicit_name(self):

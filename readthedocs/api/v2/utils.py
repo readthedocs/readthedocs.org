@@ -12,6 +12,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
+from readthedocs.builds.constants import SOURCE_TYPE_UPLOAD
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
@@ -177,6 +178,7 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
     to_delete_qs = (
         project.versions(manager=INTERNAL)
         .exclude(uploaded=True)
+        .exclude(source_type=SOURCE_TYPE_UPLOAD)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )
 

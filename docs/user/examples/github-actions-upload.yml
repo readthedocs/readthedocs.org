@@ -1,0 +1,65 @@
+# Example GitHub Actions workflow that builds documentation outside of
+# Read the Docs and uploads the resulting HTML to a Read the Docs version
+# whose ``source_type`` is set to ``upload``.
+#
+# Prerequisites on Read the Docs:
+#   1. Create a version manually (e.g. via the API or the dashboard) with
+#      ``source_type=upload``. The version slug below ("0.3.x") must match.
+#   2. Generate a personal API token and store it as the ``RTD_TOKEN``
+#      repository secret in GitHub.
+#
+# The archive must contain only the artifact directories Read the Docs
+# supports at the top level: ``html/`` (required), and optionally
+# ``htmlzip/``, ``pdf/`` and ``epub/``.
+
+name: Build and upload docs to Read the Docs
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  RTD_PROJECT: my-project
+  RTD_VERSION: 0.3.x
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Build HTML (and other formats)
+        run: |
+          # Build whichever formats you want to host. Only ``html/`` is required.
+          sphinx-build -b html docs/ _build/html
+          sphinx-build -b epub docs/ _build/epub
+
+      - name: Assemble Read the Docs upload archive
+        run: |
+          mkdir -p upload/html upload/epub
+          cp -r _build/html/. upload/html/
+          # Offline formats (htmlzip/pdf/epub) must contain exactly one file:
+          # see https://docs.readthedocs.io/en/stable/api/v3.html#version-upload
+          cp _build/epub/*.epub upload/epub/docs.epub
+          (cd upload && zip -r ../docs.zip .)
+
+      - name: Upload to Read the Docs
+        env:
+          RTD_TOKEN: ${{ secrets.RTD_TOKEN }}
+        run: |
+          curl --fail-with-body \
+            -X POST \
+            -H "Authorization: Token ${RTD_TOKEN}" \
+            -F "file=@docs.zip" \
+            "https://readthedocs.org/api/v3/projects/${RTD_PROJECT}/versions/${RTD_VERSION}/upload/"

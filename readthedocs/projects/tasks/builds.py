@@ -71,6 +71,7 @@ from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
+from .uploads import extract_uploaded_archive
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import send_external_build_status
@@ -841,6 +842,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
+        # Pre-built upload versions short-circuit the whole VCS+build pipeline:
+        # there is nothing to clone and nothing to build.
+        if self.data.version.is_upload:
+            self.execute_upload()
+            return
+
         # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
@@ -887,6 +894,36 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # However, we cannot use `.on_success()` because we still have to upload the artifacts;
         # which could fail, and we want to detect that and handle it properly at `.on_failure()`
         # Store build artifacts to storage (local or cloud storage)
+        self.store_build_artifacts()
+
+    def execute_upload(self):
+        """
+        Build path for ``source_type=upload`` versions.
+
+        We don't clone, don't run a build tool, and don't need a Docker
+        container. We just download the archive uploaded by the user, unzip
+        it into the build's ``_readthedocs/`` directory, and let the existing
+        ``store_build_artifacts`` flow copy it to permanent storage.
+
+        The same Build state machine is reused so the dashboard, notifications,
+        APIv3 and concurrency limits all keep working unchanged.
+        """
+        self.update_build(state=BUILD_STATE_CLONING)
+
+        artifact_root = os.path.dirname(
+            self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_="html",
+            )
+        )
+        # Ensure a clean slate; an old failed extract should not leak into this build.
+        if os.path.isdir(artifact_root):
+            shutil.rmtree(artifact_root)
+        os.makedirs(artifact_root, exist_ok=True)
+
+        self.update_build(state=BUILD_STATE_BUILDING)
+        extract_uploaded_archive(self.data.version, artifact_root)
+
         self.store_build_artifacts()
 
     def collect_build_data(self):

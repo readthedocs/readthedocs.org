@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
@@ -17,6 +18,7 @@ from rest_framework.mixins import ListModelMixin
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -29,6 +31,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import SOURCE_TYPE_UPLOAD
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
@@ -44,6 +47,9 @@ from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.tasks.uploads import InvalidUploadArchiveError
+from readthedocs.projects.tasks.uploads import store_uploaded_archive
+from readthedocs.projects.tasks.uploads import validate_archive
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
@@ -382,6 +388,62 @@ class VersionsViewSet(
     def get_queryset(self):
         """Overridden to allow internal versions only."""
         return super().get_queryset().exclude(type=EXTERNAL)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="upload",
+        parser_classes=[MultiPartParser],
+        permission_classes=[IsAuthenticated & IsProjectAdmin],
+    )
+    def upload(self, request, **kwargs):
+        """
+        Upload a pre-built HTML archive for a ``source_type=upload`` version.
+
+        The request must be ``multipart/form-data`` with a single ``file`` field
+        containing a zip whose top-level entries are some subset of
+        ``html/`` (required), ``htmlzip/``, ``pdf/`` and ``epub/``.
+
+        On success the archive is stored on ``build_media_storage`` and a build
+        is queued through the regular build trigger. The response mirrors the
+        existing build-trigger endpoint so clients can reuse the same code.
+        """
+        version = self.get_object()
+        if version.source_type != SOURCE_TYPE_UPLOAD:
+            raise ValidationError(
+                {"source_type": "Version must have source_type='upload' to accept archive uploads."}
+            )
+
+        file_obj = request.FILES.get("file")
+        if not file_obj:
+            raise ValidationError({"file": "A 'file' field is required."})
+
+        try:
+            archive = validate_archive(file_obj)
+        except InvalidUploadArchiveError as exc:
+            raise ValidationError({"file": str(exc)}) from exc
+
+        store_uploaded_archive(version, file_obj, sha256=archive.sha256)
+        # Persist the new content hash *before* triggering the build so the
+        # builder picks up the right archive when it runs.
+        version.upload_content_hash = archive.sha256
+        version.save(update_fields=["upload_content_hash", "modified"])
+
+        _, build = trigger_build(project=version.project, version=version)
+
+        data = {
+            "triggered": bool(build),
+            "build": BuildSerializer(build).data if build else None,
+            "project": ProjectSerializer(version.project).data,
+            "version": VersionSerializer(version).data,
+            "upload": {
+                "sha256": archive.sha256,
+                "size": archive.size,
+                "top_level_dirs": sorted(archive.top_level_dirs),
+            },
+        }
+        code = status.HTTP_202_ACCEPTED if build else status.HTTP_400_BAD_REQUEST
+        return Response(data=data, status=code)
 
 
 class BuildsViewSet(
