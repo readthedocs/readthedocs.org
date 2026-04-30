@@ -69,5 +69,12 @@ class UserProfile(TimeStampedModel):
     def use_dark_theme(self):
         return self.theme == self.THEME_DARK
 
+    def use_light_theme(self):
+        # For now, the `default` theme is the same as selecting `light` theme.
+        # Once we have a user facing form, we can either change the `default` to
+        # be the same as `system`, or just drop the option entirely if we're
+        # confident in the dark theme.
+        return self.theme in [self.THEME_DEFAULT, self.THEME_LIGHT]
+
 
 register(User, records_class=ExtraHistoricalRecords, app=__package__)
