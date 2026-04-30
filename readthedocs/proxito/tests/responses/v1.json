@@ -51,6 +51,7 @@
       "privacy_level": "public",
       "ref": null,
       "slug": "latest",
+      "source_type": "vcs",
       "type": "tag",
       "urls": {
         "dashboard": {
@@ -73,6 +74,7 @@
         "privacy_level": "public",
         "ref": null,
         "slug": "latest",
+        "source_type": "vcs",
         "type": "tag",
         "urls": {
           "dashboard": {

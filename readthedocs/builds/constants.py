@@ -62,6 +62,16 @@ VERSION_TYPES = (
     (EXTERNAL, EXTERNAL_TEXT),
     (UNKNOWN, UNKNOWN_TEXT),
 )
+
+# How the source for a version is obtained at build time:
+# - ``vcs``: clone the project repo and run the configured build tool (default).
+# - ``upload``: skip the clone and unzip a pre-built archive uploaded by the user.
+SOURCE_TYPE_VCS = "vcs"
+SOURCE_TYPE_UPLOAD = "upload"
+SOURCE_TYPES = (
+    (SOURCE_TYPE_VCS, _("VCS")),
+    (SOURCE_TYPE_UPLOAD, _("Pre-built upload")),
+)
 EXTERNAL_VERSION_STATE_OPEN = "open"
 EXTERNAL_VERSION_STATE_CLOSED = "closed"
 EXTERNAL_VERSION_STATES = (
