@@ -8,11 +8,9 @@ from django.test import TestCase
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     RemoteOrganization,
-    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from django_dynamic_fixture import get
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
@@ -143,24 +141,16 @@ class GitHubOAuthSyncTests(TestCase):
             account=gitlab_socialaccount,
         )
 
-        org = fixture.get(
+        fixture.get(
             RemoteOrganization,
             name="organization",
-        )
-        fixture.get(
-            RemoteOrganizationRelation,
-            remote_organization=org,
-            user=self.user,
-            account=self.socialaccount,
         )
 
         self.assertEqual(RemoteRepository.objects.count(), 4)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 4)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
-        self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
 
         assert self.socialaccount.remote_repository_relations.count() == 3
-        assert self.socialaccount.remote_organization_relations.count() == 1
 
         self.service.sync()
 
@@ -180,10 +170,8 @@ class GitHubOAuthSyncTests(TestCase):
             ).exists()
         )
         self.assertEqual(RemoteOrganization.objects.count(), 1)
-        self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
         assert self.socialaccount.remote_repository_relations.count() == 1
-        assert self.socialaccount.remote_organization_relations.count() == 0
 
     @requests_mock.Mocker(kw="mock_request")
     def test_sync_repositories(self, mock_request):
