@@ -76,13 +76,13 @@ We have a specific way that we write common words:
   They are similar to "steps" in pipelines,
   but on Read the Docs they are pre-defined.
   So it's important to have a unique name.
-* ``Git`` should be upper case. Except when referring to the :program:`git` command, then it should be written as `:program:\`git\``.
+* ``Git`` should be upper case. Except when referring to the :program:`git` command, then it should be written as ``:program:\`git\``.
 * ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated.
 * ``Git provider`` for generic references to GitHub/Bitbucket/GitLab/Gitea etc.
   We avoid "host" and "platform" because they are slightly more ambiguous.
 * ``how to`` do the thing is explained in a ``how-to guide`` (notice hyphen and spaces).
 * ``lifecycle`` is spelled without hyphen nor space.
-* ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
+* ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`__.
 * ``.readthedocs.yaml`` is the general name of the build configuration file.
   Even though we allow custom paths to the config file,
   we only validate ``.readthedocs.yaml`` as the file name.
