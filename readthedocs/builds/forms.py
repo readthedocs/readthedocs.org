@@ -1,9 +1,4 @@
 """Django forms for the builds app."""
-# TODO: this file can be completely removed once we are fully into the new automation rules.
-# We won't be using these forms anymore.
-
-import re
-import textwrap
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML
@@ -14,14 +9,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import ALL_VERSIONS
-from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import BRANCH_TEXT
-from readthedocs.builds.constants import TAG
-from readthedocs.builds.constants import TAG_TEXT
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
-from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.builds.version_slug import generate_version_slug
 
 
@@ -131,91 +119,3 @@ class VersionForm(forms.ModelForm):
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
         return obj
-
-
-class RegexAutomationRuleForm(forms.ModelForm):
-    project = forms.CharField(widget=forms.HiddenInput(), required=False)
-    match_arg = forms.CharField(
-        label="Custom match",
-        help_text=_(
-            textwrap.dedent(
-                """
-            A regular expression to match the version.
-            <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
-              Check the documentation for valid patterns.
-            </a>
-            """
-            )
-        ),
-        required=False,
-    )
-
-    class Meta:
-        model = RegexAutomationRule
-        fields = [
-            "project",
-            "description",
-            "predefined_match_arg",
-            "match_arg",
-            "version_type",
-            "action",
-        ]
-        # Don't pollute the UI with help texts
-        help_texts = {
-            "version_type": "",
-            "action": "",
-        }
-        labels = {
-            "predefined_match_arg": "Match",
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
-
-        # Only list supported types
-        self.fields["version_type"].choices = [
-            (None, "-" * 9),
-            (BRANCH, BRANCH_TEXT),
-            (TAG, TAG_TEXT),
-        ]
-
-        # Remove privacy actions not available in community
-        if not settings.ALLOW_PRIVATE_REPOS:
-            invalid_actions = {
-                VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
-                VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
-            }
-            action_choices = self.fields["action"].choices
-            self.fields["action"].choices = [
-                action for action in action_choices if action[0] not in invalid_actions
-            ]
-
-        if not self.instance.pk:
-            self.initial["predefined_match_arg"] = ALL_VERSIONS
-        # Allow users to start from the pattern of the predefined match
-        # if they want to use a custom one.
-        if self.instance.pk and self.instance.predefined_match_arg:
-            self.initial["match_arg"] = self.instance.get_match_arg()
-
-    def clean_match_arg(self):
-        """Check that a custom match was given if a predefined match wasn't used."""
-        match_arg = self.cleaned_data["match_arg"]
-        predefined_match = self.cleaned_data["predefined_match_arg"]
-        if predefined_match:
-            match_arg = ""
-        if not predefined_match and not match_arg:
-            raise forms.ValidationError(
-                _("Custom match should not be empty."),
-            )
-
-        try:
-            re.compile(match_arg)
-        except Exception:
-            raise forms.ValidationError(
-                _("Invalid Python regular expression."),
-            )
-        return match_arg
-
-    def clean_project(self):
-        return self.project

@@ -4,7 +4,6 @@ virtualenv
 
 django~=5.2.0
 django-extensions
-django-polymorphic
 django-autoslug
 
 # https://www.psycopg.org/psycopg3/docs/basic/install.html

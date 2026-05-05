@@ -29,9 +29,7 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
@@ -1120,30 +1118,15 @@ class AutomationRuleDelete(AutomationRuleMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
 
 
-class RegexAutomationRuleMixin(AutomationRuleMixin):
-    model = RegexAutomationRule
-    form_class = RegexAutomationRuleForm
-
-
-class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
-    success_message = _("Automation rule created")
-
-
-class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
-    success_message = _("Automation rule updated")
-
-
-class AutomationRuleMixin(AutomationRuleMixin):
-    model = AutomationRule
+class AutomationRuleEditMixin(AutomationRuleMixin):
     form_class = AutomationRuleForm
-    lookup_url_kwarg = "automation_rule_pk"
 
 
-class AutomationRuleCreate(AutomationRuleMixin, CreateView):
+class AutomationRuleCreate(AutomationRuleEditMixin, CreateView):
     success_message = _("Automation rule created")
 
 
-class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
+class AutomationRuleUpdate(AutomationRuleEditMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 

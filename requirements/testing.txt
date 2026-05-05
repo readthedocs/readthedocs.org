@@ -121,7 +121,6 @@ django==5.2.13
     #   django-extensions
     #   django-filter
     #   django-formtools
-    #   django-polymorphic
     #   django-safemigrate
     #   django-simple-history
     #   django-storages
@@ -165,8 +164,6 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.11.2
-    # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
 django-simple-history==3.11.0
@@ -463,7 +460,6 @@ typing-extensions==4.15.0
     # via
     #   -r requirements/pip.txt
     #   anyio
-    #   django-polymorphic
     #   elasticsearch
     #   psycopg
     #   psycopg-pool
