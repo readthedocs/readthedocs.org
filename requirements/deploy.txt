@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.42.96
+boto3==1.43.2
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.42.96
+botocore==1.43.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -162,7 +162,7 @@ django-ipware==7.0.1
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-polymorphic==4.11.2
+django-polymorphic==4.11.3
     # via -r requirements/pip.txt
 django-safemigrate==6.0
     # via -r requirements/pip.txt
@@ -233,7 +233,7 @@ isodate==0.7.2
     # via
     #   -r requirements/pip.txt
     #   python3-saml
-jedi==0.19.2
+jedi==0.20.0
     # via ipython
 jmespath==1.1.0
     # via
@@ -277,7 +277,7 @@ packaging==26.2
     #   drf-extensions
     #   gunicorn
     #   kombu
-parso==0.8.6
+parso==0.8.7
     # via jedi
 pexpect==4.9.0
     # via ipython
@@ -295,13 +295,13 @@ prompt-toolkit==3.0.52
     #   ipython
 psutil==7.2.2
     # via ipython
-psycopg[binary,pool]==3.3.3
+psycopg[binary,pool]==3.3.4
     # via -r requirements/pip.txt
-psycopg-binary==3.3.3
+psycopg-binary==3.3.4
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.3.0
+psycopg-pool==3.3.1
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -387,7 +387,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
-s3transfer==0.16.1
+s3transfer==0.17.0
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -465,7 +465,7 @@ ua-parser==1.0.2
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==202603
+ua-parser-builtins==202605
     # via
     #   -r requirements/pip.txt
     #   ua-parser
@@ -492,9 +492,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.2.4
+virtualenv==21.3.0
     # via -r requirements/pip.txt
-wcwidth==0.6.0
+wcwidth==0.7.0
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
