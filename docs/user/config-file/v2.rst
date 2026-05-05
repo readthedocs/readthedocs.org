@@ -271,9 +271,9 @@ For example, to run ``uv sync --group docs``:
     python:
        install:
           - method: uv
-             command: sync
-             groups:
-                - docs
+            command: sync
+            groups:
+               - docs
 
 For example, to run ``uv pip install -r docs/requirements.txt``:
 
@@ -284,8 +284,8 @@ For example, to run ``uv pip install -r docs/requirements.txt``:
     python:
        install:
           - method: uv
-             command: pip
-             requirements: docs/requirements.txt
+            command: pip
+            requirements: docs/requirements.txt
 
 For example, to run ``uv pip install .[docs]``:
 
@@ -296,10 +296,10 @@ For example, to run ``uv pip install .[docs]``:
     python:
        install:
           - method: uv
-             command: pip
-             path: .
-             extras:
-                - docs
+            command: pip
+            path: .
+            extras:
+               - docs
 
 conda
 ~~~~~

@@ -87,11 +87,11 @@ class Notification(TimeStampedModel):
         return message
 
     def get_absolute_url(self):
-        content_type_name = self.attached_to_content_type.name
-        path = ""
+        # NOTE: Don't user name, because it can change based on the current language.
+        content_type_name = self.attached_to_content_type.model
         if content_type_name == "user":
             url = "users-notifications-detail"
-            path = reverse(
+            return reverse(
                 url,
                 kwargs={
                     "notification_pk": self.pk,
@@ -99,10 +99,10 @@ class Notification(TimeStampedModel):
                 },
             )
 
-        elif content_type_name == "build":
+        if content_type_name == "build":
             url = "projects-builds-notifications-detail"
             project_slug = self.attached_to.project.slug
-            path = reverse(
+            return reverse(
                 url,
                 kwargs={
                     "notification_pk": self.pk,
@@ -111,10 +111,10 @@ class Notification(TimeStampedModel):
                 },
             )
 
-        elif content_type_name == "project":
+        if content_type_name == "project":
             url = "projects-notifications-detail"
             project_slug = self.attached_to.slug
-            path = reverse(
+            return reverse(
                 url,
                 kwargs={
                     "notification_pk": self.pk,
@@ -122,13 +122,14 @@ class Notification(TimeStampedModel):
                 },
             )
 
-        elif content_type_name == "organization":
+        if content_type_name == "organization":
             url = "organizations-notifications-detail"
-            path = reverse(
+            return reverse(
                 url,
                 kwargs={
                     "notification_pk": self.pk,
                     "parent_lookup_organization__slug": self.attached_to.slug,
                 },
             )
-        return path
+
+        raise ValueError("Unknown content type for notification")
