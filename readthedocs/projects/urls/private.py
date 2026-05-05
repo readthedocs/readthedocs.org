@@ -92,6 +92,10 @@ urlpatterns = [
         ),
         name="projects_advanced",
     ),
+    # NOTE: version_slug uses <str:> rather than <slug:> because VERSION_SLUG_REGEX
+    # allows dots (e.g. "1.0", "3.2.1"), which Django's <slug:> converter
+    # ([-a-zA-Z0-9_]+) does not match. The parameter is still named "version_slug"
+    # to remain consistent with the rest of the codebase.
     path(
         "<slug:project_slug>/version/<str:version_slug>/delete_html/",
         ProjectVersionDeleteHTML.as_view(),
