@@ -83,7 +83,7 @@ jobs:
     # Core tests — excludes search, proxito, and embed_api markers.
     # No Elasticsearch sidecar needed.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
@@ -113,7 +113,7 @@ jobs:
     # Search tests — needs Elasticsearch sidecar.
     # Runs in Stage 2 to avoid starting ES on broken builds.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
@@ -149,7 +149,7 @@ jobs:
     # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
     # No Elasticsearch sidecar needed.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov
     steps:
@@ -176,7 +176,7 @@ jobs:
     # Embed API tests — tests against 6 Sphinx versions.
     # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -197,7 +197,7 @@ jobs:
     # Combines coverage from tests, tests-search, and tests-proxito,
     # then uploads a single unified report to codecov.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - checkout
       - attach_workspace:
@@ -217,7 +217,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - setup-checkout
       # Recipe: https://pre-commit.com/#managing-ci-caches
