@@ -90,17 +90,28 @@ The following filters are available:
 
 Changed files
   Match against the list of files modified, added, or deleted in the push or pull request.
-  Patterns use `fnmatch <https://docs.python.org/3/library/fnmatch.html>`__ syntax,
-  one pattern per line. The filter matches if **any** of the changed files matches **any** pattern.
+  Patterns can include one or more of the following special characters:
+
+  - ``*`` matches everything, including slashes.
+  - ``?`` matches any single character.
+  - ``[seq]`` matches any character in ``seq``.
+
+  Example patterns:
+  - ``docs/*`` matches any file under the ``docs/`` directory.
+  - ``*.md`` matches any Markdown file.
+  - ``.readthedocs.yaml`` matches the configuration file in the root of the repository.
+
+  You can specify multiple patterns, one per line.
+  The filter matches if **any** of the changed files matches **any** pattern.
 
 Commit message
   Match against the commit message of the push event,
   or the head commit of the pull request,
-  using a `Python regular expression <https://docs.python.org/3/library/re.html>`__.
+  using a regular expression.
 
 Pull request labels
   Match against the labels of the pull request,
-  using a `Python regular expression <https://docs.python.org/3/library/re.html>`__.
+  using a regular expression.
   This filter is only relevant for pull request events.
 
 When more than one filter is configured, **all** of them must match for the rule to fire.
@@ -110,6 +121,11 @@ When more than one filter is configured, **all** of them must match for the rule
    Webhook filters are only available for projects connected through the
    :doc:`GitHub App integration </reference/git-integration>`.
    Rules that don't use webhook filters keep working with every Git provider.
+
+.. note::
+
+   Regular expressions are evaluated using the Python
+   `re <https://docs.python.org/3/library/re.html>`__ module.
 
 Actions
 -------
