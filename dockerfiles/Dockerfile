@@ -62,9 +62,6 @@ ENV PATH="/root/.local/bin/:$PATH"
 # Explicitly set the name of the virtual environment directory,
 # so it doesn't collide with a virtual environment created outside of the container.
 ENV VIRTUAL_ENV="/.venv"
-# Explicitly set the Python version to use for the virtual environment,
-# so that it doesn't default to the one from Ubuntu.
-ENV UV_PYTHON=3.12
 RUN uv venv $VIRTUAL_ENV
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
