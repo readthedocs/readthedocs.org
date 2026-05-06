@@ -87,7 +87,7 @@ class Notification(TimeStampedModel):
         return message
 
     def get_absolute_url(self):
-        # NOTE: Don't user name, because it can change based on the current language.
+        # NOTE: Don't use name, because it can change based on the current language.
         content_type_name = self.attached_to_content_type.model
         if content_type_name == "user":
             url = "users-notifications-detail"
