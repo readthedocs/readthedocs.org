@@ -72,7 +72,7 @@ from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
 from .uploads import MissingUploadedArchiveError
-from .uploads import extract_uploaded_archive
+from .uploads import stage_uploaded_archive
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import send_external_build_status
@@ -901,13 +901,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         Build path for ``source_type=upload`` versions.
 
-        We don't clone, don't run a build tool, and don't need a Docker
-        container. We just download the archive uploaded by the user, unzip
-        it into the build's ``_readthedocs/`` directory, and let the existing
-        ``store_build_artifacts`` flow copy it to permanent storage.
+        No clone, no build tool, no language environment. We download the
+        archive (already validated server-side at upload time) onto a host
+        path that's bind-mounted into the build container, then run
+        ``unzip`` *inside* the container. The existing
+        ``store_build_artifacts`` flow then copies the result to permanent
+        storage just like a normal build.
 
-        The same Build state machine is reused so the dashboard, notifications,
-        APIv3 and concurrency limits all keep working unchanged.
+        Reusing the same ``Build`` state machine keeps the dashboard,
+        notifications, APIv3, build concurrency limits and the
+        ``BUILD_OUTPUT_*`` validations (``index.html`` present, single-file
+        offline formats, etc.) working unchanged.
         """
         self.update_build(state=BUILD_STATE_CLONING)
 
@@ -917,21 +921,31 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 type_="html",
             )
         )
-        # Ensure a clean slate; an old failed extract should not leak into this build.
+        # Stage the archive next to the artifact dir; both live under
+        # ``project.checkout_path(version)`` which is mounted into the
+        # container, so ``unzip`` inside Docker can see them at the same path.
+        archive_host_path = os.path.join(
+            self.data.project.checkout_path(version=self.data.version.slug),
+            "upload.zip",
+        )
         if os.path.isdir(artifact_root):
             shutil.rmtree(artifact_root)
-        os.makedirs(artifact_root, exist_ok=True)
 
-        self.update_build(state=BUILD_STATE_BUILDING)
         try:
-            extract_uploaded_archive(self.data.version, artifact_root)
+            stage_uploaded_archive(self.data.version, archive_host_path)
         except MissingUploadedArchiveError as exc:
-            # Surface as a user error so the dashboard shows a real message
-            # instead of an internal traceback.
             raise BuildUserError(
                 message_id=BuildUserError.GENERIC,
                 exception_message=str(exc),
             ) from exc
+
+        self.data.build_director.create_build_environment()
+        with self.data.build_director.build_environment:
+            self.update_build(state=BUILD_STATE_BUILDING)
+            self.data.build_director.unzip_uploaded_archive(
+                archive_host_path,
+                artifact_root,
+            )
 
         self.store_build_artifacts()
 

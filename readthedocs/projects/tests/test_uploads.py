@@ -75,7 +75,7 @@ def test_validate_rejects_unknown_top_level_dir():
             "src/secret.py": b"print('hi')",
         }
     )
-    with pytest.raises(InvalidUploadArchiveError, match="Disallowed top-level entry"):
+    with pytest.raises(InvalidUploadArchiveError, match="Top-level entry not allowed"):
         validate_archive(buf)
 
 
@@ -205,3 +205,16 @@ def test_is_ignorable():
     assert _is_ignorable("html/.DS_Store")
     assert not _is_ignorable("html/index.html")
     assert not _is_ignorable("pdf/docs.pdf")
+
+
+def test_validate_errors_never_echo_user_filenames():
+    """Error messages are user-controlled input — keep them out of logs/responses."""
+    buf = _make_zip(
+        {
+            "html/index.html": b"<html></html>",
+            "weird-name-from-user/secret.py": b"x",
+        }
+    )
+    with pytest.raises(InvalidUploadArchiveError) as excinfo:
+        validate_archive(buf)
+    assert "weird-name-from-user" not in str(excinfo.value)

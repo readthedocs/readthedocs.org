@@ -1,5 +1,5 @@
 """
-Helpers for the pre-built HTML upload feature.
+Helpers for the pre-built archive upload feature.
 
 A user uploads a ``.zip`` archive via the APIv3 upload endpoint. The web side
 validates the archive and stores it on ``build_media_storage`` at::
@@ -10,16 +10,14 @@ The archive must contain only the artifact directories Read the Docs supports
 at the top level: ``html/``, ``htmlzip/``, ``pdf/`` and ``epub/``. ``html/``
 is required.
 
-At build time, :func:`extract_uploaded_archive` downloads the archive from
-storage and unzips it into ``project.artifact_path(<type>)``. From there the
-existing ``store_build_artifacts`` flow takes over and copies the artifacts to
-their permanent location.
+At build time we run ``unzip`` inside the build container — see
+``BuildDirector.unzip_uploaded_archive``. The web side never extracts the
+archive itself.
 """
 
 import hashlib
 import os
 import shutil
-import tempfile
 import zipfile
 from dataclasses import dataclass
 
@@ -72,9 +70,9 @@ def _is_ignorable(name):
     Covers the most common user mistakes:
 
     * macOS resource forks (``__MACOSX/...``) added by ``zip -r`` on macOS.
-    * Hidden dotfiles like ``.DS_Store``, ``Thumbs.db`` etc. They never carry
-      docs content and would otherwise blow up the
-      ``BUILD_OUTPUT_HAS_MULTIPLE_FILES`` check on offline formats.
+    * Hidden ``.DS_Store``-style files. They never carry docs content and
+      would otherwise blow up the ``BUILD_OUTPUT_HAS_MULTIPLE_FILES`` check
+      on offline formats.
     """
     parts = _normalize_name(name).split("/")
     return any(part == "__MACOSX" or part.startswith(".") for part in parts if part)
@@ -95,9 +93,11 @@ def validate_archive(file_obj):
       :data:`ALLOWED_TOP_LEVEL_DIRS` and must include ``html/`` with an
       ``index.html`` inside.
 
-    Returns a :class:`ValidatedArchive` describing the archive on success;
-    raises :class:`InvalidUploadArchiveError` otherwise. The file pointer is
-    rewound to the start before returning.
+    Error messages never echo entries from the archive — the input is
+    untrusted and we don't want to mirror it back into our own logs or
+    responses. Returns a :class:`ValidatedArchive` describing the archive on
+    success; raises :class:`InvalidUploadArchiveError` otherwise. The file
+    pointer is rewound to the start before returning.
     """
     file_obj.seek(0, os.SEEK_END)
     compressed_size = file_obj.tell()
@@ -107,31 +107,39 @@ def validate_archive(file_obj):
         raise InvalidUploadArchiveError("Uploaded archive is empty.")
     if compressed_size > MAX_UPLOAD_SIZE_BYTES:
         raise InvalidUploadArchiveError(
-            f"Uploaded archive is too large ({compressed_size} bytes; max {MAX_UPLOAD_SIZE_BYTES})."
+            f"Uploaded archive is too large (max {MAX_UPLOAD_SIZE_BYTES} bytes)."
         )
 
-    sha256 = hashlib.sha256()
-    for chunk in iter(lambda: file_obj.read(1024 * 1024), b""):
-        sha256.update(chunk)
+    # ``file_digest`` reads in chunks; never loads the whole file into memory.
+    sha256 = hashlib.file_digest(file_obj, "sha256").hexdigest()
     file_obj.seek(0)
 
     try:
-        zf = zipfile.ZipFile(file_obj)
+        with zipfile.ZipFile(file_obj) as zf:
+            archive = _validate_zip_contents(zf, compressed_size)
     except zipfile.BadZipFile as exc:
-        raise InvalidUploadArchiveError(f"Not a valid zip archive: {exc}") from exc
+        raise InvalidUploadArchiveError("Not a valid zip archive.") from exc
 
+    file_obj.seek(0)
+    return ValidatedArchive(
+        sha256=sha256,
+        size=compressed_size,
+        top_level_dirs=archive,
+    )
+
+
+def _validate_zip_contents(zf, compressed_size):
     infos = zf.infolist()
     if len(infos) > MAX_FILE_COUNT:
-        raise InvalidUploadArchiveError(
-            f"Archive contains too many files ({len(infos)}; max {MAX_FILE_COUNT})."
-        )
+        raise InvalidUploadArchiveError(f"Archive contains too many files (max {MAX_FILE_COUNT}).")
 
     total_uncompressed = 0
     top_level_dirs = set()
     has_html_index = False
+    saw_root_html = False
     for info in infos:
         # Always run the safety check, even for entries we will later ignore,
-        # so a traversal hiding inside a junk path (e.g. ``__MACOSX/../etc``)
+        # so a traversal hiding inside a junk path (``__MACOSX/../etc``)
         # still rejects the whole archive.
         _check_member_safe(info)
         name = _normalize_name(info.filename)
@@ -139,26 +147,27 @@ def validate_archive(file_obj):
             continue
         total_uncompressed += info.file_size
 
-        # Directory marker entries (``html/``) are zero-byte and only carry
-        # the directory name. Treat them as a top-level dir signal but skip
-        # the "file at root" check below.
         is_dir_entry = info.is_dir() or name.endswith("/")
         first, _, rest = name.rstrip("/").partition("/")
         if not first:
             continue
         if not rest and not is_dir_entry:
-            # File at the archive root — almost always a user that forgot to
+            # File at the archive root. Almost always a user that forgot to
             # wrap their build output in an ``html/`` directory.
             if name.lower().endswith((".html", ".htm")):
-                raise InvalidUploadArchiveError(_root_file_hint(name))
+                saw_root_html = True
             raise InvalidUploadArchiveError(
-                f"Disallowed top-level entry {name!r}; "
-                f"expected one of {sorted(ALLOWED_TOP_LEVEL_DIRS)}."
+                "The archive must put HTML inside an 'html/' directory "
+                "(e.g. 'html/index.html'), not at the root."
+                if saw_root_html
+                else (
+                    "Top-level entry not allowed; expected one of "
+                    f"{sorted(ALLOWED_TOP_LEVEL_DIRS)}."
+                )
             )
         if first not in ALLOWED_TOP_LEVEL_DIRS:
             raise InvalidUploadArchiveError(
-                f"Disallowed top-level entry {first!r}; "
-                f"expected one of {sorted(ALLOWED_TOP_LEVEL_DIRS)}."
+                f"Top-level entry not allowed; expected one of {sorted(ALLOWED_TOP_LEVEL_DIRS)}."
             )
         top_level_dirs.add(first)
         if first == "html" and rest == "index.html":
@@ -166,8 +175,7 @@ def validate_archive(file_obj):
 
     if total_uncompressed > MAX_UNCOMPRESSED_SIZE_BYTES:
         raise InvalidUploadArchiveError(
-            f"Archive uncompressed size is too large ({total_uncompressed} bytes; "
-            f"max {MAX_UNCOMPRESSED_SIZE_BYTES})."
+            f"Archive uncompressed size is too large (max {MAX_UNCOMPRESSED_SIZE_BYTES} bytes)."
         )
     if compressed_size and total_uncompressed / compressed_size > MAX_COMPRESSION_RATIO:
         raise InvalidUploadArchiveError("Archive compression ratio is suspiciously high.")
@@ -179,35 +187,29 @@ def validate_archive(file_obj):
         )
     if "html" in top_level_dirs and not has_html_index:
         raise InvalidUploadArchiveError(
-            "Archive is missing 'html/index.html'. "
-            "The HTML output must contain an index.html at the root of the html/ directory."
+            "Archive is missing 'html/index.html'. The HTML output must "
+            "contain an index.html at the root of the html/ directory."
         )
 
-    file_obj.seek(0)
-    return ValidatedArchive(
-        sha256=sha256.hexdigest(),
-        size=compressed_size,
-        top_level_dirs=frozenset(top_level_dirs),
-    )
-
-
-def _root_file_hint(name):
-    return (
-        f"Found {name!r} at the archive root. The archive must put HTML inside "
-        "an 'html/' directory (e.g. 'html/index.html'), not at the root."
-    )
+    return frozenset(top_level_dirs)
 
 
 def _check_member_safe(info):
+    """
+    Reject path traversal, absolute paths and symlinks.
+
+    Error messages never include the offending name — the archive is
+    untrusted input.
+    """
     name = _normalize_name(info.filename)
     if name.startswith("/") or os.path.isabs(name):
-        raise InvalidUploadArchiveError(f"Absolute path in archive: {info.filename!r}.")
+        raise InvalidUploadArchiveError("Absolute path in archive.")
     if any(part == ".." for part in name.split("/")):
-        raise InvalidUploadArchiveError(f"Path traversal in archive: {info.filename!r}.")
+        raise InvalidUploadArchiveError("Path traversal in archive.")
     # Reject symlinks (POSIX mode in the upper 16 bits of external_attr).
     mode = (info.external_attr >> 16) & 0xFFFF
     if mode and (mode & 0xF000) == 0xA000:
-        raise InvalidUploadArchiveError(f"Symlink in archive: {info.filename!r}.")
+        raise InvalidUploadArchiveError("Symlink in archive.")
 
 
 def store_uploaded_archive(version, file_obj, sha256):
@@ -216,8 +218,8 @@ def store_uploaded_archive(version, file_obj, sha256):
 
     The caller is responsible for invoking :func:`validate_archive` first and
     passing the resulting hash. The key includes the SHA, so when the same
-    content is uploaded twice we re-use the existing object instead of racing
-    a delete + save.
+    content is uploaded twice we re-use the existing object instead of
+    racing a delete + save.
     """
     key = version.get_upload_storage_path(content_hash=sha256)
     file_obj.seek(0)
@@ -226,56 +228,33 @@ def store_uploaded_archive(version, file_obj, sha256):
     return key
 
 
-def extract_uploaded_archive(version, destination_dir, storage=None):
+def stage_uploaded_archive(version, host_path):
     """
-    Download the archive for ``version`` and extract it into ``destination_dir``.
+    Download the version's archive to a path on the build host.
 
-    ``destination_dir`` is the ``_readthedocs/`` directory of the build (the
-    parent of ``html/``, ``pdf/`` etc.) — the contents of the zip are written
-    there directly.
-
-    Returns the set of top-level directories actually extracted, so the caller
-    can update flags such as ``Version.has_pdf``.
+    The path is expected to live under ``project.checkout_path(version)``,
+    which is bind-mounted into the build container. The unzip itself runs
+    *inside* that container — see ``BuildDirector.unzip_uploaded_archive`` —
+    so the host never executes ``unzip`` directly on user input.
     """
-    storage = storage or build_media_storage
     key = version.get_upload_storage_path()
     if not key:
         raise MissingUploadedArchiveError(
             f"Version {version.slug!r} has no uploaded archive to extract."
         )
-    if not storage.exists(key):
+    if not build_media_storage.exists(key):
         raise MissingUploadedArchiveError(
-            f"Uploaded archive for version {version.slug!r} is no longer available "
-            f"at {key!r}. Re-upload the archive and trigger a new build."
+            f"Uploaded archive for version {version.slug!r} is no longer available. "
+            "Re-upload the archive and trigger a new build."
         )
 
-    os.makedirs(destination_dir, exist_ok=True)
-    extracted = set()
-    # Stage to a local tempfile so ``zipfile`` always has a seekable input,
-    # regardless of whether the storage backend's ``open()`` returns a
-    # streamed body. Also bounds connection time to the remote bucket.
-    with tempfile.NamedTemporaryFile(suffix=".zip") as tmp:
-        with storage.open(key, "rb") as remote:
-            shutil.copyfileobj(remote, tmp)
-        tmp.flush()
-        tmp.seek(0)
-        with zipfile.ZipFile(tmp) as zf:
-            for info in zf.infolist():
-                _check_member_safe(info)
-                name = _normalize_name(info.filename)
-                if _is_ignorable(name):
-                    continue
-                first = name.rstrip("/").partition("/")[0]
-                if first and first in ALLOWED_TOP_LEVEL_DIRS:
-                    extracted.add(first)
-                    # Per-member extract so we skip junk filtered above and
-                    # also rewrite any backslash-only names safely.
-                    zf.extract(info, destination_dir)
+    os.makedirs(os.path.dirname(host_path), exist_ok=True)
+    with build_media_storage.open(key, "rb") as remote, open(host_path, "wb") as local:
+        shutil.copyfileobj(remote, local)
     log.info(
-        "Extracted uploaded archive.",
+        "Staged uploaded archive for build container.",
         version_slug=version.slug,
         project_slug=version.project.slug,
         key=key,
-        top_level_dirs=sorted(extracted),
     )
-    return frozenset(extracted)
+    return host_path

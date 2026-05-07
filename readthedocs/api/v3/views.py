@@ -421,7 +421,11 @@ class VersionsViewSet(
         try:
             archive = validate_archive(file_obj)
         except InvalidUploadArchiveError as exc:
-            raise ValidationError({"file": str(exc)}) from exc
+            # The validator's messages are static strings (no user content) so
+            # we forward them. Drop the cause to avoid CodeQL flagging the
+            # ``__cause__`` chain as stack-trace exposure on the public API.
+            message = str(exc)
+            raise ValidationError({"file": message}) from None
 
         store_uploaded_archive(version, file_obj, sha256=archive.sha256)
         # Persist the new content hash *before* triggering the build so the
