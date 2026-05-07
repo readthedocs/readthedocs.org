@@ -2085,6 +2085,7 @@ class Feature(models.Model):
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
+    USE_GVISOR_RUNTIME = "use_gvisor_runtime"
 
     FEATURES = (
         (
@@ -2149,6 +2150,10 @@ class Feature(models.Model):
         (
             BUILD_IN_PARALLEL,
             _("Build: Enable parallel building."),
+        ),
+        (
+            USE_GVISOR_RUNTIME,
+            _("Build: Run build containers under the gVisor (runsc) runtime."),
         ),
     )
 
