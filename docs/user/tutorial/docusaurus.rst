@@ -106,6 +106,7 @@ Read the Docs will build your project documentation right after you create it.
 .. TODO: update this since the UI has changed
 .. 1. click on the version
 .. 2. click on the build that just started
+
 To see the build logs:
 
 #. Click the :guilabel:`Your documentation is building` link on the :term:`project home`.
