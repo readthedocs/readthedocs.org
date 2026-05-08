@@ -57,11 +57,9 @@ Creating a Read the Docs account
 
 To create a Read the Docs account,
 navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
-and choose the option :guilabel:`Sign up with GitHub`.
+and choose the option :guilabel:`Sign up with GitHub` and then :guilabel:`Sign up using GitHub App`.
 
-Confirm your e-mail and username on Read the Docs, then click the :guilabel:`Sign Up »` button to create your account and open your :term:`dashboard`.
-
-When you click the link in the verification email from Read the Docs, your account will be ready to create your first project.
+.. TODO: we need a way to install the GitHub App upfront before adding a project
 
 Installing the Read the Docs GitHub App
 ---------------------------------------
@@ -74,16 +72,19 @@ install the `Read the Docs Community GitHub App <https://github.com/apps/read-th
 #. Select :guilabel:`Only select repositories` and pick ``docusaurus-tutorial``. You can grant access to additional repositories at any time from your GitHub settings.
 #. Click :guilabel:`Install` to complete the setup.
 
-See :ref:`reference/git-integration:GitHub App` for more details on what the GitHub App can do and the permissions it requests.
+.. seealso::
 
-Importing the project to Read the Docs
---------------------------------------
+   :ref:`reference/git-integration:GitHub App`
+     Details on what the GitHub App can do and the permissions it requests.
 
-To import your GitHub project to Read the Docs:
+Adding the project to Read the Docs
+-----------------------------------
 
-#. Click the :guilabel:`Import a Project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
+To add your GitHub project to Read the Docs:
 
-#. Click the |:heavy_plus_sign:| button to the right of your ``docusaurus-tutorial`` project. If the list of repositories is empty, click the |:arrows_counterclockwise:| button.
+#. Click the :guilabel:`Add project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
+
+#. Search for your ``docusaurus-tutorial`` repository, select it, and click :guilabel:`Continue`.
 
 #. Enter some details about your Read the Docs project:
 
@@ -100,6 +101,8 @@ To import your GitHub project to Read the Docs:
 
    Then click the :guilabel:`Next` button to create the project and open the :term:`project home`.
 
+ #. Click :guilabel:`This file exists` to trigger the first build of your documentation.
+
 You just created your first Docusaurus project on Read the Docs! |:tada:|
 
 Checking the first build
@@ -107,6 +110,9 @@ Checking the first build
 
 Read the Docs will build your project documentation right after you create it.
 
+.. TODO: update this since the UI has changed
+.. 1. click on the version
+.. 2. click on the build that just started
 To see the build logs:
 
 #. Click the :guilabel:`Your documentation is building` link on the :term:`project home`.
@@ -115,18 +121,6 @@ To see the build logs:
    - If the build has finished, you'll see a green "Build completed" indicator, the completion date, the elapsed time, and a link to the generated documentation.
 
 #. Click on :guilabel:`View docs` to see your documentation live!
-
-.. note::
-
-   Advertisement is one of our main sources of revenue.
-   If you want to learn more about how do we fund our operations
-   and explore options to go ad-free,
-   check out our `Sustainability page <https://app.readthedocs.org/sustainability/>`_.
-
-   If you don't see the ad, you might be using an ad blocker.
-   Our EthicalAds network respects your privacy, doesn't target you,
-   and tries to be as unobtrusive as possible,
-   so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
 Configuring the project
 -----------------------
