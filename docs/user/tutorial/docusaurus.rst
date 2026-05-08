@@ -334,49 +334,68 @@ To enable link previews:
 
 Open your published documentation and hover over any internal link. A small popup appears with the target page's content. Link previews only render for internal links inside the main documentation content, so navigation bars and external links are unaffected.
 
-Getting project insights
-------------------------
+Building only when documentation changes
+----------------------------------------
 
-Once your project is up and running, you will probably want to understand
-how readers are using your documentation, addressing some common questions like:
+If your repository hosts both your application code and its documentation,
+Read the Docs rebuilds your docs on every push by default — even when the
+change doesn't touch any documentation files.
+:doc:`Automation rules </automation-rules>` can gate builds on the contents
+of the webhook event from GitHub, so you only spend build time on commits and
+pull requests that actually affect the documentation.
 
-- What are the most visited pages?
-- What are the most frequently used search terms?
-- Are readers finding what they are looking for?
+To create a rule that builds your project only when documentation files change:
 
-Read the Docs has traffic and search analytics tools to help you find answers to these questions.
+#. From the :term:`project home`, open the :guilabel:`⚙ Admin` menu and select
+   :guilabel:`Automation Rules`, then click :guilabel:`Add Rule`.
 
-Understanding traffic analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#. Configure the rule:
 
-The Traffic Analytics view gives you a simple overview of how your readers browse your documentation.
-It respects visitors' privacy by not storing identifying information about them.
+   Description
+      Something memorable, for example ``Build only on documentation changes``.
 
-This page shows the most viewed documentation pages of the past 30 days,
-plus a visualization of the daily views during that period.
+   Match
+      ``Any version``.
 
-To see the Traffic Analytics view, go back to the :term:`project page`,
-click the :guilabel:`⚙ Admin` button, and then click the :guilabel:`Traffic Analytics` section.
-You will see the list of pages in descending order of visits, alongside a daily-views chart.
+   Version types
+      Check :guilabel:`Tag`, :guilabel:`Branch`, and :guilabel:`Pull request`
+      so the rule applies to every kind of build.
 
-You can also download this data in :abbr:`CSV (Comma-Separated Values)` format for closer inspection
-by scrolling to the bottom of the page and clicking the :guilabel:`Download all data` button.
+   Changed files
+      One pattern per line:
 
-Understanding search analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      .. code-block:: text
 
-Read the Docs also shows :doc:`what terms your readers are searching for </search-analytics>`.
-This can inform decisions about what areas to focus on,
-or what parts of your project are less understood or harder to find.
+         docs/*
+         .readthedocs.yaml
 
-To view search analytics, go to the :guilabel:`⚙ Admin` section of your project page
-and click the :guilabel:`Search Analytics` section.
-You will see a table with the most searched queries,
-how many results each query returned, and how many times it was searched,
-plus a visualization of the daily number of search queries during the past 30 days.
+   Action
+      ``Trigger build for version``.
 
-Like Traffic Analytics, you can download the whole dataset in CSV format
-by clicking the :guilabel:`Download all data` button.
+#. Click :guilabel:`Save` to create the rule.
+
+From now on, Read the Docs only triggers a build when the push or pull request
+modifies a file under ``docs/`` or the ``.readthedocs.yaml`` configuration.
+Pushes that only touch application code, tests, or unrelated files no longer
+trigger a documentation build.
+
+.. important::
+
+   Once a rule with the :guilabel:`Trigger build for version` action exists,
+   builds are **gated** by automation rules: if no rule matches the incoming
+   webhook event, no build runs. Make sure your patterns cover every path
+   that should rebuild the docs before relying on this in production.
+
+.. note::
+
+   Webhook-filter automation rules are only available for projects connected
+   through the :ref:`reference/git-integration:GitHub App`.
+
+.. seealso::
+
+   :doc:`/automation-rules`
+     Full reference for automation rules, including filters by commit message
+     and pull request label.
 
 Where to go from here
 ---------------------
@@ -390,7 +409,7 @@ This is the end of the tutorial. You have accomplished a lot:
 #. Reviewed pull requests with the build summary comment and visual diff.
 #. Enabled link previews for your readers.
 #. Added new documentation versions.
-#. Browsed the project analytics.
+#. Configured an automation rule to build only when documentation changes.
 
 Nice work!
 
