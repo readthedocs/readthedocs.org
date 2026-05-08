@@ -40,17 +40,10 @@ Preparing your repository on GitHub
    ``README.md``
       Description of the repository.
 
-   ``package.json``
-      Node.js project metadata, including the Docusaurus dependencies.
-
-   ``docusaurus.config.js``
-      Docusaurus site configuration.
-
-   ``sidebars.js``
-      Defines the sidebar structure for the documentation.
-
    ``docs/``
-      Directory holding the Markdown source files of the documentation.
+      Directory holding the Docusaurus project, including
+      ``package.json``, ``docusaurus.config.js``, ``sidebars.js``,
+      and the Markdown source files under ``docs/pages/``.
 
 Creating a Read the Docs account
 --------------------------------
@@ -147,12 +140,12 @@ To trigger builds from pull requests:
 
 #. Make some changes to your documentation:
 
-   #. Navigate to your GitHub repository, locating the file ``docs/intro.md``, and clicking on the |:pencil2:| icon on the top-right with the tooltip "Edit this file" to open a web editor.
+   #. Navigate to your GitHub repository, locating the file ``docs/pages/intro.mdx``, and clicking on the |:pencil2:| icon on the top-right with the tooltip "Edit this file" to open a web editor.
 
    #. In the editor, add the following sentence to the file:
 
       .. code-block:: markdown
-         :caption: docs/intro.md
+         :caption: docs/pages/intro.mdx
 
          This documentation is hosted on Read the Docs.
 
@@ -213,15 +206,15 @@ Docusaurus is a Node.js application, so Read the Docs builds it by running a seq
    build:
      os: "ubuntu-22.04"
      tools:
-       nodejs: "18"
+       nodejs: "20"
      jobs:
        install:
-         - npm install
+         - cd docs/ && npm install
        build:
          html:
-           - npm run build
+           - cd docs/ && npm run build
            - mkdir --parents $READTHEDOCS_OUTPUT/html/
-           - cp --recursive build/* $READTHEDOCS_OUTPUT/html/
+           - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
 
 The :doc:`purpose of each key </config-file/v2>` is:
 
@@ -235,10 +228,13 @@ The :doc:`purpose of each key </config-file/v2>` is:
   Specifies the :ref:`Node.js version <config-file/v2:build.tools.nodejs>` used during the build.
 
 ``build.jobs.install``
-  Commands run during the install step. Here we install Docusaurus and its dependencies with ``npm install``.
+  Commands run during the install step. The Docusaurus project lives under ``docs/``,
+  so we ``cd`` into it and run ``npm install`` to install Docusaurus and its dependencies.
 
 ``build.jobs.build.html``
-  Commands run to produce the HTML output. We run ``npm run build`` to invoke Docusaurus, then copy the generated ``build/`` directory into ``$READTHEDOCS_OUTPUT/html/``, where Read the Docs picks it up.
+  Commands run to produce the HTML output. We ``cd docs/`` and run ``npm run build``
+  to invoke Docusaurus, then copy the generated ``docs/build/`` directory into
+  ``$READTHEDOCS_OUTPUT/html/``, where Read the Docs picks it up.
 
 .. tip::
 
@@ -249,7 +245,7 @@ The :doc:`purpose of each key </config-file/v2>` is:
 Using a different Node.js version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build your project with Node.js 20 instead of 18, edit the ``.readthedocs.yaml`` file and change the Node.js version like this:
+To build your project with Node.js 22 instead of 20, edit the ``.readthedocs.yaml`` file and change the Node.js version like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -260,15 +256,15 @@ To build your project with Node.js 20 instead of 18, edit the ``.readthedocs.yam
    build:
      os: "ubuntu-22.04"
      tools:
-       nodejs: "20"
+       nodejs: "22"
      jobs:
        install:
-         - npm install
+         - cd docs/ && npm install
        build:
          html:
-           - npm run build
+           - cd docs/ && npm run build
            - mkdir --parents $READTHEDOCS_OUTPUT/html/
-           - cp --recursive build/* $READTHEDOCS_OUTPUT/html/
+           - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
 
 After you commit these changes, go back to your project home, navigate to the "Builds" page, and open the new build that just started. You will see in the build logs that the new toolchain version was used to install the dependencies and build the site.
 
