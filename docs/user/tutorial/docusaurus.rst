@@ -55,30 +55,26 @@ Preparing your repository on GitHub
 Creating a Read the Docs account
 --------------------------------
 
-To create a Read the Docs account:
+To create a Read the Docs account,
 navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub`.
-On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
 
-.. figure:: /_static/images/tutorial/github-authorization.png
-   :width: 60%
-   :align: center
-   :alt: GitHub authorization page
+Confirm your e-mail and username on Read the Docs, then click the :guilabel:`Sign Up »` button to create your account and open your :term:`dashboard`.
 
-   GitHub authorization page
+When you click the link in the verification email from Read the Docs, your account will be ready to create your first project.
 
-.. note::
+Installing the Read the Docs GitHub App
+---------------------------------------
 
-   Read the Docs needs elevated permissions to perform certain operations
-   that ensure that the workflow is as smooth as possible,
-   like installing :term:`webhooks <webhook>`.
-   If you want to learn more,
-   check out :ref:`reference/git-integration:permissions for connected accounts`.
+For Read the Docs to access your ``docusaurus-tutorial`` repository,
+install the `Read the Docs Community GitHub App <https://github.com/apps/read-the-docs-community>`_:
 
-After that, you will be redirected to Read the Docs to confirm your e-mail and username. Click the :guilabel:`Sign Up »` button to create your account and
-open your :term:`dashboard`.
+#. Open the GitHub App page and click :guilabel:`Install`.
+#. Choose the GitHub account or organization that owns your ``docusaurus-tutorial`` repository.
+#. Select :guilabel:`Only select repositories` and pick ``docusaurus-tutorial``. You can grant access to additional repositories at any time from your GitHub settings.
+#. Click :guilabel:`Install` to complete the setup.
 
-When you have clicked the link in your email from Read the Docs to "verify your email address" and finalize the process, your Read the Docs account will be ready to create your first project.
+See :ref:`reference/git-integration:GitHub App` for more details on what the GitHub App can do and the permissions it requests.
 
 Importing the project to Read the Docs
 --------------------------------------
