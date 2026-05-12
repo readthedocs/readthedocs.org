@@ -600,7 +600,7 @@ and Read the Docs:
 - Learn how to do specific tasks in the :doc:`/guides/index`.
 - Learn about private project support and other enterprise features
   in :doc:`our commercial service guide </commercial/index>`.
-- Join a global community of fellow `documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
+- Join a global community of fellow :doc:`documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
 - Contribute to Read the Docs in :doc:`rtd-dev:contribute`, we appreciate it!
 

@@ -52,8 +52,6 @@ To create a Read the Docs account,
 navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up with GitHub` and then :guilabel:`Sign up using GitHub App`.
 
-.. TODO: we need a way to install the GitHub App upfront before adding a project
-
 Installing the Read the Docs GitHub App
 ---------------------------------------
 
@@ -82,8 +80,8 @@ To add your GitHub project to Read the Docs:
 #. Enter some details about your Read the Docs project:
 
    Name
-      The name of the project, used to create a unique subdomain for each project.
-      so it is better if you prepend your username,
+      The name of the project is used to create a unique subdomain,
+      so prepend your username to keep it unique,
       for example ``{username}-docusaurus-tutorial``.
 
    Repository URL
@@ -94,7 +92,7 @@ To add your GitHub project to Read the Docs:
 
    Then click the :guilabel:`Next` button to create the project and open the :term:`project home`.
 
- #. Click :guilabel:`This file exists` to trigger the first build of your documentation.
+#. Click :guilabel:`This file exists` to trigger the first build of your documentation.
 
 You just created your first Docusaurus project on Read the Docs! |:tada:|
 
@@ -102,10 +100,6 @@ Checking the first build
 ------------------------
 
 Read the Docs will build your project documentation right after you create it.
-
-.. TODO: update this since the UI has changed
-.. 1. click on the version
-.. 2. click on the build that just started
 
 To see the build logs:
 
@@ -279,6 +273,14 @@ that points to the default branch of your version control system
 (``main`` in the case of this tutorial),
 and that's why the URLs of your HTML documentation contain the string ``/latest/``.
 
+.. note::
+
+   Docusaurus also has its own `built-in versioning <https://docusaurus.io/docs/versioning>`_
+   that lives inside the repository under ``versioned_docs/``.
+   This tutorial uses Read the Docs branch-based versioning instead, which builds
+   each version from a separate Git branch. The two mechanisms can be combined,
+   but doing so is outside the scope of this tutorial.
+
 Creating a new version of your documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -422,7 +424,7 @@ and Read the Docs:
 - Learn how to do specific tasks in the :doc:`/guides/index`.
 - Learn about private project support and other enterprise features
   in :doc:`our commercial service guide </commercial/index>`.
-- Join a global community of fellow `documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
+- Join a global community of fellow :doc:`documentarians <writethedocs:documentarians>` in `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
 - Contribute to Read the Docs in :doc:`rtd-dev:contribute`, we appreciate it!
 

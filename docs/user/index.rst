@@ -166,11 +166,11 @@ We have a few places for you to get started:
 
 .. descriptions here are active
 
-:doc:`/tutorial/docusaurus`
-  Follow the Read the Docs tutorial for Docusaurus.
-
 :doc:`/tutorial/index`
   Follow the Read the Docs tutorial for Sphinx.
+
+:doc:`/tutorial/docusaurus`
+  Follow the Read the Docs tutorial for Docusaurus.
 
 :doc:`/intro/doctools`
   Quick start for MkDocs and other tools.
