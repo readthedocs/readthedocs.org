@@ -2067,6 +2067,7 @@ class Feature(models.Model):
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    SPA_FALLBACK = "spa_fallback"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -2109,6 +2110,10 @@ class Feature(models.Model):
         (
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
+        ),
+        (
+            SPA_FALLBACK,
+            _("Proxito: Serve the version's /index.html for unresolved URLs (SPA fallback)."),
         ),
         # Versions sync related features
         (

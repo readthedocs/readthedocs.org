@@ -26,6 +26,7 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
@@ -495,6 +496,17 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if response:
             return response
 
+        # If the project has SPA fallback enabled, serve the version's
+        # ``/index.html`` file in place of a 404, so JavaScript routers
+        # (e.g. React BrowserRouter) can pick up the path on the client.
+        response = self._get_spa_fallback_response(
+            request=request,
+            project=project,
+            version=version,
+        )
+        if response:
+            return response
+
         # Don't use the custom 404 page, use our general contextualized 404 response
         # Several additional context variables can be added if the templates
         # or other error handling is developed (version, language, filename).
@@ -502,6 +514,47 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             project=project,
             path_not_found=proxito_path,
         )
+
+    def _get_spa_fallback_response(self, request, project, version):
+        """
+        Serve the version's ``/index.html`` for unresolved URLs (SPA fallback).
+
+        Single-page apps (React, Vue, Vite, ...) often emit a single
+        ``index.html`` and rely on the server returning it for any path so the
+        client-side router can take over. This is gated behind the
+        ``SPA_FALLBACK`` project feature flag.
+        """
+        if not project.has_feature(Feature.SPA_FALLBACK):
+            return None
+
+        if not version or not version.built:
+            return None
+
+        if not self.allowed_user(request, version):
+            return None
+
+        tryfile = "index.html"
+        if not HTMLFile.objects.filter(version=version, path=tryfile).exists():
+            return None
+
+        storage_filename_path = version.get_storage_path(
+            media_type=MEDIA_TYPE_HTML,
+            filename=tryfile,
+        )
+        log.debug(
+            "Serving SPA fallback index.html.",
+            version_slug=version.slug,
+            storage_filename_path=storage_filename_path,
+        )
+        try:
+            content = build_media_storage.open(storage_filename_path).read()
+        except FileNotFoundError:
+            log.warning(
+                "File not found in storage. File out of sync with DB.",
+                file=storage_filename_path,
+            )
+            return None
+        return HttpResponse(content, content_type="text/html")
 
     def _get_custom_404_page(self, request, project, version=None):
         """

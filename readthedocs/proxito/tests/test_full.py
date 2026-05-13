@@ -1278,6 +1278,71 @@ class TestAdditionalDocViews(BaseDocServing):
         storage_open.assert_called_once_with("html/project/latest/404.html")
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_spa_fallback_serves_index_html(self, storage_open):
+        storage_open.return_value.read.return_value = b"<html>spa</html>"
+        self.project.versions.update(active=True, built=True)
+        get(
+            Feature,
+            feature_id=Feature.SPA_FALLBACK,
+            projects=[self.project],
+        )
+        get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="index.html",
+            name="index.html",
+        )
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/some/spa/route"},
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"<html>spa</html>")
+        storage_open.assert_called_once_with("html/project/latest/index.html")
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_spa_fallback_disabled_returns_404(self, storage_open):
+        self.project.versions.update(active=True, built=True)
+        get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="index.html",
+            name="index.html",
+        )
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/some/spa/route"},
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(response.status_code, 404)
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_spa_fallback_no_index_returns_404(self, storage_open):
+        self.project.versions.update(active=True, built=True)
+        get(
+            Feature,
+            feature_id=Feature.SPA_FALLBACK,
+            projects=[self.project],
+        )
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/some/spa/route"},
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(response.status_code, 404)
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_storage_serves_custom_404_sphinx_single_html(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
