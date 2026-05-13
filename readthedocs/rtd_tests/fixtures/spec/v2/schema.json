@@ -265,6 +265,19 @@
             "title": "Custom commands",
             "type": "string"
           }
+        },
+        "environment": {
+          "title": "Environment variables",
+          "description": "Define environment variables to be passed to all build steps. Variable names must start with a letter or underscore and contain only letters, digits, and underscores. Values are coerced to strings.",
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "boolean"}
+            ]
+          },
+          "default": {}
         }
       },
       "required": ["os"],
