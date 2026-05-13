@@ -8,6 +8,7 @@ Read the Docs: documentation simplified
 
    Sphinx tutorial </tutorial/index>
    Docusaurus tutorial </tutorial/docusaurus>
+   Quickstart with an AI agent </tutorial/docusaurus-with-ai>
    /intro/add-project
    /intro/doctools
    /examples
@@ -165,6 +166,9 @@ First time here?
 We have a few places for you to get started:
 
 .. descriptions here are active
+
+:doc:`/tutorial/docusaurus-with-ai`
+  Use an AI coding agent (Claude Code, Cursor, etc.) to scaffold and host your docs.
 
 :doc:`/tutorial/docusaurus`
   Follow the Read the Docs tutorial for Docusaurus.
