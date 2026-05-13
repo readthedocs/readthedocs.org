@@ -1,23 +1,118 @@
+/* Read the Docs branding on top of the Furo theme. */
+
+/* --- Team roster avatars (used in the about/team pages) --- */
 .team-roster a img {
   border-radius: 50%;
-  box-shadow: 0 0 0 7px #fff, 0 0 0 8px #cecece;
+  box-shadow: 0 0 0 7px var(--color-background-primary, #fff),
+              0 0 0 8px var(--color-background-border, #cecece);
   margin: 9px 17px 9px 3px;
 }
 
-
-/* Center the RTD placement when not wide enough to float */
+/* --- Center the RTD ad placement when not wide enough to float --- */
 #rtd-stickybox-container {
   text-align: center;
 }
 
-.wy-menu.wy-menu-vertical a.reference.external::after {
-  /* \00a0 = no break space */
-  content: "\00a0\f08e";
-  font-family: FontAwesome;
-  display: inline-block;
-  font-style: normal;
-  font-variant: normal;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
+/* --- Logo sizing in the sidebar --- */
+.sidebar-logo {
+  max-width: 80%;
+  margin: 0.5rem auto 0.25rem auto;
+}
 
+.sidebar-brand {
+  padding: 1.25rem 1rem 0.75rem 1rem;
+}
+
+/* --- Announcement banner styling --- */
+.announcement {
+  background: linear-gradient(90deg, #2d4955 0%, #3a6478 100%);
+  color: #f4f9f1;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.announcement a {
+  color: #d6ec9d;
+  text-decoration: underline;
+}
+.announcement a:hover {
+  color: #ffffff;
+}
+
+/* --- Sidebar caption styling (section group labels) --- */
+.sidebar-tree p.caption {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-brand-primary);
+  margin-top: 1.25rem;
+}
+
+/* --- Pretty link underline on hover in body content --- */
+article a.reference:not(.image-reference):hover {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* --- Inline code: a hint of brand color --- */
+.highlight,
+code.literal,
+.sig-name {
+  border-radius: 4px;
+}
+
+article code.literal {
+  background: rgba(128, 186, 51, 0.08);
+  border: 1px solid rgba(128, 186, 51, 0.18);
+  color: var(--color-brand-content);
+  padding: 0.05em 0.4em;
+}
+
+body[data-theme="dark"] article code.literal {
+  background: rgba(164, 214, 94, 0.12);
+  border-color: rgba(164, 214, 94, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) article code.literal {
+    background: rgba(164, 214, 94, 0.12);
+    border-color: rgba(164, 214, 94, 0.25);
+  }
+}
+
+/* --- External link indicator in the sidebar (matches old behavior) --- */
+.sidebar-tree a.reference.external::after {
+  content: "\2197"; /* north-east arrow */
+  display: inline-block;
+  margin-left: 0.25em;
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+/* --- sphinx-design buttons: align with brand palette --- */
+.sd-btn-primary,
+.sd-btn-primary:visited {
+  background-color: var(--color-brand-primary) !important;
+  border-color: var(--color-brand-primary) !important;
+}
+.sd-btn-primary:hover {
+  background-color: var(--color-brand-content) !important;
+  border-color: var(--color-brand-content) !important;
+}
+
+/* --- sphinx-tabs: blend with Furo's surfaces --- */
+.sphinx-tabs-tab[aria-selected="true"] {
+  border-bottom-color: var(--color-brand-primary) !important;
+  color: var(--color-brand-primary) !important;
+}
+
+/* --- Tighter top-of-page header buttons --- */
+.toc-title {
+  font-weight: 700;
+  color: var(--color-brand-primary);
+}
+
+/* --- Footer polish --- */
+.footer-buttons {
+  margin-top: 2.5rem;
 }
