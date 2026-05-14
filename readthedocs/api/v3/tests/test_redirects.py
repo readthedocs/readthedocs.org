@@ -215,21 +215,21 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
         self.client.logout()
         response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
         response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         self.redirect.refresh_from_db()
-        self.assertFalse(self.redirect.enabled)
-        self.assertEqual(self.redirect.redirect_type, "page")
-        self.assertEqual(self.redirect.from_url, "/docs")
-        self.assertEqual(self.redirect.to_url, "/documentation/")
+        assert self.redirect.enabled is False
+        assert self.redirect.redirect_type == "page"
+        assert self.redirect.from_url == "/docs"
+        assert self.redirect.to_url == "/documentation/"
 
     def test_projects_redirects_position(self):
         url = reverse(
