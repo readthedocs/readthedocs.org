@@ -153,9 +153,10 @@ Documentation for every version
 Open source and user focused
     Our company is bootstrapped and 100% user-focused,
     so our product gets better for our users instead of our investors.
-    |org_brand| hosts documentation for over 100,000 large
-    and small open source projects at no cost.
-    |com_brand| supports hundreds of organizations with product and internal documentation.
+    |org_brand| is free, forever, for open source projects,
+    and hosts documentation for over 100,000 projects large and small.
+    |com_brand| supports commercial teams with private repositories,
+    private documentation, and team management, starting at $50/month.
     Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
