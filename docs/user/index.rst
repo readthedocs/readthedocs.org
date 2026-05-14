@@ -150,14 +150,16 @@ Documentation for every version
     pulled directly from Git.
     Start hosting all your :doc:`versions </versions>`.
 
-Open source and user focused
+Free, forever, for open source
+    |org_brand| is free for open source projects, and always will be.
+    We host documentation for over 100,000 projects, large and small,
+    at no cost.
     Our company is bootstrapped and 100% user-focused,
-    so our product gets better for our users instead of our investors.
-    |org_brand| is free, forever, for open source projects,
-    and hosts documentation for over 100,000 projects large and small.
-    |com_brand| supports commercial teams with private repositories,
-    private documentation, and team management, starting at $50/month.
-    Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
+    so our product gets better for the people who use it,
+    not for investors.
+    |com_brand| brings the same workflow to commercial teams,
+    with private repositories, private documentation, and team management.
+    Learn more on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
