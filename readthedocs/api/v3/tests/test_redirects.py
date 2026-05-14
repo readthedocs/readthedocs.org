@@ -201,6 +201,36 @@ class RedirectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-redirects-detail_PUT"),
         )
 
+    def test_projects_redirects_detail_patch(self):
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
+        )
+        data = {
+            "enabled": False,
+        }
+
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 200)
+
+        self.redirect.refresh_from_db()
+        self.assertFalse(self.redirect.enabled)
+        self.assertEqual(self.redirect.redirect_type, "page")
+        self.assertEqual(self.redirect.from_url, "/docs")
+        self.assertEqual(self.redirect.to_url, "/documentation/")
+
     def test_projects_redirects_position(self):
         url = reverse(
             "projects-redirects-list",
