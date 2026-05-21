@@ -35,7 +35,7 @@ Please respect the following policies when automating access to Read the Docs:
   are less likely to be limited or blocked.
 * **Caching**:
   Read the Docs implements most caching strategies.
-  Well-behaved crawlers can take advantage of cache headers, etags, date headers, and more.
+  Well-behaved crawlers can take advantage of cache headers, ETags, date headers, and more.
   Cached requests generally don't count against rate limits.
 
 Please help keep the web open by respecting these policies.
