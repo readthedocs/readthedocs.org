@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
     safe = Safe.always()
 
     dependencies = [
-        ("builds", "0071_alter_versionautomationrule_fk"),
+        ("builds", "0072_remove_deprecated_build_fields"),
     ]
 
     operations = [
