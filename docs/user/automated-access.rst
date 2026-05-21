@@ -1,7 +1,7 @@
 Automated access to Read the Docs
 =================================
 
-Read the Docs generally welcomes most respectful crawlers, spiders, and bots on documentation sites.
+Read the Docs generally welcomes respectful crawlers, spiders, and bots on documentation sites.
 Agent use of Read the Docs is also acceptable.
 
 Please respect the following policies when automating access to Read the Docs:
@@ -30,7 +30,7 @@ Please respect the following policies when automating access to Read the Docs:
   We frown upon large amounts of traffic impersonating real browsers or traffic distributed to get around rate limits.
   Distributed traffic is far more likely to result in a ban.
 * **Cloudflare verification**:
-  We use Cloudflare heavily (thanks Cloudflare for sponsoring |org_brand|).
+  We use Cloudflare heavily (thanks to Cloudflare for sponsoring |org_brand|).
   Cloudflare `verified bots <https://developers.cloudflare.com/bots/concepts/bot/verified-bots/>`_
   are less likely to be limited or blocked.
 * **Caching**:
@@ -49,5 +49,5 @@ We are open to special considerations or increased rate limits on a case-by-case
 Please :doc:`contact support </support>` to discuss your needs.
 
 If you believe you have been incorrectly limited or blocked,
-please :doc:`contact support </support>` with details about your user agent and requesting IP block.
+please :doc:`contact support </support>` with details about your user agent and the requesting IP block.
 Please include the Cloudflare `Ray ID <https://developers.cloudflare.com/fundamentals/reference/cloudflare-ray-id/>`_ from the blocking page if possible.
