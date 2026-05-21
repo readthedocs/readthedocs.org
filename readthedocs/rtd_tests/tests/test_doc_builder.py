@@ -9,7 +9,9 @@ from django.test.utils import override_settings
 
 from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.exceptions import UserFileNotFound
@@ -173,3 +175,71 @@ class MkDocsBuilderTest(TestCase):
             e.exception.format_values.get("filename"),
             "mkdocs.yml",
         )
+
+    @patch("readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
+    def test_get_mkdocs_cmd_uses_uv_run_for_uv_env(
+        self,
+        load_yaml_config,
+        checkout_path,
+        _,
+    ):
+        """
+        When the python env is uv-managed, the mkdocs builder
+        should invoke ``uv run mkdocs`` instead of ``python -m mkdocs``.
+        """
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        config = get_build_config(
+            {
+                "mkdocs": {"configuration": "mkdocs.yml"},
+                "python": {
+                    "install": [{"method": "uv", "command": "sync"}],
+                },
+            },
+            validate=True,
+            source_file=f"{tmp_dir}/readthedocs.yml",
+        )
+        python_env = UvEnv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+        builder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        assert builder.get_mkdocs_cmd() == ("uv", "run", "mkdocs")
+
+    @patch("readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
+    def test_get_mkdocs_cmd_uses_python_module_for_virtualenv(
+        self,
+        load_yaml_config,
+        checkout_path,
+        _,
+    ):
+        """A non-uv environment should keep using ``python -m mkdocs``."""
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        config = get_build_config(
+            {"mkdocs": {"configuration": "mkdocs.yml"}},
+            validate=True,
+            source_file=f"{tmp_dir}/readthedocs.yml",
+        )
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+        builder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        cmd = builder.get_mkdocs_cmd()
+        assert cmd[-2:] == ("-m", "mkdocs")
+        assert cmd[0] == python_env.venv_bin(filename="python")

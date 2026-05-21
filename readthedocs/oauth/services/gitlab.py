@@ -107,38 +107,6 @@ class GitLabService(UserService):
 
         return remote_ids
 
-    def sync_organizations(self):
-        """
-        Sync GitLab groups (organizations).
-
-        This method only creates the relationships between the
-        organizations and the user, as all the repositories
-        are already created in the sync_repositories method.
-        """
-        organization_remote_ids = []
-
-        try:
-            orgs = self.paginate(
-                f"{self.base_api_url}/api/v4/groups",
-                per_page=100,
-                all_available=False,
-                order_by="path",
-                sort="asc",
-            )
-            for org in orgs:
-                remote_organization = self.create_organization(org)
-                remote_organization.get_remote_organization_relation(self.user, self.account)
-                organization_remote_ids.append(remote_organization.remote_id)
-        except (TypeError, ValueError):
-            log.warning("Error syncing GitLab organizations")
-            raise SyncServiceError(
-                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.vcs_provider_slug
-                )
-            )
-
-        return organization_remote_ids, []
-
     def _has_access_to_repository(self, fields):
         """Check if the user has access to the repository, and if they are an admin."""
         permissions = fields.get("permissions", {})

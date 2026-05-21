@@ -33,6 +33,7 @@ class ConfigError(BuildUserError):
     UV_GROUPS_EXTRAS_INVALID_TYPE = "config:python:uv-groups-extras-invalid-type"
 
     SPHINX_CONFIG_MISSING = "config:sphinx:missing-config"
+    SPHINX_INVALID_CONFIG_FILE = "config:sphinx:invalid-config-file"
     MKDOCS_CONFIG_MISSING = "config:mkdocs:missing-config"
 
 
