@@ -1,5 +1,7 @@
 import itertools
+from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -93,6 +95,34 @@ class ProfileViewsTest(TestCase):
         self.assertFalse(
             User.objects.filter(username=self.user.username).exists(),
         )
+
+    def test_delete_account_banned_profile(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.user.username},
+        )
+
+        assert response.status_code == 302
+        assert response["Location"] == reverse("homepage")
+        assert User.objects.filter(username=self.user.username).exists()
+
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score")
+    def test_delete_account_spam_score(self, mock_get_spam_score):
+        project = get(Project, users=[self.user])
+        mock_get_spam_score.return_value = settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.user.username},
+        )
+
+        assert response.status_code == 302
+        assert response["Location"] == reverse("homepage")
+        assert User.objects.filter(username=self.user.username).exists()
+        mock_get_spam_score.assert_called_once_with(project)
 
     def test_profile_detail(self):
         resp = self.client.get(
