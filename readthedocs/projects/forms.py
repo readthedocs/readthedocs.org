@@ -22,7 +22,6 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import CUSTOM_MATCH
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
 from readthedocs.builds.constants import VERSION_TYPES
@@ -909,10 +908,8 @@ class AddonsConfigForm(forms.ModelForm):
 
         # External (pull-request) versions are transient and not meaningful as a
         # diff baseline; only show internal (branch/tag) versions for this project.
-        self.fields["options_base_version"].queryset = self.project.versions.exclude(
-            type=EXTERNAL,
-        )
-        self.fields["options_base_version"].empty_label = _("Default (stable or latest)")
+        self.fields["options_base_version"].queryset = self.project.versions(manager=INTERNAL)
+        self.fields["options_base_version"].empty_label = _("Default (latest)")
 
     def clean(self):
         if (

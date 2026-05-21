@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("builds", "0071_alter_versionautomationrule_fk"),
-        ("projects", "0163_automationrule_data_migration"),
+        ("projects", "0164_show_build_overview_in_comment_default_true"),
     ]
 
     operations = [
@@ -20,11 +20,11 @@ class Migration(migrations.Migration):
             name="options_base_version",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Visual Diff and File Tree Diff compare the current page against this version. Defaults to <b>stable</b> (or <b>latest</b> when there is no stable version).",
+                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <b>latest</b> version.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 to="builds.version",
-                verbose_name="Base version to compare against (eg. DocDiff, File Tree Diff)",
+                verbose_name="Base version to compare against (eg. Visual diff, File tree diff)",
             ),
         ),
         migrations.AlterField(
@@ -33,12 +33,12 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 db_constraint=False,
-                help_text="Visual Diff and File Tree Diff compare the current page against this version. Defaults to <b>stable</b> (or <b>latest</b> when there is no stable version).",
+                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <b>latest</b> version.",
                 null=True,
                 on_delete=django.db.models.deletion.DO_NOTHING,
                 related_name="+",
                 to="builds.version",
-                verbose_name="Base version to compare against (eg. DocDiff, File Tree Diff)",
+                verbose_name="Base version to compare against (eg. Visual diff, File tree diff)",
             ),
         ),
     ]
