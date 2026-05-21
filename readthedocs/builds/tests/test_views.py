@@ -8,10 +8,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CANCELLED,
+    BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
     BUILD_STATE_TRIGGERED,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.views import BuildDetail
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
@@ -139,3 +141,37 @@ class BuildViewsTests(TestCase):
         url = reverse("builds_detail", args=[self.project.slug, self.build.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 410)
+
+    @mock.patch("readthedocs.builds.views.get_diff_for_build")
+    def test_files_changed_diff_for_successful_build(self, get_diff_for_build):
+        get_diff_for_build.return_value = "diff-sentinel"
+        self.build.state = BUILD_STATE_FINISHED
+        self.build.success = True
+        self.build.save()
+
+        diff = BuildDetail()._get_files_changed_diff(self.build)
+
+        assert diff == "diff-sentinel"
+        get_diff_for_build.assert_called_once_with(self.build)
+
+    @mock.patch("readthedocs.builds.views.get_diff_for_build")
+    def test_files_changed_diff_skipped_for_unsuccessful_build(self, get_diff_for_build):
+        self.build.state = BUILD_STATE_FINISHED
+        self.build.success = False
+        self.build.save()
+
+        diff = BuildDetail()._get_files_changed_diff(self.build)
+
+        assert diff is None
+        get_diff_for_build.assert_not_called()
+
+    @mock.patch("readthedocs.builds.views.get_diff_for_build")
+    def test_files_changed_diff_skipped_for_unfinished_build(self, get_diff_for_build):
+        self.build.state = BUILD_STATE_INSTALLING
+        self.build.success = True
+        self.build.save()
+
+        diff = BuildDetail()._get_files_changed_diff(self.build)
+
+        assert diff is None
+        get_diff_for_build.assert_not_called()

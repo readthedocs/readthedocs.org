@@ -7,7 +7,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_diff, snapshot_base_manifest
+from readthedocs.filetreediff import (
+    get_diff,
+    get_diff_for_build,
+    snapshot_base_manifest,
+    snapshot_previous_manifest,
+)
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -240,3 +245,121 @@ class TestsBaseManifestSnapshot(TestCase):
         """snapshot_base_manifest is a no-op if a snapshot already exists."""
         snapshot_base_manifest(self.pr_version, self.base_version)
         storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_for_build_uses_base_snapshot(self, storage_open):
+        """For PR builds, get_diff_for_build compares against the base version."""
+        pr_files = {"index.html": "pr-hash", "new-page.html": "new-hash"}
+        snapshot_files = {"index.html": "original-hash"}
+
+        # get_diff reads: 1) PR manifest, 2) base snapshot
+        storage_open.side_effect = [
+            _mock_manifest(self.pr_build.id, pr_files)(),
+            _mock_manifest(self.base_build.id, snapshot_files)(),
+        ]
+        diff = get_diff_for_build(self.pr_build)
+        assert [f.path for f in diff.added] == ["new-page.html"]
+        assert [f.path for f in diff.modified] == ["index.html"]
+        assert diff.deleted == []
+
+
+@mock.patch(
+    "readthedocs.filetreediff.build_media_storage",
+    new=BuildMediaFileSystemStorageTest(),
+)
+class TestsPreviousManifestSnapshot(TestCase):
+    """Tests for comparing a normal version against its own previous build."""
+
+    def setUp(self):
+        self.project = get(Project)
+        self.version = self.project.versions.get(slug=LATEST)
+        self.previous_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        self.latest_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_uses_previous_manifest_snapshot(self, storage_open):
+        """A normal version is compared against its previous build's manifest."""
+        current_files = {"index.html": "hash1", "new.html": "hash-new"}
+        previous_files = {"index.html": "hash0"}
+
+        # get_diff reads: 1) current manifest, 2) previous manifest snapshot
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, current_files)(),
+            _mock_manifest(self.previous_build.id, previous_files)(),
+        ]
+        diff = get_diff(self.version, self.version)
+        assert [f.path for f in diff.added] == ["new.html"]
+        assert [f.path for f in diff.modified] == ["index.html"]
+        assert diff.deleted == []
+        assert not diff.outdated
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_falls_back_to_live_manifest_when_no_snapshot(self, storage_open):
+        """Without a snapshot, the diff against the same version has no changes."""
+        files = {"index.html": "hash1"}
+
+        # get_diff reads: 1) current manifest, 2) snapshot miss, 3) live manifest
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, files)(),
+            FileNotFoundError,
+            _mock_manifest(self.latest_build.id, files)(),
+        ]
+        diff = get_diff(self.version, self.version)
+        assert diff.files == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_snapshot_previous_manifest_copies_current_manifest(self, storage_open):
+        """snapshot_previous_manifest writes a copy of the current manifest."""
+        current_files = {"index.html": "hash1", "guide.html": "hash2"}
+        writes = []
+
+        @contextmanager
+        def write_capture(*args, **kwargs):
+            write_mock = mock.MagicMock()
+            write_mock.write.side_effect = writes.append
+            yield write_mock
+
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, current_files)(),
+            write_capture(),
+        ]
+        snapshot_previous_manifest(self.version)
+
+        assert storage_open.call_count == 2
+        written = json.loads("".join(writes))
+        assert written["build"]["id"] == self.latest_build.id
+        assert set(written["files"].keys()) == {"index.html", "guide.html"}
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_snapshot_previous_manifest_noop_without_manifest(self, storage_open):
+        """snapshot_previous_manifest does nothing if there is no manifest yet."""
+        storage_open.side_effect = FileNotFoundError
+        snapshot_previous_manifest(self.version)
+        storage_open.assert_called_once()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_for_build_uses_previous_manifest_snapshot(self, storage_open):
+        """For normal version builds, get_diff_for_build compares previous builds."""
+        current_files = {"index.html": "hash1", "new.html": "hash-new"}
+        previous_files = {"index.html": "hash1"}
+
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, current_files)(),
+            _mock_manifest(self.previous_build.id, previous_files)(),
+        ]
+        diff = get_diff_for_build(self.latest_build)
+        assert [f.path for f in diff.added] == ["new.html"]
+        assert diff.modified == []
+        assert diff.deleted == []

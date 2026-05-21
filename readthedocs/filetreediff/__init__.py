@@ -33,6 +33,7 @@ log = structlog.get_logger(__name__)
 
 MANIFEST_FILE_NAME = "manifest.json"
 BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
+PREVIOUS_MANIFEST_SNAPSHOT_FILE_NAME = "previous_manifest_snapshot.json"
 
 
 def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
@@ -47,6 +48,10 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     Set operations are used to calculate the added, deleted, and modified files.
     To get the modified files, we compare the main content hash of each common file.
     If there are no changes between the versions, all lists will be empty.
+
+    When ``current_version`` and ``base_version`` are the same normal version,
+    the comparison is done against the version's own previous build, using the
+    manifest snapshot taken before the latest build overwrote the manifest.
     """
     current_version_manifest = get_manifest(current_version)
     if not current_version_manifest:
@@ -72,6 +77,11 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     base_version_manifest = None
     if current_version.is_external:
         base_version_manifest = _get_base_manifest_snapshot(current_version)
+    elif current_version.pk == base_version.pk:
+        # Comparing a normal version against itself: use the manifest snapshot
+        # taken before the latest build, so the diff reflects what the latest
+        # build changed relative to the version's previous build.
+        base_version_manifest = _get_previous_manifest_snapshot(current_version)
 
     if not base_version_manifest:
         base_version_manifest = get_manifest(base_version)
@@ -112,6 +122,33 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
         base_version_build=base_version_build,
         outdated=outdated,
     )
+
+
+def get_diff_for_build(build: Build) -> FileTreeDiff | None:
+    """
+    Get the file tree diff for a build, picking the right base to compare against.
+
+    Pull request builds are compared against the project's base version (the
+    latest version by default). Normal version builds are compared against the
+    version's own previous build.
+
+    Returns ``None`` if the build has no version or no diff is available.
+    """
+    version = build.version
+    if not version:
+        return None
+
+    project = build.project
+    if version.is_external:
+        base_version = project.addons.options_base_version or project.get_latest_version()
+    else:
+        # Normal versions are compared against their own previous build.
+        base_version = version
+
+    if not base_version:
+        return None
+
+    return get_diff(current_version=version, base_version=base_version)
 
 
 def get_manifest(version: Version) -> FileTreeDiffManifest | None:
@@ -202,3 +239,48 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
     # rebase/synchronize webhook events so the snapshot refreshes when the
     # PR is rebased against a newer base.
     # See https://github.com/readthedocs/readthedocs.org/issues/12232
+
+
+def _get_previous_manifest_snapshot(version: Version) -> FileTreeDiffManifest | None:
+    """Get the manifest snapshot from before the version's latest build, or None."""
+    snapshot_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=PREVIOUS_MANIFEST_SNAPSHOT_FILE_NAME,
+    )
+    try:
+        with build_media_storage.open(snapshot_path) as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return None
+
+    return FileTreeDiffManifest.from_dict(data)
+
+
+def snapshot_previous_manifest(version: Version):
+    """
+    Snapshot a version's current manifest before it is overwritten.
+
+    This is called before writing the manifest for a new build of a normal
+    version, so the file tree diff can compare the new build against the
+    version's previous build.
+
+    Unlike :func:`snapshot_base_manifest`, this overwrites any existing
+    snapshot, so it always reflects the build right before the latest one.
+    """
+    current_manifest = get_manifest(version)
+    if not current_manifest:
+        return
+
+    snapshot_path = version.get_storage_path(
+        media_type=MEDIA_TYPE_DIFF,
+        filename=PREVIOUS_MANIFEST_SNAPSHOT_FILE_NAME,
+    )
+    with build_media_storage.open(snapshot_path, "w") as f:
+        json.dump(current_manifest.as_dict(), f)
+
+    log.info(
+        "Previous manifest snapshot created.",
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+        build_id=current_manifest.build.id,
+    )

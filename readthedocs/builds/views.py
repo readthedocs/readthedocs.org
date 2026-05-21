@@ -22,6 +22,7 @@ from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
 from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.filetreediff import get_diff_for_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.base import ProjectSpamMixin
 
@@ -96,6 +97,23 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
     def get_project(self):
         return self.get_object().project
 
+    def _get_files_changed_diff(self, build):
+        """
+        Get the file tree diff shown in the build's "Files changed" tab.
+
+        This is available for successful builds that have a file manifest,
+        comparing pull request builds against their base version and normal
+        version builds against the version's previous build.
+        """
+        if not build.success or not build.finished:
+            return None
+
+        try:
+            return get_diff_for_build(build)
+        except Exception:
+            log.exception("Error getting the file tree diff for the build.", build_id=build.pk)
+            return None
+
     @method_decorator(login_required)
     def post(self, request, project_slug, build_pk):
         project = get_object_or_404(Project, slug=project_slug)
@@ -116,6 +134,7 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
 
         build = self.get_object()
         context["notifications"] = build.notifications.all()
+        context["files_changed_diff"] = self._get_files_changed_diff(build)
         if not build.notifications.filter(message_id=BuildAppError.GENERIC_WITH_BUILD_ID).exists():
             # Do not suggest to open an issue if the error is not generic
             return context

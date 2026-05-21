@@ -10,6 +10,7 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
 from readthedocs.filetreediff import snapshot_base_manifest
+from readthedocs.filetreediff import snapshot_previous_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
@@ -148,6 +149,13 @@ class FileManifestIndexer(Indexer):
                 for path, content_hash in self._hashes.items()
             ],
         )
+
+        # For normal versions, snapshot the existing manifest before it gets
+        # overwritten, so the file tree diff can compare this build against the
+        # version's previous build.
+        if not self.version.is_external:
+            snapshot_previous_manifest(self.version)
+
         write_manifest(self.version, manifest)
 
         # For PR previews, snapshot the base version's manifest on the first
