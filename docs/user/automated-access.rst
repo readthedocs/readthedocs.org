@@ -2,7 +2,7 @@ Automated access to Read the Docs
 =================================
 
 Read the Docs generally welcomes respectful crawlers, spiders, and bots on documentation sites.
-Agent use of Read the Docs is also acceptable.
+Agent use of Read the Docs is also supported.
 
 Please respect the following policies when automating access to Read the Docs:
 
