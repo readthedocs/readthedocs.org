@@ -760,7 +760,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_FINISHED,
-            exit_code=0,
         )
         get_build_commands_from_storage.return_value = [
             {
@@ -794,7 +793,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_FINISHED,
-            exit_code=0,
             cold_storage=True,
         )
         get_build_commands_from_storage.return_value = [
