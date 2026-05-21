@@ -25,6 +25,9 @@ def is_spammer(user):
     A user is considered a spammer if they are banned or if any of the projects
     they have access to have reached the dashboard denied threshold.
     """
+    if user.is_anonymous:
+        return False
+
     if user.profile.banned:
         return True
 

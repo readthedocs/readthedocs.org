@@ -402,3 +402,20 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         url = reverse("profiles_profile_detail", kwargs={"username": new_user.username})
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score")
+    def test_delete_account_spam_score(self, mock_get_spam_score):
+        self.client.force_login(self.owner)
+        project = get(Project)
+        self.org.projects.add(project)
+        mock_get_spam_score.return_value = settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.owner.username},
+        )
+
+        assert response.status_code == 302
+        assert response["Location"] == reverse("homepage")
+        assert User.objects.filter(username=self.owner.username).exists()
+        mock_get_spam_score.assert_called_once_with(project)
