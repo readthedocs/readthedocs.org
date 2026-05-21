@@ -28,6 +28,21 @@ Implementation considerations
 This feature is currently *project-wide*.
 A custom build configuration file path is applied to all versions of your documentation.
 
+.. note::
+
+   All paths in the ``.readthedocs.yaml`` file are always relative to the **repository root**,
+   regardless of where the configuration file is located.
+
+   For example, if your config file is at ``docs/.readthedocs.yaml``
+   and your requirements file is at ``docs/requirements.txt``,
+   you should still use ``docs/requirements.txt`` as the path in the config file,
+   not ``requirements.txt``.
+
+   The one exception is the Sphinx build command itself,
+   which is executed from the directory containing your ``conf.py`` file.
+   This only affects paths that Sphinx resolves internally (for example, inside your ``conf.py``),
+   and does not change how paths in ``.readthedocs.yaml`` are interpreted.
+
 .. warning::
 
    Changing the configuration path will apply to all versions.

@@ -110,34 +110,6 @@ class BitbucketService(UserService):
 
         return remote_ids
 
-    def sync_organizations(self):
-        """
-        Sync Bitbucket workspaces (organizations).
-
-        This method only creates the relationships between the
-        organizations and the user, as all the repositories
-        are already created in the sync_repositories method.
-        """
-        organization_remote_ids = []
-
-        try:
-            for workspace_base in self._get_workspaces_base():
-                workspace = self.session.get(
-                    f"{self.base_api_url}/2.0/workspaces/{workspace_base['slug']}"
-                ).json()
-                remote_organization = self.create_organization(workspace)
-                remote_organization.get_remote_organization_relation(self.user, self.account)
-                organization_remote_ids.append(remote_organization.remote_id)
-        except (TypeError, ValueError):
-            log.warning("Error syncing Bitbucket organizations")
-            raise SyncServiceError(
-                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.allauth_provider.name
-                )
-            )
-
-        return organization_remote_ids, []
-
     def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from Bitbucket API response.

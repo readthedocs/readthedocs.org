@@ -152,9 +152,6 @@ class APIBuildTests(TestCase):
             version=self.version,
             state=BUILD_STATE_CLONING,
             success=False,
-            output="Output",
-            error="Error",
-            exit_code=9,
             builder="Builder",
             cold_storage=True,
         )
@@ -185,9 +182,6 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.state, BUILD_STATE_TRIGGERED)
         self.assertEqual(build.status, "")
         self.assertTrue(build.success)
-        self.assertEqual(build.output, "")
-        self.assertEqual(build.error, "")
-        self.assertIsNone(build.exit_code)
         self.assertEqual(build.builder, "")
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
@@ -202,9 +196,6 @@ class APIBuildTests(TestCase):
             version=self.version,
             state=BUILD_STATE_UPLOADING,
             success=False,
-            output="Output",
-            error="Error",
-            exit_code=0,
             builder="Builder",
             cold_storage=True,
         )
@@ -344,7 +335,6 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state="cloning",
-            exit_code=0,
         )
         resp = client.get("/api/v2/build/{build}/".format(build=build.pk))
         self.assertEqual(resp.status_code, 200)
@@ -359,8 +349,6 @@ class APIBuildTests(TestCase):
 
         build = resp.data
         self.assertEqual(build["state"], "cloning")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 0)
         self.assertEqual(build["success"], True)
         self.assertTrue(build["docs_url"].endswith(dashboard_url))
         self.assertTrue(build["docs_url"].startswith("https://"))
@@ -388,7 +376,6 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state="finished",
-            exit_code=0,
         )
         buildcommandresult = get(
             BuildCommandResult,
@@ -401,8 +388,6 @@ class APIBuildTests(TestCase):
         build = resp.data
         docs_url = f"http://{project.slug}.readthedocs.io/en/{version.slug}/"
         self.assertEqual(build["state"], "finished")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 0)
         self.assertEqual(build["success"], True)
         self.assertEqual(build["docs_url"], docs_url)
         # Verify the path is trimmed
@@ -432,7 +417,6 @@ class APIBuildTests(TestCase):
             version=version,
             state="finished",
             success=False,
-            exit_code=1,
         )
 
         resp = client.get("/api/v2/build/{build}/".format(build=build.pk))
@@ -447,8 +431,6 @@ class APIBuildTests(TestCase):
         )
         build = resp.data
         self.assertEqual(build["state"], "finished")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 1)
         self.assertEqual(build["success"], False)
         self.assertTrue(build["docs_url"].endswith(dashboard_url))
         self.assertTrue(build["docs_url"].startswith("https://"))
@@ -464,8 +446,6 @@ class APIBuildTests(TestCase):
                     "project": 1,
                     "version": 1,
                     "success": True,
-                    "output": "Test Output",
-                    "error": "Test Error",
                 },
                 format="json",
             )
@@ -633,7 +613,6 @@ class APIBuildTests(TestCase):
             version=version,
             builder="foo",
             success=False,
-            exit_code=1,
             state="building",
         )
         get(
@@ -683,7 +662,6 @@ class APIBuildTests(TestCase):
             version=version,
             builder="foo",
             success=False,
-            exit_code=1,
             state=BUILD_STATE_FINISHED,
         )
         get(
@@ -758,7 +736,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=None,
             state=BUILD_STATE_FINISHED,
-            exit_code=0,
         )
         command = "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0"
         get(

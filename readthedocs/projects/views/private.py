@@ -31,7 +31,6 @@ from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import AutomationRuleMatch
 from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
@@ -72,6 +71,7 @@ from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.forms import UserForm
 from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import AutomationRule
+from readthedocs.projects.models import AutomationRuleMatch
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable

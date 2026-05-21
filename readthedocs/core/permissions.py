@@ -134,6 +134,8 @@ class AdminPermissionBase:
         if isinstance(obj, Organization):
             return obj.owners.all()
 
+        raise ValueError("obj must be an instance of Project or Organization")
+
     @classmethod
     def admins(cls, obj):
         from readthedocs.organizations.models import Organization
@@ -144,6 +146,8 @@ class AdminPermissionBase:
 
         if isinstance(obj, Organization):
             return obj.owners.all()
+
+        raise ValueError("obj must be an instance of Project or Organization")
 
     @classmethod
     def members(cls, obj, user=None):
@@ -175,6 +179,8 @@ class AdminPermissionBase:
             return User.objects.filter(
                 Q(teams__organization=obj) | Q(owner_organizations=obj),
             ).distinct()
+
+        raise ValueError("obj must be an instance of Project or Organization")
 
     @classmethod
     def is_admin(cls, user, obj):

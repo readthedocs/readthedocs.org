@@ -752,15 +752,6 @@ class Build(models.Model):
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
     success = models.BooleanField(_("Success"), default=True)
 
-    # TODO: remove these fields (setup, setup_error, output, error, exit_code)
-    # since they are not used anymore in the new implementation and only really
-    # old builds (>5 years ago) only were using these fields.
-    setup = models.TextField(_("Setup"), null=True, blank=True)
-    setup_error = models.TextField(_("Setup error"), null=True, blank=True)
-    output = models.TextField(_("Output"), default="", blank=True)
-    error = models.TextField(_("Error"), default="", blank=True)
-    exit_code = models.IntegerField(_("Exit code"), null=True, blank=True)
-
     # Metadata from were the build happened.
     # This is also used after the version is deleted.
     commit = models.CharField(
@@ -1125,9 +1116,6 @@ class Build(models.Model):
         self.state = BUILD_STATE_TRIGGERED
         self.status = ""
         self.success = True
-        self.output = ""
-        self.error = ""
-        self.exit_code = None
         self.builder = ""
         self.cold_storage = False
         self.commands.all().delete()

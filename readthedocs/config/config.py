@@ -593,6 +593,7 @@ class BuildConfigV2(BuildConfigBase):
                 extra_requirements = validate_list(
                     self.pop_config(extra_req_key, []),
                 )
+                extra_requirements = [validate_string(element) for element in extra_requirements]
                 if extra_requirements and python_install["method"] != PIP:
                     raise ConfigError(
                         message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
@@ -808,6 +809,10 @@ class BuildConfigV2(BuildConfigBase):
             )
             if configuration is not None:
                 configuration = validate_path(configuration, self.base_path)
+                if os.path.basename(configuration) != "conf.py":
+                    raise ConfigError(
+                        message_id=ConfigError.SPHINX_INVALID_CONFIG_FILE,
+                    )
             sphinx["configuration"] = configuration
 
         with self.catch_validation_error("sphinx.fail_on_warning"):

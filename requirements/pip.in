@@ -58,7 +58,9 @@ django-celery-beat
 
 # 65.13.0 performs some breaking changes to Okta that we need to review before upgrading.
 # https://docs.allauth.org/en/latest/release-notes/recent.html#id1
-django-allauth[socialaccount,saml,mfa]==65.12.1
+# django-allauth[socialaccount,saml,mfa]==65.12.1
+# For now, we need a fix for Bitbucket:
+django-allauth[socialaccount,saml,mfa] @ git+https://github.com/readthedocs/django-allauth.git@ddb581168628432afa1b18b038b33341a73a366b
 
 requests-oauthlib
 
