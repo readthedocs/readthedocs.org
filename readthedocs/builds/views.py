@@ -97,18 +97,6 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
     def get_project(self):
         return self.get_object().project
 
-    def _get_files_changed_diff(self, build):
-        """
-        Get the file tree diff shown in the build's "Files changed" tab.
-
-        This compares pull request builds against their base version and
-        normal version builds against the version's previous build. It is
-        only available for builds that finished successfully.
-        """
-        if not build.success or not build.finished:
-            return None
-        return get_diff_for_build(build)
-
     @method_decorator(login_required)
     def post(self, request, project_slug, build_pk):
         project = get_object_or_404(Project, slug=project_slug)
@@ -129,7 +117,7 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
 
         build = self.get_object()
         context["notifications"] = build.notifications.all()
-        context["files_changed_diff"] = self._get_files_changed_diff(build)
+        context["files_changed_diff"] = get_diff_for_build(build)
         if not build.notifications.filter(message_id=BuildAppError.GENERIC_WITH_BUILD_ID).exists():
             # Do not suggest to open an issue if the error is not generic
             return context

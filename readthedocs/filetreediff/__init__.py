@@ -132,8 +132,12 @@ def get_diff_for_build(build: Build) -> FileTreeDiff | None:
     latest version by default). Normal version builds are compared against the
     version's own previous build.
 
-    Returns ``None`` if the build has no version or no diff is available.
+    Returns ``None`` if the build didn't finish successfully, has no version,
+    or has no diff available.
     """
+    if not build.success or not build.finished:
+        return None
+
     version = build.version
     if not version:
         return None

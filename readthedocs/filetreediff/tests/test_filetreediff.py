@@ -5,7 +5,12 @@ from unittest import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
+from readthedocs.builds.constants import (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff import (
     get_diff,
@@ -363,3 +368,29 @@ class TestsPreviousManifestSnapshot(TestCase):
         assert [f.path for f in diff.added] == ["new.html"]
         assert diff.modified == []
         assert diff.deleted == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_for_build_skipped_for_failed_build(self, storage_open):
+        """A build that didn't succeed has no diff."""
+        failed_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=False,
+        )
+        assert get_diff_for_build(failed_build) is None
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_for_build_skipped_for_unfinished_build(self, storage_open):
+        """A build that hasn't finished has no diff."""
+        running_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            success=True,
+        )
+        assert get_diff_for_build(running_build) is None
+        storage_open.assert_not_called()
