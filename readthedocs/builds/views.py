@@ -101,18 +101,13 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
         """
         Get the file tree diff shown in the build's "Files changed" tab.
 
-        This is available for successful builds that have a file manifest,
-        comparing pull request builds against their base version and normal
-        version builds against the version's previous build.
+        This compares pull request builds against their base version and
+        normal version builds against the version's previous build. It is
+        only available for builds that finished successfully.
         """
         if not build.success or not build.finished:
             return None
-
-        try:
-            return get_diff_for_build(build)
-        except Exception:
-            log.exception("Error getting the file tree diff for the build.", build_id=build.pk)
-            return None
+        return get_diff_for_build(build)
 
     @method_decorator(login_required)
     def post(self, request, project_slug, build_pk):
