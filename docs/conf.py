@@ -154,15 +154,19 @@ locale_dirs = [
 ]
 gettext_compact = False
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_static_path = ["_static", f"{docset}/_static"]
-html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
+html_css_files = ["css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
 
-html_logo = "img/logo.svg"
+# The wordmark is white-on-dark, so ship a dark-text variant for light mode
+# and reuse the original for dark mode.
 html_theme_options = {
-    "logo_only": True,
+    "light_logo": "img/logo-dark-text.svg",
+    "dark_logo": "img/logo-light-text.svg",
+    "sidebar_hide_name": True,
 }
+
 html_context = {
     # Fix the "edit on" links.
     # TODO: remove once we support different rtd config
