@@ -110,3 +110,12 @@ def add_extra_historical_fields(sender, **kwargs):
     if request:
         history_instance.extra_history_ip = get_client_ip(request)
         history_instance.extra_history_browser = request.headers.get("User-Agent")
+    else:
+        # Allow setting IP/browser directly on the context
+        # (e.g., from Celery tasks where there is no HTTP request).
+        ip = getattr(HistoricalRecords.context, "ip", None)
+        browser = getattr(HistoricalRecords.context, "browser", None)
+        if ip:
+            history_instance.extra_history_ip = ip
+        if browser:
+            history_instance.extra_history_browser = browser
