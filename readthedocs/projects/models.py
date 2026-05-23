@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -108,12 +109,26 @@ class ProjectRelationship(models.Model):
         related_name="superprojects",
         on_delete=models.CASCADE,
     )
-    alias = models.SlugField(
+    # Aliases may be a single slug (``api``) or several slug-like segments
+    # joined by ``/`` (``api/python``). Multi-segment aliases let a parent
+    # project expose what looks like a nested set of subprojects under
+    # ``/projects/api/python/`` without modeling actual subprojects of
+    # subprojects.
+    alias = models.CharField(
         _("Alias"),
         max_length=255,
         null=True,
         blank=True,
         db_index=False,
+        validators=[
+            RegexValidator(
+                regex=r"^[-\w]+(/[-\w]+)*$",
+                message=_(
+                    "Aliases must be slug-like segments separated by slashes "
+                    "(e.g. 'api' or 'api/python')."
+                ),
+            ),
+        ],
     )
 
     objects = ChildRelatedProjectQuerySet.as_manager()
