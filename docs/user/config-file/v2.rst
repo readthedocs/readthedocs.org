@@ -10,7 +10,9 @@ The ``.readthedocs.yaml``  file can contain a number of settings that are not ac
 
    When using a monorepo, it is possible to place the ``.readthedocs.yaml`` file
    in a subdirectory and configure a custom path from the project settings
-   dashboard. See the :doc:`/guides/setup/monorepo` documentation for more details.
+   dashboard. All paths in the configuration file are always relative to the
+   **repository root**, not the location of the configuration file.
+   See the :doc:`/guides/setup/monorepo` documentation for more details.
 
 
 Because the file is stored in Git,

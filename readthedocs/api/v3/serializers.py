@@ -269,7 +269,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         read_only_fields = ["dismissable", "news"]
 
     def get_attached_to_content_type(self, obj):
-        # NOTE: Don't user name, because it can change based on the current language.
+        # NOTE: Don't use name, because it can change based on the current language.
         return obj.attached_to_content_type.model
 
 

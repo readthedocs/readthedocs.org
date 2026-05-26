@@ -1,10 +1,8 @@
 """Gold subscription URLs."""
 
 from django.urls import path
-from django.urls import re_path
 
 from readthedocs.gold import views
-from readthedocs.projects.constants import PROJECT_SLUG_REGEX
 
 
 urlpatterns = [
@@ -24,12 +22,8 @@ urlpatterns = [
         name="gold_subscription_portal",
     ),
     path("projects/", views.GoldProjectsListCreate.as_view(), name="gold_projects"),
-    re_path(
-        (
-            r"^projects/remove/(?P<project_slug>{project_slug})/$".format(
-                project_slug=PROJECT_SLUG_REGEX,
-            )
-        ),
+    path(
+        "projects/remove/<slug:project_slug>/",
         views.GoldProjectRemove.as_view(),
         name="gold_projects_remove",
     ),

@@ -1,7 +1,7 @@
 Site support
 ============
 
-Read the Docs offers support for projects on our :doc:`Read the Docs for Business </commercial/index>` and |org_brand| platforms.
+Read the Docs offers support for projects on our :doc:`Read the Docs Business </commercial/index>` and |org_brand| platforms.
 We're happy to assist with any questions or problems you have using either of our platforms.
 
 .. note::

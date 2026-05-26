@@ -39,6 +39,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.spam import is_spammer
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migrated_projects
@@ -124,6 +125,14 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         set_change_reason(user, self.get_change_reason())
         user.delete()
         return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        if is_spammer(request.user):
+            messages.error(
+                request, _("Your account has been flagged as spam. Please contact support.")
+            )
+            return HttpResponseRedirect(reverse("homepage"))
+        return super().post(request, *args, **kwargs)
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs["instance"] = self.get_object()
