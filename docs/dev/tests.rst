@@ -76,6 +76,35 @@ docs-dev
 .. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
 
 
+Debug logging
+-------------
+
+By default the test suite only surfaces ``WARNING`` and above log records.
+This keeps test failure reports focused on the actual error instead of a
+wall of ``DEBUG``/``INFO`` output from the ``readthedocs`` logger.
+
+When you do need verbose logs (e.g. when diagnosing why a test fails),
+override the level on the command line:
+
+.. prompt:: bash
+
+   # Capture DEBUG records and include them in failure reports
+   tox -e py312 -- --log-level=DEBUG -k test_something
+
+   # Stream logs live to the terminal while tests run
+   tox -e py312 -- --log-cli-level=DEBUG -k test_something
+
+The ``WARNING`` default is set in two places:
+
+- ``pytest.ini`` — ``log_level = WARNING`` controls what pytest captures
+  and shows on test failure.
+- ``readthedocs/settings/test.py`` — the Django ``console`` log handler
+  is pinned to ``WARNING`` for the test settings module.
+
+Regardless of the console level, ``DEBUG`` records are still written to
+``logs/debug.log`` by the file handler, so you can inspect them after a
+run without re-running with extra flags.
+
 Pytest marks
 ------------
 
