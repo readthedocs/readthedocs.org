@@ -6,7 +6,8 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Getting started
 
-   Tutorial </tutorial/index>
+   Sphinx tutorial </tutorial/index>
+   Docusaurus tutorial </tutorial/docusaurus>
    /intro/add-project
    /intro/doctools
    /examples
@@ -165,11 +166,14 @@ We have a few places for you to get started:
 
 .. descriptions here are active
 
+:doc:`/tutorial/docusaurus`
+  Follow the Read the Docs tutorial for Docusaurus.
+
 :doc:`/tutorial/index`
-  Follow the Read the Docs tutorial.
+  Follow the Read the Docs tutorial for Sphinx.
 
 :doc:`/intro/doctools`
-  Quick start for MkDocs and Docusaurus.
+  Quick start for MkDocs and other tools.
 
 :doc:`/examples`
   Start your journey with an example project to learn how to use Read the Docs.
