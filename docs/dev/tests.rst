@@ -92,6 +92,13 @@ with extra flags required:
 
    tail -n 200 logs/debug.log
 
+If you'd rather see the debug records inline with the failure report,
+override the level on the command line:
+
+.. prompt:: bash
+
+   tox -e py312 -- --log-level=DEBUG -k test_something
+
 The ``WARNING`` threshold for the test report is set in two places:
 
 - ``pytest.ini`` — ``log_level = WARNING`` controls what pytest captures
