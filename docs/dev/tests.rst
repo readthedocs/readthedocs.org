@@ -79,31 +79,25 @@ docs-dev
 Debug logging
 -------------
 
-By default the test suite only surfaces ``WARNING`` and above log records.
-This keeps test failure reports focused on the actual error instead of a
-wall of ``DEBUG``/``INFO`` output from the ``readthedocs`` logger.
+Test failure reports only include ``WARNING`` and above log records, so the
+error you're looking at isn't buried under ``DEBUG``/``INFO`` output from
+the ``readthedocs`` logger.
 
-When you do need verbose logs (e.g. when diagnosing why a test fails),
-override the level on the command line:
+Full ``DEBUG`` output is always written to ``logs/debug.log`` by the file
+handler in ``readthedocs/settings/test.py``. After a failing run, tail or
+open that file to see everything the failing test logged — no re-running
+with extra flags required:
 
 .. prompt:: bash
 
-   # Capture DEBUG records and include them in failure reports
-   tox -e py312 -- --log-level=DEBUG -k test_something
+   tail -n 200 logs/debug.log
 
-   # Stream logs live to the terminal while tests run
-   tox -e py312 -- --log-cli-level=DEBUG -k test_something
-
-The ``WARNING`` default is set in two places:
+The ``WARNING`` threshold for the test report is set in two places:
 
 - ``pytest.ini`` — ``log_level = WARNING`` controls what pytest captures
   and shows on test failure.
 - ``readthedocs/settings/test.py`` — the Django ``console`` log handler
   is pinned to ``WARNING`` for the test settings module.
-
-Regardless of the console level, ``DEBUG`` records are still written to
-``logs/debug.log`` by the file handler, so you can inspect them after a
-run without re-running with extra flags.
 
 Pytest marks
 ------------
