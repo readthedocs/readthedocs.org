@@ -116,16 +116,10 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
         projects = AdminPermission.projects(user=self.request.user, admin=True)
         n_projects = projects.count()
 
-        # We can't yet back down to another announcement as we don't have
-        # the ability to evaluate local storage. Until we add the ability to
-        # dynamically change the announcement, this is going to be the only
-        # announcement shown.
         if n_projects == 0 or (
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects:
-            template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
