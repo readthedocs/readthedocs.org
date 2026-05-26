@@ -83,10 +83,10 @@ Test failure reports only include ``WARNING`` and above log records, so the
 error you're looking at isn't buried under ``DEBUG``/``INFO`` output from
 the ``readthedocs`` logger.
 
-Full ``DEBUG`` output is always written to ``logs/debug.log`` by the file
-handler in ``readthedocs/settings/test.py``. After a failing run, tail or
-open that file to see everything the failing test logged — no re-running
-with extra flags required:
+Full ``DEBUG`` output is always written to ``logs/debug.log`` by the
+``debug`` file handler configured in ``readthedocs/settings/base.py``.
+After a failing run, tail or open that file to see everything the failing
+test logged — no re-running with extra flags required:
 
 .. prompt:: bash
 
