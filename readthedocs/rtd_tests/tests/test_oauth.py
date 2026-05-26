@@ -29,7 +29,6 @@ from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
     RemoteOrganization,
-    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
@@ -91,12 +90,6 @@ class GitHubAppTests(TestCase):
             slug="org",
             remote_id="2222",
             vcs_provider=GITHUB_APP,
-        )
-        get(
-            RemoteOrganizationRelation,
-            remote_organization=self.remote_organization,
-            user=self.user,
-            account=self.account,
         )
         self.organization_installation = get(
             GitHubAppInstallation,
@@ -395,12 +388,10 @@ class GitHubAppTests(TestCase):
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubAppService, "sync")
-    @mock.patch.object(GitHubAppService, "update_or_create_organization")
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
     def test_sync_user_access(
         self,
         update_or_create_repositories,
-        update_or_create_organization,
         sync,
         request,
     ):
@@ -424,9 +415,6 @@ class GitHubAppTests(TestCase):
                 mock.call([int(self.remote_repository_with_org.remote_id)]),
             ],
             any_order=True,
-        )
-        update_or_create_organization.assert_called_once_with(
-            self.remote_organization.slug
         )
 
     @requests_mock.Mocker(kw="request")

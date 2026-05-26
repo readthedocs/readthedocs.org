@@ -55,33 +55,6 @@ class GitHubService(UserService):
             )
         return remote_ids
 
-    def sync_organizations(self):
-        """
-        Sync organizations from GitHub API.
-
-        This method only creates the relationships between the
-        organizations and the user, as all the repositories
-        are already created in the sync_repositories method.
-        """
-        organization_remote_ids = []
-
-        try:
-            orgs = self.paginate(f"{self.base_api_url}/user/orgs", per_page=100)
-            for org in orgs:
-                org_details = self.session.get(org["url"]).json()
-                remote_organization = self.create_organization(org_details)
-                remote_organization.get_remote_organization_relation(self.user, self.account)
-                organization_remote_ids.append(remote_organization.remote_id)
-        except (TypeError, ValueError):
-            log.warning("Error syncing GitHub organizations")
-            raise SyncServiceError(
-                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                    provider=self.allauth_provider.name
-                )
-            )
-
-        return organization_remote_ids, []
-
     def _has_admin_access_to_repository(self, fields):
         """Check if the user has admin access to the repository."""
         permissions = fields.get("permissions", {})
