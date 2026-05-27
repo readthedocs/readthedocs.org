@@ -83,7 +83,7 @@ def process_email_confirmed(request, email_address, **kwargs):
 def create_user_profile(sender, instance, created, **kwargs):
     """Create a :py:class:`UserProfile` automatically when a user is created."""
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
