@@ -119,13 +119,21 @@ class EditOrganization(
 
 class DeleteOrganization(
     PrivateViewMixin,
+    BlockSpamOrganization,
     UpdateChangeReasonPostView,
     OrganizationView,
-    BlockSpamOrganization,
     AsyncDeleteViewWithMessage,
 ):
     http_method_names = ["post"]
     success_message = _("Organization queued for deletion")
+
+    def get_organization(self):
+        """
+        Get the organization to delete.
+
+        This is used by the BlockSpamOrganization mixin.
+        """
+        return self.get_object()
 
     def get_success_url(self):
         return reverse_lazy("organization_list")
