@@ -23,7 +23,7 @@ from readthedocs.organizations.models import TeamMember
 
 class BlockSpamOrganization:
     """
-    Protects views for organizations with projects marked as spam.
+    Protects views for organizations that are considered spam.
 
     .. note::
 

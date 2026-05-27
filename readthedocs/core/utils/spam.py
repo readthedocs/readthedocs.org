@@ -23,7 +23,7 @@ def is_spam_project(project):
     Determine if the project is spam.
 
     A project is considered spam if it has reached the dashboard denied threshold,
-    or if has been explicitly marked as spam by an admin (which is the maximum score).
+    or if it has been explicitly marked as spam by an admin (which is the maximum score).
     """
     return get_spam_score(project) >= settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD
 
@@ -57,9 +57,8 @@ def is_spam_organization(organization):
     - Any of its owners are banned.
     - Any of its projects are considered spam.
     """
-    for owner in organization.owners.all():
-        if owner.profile.banned:
-            return True
+    if organization.owners.filter(profile__banned=True).exists():
+        return True
 
     for project in organization.projects.all():
         if is_spam_project(project):
