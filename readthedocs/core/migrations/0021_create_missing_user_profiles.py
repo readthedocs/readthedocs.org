@@ -1,3 +1,5 @@
+from itertools import batched
+
 from django.conf import settings
 from django.db import migrations
 from django_safemigrate import Safe
@@ -14,17 +16,18 @@ def forwards_create_missing_profiles(apps, schema_editor):
     UserProfile = apps.get_model("core", "UserProfile")
 
     users_without_profile = User.objects.filter(profile__isnull=True)
-    UserProfile.objects.bulk_create(
-        (UserProfile(user=user) for user in users_without_profile.iterator()),
-        batch_size=500,
-    )
+    for batch in batched(users_without_profile.iterator(), 500):
+        UserProfile.objects.bulk_create(
+            (UserProfile(user=user) for user in batch),
+            batch_size=500,
+        )
 
 
 class Migration(migrations.Migration):
     safe = Safe.after_deploy()
 
     dependencies = [
-        ("core", "0019_alter_userprofile_user"),
+        ("core", "0020_alter_userprofile_user"),
     ]
 
     operations = [

@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("core", "0018_add_profile_theme"),
+        ("core", "0019_create_missing_user_profiles"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
