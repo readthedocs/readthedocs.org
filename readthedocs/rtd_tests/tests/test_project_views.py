@@ -375,6 +375,8 @@ class TestPrivateViews(TestCase):
         self.user = new(User, username="eric")
         self.user.set_password("test")
         self.user.save()
+        # Force the creation of the user profile to avoid extra queries in the tests.
+        self.user.profile
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
 
@@ -402,7 +404,7 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(27):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
