@@ -509,9 +509,9 @@ class TestPostBuildOverview(TestCase):
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
-    @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview(self, get_diff, post_comment):
-        get_diff.return_value = FileTreeDiff(
+    @mock.patch("readthedocs.builds.reporting.get_diff_for_build")
+    def test_post_build_overview(self, get_diff_for_build, post_comment):
+        get_diff_for_build.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
             base_version=self.base_version,
@@ -521,7 +521,6 @@ class TestPostBuildOverview(TestCase):
                 ("changes.html", FileTreeDiffFileStatus.added),
                 ("deleteme.html", FileTreeDiffFileStatus.deleted),
             ],
-            outdated=False,
         )
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
@@ -550,9 +549,9 @@ class TestPostBuildOverview(TestCase):
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
-    @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_more_than_5_files(self, get_diff, post_comment):
-        get_diff.return_value = FileTreeDiff(
+    @mock.patch("readthedocs.builds.reporting.get_diff_for_build")
+    def test_post_build_overview_more_than_5_files(self, get_diff_for_build, post_comment):
+        get_diff_for_build.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
             base_version=self.base_version,
@@ -565,7 +564,6 @@ class TestPostBuildOverview(TestCase):
                 ("three.html", FileTreeDiffFileStatus.modified),
                 ("two.html", FileTreeDiffFileStatus.modified),
             ],
-            outdated=False,
         )
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
@@ -605,15 +603,14 @@ class TestPostBuildOverview(TestCase):
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
-    @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_no_files_changed(self, get_diff, post_comment):
-        get_diff.return_value = FileTreeDiff(
+    @mock.patch("readthedocs.builds.reporting.get_diff_for_build")
+    def test_post_build_overview_no_files_changed(self, get_diff_for_build, post_comment):
+        get_diff_for_build.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
             base_version=self.base_version,
             base_version_build=self.base_version_build,
             files=[],
-            outdated=False,
         )
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
@@ -653,9 +650,9 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_not_called()
 
     @mock.patch.object(GitHubAppService, "post_comment")
-    @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_no_diff_available(self, get_diff, post_comment):
-        get_diff.return_value = None
+    @mock.patch("readthedocs.builds.reporting.get_diff_for_build")
+    def test_post_build_overview_no_diff_available(self, get_diff_for_build, post_comment):
+        get_diff_for_build.return_value = None
         assert self.current_version.is_external
         post_build_overview(build_pk=self.current_version_build.pk)
         post_comment.assert_not_called()

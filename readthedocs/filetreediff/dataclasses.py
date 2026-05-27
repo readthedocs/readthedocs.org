@@ -12,13 +12,6 @@ from readthedocs.core.resolver import Resolver
 
 
 @dataclass(slots=True)
-class FileTreeDiffBuild:
-    """The build associated with a file tree manifest."""
-
-    id: int
-
-
-@dataclass(slots=True)
 class FileTreeDiffManifestFile:
     """A file in a file tree manifest."""
 
@@ -28,32 +21,25 @@ class FileTreeDiffManifestFile:
 
 @dataclass(slots=True)
 class FileTreeDiffManifest:
-    """A list of files and the build associated with them."""
+    """Files captured for a single build.
+
+    The owning build is encoded in the storage path, not in the manifest body.
+    """
 
     files: dict[str, FileTreeDiffManifestFile]
-    build: FileTreeDiffBuild
 
-    def __init__(self, build_id: int, files: list[FileTreeDiffManifestFile]):
-        self.build = FileTreeDiffBuild(id=build_id)
+    def __init__(self, files: list[FileTreeDiffManifestFile]):
         self.files = {file.path: file for file in files}
 
     @classmethod
     def from_dict(cls, data: dict) -> "FileTreeDiffManifest":
-        """
-        Create a FileTreeManifest from a dictionary.
-
-        The dictionary should follow the same structure as the one returned by
-        converting the object to a dictionary using the `as_dict` method.
-        """
-        build_id = data["build"]["id"]
         files = [
             FileTreeDiffManifestFile(path=path, main_content_hash=file["main_content_hash"])
             for path, file in data["files"].items()
         ]
-        return cls(build_id, files)
+        return cls(files)
 
     def as_dict(self) -> dict:
-        """Convert the object to a dictionary."""
         return asdict(self)
 
 
@@ -120,7 +106,6 @@ class FileTreeDiff:
         base_version: Version,
         base_version_build: Build,
         files: list[tuple[str, FileTreeDiffFileStatus]],
-        outdated: bool,
     ):
         self.project = current_version.project
         self.current_version = current_version
@@ -128,7 +113,10 @@ class FileTreeDiff:
         self.base_version = base_version
         self.base_version_build = base_version_build
         self._resolver = Resolver()
-        self.outdated = outdated
+        # Per-build manifests make the diff fully reproducible from the builds
+        # themselves, so there is no "outdated" state. Kept for template
+        # backwards compatibility.
+        self.outdated = False
         self.files = sorted(
             (
                 FileTreeDiffFile(path=path, status=status, diff=self)
@@ -163,17 +151,14 @@ class FileTreeDiff:
 
     @cached_property
     def added(self):
-        """List of added files."""
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.added]
 
     @cached_property
     def deleted(self):
-        """List of deleted files."""
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.deleted]
 
     @cached_property
     def modified(self):
-        """List of modified files."""
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
 
     @cached_property

@@ -30,7 +30,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.filetreediff import get_diff
+from readthedocs.filetreediff import get_diff_for_build
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
@@ -640,8 +640,10 @@ class AddonsResponseBase:
         """
         Get the file tree diff response for the given version.
 
-        This response is only enabled for external versions,
-        we do the comparison between the current version and the latest version.
+        For external (PR) versions, the comparison uses the base build pinned
+        on the first PR build. For normal versions (gated by
+        ``RTD_FILETREEDIFF_ALL``) the comparison is against the previous
+        successful build of the same version.
         """
         if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
             return None
@@ -649,12 +651,15 @@ class AddonsResponseBase:
         if not project.addons.filetreediff_enabled:
             return None
 
-        base_version = project.addons.options_base_version or project.get_latest_version()
-        if not base_version or not self._has_permission(request=request, version=base_version):
+        build = version.latest_successful_build
+        if not build:
             return None
 
-        diff = get_diff(current_version=version, base_version=base_version)
+        diff = get_diff_for_build(build)
         if not diff:
+            return None
+
+        if not self._has_permission(request=request, version=diff.base_version):
             return None
 
         def _serialize_files(files):
@@ -665,12 +670,12 @@ class AddonsResponseBase:
                         "current": resolver.resolve_version(
                             project=project,
                             filename=file.path,
-                            version=version,
+                            version=diff.current_version,
                         ),
                         "base": resolver.resolve_version(
                             project=project,
                             filename=file.path,
-                            version=base_version,
+                            version=diff.base_version,
                         ),
                     },
                 }

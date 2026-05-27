@@ -813,6 +813,20 @@ class Build(models.Model):
         help_text="Build steps stored outside the database.",
     )
 
+    diff_base_build = models.ForeignKey(
+        "self",
+        verbose_name=_("Diff base build"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=_(
+            "Build to compare against for the file tree diff. "
+            "Set on the first build of a pull request version, pinning the "
+            "base to the base version's latest build at PR-open time."
+        ),
+    )
+
     task_id = models.CharField(
         _("Celery task id"),
         max_length=36,

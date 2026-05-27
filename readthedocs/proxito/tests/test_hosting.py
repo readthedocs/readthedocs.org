@@ -1057,8 +1057,8 @@ class TestReadTheDocsConfigJson(TestCase):
     @override_settings(
         RTD_FILETREEDIFF_ALL=True,
     )
-    @mock.patch("readthedocs.proxito.views.hosting.get_diff")
-    def test_file_tree_diff_ignored_files(self, get_diff):
+    @mock.patch("readthedocs.proxito.views.hosting.get_diff_for_build")
+    def test_file_tree_diff_ignored_files(self, get_diff_for_build):
         ignored_files = [
             "ignored.html",
             "archives/*",
@@ -1068,7 +1068,7 @@ class TestReadTheDocsConfigJson(TestCase):
         self.project.addons.filetreediff_ignored_files = ignored_files
         self.project.addons.save()
 
-        get_diff.return_value = FileTreeDiff(
+        get_diff_for_build.return_value = FileTreeDiff(
             current_version=self.version,
             current_version_build=self.build,
             base_version=self.version,
@@ -1080,7 +1080,6 @@ class TestReadTheDocsConfigJson(TestCase):
                 ("changelog/2025.2.html", FileTreeDiffFileStatus.modified),
                 ("deleted.html", FileTreeDiffFileStatus.deleted),
             ],
-            outdated=False,
         )
 
         r = self.client.get(
@@ -1132,8 +1131,8 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
         assert r.json()["addons"]["filetreediff"] == expected
 
-    @mock.patch("readthedocs.filetreediff.get_manifest")
-    def test_file_tree_diff(self, get_manifest):
+    @mock.patch("readthedocs.filetreediff.get_manifest_for_build")
+    def test_file_tree_diff(self, get_manifest_for_build):
         self.project.addons.filetreediff_enabled = True
         self.project.addons.save()
         pr_version = get(
@@ -1145,17 +1144,18 @@ class TestReadTheDocsConfigJson(TestCase):
             privacy_level=PUBLIC,
             type=EXTERNAL,
         )
-        pr_build = get(
+        # PR build pinned to the project's existing base build via diff_base_build.
+        get(
             Build,
             project=self.project,
             version=pr_version,
             commit="a1b2c3",
             state=BUILD_STATE_FINISHED,
             success=True,
+            diff_base_build=self.build,
         )
-        get_manifest.side_effect = [
+        get_manifest_for_build.side_effect = [
             FileTreeDiffManifest(
-                build_id=pr_build.id,
                 files=[
                     FileTreeDiffManifestFile(
                         path="index.html",
@@ -1172,7 +1172,6 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
             FileTreeDiffManifest(
-                build_id=self.build.id,
                 files=[
                     FileTreeDiffManifestFile(
                         path="index.html",
@@ -1189,7 +1188,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(16):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

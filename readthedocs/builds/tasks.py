@@ -668,10 +668,15 @@ def _delete_builds(builds, start: int, end: int) -> int:
     :returns: The number of builds deleted.
     """
     # NOTE: we can't use a filter over an sliced queryset.
+    from readthedocs.filetreediff import delete_manifest_for_build
+
     paths_to_delete = []
+    builds_for_manifest_cleanup = []
     for build in builds[start:end]:
         if build.cold_storage:
             paths_to_delete.append(build.storage_path)
+        if build.version_id:
+            builds_for_manifest_cleanup.append(build)
 
     try:
         _, deleted = delete_in_batches(builds, start=start, end=end)
@@ -683,6 +688,8 @@ def _delete_builds(builds, start: int, end: int) -> int:
         # already scheduled for deletion.
         if paths_to_delete:
             remove_build_commands_storage_paths(paths_to_delete)
+        for build in builds_for_manifest_cleanup:
+            delete_manifest_for_build(build)
 
 
 @app.task(queue="web")

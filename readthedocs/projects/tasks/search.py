@@ -9,10 +9,8 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
-from readthedocs.filetreediff import snapshot_base_manifest
+from readthedocs.filetreediff import resolve_pr_diff_base_build
 from readthedocs.filetreediff import write_manifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
-from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
@@ -141,28 +139,19 @@ class FileManifestIndexer(Indexer):
         self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
 
     def collect(self, sync_id: int):
-        manifest = FileTreeDiffManifest(
-            build_id=self.build.id,
-            files=[
-                FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
-                for path, content_hash in self._hashes.items()
-            ],
-        )
-        write_manifest(self.version, manifest)
+        write_manifest(self.build, self._hashes)
 
-        # For PR previews, snapshot the base version's manifest on the first
-        # PR build where the snapshot can be created.
-        # This pins the diff baseline so that subsequent builds compare against
-        # that snapshotted base-version state instead of the base version's
-        # current state. This prevents false file changes when the base branch
-        # moves forward (the "stale branch" problem).
-        if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
-            if base_version:
-                snapshot_base_manifest(self.version, base_version)
+        # For pull request builds, pin the diff base to the base version's
+        # latest successful build at the time of the first PR build. Later PR
+        # builds inherit the same pin so the diff stays stable as the base
+        # branch moves forward (the "stale branch" problem). The pin is
+        # stored on the Build itself, so each build's diff is reproducible
+        # from the Build row alone.
+        if self.version.is_external and not self.build.diff_base_build_id:
+            base_build = resolve_pr_diff_base_build(self.version, self.build)
+            if base_build:
+                self.build.diff_base_build = base_build
+                self.build.save(update_fields=["diff_base_build"])
 
         if (
             self.post_build_overview
