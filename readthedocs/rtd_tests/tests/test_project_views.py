@@ -6,7 +6,7 @@ from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get, new
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
@@ -372,7 +372,7 @@ class TestPublicViews(TestCase):
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
 class TestPrivateViews(TestCase):
     def setUp(self):
-        self.user = new(User, username="eric")
+        self.user = get(User, username="eric")
         self.user.set_password("test")
         self.user.save()
         # Force the creation of the user profile to avoid extra queries in the tests.
