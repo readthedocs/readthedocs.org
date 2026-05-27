@@ -33,9 +33,7 @@ class BlockSpamOrganization:
     """
 
     def dispatch(self, request, *args, **kwargs):
-        organization = (
-            self.get_organization() if hasattr(self, "get_organization") else self.get_object()
-        )
+        organization = self.get_organization()
         if is_spam_organization(organization):
             template_name = "errors/dashboard/spam.html"
             return render(request, template_name=template_name, status=410)

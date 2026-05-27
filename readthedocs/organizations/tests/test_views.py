@@ -202,8 +202,8 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
             reverse("organization_delete", args=[self.organization.slug])
         )
 
-        self.assertEqual(resp.status_code, 410)
-        self.assertTrue(Organization.objects.filter(pk=self.organization.pk).exists())
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
 
     @override_settings(RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD=1)
     @mock.patch("readthedocs.core.utils.spam.get_spam_score", return_value=2)
@@ -212,8 +212,8 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
             reverse("organization_delete", args=[self.organization.slug])
         )
 
-        self.assertEqual(resp.status_code, 410)
-        self.assertTrue(Organization.objects.filter(pk=self.organization.pk).exists())
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
         get_spam_score.assert_called_once_with(self.project)
 
     def test_add_owner(self):

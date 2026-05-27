@@ -119,9 +119,9 @@ class EditOrganization(
 
 class DeleteOrganization(
     PrivateViewMixin,
-    BlockSpamOrganization,
     UpdateChangeReasonPostView,
     OrganizationView,
+    BlockSpamOrganization,
     AsyncDeleteViewWithMessage,
 ):
     http_method_names = ["post"]
