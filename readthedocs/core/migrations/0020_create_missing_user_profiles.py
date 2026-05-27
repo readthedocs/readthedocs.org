@@ -21,7 +21,7 @@ def forwards_create_missing_profiles(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    safe = Safe.before_deploy()
+    safe = Safe.after_deploy()
 
     dependencies = [
         ("core", "0019_alter_userprofile_user"),
