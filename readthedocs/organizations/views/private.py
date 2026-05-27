@@ -27,6 +27,7 @@ from readthedocs.organizations.filters import OrganizationListFilterSet
 from readthedocs.organizations.forms import OrganizationSignupForm
 from readthedocs.organizations.forms import OrganizationTeamProjectForm
 from readthedocs.organizations.models import Organization
+from readthedocs.organizations.views.base import BlockSpamOrganization
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.organizations.views.base import OrganizationOwnerView
 from readthedocs.organizations.views.base import OrganizationTeamMemberView
@@ -118,6 +119,7 @@ class EditOrganization(
 
 class DeleteOrganization(
     PrivateViewMixin,
+    BlockSpamOrganization,
     UpdateChangeReasonPostView,
     OrganizationView,
     AsyncDeleteViewWithMessage,

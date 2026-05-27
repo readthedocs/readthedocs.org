@@ -6,8 +6,10 @@ from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse_lazy
 
+from readthedocs.core.utils.spam import is_spam_organization
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.forms import OrganizationForm
 from readthedocs.organizations.forms import OrganizationOwnerForm
@@ -17,6 +19,25 @@ from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import OrganizationOwner
 from readthedocs.organizations.models import Team
 from readthedocs.organizations.models import TeamMember
+
+
+class BlockSpamOrganization:
+    """
+    Protects views for organizations with projects marked as spam.
+
+    .. note::
+
+       This will inspect all projects in the organization, it may be
+       expensive for organizations with many projects. Use it
+       for views where the check is worth the cost.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        organization = self.get_organization()
+        if is_spam_organization(organization):
+            template_name = "errors/dashboard/spam.html"
+            return render(request, template_name=template_name, status=410)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class CheckOrganizationsEnabled:
