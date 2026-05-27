@@ -116,6 +116,10 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
         projects = AdminPermission.projects(user=self.request.user, admin=True)
         n_projects = projects.count()
 
+        # We can't yet back down to another announcement as we don't have
+        # the ability to evaluate local storage. Until we add the ability to
+        # dynamically change the announcement, the first matching branch
+        # below is the only announcement a user will see.
         if n_projects == 0 or (
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
