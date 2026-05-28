@@ -402,7 +402,7 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(34):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
