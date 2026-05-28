@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG GITHUB_USER
 ARG GITHUB_TOKEN
@@ -41,7 +41,7 @@ RUN apt-get -y install \
       pkg-config \
       libxml2-dev \
       libxmlsec1-dev \
-      libxmlsec1-openssl
+      libxmlsec1-openssl1
 
 # Gets the mc (MinIO Client) used to add buckets upon initialization in RustFS (S3 emulator).
 # The mc client is compatible with any S3-compatible storage, including RustFS.
@@ -62,6 +62,9 @@ ENV PATH="/root/.local/bin/:$PATH"
 # Explicitly set the name of the virtual environment directory,
 # so it doesn't collide with a virtual environment created outside of the container.
 ENV VIRTUAL_ENV="/.venv"
+# Explicitly set the Python version to use for the virtual environment,
+# so that it doesn't default to the one from Ubuntu.
+ENV UV_PYTHON=3.12
 RUN uv venv $VIRTUAL_ENV
 
 # Ensure that ``python`` is in the PATH so that ``./manage.py`` works
