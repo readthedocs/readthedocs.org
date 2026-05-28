@@ -82,6 +82,14 @@ class UserDeleteForm(forms.ModelForm):
         return cleaned_data
 
 
+class UserProfileDashboardPreferencesForm(forms.ModelForm):
+    """Form for dashboard preferences."""
+
+    class Meta:
+        model = UserProfile
+        fields = ["theme"]
+
+
 class UserAdvertisingForm(forms.ModelForm):
     class Meta:
         model = UserProfile

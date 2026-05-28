@@ -33,6 +33,7 @@ from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import UserAdvertisingForm
 from readthedocs.core.forms import UserDeleteForm
+from readthedocs.core.forms import UserProfileDashboardPreferencesForm
 from readthedocs.core.forms import UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
@@ -179,6 +180,23 @@ class ProfileDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context["profile"] = self.get_object().profile
         return context
+
+
+class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
+    """View for user profile dashboard preferences."""
+
+    model = UserProfile
+    form_class = UserProfileDashboardPreferencesForm
+    template_name = "profiles/private/dashboard_preferences_form.html"
+    context_object_name = "profile"
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def get_success_url(self):
+        return reverse(
+            "profiles_dashboard_preferences_edit",
+        )
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
