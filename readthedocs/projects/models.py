@@ -426,7 +426,7 @@ class Project(models.Model):
     # External versions
     external_builds_enabled = models.BooleanField(
         _("Build pull requests for this project"),
-        default=False,
+        default=True,
         help_text=_(
             'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
         ),
