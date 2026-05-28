@@ -174,6 +174,45 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
     def serve_path(self, request, path):
         unresolved_domain = request.unresolved_domain
 
+        # Check for forced redirects before system redirects.
+        # This allows users to redirect the entire project (e.g., "/" -> "https://other-domain.com/")
+        # without the system redirect (e.g., "/" -> "/en/latest/") taking precedence.
+        # At this point we don't have the resolved language/version/filename,
+        # so only exact redirects will be matched.
+        if not unresolved_domain.is_from_external_domain:
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=unresolved_domain.project,
+                    language=None,
+                    version_slug=None,
+                    filename="",
+                    path=path,
+                    forced_only=True,
+                )
+                if redirect_response:
+                    # Set request attributes for the middleware to use
+                    # (cache tags, CDN headers, etc).
+                    # Since we haven't resolved the path yet, we try to resolve
+                    # it now to get the version info for proper cache headers.
+                    request.path_project_slug = unresolved_domain.project.slug
+                    try:
+                        unresolved = unresolver.unresolve_path(
+                            unresolved_domain=unresolved_domain,
+                            path=path,
+                            append_indexhtml=False,
+                        )
+                        request.path_version_slug = unresolved.version.slug
+                        self.cache_response = unresolved.version.is_public
+                    except Exception:
+                        # If the path can't be resolved (e.g., "/" before
+                        # system redirect), we still return the redirect
+                        # but let the middleware set default cache headers.
+                        self.cache_response = True
+                    return redirect_response
+            except InfiniteRedirectException:
+                pass
+
         # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
         # where the path will be 'unresolved' again when handling the 404 error
         # See: ServeError404Base
