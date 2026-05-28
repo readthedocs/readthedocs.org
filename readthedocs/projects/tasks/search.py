@@ -9,7 +9,9 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import get_diff_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
+from readthedocs.filetreediff import snapshot_previous_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
@@ -148,6 +150,20 @@ class FileManifestIndexer(Indexer):
                 for path, content_hash in self._hashes.items()
             ],
         )
+
+        # For normal versions, snapshot the existing manifest before it gets
+        # overwritten by write_manifest below — the file tree diff for this
+        # build compares the new manifest against this snapshot. The call
+        # MUST come before write_manifest; reversing the order would snapshot
+        # the new build's own manifest and produce an empty diff.
+        #
+        # We pass self.build.id so the snapshot is skipped when this is a
+        # reindex/rerun of the same build (e.g. via reindex_version), where
+        # the existing manifest already belongs to self.build and refreshing
+        # the snapshot would clobber the real previous baseline.
+        if not self.version.is_external:
+            snapshot_previous_manifest(self.version, new_build_id=self.build.id)
+
         write_manifest(self.version, manifest)
 
         # For PR previews, snapshot the base version's manifest on the first
@@ -157,10 +173,7 @@ class FileManifestIndexer(Indexer):
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = get_diff_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 
