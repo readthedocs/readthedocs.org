@@ -295,34 +295,31 @@ class TestsPreviousManifestSnapshot(TestCase):
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_uses_previous_manifest_snapshot(self, storage_open):
-        """A normal version is compared against its previous build's manifest."""
+        """A normal version's latest build is compared against the previous build's snapshot."""
         current_files = {"index.html": "hash1", "new.html": "hash-new"}
         previous_files = {"index.html": "hash0"}
 
-        # get_diff reads: 1) current manifest, 2) previous manifest snapshot
+        # get_diff_for_build reads: 1) current manifest, 2) previous manifest snapshot
         storage_open.side_effect = [
             _mock_manifest(self.latest_build.id, current_files)(),
             _mock_manifest(self.previous_build.id, previous_files)(),
         ]
-        diff = get_diff(self.version, self.version)
+        diff = get_diff_for_build(self.latest_build)
         assert [f.path for f in diff.added] == ["new.html"]
         assert [f.path for f in diff.modified] == ["index.html"]
         assert diff.deleted == []
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_falls_back_to_live_manifest_when_no_snapshot(self, storage_open):
-        """Without a snapshot, the diff against the same version has no changes."""
+    def test_diff_returns_none_when_no_previous_snapshot(self, storage_open):
+        """Without a previous snapshot, a normal version has no diff to show."""
         files = {"index.html": "hash1"}
-
-        # get_diff reads: 1) current manifest, 2) snapshot miss, 3) live manifest
+        # 1) current manifest, 2) previous snapshot miss
         storage_open.side_effect = [
             _mock_manifest(self.latest_build.id, files)(),
             FileNotFoundError,
-            _mock_manifest(self.latest_build.id, files)(),
         ]
-        diff = get_diff(self.version, self.version)
-        assert diff.files == []
+        assert get_diff_for_build(self.latest_build) is None
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_snapshot_previous_manifest_copies_current_manifest(self, storage_open):
@@ -394,3 +391,36 @@ class TestsPreviousManifestSnapshot(TestCase):
         )
         assert get_diff_for_build(running_build) is None
         storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_for_build_skipped_for_non_latest_build(self, storage_open):
+        """Manifests are per-version: only the latest build can produce a diff."""
+        # `self.previous_build` is older than `self.latest_build` for the same version.
+        assert get_diff_for_build(self.previous_build) is None
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_get_diff_returns_none_when_manifest_build_row_missing(self, storage_open):
+        """If a Build row referenced by a manifest was pruned, get_diff returns None."""
+        files = {"index.html": "hash1"}
+        previous_files = {"index.html": "hash0"}
+        # Manifest references a build that no longer exists in the DB.
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, files)(),
+            _mock_manifest(99999, previous_files)(),
+        ]
+        assert get_diff_for_build(self.latest_build) is None
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_snapshot_previous_manifest_skips_when_existing_belongs_to_same_build(
+        self, storage_open
+    ):
+        """Re-indexing the same build (e.g. reindex_version) must not refresh
+        the previous-build snapshot, or the next diff would be empty."""
+        files = {"index.html": "hash1"}
+        # Only the read of the existing manifest happens; no write.
+        storage_open.side_effect = [
+            _mock_manifest(self.latest_build.id, files)(),
+        ]
+        snapshot_previous_manifest(self.version, new_build_id=self.latest_build.id)
+        assert storage_open.call_count == 1

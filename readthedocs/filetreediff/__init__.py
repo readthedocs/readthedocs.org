@@ -36,6 +36,16 @@ BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
 PREVIOUS_MANIFEST_SNAPSHOT_FILE_NAME = "previous_manifest_snapshot.json"
 
 
+def get_diff_base_version(project):
+    """
+    Resolve the base version a PR's diff should be compared against.
+
+    Falls back to the project's latest version if no explicit base is
+    configured. Returns ``None`` if no base version can be determined.
+    """
+    return project.addons.options_base_version or project.get_latest_version()
+
+
 def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
     """
     Get the file tree diff between two versions.
@@ -48,10 +58,6 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     Set operations are used to calculate the added, deleted, and modified files.
     To get the modified files, we compare the main content hash of each common file.
     If there are no changes between the versions, all lists will be empty.
-
-    When ``current_version`` and ``base_version`` are the same normal version,
-    the comparison is done against the version's own previous build, using the
-    manifest snapshot taken before the latest build overwrote the manifest.
     """
     current_version_manifest = get_manifest(current_version)
     if not current_version_manifest:
@@ -77,11 +83,6 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     base_version_manifest = None
     if current_version.is_external:
         base_version_manifest = _get_base_manifest_snapshot(current_version)
-    elif current_version.pk == base_version.pk:
-        # Comparing a normal version against itself: use the manifest snapshot
-        # taken before the latest build, so the diff reflects what the latest
-        # build changed relative to the version's previous build.
-        base_version_manifest = _get_previous_manifest_snapshot(current_version)
 
     if not base_version_manifest:
         base_version_manifest = get_manifest(base_version)
@@ -95,11 +96,41 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
         if base_latest_build.id != base_version_manifest.build.id:
             outdated = True
 
+    return _build_diff(
+        current_version=current_version,
+        current_version_manifest=current_version_manifest,
+        base_version=base_version,
+        base_version_manifest=base_version_manifest,
+        outdated=outdated,
+    )
+
+
+def _build_diff(
+    *,
+    current_version: Version,
+    current_version_manifest: FileTreeDiffManifest,
+    base_version: Version,
+    base_version_manifest: FileTreeDiffManifest,
+    outdated: bool,
+) -> FileTreeDiff | None:
+    """
+    Construct a :class:`FileTreeDiff` from two resolved manifests.
+
+    Returns ``None`` if either manifest's referenced Build row has been
+    deleted (e.g. by ``delete_old_build_objects``). The diff would otherwise
+    crash with ``Build.DoesNotExist``.
+    """
+    current_version_build = Build.objects.filter(
+        id=current_version_manifest.build.id
+    ).first()
+    base_version_build = Build.objects.filter(
+        id=base_version_manifest.build.id
+    ).first()
+    if not current_version_build or not base_version_build:
+        return None
+
     current_version_file_paths = set(current_version_manifest.files.keys())
     base_version_file_paths = set(base_version_manifest.files.keys())
-
-    current_version_build = Build.objects.get(id=current_version_manifest.build.id)
-    base_version_build = Build.objects.get(id=base_version_manifest.build.id)
 
     files: list[tuple[str, FileTreeDiffFileStatus]] = []
     for file_path in current_version_file_paths - base_version_file_paths:
@@ -130,10 +161,12 @@ def get_diff_for_build(build: Build) -> FileTreeDiff | None:
 
     Pull request builds are compared against the project's base version (the
     latest version by default). Normal version builds are compared against the
-    version's own previous build.
+    version's own previous build, using the manifest snapshot taken before the
+    current build overwrote the version's manifest.
 
-    Returns ``None`` if the build didn't finish successfully, has no version,
-    or has no diff available.
+    Returns ``None`` if the build didn't finish successfully, isn't the
+    version's latest successful build (manifests are per-version and represent
+    only the latest build), has no version, or has no diff available.
     """
     if not build.success or not build.finished:
         return None
@@ -142,17 +175,43 @@ def get_diff_for_build(build: Build) -> FileTreeDiff | None:
     if not version:
         return None
 
-    project = build.project
-    if version.is_external:
-        base_version = project.addons.options_base_version or project.get_latest_version()
-    else:
-        # Normal versions are compared against their own previous build.
-        base_version = version
-
-    if not base_version:
+    # Manifests are stored per-version and overwritten by each new build, so
+    # they only represent the latest successful build. Computing a diff for an
+    # older build would silently return the latest build's diff, which is
+    # misleading on a historical build's detail page.
+    latest = version.latest_successful_build
+    if not latest or latest.id != build.id:
         return None
 
-    return get_diff(current_version=version, base_version=base_version)
+    if version.is_external:
+        base_version = get_diff_base_version(build.project)
+        if not base_version:
+            return None
+        return get_diff(current_version=version, base_version=base_version)
+
+    return _get_diff_against_previous_build(version)
+
+
+def _get_diff_against_previous_build(version: Version) -> FileTreeDiff | None:
+    """
+    Diff the version's latest manifest against its own previous-build snapshot.
+
+    Used for non-PR builds. Returns ``None`` when no previous snapshot exists
+    (e.g. the very first build of the version).
+    """
+    current_manifest = get_manifest(version)
+    if not current_manifest:
+        return None
+    previous_manifest = _get_previous_manifest_snapshot(version)
+    if not previous_manifest:
+        return None
+    return _build_diff(
+        current_version=version,
+        current_version_manifest=current_manifest,
+        base_version=version,
+        base_version_manifest=previous_manifest,
+        outdated=False,
+    )
 
 
 def get_manifest(version: Version) -> FileTreeDiffManifest | None:
@@ -260,7 +319,7 @@ def _get_previous_manifest_snapshot(version: Version) -> FileTreeDiffManifest | 
     return FileTreeDiffManifest.from_dict(data)
 
 
-def snapshot_previous_manifest(version: Version):
+def snapshot_previous_manifest(version: Version, new_build_id: int | None = None):
     """
     Snapshot a version's current manifest before it is overwritten.
 
@@ -270,9 +329,18 @@ def snapshot_previous_manifest(version: Version):
 
     Unlike :func:`snapshot_base_manifest`, this overwrites any existing
     snapshot, so it always reflects the build right before the latest one.
+
+    If ``new_build_id`` is provided and matches the existing manifest's
+    build id (e.g. on a re-index of the same build, or a re-run that reuses
+    the same Build row), the snapshot is *not* refreshed — refreshing would
+    overwrite the previous baseline with the current build's own manifest,
+    making the next diff empty.
     """
     current_manifest = get_manifest(version)
     if not current_manifest:
+        return
+
+    if new_build_id is not None and current_manifest.build.id == new_build_id:
         return
 
     snapshot_path = version.get_storage_path(
@@ -286,5 +354,5 @@ def snapshot_previous_manifest(version: Version):
         "Previous manifest snapshot created.",
         project_slug=version.project.slug,
         version_slug=version.slug,
-        build_id=current_manifest.build.id,
+        previous_build_id=current_manifest.build.id,
     )

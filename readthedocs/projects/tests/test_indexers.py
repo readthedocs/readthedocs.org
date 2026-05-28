@@ -1,10 +1,16 @@
+from unittest import mock
+
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import (
+    FileManifestIndexer,
+    SearchIndexer,
+    _get_indexers,
+)
 
 
 class TestSearchIndexing(TestCase):
@@ -70,3 +76,51 @@ class TestSearchIndexing(TestCase):
             indexer for indexer in indexers if isinstance(indexer, SearchIndexer)
         ]
         assert len(search_indexers) == 0
+
+
+class TestFileManifestIndexerCollect(TestCase):
+    """Pinning down behavior of FileManifestIndexer.collect() for the diff feature."""
+
+    def setUp(self):
+        self.project = get(Project)
+        self.version = self.project.versions.get(slug=LATEST)
+        self.build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+
+    @mock.patch("readthedocs.projects.tasks.search.write_manifest")
+    @mock.patch("readthedocs.projects.tasks.search.snapshot_previous_manifest")
+    def test_snapshot_runs_before_write_manifest(
+        self, snapshot_previous, write_manifest
+    ):
+        """The previous-manifest snapshot MUST be taken before the new manifest
+        overwrites it; reversing the order would snapshot the new manifest and
+        produce an empty diff."""
+        calls = []
+        snapshot_previous.side_effect = lambda *a, **kw: calls.append("snapshot")
+        write_manifest.side_effect = lambda *a, **kw: calls.append("write")
+
+        indexer = FileManifestIndexer(
+            version=self.version, build=self.build, post_build_overview=False
+        )
+        indexer.collect(sync_id=1)
+        assert calls == ["snapshot", "write"]
+
+    @mock.patch("readthedocs.projects.tasks.search.write_manifest")
+    @mock.patch("readthedocs.projects.tasks.search.snapshot_previous_manifest")
+    def test_snapshot_passes_new_build_id_for_reindex_guard(
+        self, snapshot_previous, write_manifest
+    ):
+        """The collect call must hand the new build id to snapshot_previous_manifest
+        so re-indexing the same build doesn't refresh the snapshot."""
+        indexer = FileManifestIndexer(
+            version=self.version, build=self.build, post_build_overview=False
+        )
+        indexer.collect(sync_id=1)
+        snapshot_previous.assert_called_once_with(
+            self.version, new_build_id=self.build.id
+        )
