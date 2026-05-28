@@ -114,6 +114,44 @@ class BuildDirector:
         if commit:
             self.data.build["commit"] = commit
 
+    def maybe_refresh_filetreediff_snapshot(self):
+        """
+        Refresh the file tree diff base manifest snapshot if it has fallen behind.
+
+        On each PR build, check whether the existing snapshot's commit is still
+        an ancestor of the PR's current merge-base against the default branch.
+        If it isn't (the user merged the base branch into the PR), rewrite the
+        snapshot from the base version's current manifest so the diff stays
+        clean. Must run while the VCS clone is live.
+
+        Best-effort: any failure is swallowed; the existing write-once snapshot
+        from ``FileManifestIndexer.collect`` continues to act as the fallback.
+        """
+        # Imported lazily to avoid a circular import at module load time
+        # (filetreediff imports from projects, which loads this module).
+        from readthedocs.filetreediff import should_refresh_snapshot
+        from readthedocs.filetreediff import snapshot_base_manifest
+
+        version = self.data.version
+        if not version.is_external:
+            return
+
+        try:
+            base_version = (
+                version.project.addons.options_base_version
+                or version.project.get_latest_version()
+            )
+            if not base_version:
+                return
+            if should_refresh_snapshot(version, self.vcs_repository):
+                snapshot_base_manifest(version, base_version, force_refresh=True)
+        except Exception:
+            log.exception(
+                "Filetreediff snapshot refresh check failed.",
+                project_slug=version.project.slug,
+                version_slug=version.slug,
+            )
+
     def create_vcs_environment(self):
         self.vcs_environment = self.data.environment_class(
             project=self.data.project,

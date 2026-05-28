@@ -26,6 +26,7 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiff
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.storage import build_media_storage
 
 
@@ -59,11 +60,10 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     outdated = current_latest_build.id != current_version_manifest.build.id
 
     # For external versions (PRs), prefer the snapshotted base manifest
-    # (pinned at first PR build) over the live base manifest. This prevents
-    # false positives when the base branch has moved forward since the PR was
-    # created. Falls back to the live manifest if no snapshot exists.
-    # TODO: call clear_base_manifest_snapshot() on PR rebase/synchronize
-    # events so the snapshot is refreshed against the new base.
+    # (pinned at first PR build, refreshed when the PR's merge-base advances)
+    # over the live base manifest. This prevents false positives when the
+    # base branch has moved forward since the PR was created. Falls back to
+    # the live manifest if no snapshot exists.
     #
     # When a snapshot is used, we intentionally skip the base-side `outdated`
     # check. The snapshot's build will be older than the base version's latest
@@ -159,11 +159,18 @@ def _get_base_manifest_snapshot(
     return FileTreeDiffManifest.from_dict(data)
 
 
-def snapshot_base_manifest(external_version: Version, base_version: Version):
+def snapshot_base_manifest(
+    external_version: Version,
+    base_version: Version,
+    force_refresh: bool = False,
+):
     """
     Snapshot the base version's current manifest for a PR version.
 
-    Only writes if no snapshot exists yet (first build of the PR).
+    By default (``force_refresh=False``), only writes if no snapshot exists
+    yet (first build of the PR). When called with ``force_refresh=True`` from
+    the build task after detecting that the PR's merge-base has advanced,
+    rewrites the snapshot with the base version's current manifest.
 
     This stores a full copy of the base manifest per PR. If many PRs branch
     from the same base commit, the same content is duplicated. This is a
@@ -181,7 +188,7 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
         media_type=MEDIA_TYPE_DIFF,
         filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
     )
-    if build_media_storage.exists(snapshot_path):
+    if not force_refresh and build_media_storage.exists(snapshot_path):
         return
 
     base_manifest = get_manifest(base_version)
@@ -197,8 +204,81 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
         external_version_slug=external_version.slug,
         base_version_slug=base_version.slug,
         base_build_id=base_manifest.build.id,
+        force_refresh=force_refresh,
     )
-    # TODO: add a clear_base_manifest_snapshot() helper and call it on PR
-    # rebase/synchronize webhook events so the snapshot refreshes when the
-    # PR is rebased against a newer base.
-    # See https://github.com/readthedocs/readthedocs.org/issues/12232
+
+
+def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
+    """
+    Decide whether the base manifest snapshot for a PR should be refreshed.
+
+    Returns True only when an existing snapshot's captured commit has fallen
+    behind the PR's current merge-base against the project's default branch
+    (i.e. the user merged the base branch into the PR, so the snapshot is now
+    older than what the PR has actually been brought up to).
+
+    All ambiguity, missing data, or git failures map to False — the snapshot
+    is left as-is (preserving the stale-base fix). The caller must invoke
+    this while the build clone is live (``vcs_repository.working_dir``
+    exists).
+    """
+    snapshot = _get_base_manifest_snapshot(external_version)
+    if snapshot is None:
+        # First PR build; the indexer will create the snapshot on success.
+        return False
+
+    snap_commit = (
+        Build.objects.filter(id=snapshot.build.id)
+        .values_list("commit", flat=True)
+        .first()
+    )
+    if not snap_commit:
+        return False
+
+    base_branch = external_version.project.get_default_branch()
+    if not base_branch:
+        return False
+
+    base_ref = f"refs/remotes/origin/{base_branch}"
+    try:
+        code, _, _ = vcs_repository.run(
+            "git",
+            "fetch",
+            "--depth",
+            "50",
+            "origin",
+            f"refs/heads/{base_branch}:{base_ref}",
+            record=False,
+        )
+        if code != 0:
+            return False
+
+        code, mb_stdout, _ = vcs_repository.run(
+            "git",
+            "merge-base",
+            "HEAD",
+            base_ref,
+            record=False,
+        )
+        if code != 0:
+            return False
+        mb_commit = mb_stdout.strip()
+        if not mb_commit:
+            return False
+
+        code, _, _ = vcs_repository.run(
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            snap_commit,
+            mb_commit,
+            record=False,
+        )
+    except RepositoryError:
+        return False
+
+    # Exit 0: snap is still an ancestor of mb → snapshot is in sync, no refresh.
+    # Exit 1: snap is NOT an ancestor → merge-base advanced past it → refresh.
+    # Any other code (commit unknown to clone, shallow history, git error) →
+    # be conservative and keep the existing snapshot.
+    return code == 1

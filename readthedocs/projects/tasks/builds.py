@@ -848,6 +848,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         with self.data.build_director.vcs_environment:
             self.data.build_director.setup_vcs()
 
+            # For PR builds, check whether the file tree diff base manifest
+            # snapshot has fallen behind the PR's merge-base and refresh it
+            # if so. Must run inside the VCS environment while the clone is
+            # live.
+            self.data.build_director.maybe_refresh_filetreediff_snapshot()
+
             # Sync tags/branches from VCS repository into Read the Docs'
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be
