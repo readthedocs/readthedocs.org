@@ -37,11 +37,11 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.62.1
+fonttools==4.63.0
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.13
+idna==3.15
     # via
     #   anyio
     #   requests
@@ -55,7 +55,7 @@ jinja2==3.1.6
     #   sphinx-prompt
 kiwisolver==1.5.0
     # via matplotlib
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -63,13 +63,13 @@ markupsafe==3.0.3
     # via jinja2
 matplotlib==3.10.9
     # via -r requirements/docs.in
-mdit-py-plugins==0.5.0
+mdit-py-plugins==0.6.1
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==5.0.0
+myst-parser==5.1.0
     # via -r requirements/docs.in
-numpy==2.4.4
+numpy==2.4.5
     # via
     #   contourpy
     #   matplotlib
@@ -92,7 +92,7 @@ python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.3
     # via myst-parser
-requests==2.33.1
+requests==2.34.2
     # via
     #   sphinx
     #   sphinx-prompt
@@ -166,11 +166,11 @@ typing-extensions==4.15.0
     # via
     #   anyio
     #   starlette
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.46.0
+uvicorn==0.47.0
     # via sphinx-autobuild
 watchfiles==1.1.1
     # via sphinx-autobuild
