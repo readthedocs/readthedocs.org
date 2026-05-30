@@ -147,7 +147,7 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
-        # TODO: We should add "--no-checkout" in all git clone operations, except:
+        # TODO: We should add "--no-checkout" in all git clone operations, except Exception:
         #  There exists a case of version_type=BRANCH without a branch name.
         #  This case is relevant for building projects for the first time without knowing the name
         #  of the default branch. Once this case has been made redundant, we can have
