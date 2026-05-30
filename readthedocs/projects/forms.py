@@ -16,6 +16,7 @@ from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html
@@ -52,6 +53,8 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import PAGE_REDIRECT
 from readthedocs.redirects.models import Redirect
 
 
@@ -846,6 +849,9 @@ class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
 class AddonsConfigForm(forms.ModelForm):
     """Form to opt-in into new addons."""
 
+    FILETREEDIFF_MAX_PATTERNS = 500
+    FILETREEDIFF_MAX_PATTERN_LENGTH = 500
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
     filetreediff_ignored_files = OnePerLineList(required=False)
 
@@ -916,6 +922,38 @@ class AddonsConfigForm(forms.ModelForm):
 
     def clean_project(self):
         return self.project
+
+    def clean_customscript_src(self):
+        url = self.cleaned_data.get("customscript_src") or ""
+        if not url:
+            return url
+        try:
+            URLValidator(schemes=["https"])(url)
+        except forms.ValidationError:
+            raise forms.ValidationError(
+                _("Enter a valid HTTPS URL (for example https://example.com/custom.js)."),
+            )
+        return url
+
+    def clean_filetreediff_ignored_files(self):
+        patterns = self.cleaned_data.get("filetreediff_ignored_files") or []
+        if len(patterns) > self.FILETREEDIFF_MAX_PATTERNS:
+            raise forms.ValidationError(
+                _("No more than %(max)d ignore patterns are allowed."),
+                params={"max": self.FILETREEDIFF_MAX_PATTERNS},
+            )
+        for pattern in patterns:
+            if len(pattern) > self.FILETREEDIFF_MAX_PATTERN_LENGTH:
+                raise forms.ValidationError(
+                    _("Each pattern must be %(max)d characters or fewer."),
+                    params={"max": self.FILETREEDIFF_MAX_PATTERN_LENGTH},
+                )
+            if "\\" in pattern:
+                raise forms.ValidationError(
+                    _("Patterns use forward slashes only; remove the backslash from %(pattern)r."),
+                    params={"pattern": pattern},
+                )
+        return patterns
 
 
 class UserForm(forms.Form):
@@ -1130,6 +1168,22 @@ class TranslationForm(SettingsOverrideObject):
 class RedirectForm(forms.ModelForm):
     """Form for project redirects."""
 
+    FROM_URL_HELP_TEXT_BY_TYPE = {
+        PAGE_REDIRECT: _(
+            "Path to redirect from, without the <b>/&lt;lang&gt;/&lt;version&gt;/</b> "
+            "prefix — the redirect applies to every translation and version. "
+            "Example: <b>/install.html</b>."
+        ),
+        EXACT_REDIRECT: _(
+            "Full absolute path, including language and version. "
+            "Use <b>*</b> as a wildcard. "
+            "Example: <b>/en/latest/install.html</b> or <b>/en/*/install.html</b>."
+        ),
+    }
+    FROM_URL_HELP_TEXT_BLANK = _(
+        "Leave blank — this redirect type matches every URL based on its shape."
+    )
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False, disabled=True)
 
     class Meta:
@@ -1157,6 +1211,19 @@ class RedirectForm(forms.ModelForm):
         # TODO: remove after migration.
         self.fields["force"].widget = forms.CheckboxInput()
         self.fields["force"].empty_value = False
+
+        self._set_from_url_help_text()
+
+    def _set_from_url_help_text(self):
+        redirect_type = (
+            self.data.get("redirect_type")
+            or self.initial.get("redirect_type")
+            or (self.instance.redirect_type if self.instance and self.instance.pk else None)
+        )
+        self.fields["from_url"].help_text = self.FROM_URL_HELP_TEXT_BY_TYPE.get(
+            redirect_type,
+            self.FROM_URL_HELP_TEXT_BLANK,
+        )
 
     def clean_project(self):
         return self.project

@@ -32,10 +32,17 @@ from readthedocs.projects.forms import (
     ProjectBasicsForm,
     ProjectManualForm,
     ProjectPullRequestForm,
+    RedirectForm,
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
 )
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    PAGE_REDIRECT,
+)
+from readthedocs.redirects.models import Redirect
 from readthedocs.projects.models import (
     EnvironmentVariable,
     Feature,
@@ -1453,3 +1460,159 @@ class TestProjectPullRequestForm(TestCase):
 
         self.project.addons.refresh_from_db()
         self.assertFalse(self.project.addons.notifications_show_on_external)
+
+
+class TestAddonsConfigFormCustomScriptValidation(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def _base_data(self, **overrides):
+        data = {
+            "enabled": True,
+            "options_root_selector": "main",
+            "analytics_enabled": False,
+            "customscript_enabled": False,
+            "customscript_src": "",
+            "doc_diff_enabled": False,
+            "filetreediff_enabled": False,
+            "filetreediff_ignored_files": "",
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "flyout_position": "bottom-left",
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "linkpreviews_enabled": False,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
+        }
+        data.update(overrides)
+        return data
+
+    def test_blank_customscript_src_is_allowed(self):
+        form = AddonsConfigForm(data=self._base_data(), project=self.project)
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_https_customscript_src_is_accepted(self):
+        form = AddonsConfigForm(
+            data=self._base_data(customscript_src="https://example.com/custom.js"),
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_http_customscript_src_is_rejected(self):
+        form = AddonsConfigForm(
+            data=self._base_data(customscript_src="http://example.com/custom.js"),
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("customscript_src", form.errors)
+
+    def test_non_url_customscript_src_is_rejected(self):
+        form = AddonsConfigForm(
+            data=self._base_data(customscript_src="not a url"),
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("customscript_src", form.errors)
+
+
+class TestAddonsConfigFormFileTreeDiffValidation(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def _base_data(self, ignored_files=""):
+        return {
+            "enabled": True,
+            "options_root_selector": "main",
+            "analytics_enabled": False,
+            "customscript_enabled": False,
+            "customscript_src": "",
+            "doc_diff_enabled": False,
+            "filetreediff_enabled": True,
+            "filetreediff_ignored_files": ignored_files,
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "flyout_position": "bottom-left",
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "linkpreviews_enabled": False,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
+        }
+
+    def test_backslash_in_pattern_is_rejected(self):
+        form = AddonsConfigForm(
+            data=self._base_data(ignored_files="docs\\*.html"),
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("filetreediff_ignored_files", form.errors)
+
+    def test_too_many_patterns_rejected(self):
+        count = AddonsConfigForm.FILETREEDIFF_MAX_PATTERNS + 1
+        ignored = "\n".join(f"file{i}.html" for i in range(count))
+        form = AddonsConfigForm(
+            data=self._base_data(ignored_files=ignored),
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("filetreediff_ignored_files", form.errors)
+
+    def test_pattern_longer_than_max_is_rejected(self):
+        long_pattern = "a" * (AddonsConfigForm.FILETREEDIFF_MAX_PATTERN_LENGTH + 1)
+        form = AddonsConfigForm(
+            data=self._base_data(ignored_files=long_pattern),
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("filetreediff_ignored_files", form.errors)
+
+
+class TestRedirectFormHelpText(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_page_redirect_help_text(self):
+        form = RedirectForm(
+            data={"redirect_type": PAGE_REDIRECT},
+            project=self.project,
+        )
+        help_text = str(form.fields["from_url"].help_text)
+        self.assertIn("lang", help_text)
+        self.assertIn("install.html", help_text)
+
+    def test_exact_redirect_help_text(self):
+        form = RedirectForm(
+            data={"redirect_type": EXACT_REDIRECT},
+            project=self.project,
+        )
+        help_text = str(form.fields["from_url"].help_text)
+        self.assertIn("*", help_text)
+        self.assertIn("/en/latest/", help_text)
+
+    def test_clean_url_redirect_blank_help_text(self):
+        form = RedirectForm(
+            data={"redirect_type": CLEAN_URL_TO_HTML_REDIRECT},
+            project=self.project,
+        )
+        help_text = str(form.fields["from_url"].help_text)
+        self.assertIn("Leave blank", help_text)
+
+    def test_edit_form_picks_help_text_from_instance(self):
+        redirect = get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/old.html",
+        )
+        form = RedirectForm(instance=redirect, project=self.project)
+        help_text = str(form.fields["from_url"].help_text)
+        self.assertIn("*", help_text)
