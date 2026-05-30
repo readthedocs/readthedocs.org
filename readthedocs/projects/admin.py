@@ -1,5 +1,9 @@
 """Django administration interface for `projects.models`."""
 
+import re
+from urllib.parse import urlparse
+
+from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
@@ -10,6 +14,8 @@ from django.db.models import OuterRef
 from django.db.models import Sum
 from django.db.models import Value
 from django.forms import BaseInlineFormSet
+from django.template.response import TemplateResponse
+from django.urls import path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -211,6 +217,99 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         return queryset
 
 
+class SpamRuleChecksFromURLsForm(forms.Form):
+    """Form to paste URLs and queue spam rule checks for the matching projects."""
+
+    urls = forms.CharField(
+        label="URLs",
+        widget=forms.Textarea(attrs={"rows": 20, "cols": 100}),
+        help_text=(
+            "One URL per line. Both documentation URLs "
+            "(https://&lt;slug&gt;.readthedocs.io/...) and dashboard URLs "
+            "(https://app.readthedocs.org/projects/&lt;slug&gt;/...) are accepted. "
+            "Messy inputs from automated reports are tolerated: defanged URLs "
+            "(hxxps://, [.] / (.)), surrounding brackets or quotes, missing "
+            "scheme, and trailing punctuation are normalized automatically."
+        ),
+    )
+
+
+# Surrounding characters often added by mail clients, markdown, defanging
+# tools, or word-wrapping that should be stripped before parsing the URL.
+_URL_STRIP_CHARS = " \t\r\n\"'<>()[]{}.,;!?`"
+
+
+def _normalize_url(value):
+    """
+    Best-effort normalization of a possibly-defanged or messy URL.
+
+    Handles forms commonly seen in abuse reports and emails: ``hxxps://``,
+    ``[.]``/``(.)`` separators, surrounding angle/square brackets, markdown
+    ``[text](url)`` links, trailing punctuation, missing scheme, etc.
+    """
+    if not value:
+        return ""
+
+    value = value.strip()
+
+    # Markdown link: [label](http...)
+    md_link = re.match(r"^\[[^\]]*\]\((.+)\)$", value)
+    if md_link:
+        value = md_link.group(1)
+
+    value = value.strip(_URL_STRIP_CHARS)
+
+    # Undefang common patterns used in security reports.
+    value = re.sub(r"^hxxp(s?)\b", r"http\1", value, flags=re.IGNORECASE)
+    value = value.replace("[.]", ".").replace("(.)", ".").replace("{.}", ".")
+    value = value.replace("[:]", ":").replace("[/]", "/")
+
+    return value
+
+
+def _extract_project_slug_from_url(url):
+    """
+    Extract a project slug from a Read the Docs URL.
+
+    Supports docs subdomain URLs like ``https://<slug>.readthedocs.io/...`` and
+    dashboard URLs like ``https://readthedocs.org/projects/<slug>/...``. Tries
+    to be tolerant of messy inputs (defanged URLs, missing scheme, surrounding
+    brackets/quotes) so admins can paste output from automated reporting tools
+    directly. Returns ``None`` when no slug can be extracted.
+    """
+    if url is None:
+        return None
+
+    cleaned = _normalize_url(url)
+    if not cleaned:
+        return None
+
+    # urlparse needs a scheme to populate ``hostname``. Add one if missing.
+    if "://" not in cleaned:
+        cleaned = "https://" + cleaned.lstrip("/")
+
+    try:
+        parsed = urlparse(cleaned)
+    except ValueError:
+        return None
+
+    hostname = (parsed.hostname or "").lower()
+
+    # Dashboard URLs: <something>/projects/<slug>/...
+    path_parts = [p for p in parsed.path.split("/") if p]
+    if len(path_parts) >= 2 and path_parts[0] == "projects":
+        return path_parts[1] or None
+
+    # Docs subdomain URLs: <slug>.<PUBLIC_DOMAIN>
+    public_domain = (settings.PUBLIC_DOMAIN or "").lower()
+    if hostname and public_domain and hostname.endswith("." + public_domain):
+        subdomain = hostname[: -(len(public_domain) + 1)]
+        # Only the leftmost label is the project slug.
+        return subdomain.split(".")[0] or None
+
+    return None
+
+
 @admin.register(Project)
 class ProjectAdmin(ExtraSimpleHistoryAdmin):
     """Project model admin view."""
@@ -261,6 +360,104 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         "reindex_active_versions",
         "import_tags_from_vcs",
     ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "spam-rule-checks-from-urls/",
+                self.admin_site.admin_view(self.spam_rule_checks_from_urls_view),
+                name="projects_project_spam_rule_checks_from_urls",
+            ),
+        ]
+        return custom_urls + urls
+
+    def spam_rule_checks_from_urls_view(self, request):
+        """
+        Run spam rule checks on projects identified by a list of URLs.
+
+        Same effect as the ``run_spam_rule_checks`` admin action, but accepts
+        URLs (one per line) instead of a queryset selection so admins don't
+        have to convert URLs to project slugs by hand.
+        """
+        form = SpamRuleChecksFromURLsForm(request.POST or None)
+        results = None
+        if request.method == "POST" and form.is_valid():
+            raw_urls = [line.strip() for line in form.cleaned_data["urls"].splitlines()]
+            raw_urls = [url for url in raw_urls if url]
+
+            unparseable = []
+            slug_to_url = {}
+            for url in raw_urls:
+                slug = _extract_project_slug_from_url(url)
+                if slug:
+                    slug_to_url.setdefault(slug, url)
+                else:
+                    unparseable.append(url)
+
+            found_projects = list(
+                Project.objects.filter(slug__in=slug_to_url.keys()).values_list(
+                    "slug", flat=True
+                )
+            )
+            missing_slugs = sorted(set(slug_to_url) - set(found_projects))
+
+            if found_projects:
+                if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+                    from readthedocsext.spamfighting.tasks import (  # noqa
+                        spam_rules_check,
+                    )
+
+                    spam_rules_check.delay(project_slugs=list(found_projects))
+                    messages.add_message(
+                        request,
+                        messages.INFO,
+                        "Spam check task triggered for {} project(s).".format(
+                            len(found_projects)
+                        ),
+                    )
+                else:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Spam fighting Django application not installed",
+                    )
+
+            if missing_slugs:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "No project found for slug(s): {}".format(", ".join(missing_slugs)),
+                )
+            if unparseable:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "Could not extract a project slug from URL(s): {}".format(
+                        ", ".join(unparseable)
+                    ),
+                )
+            if not raw_urls:
+                messages.add_message(request, messages.ERROR, "No URLs provided")
+
+            results = {
+                "matched_slugs": sorted(found_projects),
+                "missing_slugs": missing_slugs,
+                "unparseable_urls": unparseable,
+            }
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Run spam rule checks from URLs",
+            "opts": self.model._meta,
+            "form": form,
+            "results": results,
+        }
+        return TemplateResponse(
+            request,
+            "admin/projects/project/spam_rule_checks_from_urls.html",
+            context,
+        )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
