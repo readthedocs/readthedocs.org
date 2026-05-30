@@ -39,9 +39,27 @@ class Backend(BaseVCS):
             return f"{parsed_url.scheme}://$READTHEDOCS_GIT_CLONE_TOKEN@{parsed_url.netloc}{parsed_url.path}"
         return self.repo_url
 
+    def _set_parallel_configs(self):
+        """
+        Set git configs to enable parallelization.
+        """
+        # https://git-scm.com/docs/git-config#Documentation/git-config.txt-fetchparallel
+        self.run("git", "config", "--global", "fetch.parallel", "0")
+        # https://git-scm.com/docs/git-config#Documentation/git-config.txt-checkoutworkers
+        self.run("git", "config", "--global", "checkout.workers", "0")
+        # https://git-scm.com/docs/git-config#Documentation/git-config.txt-submodulefetchJobs
+        self.run("git", "config", "--global", "submodule.fetchJobs", "0")
+        # https://git-scm.com/docs/git-config#Documentation/git-config.txt-packthreads
+        self.run("git", "config", "--global", "pack.threads", "0")
+
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
+
+        from readthedocs.projects.models import Feature
+
+        if self.project.has_feature(Feature.BUILD_IN_PARALLEL):
+            self._set_parallel_configs()
 
         if self.project.git_checkout_command:
             # Run custom checkout step if defined
