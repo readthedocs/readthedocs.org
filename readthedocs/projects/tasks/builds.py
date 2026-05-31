@@ -389,6 +389,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
+        # Track when the build task starts running on the builder. This is used
+        # to compute the build duration (``length``), so it does not include the
+        # time the build spent waiting in the queue (see ``Build.queue_time``).
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:

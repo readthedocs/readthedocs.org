@@ -173,6 +173,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     finished = serializers.SerializerMethodField()
     success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source="length")
+    queued = serializers.IntegerField(source="queue_time")
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
@@ -189,6 +190,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "created",
             "finished",
             "duration",
+            "queued",
             "state",
             "success",
             "error",
@@ -203,8 +205,14 @@ class BuildSerializer(FlexFieldsModelSerializer):
         return ""
 
     def get_finished(self, obj):
-        if obj.date and obj.length:
-            return obj.date + datetime.timedelta(seconds=obj.length)
+        if obj.length:
+            # ``length`` is the build duration, measured from when the build
+            # actually started running (``task_executed_at``), so it excludes
+            # the time the build spent queued. Fall back to ``date`` for builds
+            # created before ``task_executed_at`` was tracked.
+            started = obj.task_executed_at or obj.date
+            if started:
+                return started + datetime.timedelta(seconds=obj.length)
 
     def get_success(self, obj):
         """
