@@ -98,8 +98,8 @@ class TestViews(TestCase):
         assert len(resp.context["redirects"]) == 1
         assert resp.context["redirects"][0].redirect_type == PAGE_REDIRECT
 
-    def test_list_redirect_filter_by_url_contains(self):
-        get(
+    def test_list_redirect_filter_by_url(self):
+        other = get(
             Redirect,
             project=self.project,
             redirect_type=PAGE_REDIRECT,
@@ -108,13 +108,11 @@ class TestViews(TestCase):
         )
         resp = self.client.get(
             reverse("projects_redirects", args=[self.project.slug]),
-            {"url": "configuration"},
+            {"url": other.pk},
         )
         assert resp.status_code == 200
         pks = {r.pk for r in resp.context["redirects"]}
-        assert len(pks) == 1
-        # Matches on the ``to_url`` substring only.
-        assert self.redirect.pk not in pks
+        assert pks == {other.pk}
 
     def test_get_redirect(self):
         resp = self.client.get(
