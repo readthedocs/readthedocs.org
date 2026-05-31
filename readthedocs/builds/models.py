@@ -1062,6 +1062,23 @@ class Build(models.Model):
         return self.state in BUILD_FINAL_STATES
 
     @property
+    def queue_time(self):
+        """
+        Time the build spent queued before it started running, in seconds.
+
+        This is the time between when the build was triggered (``date``) and
+        when the build task actually started running on a builder
+        (``task_executed_at``).
+
+        It is tracked separately from ``length`` (the build duration) so that
+        time spent waiting in the queue does not show up as part of the build
+        duration.
+        """
+        if self.task_executed_at:
+            return int((self.task_executed_at - self.date).total_seconds())
+        return None
+
+    @property
     def is_stale(self):
         """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
