@@ -213,8 +213,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             # the time the build spent queued. Fall back to ``date`` for builds
             # created before ``task_executed_at`` was tracked.
             started = obj.task_executed_at or obj.date
-            if started:
-                return started + datetime.timedelta(seconds=obj.length)
+            return started + datetime.timedelta(seconds=obj.length)
 
     def get_success(self, obj):
         """
