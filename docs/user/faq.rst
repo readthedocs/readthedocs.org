@@ -342,3 +342,36 @@ you can manually convert your Jupyter Book project to Sphinx with the following 
             pre_build:
             # Generate the Sphinx configuration for this Jupyter Book so it builds.
             - "jupyter-book config sphinx docs/"
+Common Build Failures
+=====================
+
+.. _faq-build-failures:
+
+Here are some common issues you might encounter when your documentation build fails on Read the Docs, and how to solve them.
+
+My build fails due to missing dependencies
+------------------------------------------
+
+**Problem:** Your build log shows an error like ``ModuleNotFoundError: No module named 'your_package'`` or that a command was not found.
+
+**Solution:** This typically happens when Read the Docs doesn't know which Python packages your project needs. You can fix this by telling it where to find your project's dependencies.
+
+1.  Create a ``requirements.txt`` file in your project's documentation directory (e.g., in the ``docs/`` folder).
+2.  Add the names of all required packages to this file, one per line.
+3.  In your Read the Docs project dashboard, go to **Admin > Advanced Settings**.
+4.  In the **Requirements file** field, enter the path to your requirements file. For example: ``docs/requirements.txt``.
+
+This ensures that Read the Docs installs the correct packages before trying to build your documentation.
+
+My build is timing out
+---------------------
+
+**Problem:** Your build runs for a long time (typically over 15 minutes) and then fails with a timeout error.
+
+**Solution:** A timeout often means your build process is too resource-intensive. This can be caused by installing too many dependencies or by your documentation build itself taking too long (e.g., running many code examples with ``jupyter-notebook``).
+
+To solve this, consider these options:
+
+* **Use a Conda environment:** If you have many complex dependencies (especially non-Python ones), using Conda for your environment can be faster.
+* **Optimize dependencies:** Make sure your ``requirements.txt`` only contains packages that are strictly necessary for building the documentation.
+* **Pre-execute notebooks:** If you use notebooks, consider running them locally and committing the output, so Read the Docs doesn't have to execute them on every build.
