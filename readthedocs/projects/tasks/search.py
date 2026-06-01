@@ -9,7 +9,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
-from readthedocs.filetreediff import get_base_version_for_diff
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -159,7 +158,7 @@ class FileManifestIndexer(Indexer):
         # problem). Subsequent rebases are handled by ``refresh_snapshot_if_stale``
         # in the build task.
         if self.version.is_external:
-            base_version = get_base_version_for_diff(self.version)
+            base_version = self.version.get_base_version_for_diff()
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 

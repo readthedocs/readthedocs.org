@@ -209,19 +209,6 @@ def snapshot_base_manifest(
     )
 
 
-def get_base_version_for_diff(external_version: Version) -> Version | None:
-    """
-    Resolve the base version a PR version is compared against in file tree diffs.
-
-    Uses the project's configured override (``addons.options_base_version``)
-    if set, otherwise the project's "latest" version.
-    """
-    return (
-        external_version.project.addons.options_base_version
-        or external_version.project.get_latest_version()
-    )
-
-
 def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
     """
     Return True iff the PR's snapshot has fallen behind its merge-base.
@@ -296,7 +283,7 @@ def refresh_snapshot_if_stale(external_version: Version, vcs_repository) -> None
     if not external_version.is_external:
         return
     try:
-        base_version = get_base_version_for_diff(external_version)
+        base_version = external_version.get_base_version_for_diff()
         if not base_version:
             return
         if should_refresh_snapshot(external_version, vcs_repository):
