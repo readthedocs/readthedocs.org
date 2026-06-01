@@ -209,7 +209,7 @@ elastic-transport==9.4.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==9.4.1
+elasticsearch==9.3.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl

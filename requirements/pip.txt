@@ -160,7 +160,7 @@ drf-flex-fields==1.0.2
     # via -r requirements/pip.in
 elastic-transport==9.4.1
     # via elasticsearch
-elasticsearch==9.4.1
+elasticsearch==9.3.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
