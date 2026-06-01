@@ -8,11 +8,11 @@ saving build time and resources.
 .. tip:: Recommended: use Automation Rules with webhook filters
 
    For most cases, the recommended way to skip builds is to use
-   :doc:`Automation Rules </automation-rules>` with **webhook filters**.
-   They let you trigger builds **only when files matching a pattern are changed**
+   :doc:`automation rules </automation-rules>` with **webhook filters**.
+   This lets you filter which changes can trigger builds,
+   such as **only building when files matching a pattern are changed**
    (for example, files under ``docs/`` or ``.readthedocs.yaml``),
-   or when the commit message or pull request labels match a pattern,
-   without ever triggering a build.
+   or building when a commit message or pull request labels match a pattern.
 
    Webhook filters are available for projects connected through the
    :doc:`GitHub App integration </reference/git-integration>`.
@@ -79,9 +79,10 @@ Skip builds when documentation files haven't changed
 .. tip::
 
    If your project is connected through the GitHub App,
-   prefer an :doc:`Automation Rule </automation-rules>` with a *Changed files* webhook filter
-   over this approach. It avoids triggering a build at all when the changed files
-   don't match.
+   using an :doc:`automation rule </automation-rules>` with a *Changed files* webhook filter
+   is the recommended approach for skipping builds.
+   Automation rules allow for builds to be skipped entirely,
+   whereas the approach below can only *cancel* a running build.
 
 This example skips pull request builds when there are no changes to documentation-related files
 compared to the ``main`` branch:
