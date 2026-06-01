@@ -173,8 +173,8 @@ class BuildSerializer(FlexFieldsModelSerializer):
     finished = serializers.SerializerMethodField()
     success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source="length")
-    # Time the build spent queued before it started running, in seconds.
-    # Named explicitly so it's not confused with a build status/state.
+    # Seconds the build spent queued before it started running. Declared
+    # explicitly so the name reads as a duration, not a build status/state.
     queue_time = serializers.IntegerField()
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")

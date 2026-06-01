@@ -435,7 +435,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         # Save when the task was executed by a builder
-        self.data.build["task_executed_at"] = timezone.now()
+        task_executed_at = timezone.now()
+        self.data.build["task_executed_at"] = task_executed_at
+
+        # Store the total time the build spent queued, measured from when it was
+        # originally triggered (``date``) to now. ``date`` is set once at
+        # creation and is not reset on retries, so this captures the full wait
+        # even across retries. It's stored separately from ``length`` so queue
+        # time does not inflate the build duration.
+        triggered_at = datetime.datetime.fromisoformat(self.data.build["date"])
+        self.data.build["queue_time"] = int((task_executed_at - triggered_at).total_seconds())
 
         # Enable scale-in protection on this instance
         #

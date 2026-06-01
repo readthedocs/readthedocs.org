@@ -243,6 +243,7 @@ class BuildsEndpointTests(APIEndpointMixin):
     def test_projects_builds_detail_queue_time(self):
         # The build was queued for 30s before it started running, then took
         # ``length`` (60s) to build.
+        self.build.queue_time = 30
         self.build.task_executed_at = self.created + datetime.timedelta(seconds=30)
         self.build.save()
 

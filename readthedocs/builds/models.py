@@ -800,6 +800,13 @@ class Build(models.Model):
 
     length = models.IntegerField(_("Build Length"), null=True, blank=True)
 
+    # Number of seconds the build spent queued before it started running,
+    # measured from when the build was originally triggered (``date``) to when
+    # the task started running on a builder (``task_executed_at``). Stored
+    # separately from ``length`` so queue wait time does not inflate the build
+    # duration. Null for builds triggered before this was tracked.
+    queue_time = models.IntegerField(_("Queue time"), null=True, blank=True)
+
     builder = models.CharField(
         _("Builder"),
         max_length=255,
@@ -1068,23 +1075,6 @@ class Build(models.Model):
     def finished(self):
         """Return if build has an end state."""
         return self.state in BUILD_FINAL_STATES
-
-    @property
-    def queue_time(self):
-        """
-        Number of seconds the build spent queued before it started running.
-
-        This is the time between when the build was triggered (``date``) and
-        when the build task actually started running on a builder
-        (``task_executed_at``).
-
-        It is the *queue wait time*, not the build duration: it is tracked
-        separately from ``length`` (the build duration) so that time spent
-        waiting in the queue does not show up as part of the build duration.
-        """
-        if self.task_executed_at:
-            return int((self.task_executed_at - self.date).total_seconds())
-        return None
 
     @property
     def is_stale(self):
