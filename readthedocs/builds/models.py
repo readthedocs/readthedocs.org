@@ -800,6 +800,13 @@ class Build(models.Model):
 
     length = models.IntegerField(_("Build Length"), null=True, blank=True)
 
+    # Number of seconds the build spent queued before it started running,
+    # measured from when the build was originally triggered (``date``) to when
+    # the task started running on a builder (``task_executed_at``). Stored
+    # separately from ``length`` so queue wait time does not inflate the build
+    # duration. Null for builds triggered before this was tracked.
+    queue_time = models.IntegerField(_("Queue time"), null=True, blank=True)
+
     builder = models.CharField(
         _("Builder"),
         max_length=255,
