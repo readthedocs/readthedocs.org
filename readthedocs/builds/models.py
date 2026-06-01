@@ -109,6 +109,15 @@ class Version(TimeStampedModel):
     #: `None`/`null` means it will use the VCS default branch.
     identifier = models.CharField(_("Identifier"), max_length=255, null=True, blank=True)
 
+    #: For external versions (PRs/MRs), the commit hash of the base branch the
+    #: PR targets, captured from the webhook payload. Used by the file tree
+    #: diff to detect when the PR has merged in newer base content. `None` for
+    #: non-external versions, or when the forge doesn't provide it (e.g.
+    #: GitLab) or for versions created before this field existed.
+    base_identifier = models.CharField(
+        _("Base identifier"), max_length=255, null=True, blank=True
+    )
+
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
     #: However this might also hold special version names like ``"latest"``

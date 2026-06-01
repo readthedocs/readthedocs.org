@@ -352,6 +352,27 @@ class TestsShouldRefreshSnapshot(TestCase):
         assert self.vcs_repository.run.call_count == 1
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_prefers_pr_base_identifier(self, storage_open):
+        """The PR's webhook base commit is the ancestry target when set."""
+        self.pr_version.base_identifier = "pr-base-sha"
+        self.pr_version.save()
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.return_value = (0, "", "")
+        assert self._refresh() is True
+        args = self.vcs_repository.run.call_args.args
+        assert "pr-base-sha" in args
+        assert "base-latest-sha" not in args
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_falls_back_to_latest_build_commit(self, storage_open):
+        """Without a stored base commit, use the base version's latest build."""
+        assert self.pr_version.base_identifier is None
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.return_value = (0, "", "")
+        assert self._refresh() is True
+        assert "base-latest-sha" in self.vcs_repository.run.call_args.args
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_base_not_merged_in_returns_false(self, storage_open):
         """is-ancestor exit 1: PR hasn't pulled in the base; stay pinned."""
         storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
