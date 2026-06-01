@@ -4,7 +4,7 @@ Sub-processor list
 :Effective: April 16, 2021
 :Last updated: August 9, 2024
 
-Read the Docs for Business uses services from the following sub-processors to
+Read the Docs Business uses services from the following sub-processors to
 provide documentation hosting services. This document supplements :doc:`our Data
 Processing Addendum <index>` and may be separately updated on a periodic basis.
 A sub-processor is a third party data processor who has or potentially will have

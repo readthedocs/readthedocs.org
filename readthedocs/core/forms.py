@@ -11,6 +11,7 @@ from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import set_change_reason
+from readthedocs.core.utils.spam import is_spammer
 
 from .models import UserProfile
 
@@ -71,6 +72,14 @@ class UserDeleteForm(forms.ModelForm):
             raise forms.ValidationError(_("Username does not match!"))
 
         return data
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if is_spammer(self.instance):
+            raise forms.ValidationError(
+                _("Your account has been flagged as spam. Please contact support.")
+            )
+        return cleaned_data
 
 
 class UserProfileDashboardPreferencesForm(forms.ModelForm):

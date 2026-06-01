@@ -76,6 +76,36 @@ docs-dev
 .. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
 
 
+Debug logging
+-------------
+
+Test failure reports only include ``WARNING`` and above log records, so the
+error you're looking at isn't buried under ``DEBUG``/``INFO`` output from
+the ``readthedocs`` logger.
+
+Full ``DEBUG`` output is always written to ``logs/debug.log`` by the
+``debug`` file handler configured in ``readthedocs/settings/base.py``.
+After a failing run, tail or open that file to see everything the failing
+test logged — no re-running with extra flags required:
+
+.. prompt:: bash
+
+   tail -n 200 logs/debug.log
+
+If you'd rather see the debug records inline with the failure report,
+override the level on the command line:
+
+.. prompt:: bash
+
+   tox -e py312 -- --log-level=DEBUG -k test_something
+
+The ``WARNING`` threshold for the test report is set in two places:
+
+- ``pytest.ini`` — ``log_level = WARNING`` controls what pytest captures
+  and shows on test failure.
+- ``readthedocs/settings/test.py`` — the Django ``console`` log handler
+  is pinned to ``WARNING`` for the test settings module.
+
 Pytest marks
 ------------
 
