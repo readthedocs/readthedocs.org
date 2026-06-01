@@ -168,9 +168,10 @@ def snapshot_base_manifest(
     Snapshot the base version's current manifest for a PR version.
 
     By default (``force_refresh=False``), only writes if no snapshot exists
-    yet (first build of the PR). When called with ``force_refresh=True`` from
-    the build task after detecting that the PR's merge-base has advanced,
-    rewrites the snapshot with the base version's current manifest.
+    yet (first build of the PR). When called with ``force_refresh=True``,
+    rewrites the snapshot with the base version's current manifest — used by
+    ``refresh_snapshot_if_stale`` after detecting that the PR's merge-base
+    has advanced.
 
     This stores a full copy of the base manifest per PR. If many PRs branch
     from the same base commit, the same content is duplicated. This is a
@@ -208,19 +209,26 @@ def snapshot_base_manifest(
     )
 
 
+def get_base_version_for_diff(external_version: Version) -> Version | None:
+    """
+    Resolve the base version a PR version is compared against in file tree diffs.
+
+    Uses the project's configured override (``addons.options_base_version``)
+    if set, otherwise the project's "latest" version.
+    """
+    return (
+        external_version.project.addons.options_base_version
+        or external_version.project.get_latest_version()
+    )
+
+
 def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
     """
-    Decide whether the base manifest snapshot for a PR should be refreshed.
+    Return True iff the PR's snapshot has fallen behind its merge-base.
 
-    Returns True only when an existing snapshot's captured commit has fallen
-    behind the PR's current merge-base against the project's default branch
-    (i.e. the user merged the base branch into the PR, so the snapshot is now
-    older than what the PR has actually been brought up to).
-
-    All ambiguity, missing data, or git failures map to False — the snapshot
-    is left as-is (preserving the stale-base fix). The caller must invoke
-    this while the build clone is live (``vcs_repository.working_dir``
-    exists).
+    The merge-base is computed against the project's default branch using the
+    live VCS clone. Any missing data or git failure returns False so the
+    existing snapshot is preserved.
     """
     snapshot = _get_base_manifest_snapshot(external_version)
     if snapshot is None:
@@ -254,16 +262,9 @@ def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
             return False
 
         code, mb_stdout, _ = vcs_repository.run(
-            "git",
-            "merge-base",
-            "HEAD",
-            base_ref,
-            record=False,
+            "git", "merge-base", "HEAD", base_ref, record=False
         )
         if code != 0:
-            return False
-        mb_commit = mb_stdout.strip()
-        if not mb_commit:
             return False
 
         code, _, _ = vcs_repository.run(
@@ -271,14 +272,40 @@ def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
             "merge-base",
             "--is-ancestor",
             snap_commit,
-            mb_commit,
+            mb_stdout.strip(),
             record=False,
         )
     except RepositoryError:
         return False
 
-    # Exit 0: snap is still an ancestor of mb → snapshot is in sync, no refresh.
-    # Exit 1: snap is NOT an ancestor → merge-base advanced past it → refresh.
-    # Any other code (commit unknown to clone, shallow history, git error) →
-    # be conservative and keep the existing snapshot.
+    # 0 = snap still in sync; 1 = needs refresh; anything else = stay conservative.
     return code == 1
+
+
+def refresh_snapshot_if_stale(external_version: Version, vcs_repository) -> None:
+    """
+    Rewrite the PR's base manifest snapshot if the merge-base has advanced.
+
+    Best-effort: any failure is swallowed and the existing snapshot (if any)
+    is left in place. No-op when no snapshot exists yet — the indexer
+    creates it on first PR build.
+
+    Must be called while the VCS clone is live (i.e. inside the build
+    task's VCS environment context).
+    """
+    if not external_version.is_external:
+        return
+    try:
+        base_version = get_base_version_for_diff(external_version)
+        if not base_version:
+            return
+        if should_refresh_snapshot(external_version, vcs_repository):
+            snapshot_base_manifest(
+                external_version, base_version, force_refresh=True
+            )
+    except Exception:
+        log.exception(
+            "Filetreediff snapshot refresh check failed.",
+            project_slug=external_version.project.slug,
+            version_slug=external_version.slug,
+        )

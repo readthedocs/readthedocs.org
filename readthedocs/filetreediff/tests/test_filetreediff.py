@@ -251,14 +251,9 @@ class TestsBaseManifestSnapshot(TestCase):
     def test_force_refresh_overwrites_existing_snapshot(self, storage_open, storage_exists):
         """``force_refresh=True`` bypasses the write-once early-return."""
         base_files = {"index.html": "fresh-hash"}
-
-        @contextmanager
-        def _write_cm(*args, **kwargs):
-            yield mock.MagicMock()
-
         storage_open.side_effect = [
             _mock_manifest(self.base_build.id, base_files)(),
-            _write_cm(),
+            mock.MagicMock(),
         ]
         snapshot_base_manifest(
             self.pr_version, self.base_version, force_refresh=True
@@ -336,16 +331,11 @@ class TestsShouldRefreshSnapshot(TestCase):
         assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
         self.vcs_repository.run.assert_not_called()
 
+    @mock.patch.object(Project, "get_default_branch", return_value=None)
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_default_branch_missing_returns_false(self, storage_open):
-        self.project.default_branch = None
-        self.project.save()
-        # Ensure the VCS-fallback path also yields None.
-        with mock.patch.object(Project, "get_default_branch", return_value=None):
-            storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-            assert (
-                should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-            )
+    def test_default_branch_missing_returns_false(self, storage_open, get_default_branch):
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
         self.vcs_repository.run.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -400,13 +390,4 @@ class TestsShouldRefreshSnapshot(TestCase):
         self.vcs_repository.run.side_effect = RepositoryError(
             message_id=RepositoryError.GENERIC
         )
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_empty_merge_base_output_returns_false(self, storage_open):
-        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        self.vcs_repository.run.side_effect = [
-            (0, "", ""),
-            (0, "   \n", ""),
-        ]
         assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
