@@ -70,7 +70,8 @@ BITBUCKET_PUSH = "repo:push"
 
 ExternalVersionData = namedtuple(
     "ExternalVersionData",
-    ["id", "source_branch", "base_branch", "commit"],
+    ["id", "source_branch", "base_branch", "commit", "base_commit"],
+    defaults=[None],
 )
 
 
@@ -420,6 +421,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 commit=self.data["pull_request"]["head"]["sha"],
                 source_branch=self.data["pull_request"]["head"]["ref"],
                 base_branch=self.data["pull_request"]["base"]["ref"],
+                base_commit=self.data["pull_request"]["base"]["sha"],
             )
             return data
         except KeyError as e:

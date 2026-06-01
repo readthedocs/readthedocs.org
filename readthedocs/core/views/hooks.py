@@ -130,6 +130,7 @@ def get_or_create_external_version(project, version_data):
         type=EXTERNAL,
         defaults={
             "identifier": version_data.commit,
+            "base_identifier": version_data.base_commit,
             "active": True,
             "state": EXTERNAL_VERSION_STATE_OPEN,
         },
@@ -144,6 +145,8 @@ def get_or_create_external_version(project, version_data):
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
         external_version.identifier = version_data.commit
+        # The base branch may have moved forward since the last event.
+        external_version.base_identifier = version_data.base_commit
         # If the PR was previously closed it was marked as closed
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.active = True

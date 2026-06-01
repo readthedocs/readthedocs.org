@@ -214,15 +214,19 @@ def should_refresh_snapshot(
     vcs_repository,
 ) -> bool:
     """
-    Return True iff the PR has merged in the base version's current state.
+    Return True iff the PR has merged in newer base content.
 
-    The snapshot is always written from ``base_version``'s latest build, so
-    adopting it is correct exactly when the PR has pulled that base commit
-    into its own history. We check this with a single ``merge-base
-    --is-ancestor`` against the existing clone — no extra fetch. The base
-    commit is present in the clone only if it's reachable from ``HEAD`` (i.e.
-    the user merged the base branch in), so an unmerged base simply isn't an
-    ancestor and we leave the snapshot pinned.
+    The snapshot should be adopted exactly when the PR has pulled the base
+    branch into its own history. We check this with a single ``merge-base
+    --is-ancestor <base_commit> HEAD`` against the existing clone — no extra
+    fetch. The base commit is present in the clone only if it's reachable
+    from ``HEAD`` (i.e. the user merged the base branch in), so an unmerged
+    base simply isn't an ancestor and we leave the snapshot pinned.
+
+    The base commit is the PR's actual base target captured from the webhook
+    (``external_version.base_identifier``) when available — this is the most
+    precise signal. We fall back to the base version's latest build commit
+    when it isn't (e.g. GitLab, or versions predating that field).
 
     Any missing data or git failure returns False so the existing snapshot is
     preserved.
@@ -233,11 +237,15 @@ def should_refresh_snapshot(
         return False
 
     base_latest_build = base_version.latest_successful_build
-    if not base_latest_build or not base_latest_build.commit:
+    if not base_latest_build:
         return False
 
     # Snapshot already reflects the base version's latest build; nothing to do.
     if snapshot.build.id == base_latest_build.id:
+        return False
+
+    base_commit = external_version.base_identifier or base_latest_build.commit
+    if not base_commit:
         return False
 
     try:
@@ -245,7 +253,7 @@ def should_refresh_snapshot(
             "git",
             "merge-base",
             "--is-ancestor",
-            base_latest_build.commit,
+            base_commit,
             "HEAD",
             record=False,
         )
