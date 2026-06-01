@@ -55,6 +55,7 @@ from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.filetreediff import refresh_snapshot_if_stale
 from readthedocs.projects.models import Feature
 from readthedocs.projects.tasks.storage import StorageType
 from readthedocs.projects.tasks.storage import get_storage
@@ -847,6 +848,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build_director.create_vcs_environment()
         with self.data.build_director.vcs_environment:
             self.data.build_director.setup_vcs()
+
+            refresh_snapshot_if_stale(
+                self.data.version,
+                self.data.build_director.vcs_repository,
+            )
 
             # Sync tags/branches from VCS repository into Read the Docs'
             # `Version` objects in the database. This method runs commands
