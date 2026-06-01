@@ -3592,6 +3592,8 @@ class APIVersionTests(TestCase):
             "has_pdf": False,
             "documentation_type": "sphinx",
             "machine": False,
+            "source_type": "vcs",
+            "upload_content_hash": None,
         }
 
         self.assertDictEqual(

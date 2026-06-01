@@ -5,7 +5,14 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    LATEST,
+    SOURCE_TYPE_UPLOAD,
+    STABLE,
+    TAG,
+)
 from readthedocs.builds.models import (
     Version,
 )
@@ -221,6 +228,42 @@ class TestSyncVersions(TestCase):
         self.pip.update_stable_version()
         stable_version = self.pip.get_stable_version()
         self.assertEqual(stable_version.type, TAG)
+
+    def test_upload_versions_are_not_deleted_by_sync(self):
+        """``source_type=upload`` versions have no VCS ref and must survive sync."""
+        Version.objects.create(
+            project=self.pip,
+            identifier=None,
+            verbose_name="0.3",
+            slug="0.3",
+            source_type=SOURCE_TYPE_UPLOAD,
+            type=TAG,
+            active=True,
+        )
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[{"identifier": "origin/master", "verbose_name": "master"}],
+            tags_data=[],
+        )
+
+        self.assertTrue(Version.objects.filter(slug="0.3").exists())
+
+    def test_upload_versions_excluded_from_webhook_routing(self):
+        """A push event for ``name`` must not resolve to an upload version."""
+        Version.objects.create(
+            project=self.pip,
+            identifier=None,
+            verbose_name="release/v2.3",
+            slug="release-v2-3",
+            source_type=SOURCE_TYPE_UPLOAD,
+            type=TAG,
+            active=True,
+        )
+
+        matched = self.pip.versions_from_name("release/v2.3", type=TAG)
+
+        self.assertFalse(matched.exists())
 
         branches_data = [
             {

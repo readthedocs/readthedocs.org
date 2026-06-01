@@ -355,6 +355,7 @@ class VersionSerializer(serializers.ModelSerializer):
             "active",
             "hidden",
             "type",
+            "source_type",
             "downloads",
             "urls",
             "_links",

@@ -70,6 +70,8 @@ from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
+from .uploads import MissingUploadedArchiveError
+from .uploads import stage_uploaded_archive
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import send_external_build_status
@@ -837,6 +839,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
+        # Pre-built upload versions short-circuit the whole VCS+build pipeline:
+        # there is nothing to clone and nothing to build.
+        if self.data.version.is_upload:
+            self.execute_upload()
+            return
+
         # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
@@ -883,6 +891,58 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # However, we cannot use `.on_success()` because we still have to upload the artifacts;
         # which could fail, and we want to detect that and handle it properly at `.on_failure()`
         # Store build artifacts to storage (local or cloud storage)
+        self.store_build_artifacts()
+
+    def execute_upload(self):
+        """
+        Build path for ``source_type=upload`` versions.
+
+        No clone, no build tool, no language environment. We download the
+        archive (already validated server-side at upload time) onto a host
+        path that's bind-mounted into the build container, then run
+        ``unzip`` *inside* the container. The existing
+        ``store_build_artifacts`` flow then copies the result to permanent
+        storage just like a normal build.
+
+        Reusing the same ``Build`` state machine keeps the dashboard,
+        notifications, APIv3, build concurrency limits and the
+        ``BUILD_OUTPUT_*`` validations (``index.html`` present, single-file
+        offline formats, etc.) working unchanged.
+        """
+        self.update_build(state=BUILD_STATE_CLONING)
+
+        artifact_root = os.path.dirname(
+            self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_="html",
+            )
+        )
+        # Stage the archive next to the artifact dir; both live under
+        # ``project.checkout_path(version)`` which is mounted into the
+        # container, so ``unzip`` inside Docker can see them at the same path.
+        archive_host_path = os.path.join(
+            self.data.project.checkout_path(version=self.data.version.slug),
+            "upload.zip",
+        )
+        if os.path.isdir(artifact_root):
+            shutil.rmtree(artifact_root)
+
+        try:
+            stage_uploaded_archive(self.data.version, archive_host_path)
+        except MissingUploadedArchiveError as exc:
+            raise BuildUserError(
+                message_id=BuildUserError.GENERIC,
+                exception_message=str(exc),
+            ) from exc
+
+        self.data.build_director.create_build_environment()
+        with self.data.build_director.build_environment:
+            self.update_build(state=BUILD_STATE_BUILDING)
+            self.data.build_director.unzip_uploaded_archive(
+                archive_host_path,
+                artifact_root,
+            )
+
         self.store_build_artifacts()
 
     def collect_build_data(self):

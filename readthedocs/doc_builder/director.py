@@ -134,6 +134,34 @@ class BuildDirector:
             api_client=self.data.api_client,
         )
 
+    def unzip_uploaded_archive(self, archive_path, destination_dir):
+        """
+        Extract a pre-built upload archive *inside* the build container.
+
+        The archive has already been validated server-side
+        (:func:`readthedocs.projects.tasks.uploads.validate_archive`) — no
+        traversal, no symlinks, no absolute paths, only allowed top-level
+        directories — but we still run ``unzip`` in Docker so a bug in the
+        ``unzip`` binary itself can't escape the sandbox.
+
+        ``__MACOSX/`` resource forks and dotfiles are skipped to keep the
+        offline-format ``has-multiple-files`` check downstream happy when
+        macOS users include ``.DS_Store`` next to their ``docs.pdf``.
+        """
+        self.build_environment.run("mkdir", "-p", destination_dir)
+        self.build_environment.run(
+            "unzip",
+            "-q",
+            "-o",
+            archive_path,
+            "-d",
+            destination_dir,
+            "-x",
+            "__MACOSX/*",
+            "*/.DS_Store",
+            ".DS_Store",
+        )
+
     def setup_environment(self):
         """
         Create the environment and install required dependencies.

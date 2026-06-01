@@ -33,6 +33,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import SOURCE_TYPE_UPLOAD
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
@@ -1359,6 +1360,10 @@ class Project(models.Model):
             # or change our logic to store the tags name in the identifier of stable.
             | Q(identifier=name, machine=True)
         )
+        # Pre-built upload versions have no VCS ref, so a push event for ``name``
+        # should never resolve to one. Exclude them defensively in case somebody
+        # set ``verbose_name`` to a branch/tag name that happens to collide.
+        queryset = queryset.exclude(source_type=SOURCE_TYPE_UPLOAD)
 
         if type:
             queryset = queryset.filter(type=type)
