@@ -644,6 +644,7 @@ class GitHubAppWebhookHandler:
             commit=pr["head"]["sha"],
             source_branch=pr["head"]["ref"],
             base_branch=pr["base"]["ref"],
+            base_commit=pr["base"]["sha"],
         )
 
         if action in ("opened", "reopened", "synchronize"):

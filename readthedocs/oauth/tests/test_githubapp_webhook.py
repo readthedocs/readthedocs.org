@@ -517,6 +517,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -556,6 +557,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -596,6 +598,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -645,6 +648,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -688,6 +692,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -737,6 +742,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -779,6 +785,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -820,6 +827,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -851,6 +859,7 @@ class TestGitHubAppWebhook(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -1399,6 +1408,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
                 "labels": [
                     {
@@ -1483,6 +1493,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {
@@ -1574,6 +1585,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
                 "labels": [
                     {
@@ -1676,6 +1688,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
                 "labels": [
                     {
@@ -1715,6 +1728,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 },
                 "base": {
                     "ref": "main",
+                    "sha": "base123abc",
                 },
             },
             "repository": {

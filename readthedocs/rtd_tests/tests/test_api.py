@@ -1916,6 +1916,7 @@ class IntegrationsTests(TestCase):
             "ref": "refs/heads/master",
         }
         self.commit = "ec26de721c3235aad62de7213c562f8c821"
+        self.base_commit = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
         self.github_pull_request_payload = {
             "action": "opened",
             "number": 2,
@@ -1926,6 +1927,7 @@ class IntegrationsTests(TestCase):
                 },
                 "base": {
                     "ref": "master",
+                    "sha": self.base_commit,
                 },
             },
         }
@@ -2609,6 +2611,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(version_data.commit, self.commit)
         self.assertEqual(version_data.source_branch, "source_branch")
         self.assertEqual(version_data.base_branch, "master")
+        self.assertEqual(version_data.base_commit, self.base_commit)
 
     def test_github_skip_githubapp_projects(self, trigger_build):
         installation = get(
