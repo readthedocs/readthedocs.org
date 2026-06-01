@@ -1064,15 +1064,15 @@ class Build(models.Model):
     @property
     def queue_time(self):
         """
-        Time the build spent queued before it started running, in seconds.
+        Number of seconds the build spent queued before it started running.
 
         This is the time between when the build was triggered (``date``) and
         when the build task actually started running on a builder
         (``task_executed_at``).
 
-        It is tracked separately from ``length`` (the build duration) so that
-        time spent waiting in the queue does not show up as part of the build
-        duration.
+        It is the *queue wait time*, not the build duration: it is tracked
+        separately from ``length`` (the build duration) so that time spent
+        waiting in the queue does not show up as part of the build duration.
         """
         if self.task_executed_at:
             return int((self.task_executed_at - self.date).total_seconds())
