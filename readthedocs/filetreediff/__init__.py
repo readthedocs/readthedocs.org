@@ -60,7 +60,7 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     outdated = current_latest_build.id != current_version_manifest.build.id
 
     # For external versions (PRs), prefer the snapshotted base manifest
-    # (pinned at first PR build, refreshed when the PR's merge-base advances)
+    # (pinned at first PR build, refreshed once the PR merges in newer base)
     # over the live base manifest. This prevents false positives when the
     # base branch has moved forward since the PR was created. Falls back to
     # the live manifest if no snapshot exists.
@@ -170,8 +170,7 @@ def snapshot_base_manifest(
     By default (``force_refresh=False``), only writes if no snapshot exists
     yet (first build of the PR). When called with ``force_refresh=True``,
     rewrites the snapshot with the base version's current manifest — used by
-    ``refresh_snapshot_if_stale`` after detecting that the PR's merge-base
-    has advanced.
+    ``refresh_snapshot_if_stale`` once the PR has merged in newer base.
 
     This stores a full copy of the base manifest per PR. If many PRs branch
     from the same base commit, the same content is duplicated. This is a
@@ -209,69 +208,58 @@ def snapshot_base_manifest(
     )
 
 
-def should_refresh_snapshot(external_version: Version, vcs_repository) -> bool:
+def should_refresh_snapshot(
+    external_version: Version,
+    base_version: Version,
+    vcs_repository,
+) -> bool:
     """
-    Return True iff the PR's snapshot has fallen behind its merge-base.
+    Return True iff the PR has merged in the base version's current state.
 
-    The merge-base is computed against the project's default branch using the
-    live VCS clone. Any missing data or git failure returns False so the
-    existing snapshot is preserved.
+    The snapshot is always written from ``base_version``'s latest build, so
+    adopting it is correct exactly when the PR has pulled that base commit
+    into its own history. We check this with a single ``merge-base
+    --is-ancestor`` against the existing clone — no extra fetch. The base
+    commit is present in the clone only if it's reachable from ``HEAD`` (i.e.
+    the user merged the base branch in), so an unmerged base simply isn't an
+    ancestor and we leave the snapshot pinned.
+
+    Any missing data or git failure returns False so the existing snapshot is
+    preserved.
     """
     snapshot = _get_base_manifest_snapshot(external_version)
     if snapshot is None:
         # First PR build; the indexer will create the snapshot on success.
         return False
 
-    snap_commit = (
-        Build.objects.filter(id=snapshot.build.id)
-        .values_list("commit", flat=True)
-        .first()
-    )
-    if not snap_commit:
+    base_latest_build = base_version.latest_successful_build
+    if not base_latest_build or not base_latest_build.commit:
         return False
 
-    base_branch = external_version.project.get_default_branch()
-    if not base_branch:
+    # Snapshot already reflects the base version's latest build; nothing to do.
+    if snapshot.build.id == base_latest_build.id:
         return False
 
-    base_ref = f"refs/remotes/origin/{base_branch}"
     try:
-        code, _, _ = vcs_repository.run(
-            "git",
-            "fetch",
-            "--depth",
-            "50",
-            "origin",
-            f"refs/heads/{base_branch}:{base_ref}",
-            record=False,
-        )
-        if code != 0:
-            return False
-
-        code, mb_stdout, _ = vcs_repository.run(
-            "git", "merge-base", "HEAD", base_ref, record=False
-        )
-        if code != 0:
-            return False
-
         code, _, _ = vcs_repository.run(
             "git",
             "merge-base",
             "--is-ancestor",
-            snap_commit,
-            mb_stdout.strip(),
+            base_latest_build.commit,
+            "HEAD",
             record=False,
         )
     except RepositoryError:
         return False
 
-    # 0 = snap still in sync; 1 = needs refresh; anything else = stay conservative.
-    return code == 1
+    # 0 = base commit is in the PR's history (merged in) → refresh.
+    # Anything else (not an ancestor, or not in the clone) → stay pinned.
+    return code == 0
 
 
 def refresh_snapshot_if_stale(external_version: Version, vcs_repository) -> None:
     """
-    Rewrite the PR's base manifest snapshot if the merge-base has advanced.
+    Rewrite the PR's base manifest snapshot if the PR has merged in newer base.
 
     Best-effort: any failure is swallowed and the existing snapshot (if any)
     is left in place. No-op when no snapshot exists yet — the indexer
@@ -286,7 +274,7 @@ def refresh_snapshot_if_stale(external_version: Version, vcs_repository) -> None
         base_version = external_version.get_base_version_for_diff()
         if not base_version:
             return
-        if should_refresh_snapshot(external_version, vcs_repository):
+        if should_refresh_snapshot(external_version, base_version, vcs_repository):
             snapshot_base_manifest(
                 external_version, base_version, force_refresh=True
             )

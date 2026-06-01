@@ -278,11 +278,12 @@ class TestsBaseManifestSnapshot(TestCase):
     new=BuildMediaFileSystemStorageTest(),
 )
 class TestsShouldRefreshSnapshot(TestCase):
-    """Tests for the merge-base-aware snapshot refresh decision."""
+    """Tests for the snapshot refresh decision (no extra git fetch)."""
 
     def setUp(self):
         self.project = get(Project, default_branch="main")
         self.base_version = self.project.versions.get(slug=LATEST)
+        # The build the snapshot was captured from (older base state).
         self.snap_build = get(
             Build,
             project=self.project,
@@ -290,6 +291,15 @@ class TestsShouldRefreshSnapshot(TestCase):
             state=BUILD_STATE_FINISHED,
             success=True,
             commit="snap-sha",
+        )
+        # The base version's current latest build (newer base state).
+        self.base_latest_build = get(
+            Build,
+            project=self.project,
+            version=self.base_version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            commit="base-latest-sha",
         )
         self.pr_version = get(
             Version,
@@ -301,88 +311,59 @@ class TestsShouldRefreshSnapshot(TestCase):
             built=True,
         )
         self.vcs_repository = mock.MagicMock()
-        # Default script: fetch ok, merge-base ok with sha, is-ancestor ok.
-        self.vcs_repository.run.side_effect = [
-            (0, "", ""),
-            (0, "mb-sha\n", ""),
-            (0, "", ""),
-        ]
+        # Default: the base commit is an ancestor of HEAD (merged in).
+        self.vcs_repository.run.return_value = (0, "", "")
 
     def _snapshot_mock(self, build_id):
         return _mock_manifest(build_id, {"index.html": "h"})()
 
+    def _refresh(self):
+        return should_refresh_snapshot(
+            self.pr_version, self.base_version, self.vcs_repository
+        )
+
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_no_existing_snapshot_returns_false(self, storage_open):
         storage_open.side_effect = FileNotFoundError
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
+        assert self._refresh() is False
         self.vcs_repository.run.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snap_build_missing_returns_false(self, storage_open):
-        storage_open.side_effect = [self._snapshot_mock(999999)]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-        self.vcs_repository.run.assert_not_called()
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snap_build_commit_null_returns_false(self, storage_open):
-        self.snap_build.commit = None
-        self.snap_build.save()
+    def test_base_commit_null_returns_false(self, storage_open):
+        self.base_latest_build.commit = None
+        self.base_latest_build.save()
         storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-        self.vcs_repository.run.assert_not_called()
-
-    @mock.patch.object(Project, "get_default_branch", return_value=None)
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_default_branch_missing_returns_false(self, storage_open, get_default_branch):
-        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
+        assert self._refresh() is False
         self.vcs_repository.run.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_fetch_failure_returns_false(self, storage_open):
+    def test_snapshot_already_at_latest_returns_false(self, storage_open):
+        """Snapshot already points at the base's latest build; no git needed."""
+        storage_open.side_effect = [self._snapshot_mock(self.base_latest_build.id)]
+        assert self._refresh() is False
+        self.vcs_repository.run.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_merged_in_returns_true(self, storage_open):
+        """is-ancestor exit 0: base's latest commit is in the PR history."""
         storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        self.vcs_repository.run.side_effect = [(1, "", "boom")]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
+        self.vcs_repository.run.return_value = (0, "", "")
+        assert self._refresh() is True
         assert self.vcs_repository.run.call_count == 1
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_merge_base_failure_returns_false(self, storage_open):
+    def test_base_not_merged_in_returns_false(self, storage_open):
+        """is-ancestor exit 1: PR hasn't pulled in the base; stay pinned."""
         storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        self.vcs_repository.run.side_effect = [
-            (0, "", ""),
-            (128, "", "fatal"),
-        ]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-        assert self.vcs_repository.run.call_count == 2
+        self.vcs_repository.run.return_value = (1, "", "")
+        assert self._refresh() is False
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snap_is_ancestor_returns_false(self, storage_open):
-        """is-ancestor exit 0 means snap is still in sync; no refresh."""
+    def test_base_commit_unknown_to_clone_returns_false(self, storage_open):
+        """is-ancestor exit 128 (commit not in shallow clone); stay pinned."""
         storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
-        assert self.vcs_repository.run.call_count == 3
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snap_not_ancestor_returns_true(self, storage_open):
-        """is-ancestor exit 1 means merge-base advanced past snap; refresh."""
-        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        self.vcs_repository.run.side_effect = [
-            (0, "", ""),
-            (0, "mb-sha\n", ""),
-            (1, "", ""),
-        ]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is True
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snap_unknown_to_clone_returns_false(self, storage_open):
-        """is-ancestor exit 128 (commit unknown) is conservative — no refresh."""
-        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
-        self.vcs_repository.run.side_effect = [
-            (0, "", ""),
-            (0, "mb-sha\n", ""),
-            (128, "", "fatal: Not a valid commit"),
-        ]
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
+        self.vcs_repository.run.return_value = (128, "", "fatal: Not a valid commit")
+        assert self._refresh() is False
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_repository_error_returns_false(self, storage_open):
@@ -390,4 +371,4 @@ class TestsShouldRefreshSnapshot(TestCase):
         self.vcs_repository.run.side_effect = RepositoryError(
             message_id=RepositoryError.GENERIC
         )
-        assert should_refresh_snapshot(self.pr_version, self.vcs_repository) is False
+        assert self._refresh() is False
