@@ -10,6 +10,8 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
+from readthedocs.core.forms import UserProfileDashboardPreferencesForm
+from readthedocs.core.models import UserProfile
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB, GITHUB_APP
 from readthedocs.oauth.migrate import InstallationTargetGroup, MigrationTarget, GitHubAccountTarget
@@ -907,3 +909,70 @@ class TestMigrateToGitHubAppView(TestCase):
         assert context["has_projects_pending_migration"] is True
         assert "installation_target_groups" not in context
         assert "migration_targets" not in context
+
+
+class TestUserProfileDashboardPreferencesEdit(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.profile = get(UserProfile, user=self.user)
+        self.url = reverse("profiles_dashboard_preferences_edit")
+        self.client.force_login(self.user)
+
+    def test_theme_post_default(self):
+        data = {"theme": "default"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+
+        self.profile.refresh_from_db()
+        assert self.profile.theme == "default"
+
+        assert not self.profile.use_dark_theme()
+        assert self.profile.use_light_theme()
+
+    def test_theme_post_light(self):
+        data = {"theme": "light"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+
+        self.profile.refresh_from_db()
+        assert self.profile.theme == "light"
+
+        assert not self.profile.use_dark_theme()
+        assert self.profile.use_light_theme()
+
+    def test_theme_post_dark(self):
+        data = {"theme": "dark"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+
+        self.profile.refresh_from_db()
+        assert self.profile.theme == "dark"
+
+        assert self.profile.use_dark_theme()
+        assert not self.profile.use_light_theme()
+
+    def test_theme_post_system(self):
+        data = {"theme": "system"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+
+        self.profile.refresh_from_db()
+        assert self.profile.theme == "system"
+
+        assert not self.profile.use_dark_theme()
+        assert not self.profile.use_light_theme()
+
+    def test_invalid_data_post(self):
+        invalid_data = {"theme": "invalid_theme"}
+        response = self.client.post(self.url, invalid_data)
+        assert response.status_code == 200
+
+        self.profile.refresh_from_db()
+        # Verify theme remains unchanged
+        assert self.profile.theme == "default"
+
+        form = UserProfileDashboardPreferencesForm(data=invalid_data)
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "theme" in form.errors
+        assert len(form.errors["theme"]) == 1
