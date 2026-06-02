@@ -262,7 +262,7 @@ class RedirectListFilterSet(ModelFilterSet):
     url = FilteredModelChoiceFilter(
         label=_("URL"),
         empty_label=_("All URLs"),
-        to_field_name="pk",
+        to_field_name="from_url",
         queryset_method="get_redirect_queryset",
         method="get_redirect",
         label_attribute="from_url",
@@ -271,7 +271,8 @@ class RedirectListFilterSet(ModelFilterSet):
     def get_redirect_queryset(self):
         # Scope choices to the project's redirects passed in at instantiation;
         # otherwise the dropdown would show every Redirect across all projects.
-        return self.queryset
+        # Exclude redirects without a ``from_url`` (eg. clean URL <-> HTML types).
+        return self.queryset.exclude(from_url="")
 
     def get_redirect(self, queryset, field_name, redirect):
-        return queryset.filter(pk=redirect.pk)
+        return queryset.filter(from_url=redirect.from_url)

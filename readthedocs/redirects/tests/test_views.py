@@ -108,7 +108,7 @@ class TestViews(TestCase):
         )
         resp = self.client.get(
             reverse("projects_redirects", args=[self.project.slug]),
-            {"url": other.pk},
+            {"url": other.from_url},
         )
         assert resp.status_code == 200
         pks = {r.pk for r in resp.context["redirects"]}
