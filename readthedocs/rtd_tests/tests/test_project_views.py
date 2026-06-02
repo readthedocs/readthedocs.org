@@ -375,8 +375,6 @@ class TestPrivateViews(TestCase):
         self.user = get(User, username="eric")
         self.user.set_password("test")
         self.user.save()
-        # Force the creation of the user profile to avoid extra queries in the tests.
-        self.user.profile
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
 
