@@ -113,8 +113,9 @@ intersphinx_mapping = {
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
 
-# Cross-reference the other docset only:
-# the dev docs link to the user docs (rtd), and the user docs link to the dev docs (rtd-dev).
+# Cross-reference the required docset only
+# to avoid Sphinx falling back to old references that won't exist after a PR is merged.
+# The dev docs link to the user docs (rtd), and the user docs link to the dev docs (rtd-dev).
 if docset == "dev":
     intersphinx_mapping["rtd"] = ("https://docs.readthedocs.io/en/stable/", None)
 else:
