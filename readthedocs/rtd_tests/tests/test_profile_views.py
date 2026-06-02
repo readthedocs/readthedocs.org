@@ -105,8 +105,9 @@ class ProfileViewsTest(TestCase):
             data={"username": self.user.username},
         )
 
-        assert response.status_code == 302
-        assert response["Location"] == reverse("homepage")
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
         assert User.objects.filter(username=self.user.username).exists()
 
     @mock.patch("readthedocs.core.utils.spam.get_spam_score")
@@ -119,8 +120,9 @@ class ProfileViewsTest(TestCase):
             data={"username": self.user.username},
         )
 
-        assert response.status_code == 302
-        assert response["Location"] == reverse("homepage")
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
         assert User.objects.filter(username=self.user.username).exists()
         mock_get_spam_score.assert_called_once_with(project)
 
@@ -415,7 +417,8 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
             data={"username": self.owner.username},
         )
 
-        assert response.status_code == 302
-        assert response["Location"] == reverse("homepage")
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
         assert User.objects.filter(username=self.owner.username).exists()
         mock_get_spam_score.assert_called_once_with(project)

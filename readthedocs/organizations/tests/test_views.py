@@ -194,6 +194,28 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertFalse(Team.objects.filter(pk=self.team.pk).exists())
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
 
+    def test_delete_blocked_for_banned_owner(self):
+        self.owner.profile.banned = True
+        self.owner.profile.save()
+
+        resp = self.client.post(
+            reverse("organization_delete", args=[self.organization.slug])
+        )
+
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
+
+    @override_settings(RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD=1)
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score", return_value=2)
+    def test_delete_blocked_for_spam_project_score(self, get_spam_score):
+        resp = self.client.post(
+            reverse("organization_delete", args=[self.organization.slug])
+        )
+
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
+        get_spam_score.assert_called_once_with(self.project)
+
     def test_add_owner(self):
         url = reverse("organization_owner_add", args=[self.organization.slug])
         user = get(User, username="test-user", email="test-user@example.com")

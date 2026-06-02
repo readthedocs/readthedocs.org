@@ -33,13 +33,13 @@ from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import UserAdvertisingForm
 from readthedocs.core.forms import UserDeleteForm
+from readthedocs.core.forms import UserProfileDashboardPreferencesForm
 from readthedocs.core.forms import UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils.spam import is_spammer
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migrated_projects
@@ -126,14 +126,6 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         user.delete()
         return super().form_valid(form)
 
-    def post(self, request, *args, **kwargs):
-        if is_spammer(request.user):
-            messages.error(
-                request, _("Your account has been flagged as spam. Please contact support.")
-            )
-            return HttpResponseRedirect(reverse("homepage"))
-        return super().post(request, *args, **kwargs)
-
     def get_form(self, data=None, files=None, **kwargs):
         kwargs["instance"] = self.get_object()
         kwargs["initial"] = {"username": ""}
@@ -188,6 +180,23 @@ class ProfileDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context["profile"] = self.get_object().profile
         return context
+
+
+class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
+    """View for user profile dashboard preferences."""
+
+    model = UserProfile
+    form_class = UserProfileDashboardPreferencesForm
+    template_name = "profiles/private/dashboard_preferences_form.html"
+    context_object_name = "profile"
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def get_success_url(self):
+        return reverse(
+            "profiles_dashboard_preferences_edit",
+        )
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
