@@ -153,14 +153,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-<<<<<<< HEAD
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov
-    resource_class: large.gen2
-||||||| fcb35e167
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov
-=======
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
->>>>>>> main
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
