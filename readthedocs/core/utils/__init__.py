@@ -200,12 +200,22 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
+    When the project has ``Feature.USE_FARGATE_BUILDER`` enabled, dispatches
+    to the new ``submit_build_to_ecs`` bootstrap task (which clones the
+    config, resolves ``build.os``, and runs the build inside a Fargate task)
+    instead of the legacy ``update_docs_task``. See
+    ``readthedocs-builder/docs/architecture.md`` for the broader design.
+
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    # Avoid circular import.
+    from readthedocs.projects.models import Feature
+    from readthedocs.projects.tasks.fargate import submit_build_to_ecs
+
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
@@ -228,6 +238,16 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     if (update_docs_task, build) == (None, None):
         # Build was skipped
         return (None, None)
+
+    # Feature-flag dispatch: Fargate path vs legacy Celery path.
+    if project.has_feature(Feature.USE_FARGATE_BUILDER):
+        log.info("Dispatching build via submit_build_to_ecs (Fargate path).")
+        task = submit_build_to_ecs.delay(build_pk=build.pk)
+        # The Build's ECS task_arn is populated by submit_build_to_ecs once
+        # ``ecs:RunTask`` returns; we don't write task_id here (that's the
+        # legacy-Celery-path's cancellation handle). cancel_build branches
+        # on which one is set.
+        return task, build
 
     task = update_docs_task.apply_async()
 
@@ -255,6 +275,14 @@ def cancel_build(build):
     - Running:
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
+
+    Routing during the Fargate rollout: branches on which task identifier
+    is set on the build. ``Build.task_arn`` (Fargate path) takes
+    precedence — if the build was dispatched to ECS, we call
+    ``ecs:StopTask``. Otherwise we fall back to the legacy Celery revoke.
+    The branch is on the build's *actual* state (which dispatcher ran),
+    not the project's current feature flag, so an in-flight build that
+    started before the flag was flipped still cancels correctly.
     """
     # NOTE: `terminate=True` is required for the child to attend our call
     # immediately when it's running the build. Otherwise, it finishes the
@@ -287,9 +315,43 @@ def cancel_build(build):
         version_slug=build.version.slug,
         build_id=build.pk,
         build_task_id=build.task_id,
+        build_task_arn=build.task_arn,
         terminate=terminate,
     )
-    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+
+    if build.task_arn:
+        # Fargate path. The runner inside the ECS task catches SIGTERM
+        # via its lifecycle's try/finally and finalizes the build. If
+        # the task has already exited (race), StopTask returns a benign
+        # error which we log but don't propagate.
+        import boto3
+
+        try:
+            boto3.client("ecs", region_name=settings.RTD_ECS_REGION or None).stop_task(
+                cluster=settings.RTD_ECS_CLUSTER,
+                task=build.task_arn,
+                reason="cancelled by user",
+            )
+        except Exception:
+            log.exception(
+                "ecs:StopTask failed.",
+                task_arn=build.task_arn,
+            )
+        return
+
+    if build.task_id:
+        # Legacy Celery path.
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+        return
+
+    # Neither path has a handle yet. This happens when the Fargate
+    # bootstrap task hasn't run / hasn't called ecs:RunTask. The
+    # state-update above is enough — submit_build_to_ecs checks the
+    # build state at startup and bails out when it's CANCELLED.
+    log.info(
+        "No task handle on the build; relying on submit_build_to_ecs "
+        "to bail out when it observes BUILD_STATE_CANCELLED.",
+    )
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):

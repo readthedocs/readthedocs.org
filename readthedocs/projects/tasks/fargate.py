@@ -34,6 +34,7 @@ import yaml
 from django.conf import settings
 
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildUserError
@@ -301,6 +302,18 @@ def submit_build_to_ecs(self, build_pk):
     build = Build.objects.select_related("version__project").get(pk=build_pk)
     version = build.version
     project = version.project
+
+    # The build was cancelled (e.g. via ``cancel_build`` while we were
+    # waiting in the Celery queue) before we got a chance to dispatch.
+    # Bail out without minting an API key or hitting ECS — the Build
+    # already reflects ``state=cancelled``.
+    if build.state == BUILD_STATE_CANCELLED:
+        log.info(
+            "Build was cancelled before Fargate dispatch; skipping.",
+            build_id=build.pk,
+            project_slug=project.slug,
+        )
+        return
 
     if not project.has_feature(Feature.USE_FARGATE_BUILDER):
         # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
