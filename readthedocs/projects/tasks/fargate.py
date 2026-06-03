@@ -290,7 +290,7 @@ def _docker_run_task(*, cpu, memory, environment, command):
     if settings.RTDDEV_PATH_BUILDER:
         volumes[settings.RTDDEV_PATH_BUILDER] = {
             "bind": "/opt/builder",
-            "mode": "rw",
+            "mode": "r",
         }
 
     try:
@@ -473,6 +473,11 @@ def submit_build_to_ecs(self, build_pk):
         "RTD_BUILD_TIME_LIMIT_GRACE_SECONDS": settings.RTD_BUILD_TIME_LIMIT_GRACE_SECONDS,
         "RTD_BUILD_TIME_LIMIT_KILL_SECONDS": settings.RTD_BUILD_TIME_LIMIT_KILL_SECONDS,
     }
+    # Forward the readthedocs-builder clone token when configured. The
+    # entrypoint inside the container injects it into the clone URL at
+    # clone time, so it never appears in container logs.
+    if getattr(settings, "RTD_BUILDER_TOKEN", ""):
+        environment["RTD_BUILDER_TOKEN"] = settings.RTD_BUILDER_TOKEN
 
     if settings.RTD_DOCKER_COMPOSE:
         # Local dev: the runner uses the API's STS endpoint for storage
@@ -485,6 +490,10 @@ def submit_build_to_ecs(self, build_pk):
         # dev is owned by the host UID, which won't match the container's
         # ``docs`` user (same trick ``dev-run.sh`` already uses).
         environment["RTD_DOCKER_USER"] = "root"
+        # In dev, the API is only reachable via the host's IP address, not
+        # localhost or the docker gateway. Forward the host IP via env so
+        # the runner can construct API URLs correctly.
+        environment["RTD_API_URL"] = f"http://{settings.HOSTIP}"
 
     command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
 

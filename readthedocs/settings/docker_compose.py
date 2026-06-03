@@ -36,6 +36,13 @@ class DockerBaseSettings(CommunityBaseSettings):
     # env var out / leave it empty to exercise the clone path.
     RTDDEV_PATH_BUILDER = os.environ.get("RTDDEV_PATH_BUILDER", "")
 
+    # Personal access token used by the entrypoint to clone the
+    # readthedocs-builder repo when it's private. Forwarded into the
+    # builder container's env; the entrypoint injects it into the clone
+    # URL at clone time so it doesn't leak into ``docker logs``. Leave
+    # empty when the repo is public or you're using the bind-mount path.
+    RTD_BUILDER_TOKEN = os.environ.get("RTD_BUILDER_TOKEN", "")
+
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
     PUBLIC_API_URL = f"http://{PRODUCTION_DOMAIN}"

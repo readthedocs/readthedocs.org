@@ -643,7 +643,9 @@ class CommunityBaseSettings(Settings):
 
     # Where the runner clones itself from at container startup.
     RTD_BUILDER_REPO = "https://github.com/readthedocs/readthedocs-builder.git"
-    RTD_BUILDER_REF = "rel"
+    
+    # TODO: use RTD_BUILDER_REF = "rel" when we have a stable release of the builder
+    RTD_BUILDER_REF = "main"
 
     # ECS / Fargate config. All four MUST be set in production; left empty here
     # so dev settings can override (or the bootstrap can short-circuit when not
