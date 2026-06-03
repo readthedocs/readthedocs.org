@@ -320,21 +320,18 @@ def cancel_build(build):
     )
 
     if build.task_arn:
-        # Fargate / local-docker path. Both backends produce a task_arn
-        # but with different shapes; ``docker://<container-id>`` means
-        # the build was dispatched via the local docker emulation (only
-        # used when ``settings.RTD_DOCKER_COMPOSE`` is on). A real ECS
-        # ARN means a real Fargate task.
-        if build.task_arn.startswith("docker://"):
+        # Fargate / local-docker path. ``task_arn`` is a container id
+        # under docker-compose dev and a real ECS task ARN in
+        # production; we branch on ``settings.RTD_DOCKER_COMPOSE``.
+        if settings.RTD_DOCKER_COMPOSE:
             import docker
 
-            container_id = build.task_arn.removeprefix("docker://")
             try:
-                docker.from_env().containers.get(container_id).kill()
+                docker.from_env().containers.get(build.task_arn).kill()
             except Exception:
                 log.exception(
                     "docker kill failed.",
-                    container_id=container_id,
+                    container_id=build.task_arn,
                 )
             return
 

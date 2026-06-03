@@ -233,9 +233,10 @@ def _dispatch_build_task(*, build_os, cpu, memory, environment, command):
 
     Branches on ``settings.RTD_DOCKER_COMPOSE``: docker-compose dev runs
     the build in a sibling container on the host's docker daemon via
-    docker-py; production hits ``ecs:RunTask``. Returns a task identifier
-    that ``cancel_build`` knows how to route — a real ECS ARN for
-    Fargate, a ``docker://<container-id>`` pseudo-ARN for local Docker.
+    docker-py; production hits ``ecs:RunTask``. Returns the task
+    identifier stored on ``Build.task_arn`` — a container id under
+    docker-compose, a real ECS task ARN in production. ``cancel_build``
+    branches on the same setting to interpret it.
     """
     if settings.RTD_DOCKER_COMPOSE:
         return _docker_run_task(
@@ -257,13 +258,14 @@ def _docker_run_task(*, cpu, memory, environment, command):
     """
     Spawn a builder container via the host's docker daemon (dev only).
 
-    Returns ``docker://<container-id>`` so :func:`cancel_build` can
-    disambiguate from a real ECS task ARN.
+    Returns the resulting container id (stored on ``Build.task_arn``;
+    ``cancel_build`` knows whether to interpret it as a container id or
+    an ECS ARN based on ``settings.RTD_DOCKER_COMPOSE``).
 
     The container shares the docker-compose network (so it can reach
     ``web``, ``storage``, etc.) and gets the same resource constraints
     Fargate would apply (cpus + memory). When
-    ``settings.RTD_LOCAL_BUILDER_HOST_PATH`` is set, the host-side
+    ``settings.RTDDEV_PATH_BUILDER`` is set, the host-side
     readthedocs-builder checkout is bind-mounted at ``/opt/builder`` so
     the entrypoint skips the GitHub clone — matches the
     ``dev-run.sh`` iteration loop.
@@ -277,11 +279,16 @@ def _docker_run_task(*, cpu, memory, environment, command):
     import docker
 
     client = docker.from_env()
+    # TODO: in production this is derived from build.os and points to a
+    # readthedocs/builder:<os> image. For local dev we currently use a
+    # single ``builder-dev:latest`` image regardless of build.os because
+    # we don't have the OS image matrix yet. Match production once the
+    # matrix exists.
     image = settings.RTD_LOCAL_BUILDER_IMAGE
 
     volumes = {}
-    if settings.RTD_LOCAL_BUILDER_HOST_PATH:
-        volumes[settings.RTD_LOCAL_BUILDER_HOST_PATH] = {
+    if settings.RTDDEV_PATH_BUILDER:
+        volumes[settings.RTDDEV_PATH_BUILDER] = {
             "bind": "/opt/builder",
             "mode": "rw",
         }
@@ -317,7 +324,7 @@ def _docker_run_task(*, cpu, memory, environment, command):
         network=settings.RTD_DOCKER_COMPOSE_NETWORK,
         bind_mount=bool(volumes),
     )
-    return f"docker://{container.id}"
+    return container.id
 
 
 def _ecs_run_task(*, build_os, cpu, memory, environment, command):
@@ -468,31 +475,18 @@ def submit_build_to_ecs(self, build_pk):
     }
 
     if settings.RTD_DOCKER_COMPOSE:
-        # Local dev: the runner needs the S3-compatible endpoint
-        # (rustfs / MinIO) plus credentials and bucket names, exactly
-        # like dev-run.sh forwards them. In production Fargate, the
-        # runner mints per-build STS credentials via the API instead,
-        # so none of these are set there.
-        environment.update(
-            {
-                "AWS_S3_ENDPOINT_URL": settings.AWS_S3_ENDPOINT_URL or "",
-                "AWS_ACCESS_KEY_ID": settings.AWS_ACCESS_KEY_ID,
-                "AWS_SECRET_ACCESS_KEY": settings.AWS_SECRET_ACCESS_KEY,
-                "AWS_REGION": settings.AWS_S3_REGION_NAME or "us-east-1",
-                "RTD_S3_ARTIFACTS_BUCKET": settings.S3_MEDIA_STORAGE_BUCKET,
-                "RTD_S3_BUILD_TOOLS_BUCKET": settings.S3_BUILD_TOOLS_STORAGE_BUCKET,
-                # The runner is currently configured to point storage
-                # via AWS_S3_ENDPOINT_URL; storage_from_env mode reads
-                # everything from env vars directly.
-                "RTD_DOCKER_USER": "root",
-            }
-        )
+        # Local dev: the runner uses the API's STS endpoint for storage
+        # credentials (same as production), but boto3 needs to know where
+        # to point — the dev environment uses an S3-compatible service
+        # at ``http://storage:9000`` (rustfs) instead of real AWS. Forward
+        # only that URL; credentials + bucket names come from the API.
+        environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
+        # Skip the runuser privilege drop — the bind-mounted docroot in
+        # dev is owned by the host UID, which won't match the container's
+        # ``docs`` user (same trick ``dev-run.sh`` already uses).
+        environment["RTD_DOCKER_USER"] = "root"
 
     command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
-    if settings.RTD_DOCKER_COMPOSE:
-        # Dev: don't go through the API's STS endpoint; use the AWS_*
-        # env vars we just forwarded.
-        command.append("--storage-from-env")
 
     task_arn = _dispatch_build_task(
         build_os=build_os,

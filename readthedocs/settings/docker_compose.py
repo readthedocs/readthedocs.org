@@ -22,7 +22,10 @@ class DockerBaseSettings(CommunityBaseSettings):
     # this container) instead of ecs:RunTask. See
     # readthedocs-builder/docs/architecture.md for the prod design.
     #
-    # The image must already exist on the host. Build it once via:
+    # TODO: drop this setting once we have the readthedocs/builder:<os> image
+    # matrix and can resolve the image from build.os exactly like production
+    # does. For now we use a single dev image regardless of build.os.
+    # Build it once via:
     #   cd ../readthedocs-builder && docker build -t builder-dev:latest .
     RTD_LOCAL_BUILDER_IMAGE = os.environ.get(
         "RTD_LOCAL_BUILDER_IMAGE", "builder-dev:latest"
@@ -31,7 +34,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     # bootstrap bind-mounts it at /opt/builder so the entrypoint skips the
     # GitHub clone (matches the dev-run.sh iteration loop). Comment the
     # env var out / leave it empty to exercise the clone path.
-    RTD_LOCAL_BUILDER_HOST_PATH = os.environ.get("RTD_LOCAL_BUILDER_HOST_PATH", "")
+    RTDDEV_PATH_BUILDER = os.environ.get("RTDDEV_PATH_BUILDER", "")
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
