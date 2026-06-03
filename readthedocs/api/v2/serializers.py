@@ -145,6 +145,12 @@ class VersionSerializer(serializers.ModelSerializer):
             "has_epub",
             "has_htmlzip",
             "documentation_type",
+            # The builder reads version data through APIv2 — without these
+            # two fields ``APIVersion.is_upload`` is always False and the
+            # upload code path never runs. Even though APIv2 is on the way
+            # out, the builder is the only consumer of this serializer.
+            "source_type",
+            "upload_content_hash",
         ]
 
     def __init__(self, *args, **kwargs):

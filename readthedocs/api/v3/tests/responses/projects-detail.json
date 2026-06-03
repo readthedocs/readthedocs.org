@@ -19,6 +19,7 @@
             },
             "ref": null,
             "slug": "v1.0",
+            "source_type": "vcs",
             "type": "tag",
             "urls": {
                 "dashboard": {
