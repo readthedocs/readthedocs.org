@@ -444,7 +444,7 @@ class Project(models.Model):
     )
     show_build_overview_in_comment = models.BooleanField(
         _("Show build overview in a comment"),
-        db_default=False,
+        db_default=True,
         help_text=_(
             "Show an overview of the build and files changed in a comment when a pull request is built."
         ),
@@ -2085,6 +2085,7 @@ class Feature(models.Model):
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
+    USE_GVISOR_RUNTIME = "use_gvisor_runtime"
 
     FEATURES = (
         (
@@ -2149,6 +2150,10 @@ class Feature(models.Model):
         (
             BUILD_IN_PARALLEL,
             _("Build: Enable parallel building."),
+        ),
+        (
+            USE_GVISOR_RUNTIME,
+            _("Build: Run build containers under the gVisor (runsc) runtime."),
         ),
     )
 
@@ -2262,14 +2267,14 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
-    VERSION_ACTIONS = (
+    VERSION_ADDED_ACTIONS = (
         ACTIVATE_VERSION_ACTION,
         HIDE_VERSION_ACTION,
         MAKE_VERSION_PUBLIC_ACTION,
         MAKE_VERSION_PRIVATE_ACTION,
         SET_DEFAULT_VERSION_ACTION,
-        DELETE_VERSION_ACTION,
     )
+    VERSION_DELETED_ACTIONS = (DELETE_VERSION_ACTION,)
 
     BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
 

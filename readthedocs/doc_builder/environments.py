@@ -803,9 +803,13 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         The object returned is passed to Docker function
         ``client.create_container``.
         """
+        runtime = None
+        if self.project.has_feature(Feature.USE_GVISOR_RUNTIME):
+            runtime = "runsc"
         return self.get_client().create_host_config(
             binds=self._get_binds(),
             mem_limit=self.container_mem_limit,
+            runtime=runtime,
         )
 
     @property
@@ -885,7 +889,11 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
-                runtime="runsc",  # gVisor runtime
+                # No-op: docker-py serializes this kwarg to a top-level
+                # `Runtime` field, which the Engine ignores. The runtime is
+                # actually applied via `HostConfig.Runtime` set in
+                # `get_container_host_config` (gated on USE_GVISOR_RUNTIME).
+                runtime="runsc",
                 networking_config=networking_config,
             )
             client.start(container=self.container_id)

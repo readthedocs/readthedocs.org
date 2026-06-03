@@ -274,14 +274,9 @@ class UserService(Service):
           for this user in the current provider
         """
         repository_remote_ids = self.sync_repositories()
-        (
-            organization_remote_ids,
-            organization_repositories_remote_ids,
-        ) = self.sync_organizations()
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        repository_remote_ids += organization_repositories_remote_ids
         (
             self.user.remote_repository_relations.filter(
                 account=self.account,
@@ -289,18 +284,6 @@ class UserService(Service):
             )
             .exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
-            )
-            .delete()
-        )
-
-        # Delete RemoteOrganization where the user doesn't have access anymore
-        (
-            self.user.remote_organization_relations.filter(
-                account=self.account,
-                remote_organization__vcs_provider=self.vcs_provider_slug,
-            )
-            .exclude(
-                remote_organization__remote_id__in=organization_remote_ids,
             )
             .delete()
         )
@@ -350,7 +333,4 @@ class UserService(Service):
         raise NotImplementedError
 
     def sync_repositories(self):
-        raise NotImplementedError
-
-    def sync_organizations(self):
         raise NotImplementedError
