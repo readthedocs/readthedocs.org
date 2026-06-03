@@ -492,6 +492,17 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    container_cpu_limit = models.PositiveIntegerField(
+        _("Container CPU limit in Fargate CPU units"),
+        null=True,
+        blank=True,
+        help_text=_(
+            "Fargate CPU units (1024 = 1 vCPU). Defaults to the "
+            "system-wide default (2048 = 2 vCPU) when unset. Must "
+            "pair with ``container_mem_limit`` to a supported Fargate "
+            "CPU/memory combination."
+        ),
+    )
     build_queue = models.CharField(
         _("Alternate build queue id"),
         max_length=32,
@@ -2086,6 +2097,7 @@ class Feature(models.Model):
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
+    USE_FARGATE_BUILDER = "use_fargate_builder"
 
     FEATURES = (
         (
@@ -2154,6 +2166,14 @@ class Feature(models.Model):
         (
             USE_GVISOR_RUNTIME,
             _("Build: Run build containers under the gVisor (runsc) runtime."),
+        ),
+        (
+            USE_FARGATE_BUILDER,
+            _(
+                "Build: Dispatch this project's builds to AWS Fargate via "
+                "``submit_build_to_ecs`` instead of the legacy ``update_docs_task`` "
+                "Celery worker pool."
+            ),
         ),
     )
 
