@@ -390,7 +390,7 @@ def _ecs_run_task(*, build_os, cpu, memory, environment, command):
 # ---- The bootstrap task ----
 
 
-@app.task(bind=True, max_retries=3, default_retry_delay=30)
+@app.task(bind=True, max_retries=3, default_retry_delay=30, queue="web")
 def submit_build_to_ecs(self, build_pk):
     """
     Dispatch a build to AWS Fargate.
