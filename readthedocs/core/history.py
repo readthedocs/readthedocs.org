@@ -12,6 +12,23 @@ from simple_history.utils import update_change_reason
 log = structlog.get_logger(__name__)
 
 
+def get_audit_context():
+    """
+    Return ``(user, ip, browser)`` for the current actor.
+
+    These are populated on ``HistoricalRecords.context`` by the
+    ``delete_object`` Celery task, which is invoked from every deletion path
+    that needs audit attribution. When no task has set them (e.g. direct
+    ``Model.delete()`` calls in tests or management commands), all three are
+    ``None`` and the caller should skip writing an audit log.
+    """
+    return (
+        getattr(HistoricalRecords.context, "acting_user", None),
+        getattr(HistoricalRecords.context, "ip", None),
+        getattr(HistoricalRecords.context, "browser", None),
+    )
+
+
 def set_change_reason(instance, reason, user=None):
     """
     Set the change reason for the historical record created from the instance.

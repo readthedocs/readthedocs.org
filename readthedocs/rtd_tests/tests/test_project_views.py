@@ -436,6 +436,52 @@ class TestPrivateViews(TestCase):
                 clean_project_resources.call_args[0][0].slug, self.project.slug
             )
 
+    def test_delete_project_creates_audit_log_for_all_admins(self):
+        from readthedocs.audit.models import AuditLog
+
+        other_admin = get(User)
+        self.project.users.add(other_admin)
+
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post("/dashboard/pip/delete/")
+            self.assertEqual(response.status_code, 302)
+
+        # An audit log entry is created for each project admin.
+        logs = AuditLog.objects.filter(action=AuditLog.PROJECT_DELETE)
+        self.assertEqual(logs.count(), 2)
+        self.assertEqual(
+            set(logs.values_list("log_user_username", flat=True)),
+            {self.user.username, other_admin.username},
+        )
+
+        # All entries preserve the project slug after deletion.
+        for log in logs:
+            self.assertEqual(log.log_project_slug, "pip")
+            self.assertIsNone(log.project)
+            self.assertEqual(log.data, {"deleted_by": self.user.username})
+
+    def test_delete_project_captures_ip_and_browser_in_history(self):
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post(
+                "/dashboard/pip/delete/",
+                headers={"user-agent": "TestBrowser/1.0"},
+            )
+            self.assertEqual(response.status_code, 302)
+
+        HistoricalProject = Project.history.model
+        history = HistoricalProject.objects.filter(
+            slug="pip",
+            history_type="-",
+        ).first()
+        self.assertIsNotNone(history)
+        self.assertEqual(history.extra_history_ip, "127.0.0.1")
+        self.assertEqual(history.extra_history_browser, "TestBrowser/1.0")
+        self.assertEqual(history.history_user, self.user)
+
     def test_delete_superproject(self):
         sub_proj = get(Project, slug="test-sub-project", users=[self.user])
 
@@ -798,6 +844,46 @@ class TestWebhooksViews(TestCase):
             ),
         )
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestOrganizationDeleteAuditLog(TestCase):
+    """Test that deleting an organization creates audit logs for its projects."""
+
+    def setUp(self):
+        self.user = new(User, username="org-owner")
+        self.user.set_password("test")
+        self.user.save()
+        self.client.login(username="org-owner", password="test")
+
+        self.project = get(Project, slug="org-project", users=[self.user])
+        self.organization = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project],
+        )
+
+    def test_delete_organization_creates_audit_log_for_projects(self):
+        from readthedocs.audit.models import AuditLog
+
+        project_slug = self.project.slug
+        with mock.patch(
+            "readthedocs.projects.tasks.utils.clean_project_resources"
+        ):
+            response = self.client.post(
+                reverse("organization_delete", args=[self.organization.slug]),
+            )
+            self.assertEqual(response.status_code, 302)
+
+        self.assertFalse(Project.objects.filter(slug=project_slug).exists())
+        self.assertFalse(Organization.objects.filter(pk=self.organization.pk).exists())
+
+        logs = AuditLog.objects.filter(action=AuditLog.PROJECT_DELETE)
+        self.assertEqual(logs.count(), 1)
+        log_entry = logs.first()
+        self.assertEqual(log_entry.log_project_slug, project_slug)
+        self.assertEqual(log_entry.log_user_username, self.user.username)
+        self.assertEqual(log_entry.data, {"deleted_by": self.user.username})
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

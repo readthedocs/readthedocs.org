@@ -8,6 +8,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from simple_history.models import HistoricalRecords
 
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
@@ -78,7 +79,14 @@ def cleanup_pidbox_keys():
 
 
 @app.task(queue="web", bind=True)
-def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
+def delete_object(
+    self,
+    model_name: str,
+    pk: int,
+    user_id: int | None = None,
+    ip: str | None = None,
+    browser: str | None = None,
+):
     """
     Delete an object from the database asynchronously.
 
@@ -89,6 +97,8 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
     :param pk: The primary key of the object to delete.
     :param user_id: The ID of the user performing the deletion.
      Just for logging purposes.
+    :param ip: The IP address of the user performing the deletion.
+    :param browser: The browser user-agent of the user performing the deletion.
     """
     task_log = log.bind(model_name=model_name, object_pk=pk, user_id=user_id)
     lock_id = f"{self.name}-{model_name}-{pk}-lock"
@@ -105,6 +115,16 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
         obj = Model.objects.filter(pk=pk).first()
         if obj:
             task_log.info("Deleting object.")
+
+            # Make IP/browser/user available to signal handlers that need them,
+            # since there is no HTTP request in a Celery task.
+            if ip:
+                HistoricalRecords.context.ip = ip
+            if browser:
+                HistoricalRecords.context.browser = browser
+            if user:
+                HistoricalRecords.context.acting_user = user
+
             set_change_reason(obj, reason="Object deleted asynchronously", user=user)
             obj.delete()
             task_log.info("Object deleted.")
