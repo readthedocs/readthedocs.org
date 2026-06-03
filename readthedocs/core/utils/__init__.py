@@ -320,10 +320,28 @@ def cancel_build(build):
     )
 
     if build.task_arn:
-        # Fargate path. The runner inside the ECS task catches SIGTERM
-        # via its lifecycle's try/finally and finalizes the build. If
-        # the task has already exited (race), StopTask returns a benign
-        # error which we log but don't propagate.
+        # Fargate / local-docker path. Both backends produce a task_arn
+        # but with different shapes; ``docker://<container-id>`` means
+        # the build was dispatched via the local docker emulation (only
+        # used when ``settings.RTD_DOCKER_COMPOSE`` is on). A real ECS
+        # ARN means a real Fargate task.
+        if build.task_arn.startswith("docker://"):
+            import docker
+
+            container_id = build.task_arn.removeprefix("docker://")
+            try:
+                docker.from_env().containers.get(container_id).kill()
+            except Exception:
+                log.exception(
+                    "docker kill failed.",
+                    container_id=container_id,
+                )
+            return
+
+        # The runner inside the ECS task catches SIGTERM via its
+        # lifecycle's try/finally and finalizes the build. If the task
+        # has already exited (race), StopTask returns a benign error
+        # which we log but don't propagate.
         import boto3
 
         try:

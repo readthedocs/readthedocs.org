@@ -17,6 +17,22 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
+    # Local Fargate emulation: submit_build_to_ecs falls back to ``docker run``
+    # against the host's docker daemon (mounted via /var/run/docker.sock into
+    # this container) instead of ecs:RunTask. See
+    # readthedocs-builder/docs/architecture.md for the prod design.
+    #
+    # The image must already exist on the host. Build it once via:
+    #   cd ../readthedocs-builder && docker build -t builder-dev:latest .
+    RTD_LOCAL_BUILDER_IMAGE = os.environ.get(
+        "RTD_LOCAL_BUILDER_IMAGE", "builder-dev:latest"
+    )
+    # Host-side path to the readthedocs-builder checkout. When set, the
+    # bootstrap bind-mounts it at /opt/builder so the entrypoint skips the
+    # GitHub clone (matches the dev-run.sh iteration loop). Comment the
+    # env var out / leave it empty to exercise the clone path.
+    RTD_LOCAL_BUILDER_HOST_PATH = os.environ.get("RTD_LOCAL_BUILDER_HOST_PATH", "")
+
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
     PUBLIC_API_URL = f"http://{PRODUCTION_DOMAIN}"

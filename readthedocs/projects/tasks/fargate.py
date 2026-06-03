@@ -227,6 +227,99 @@ def _resolve_fargate_resources(project):
     return cpu, memory, time_limit
 
 
+def _dispatch_build_task(*, build_os, cpu, memory, environment, command):
+    """
+    Dispatch a build to either Fargate (prod) or local Docker (dev).
+
+    Branches on ``settings.RTD_DOCKER_COMPOSE``: docker-compose dev runs
+    the build in a sibling container on the host's docker daemon via
+    docker-py; production hits ``ecs:RunTask``. Returns a task identifier
+    that ``cancel_build`` knows how to route — a real ECS ARN for
+    Fargate, a ``docker://<container-id>`` pseudo-ARN for local Docker.
+    """
+    if settings.RTD_DOCKER_COMPOSE:
+        return _docker_run_task(
+            cpu=cpu,
+            memory=memory,
+            environment=environment,
+            command=command,
+        )
+    return _ecs_run_task(
+        build_os=build_os,
+        cpu=cpu,
+        memory=memory,
+        environment=environment,
+        command=command,
+    )
+
+
+def _docker_run_task(*, cpu, memory, environment, command):
+    """
+    Spawn a builder container via the host's docker daemon (dev only).
+
+    Returns ``docker://<container-id>`` so :func:`cancel_build` can
+    disambiguate from a real ECS task ARN.
+
+    The container shares the docker-compose network (so it can reach
+    ``web``, ``storage``, etc.) and gets the same resource constraints
+    Fargate would apply (cpus + memory). When
+    ``settings.RTD_LOCAL_BUILDER_HOST_PATH`` is set, the host-side
+    readthedocs-builder checkout is bind-mounted at ``/opt/builder`` so
+    the entrypoint skips the GitHub clone — matches the
+    ``dev-run.sh`` iteration loop.
+
+    Requires the celery container to have ``/var/run/docker.sock``
+    bind-mounted (docker-out-of-docker).
+    """
+    # Import lazily so the prod settings don't need the ``docker`` package
+    # available at import time. (It already is, via the legacy
+    # DockerBuildEnvironment, but lazy keeps the dep graph clean.)
+    import docker
+
+    client = docker.from_env()
+    image = settings.RTD_LOCAL_BUILDER_IMAGE
+
+    volumes = {}
+    if settings.RTD_LOCAL_BUILDER_HOST_PATH:
+        volumes[settings.RTD_LOCAL_BUILDER_HOST_PATH] = {
+            "bind": "/opt/builder",
+            "mode": "rw",
+        }
+
+    try:
+        container = client.containers.run(
+            image=image,
+            command=list(command),
+            environment={k: str(v) for k, v in environment.items()},
+            # Fargate CPU units (1024 = 1 vCPU) -> Docker nano_cpus (1e9 = 1 vCPU).
+            nano_cpus=int(cpu * 1_000_000_000 // 1024),
+            mem_limit=f"{memory}m",
+            network=settings.RTD_DOCKER_COMPOSE_NETWORK,
+            volumes=volumes,
+            detach=True,
+            # The runner exits cleanly after finalize; ``--rm`` keeps the
+            # docker ps list tidy. Logs ship to docker logs while the
+            # container exists.
+            auto_remove=True,
+        )
+    except Exception as exc:
+        raise BuildAppError(
+            BuildAppError.GENERIC_WITH_BUILD_ID,
+            exception_message=f"docker run failed: {exc}",
+        ) from exc
+
+    log.info(
+        "Dispatched build to local Docker.",
+        image=image,
+        container_id=container.id,
+        nano_cpus=int(cpu * 1_000_000_000 // 1024),
+        mem_limit=f"{memory}m",
+        network=settings.RTD_DOCKER_COMPOSE_NETWORK,
+        bind_mount=bool(volumes),
+    )
+    return f"docker://{container.id}"
+
+
 def _ecs_run_task(*, build_os, cpu, memory, environment, command):
     """
     Call ``ecs:RunTask`` and return the resulting task ARN.
@@ -362,7 +455,7 @@ def submit_build_to_ecs(self, build_pk):
     # 3. Mint a per-build API key (24h-scoped).
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
-    # 4. Submit to ECS.
+    # 4. Submit to ECS (prod) or local Docker (dev).
     environment = {
         "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
         "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
@@ -373,9 +466,35 @@ def submit_build_to_ecs(self, build_pk):
         "RTD_BUILD_TIME_LIMIT_GRACE_SECONDS": settings.RTD_BUILD_TIME_LIMIT_GRACE_SECONDS,
         "RTD_BUILD_TIME_LIMIT_KILL_SECONDS": settings.RTD_BUILD_TIME_LIMIT_KILL_SECONDS,
     }
-    command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
 
-    task_arn = _ecs_run_task(
+    if settings.RTD_DOCKER_COMPOSE:
+        # Local dev: the runner needs the S3-compatible endpoint
+        # (rustfs / MinIO) plus credentials and bucket names, exactly
+        # like dev-run.sh forwards them. In production Fargate, the
+        # runner mints per-build STS credentials via the API instead,
+        # so none of these are set there.
+        environment.update(
+            {
+                "AWS_S3_ENDPOINT_URL": settings.AWS_S3_ENDPOINT_URL or "",
+                "AWS_ACCESS_KEY_ID": settings.AWS_ACCESS_KEY_ID,
+                "AWS_SECRET_ACCESS_KEY": settings.AWS_SECRET_ACCESS_KEY,
+                "AWS_REGION": settings.AWS_S3_REGION_NAME or "us-east-1",
+                "RTD_S3_ARTIFACTS_BUCKET": settings.S3_MEDIA_STORAGE_BUCKET,
+                "RTD_S3_BUILD_TOOLS_BUCKET": settings.S3_BUILD_TOOLS_STORAGE_BUCKET,
+                # The runner is currently configured to point storage
+                # via AWS_S3_ENDPOINT_URL; storage_from_env mode reads
+                # everything from env vars directly.
+                "RTD_DOCKER_USER": "root",
+            }
+        )
+
+    command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
+    if settings.RTD_DOCKER_COMPOSE:
+        # Dev: don't go through the API's STS endpoint; use the AWS_*
+        # env vars we just forwarded.
+        command.append("--storage-from-env")
+
+    task_arn = _dispatch_build_task(
         build_os=build_os,
         cpu=cpu,
         memory=memory,
@@ -383,8 +502,12 @@ def submit_build_to_ecs(self, build_pk):
         command=command,
     )
 
-    log.info("Dispatched build to Fargate.", task_arn=task_arn)
+    log.info(
+        "Dispatched build.",
+        backend="docker" if settings.RTD_DOCKER_COMPOSE else "fargate",
+        task_arn=task_arn,
+    )
 
-    # 5. Store the ARN so cancel_build can call ecs:StopTask.
+    # 5. Store the (pseudo-)ARN so cancel_build can stop the task.
     build.task_arn = task_arn
     build.save(update_fields=["task_arn"])
