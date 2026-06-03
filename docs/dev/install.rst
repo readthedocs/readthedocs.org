@@ -28,7 +28,7 @@ Install external dependencies (Docker, Docker Compose, gVisor)
 
 #. Install Docker by following `the official guide <https://docs.docker.com/get-docker/>`_.
 #. Install Docker Compose with `the official instructions <https://docs.docker.com/compose/install/>`_.
-#. Install and set up gVisor following :doc:`rtd-dev:guides/gvisor`.
+#. Install and set up gVisor following :doc:`/guides/gvisor`.
 
 
 Set up your environment
