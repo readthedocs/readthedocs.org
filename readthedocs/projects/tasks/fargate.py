@@ -1,0 +1,377 @@
+"""
+Bootstrap task that dispatches a build to AWS Fargate.
+
+When a project has ``Feature.USE_FARGATE_BUILDER`` enabled, ``trigger_build``
+enqueues :func:`submit_build_to_ecs` here instead of the legacy
+``update_docs_task``. This task does the minimal work needed *before* the
+Fargate task can run:
+
+1. Sparse-clones just the ``.readthedocs.yaml`` to learn ``build.os``.
+2. Resolves ``build.os`` to an ECS task definition name and snaps the
+   project's per-build resource limits to a Fargate-supported CPU/memory pair.
+3. Mints a per-build API key.
+4. Calls ``ecs:RunTask`` with the right image + command + env.
+5. Stores the returned ECS task ARN on ``Build.task_arn`` so
+   ``cancel_build`` can later call ``ecs:StopTask``.
+
+The full Fargate build itself (clone, install, build, upload, finalize) runs
+inside the ``readthedocs/builder:<build_os>`` container — see the
+``readthedocs-builder`` repository for the runner.
+
+See ``readthedocs-builder/docs/architecture.md`` for the broader design.
+"""
+
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+from urllib.parse import urlparse
+
+import boto3
+import structlog
+import yaml
+from django.conf import settings
+
+from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.builds.models import Build
+from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.projects.models import Feature
+from readthedocs.worker import app
+
+
+log = structlog.get_logger(__name__)
+
+
+# Candidate paths the runner accepts as the project's config file.
+# Mirrors the four-pattern sparse-checkout regex elsewhere in the codebase.
+_CONFIG_FILENAMES = (
+    ".readthedocs.yaml",
+    ".readthedocs.yml",
+    "readthedocs.yaml",
+    "readthedocs.yml",
+)
+
+
+# Fargate's supported task-level CPU/memory matrix. Memory values are in MiB.
+# Source: AWS docs — "Task CPU and memory" under Fargate task definitions.
+_FARGATE_CPU_MEMORY_MATRIX = {
+    256: [512, 1024, 2048],
+    512: [1024, 2048, 3072, 4096],
+    1024: [2048, 3072, 4096, 5120, 6144, 7168, 8192],
+    2048: list(range(4096, 16384 + 1, 1024)),
+    4096: list(range(8192, 30720 + 1, 1024)),
+    8192: list(range(16384, 61440 + 1, 4096)),
+    16384: list(range(32768, 122880 + 1, 8192)),
+}
+_FARGATE_CPU_VALUES = sorted(_FARGATE_CPU_MEMORY_MATRIX.keys())
+
+
+# ---- Helpers ----
+
+
+def _sparse_clone_yaml(repo_url, ref, clone_token, dest):
+    """
+    Clone just the ``.readthedocs.yaml`` from a remote repo into ``dest``.
+
+    Uses ``--filter=blob:none --no-checkout`` so only commit / tree metadata
+    is downloaded, then ``sparse-checkout`` to pull just the config file.
+    Returns the absolute path to the downloaded config file, or ``None`` if
+    none of the candidate filenames were present.
+
+    HTTPS auth: ``clone_token`` is injected into the URL when non-empty.
+    SSH auth: not supported by this bootstrap path; SSH-hosted projects need
+    to use the legacy path until we surface the deploy key here.
+    """
+    if not repo_url:
+        raise BuildUserError(message_id=BuildUserError.GENERIC)
+
+    if repo_url.startswith("git@"):
+        # SSH clone needs a deploy key we don't have access to here.
+        raise BuildAppError(
+            BuildAppError.GENERIC_WITH_BUILD_ID,
+            exception_message=(
+                f"Fargate bootstrap doesn't support SSH clone URLs yet; project repo: {repo_url}"
+            ),
+        )
+
+    auth_url = repo_url
+    if clone_token and repo_url.startswith(("https://", "http://")):
+        parsed = urlparse(repo_url)
+        # x-access-token@host pattern is what GitHub/GitLab tokens expect.
+        auth_url = f"{parsed.scheme}://{clone_token}@{parsed.netloc}{parsed.path}"
+
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--filter=blob:none",
+            "--no-checkout",
+            "--depth=1",
+            "-b",
+            ref,
+            auth_url,
+            dest,
+        ],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", dest, "sparse-checkout", "init", "--no-cone"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", dest, "sparse-checkout", "set", *_CONFIG_FILENAMES],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", dest, "checkout"],
+        check=True,
+        capture_output=True,
+    )
+
+    for name in _CONFIG_FILENAMES:
+        candidate = os.path.join(dest, name)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def _read_build_os(config_path):
+    """
+    Parse ``.readthedocs.yaml`` and return the ``build.os`` value.
+
+    Resolves the ``ubuntu-lts-latest`` alias via
+    ``settings.RTD_DOCKER_BUILD_SETTINGS`` so the rest of the pipeline only
+    ever sees a concrete OS tag.
+    """
+    with open(config_path) as fh:
+        config = yaml.safe_load(fh)
+
+    if not isinstance(config, dict):
+        raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
+
+    build_os = (config.get("build") or {}).get("os")
+    if not build_os:
+        raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
+
+    if build_os == "ubuntu-lts-latest":
+        alias = settings.RTD_DOCKER_BUILD_SETTINGS["os"].get("ubuntu-lts-latest", "")
+        if ":" in alias:
+            build_os = alias.split(":", 1)[1]
+
+    return build_os
+
+
+def _parse_mem_limit_mb(value):
+    """
+    Coerce a project ``container_mem_limit`` value into MiB.
+
+    Accepts the historical Docker formats (``"512m"``, ``"8g"``) for
+    compatibility with existing rows, plus plain integers / int-strings
+    (interpreted as MiB).
+    """
+    if value is None or value == "":
+        return None
+    if isinstance(value, int):
+        return value
+
+    match = re.fullmatch(r"\s*(\d+)\s*([mMgG]?)\s*", str(value))
+    if not match:
+        return None
+    n = int(match.group(1))
+    unit = match.group(2).lower()
+    if unit == "g":
+        return n * 1024
+    # Default + 'm' suffix: already MiB.
+    return n
+
+
+def _snap_to_fargate_pair(cpu, memory):
+    """
+    Round ``(cpu, memory)`` up to the smallest Fargate-supported pair.
+
+    Returns ``(cpu, memory)`` integers. Caps at the largest supported pair
+    so a misconfigured project can't accidentally request unbounded compute.
+    """
+    cpu = next((c for c in _FARGATE_CPU_VALUES if c >= cpu), _FARGATE_CPU_VALUES[-1])
+    allowed = _FARGATE_CPU_MEMORY_MATRIX[cpu]
+    memory = next((m for m in allowed if m >= memory), allowed[-1])
+    return cpu, memory
+
+
+def _resolve_fargate_resources(project):
+    """
+    Resolve the per-build CPU / memory / time-limit for ``project``.
+
+    Layers:
+      1. Project field, or settings default.
+      2. Capped at ``settings.RTD_BUILD_MAX_*``.
+      3. CPU+memory snapped to a valid Fargate pair (CPU-first wins).
+
+    Returns ``(cpu, memory_mib, time_limit_seconds)``.
+    """
+    raw_cpu = project.container_cpu_limit or settings.RTD_BUILD_DEFAULT_CPU
+    raw_mem = _parse_mem_limit_mb(project.container_mem_limit) or settings.RTD_BUILD_DEFAULT_MEMORY
+    raw_time = project.container_time_limit or settings.RTD_BUILD_DEFAULT_TIME_LIMIT
+
+    cpu = min(raw_cpu, settings.RTD_BUILD_MAX_CPU)
+    memory = min(raw_mem, settings.RTD_BUILD_MAX_MEMORY)
+    time_limit = min(raw_time, settings.RTD_BUILD_MAX_TIME_LIMIT)
+
+    cpu, memory = _snap_to_fargate_pair(cpu, memory)
+    return cpu, memory, time_limit
+
+
+def _ecs_run_task(*, build_os, cpu, memory, environment, command):
+    """
+    Call ``ecs:RunTask`` and return the resulting task ARN.
+
+    Uses Fargate Spot as the primary capacity (with Fargate on-demand as
+    fallback could be configured at the cluster level via a default
+    capacity provider strategy; here we always request Spot first).
+
+    Raises :class:`BuildAppError` on any AWS error so the failure flows
+    through the caller's exception handling.
+    """
+    client = boto3.client("ecs", region_name=settings.RTD_ECS_REGION or None)
+    task_definition = settings.RTD_ECS_TASK_DEFINITION_FORMAT.format(build_os=build_os)
+
+    try:
+        response = client.run_task(
+            cluster=settings.RTD_ECS_CLUSTER,
+            taskDefinition=task_definition,
+            capacityProviderStrategy=[
+                {"capacityProvider": "FARGATE_SPOT", "weight": 1},
+            ],
+            count=1,
+            overrides={
+                "cpu": str(cpu),
+                "memory": str(memory),
+                "containerOverrides": [
+                    {
+                        "name": "builder",
+                        "command": list(command),
+                        "environment": [
+                            {"name": k, "value": str(v)} for k, v in environment.items()
+                        ],
+                    },
+                ],
+            },
+            networkConfiguration={
+                "awsvpcConfiguration": {
+                    "subnets": list(settings.RTD_ECS_SUBNETS),
+                    "securityGroups": list(settings.RTD_ECS_SECURITY_GROUPS),
+                    "assignPublicIp": settings.RTD_ECS_ASSIGN_PUBLIC_IP,
+                },
+            },
+        )
+    except Exception as exc:
+        raise BuildAppError(
+            BuildAppError.GENERIC_WITH_BUILD_ID,
+            exception_message=f"ecs:RunTask failed: {exc}",
+        ) from exc
+
+    tasks = response.get("tasks") or []
+    failures = response.get("failures") or []
+    if not tasks:
+        raise BuildAppError(
+            BuildAppError.GENERIC_WITH_BUILD_ID,
+            exception_message=f"ecs:RunTask returned no tasks; failures={failures}",
+        )
+
+    return tasks[0]["taskArn"]
+
+
+# ---- The bootstrap task ----
+
+
+@app.task(bind=True, max_retries=3, default_retry_delay=30)
+def submit_build_to_ecs(self, build_pk):
+    """
+    Dispatch a build to AWS Fargate.
+
+    Replaces ``update_docs_task.delay`` for projects with
+    ``Feature.USE_FARGATE_BUILDER`` enabled. See module docstring for the
+    full flow.
+    """
+    build = Build.objects.select_related("version__project").get(pk=build_pk)
+    version = build.version
+    project = version.project
+
+    if not project.has_feature(Feature.USE_FARGATE_BUILDER):
+        # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
+        # without the flag. If it does, fail loudly rather than silently
+        # dispatching to Fargate.
+        raise BuildAppError(
+            BuildAppError.GENERIC_WITH_BUILD_ID,
+            exception_message=(
+                f"submit_build_to_ecs called for project '{project.slug}' "
+                "without Feature.USE_FARGATE_BUILDER set."
+            ),
+        )
+
+    structlog.contextvars.bind_contextvars(
+        build_id=build.pk,
+        project_slug=project.slug,
+        version_slug=version.slug,
+    )
+
+    # 1. Sparse-clone just the YAML to learn build.os.
+    tmp = tempfile.mkdtemp(prefix="rtd-bootstrap-")
+    try:
+        config_path = _sparse_clone_yaml(
+            repo_url=project.repo,
+            ref=version.identifier,
+            clone_token=project.clone_token,
+            dest=tmp,
+        )
+        if config_path is None:
+            raise BuildUserError(message_id=BuildUserError.NO_CONFIG_FILE_DEPRECATED)
+        build_os = _read_build_os(config_path)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    log.info("Resolved build.os.", build_os=build_os)
+
+    # 2. Resolve per-build resource limits.
+    cpu, memory, time_limit = _resolve_fargate_resources(project)
+    log.info(
+        "Resolved Fargate resources.",
+        cpu=cpu,
+        memory=memory,
+        time_limit=time_limit,
+    )
+
+    # 3. Mint a per-build API key (24h-scoped).
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
+    # 4. Submit to ECS.
+    environment = {
+        "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
+        "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
+        "RTD_BUILD_API_KEY": build_api_key,
+        "RTD_BUILDER_REF": settings.RTD_BUILDER_REF,
+        "RTD_BUILDER_REPO": settings.RTD_BUILDER_REPO,
+        "RTD_BUILD_TIME_LIMIT_SECONDS": time_limit,
+        "RTD_BUILD_TIME_LIMIT_GRACE_SECONDS": settings.RTD_BUILD_TIME_LIMIT_GRACE_SECONDS,
+        "RTD_BUILD_TIME_LIMIT_KILL_SECONDS": settings.RTD_BUILD_TIME_LIMIT_KILL_SECONDS,
+    }
+    command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
+
+    task_arn = _ecs_run_task(
+        build_os=build_os,
+        cpu=cpu,
+        memory=memory,
+        environment=environment,
+        command=command,
+    )
+
+    log.info("Dispatched build to Fargate.", task_arn=task_arn)
+
+    # 5. Store the ARN so cancel_build can call ecs:StopTask.
+    build.task_arn = task_arn
+    build.save(update_fields=["task_arn"])
