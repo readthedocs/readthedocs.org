@@ -227,7 +227,7 @@ def _resolve_fargate_resources(project):
     return cpu, memory, time_limit
 
 
-def _dispatch_build_task(*, build_os, cpu, memory, environment, command):
+def _dispatch_build_task(*, build_pk, build_os, cpu, memory, environment, command):
     """
     Dispatch a build to either Fargate (prod) or local Docker (dev).
 
@@ -240,6 +240,7 @@ def _dispatch_build_task(*, build_os, cpu, memory, environment, command):
     """
     if settings.RTD_DOCKER_COMPOSE:
         return _docker_run_task(
+            build_pk=build_pk,
             cpu=cpu,
             memory=memory,
             environment=environment,
@@ -254,7 +255,7 @@ def _dispatch_build_task(*, build_os, cpu, memory, environment, command):
     )
 
 
-def _docker_run_task(*, cpu, memory, environment, command):
+def _docker_run_task(*, build_pk, cpu, memory, environment, command):
     """
     Spawn a builder container via the host's docker daemon (dev only).
 
@@ -293,9 +294,23 @@ def _docker_run_task(*, cpu, memory, environment, command):
             "mode": "r",
         }
 
+    # Stable container name so the user can ``docker logs build-<pk>``
+    # without having to look up the random id. If a stopped container
+    # from a previous run of the same pk is still around, remove it
+    # first so the name is free.
+    container_name = f"build-{build_pk}"
+    try:
+        existing = client.containers.get(container_name)
+    except docker.errors.NotFound:
+        pass
+    else:
+        log.info("Removing stale container.", container_name=container_name)
+        existing.remove(force=True)
+
     try:
         container = client.containers.run(
             image=image,
+            name=container_name,
             command=list(command),
             environment={k: str(v) for k, v in environment.items()},
             # Fargate CPU units (1024 = 1 vCPU) -> Docker nano_cpus (1e9 = 1 vCPU).
@@ -304,10 +319,12 @@ def _docker_run_task(*, cpu, memory, environment, command):
             network=settings.RTD_DOCKER_COMPOSE_NETWORK,
             volumes=volumes,
             detach=True,
-            # The runner exits cleanly after finalize; ``--rm`` keeps the
-            # docker ps list tidy. Logs ship to docker logs while the
-            # container exists.
-            auto_remove=True,
+            # Keep the container around after exit in dev so its logs
+            # remain inspectable via ``docker logs build-<pk>``. Prune
+            # accumulated stopped containers periodically with
+            # ``docker container prune``. Production (``_ecs_run_task``)
+            # doesn't hit this path — CloudWatch handles log retention.
+            auto_remove=False,
         )
     except Exception as exc:
         raise BuildAppError(
@@ -490,14 +507,22 @@ def submit_build_to_ecs(self, build_pk):
         # dev is owned by the host UID, which won't match the container's
         # ``docs`` user (same trick ``dev-run.sh`` already uses).
         environment["RTD_DOCKER_USER"] = "root"
-        # In dev, the API is only reachable via the host's IP address, not
-        # localhost or the docker gateway. Forward the host IP via env so
-        # the runner can construct API URLs correctly.
-        environment["RTD_API_URL"] = f"http://{settings.HOSTIP}"
+        # The build container joins ``RTD_DOCKER_COMPOSE_NETWORK`` so it
+        # can reach ``nginx`` (which fronts the API on port 80) by docker
+        # service-name DNS. ``HOSTIP`` doesn't work here: the compose
+        # bridge can't route to the host's LAN IP on the port-forwarded
+        # nginx port. ``dev-run.sh`` sidesteps this with ``--network=host``,
+        # but that defeats the compose-network plumbing we want for the
+        # rest of the runner's calls (storage, etc.).
+        #
+        # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we are fully migrated
+        # and remove this override here.
+        environment["RTD_API_URL"] = "http://nginx"
 
     command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
 
     task_arn = _dispatch_build_task(
+        build_pk=build.pk,
         build_os=build_os,
         cpu=cpu,
         memory=memory,
