@@ -292,9 +292,13 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
 
     volumes = {}
     if settings.RTDDEV_PATH_BUILDER:
+        # The path here is resolved by the *host* docker daemon (we're
+        # talking to it via the bind-mounted socket), so
+        # ``RTDDEV_PATH_BUILDER`` must be a host-side absolute path —
+        # not a path inside the celery container.
         volumes[settings.RTDDEV_PATH_BUILDER] = {
             "bind": "/opt/builder",
-            "mode": "r",
+            "mode": "ro",
         }
 
     # Stable container name so the user can ``docker logs build-<pk>``
