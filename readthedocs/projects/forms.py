@@ -52,7 +52,7 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.validators import validate_language
+from readthedocs.projects.validators import validate_project_language
 from readthedocs.redirects.models import Redirect
 
 
@@ -651,7 +651,7 @@ class UpdateProjectForm(
         language = self.cleaned_data["language"]
         project = self.instance
         if project:
-            validate_language(language, project)
+            validate_project_language(language, project)
         return language
 
     def clean_tags(self):

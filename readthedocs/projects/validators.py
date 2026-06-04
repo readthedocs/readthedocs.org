@@ -228,7 +228,7 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
-def validate_language(language, project):
+def validate_project_language(language, project):
     """
     Ensure that the given language isn't already used by the project's translations.
 

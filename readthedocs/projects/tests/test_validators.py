@@ -55,28 +55,28 @@ class TestValidateLanguage:
         self.main.translations.add(self.translation_br)
 
     def test_unused_language_is_valid(self):
-        assert validators.validate_language("fr", self.main) == "fr"
+        assert validators.validate_project_language("fr", self.main) == "fr"
 
     def test_same_language_as_self_is_valid(self):
         # A project keeping its own language is fine.
-        assert validators.validate_language("es", self.main) == "es"
-        assert validators.validate_language("en", self.translation_en) == "en"
+        assert validators.validate_project_language("es", self.main) == "es"
+        assert validators.validate_project_language("en", self.translation_en) == "en"
 
     def test_main_cant_use_translation_language(self):
         with pytest.raises(ValidationError) as excinfo:
-            validators.validate_language("en", self.main)
+            validators.validate_project_language("en", self.main)
         assert 'There is already a "en" translation' in str(excinfo.value)
 
     def test_translation_cant_use_main_language(self):
         with pytest.raises(ValidationError) as excinfo:
-            validators.validate_language("es", self.translation_en)
+            validators.validate_project_language("es", self.translation_en)
         assert 'There is already a "es" translation' in str(excinfo.value)
 
     def test_translation_cant_use_sibling_language(self):
         with pytest.raises(ValidationError) as excinfo:
-            validators.validate_language("br", self.translation_en)
+            validators.validate_project_language("br", self.translation_en)
         assert 'There is already a "br" translation' in str(excinfo.value)
 
     def test_project_without_translations_is_valid(self):
         project = get(Project, language="en", main_language_project=None)
-        assert validators.validate_language("ru", project) == "ru"
+        assert validators.validate_project_language("ru", project) == "ru"
