@@ -506,6 +506,7 @@ def submit_build_to_ecs(self, build_pk):
         # so the user sees a proper notification + ``finished`` state
         # instead of a build stuck in ``triggered``.
         _fail_build(build, exc)
+        log.exception("submit_build_to_ecs failed.")
 
 
 def _submit_build_to_ecs(build, version, project):
