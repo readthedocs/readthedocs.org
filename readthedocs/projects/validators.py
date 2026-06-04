@@ -228,6 +228,40 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
+def validate_environment_variable_name(name, project, error_class=ValidationError):
+    """
+    Validate the name of an environment variable.
+
+    This is shared between the environment variable form and the API serializer.
+
+    :param name: Name of the environment variable to validate.
+    :param project: Project the environment variable belongs to.
+    :param error_class: Exception class to raise on validation errors. Use
+        ``django.core.exceptions.ValidationError`` for forms and
+        ``rest_framework.serializers.ValidationError`` for the API.
+    """
+    if name.startswith("__"):
+        raise error_class(
+            _("Variable name can't start with __ (double underscore)"),
+        )
+    if name.startswith("READTHEDOCS"):
+        raise error_class(
+            _("Variable name can't start with READTHEDOCS"),
+        )
+    if project.environmentvariable_set.filter(name=name).exists():
+        raise error_class(
+            _("There is already a variable with this name for this project"),
+        )
+    if " " in name:
+        raise error_class(
+            _("Variable name can't contain spaces"),
+        )
+    if not re.fullmatch("[a-zA-Z0-9_]+", name):
+        raise error_class(
+            _("Only letters, numbers and underscore are allowed"),
+        )
+
+
 def validate_environment_variable_size(project, new_env_value, error_class=ValidationError):
     existing_size = (
         project.environmentvariable_set.annotate(size=Length("value")).aggregate(

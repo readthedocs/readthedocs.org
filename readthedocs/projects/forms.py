@@ -3,7 +3,6 @@
 import json
 import re
 from random import choice
-from re import fullmatch
 from urllib.parse import urlparse
 
 import dns.name
@@ -52,6 +51,7 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_environment_variable_name
 from readthedocs.redirects.models import Redirect
 
 
@@ -1384,28 +1384,7 @@ class EnvironmentVariableForm(forms.ModelForm):
     def clean_name(self):
         """Validate environment variable name chosen."""
         name = self.cleaned_data["name"]
-        if name.startswith("__"):
-            raise forms.ValidationError(
-                _("Variable name can't start with __ (double underscore)"),
-            )
-        if name.startswith("READTHEDOCS"):
-            raise forms.ValidationError(
-                _("Variable name can't start with READTHEDOCS"),
-            )
-        if self.project.environmentvariable_set.filter(name=name).exists():
-            raise forms.ValidationError(
-                _(
-                    "There is already a variable with this name for this project",
-                ),
-            )
-        if " " in name:
-            raise forms.ValidationError(
-                _("Variable name can't contain spaces"),
-            )
-        if not fullmatch("[a-zA-Z0-9_]+", name):
-            raise forms.ValidationError(
-                _("Only letters, numbers and underscore are allowed"),
-            )
+        validate_environment_variable_name(name=name, project=self.project)
         return name
 
 

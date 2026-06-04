@@ -209,6 +209,50 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
             "The total size of all environment variables in the project cannot exceed 256 KB."
         ]
 
+    def test_create_environment_variable_with_invalid_name(self):
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        invalid_names = {
+            "__INVALID": "Variable name can't start with __ (double underscore)",
+            "READTHEDOCS__INVALID": "Variable name can't start with READTHEDOCS",
+            "VARIABLE WITH SPACES": "Variable name can't contain spaces",
+            "INVALID_CHAR*": "Only letters, numbers and underscore are allowed",
+        }
+        for name, message in invalid_names.items():
+            resp = self.client.post(
+                url,
+                data={"name": name, "value": "a1b2c3", "public": True},
+            )
+            assert resp.status_code == 400
+            assert resp.json() == [message]
+
+        # No new variables were created.
+        assert self.project.environmentvariable_set.count() == 1
+
+    def test_create_environment_variable_with_existing_name(self):
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        resp = self.client.post(
+            url,
+            data={"name": self.environmentvariable.name, "value": "a1b2c3", "public": True},
+        )
+        assert resp.status_code == 400
+        assert resp.json() == [
+            "There is already a variable with this name for this project"
+        ]
+        assert self.project.environmentvariable_set.count() == 1
+
     def test_create_environment_variable_with_public_flag(self):
         self.assertEqual(self.project.environmentvariable_set.count(), 1)
         data = {

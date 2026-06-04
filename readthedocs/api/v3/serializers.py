@@ -31,6 +31,7 @@ from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.validators import validate_environment_variable_name
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
@@ -1162,6 +1163,11 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        validate_environment_variable_name(
+            name=validated_data["name"],
+            project=validated_data["project"],
+            error_class=serializers.ValidationError,
+        )
         validate_environment_variable_size(
             project=validated_data["project"],
             new_env_value=validated_data["value"],
