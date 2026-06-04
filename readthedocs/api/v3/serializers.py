@@ -31,6 +31,7 @@ from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.validators import validate_translation_language
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
@@ -731,6 +732,13 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("privacy_level")
             self.fields.pop("external_builds_privacy_level")
+
+    def validate_language(self, value):
+        return validate_translation_language(
+            project=self.instance,
+            language=value,
+            error_class=serializers.ValidationError,
+        )
 
 
 class ProjectUpdateSerializer(SettingsOverrideObject):

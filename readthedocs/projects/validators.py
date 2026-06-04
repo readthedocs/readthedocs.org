@@ -239,3 +239,33 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
         raise error_class(
             _("The total size of all environment variables in the project cannot exceed 256 KB.")
         )
+
+
+def validate_translation_language(project, language, error_class=ValidationError):
+    """Ensure language isn't already active in the translation tree."""
+    if not project:
+        return language
+
+    msg = _(
+        'There is already a "{lang}" translation for the {proj} project.',
+    )
+    if project.translations.filter(language=language).exists():
+        raise error_class(
+            msg.format(lang=language, proj=project.slug),
+        )
+
+    main_project = project.main_language_project
+    if not main_project:
+        return language
+
+    if main_project.language == language:
+        raise error_class(
+            msg.format(lang=language, proj=main_project.slug),
+        )
+
+    siblings = main_project.translations.filter(language=language).exclude(pk=project.pk).exists()
+    if siblings:
+        raise error_class(
+            msg.format(lang=language, proj=main_project.slug),
+        )
+    return language

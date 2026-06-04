@@ -52,6 +52,7 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_translation_language
 from readthedocs.redirects.models import Redirect
 
 
@@ -646,33 +647,11 @@ class UpdateProjectForm(
         return None
 
     def clean_language(self):
-        """Ensure that language isn't already active."""
-        language = self.cleaned_data["language"]
-        project = self.instance
-        if project:
-            msg = _(
-                'There is already a "{lang}" translation for the {proj} project.',
-            )
-            if project.translations.filter(language=language).exists():
-                raise forms.ValidationError(
-                    msg.format(lang=language, proj=project.slug),
-                )
-            main_project = project.main_language_project
-            if main_project:
-                if main_project.language == language:
-                    raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug),
-                    )
-                siblings = (
-                    main_project.translations.filter(language=language)
-                    .exclude(pk=project.pk)
-                    .exists()
-                )
-                if siblings:
-                    raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug),
-                    )
-        return language
+        return validate_translation_language(
+            project=self.instance,
+            language=self.cleaned_data["language"],
+            error_class=forms.ValidationError,
+        )
 
     def clean_tags(self):
         tags = self.cleaned_data.get("tags", [])
