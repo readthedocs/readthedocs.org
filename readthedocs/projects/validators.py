@@ -3,6 +3,7 @@
 import re
 from urllib.parse import urlparse
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -11,6 +12,7 @@ from django.db.models.functions import Length
 from django.utils.deconstruct import deconstructible
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 
 from readthedocs.projects.constants import LANGUAGES
 
@@ -238,4 +240,121 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
     if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
         raise error_class(
             _("The total size of all environment variables in the project cannot exceed 256 KB.")
+        )
+
+
+class ProjectValidator:
+    """
+    Shared validation for ``Project`` fields.
+
+    Forms enter through ``clean_<field>`` and API serializers through
+    ``validate_<field>``. Both extract the data they need and delegate to a
+    private ``_validate_<field>`` method that holds the shared logic and raises
+    the error class given to it (``forms.ValidationError`` or
+    ``serializers.ValidationError``).
+    """
+
+    def _validate_language(self, language, project, error_class):
+        """Ensure the language isn't already used by a translation of the project."""
+        if not project:
+            return language
+
+        msg = _('There is already a "{lang}" translation for the {proj} project.')
+        if project.translations.filter(language=language).exists():
+            raise error_class(msg.format(lang=language, proj=project.slug))
+
+        main_project = project.main_language_project
+        if main_project:
+            if main_project.language == language:
+                raise error_class(msg.format(lang=language, proj=main_project.slug))
+            siblings = (
+                main_project.translations.filter(language=language)
+                .exclude(pk=project.pk)
+                .exists()
+            )
+            if siblings:
+                raise error_class(msg.format(lang=language, proj=main_project.slug))
+        return language
+
+    def clean_language(self):
+        return self._validate_language(
+            self.cleaned_data["language"],
+            project=self.instance,
+            error_class=forms.ValidationError,
+        )
+
+    def validate_language(self, language):
+        return self._validate_language(
+            language,
+            project=self.instance,
+            error_class=serializers.ValidationError,
+        )
+
+    def _validate_tags(self, tags, error_class):
+        for tag in tags:
+            if len(tag) > 100:
+                raise error_class(
+                    _("Length of each tag must be less than or equal to 100 characters."),
+                )
+        return tags
+
+    def clean_tags(self):
+        return self._validate_tags(
+            self.cleaned_data.get("tags", []),
+            error_class=forms.ValidationError,
+        )
+
+    def validate_tags(self, tags):
+        return self._validate_tags(tags, error_class=serializers.ValidationError)
+
+
+class EnvironmentVariableValidator:
+    """
+    Shared validation for ``EnvironmentVariable`` names.
+
+    See :py:class:`ProjectValidator` for the ``clean_*``/``validate_*``/
+    ``_validate_*`` pattern used here.
+    """
+
+    def _validate_name(self, name, project, error_class):
+        """Validate environment variable name chosen."""
+        if name.startswith("__"):
+            raise error_class(
+                _("Variable name can't start with __ (double underscore)"),
+            )
+        if name.startswith("READTHEDOCS"):
+            raise error_class(
+                _("Variable name can't start with READTHEDOCS"),
+            )
+        if project and project.environmentvariable_set.filter(name=name).exists():
+            raise error_class(
+                _("There is already a variable with this name for this project"),
+            )
+        if " " in name:
+            raise error_class(
+                _("Variable name can't contain spaces"),
+            )
+        if not re.fullmatch("[a-zA-Z0-9_]+", name):
+            raise error_class(
+                _("Only letters, numbers and underscore are allowed"),
+            )
+        return name
+
+    def clean_name(self):
+        return self._validate_name(
+            self.cleaned_data["name"],
+            project=self.project,
+            error_class=forms.ValidationError,
+        )
+
+    def validate_name(self, name):
+        if self.instance:
+            project = self.instance.project
+        else:
+            view = self.context.get("view")
+            project = view._get_parent_project() if view else None
+        return self._validate_name(
+            name,
+            project=project,
+            error_class=serializers.ValidationError,
         )

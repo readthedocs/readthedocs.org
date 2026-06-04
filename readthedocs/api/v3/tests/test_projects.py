@@ -715,6 +715,37 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
+    def test_partial_update_project_existing_translation_language(self):
+        # ``self.project`` already has a Spanish translation.
+        get(
+            Project,
+            users=[self.me],
+            main_language_project=self.project,
+            language="es",
+        )
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, {"language": "es"})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("language", response.json())
+
+    def test_partial_update_project_tag_too_long(self):
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, {"tags": ["a" * 101]}, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("tags", response.json())
+
     def test_partial_update_project_readthedocs_yaml_path(self):
         """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
         url = reverse(
