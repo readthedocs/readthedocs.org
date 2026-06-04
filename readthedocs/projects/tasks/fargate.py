@@ -35,9 +35,11 @@ from django.conf import settings
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.worker import app
 
@@ -103,6 +105,7 @@ def _sparse_clone_yaml(repo_url, ref, clone_token, dest):
         # x-access-token@host pattern is what GitHub/GitLab tokens expect.
         auth_url = f"{parsed.scheme}://{clone_token}@{parsed.netloc}{parsed.path}"
 
+    # TODO: consider if we want to log these commands here.
     subprocess.run(
         [
             "git",
@@ -407,6 +410,49 @@ def _ecs_run_task(*, build_os, cpu, memory, environment, command):
 # ---- The bootstrap task ----
 
 
+def _fail_build(build, exc):
+    """
+    Finalize a build that failed *before* the runner container started.
+
+    The runner's own try/except (``builder.runner.Runner.run``) only
+    catches exceptions raised inside the build container. Anything raised
+    by ``submit_build_to_ecs`` itself (missing config file, malformed
+    YAML, ECS RunTask failure, etc.) never reaches that handler, so the
+    build would be left stuck in ``triggered`` state with no
+    user-facing explanation.
+
+    Mirrors what the runner does on failure: attach a notification
+    derived from the exception's ``message_id`` / ``format_values``, then
+    PATCH the build to ``finished`` with ``success=False``.
+    """
+    fallback = (
+        BuildUserError.GENERIC
+        if isinstance(exc, BuildUserError)
+        else BuildAppError.GENERIC_WITH_BUILD_ID
+    )
+    message_id = getattr(exc, "message_id", None) or fallback
+    format_values = getattr(exc, "format_values", None) or {}
+
+    log.error(
+        "Failing build at bootstrap.",
+        exception_type=type(exc).__name__,
+        message_id=message_id,
+        format_values=format_values,
+    )
+
+    Notification.objects.add(
+        message_id=message_id,
+        attached_to=build,
+        format_values=format_values,
+        dismissable=False,
+    )
+
+    build.state = BUILD_STATE_FINISHED
+    build.success = False
+    build.length = 0
+    build.save(update_fields=["state", "success", "length"])
+
+
 @app.task(bind=True, max_retries=3, default_retry_delay=30, queue="web")
 def submit_build_to_ecs(self, build_pk):
     """
@@ -432,6 +478,28 @@ def submit_build_to_ecs(self, build_pk):
         )
         return
 
+    structlog.contextvars.bind_contextvars(
+        build_id=build.pk,
+        project_slug=project.slug,
+        version_slug=version.slug,
+    )
+
+    try:
+        _submit_build_to_ecs(build, version, project)
+    except (BuildUserError, BuildAppError) as exc:
+        # Failures *before* the build container starts never reach the
+        # runner's own try/except. Finalize the build at the API layer
+        # so the user sees a proper notification + ``finished`` state
+        # instead of a build stuck in ``triggered``.
+        _fail_build(build, exc)
+
+
+def _submit_build_to_ecs(build, version, project):
+    """
+    Inner body of :func:`submit_build_to_ecs` — split out so the caller
+    can wrap it in a single try/except that finalizes the build on any
+    user / app error. See :func:`_fail_build` for the failure path.
+    """
     if not project.has_feature(Feature.USE_FARGATE_BUILDER):
         # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
         # without the flag. If it does, fail loudly rather than silently
@@ -443,12 +511,6 @@ def submit_build_to_ecs(self, build_pk):
                 "without Feature.USE_FARGATE_BUILDER set."
             ),
         )
-
-    structlog.contextvars.bind_contextvars(
-        build_id=build.pk,
-        project_slug=project.slug,
-        version_slug=version.slug,
-    )
 
     # 1. Sparse-clone just the YAML to learn build.os.
     tmp = tempfile.mkdtemp(prefix="rtd-bootstrap-")
