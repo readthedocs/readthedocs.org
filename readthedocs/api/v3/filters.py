@@ -7,6 +7,7 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Project
+from django.db.models.functions import Length
 
 
 class ProjectFilter(filters.FilterSet):
@@ -27,9 +28,36 @@ class ProjectFilter(filters.FilterSet):
         ]
 
 
+class VersionOrderingFilter(filters.OrderingFilter):
+    """
+    Custom ordering filter for versions.
+
+    This is needed to support ordering by the length of the verbose_name field,
+    so it can be annotated in the queryset only when needed.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "fields",
+            (
+                ('verbose_name', "verbose_name"),
+                ('verbose_name_length', 'verbose_name_length'),
+            ),
+        )
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        for value_name in value or []:
+            if value_name in ["verbose_name_length", "-verbose_name_length"]:
+                qs = qs.annotate(verbose_name_length=Length("verbose_name"))
+                break
+
+        return super().filter(qs, value)
+
+
 class VersionFilter(filters.FilterSet):
     slug = filters.CharFilter(lookup_expr="icontains")
     verbose_name = filters.CharFilter(lookup_expr="icontains")
+    sort = VersionOrderingFilter()
 
     class Meta:
         model = Version
