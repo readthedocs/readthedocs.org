@@ -228,6 +228,41 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
+def validate_language(language, project):
+    """
+    Ensure that the given language isn't already used by the project's translations.
+
+    A project can't have a translation in the same language as itself,
+    nor in the same language as any of its sibling translations.
+
+    Raises ``ValidationError`` if the language is already in use.
+
+    :param language: Language code to validate
+    :param project: Project the language is being assigned to
+    """
+    msg = _(
+        'There is already a "{lang}" translation for the {proj} project.',
+    )
+    if project.translations.filter(language=language).exists():
+        raise ValidationError(
+            msg.format(lang=language, proj=project.slug),
+        )
+    main_project = project.main_language_project
+    if main_project:
+        if main_project.language == language:
+            raise ValidationError(
+                msg.format(lang=language, proj=main_project.slug),
+            )
+        siblings = (
+            main_project.translations.filter(language=language).exclude(pk=project.pk).exists()
+        )
+        if siblings:
+            raise ValidationError(
+                msg.format(lang=language, proj=main_project.slug),
+            )
+    return language
+
+
 def validate_environment_variable_size(project, new_env_value, error_class=ValidationError):
     existing_size = (
         project.environmentvariable_set.annotate(size=Length("value")).aggregate(
