@@ -327,7 +327,15 @@ def cancel_build(build):
             import docker
 
             try:
-                docker.from_env().containers.get(build.task_arn).kill()
+                # SIGTERM, not the default SIGKILL: the runner installs a
+                # SIGTERM handler that raises ``BuildCancelled`` so its
+                # lifecycle's ``try/except/finally`` runs (attaches the
+                # ``CANCELLED_BY_USER`` notification + PATCHes the build
+                # to ``finished`` with ``success=False``) before the
+                # process exits. SIGKILL would skip all of that and
+                # leave the build stuck mid-state. Matches ECS StopTask
+                # semantics in production.
+                docker.from_env().containers.get(build.task_arn).kill(signal="SIGTERM")
             except Exception:
                 log.exception(
                     "docker kill failed.",
