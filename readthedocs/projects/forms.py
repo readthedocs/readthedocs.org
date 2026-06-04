@@ -73,9 +73,7 @@ class ProjectRemoteRepositorySelect(RichSelect):
     def __init__(self, attrs=None):
         if attrs is None:
             attrs = {}
-        attrs.setdefault(
-            "can_connect_remote_repository", self.can_connect_remote_repository
-        )
+        attrs.setdefault("can_connect_remote_repository", self.can_connect_remote_repository)
         super().__init__(attrs)
 
 
@@ -124,17 +122,13 @@ class ProjectForm(SimpleHistoryModelForm):
            and adding the current remote repo to it.
         """
         queryset = RemoteRepository.objects.for_project_linking(self.user)
-        current_remote_repo = (
-            self.instance.remote_repository if self.instance.pk else None
-        )
+        current_remote_repo = self.instance.remote_repository if self.instance.pk else None
         choices = [
             (
                 None,
                 RichChoice(
                     text=_("No connected repository"),
-                    description=_(
-                        "This project uses a manually configured repository URL"
-                    ),
+                    description=_("This project uses a manually configured repository URL"),
                     value=None,
                 ),
             ),
@@ -550,9 +544,7 @@ class UpdateProjectForm(
 
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
-            (key, value)
-            for key, value in self.fields["versioning_scheme"].choices
-            if key
+            (key, value) for key, value in self.fields["versioning_scheme"].choices if key
         ]
 
         if self.instance.main_language_project:
@@ -607,9 +599,7 @@ class UpdateProjectForm(
 
         # Represent the JSON field as a textarea with one command per line.
         if self.instance.git_checkout_command:
-            self.initial["git_checkout_command"] = "\n".join(
-                self.instance.git_checkout_command
-            )
+            self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
 
         self.setup_external_builds_option()
 
@@ -652,9 +642,7 @@ class UpdateProjectForm(
         version_qs = self.instance.all_active_versions()
         if version_qs.exists():
             version_qs = sort_version_aware(version_qs)
-            all_versions = [
-                (version.slug, version.verbose_name) for version in version_qs
-            ]
+            all_versions = [(version.slug, version.verbose_name) for version in version_qs]
             return all_versions
         return None
 
@@ -711,13 +699,9 @@ class ProjectRelationshipForm(forms.ModelForm):
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, "instance") and self.instance.pk is not None:
-            self.fields["child"].queryset = Project.objects.filter(
-                pk=self.instance.child.pk
-            )
+            self.fields["child"].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
-            self.fields["child"].queryset = self.project.get_subproject_candidates(
-                self.user
-            )
+            self.fields["child"].queryset = self.project.get_subproject_candidates(self.user)
 
     def clean_parent(self):
         self.project.is_valid_as_superproject(forms.ValidationError)
@@ -725,9 +709,7 @@ class ProjectRelationshipForm(forms.ModelForm):
 
     def clean_alias(self):
         alias = self.cleaned_data["alias"]
-        subproject = self.project.subprojects.filter(alias=alias).exclude(
-            id=self.instance.pk
-        )
+        subproject = self.project.subprojects.filter(alias=alias).exclude(id=self.instance.pk)
 
         if subproject.exists():
             raise forms.ValidationError(
@@ -880,12 +862,8 @@ class AddonsConfigForm(forms.ModelForm):
             "doc_diff_enabled": _("Visual diff enabled"),
             "filetreediff_enabled": _("Enabled"),
             "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _(
-                "Show a notification on builds from pull requests"
-            ),
-            "notifications_show_on_non_stable": _(
-                "Show a notification on non-stable versions"
-            ),
+            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
+            "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
@@ -893,9 +871,7 @@ class AddonsConfigForm(forms.ModelForm):
         }
 
         widgets = {
-            "options_root_selector": forms.TextInput(
-                attrs={"placeholder": "[role=main]"}
-            ),
+            "options_root_selector": forms.TextInput(attrs={"placeholder": "[role=main]"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -913,9 +889,7 @@ class AddonsConfigForm(forms.ModelForm):
             and not self.cleaned_data["flyout_sorting_custom_pattern"]
         ):
             raise forms.ValidationError(
-                _(
-                    "The flyout sorting custom pattern is required when selecting a custom pattern."
-                ),
+                _("The flyout sorting custom pattern is required when selecting a custom pattern."),
             )
         return super().clean()
 
@@ -936,8 +910,7 @@ class UserForm(forms.Form):
     def clean_username_or_email(self):
         username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
-            Q(username=username)
-            | Q(emailaddress__verified=True, emailaddress__email=username)
+            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
         ).first()
         if not user:
             raise forms.ValidationError(
@@ -1027,9 +1000,7 @@ class WebHookForm(forms.ModelForm):
             payload = json.loads(payload)
             payload = json.dumps(payload, indent=2)
         except Exception as exc:
-            raise forms.ValidationError(
-                _("The payload must be a valid JSON object.")
-            ) from exc
+            raise forms.ValidationError(_("The payload must be a valid JSON object.")) from exc
         return payload
 
 
@@ -1273,9 +1244,7 @@ class DomainForm(forms.ModelForm):
             return None
         except dns.resolver.LifetimeTimeout:
             raise forms.ValidationError(
-                _(
-                    "DNS resolution timed out. Make sure the domain is correct, or try again later."
-                ),
+                _("DNS resolution timed out. Make sure the domain is correct, or try again later."),
             )
         except dns.name.EmptyLabel:
             raise forms.ValidationError(
@@ -1293,9 +1262,7 @@ class DomainForm(forms.ModelForm):
         canonical = self.cleaned_data["canonical"]
         pk = self.instance.pk
         has_canonical_domain = (
-            Domain.objects.filter(project=self.project, canonical=True)
-            .exclude(pk=pk)
-            .exists()
+            Domain.objects.filter(project=self.project, canonical=True).exclude(pk=pk).exists()
         )
         if canonical and has_canonical_domain:
             raise forms.ValidationError(
@@ -1441,9 +1408,7 @@ class AddonsConfigSearchSettingsForm(forms.ModelForm):
 class AutomationRuleForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    VERSION_TYPE_CHOICES = [
-        (value, name) for value, name in VERSION_TYPES if value != UNKNOWN
-    ]
+    VERSION_TYPE_CHOICES = [(value, name) for value, name in VERSION_TYPES if value != UNKNOWN]
     version_types = CommaSeparatedMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=[(value, choice) for value, choice in VERSION_TYPE_CHOICES],
@@ -1485,12 +1450,8 @@ class AutomationRuleForm(forms.ModelForm):
         ]
 
         widgets = {
-            "version_match_pattern": forms.TextInput(
-                attrs={"placeholder": "^release-.*$"}
-            ),
-            "webhook_labels_match_pattern": forms.TextInput(
-                attrs={"placeholder": "^docs|build$"}
-            ),
+            "version_match_pattern": forms.TextInput(attrs={"placeholder": "^release-.*$"}),
+            "webhook_labels_match_pattern": forms.TextInput(attrs={"placeholder": "^docs|build$"}),
             "webhook_commit_message_match_pattern": forms.TextInput(
                 attrs={"placeholder": "^fix|feature$"}
             ),
@@ -1500,11 +1461,7 @@ class AutomationRuleForm(forms.ModelForm):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
-        if (
-            self.instance
-            and self.instance.pk
-            and self.instance.webhook_files_match_pattern
-        ):
+        if self.instance and self.instance.pk and self.instance.webhook_files_match_pattern:
             self.initial["webhook_files_match_pattern"] = "\n".join(
                 self.instance.webhook_files_match_pattern
             )
@@ -1515,25 +1472,19 @@ class AutomationRuleForm(forms.ModelForm):
     def clean_version_types(self):
         version_types = self.cleaned_data["version_types"]
         if not version_types:
-            raise forms.ValidationError(
-                _("At least one version type must be selected.")
-            )
+            raise forms.ValidationError(_("At least one version type must be selected."))
         return version_types
 
     def clean_webhook_files_match_pattern(self):
         webhook_files_match_pattern = self.cleaned_data["webhook_files_match_pattern"]
         if webhook_files_match_pattern:
             webhook_files_match_pattern = [
-                line.strip()
-                for line in webhook_files_match_pattern.splitlines()
-                if line.strip()
+                line.strip() for line in webhook_files_match_pattern.splitlines() if line.strip()
             ]
         return webhook_files_match_pattern
 
     def clean(self):
-        version_predefined_match_pattern = self.cleaned_data.get(
-            "version_predefined_match_pattern"
-        )
+        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
         if version_predefined_match_pattern is None and not self.cleaned_data.get(
             "version_match_pattern"
         ):
@@ -1544,13 +1495,8 @@ class AutomationRuleForm(forms.ModelForm):
 
     def clean_version_match_pattern(self):
         version_match_pattern = self.cleaned_data.get("version_match_pattern")
-        version_predefined_match_pattern = self.cleaned_data.get(
-            "version_predefined_match_pattern"
-        )
-        if (
-            version_predefined_match_pattern == CUSTOM_MATCH
-            and not version_match_pattern
-        ):
+        version_predefined_match_pattern = self.cleaned_data.get("version_predefined_match_pattern")
+        if version_predefined_match_pattern == CUSTOM_MATCH and not version_match_pattern:
             raise forms.ValidationError(
                 _("You should use either a predefined match or a custom match."),
             )

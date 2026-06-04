@@ -102,7 +102,5 @@ def test_validate_translation_language_allows_current_language():
         main_language_project=main_project,
     )
 
-    language = validators.validate_translation_language(
-        project=translation, language="en"
-    )
+    language = validators.validate_translation_language(project=translation, language="en")
     assert language == "en"
