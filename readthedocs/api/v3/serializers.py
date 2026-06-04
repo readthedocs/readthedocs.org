@@ -237,7 +237,9 @@ class NotificationMessageSerializer(serializers.Serializer):
 
 
 class NotificationCreateSerializer(serializers.ModelSerializer):
-    message_id = serializers.ChoiceField(choices=sorted([(key, key) for key in registry.messages]))
+    message_id = serializers.ChoiceField(
+        choices=sorted([(key, key) for key in registry.messages])
+    )
 
     class Meta:
         model = Notification
@@ -662,7 +664,9 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             # If the `RemoteRepository` is found, we save it to link with
             # `Project` object after performing its creating.
             query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
-            remote_repository = RemoteRepository.objects.for_project_linking(user).get(query)
+            remote_repository = RemoteRepository.objects.for_project_linking(user).get(
+                query
+            )
             data.update(
                 {
                     "remote_repository": remote_repository,
@@ -920,7 +924,9 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         super().__init__(*args, **kwargs)
         self.parent_project = self.context["parent"]
         user = self.context["request"].user
-        self.fields["child"].queryset = self.parent_project.get_subproject_candidates(user)
+        self.fields["child"].queryset = self.parent_project.get_subproject_candidates(
+            user
+        )
         # Give users a better error message.
         self.fields["child"].error_messages["does_not_exist"] = _(
             "Project with {slug_name}={value} is not valid as subproject"
@@ -973,7 +979,9 @@ class ChildProjectSerializer(ProjectSerializer):
 
     class Meta(ProjectSerializer.Meta):
         fields = [
-            field for field in ProjectSerializer.Meta.fields if field not in ["subproject_of"]
+            field
+            for field in ProjectSerializer.Meta.fields
+            if field not in ["subproject_of"]
         ]
 
 
@@ -1061,7 +1069,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
             ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
         ]
-        self.fields["type"].choices = list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        self.fields["type"].choices = (
+            list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        )
 
     def validate_type(self, value):
         blog_link = "https://blog.readthedocs.com/new-improvements-to-redirects/"
@@ -1073,7 +1083,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             )
         if value == "sphinx_html":
             raise serializers.ValidationError(
-                _(f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}.")
+                _(
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
+                )
             )
         if value == "sphinx_htmldir":
             raise serializers.ValidationError(
@@ -1337,7 +1349,9 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         if hasattr(obj, "_admin"):
             return obj._admin
 
-        return obj.remote_repository_relations.filter(user=request.user, admin=True).exists()
+        return obj.remote_repository_relations.filter(
+            user=request.user, admin=True
+        ).exists()
 
     def get_projects(self, obj):
         request = self.context["request"]

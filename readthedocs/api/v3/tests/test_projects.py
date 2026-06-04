@@ -141,7 +141,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": ("active_versions," "permissions"),
+            "expand": ("active_versions,permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
         expected_response["permissions"]["admin"] = False
@@ -166,7 +166,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": ("active_versions," "permissions"),
+            "expand": ("active_versions,permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
 
@@ -193,7 +193,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         data = {
-            "expand": ("active_versions," "permissions"),
+            "expand": ("active_versions,permissions"),
         }
         expected_response = self._get_response_dict("projects-detail")
         expected_response["permissions"]["admin"] = False
@@ -224,7 +224,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         query_params = {
-            "expand": ("active_versions," "permissions"),
+            "expand": ("active_versions,permissions"),
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
@@ -500,7 +500,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
             }
             r = self.client.post(reverse("projects-list"), data)
             assert r.status_code == 400, invalid_url
-            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], (
+                invalid_url
+            )
 
     def test_import_project_with_extra_fields(self):
         data = {
@@ -733,11 +735,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(url, {"language": "en"})
 
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["language"],
-            ['There is already a "en" translation for the project project.'],
-        )
+        assert response.status_code == 400
+        assert response.json()["language"] == [
+            'There is already a "en" translation for the project project.'
+        ]
 
     def test_partial_update_project_readthedocs_yaml_path(self):
         """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
@@ -904,7 +905,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
             }
             r = self.client.patch(url, data)
             assert r.status_code == 400, invalid_url
-            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], (
+                invalid_url
+            )
 
         self.project.refresh_from_db()
         assert self.project.repo == "https://github.com/rtfd/project"

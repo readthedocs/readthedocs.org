@@ -22,7 +22,9 @@ MAX_SIZE_ENV_VARS_PER_PROJECT = 256000
 class DomainNameValidator(RegexValidator):
     message = _("Enter a valid plain or internationalized domain name value")
     # Based on the domain name pattern from https://api.cloudflare.com/#zone-list-zones.
-    regex = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$")
+    regex = re.compile(
+        r"^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9-]{2,20}$"
+    )
 
 
 validate_domain_name = DomainNameValidator()
@@ -228,7 +230,9 @@ def _clean_prefix(prefix):
     return f"/{prefix}/"
 
 
-def validate_environment_variable_size(project, new_env_value, error_class=ValidationError):
+def validate_environment_variable_size(
+    project, new_env_value, error_class=ValidationError
+):
     existing_size = (
         project.environmentvariable_set.annotate(size=Length("value")).aggregate(
             total_size=Sum("size")
@@ -237,7 +241,9 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
     )
     if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
         raise error_class(
-            _("The total size of all environment variables in the project cannot exceed 256 KB.")
+            _(
+                "The total size of all environment variables in the project cannot exceed 256 KB."
+            )
         )
 
 
@@ -263,7 +269,11 @@ def validate_translation_language(project, language, error_class=ValidationError
             msg.format(lang=language, proj=main_project.slug),
         )
 
-    siblings = main_project.translations.filter(language=language).exclude(pk=project.pk).exists()
+    siblings = (
+        main_project.translations.filter(language=language)
+        .exclude(pk=project.pk)
+        .exists()
+    )
     if siblings:
         raise error_class(
             msg.format(lang=language, proj=main_project.slug),
