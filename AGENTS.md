@@ -73,10 +73,10 @@ tox -e migrations
 tox -e pre-commit
 
 # Run the main test suite (search, proxito, and embed_api tests are excluded by default)
-tox -e py312 -- --nomigrations
+tox -e py314 -- --nomigrations
 
 # Run tests matching a keyword (faster) — use -k because --pyargs readthedocs is hardcoded
-tox -e py312 -- -k "<keyword>" --reuse-db --nomigrations
+tox -e py314 -- -k "<keyword>" --reuse-db --nomigrations
 
 # Run only search tests (requires Elasticsearch sidecar in CI, skip locally unless available)
 tox -e search
