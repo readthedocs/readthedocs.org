@@ -1065,7 +1065,6 @@ class Build(models.Model):
 
         return None
 
-    @property
     def get_result_display(self):
         """Human-readable build result combining state and success."""
         if self.state == BUILD_STATE_FINISHED:
