@@ -269,7 +269,7 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
     The container shares the docker-compose network (so it can reach
     ``web``, ``storage``, etc.) and gets the same resource constraints
     Fargate would apply (cpus + memory). When
-    ``settings.RTDDEV_PATH_BUILDER`` is set, the host-side
+    ``settings.RTD_PATH_BUILDER`` is set, the host-side
     readthedocs-builder checkout is bind-mounted at ``/opt/builder`` so
     the entrypoint skips the GitHub clone — matches the
     ``dev-run.sh`` iteration loop.
@@ -291,12 +291,12 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
     image = settings.RTD_LOCAL_BUILDER_IMAGE
 
     volumes = {}
-    if settings.RTDDEV_PATH_BUILDER:
+    if settings.RTD_PATH_BUILDER:
         # The path here is resolved by the *host* docker daemon (we're
         # talking to it via the bind-mounted socket), so
-        # ``RTDDEV_PATH_BUILDER`` must be a host-side absolute path —
+        # ``RTD_PATH_BUILDER`` must be a host-side absolute path —
         # not a path inside the celery container.
-        volumes[settings.RTDDEV_PATH_BUILDER] = {
+        volumes[settings.RTD_PATH_BUILDER] = {
             "bind": "/opt/builder",
             "mode": "ro",
         }
@@ -306,7 +306,7 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
         # take effect without a full image rebuild. Bind-mount the host
         # copy on top so dev iterations on the entrypoint (signal
         # handling, watchdog, etc.) are live.
-        volumes[os.path.join(settings.RTDDEV_PATH_BUILDER, "scripts/entrypoint.sh")] = {
+        volumes[os.path.join(settings.RTD_PATH_BUILDER, "scripts/entrypoint.sh")] = {
             "bind": "/opt/entrypoint.sh",
             "mode": "ro",
         }

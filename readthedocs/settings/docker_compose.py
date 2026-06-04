@@ -34,7 +34,9 @@ class DockerBaseSettings(CommunityBaseSettings):
     # bootstrap bind-mounts it at /opt/builder so the entrypoint skips the
     # GitHub clone (matches the dev-run.sh iteration loop). Comment the
     # env var out / leave it empty to exercise the clone path.
-    RTDDEV_PATH_BUILDER = os.environ.get("RTDDEV_PATH_BUILDER", "")
+    # To clone the repository, you need a GH token with read access
+    # defined in RTD_BUILDER_TOKEN since it's private for now.
+    RTD_PATH_BUILDER = os.environ.get("RTD_PATH_BUILDER", "")
 
     # Personal access token used by the entrypoint to clone the
     # readthedocs-builder repo when it's private. Forwarded into the
