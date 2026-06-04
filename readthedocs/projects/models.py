@@ -700,6 +700,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -727,6 +729,10 @@ class Project(models.Model):
 
         super().save(*args, **kwargs)
         self.update_latest_version()
+
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
 
     def delete(self, *args, **kwargs):
         from readthedocs.builds.tasks import remove_build_commands_storage_paths
