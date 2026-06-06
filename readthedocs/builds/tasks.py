@@ -11,6 +11,7 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
+from readthedocs.api.v2.dataclasses import VersionData
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
@@ -150,27 +151,29 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         added_versions = set()
         result = sync_versions_to_db(
             project=project,
-            versions=tags_data,
+            versions=[VersionData(**v) for v in tags_data],
             type=TAG,
         )
         added_versions.update(result)
 
         result = sync_versions_to_db(
             project=project,
-            versions=branches_data,
+            versions=[VersionData(**v) for v in branches_data],
             type=BRANCH,
         )
         added_versions.update(result)
 
+        tags = [VersionData(**v) for v in tags_data]
+        branches = [VersionData(**v) for v in branches_data]
         delete_versions_from_db(
             project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=tags,
+            branches_data=branches,
         )
         deleted_active_versions = get_deleted_active_versions(
             project=project,
-            tags_data=tags_data,
-            branches_data=branches_data,
+            tags_data=tags,
+            branches_data=branches,
         )
     except Exception:
         log.exception("Sync Versions Error")
