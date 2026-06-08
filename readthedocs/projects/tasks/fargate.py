@@ -361,34 +361,96 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
     return container.id
 
 
+# ---- Capacity-provider routing ----
+#
+# Production runs ECS on EC2 (not Fargate) with per-tier Capacity
+# Providers backing ASGs. The dispatcher picks the right tier based
+# on the build's resource ask.
+
+
+def _pick_capacity_provider(cpu, memory):
+    """
+    Return the Capacity Provider name appropriate for this build's
+    CPU / memory ask.
+
+    Tier definitions (aspirational — currently the cluster has a
+    single Capacity Provider, see the testing override below):
+
+    - ``builder-large``:  ≥ 8 vCPU or ≥ 16 GB → c5.9xlarge fleet
+    - ``builder-medium``: ≥ 4 vCPU or ≥ 8 GB  → c5.4xlarge fleet
+    - ``builder-small``:  everything else      → c5.4xlarge fleet (Spot)
+
+    Adding a new tier means: (1) new ASG + capacity provider in AWS,
+    (2) new branch here.
+    """
+    # TESTING: the production cluster currently has a single
+    # manually-created Capacity Provider named ``isolated-builders``
+    # (the Terraform stack with per-tier providers isn't deployed yet).
+    # Route every build to it for now; restore the tiered branching
+    # below once the three ASGs exist.
+    return "isolated-builders"
+
+    if cpu >= 8192 or memory >= 16384:
+        return "builder-large"
+    if cpu >= 4096 or memory >= 8192:
+        return "builder-medium"
+    return "builder-small"
+
+
 def _ecs_run_task(*, build_os, cpu, memory, environment, command):
     """
     Call ``ecs:RunTask`` and return the resulting task ARN.
 
-    Uses Fargate Spot as the primary capacity (with Fargate on-demand as
-    fallback could be configured at the cluster level via a default
-    capacity provider strategy; here we always request Spot first).
+    Dispatches the task to the cluster's per-tier EC2 Capacity
+    Provider chosen by :func:`_pick_capacity_provider`. The capacity
+    provider's ASG picks an EC2 instance with the build image
+    pre-baked into local docker storage (see the Packer template
+    under ``readthedocs-builder/packer/``), so task start time
+    is ~5–10 s instead of the ~2 min Fargate pull.
 
-    Raises :class:`BuildAppError` on any AWS error so the failure flows
-    through the caller's exception handling.
+    Raises :class:`BuildAppError` on any AWS error so the failure
+    flows through the caller's exception handling.
     """
-    client = boto3.client("ecs", region_name=settings.RTD_ECS_REGION or None)
+    client = boto3.client(
+        "ecs",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+
     task_definition = settings.RTD_ECS_TASK_DEFINITION_FORMAT.format(build_os=build_os)
+    capacity_provider = _pick_capacity_provider(cpu, memory)
+
+    log.info(
+        "Dispatching build via ECS RunTask.",
+        task_definition=task_definition,
+        capacity_provider=capacity_provider,
+        cpu=cpu,
+        memory=memory,
+    )
 
     try:
         response = client.run_task(
             cluster=settings.RTD_ECS_CLUSTER,
             taskDefinition=task_definition,
+            # Pick the right EC2-backed Capacity Provider for this build's
+            # resource ask. No ``launchType`` here — Capacity Provider
+            # strategies are mutually exclusive with ``launchType``, and
+            # ECS infers EC2 vs Fargate from the underlying ASG/provider.
             capacityProviderStrategy=[
-                {"capacityProvider": "FARGATE_SPOT", "weight": 1},
+                {"capacityProvider": capacity_provider, "weight": 1},
             ],
             count=1,
             overrides={
+                # Task-level CPU/memory ceilings. ECS bin-packs against
+                # these on the chosen capacity provider's instances; the
+                # build container itself enforces the same limits via
+                # cgroups.
                 "cpu": str(cpu),
                 "memory": str(memory),
                 "containerOverrides": [
                     {
-                        "name": "builder",
+                        "name": "build",
                         "command": list(command),
                         "environment": [
                             {"name": k, "value": str(v)} for k, v in environment.items()
@@ -396,13 +458,19 @@ def _ecs_run_task(*, build_os, cpu, memory, environment, command):
                     },
                 ],
             },
-            networkConfiguration={
-                "awsvpcConfiguration": {
-                    "subnets": list(settings.RTD_ECS_SUBNETS),
-                    "securityGroups": list(settings.RTD_ECS_SECURITY_GROUPS),
-                    "assignPublicIp": settings.RTD_ECS_ASSIGN_PUBLIC_IP,
-                },
-            },
+            # No ``networkConfiguration`` — the task definitions use
+            # ``networkMode: bridge``, so tasks share the EC2 host's
+            # network namespace. Rationale:
+            #   - ``assignPublicIp`` is a Fargate-only parameter; an
+            #     EC2 + awsvpc task in a public subnet still gets only
+            #     a private IP, so the task can't reach github.com /
+            #     PyPI / the RTD API without a NAT gateway.
+            #   - Bridge mode keeps the network plumbing minimal:
+            #     the host's egress IS the task's egress.
+            #   - Cost of switching back to awsvpc later (when per-task
+            #     SG isolation matters): add NAT, re-register task defs
+            #     with networkMode awsvpc, restore the
+            #     ``networkConfiguration`` block here.
         )
     except Exception as exc:
         raise BuildAppError(
@@ -413,6 +481,12 @@ def _ecs_run_task(*, build_os, cpu, memory, environment, command):
     tasks = response.get("tasks") or []
     failures = response.get("failures") or []
     if not tasks:
+        # Common failure here is ``RESOURCE:`` — the chosen capacity
+        # provider's ASG had no room to place the task. The Capacity
+        # Provider's managed scaling spins up another instance, but a
+        # one-shot RunTask won't retry — the user has to re-trigger.
+        # If this becomes frequent, add a small retry loop here that
+        # falls back to the next tier up.
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=f"ecs:RunTask returned no tasks; failures={failures}",
