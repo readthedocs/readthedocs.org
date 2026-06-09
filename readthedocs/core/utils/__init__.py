@@ -202,7 +202,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
 
     When the project has ``Feature.USE_ECS_BUILDER`` enabled, dispatches
     to the new ``submit_build_to_ecs`` bootstrap task (which clones the
-    config, resolves ``build.os``, and runs the build inside a Fargate task)
+    config, resolves ``build.os``, and runs the build inside an ECS-on-EC2 task)
     instead of the legacy ``update_docs_task``. See
     ``readthedocs-builder/docs/architecture.md`` for the broader design.
 
@@ -239,9 +239,9 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         # Build was skipped
         return (None, None)
 
-    # Feature-flag dispatch: Fargate path vs legacy Celery path.
+    # Feature-flag dispatch: ECS builder path vs legacy Celery path.
     if project.has_feature(Feature.USE_ECS_BUILDER):
-        log.info("Dispatching build via submit_build_to_ecs (Fargate path).")
+        log.info("Dispatching build via submit_build_to_ecs (ECS builder path).")
         task = submit_build_to_ecs.delay(build_pk=build.pk)
         # The Build's ECS task_arn is populated by submit_build_to_ecs once
         # ``ecs:RunTask`` returns; we don't write task_id here (that's the
@@ -276,8 +276,8 @@ def cancel_build(build):
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
 
-    Routing during the Fargate rollout: branches on which task identifier
-    is set on the build. ``Build.task_arn`` (Fargate path) takes
+    Routing during the ECS builder rollout: branches on which task identifier
+    is set on the build. ``Build.task_arn`` (ECS builder path) takes
     precedence — if the build was dispatched to ECS, we call
     ``ecs:StopTask``. Otherwise we fall back to the legacy Celery revoke.
     The branch is on the build's *actual* state (which dispatcher ran),
@@ -320,7 +320,7 @@ def cancel_build(build):
     )
 
     if build.task_arn:
-        # Fargate / local-docker path. ``task_arn`` is a container id
+        # ECS builder / local-docker path. ``task_arn`` is a container id
         # under docker-compose dev and a real ECS task ARN in
         # production; we branch on ``settings.RTD_DOCKER_COMPOSE``.
         if settings.RTD_DOCKER_COMPOSE:
@@ -367,8 +367,8 @@ def cancel_build(build):
         app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
         return
 
-    # Neither path has a handle yet. This happens when the Fargate
-    # bootstrap task hasn't run / hasn't called ecs:RunTask. The
+    # Neither path has a handle yet. This happens when the ECS bootstrap
+    # task hasn't run / hasn't called ecs:RunTask. The
     # state-update above is enough — submit_build_to_ecs checks the
     # build state at startup and bails out when it's CANCELLED.
     log.info(

@@ -646,7 +646,7 @@ class CommunityBaseSettings(Settings):
     # TODO: use RTD_BUILDER_REF = "rel" when we have a stable release of the builder
     RTD_BUILDER_REF = "main"
 
-    # ECS config. All four MUST be set in production; left empty here
+    # ECS config. All of these MUST be set in production; left empty here
     # so dev settings can override (or the bootstrap can short-circuit when not
     # configured).
     RTD_ECS_CLUSTER = ""
