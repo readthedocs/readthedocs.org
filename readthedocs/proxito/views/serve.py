@@ -721,11 +721,9 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     """Serve llms.txt files from the domain's root."""
 
-    # Always cache this view, since it's the same for all users.
-    cache_response = True
     # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "llms.txt"
 
@@ -734,7 +732,8 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         Serve custom user's defined ``/llms.txt`` or ``/llms-full.txt``.
 
         If the user added one of these files in the "default version" of the
-        project, we serve it directly.
+        project, we serve it directly. Private versions are served only to
+        users that have access to them.
         """
         project = request.unresolved_domain.project
         self.project_cache_tag = filename
@@ -746,9 +745,7 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
 
         no_serve_llms_txt = any(
             [
-                # If the default version is private or,
-                version.is_private,
-                # default version is not active or,
+                # If the default version is not active or,
                 not version.active,
                 # default version is not built
                 not version.built,
@@ -759,10 +756,18 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
             # ... we do return a 404
             raise Http404()
 
+        # Only public versions can be cached,
+        # since private versions check for authorization.
+        self.cache_response = version.is_public
+
         structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
         )
+
+        # Check user permissions and return an unauthed response if needed.
+        if not self.allowed_user(request, version):
+            return self.get_unauthed_response(request, project)
 
         try:
             response = self._serve_docs(
@@ -791,6 +796,10 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         project = self._get_project()
         version_slug = project.get_default_version()
         return project.versions.filter(slug=version_slug).first()
+
+
+class ServeLLMSTXT(SettingsOverrideObject):
+    _default_class = ServeLLMSTXTBase
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):

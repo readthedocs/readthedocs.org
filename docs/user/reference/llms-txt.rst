@@ -31,10 +31,12 @@ To use this feature:
 
    The ``llms.txt`` file will only be served if:
 
-   * Your default version is **public**
    * Your default version is **active**
    * Your default version has been **built**
    * The ``llms.txt`` file exists in your build output
+
+   If your default version is **private**,
+   the ``llms.txt`` file is served only to users that have access to that version.
 
 Tool integration
 ----------------
