@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import socket
 
 import boto3
 import structlog
@@ -230,6 +231,74 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
         log.info("Failed when trying to set instance protection.")
     except Exception:
         log.exception("Unexpected error when trying to set instance protection.")
+
+
+def stop_consuming_tasks():
+    """
+    Tell this Celery worker to stop fetching new tasks from its queues.
+
+    The currently-running task keeps going until it finishes; the worker
+    simply won't pick up anything new. This is used before terminating the
+    instance so we don't grab a build that would be killed mid-flight on
+    shutdown.
+    """
+    node_name = f"celery@{socket.gethostname()}"
+    active_queues = ["build:default", "build:large"]
+
+    for queue in active_queues:
+        log.info("Cancelling consumer.", queue=queue["name"], node=node_name)
+        app.control.cancel_consumer(queue["name"], destination=[node_name])
+
+
+@app.task(queue="web")
+def terminate_builder_instance(builder, build_id=None):
+    """
+    Terminate the builder instance ``builder`` after a build finishes.
+
+    This is used for ephemeral build instances (one build per instance): once
+    the build is done, the instance is no longer needed. We let the Auto
+    Scaling Group launch a fresh replacement to keep the desired capacity.
+    """
+    structlog.contextvars.bind_contextvars(
+        build_id=build_id,
+        builder=builder,
+    )
+
+    if settings.RTD_DOCKER_COMPOSE:
+        log.info(
+            "Running development environment. Skipping instance termination.",
+        )
+        return
+
+    # web-extra-i-0c3e866c4e323928f
+    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", builder)
+    if not hostname_match:
+        log.warning(
+            "Unable to terminate instance. Hostname name matching not found.",
+        )
+        return
+
+    _, instance_id = hostname_match.groups()
+    asg = boto3.client(
+        "autoscaling",
+        aws_access_key_id=settings.RTD_AWS_SCALE_IN_ACCESS_KEY,
+        aws_secret_access_key=settings.RTD_AWS_SCALE_IN_SECRET_ACCESS_KEY,
+        region_name=settings.RTD_AWS_SCALE_IN_REGION_NAME,
+    )
+
+    try:
+        asg.terminate_instance_in_auto_scaling_group(
+            InstanceId=instance_id,
+            ShouldDecrementDesiredCapacity=False,
+        )
+    except (ValidationError, ClientError):
+        # Don't log these as exceptions,
+        # since there isn't much we can do about it here.
+        log.info("Failed when trying to terminate instance.", instance_id=instance_id)
+    except Exception:
+        log.exception(
+            "Unexpected error when trying to terminate instance.", instance_id=instance_id
+        )
 
 
 class BuildRequest(Request):
