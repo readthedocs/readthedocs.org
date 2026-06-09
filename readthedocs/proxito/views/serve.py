@@ -732,8 +732,7 @@ class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         Serve custom user's defined ``/llms.txt`` or ``/llms-full.txt``.
 
         If the user added one of these files in the "default version" of the
-        project, we serve it directly. Private versions are served only to
-        users that have access to them.
+        project, we serve it directly.
         """
         project = request.unresolved_domain.project
         self.project_cache_tag = filename
@@ -743,17 +742,9 @@ class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         version = get_object_or_404(project.versions, slug=version_slug)
         self._llms_version = version
 
-        no_serve_llms_txt = any(
-            [
-                # If the default version is not active or,
-                not version.active,
-                # default version is not built
-                not version.built,
-            ]
-        )
-
-        if no_serve_llms_txt:
-            # ... we do return a 404
+        # Serve only for active and built versions.
+        serve_llms_txt = version.active and version.built
+        if not serve_llms_txt:
             raise Http404()
 
         # Only public versions can be cached,

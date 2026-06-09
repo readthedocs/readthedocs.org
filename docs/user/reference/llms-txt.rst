@@ -35,9 +35,6 @@ To use this feature:
    * Your default version has been **built**
    * The ``llms.txt`` file exists in your build output
 
-   If your default version is **private**,
-   the ``llms.txt`` file is served only to users that have access to that version.
-
 Tool integration
 ----------------
 

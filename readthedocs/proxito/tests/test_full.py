@@ -1085,24 +1085,19 @@ class TestAdditionalDocViews(BaseDocServing):
         """Test that llms.txt from a private version is served, but not cached."""
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["x-accel-redirect"],
-            "/proxito/media/html/project/latest/llms.txt",
-        )
-        self.assertEqual(response["CDN-Cache-Control"], "private")
+        assert response.status_code == 200
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"], "private"
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
-    @mock.patch.object(ServeLLMSTXTBase, "get_unauthed_response", create=True)
     @mock.patch.object(ServeLLMSTXTBase, "allowed_user")
-    def test_llms_txt_private_version_unauthorized_user(self, allowed_user, get_unauthed_response):
+    def test_llms_txt_private_version_unauthorized_user(self, allowed_user):
         """Test that users without access to the private version get an unauthorized response."""
         allowed_user.return_value = False
-        get_unauthed_response.return_value = HttpResponse(status=401)
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(response["CDN-Cache-Control"], "private")
+        assert response.status_code == 401
+        assert response["CDN-Cache-Control"] == "private"
 
     def test_llms_txt_inactive_version(self):
         """Test that 404 is returned when default version is inactive."""
