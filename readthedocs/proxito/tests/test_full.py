@@ -1045,11 +1045,8 @@ class TestAdditionalDocViews(BaseDocServing):
         """Test serving a custom llms.txt file from the default version."""
         self.project.versions.update(active=True, built=True)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(
-            response["x-accel-redirect"],
-            "/proxito/media/html/project/latest/llms.txt",
-        )
-        self.assertEqual(response["CDN-Cache-Control"], "public")
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "public"
 
     def test_custom_llms_full_txt(self):
         """Test serving a custom llms-full.txt file from the default version."""
