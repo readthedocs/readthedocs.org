@@ -1,7 +1,7 @@
 """
 Bootstrap task that dispatches a build to AWS Fargate.
 
-When a project has ``Feature.USE_FARGATE_BUILDER`` enabled, ``trigger_build``
+When a project has ``Feature.USE_ECS_BUILDER`` enabled, ``trigger_build``
 enqueues :func:`submit_build_to_ecs` here instead of the legacy
 ``update_docs_task``. This task does the minimal work needed *before* the
 Fargate task can run:
@@ -57,18 +57,11 @@ _CONFIG_FILENAMES = (
 )
 
 
-# Fargate's supported task-level CPU/memory matrix. Memory values are in MiB.
-# Source: AWS docs — "Task CPU and memory" under Fargate task definitions.
-_FARGATE_CPU_MEMORY_MATRIX = {
-    256: [512, 1024, 2048],
-    512: [1024, 2048, 3072, 4096],
-    1024: [2048, 3072, 4096, 5120, 6144, 7168, 8192],
-    2048: list(range(4096, 16384 + 1, 1024)),
-    4096: list(range(8192, 30720 + 1, 1024)),
-    8192: list(range(16384, 61440 + 1, 4096)),
-    16384: list(range(32768, 122880 + 1, 8192)),
-}
-_FARGATE_CPU_VALUES = sorted(_FARGATE_CPU_MEMORY_MATRIX.keys())
+# (Historical: a Fargate CPU/memory matrix constant lived here when the
+# dispatch path targeted Fargate. ECS-on-EC2 accepts arbitrary
+# CPU/memory pairs constrained only by what fits on the chosen
+# capacity provider's instances, so the matrix + snap helper are
+# gone — see git blame for the prior implementation.)
 
 
 # ---- Helpers ----
@@ -194,29 +187,19 @@ def _parse_mem_limit_mb(value):
     return n
 
 
-def _snap_to_fargate_pair(cpu, memory):
-    """
-    Round ``(cpu, memory)`` up to the smallest Fargate-supported pair.
-
-    Returns ``(cpu, memory)`` integers. Caps at the largest supported pair
-    so a misconfigured project can't accidentally request unbounded compute.
-    """
-    cpu = next((c for c in _FARGATE_CPU_VALUES if c >= cpu), _FARGATE_CPU_VALUES[-1])
-    allowed = _FARGATE_CPU_MEMORY_MATRIX[cpu]
-    memory = next((m for m in allowed if m >= memory), allowed[-1])
-    return cpu, memory
-
-
-def _resolve_fargate_resources(project):
+def _resolve_build_resources(project):
     """
     Resolve the per-build CPU / memory / time-limit for ``project``.
 
     Layers:
       1. Project field, or settings default.
       2. Capped at ``settings.RTD_BUILD_MAX_*``.
-      3. CPU+memory snapped to a valid Fargate pair (CPU-first wins).
 
     Returns ``(cpu, memory_mib, time_limit_seconds)``.
+
+    Caller is responsible for matching the returned ``(cpu, memory)``
+    pair to a capacity provider whose instances can fit it — see
+    :func:`_pick_capacity_provider`.
     """
     raw_cpu = project.container_cpu_limit or settings.RTD_BUILD_DEFAULT_CPU
     raw_mem = _parse_mem_limit_mb(project.container_mem_limit) or settings.RTD_BUILD_DEFAULT_MEMORY
@@ -226,7 +209,6 @@ def _resolve_fargate_resources(project):
     memory = min(raw_mem, settings.RTD_BUILD_MAX_MEMORY)
     time_limit = min(raw_time, settings.RTD_BUILD_MAX_TIME_LIMIT)
 
-    cpu, memory = _snap_to_fargate_pair(cpu, memory)
     return cpu, memory, time_limit
 
 
@@ -547,7 +529,7 @@ def submit_build_to_ecs(self, build_pk):
     Dispatch a build to AWS Fargate.
 
     Replaces ``update_docs_task.delay`` for projects with
-    ``Feature.USE_FARGATE_BUILDER`` enabled. See module docstring for the
+    ``Feature.USE_ECS_BUILDER`` enabled. See module docstring for the
     full flow.
     """
     build = Build.objects.select_related("version__project").get(pk=build_pk)
@@ -589,7 +571,7 @@ def _submit_build_to_ecs(build, version, project):
     can wrap it in a single try/except that finalizes the build on any
     user / app error. See :func:`_fail_build` for the failure path.
     """
-    if not project.has_feature(Feature.USE_FARGATE_BUILDER):
+    if not project.has_feature(Feature.USE_ECS_BUILDER):
         # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
         # without the flag. If it does, fail loudly rather than silently
         # dispatching to Fargate.
@@ -597,7 +579,7 @@ def _submit_build_to_ecs(build, version, project):
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=(
                 f"submit_build_to_ecs called for project '{project.slug}' "
-                "without Feature.USE_FARGATE_BUILDER set."
+                "without Feature.USE_ECS_BUILDER set."
             ),
         )
 
@@ -619,7 +601,7 @@ def _submit_build_to_ecs(build, version, project):
     log.info("Resolved build.os.", build_os=build_os)
 
     # 2. Resolve per-build resource limits.
-    cpu, memory, time_limit = _resolve_fargate_resources(project)
+    cpu, memory, time_limit = _resolve_build_resources(project)
     log.info(
         "Resolved Fargate resources.",
         cpu=cpu,
@@ -683,7 +665,7 @@ def _submit_build_to_ecs(build, version, project):
 
     log.info(
         "Dispatched build.",
-        backend="docker" if settings.RTD_DOCKER_COMPOSE else "fargate",
+        backend="docker" if settings.RTD_DOCKER_COMPOSE else "ecs-ec2",
         task_arn=task_arn,
     )
 

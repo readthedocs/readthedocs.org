@@ -200,7 +200,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
-    When the project has ``Feature.USE_FARGATE_BUILDER`` enabled, dispatches
+    When the project has ``Feature.USE_ECS_BUILDER`` enabled, dispatches
     to the new ``submit_build_to_ecs`` bootstrap task (which clones the
     config, resolves ``build.os``, and runs the build inside a Fargate task)
     instead of the legacy ``update_docs_task``. See
@@ -240,7 +240,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         return (None, None)
 
     # Feature-flag dispatch: Fargate path vs legacy Celery path.
-    if project.has_feature(Feature.USE_FARGATE_BUILDER):
+    if project.has_feature(Feature.USE_ECS_BUILDER):
         log.info("Dispatching build via submit_build_to_ecs (Fargate path).")
         task = submit_build_to_ecs.delay(build_pk=build.pk)
         # The Build's ECS task_arn is populated by submit_build_to_ecs once

@@ -2097,7 +2097,7 @@ class Feature(models.Model):
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
-    USE_FARGATE_BUILDER = "use_fargate_builder"
+    USE_ECS_BUILDER = "use_ecs_builder"
 
     FEATURES = (
         (
@@ -2168,11 +2168,11 @@ class Feature(models.Model):
             _("Build: Run build containers under the gVisor (runsc) runtime."),
         ),
         (
-            USE_FARGATE_BUILDER,
+            USE_ECS_BUILDER,
             _(
-                "Build: Dispatch this project's builds to AWS Fargate via "
-                "``submit_build_to_ecs`` instead of the legacy ``update_docs_task`` "
-                "Celery worker pool."
+                "Build: Dispatch this project's builds to ECS-on-EC2 via "
+                "``submit_build_to_ecs`` instead of the legacy "
+                "``update_docs_task`` Celery worker pool."
             ),
         ),
     )
