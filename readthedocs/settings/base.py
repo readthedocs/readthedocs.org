@@ -654,7 +654,6 @@ class CommunityBaseSettings(Settings):
     RTD_ECS_SUBNETS = []
     RTD_ECS_SECURITY_GROUPS = []
     RTD_ECS_ASSIGN_PUBLIC_IP = "ENABLED"
-    RTD_ECS_REGION = ""
 
     @property
     def BUILD_MEMORY_LIMIT(self):

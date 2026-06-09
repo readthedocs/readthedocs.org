@@ -350,7 +350,7 @@ def cancel_build(build):
         import boto3
 
         try:
-            boto3.client("ecs", region_name=settings.RTD_ECS_REGION or None).stop_task(
+            boto3.client("ecs", region_name=settings.AWS_S3_REGION_NAME).stop_task(
                 cluster=settings.RTD_ECS_CLUSTER,
                 task=build.task_arn,
                 reason="cancelled by user",
