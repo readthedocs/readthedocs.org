@@ -1,20 +1,21 @@
 """
-Bootstrap task that dispatches a build to AWS Fargate.
+Bootstrap task that dispatches a build to AWS ECS-on-EC2.
 
 When a project has ``Feature.USE_ECS_BUILDER`` enabled, ``trigger_build``
 enqueues :func:`submit_build_to_ecs` here instead of the legacy
 ``update_docs_task``. This task does the minimal work needed *before* the
-Fargate task can run:
+ECS task can run:
 
 1. Sparse-clones just the ``.readthedocs.yaml`` to learn ``build.os``.
-2. Resolves ``build.os`` to an ECS task definition name and snaps the
-   project's per-build resource limits to a Fargate-supported CPU/memory pair.
+2. Resolves ``build.os`` to an ECS task definition name and resolves the
+   project's per-build CPU / memory / time limits.
 3. Mints a per-build API key.
-4. Calls ``ecs:RunTask`` with the right image + command + env.
+4. Calls ``ecs:RunTask`` with the right image + command + env, routing to
+   the EC2-backed Capacity Provider picked by :func:`_pick_capacity_provider`.
 5. Stores the returned ECS task ARN on ``Build.task_arn`` so
    ``cancel_build`` can later call ``ecs:StopTask``.
 
-The full Fargate build itself (clone, install, build, upload, finalize) runs
+The full build itself (clone, install, build, upload, finalize) runs
 inside the ``readthedocs/builder:<build_os>`` container — see the
 ``readthedocs-builder`` repository for the runner.
 
@@ -88,7 +89,7 @@ def _sparse_clone_yaml(repo_url, ref, clone_token, dest):
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=(
-                f"Fargate bootstrap doesn't support SSH clone URLs yet; project repo: {repo_url}"
+                f"ECS bootstrap doesn't support SSH clone URLs yet; project repo: {repo_url}"
             ),
         )
 
@@ -214,7 +215,7 @@ def _resolve_build_resources(project):
 
 def _dispatch_build_task(*, build_pk, build_os, cpu, memory, environment, command):
     """
-    Dispatch a build to either Fargate (prod) or local Docker (dev).
+    Dispatch a build to either ECS-on-EC2 (prod) or local Docker (dev).
 
     Branches on ``settings.RTD_DOCKER_COMPOSE``: docker-compose dev runs
     the build in a sibling container on the host's docker daemon via
@@ -250,7 +251,7 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
 
     The container shares the docker-compose network (so it can reach
     ``web``, ``storage``, etc.) and gets the same resource constraints
-    Fargate would apply (cpus + memory). When
+    that ECS would apply in prod (cpus + memory). When
     ``settings.RTD_PATH_BUILDER`` is set, the host-side
     readthedocs-builder checkout is bind-mounted at ``/opt/builder`` so
     the entrypoint skips the GitHub clone — matches the
@@ -312,7 +313,7 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
             name=container_name,
             command=list(command),
             environment={k: str(v) for k, v in environment.items()},
-            # Fargate CPU units (1024 = 1 vCPU) -> Docker nano_cpus (1e9 = 1 vCPU).
+            # ECS CPU units (1024 = 1 vCPU) -> Docker nano_cpus (1e9 = 1 vCPU).
             nano_cpus=int(cpu * 1_000_000_000 // 1024),
             mem_limit=f"{memory}m",
             network=settings.RTD_DOCKER_COMPOSE_NETWORK,
@@ -526,7 +527,7 @@ def _fail_build(build, exc):
 @app.task(bind=True, max_retries=3, default_retry_delay=30, queue="web")
 def submit_build_to_ecs(self, build_pk):
     """
-    Dispatch a build to AWS Fargate.
+    Dispatch a build to AWS ECS-on-EC2.
 
     Replaces ``update_docs_task.delay`` for projects with
     ``Feature.USE_ECS_BUILDER`` enabled. See module docstring for the
@@ -542,7 +543,7 @@ def submit_build_to_ecs(self, build_pk):
     # already reflects ``state=cancelled``.
     if build.state == BUILD_STATE_CANCELLED:
         log.info(
-            "Build was cancelled before Fargate dispatch; skipping.",
+            "Build was cancelled before ECS dispatch; skipping.",
             build_id=build.pk,
             project_slug=project.slug,
         )
@@ -574,7 +575,7 @@ def _submit_build_to_ecs(build, version, project):
     if not project.has_feature(Feature.USE_ECS_BUILDER):
         # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
         # without the flag. If it does, fail loudly rather than silently
-        # dispatching to Fargate.
+        # dispatching to ECS.
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=(
@@ -603,7 +604,7 @@ def _submit_build_to_ecs(build, version, project):
     # 2. Resolve per-build resource limits.
     cpu, memory, time_limit = _resolve_build_resources(project)
     log.info(
-        "Resolved Fargate resources.",
+        "Resolved build resources.",
         cpu=cpu,
         memory=memory,
         time_limit=time_limit,

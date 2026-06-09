@@ -825,7 +825,7 @@ class Build(models.Model):
         null=True,
         blank=True,
         help_text=_(
-            "ECS task ARN for builds dispatched via Fargate. "
+            "ECS task ARN for builds dispatched via ECS-on-EC2. "
             "Set by ``submit_build_to_ecs``; consumed by ``cancel_build`` "
             "to call ``ecs:StopTask``. Mutually exclusive with ``task_id`` "
             "(legacy Celery path)."

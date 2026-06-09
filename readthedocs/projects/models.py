@@ -493,14 +493,14 @@ class Project(models.Model):
         blank=True,
     )
     container_cpu_limit = models.PositiveIntegerField(
-        _("Container CPU limit in Fargate CPU units"),
+        _("Container CPU limit in ECS CPU units"),
         null=True,
         blank=True,
         help_text=_(
-            "Fargate CPU units (1024 = 1 vCPU). Defaults to the "
-            "system-wide default (2048 = 2 vCPU) when unset. Must "
-            "pair with ``container_mem_limit`` to a supported Fargate "
-            "CPU/memory combination."
+            "ECS CPU units (1024 = 1 vCPU). Defaults to the "
+            "system-wide default (2048 = 2 vCPU) when unset. Paired "
+            "with ``container_mem_limit``; the build is routed to a "
+            "capacity provider whose instances can fit the request."
         ),
     )
     build_queue = models.CharField(

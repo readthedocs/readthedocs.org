@@ -626,12 +626,11 @@ class CommunityBaseSettings(Settings):
 
     BUILD_TIME_LIMIT = 900  # seconds
 
-    # Fargate builder defaults — see readthedocs-builder/docs/architecture.md.
+    # ECS-on-EC2 builder defaults — see readthedocs-builder/docs/architecture.md.
     # Per-build resources can be overridden by Project.container_cpu_limit /
-    # container_mem_limit / container_time_limit. The bootstrap task snaps
-    # the resolved values to a Fargate-supported CPU/memory pair before
-    # calling ecs:RunTask.
-    RTD_BUILD_DEFAULT_CPU = 2048  # Fargate CPU units (1024 = 1 vCPU)
+    # container_mem_limit / container_time_limit. The bootstrap task caps
+    # the resolved values at RTD_BUILD_MAX_* before calling ecs:RunTask.
+    RTD_BUILD_DEFAULT_CPU = 2048  # ECS CPU units (1024 = 1 vCPU)
     RTD_BUILD_DEFAULT_MEMORY = 8192  # MiB
     RTD_BUILD_DEFAULT_TIME_LIMIT = 1800  # seconds
     RTD_BUILD_MAX_CPU = 4096
@@ -643,11 +642,11 @@ class CommunityBaseSettings(Settings):
 
     # Where the runner clones itself from at container startup.
     RTD_BUILDER_REPO = "https://github.com/readthedocs/readthedocs-builder.git"
-    
+
     # TODO: use RTD_BUILDER_REF = "rel" when we have a stable release of the builder
     RTD_BUILDER_REF = "main"
 
-    # ECS / Fargate config. All four MUST be set in production; left empty here
+    # ECS config. All four MUST be set in production; left empty here
     # so dev settings can override (or the bootstrap can short-circuit when not
     # configured).
     RTD_ECS_CLUSTER = ""
