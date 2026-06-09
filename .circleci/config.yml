@@ -86,6 +86,7 @@ jobs:
       - image: 'cimg/python:3.12'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -123,6 +124,7 @@ jobs:
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
           xpack.security.transport.ssl.enabled: 'false'
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -152,6 +154,7 @@ jobs:
       - image: 'cimg/python:3.12'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
