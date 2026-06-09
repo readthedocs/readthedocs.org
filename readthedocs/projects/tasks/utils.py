@@ -233,7 +233,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
         log.exception("Unexpected error when trying to set instance protection.")
 
 
-def stop_consuming_tasks():
+def stop_consuming_tasks_and_terminate(build_id):
     """
     Tell this Celery worker to stop fetching new tasks from its queues.
 
@@ -242,12 +242,20 @@ def stop_consuming_tasks():
     instance so we don't grab a build that would be killed mid-flight on
     shutdown.
     """
-    node_name = f"celery@{socket.gethostname()}"
     active_queues = ["build:default", "build:large"]
-
     for queue in active_queues:
+        node_name = f"{queue}@{socket.gethostname()}"
         log.info("Cancelling consumer.", queue=queue, node=node_name)
-        app.control.cancel_consumer(queue, destination=[node_name])
+
+        reply = app.control.cancel_consumer(queue, destination=[node_name], reply=True)
+        if len(reply) > 0 and "ok" in reply[0][node_name]:
+            log.info(
+                "Terminating the instance...",
+            )
+            terminate_builder_instance.delay(
+                builder=socket.gethostname(),
+                build_id=build_id,
+            )
 
 
 @app.task(queue="web")

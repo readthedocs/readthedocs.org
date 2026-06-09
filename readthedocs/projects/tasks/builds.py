@@ -74,8 +74,7 @@ from .utils import BuildRequest
 from .utils import clean_build
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
-from .utils import stop_consuming_tasks
-from .utils import terminate_builder_instance
+from .utils import stop_consuming_tasks_and_terminate
 
 
 log = structlog.get_logger(__name__)
@@ -181,17 +180,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
         )
-
-        if self.data.project and self.data.project.has_feature(
-            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
-        ):
-            # Stop consuming new tasks first so this worker doesn't grab a
-            # build that would be killed mid-flight when the instance is
-            # terminated.
-            log.info(
-                "Stopping consumption of new tasks before terminating the instance...",
-            )
-            stop_consuming_tasks()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
@@ -832,13 +820,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.project and self.data.project.has_feature(
             Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
         ):
+            # Stop consuming new tasks first so this worker doesn't grab a
+            # build that would be killed mid-flight when the instance is
+            # terminated.
             log.info(
-                "Terminating the instance...",
+                "Stopping consumption of new tasks before terminating the instance...",
             )
-            terminate_builder_instance.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-            )
+            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
 
     def update_build(self, state=None):
         if state:
