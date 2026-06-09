@@ -182,6 +182,17 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        if self.data.project and self.data.project.has_feature(
+            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
+        ):
+            # Stop consuming new tasks first so this worker doesn't grab a
+            # build that would be killed mid-flight when the instance is
+            # terminated.
+            log.info(
+                "Stopping consumption of new tasks before terminating the instance...",
+            )
+            stop_consuming_tasks()
+
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -821,14 +832,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.project and self.data.project.has_feature(
             Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
         ):
-            # Stop consuming new tasks first so this worker doesn't grab a
-            # build that would be killed mid-flight when the instance is
-            # terminated. The current task has already finished by this point.
-            log.info(
-                "Stopping consumption of new tasks before terminating the instance...",
-            )
-            stop_consuming_tasks()
-
             log.info(
                 "Terminating the instance...",
             )

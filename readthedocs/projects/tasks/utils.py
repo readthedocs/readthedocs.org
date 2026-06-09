@@ -246,8 +246,8 @@ def stop_consuming_tasks():
     active_queues = ["build:default", "build:large"]
 
     for queue in active_queues:
-        log.info("Cancelling consumer.", queue=queue["name"], node=node_name)
-        app.control.cancel_consumer(queue["name"], destination=[node_name])
+        log.info("Cancelling consumer.", queue=queue, node=node_name)
+        app.control.cancel_consumer(queue, destination=[node_name])
 
 
 @app.task(queue="web")
