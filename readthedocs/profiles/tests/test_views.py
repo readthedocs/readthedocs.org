@@ -11,7 +11,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.forms import UserProfileDashboardPreferencesForm
-from readthedocs.core.models import UserProfile
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB, GITHUB_APP
 from readthedocs.oauth.migrate import InstallationTargetGroup, MigrationTarget, GitHubAccountTarget
@@ -914,7 +913,7 @@ class TestMigrateToGitHubAppView(TestCase):
 class TestUserProfileDashboardPreferencesEdit(TestCase):
     def setUp(self):
         self.user = get(User)
-        self.profile = get(UserProfile, user=self.user)
+        self.profile = self.user.profile
         self.url = reverse("profiles_dashboard_preferences_edit")
         self.client.force_login(self.user)
 
