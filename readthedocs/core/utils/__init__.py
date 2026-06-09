@@ -214,7 +214,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     """
     # Avoid circular import.
     from readthedocs.projects.models import Feature
-    from readthedocs.projects.tasks.fargate import submit_build_to_ecs
+    from readthedocs.projects.tasks.ecs import submit_build_to_ecs
 
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
