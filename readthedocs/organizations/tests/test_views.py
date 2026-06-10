@@ -267,6 +267,37 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(invitation.to_email, None)
         self.assertNotIn(user_b, self.organization.owners.all())
 
+    def test_add_owner_with_username_matching_other_user_email(self):
+        squatter = get(
+            User, username="victim@example.com", email="squatter@example.com"
+        )
+        squatter.emailaddress_set.create(email=squatter.email, verified=True)
+        victim = get(User, username="victim", email="victim@example.com")
+        victim.emailaddress_set.create(email=victim.email, verified=True)
+
+        url = reverse("organization_owner_add", args=[self.organization.slug])
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 302
+
+        invitation = Invitation.objects.for_object(self.organization).get()
+        assert invitation.to_user == victim
+        assert invitation.to_email is None
+
+    def test_add_owner_with_username_matching_unverified_email(self):
+        url = reverse("organization_owner_add", args=[self.organization.slug])
+        get(User, username="victim@example.com", email="squatter@example.com")
+
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "does not exist" in form.errors["username_or_email"][0]
+        assert not Invitation.objects.for_object(self.organization).exists()
+
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,

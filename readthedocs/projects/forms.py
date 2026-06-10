@@ -15,8 +15,6 @@ from crispy_forms.layout import Layout
 from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -34,6 +32,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.users import get_user_by_username_or_email
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
@@ -930,9 +929,7 @@ class UserForm(forms.Form):
 
     def clean_username_or_email(self):
         username = self.cleaned_data["username_or_email"]
-        user = User.objects.filter(
-            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
-        ).first()
+        user = get_user_by_username_or_email(username)
         if not user:
             raise forms.ValidationError(
                 _("User %(username)s does not exist"), params={"username": username}
