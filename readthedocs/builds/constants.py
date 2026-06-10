@@ -47,7 +47,7 @@ INTERNAL = "internal"
 # Manager name for External Versions or Builds.
 # ie: Only pull request/merge request Versions and Builds.
 EXTERNAL = "external"
-EXTERNAL_TEXT = _("External")
+EXTERNAL_TEXT = _("Pull request")
 
 BRANCH = "branch"
 BRANCH_TEXT = _("Branch")
