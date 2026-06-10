@@ -20,11 +20,11 @@ class Migration(migrations.Migration):
             name="options_base_version",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <b>latest</b> version.",
+                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <code>latest</code> version.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 to="builds.version",
-                verbose_name="Base version to compare against (eg. Visual diff, File tree diff)",
+                verbose_name="Base version for diffing",
             ),
         ),
         migrations.AlterField(
@@ -33,12 +33,12 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 db_constraint=False,
-                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <b>latest</b> version.",
+                help_text="Visual diff and File tree diff compare the current page against this version. Defaults to the <code>latest</code> version.",
                 null=True,
                 on_delete=django.db.models.deletion.DO_NOTHING,
                 related_name="+",
                 to="builds.version",
-                verbose_name="Base version to compare against (eg. Visual diff, File tree diff)",
+                verbose_name="Base version for diffing",
             ),
         ),
     ]
