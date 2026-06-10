@@ -232,7 +232,7 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -246,7 +246,7 @@ If your build also relies on the contents of other branches, it may also be nece
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -266,7 +266,7 @@ It's possible to run Doxygen as part of the build process to generate documentat
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -289,7 +289,7 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
    mkdocs:
      configuration: mkdocs.yml
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -311,7 +311,7 @@ In that case, the Git index can be updated to ignore the files that Read the Doc
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -331,7 +331,7 @@ This helps ensure that all external links are still valid and readers aren't lin
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:
@@ -351,7 +351,7 @@ It's possible to use ``post_checkout`` user-defined job for this.
 
    version: 2
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
        python: "3.10"
      jobs:

@@ -209,7 +209,7 @@ class TestTasks(TestCase):
         version = project.versions.get(slug=LATEST)
 
         # Create BuildConfig objects
-        config_with_build = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
+        config_with_build = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
         orphan_config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
         orphan_config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
 
@@ -245,7 +245,7 @@ class TestTasks(TestCase):
         version = project.versions.get(slug=LATEST)
 
         # Create BuildConfig objects
-        config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
+        config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
         config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
 
         # Create Builds and manually assign the BuildConfig objects
