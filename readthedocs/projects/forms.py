@@ -890,6 +890,14 @@ class AddonsConfigForm(forms.ModelForm):
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
+            "options_base_version": _("Base version for diffing"),
+        }
+
+        help_texts = {
+            "options_base_version": _(
+                "Visual diff and File tree diff compare the current page against this version. "
+                "Defaults to the <code>latest</code> version."
+            ),
         }
 
         widgets = {
