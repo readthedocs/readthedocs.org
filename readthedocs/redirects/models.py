@@ -25,10 +25,6 @@ from .querysets import RedirectQuerySet
 log = structlog.get_logger(__name__)
 
 
-# FIXME: this help_text message should be dynamic since "Absolute path" doesn't
-# make sense for "Prefix Redirects" since the from URL is considered after the
-# ``/$lang/$version/`` part. Also, there is a feature for the "Exact Redirects"
-# that should be mentioned here: the usage of ``*``.
 from_url_helptext = _(
     "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install.html</b>",
 )
