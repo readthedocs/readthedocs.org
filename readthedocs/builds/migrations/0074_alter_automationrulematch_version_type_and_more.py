@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("builds", "0072_remove_deprecated_build_fields"),
+        ("builds", "0073_remove_deprecated_build_fields"),
     ]
 
     operations = [
