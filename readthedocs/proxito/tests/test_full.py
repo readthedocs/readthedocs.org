@@ -1084,7 +1084,7 @@ class TestAdditionalDocViews(BaseDocServing):
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         assert response.status_code == 200
         assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
-        assert response["CDN-Cache-Control"], "private"
+        assert response["CDN-Cache-Control"] == "private"
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     @mock.patch.object(ServeLLMSTXTBase, "allowed_user")
