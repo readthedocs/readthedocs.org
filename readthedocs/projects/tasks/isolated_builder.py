@@ -291,15 +291,15 @@ def _docker_run_task(*, build_pk, memory, environment, command):
         # ``RTD_PATH_BUILDER`` must be a host-side absolute path —
         # not a path inside the celery container.
         volumes[settings.RTD_PATH_BUILDER] = {
-            "bind": "/opt/builder",
+            "bind": "/opt/readthedocs-builder",
             "mode": "ro",
         }
         # ``entrypoint.sh`` is COPYed into the image at ``/opt/entrypoint.sh``
         # (see ``readthedocs-builder/Dockerfile``) — outside the
-        # ``/opt/builder`` bind-mount above, so edits on the host don't
-        # take effect without a full image rebuild. Bind-mount the host
-        # copy on top so dev iterations on the entrypoint (signal
-        # handling, watchdog, etc.) are live.
+        # ``/opt/readthedocs-builder`` bind-mount above, so edits on
+        # the host don't take effect without a full image rebuild.
+        # Bind-mount the host copy on top so dev iterations on the
+        # entrypoint (signal handling, watchdog, etc.) are live.
         volumes[os.path.join(settings.RTD_PATH_BUILDER, "scripts/entrypoint.sh")] = {
             "bind": "/opt/entrypoint.sh",
             "mode": "ro",
