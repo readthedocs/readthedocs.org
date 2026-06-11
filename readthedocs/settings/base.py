@@ -282,7 +282,6 @@ class CommunityBaseSettings(Settings):
             "crispy_forms",
             "django_elasticsearch_dsl",
             "django_filters",
-            "polymorphic",
             "simple_history",
             "djstripe",
             "django_celery_beat",

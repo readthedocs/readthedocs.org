@@ -909,7 +909,7 @@ class AddonsConfigForm(forms.ModelForm):
         kwargs["instance"] = self.project.addons
         super().__init__(*args, **kwargs)
 
-        # Keep the ability to disable addons completely on Read the Docs for Business
+        # Keep the ability to disable addons completely on Read the Docs Business
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
 

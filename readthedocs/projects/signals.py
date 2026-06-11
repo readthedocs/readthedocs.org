@@ -9,7 +9,6 @@ from django.dispatch import receiver
 
 from readthedocs.integrations.models import GitHubAppIntegrationProviderData
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import Project
 
 
@@ -25,12 +24,6 @@ project_import = django.dispatch.Signal()
 
 # Used to purge files from the CDN
 files_changed = django.dispatch.Signal()
-
-
-@receiver(post_save, sender=Project)
-def create_addons_on_new_projects(instance, *args, **kwargs):
-    """Create ``AddonsConfig`` on new projects."""
-    AddonsConfig.objects.get_or_create(project=instance)
 
 
 @receiver(post_save, sender=Project)

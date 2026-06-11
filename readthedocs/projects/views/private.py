@@ -29,9 +29,7 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
@@ -118,14 +116,12 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
 
         # We can't yet back down to another announcement as we don't have
         # the ability to evaluate local storage. Until we add the ability to
-        # dynamically change the announcement, this is going to be the only
-        # announcement shown.
+        # dynamically change the announcement, the first matching branch
+        # below is the only announcement a user will see.
         if n_projects == 0 or (
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects:
-            template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
@@ -1120,30 +1116,15 @@ class AutomationRuleDelete(AutomationRuleMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
 
 
-class RegexAutomationRuleMixin(AutomationRuleMixin):
-    model = RegexAutomationRule
-    form_class = RegexAutomationRuleForm
-
-
-class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
-    success_message = _("Automation rule created")
-
-
-class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
-    success_message = _("Automation rule updated")
-
-
-class AutomationRuleMixin(AutomationRuleMixin):
-    model = AutomationRule
+class AutomationRuleEditMixin(AutomationRuleMixin):
     form_class = AutomationRuleForm
-    lookup_url_kwarg = "automation_rule_pk"
 
 
-class AutomationRuleCreate(AutomationRuleMixin, CreateView):
+class AutomationRuleCreate(AutomationRuleEditMixin, CreateView):
     success_message = _("Automation rule created")
 
 
-class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
+class AutomationRuleUpdate(AutomationRuleEditMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 

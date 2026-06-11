@@ -5,7 +5,7 @@ In this tutorial you will learn how to host a public documentation project on Re
 
 .. note::
 
-   Find out the `differences between Read the Docs Community and Read the Docs for Business <https://about.readthedocs.com/pricing/#/community>`_.
+   Find out the `differences between Read the Docs Community and Read the Docs Business <https://about.readthedocs.com/pricing/#/community>`_.
 
 In the tutorial we will:
 

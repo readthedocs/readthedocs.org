@@ -1,7 +1,7 @@
 Business hosting
 ================
 
-.. this page is currently moving towards becoming "About Read the Docs for Business"
+.. this page is currently moving towards becoming "About Read the Docs Business"
 .. rather than an index of features.
 
 We offer |com_brand| for building and hosting documentation for private repositories.

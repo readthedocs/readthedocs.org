@@ -700,6 +700,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -727,6 +729,10 @@ class Project(models.Model):
 
         super().save(*args, **kwargs)
         self.update_latest_version()
+
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
 
     def delete(self, *args, **kwargs):
         from readthedocs.builds.tasks import remove_build_commands_storage_paths
@@ -2267,14 +2273,14 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
-    VERSION_ACTIONS = (
+    VERSION_ADDED_ACTIONS = (
         ACTIVATE_VERSION_ACTION,
         HIDE_VERSION_ACTION,
         MAKE_VERSION_PUBLIC_ACTION,
         MAKE_VERSION_PRIVATE_ACTION,
         SET_DEFAULT_VERSION_ACTION,
-        DELETE_VERSION_ACTION,
     )
+    VERSION_DELETED_ACTIONS = (DELETE_VERSION_ACTION,)
 
     BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
 

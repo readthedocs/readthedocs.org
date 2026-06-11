@@ -83,7 +83,6 @@ django==5.2.13
     #   django-extensions
     #   django-filter
     #   django-formtools
-    #   django-polymorphic
     #   django-safemigrate
     #   django-simple-history
     #   django-storages
@@ -93,7 +92,7 @@ django==5.2.13
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount] @ git+https://github.com/readthedocs/django-allauth.git@ddb581168628432afa1b18b038b33341a73a366b
+django-allauth[mfa,saml,socialaccount]==65.17.0
     # via -r requirements/pip.in
 django-annoying==0.10.8
     # via -r requirements/pip.in
@@ -123,8 +122,6 @@ django-impersonate==1.9.5
     # via -r requirements/pip.in
 django-ipware==7.0.1
     # via django-structlog
-django-polymorphic==4.11.3
-    # via -r requirements/pip.in
 django-safemigrate==6.0
     # via -r requirements/pip.in
 django-simple-history==3.11.0
@@ -315,7 +312,6 @@ toml==0.10.2
 typing-extensions==4.15.0
     # via
     #   anyio
-    #   django-polymorphic
     #   elasticsearch
     #   psycopg
     #   psycopg-pool

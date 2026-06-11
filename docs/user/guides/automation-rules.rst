@@ -46,10 +46,10 @@ In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
 
 #. Finally, choose the :guilabel:`Action`:
 
-   * :ref:`Activate version <automation-rules:Actions for versions>`
-   * :ref:`Hide version <automation-rules:Actions for versions>`
-   * :ref:`Set version as default <automation-rules:Actions for versions>`
-   * :ref:`Delete version (on branch/tag deletion) <automation-rules:Actions for versions>`
+   * :ref:`Activate version <automation-rules:Version actions>`
+   * :ref:`Hide version <automation-rules:Version actions>`
+   * :ref:`Set version as default <automation-rules:Version actions>`
+   * :ref:`Delete version (on branch/tag deletion) <automation-rules:Version actions>`
 
 
 Now your rule is ready and you can press :guilabel:`Save`.
