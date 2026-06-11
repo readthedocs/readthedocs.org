@@ -2,7 +2,7 @@
 #
 # Stage 1 (parallel):   checks, tests, tests-proxito
 # Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
-# Stage 3:              coverage-report (combines and uploads to codecov)
+# Stage 3:              coverage-report (combines and generates reports)
 #
 # Stage 2 runs after tests and tests-proxito pass (but not checks,
 # so a formatting error won't block test execution).
@@ -35,9 +35,6 @@
 #     PRs targeting main. PRs targeting other branches will always run tests.
 
 version: 2.1
-
-orbs:
-  codecov: codecov/codecov@5.4.3
 
 commands:
   setup-checkout:
@@ -198,7 +195,7 @@ jobs:
 
   coverage-report:
     # Combines coverage from tests, tests-search, and tests-proxito,
-    # then uploads a single unified report to codecov.
+    # then generates HTML and text reports stored as CI artifacts.
     docker:
       - image: 'cimg/python:3.12'
     steps:
@@ -211,12 +208,14 @@ jobs:
             pip install --user coverage
             if ls .coverage.* 1>/dev/null 2>&1; then
               coverage combine .coverage.*
-              coverage xml
+              coverage html --skip-covered --skip-empty
               coverage report --show-missing
             else
               echo "No coverage files found — skipping report"
             fi
-      - codecov/upload
+      - store_artifacts:
+          path: htmlcov
+          destination: coverage-report
 
   checks:
     docker:
@@ -258,7 +257,7 @@ workflows:
           requires:
             - tests
             - tests-proxito
-      # Stage 3: combine coverage and upload to codecov
+      # Stage 3: combine coverage and generate reports
       - coverage-report:
           requires:
             - tests
