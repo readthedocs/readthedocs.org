@@ -9,23 +9,10 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("builds", "0072_remove_deprecated_build_fields"),
+        ("builds", "0073_remove_deprecated_build_fields"),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name="automationrulematch",
-            name="version_type",
-            field=models.CharField(
-                choices=[
-                    ("branch", "Branch"),
-                    ("tag", "Tag"),
-                    ("external", "Pull request"),
-                    ("unknown", "Unknown"),
-                ],
-                max_length=32,
-            ),
-        ),
         migrations.AlterField(
             model_name="build",
             name="version_type",
@@ -56,21 +43,6 @@ class Migration(migrations.Migration):
                 default="unknown",
                 max_length=20,
                 verbose_name="Type",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="versionautomationrule",
-            name="version_type",
-            field=models.CharField(
-                choices=[
-                    ("branch", "Branch"),
-                    ("tag", "Tag"),
-                    ("external", "Pull request"),
-                    ("unknown", "Unknown"),
-                ],
-                help_text="Type of version the rule should be applied to",
-                max_length=32,
-                verbose_name="Version type",
             ),
         ),
     ]
