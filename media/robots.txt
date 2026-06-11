@@ -1,8 +1,16 @@
+# Guidelines for automated access and crawling Read the Docs: https://docs.readthedocs.com/platform/stable/automated-access.html
+#
+# Bots should not be scraping from the Read the Docs maintainer dashboard in bulk.
+# Automated access to documentation sites is allowed in accordance with the policies above.
+# For everything else, use our API: https://docs.readthedocs.com/platform/stable/api/index.html 
+
 User-agent: *
-Disallow: /search/
+Disallow: /accounts/
 Disallow: /api/
-Disallow: /builds/
-Disallow: /sustainability/click/
+Disallow: /profiles/
+Disallow: /projects/*/builds/
+Disallow: /projects/tags/
+Disallow: /search/
 
 # This was hitting our site and causing a lot of issues
 User-agent: AhrefsBot
