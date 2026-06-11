@@ -2,7 +2,7 @@
 #
 # Bots should not be scraping from the Read the Docs maintainer dashboard in bulk.
 # Automated access to documentation sites is allowed in accordance with the policies above.
-# For everything else, use our API: https://docs.readthedocs.com/platform/stable/api/index.html 
+# For everything else, use our API: https://docs.readthedocs.com/platform/stable/api/index.html
 
 User-agent: *
 Disallow: /accounts/
