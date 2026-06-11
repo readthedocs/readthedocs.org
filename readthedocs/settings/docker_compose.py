@@ -17,9 +17,10 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
-    # Local ECS-on-EC2 emulation: submit_build_to_ecs falls back to ``docker run``
-    # against the host's docker daemon (mounted via /var/run/docker.sock into
-    # this container) instead of ecs:RunTask. See
+    # Local isolated-builders emulation: submit_build_to_isolated falls back to
+    # ``docker run`` against the host's docker daemon (mounted via
+    # /var/run/docker.sock into this container) instead of sending to the
+    # ``isolated-builds`` Celery queue. See
     # readthedocs-builder/docs/architecture.md for the prod design.
     #
     # TODO: drop this setting once we have the readthedocs/builder:<os> image

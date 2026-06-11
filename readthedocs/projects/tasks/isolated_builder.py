@@ -1,23 +1,25 @@
 """
-Bootstrap task that dispatches a build to AWS ECS-on-EC2.
+Bootstrap task that dispatches a build to the isolated-builders Celery worker pool.
 
-When a project has ``Feature.USE_ECS_BUILDER`` enabled, ``trigger_build``
-enqueues :func:`submit_build_to_ecs` here instead of the legacy
-``update_docs_task``. This task does the minimal work needed *before* the
-ECS task can run:
+When a project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
+``trigger_build`` enqueues :func:`submit_build_to_isolated` here
+instead of the legacy ``update_docs_task``. This task does the minimal
+work needed *before* the build container starts:
 
 1. Sparse-clones just the ``.readthedocs.yaml`` to learn ``build.os``.
-2. Resolves ``build.os`` to an ECS task definition name and resolves the
-   project's per-build CPU / memory / time limits.
-3. Mints a per-build API key.
-4. Calls ``ecs:RunTask`` with the right image + command + env, routing to
-   the EC2-backed Capacity Provider picked by :func:`_pick_capacity_provider`.
-5. Stores the returned ECS task ARN on ``Build.task_arn`` so
-   ``cancel_build`` can later call ``ecs:StopTask``.
+2. Resolves the project's per-build memory / time limits.
+3. Mints a per-build API key (24h-scoped).
+4. Dispatches a Celery task to the ``isolated-builds`` queue with the
+   build args + environment. A worker process on a dedicated EC2
+   instance (one task per instance — the instance self-terminates
+   after the task completes) picks it up and runs ``docker run`` to
+   spawn the build container.
+5. Stores the worker task's Celery id on ``Build.task_id`` so
+   ``cancel_build`` can revoke it.
 
 The full build itself (clone, install, build, upload, finalize) runs
-inside the ``readthedocs/builder:<build_os>`` container — see the
-``readthedocs-builder`` repository for the runner.
+inside an upstream ``readthedocs/build:<build_os>`` container — see
+the ``readthedocs-builder`` repository for the runner.
 
 See ``readthedocs-builder/docs/architecture.md`` for the broader design.
 """
@@ -29,7 +31,6 @@ import subprocess
 import tempfile
 from urllib.parse import urlparse
 
-import boto3
 import structlog
 import yaml
 from django.conf import settings
@@ -58,11 +59,13 @@ _CONFIG_FILENAMES = (
 )
 
 
-# (Historical: a Fargate CPU/memory matrix constant lived here when the
-# dispatch path targeted Fargate. ECS-on-EC2 accepts arbitrary
-# CPU/memory pairs constrained only by what fits on the chosen
-# capacity provider's instances, so the matrix + snap helper are
-# gone — see git blame for the prior implementation.)
+# Name + queue of the Celery task on the isolated-builders worker.
+# The worker code lives in the ``readthedocs-builder`` repo under
+# ``worker/`` — these strings must match what the worker registers as.
+# We dispatch by name (rather than importing the function) so this
+# codebase doesn't need to import the worker's package.
+ISOLATED_BUILDER_TASK_NAME = "worker.tasks.run_build"
+ISOLATED_BUILDER_QUEUE = "isolated-builds"
 
 
 # ---- Helpers ----
@@ -190,84 +193,88 @@ def _parse_mem_limit_mb(value):
 
 def _resolve_build_resources(project):
     """
-    Resolve the per-build CPU / memory / time-limit for ``project``.
+    Resolve the per-build memory / time-limit for ``project``.
 
     Layers:
       1. Project field, or settings default.
       2. Capped at ``settings.RTD_BUILD_MAX_*``.
 
-    Returns ``(cpu, memory_mib, time_limit_seconds)``.
+    Returns ``(memory_mib, time_limit_seconds)``.
 
-    Caller is responsible for matching the returned ``(cpu, memory)``
-    pair to a capacity provider whose instances can fit it — see
-    :func:`_pick_capacity_provider`.
+    Note: per-build CPU isn't part of the v1 model — each build gets
+    the full EC2 instance via the ephemeral-host pattern (one task per
+    instance, terminated after). The instance's resources are the
+    build's resources.
     """
-    raw_cpu = project.container_cpu_limit or settings.RTD_BUILD_DEFAULT_CPU
     raw_mem = _parse_mem_limit_mb(project.container_mem_limit) or settings.RTD_BUILD_DEFAULT_MEMORY
     raw_time = project.container_time_limit or settings.RTD_BUILD_DEFAULT_TIME_LIMIT
 
-    cpu = min(raw_cpu, settings.RTD_BUILD_MAX_CPU)
     memory = min(raw_mem, settings.RTD_BUILD_MAX_MEMORY)
     time_limit = min(raw_time, settings.RTD_BUILD_MAX_TIME_LIMIT)
 
-    return cpu, memory, time_limit
+    return memory, time_limit
 
 
-def _dispatch_build_task(*, build_pk, build_os, cpu, memory, environment, command):
+def _dispatch_build_task(*, build_pk, build_os, memory, environment, command):
     """
-    Dispatch a build to either ECS-on-EC2 (prod) or local Docker (dev).
+    Dispatch a build to either the isolated-builders queue (prod) or
+    local Docker (dev).
 
-    Branches on ``settings.RTD_DOCKER_COMPOSE``: docker-compose dev runs
-    the build in a sibling container on the host's docker daemon via
-    docker-py; production hits ``ecs:RunTask``. Returns the task
-    identifier stored on ``Build.task_arn`` — a container id under
-    docker-compose, a real ECS task ARN in production. ``cancel_build``
-    branches on the same setting to interpret it.
+    Branches on ``settings.RTD_DOCKER_COMPOSE``:
+
+    - **Dev (docker-compose)**: spawn a sibling container on the
+      celery container's host docker daemon via docker-py. The
+      container is detached and stays around after exit so logs can be
+      inspected. No Celery task tracks it — ``cancel_build`` finds it
+      by name (``build-<pk>``).
+
+    - **Prod**: send a Celery task to the ``isolated-builds`` queue. A
+      worker on a dedicated EC2 instance (one task per instance, the
+      instance self-terminates after) picks it up and runs the build
+      container. Returns the worker task's Celery id so
+      ``cancel_build`` can revoke it.
     """
     if settings.RTD_DOCKER_COMPOSE:
-        return _docker_run_task(
+        _docker_run_task(
             build_pk=build_pk,
-            cpu=cpu,
             memory=memory,
             environment=environment,
             command=command,
         )
-    return _ecs_run_task(
+        # No Celery task id to track — the dev container is identified
+        # by its stable name ``build-<pk>``.
+        return None
+
+    return _send_isolated_build_task(
+        build_pk=build_pk,
         build_os=build_os,
-        cpu=cpu,
         memory=memory,
         environment=environment,
         command=command,
     )
 
 
-def _docker_run_task(*, build_pk, cpu, memory, environment, command):
+def _docker_run_task(*, build_pk, memory, environment, command):
     """
     Spawn a builder container via the host's docker daemon (dev only).
 
-    Returns the resulting container id (stored on ``Build.task_arn``;
-    ``cancel_build`` knows whether to interpret it as a container id or
-    an ECS ARN based on ``settings.RTD_DOCKER_COMPOSE``).
-
     The container shares the docker-compose network (so it can reach
-    ``web``, ``storage``, etc.) and gets the same resource constraints
-    that ECS would apply in prod (cpus + memory). When
-    ``settings.RTD_PATH_BUILDER`` is set, the host-side
-    readthedocs-builder checkout is bind-mounted at ``/opt/builder`` so
-    the entrypoint skips the GitHub clone — matches the
-    ``dev-run.sh`` iteration loop.
+    ``web``, ``storage``, etc.). When ``settings.RTD_PATH_BUILDER`` is
+    set, the host-side readthedocs-builder checkout is bind-mounted at
+    ``/opt/readthedocs-builder`` so the entrypoint uses the live source
+    instead of the AMI clone path — matches the ``dev-run.sh`` iteration
+    loop.
 
     Requires the celery container to have ``/var/run/docker.sock``
     bind-mounted (docker-out-of-docker).
     """
     # Import lazily so the prod settings don't need the ``docker`` package
-    # available at import time. (It already is, via the legacy
-    # DockerBuildEnvironment, but lazy keeps the dep graph clean.)
+    # available at import time.
     import docker
 
     client = docker.from_env()
     # TODO: in production this is derived from build.os and points to a
-    # readthedocs/builder:<os> image. For local dev we currently use a
+    # readthedocs/build:<os> image. For local dev we currently use a
     # single ``builder-dev:latest`` image regardless of build.os because
     # we don't have the OS image matrix yet. Match production once the
     # matrix exists.
@@ -295,9 +302,10 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
         }
 
     # Stable container name so the user can ``docker logs build-<pk>``
-    # without having to look up the random id. If a stopped container
-    # from a previous run of the same pk is still around, remove it
-    # first so the name is free.
+    # without having to look up the random id, AND so ``cancel_build``
+    # can find it by name. If a stopped container from a previous run
+    # of the same pk is still around, remove it first so the name is
+    # free.
     container_name = f"build-{build_pk}"
     try:
         existing = client.containers.get(container_name)
@@ -308,13 +316,11 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
         existing.remove(force=True)
 
     try:
-        container = client.containers.run(
+        client.containers.run(
             image=image,
             name=container_name,
             command=list(command),
             environment={k: str(v) for k, v in environment.items()},
-            # ECS CPU units (1024 = 1 vCPU) -> Docker nano_cpus (1e9 = 1 vCPU).
-            nano_cpus=int(cpu * 1_000_000_000 // 1024),
             mem_limit=f"{memory}m",
             network=settings.RTD_DOCKER_COMPOSE_NETWORK,
             volumes=volumes,
@@ -322,8 +328,7 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
             # Keep the container around after exit in dev so its logs
             # remain inspectable via ``docker logs build-<pk>``. Prune
             # accumulated stopped containers periodically with
-            # ``docker container prune``. Production (``_ecs_run_task``)
-            # doesn't hit this path — CloudWatch handles log retention.
+            # ``docker container prune``.
             auto_remove=False,
         )
     except Exception as exc:
@@ -334,151 +339,42 @@ def _docker_run_task(*, build_pk, cpu, memory, environment, command):
 
     log.info(
         "Dispatched build to local Docker.",
+        container_name=container_name,
         image=image,
-        container_id=container.id,
-        nano_cpus=int(cpu * 1_000_000_000 // 1024),
         mem_limit=f"{memory}m",
         network=settings.RTD_DOCKER_COMPOSE_NETWORK,
         bind_mount=bool(volumes),
     )
-    return container.id
 
 
-# ---- Capacity-provider routing ----
-#
-# Production runs ECS on EC2 (not Fargate) with per-tier Capacity
-# Providers backing ASGs. The dispatcher picks the right tier based
-# on the build's resource ask.
-
-
-def _pick_capacity_provider(cpu, memory):
+def _send_isolated_build_task(*, build_pk, build_os, memory, environment, command):
     """
-    Return the Capacity Provider name appropriate for this build's
-    CPU / memory ask.
+    Dispatch the build to the ``isolated-builds`` Celery queue.
 
-    Tier definitions (aspirational — currently the cluster has a
-    single Capacity Provider, see the testing override below):
+    A worker process on a dedicated EC2 instance picks up the task and
+    runs ``docker run`` with the args we pass. The worker package
+    lives in the ``readthedocs-builder`` repo under ``worker/``; we
+    dispatch by task name so this codebase doesn't need to import it.
 
-    - ``builder-large``:  ≥ 8 vCPU or ≥ 16 GB → c5.9xlarge fleet
-    - ``builder-medium``: ≥ 4 vCPU or ≥ 8 GB  → c5.4xlarge fleet
-    - ``builder-small``:  everything else      → c5.4xlarge fleet (Spot)
-
-    Adding a new tier means: (1) new ASG + capacity provider in AWS,
-    (2) new branch here.
+    Returns the worker task's Celery id so ``cancel_build`` can revoke
+    it. We don't import the worker package; ``app.send_task`` only
+    needs the name + the broker connection (shared via Django settings).
     """
-    # TESTING: the production cluster currently has a single
-    # manually-created Capacity Provider named ``isolated-builders``
-    # (the Terraform stack with per-tier providers isn't deployed yet).
-    # Route every build to it for now; restore the tiered branching
-    # below once the three ASGs exist.
-    return "isolated-builders"
-
-    if cpu >= 8192 or memory >= 16384:
-        return "builder-large"
-    if cpu >= 4096 or memory >= 8192:
-        return "builder-medium"
-    return "builder-small"
-
-
-def _ecs_run_task(*, build_os, cpu, memory, environment, command):
-    """
-    Call ``ecs:RunTask`` and return the resulting task ARN.
-
-    Dispatches the task to the cluster's per-tier EC2 Capacity
-    Provider chosen by :func:`_pick_capacity_provider`. The capacity
-    provider's ASG picks an EC2 instance with the build image
-    pre-baked into local docker storage (see the Packer template
-    under ``readthedocs-builder/packer/``), so task start time
-    is ~5–10 s instead of the ~2 min Fargate pull.
-
-    Raises :class:`BuildAppError` on any AWS error so the failure
-    flows through the caller's exception handling.
-    """
-    client = boto3.client(
-        "ecs",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=settings.AWS_S3_REGION_NAME,
+    result = app.send_task(
+        ISOLATED_BUILDER_TASK_NAME,
+        kwargs={
+            "build_pk": build_pk,
+            "build_os": build_os,
+            "memory_mib": memory,
+            "environment": environment,
+            "command": command,
+        },
+        queue=ISOLATED_BUILDER_QUEUE,
     )
-
-    task_definition = settings.RTD_ECS_TASK_DEFINITION_FORMAT.format(build_os=build_os)
-    capacity_provider = _pick_capacity_provider(cpu, memory)
-
-    log.info(
-        "Dispatching build via ECS RunTask.",
-        task_definition=task_definition,
-        capacity_provider=capacity_provider,
-        cpu=cpu,
-        memory=memory,
-    )
-
-    try:
-        response = client.run_task(
-            cluster=settings.RTD_ECS_CLUSTER,
-            taskDefinition=task_definition,
-            # Pick the right EC2-backed Capacity Provider for this build's
-            # resource ask. No ``launchType`` here — Capacity Provider
-            # strategies are mutually exclusive with ``launchType``, and
-            # ECS infers EC2 vs Fargate from the underlying ASG/provider.
-            capacityProviderStrategy=[
-                {"capacityProvider": capacity_provider, "weight": 1},
-            ],
-            count=1,
-            overrides={
-                # Task-level CPU/memory ceilings. ECS bin-packs against
-                # these on the chosen capacity provider's instances; the
-                # build container itself enforces the same limits via
-                # cgroups.
-                "cpu": str(cpu),
-                "memory": str(memory),
-                "containerOverrides": [
-                    {
-                        "name": "build",
-                        "command": list(command),
-                        "environment": [
-                            {"name": k, "value": str(v)} for k, v in environment.items()
-                        ],
-                    },
-                ],
-            },
-            # No ``networkConfiguration`` — the task definitions use
-            # ``networkMode: bridge``, so tasks share the EC2 host's
-            # network namespace. Rationale:
-            #   - ``assignPublicIp`` is a Fargate-only parameter; an
-            #     EC2 + awsvpc task in a public subnet still gets only
-            #     a private IP, so the task can't reach github.com /
-            #     PyPI / the RTD API without a NAT gateway.
-            #   - Bridge mode keeps the network plumbing minimal:
-            #     the host's egress IS the task's egress.
-            #   - Cost of switching back to awsvpc later (when per-task
-            #     SG isolation matters): add NAT, re-register task defs
-            #     with networkMode awsvpc, restore the
-            #     ``networkConfiguration`` block here.
-        )
-    except Exception as exc:
-        raise BuildAppError(
-            BuildAppError.GENERIC_WITH_BUILD_ID,
-            exception_message=f"ecs:RunTask failed: {exc}",
-        ) from exc
-
-    tasks = response.get("tasks") or []
-    failures = response.get("failures") or []
-    if not tasks:
-        # Common failure here is ``RESOURCE:`` — the chosen capacity
-        # provider's ASG had no room to place the task. The Capacity
-        # Provider's managed scaling spins up another instance, but a
-        # one-shot RunTask won't retry — the user has to re-trigger.
-        # If this becomes frequent, add a small retry loop here that
-        # falls back to the next tier up.
-        raise BuildAppError(
-            BuildAppError.GENERIC_WITH_BUILD_ID,
-            exception_message=f"ecs:RunTask returned no tasks; failures={failures}",
-        )
-
-    return tasks[0]["taskArn"]
+    return result.id
 
 
-# ---- The bootstrap task ----
+# ---- Failure path ----
 
 
 def _fail_build(build, exc):
@@ -487,8 +383,8 @@ def _fail_build(build, exc):
 
     The runner's own try/except (``builder.runner.Runner.run``) only
     catches exceptions raised inside the build container. Anything raised
-    by ``submit_build_to_ecs`` itself (missing config file, malformed
-    YAML, ECS RunTask failure, etc.) never reaches that handler, so the
+    by ``submit_build_to_isolated`` itself (missing config file, malformed
+    YAML, dispatch failure, etc.) never reaches that handler, so the
     build would be left stuck in ``triggered`` state with no
     user-facing explanation.
 
@@ -524,14 +420,17 @@ def _fail_build(build, exc):
     build.save(update_fields=["state", "success", "length"])
 
 
+# ---- The bootstrap task ----
+
+
 @app.task(bind=True, max_retries=3, default_retry_delay=30, queue="web")
-def submit_build_to_ecs(self, build_pk):
+def submit_build_to_isolated(self, build_pk):
     """
-    Dispatch a build to AWS ECS-on-EC2.
+    Dispatch a build to the isolated-builders Celery worker pool.
 
     Replaces ``update_docs_task.delay`` for projects with
-    ``Feature.USE_ECS_BUILDER`` enabled. See module docstring for the
-    full flow.
+    ``Feature.USE_ISOLATED_BUILDER`` enabled. See module docstring for
+    the full flow.
     """
     build = Build.objects.select_related("version__project").get(pk=build_pk)
     version = build.version
@@ -539,11 +438,11 @@ def submit_build_to_ecs(self, build_pk):
 
     # The build was cancelled (e.g. via ``cancel_build`` while we were
     # waiting in the Celery queue) before we got a chance to dispatch.
-    # Bail out without minting an API key or hitting ECS — the Build
-    # already reflects ``state=cancelled``.
+    # Bail out without minting an API key or sending to the isolated
+    # queue — the Build already reflects ``state=cancelled``.
     if build.state == BUILD_STATE_CANCELLED:
         log.info(
-            "Build was cancelled before ECS dispatch; skipping.",
+            "Build was cancelled before dispatch; skipping.",
             build_id=build.pk,
             project_slug=project.slug,
         )
@@ -556,31 +455,32 @@ def submit_build_to_ecs(self, build_pk):
     )
 
     try:
-        _submit_build_to_ecs(build, version, project)
+        _submit_build_to_isolated(build, version, project)
     except (BuildUserError, BuildAppError) as exc:
         # Failures *before* the build container starts never reach the
         # runner's own try/except. Finalize the build at the API layer
         # so the user sees a proper notification + ``finished`` state
         # instead of a build stuck in ``triggered``.
         _fail_build(build, exc)
-        log.exception("submit_build_to_ecs failed.")
+        log.exception("submit_build_to_isolated failed.")
 
 
-def _submit_build_to_ecs(build, version, project):
+def _submit_build_to_isolated(build, version, project):
     """
-    Inner body of :func:`submit_build_to_ecs` — split out so the caller
-    can wrap it in a single try/except that finalizes the build on any
-    user / app error. See :func:`_fail_build` for the failure path.
+    Inner body of :func:`submit_build_to_isolated` — split out so the
+    caller can wrap it in a single try/except that finalizes the build
+    on any user / app error. See :func:`_fail_build` for the failure
+    path.
     """
-    if not project.has_feature(Feature.USE_ECS_BUILDER):
+    if not project.has_feature(Feature.USE_ISOLATED_BUILDER):
         # Defensive: the dispatcher in ``trigger_build`` shouldn't route here
         # without the flag. If it does, fail loudly rather than silently
-        # dispatching to ECS.
+        # dispatching.
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=(
-                f"submit_build_to_ecs called for project '{project.slug}' "
-                "without Feature.USE_ECS_BUILDER set."
+                f"submit_build_to_isolated called for project '{project.slug}' "
+                "without Feature.USE_ISOLATED_BUILDER set."
             ),
         )
 
@@ -601,11 +501,10 @@ def _submit_build_to_ecs(build, version, project):
 
     log.info("Resolved build.os.", build_os=build_os)
 
-    # 2. Resolve per-build resource limits.
-    cpu, memory, time_limit = _resolve_build_resources(project)
+    # 2. Resolve per-build resource limits (memory + time).
+    memory, time_limit = _resolve_build_resources(project)
     log.info(
         "Resolved build resources.",
-        cpu=cpu,
         memory=memory,
         time_limit=time_limit,
     )
@@ -613,7 +512,7 @@ def _submit_build_to_ecs(build, version, project):
     # 3. Mint a per-build API key (24h-scoped).
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
-    # 4. Submit to ECS (prod) or local Docker (dev).
+    # 4. Build the env dict that flows into the container.
     environment = {
         "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
         "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
@@ -655,10 +554,13 @@ def _submit_build_to_ecs(build, version, project):
 
     command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
 
-    task_arn = _dispatch_build_task(
+    # 5. Dispatch — to the isolated-builds Celery queue in prod, or to
+    # the host docker daemon in dev. Returns the worker Celery task id
+    # in prod; ``None`` in dev (no long-running task to revoke; cancel
+    # uses the container name).
+    worker_task_id = _dispatch_build_task(
         build_pk=build.pk,
         build_os=build_os,
-        cpu=cpu,
         memory=memory,
         environment=environment,
         command=command,
@@ -666,10 +568,14 @@ def _submit_build_to_ecs(build, version, project):
 
     log.info(
         "Dispatched build.",
-        backend="docker" if settings.RTD_DOCKER_COMPOSE else "ecs-ec2",
-        task_arn=task_arn,
+        backend="docker" if settings.RTD_DOCKER_COMPOSE else "isolated-builders",
+        worker_task_id=worker_task_id,
     )
 
-    # 5. Store the (pseudo-)ARN so cancel_build can stop the task.
-    build.task_arn = task_arn
-    build.save(update_fields=["task_arn"])
+    # 6. Save the worker task id so ``cancel_build`` can revoke it.
+    # In dev (no Celery worker task), worker_task_id is None and we
+    # leave Build.task_id as-is (cancel_build branches on
+    # RTD_DOCKER_COMPOSE to use the container name instead).
+    if worker_task_id:
+        build.task_id = worker_task_id
+        build.save(update_fields=["task_id"])

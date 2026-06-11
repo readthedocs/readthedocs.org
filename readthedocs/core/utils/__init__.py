@@ -200,10 +200,12 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
-    When the project has ``Feature.USE_ECS_BUILDER`` enabled, dispatches
-    to the new ``submit_build_to_ecs`` bootstrap task (which clones the
-    config, resolves ``build.os``, and runs the build inside an ECS-on-EC2 task)
-    instead of the legacy ``update_docs_task``. See
+    When the project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
+    dispatches to the new ``submit_build_to_isolated`` bootstrap task
+    (which clones the config, resolves ``build.os``, and sends the build
+    to the ``isolated-builds`` Celery queue for a dedicated EC2 worker
+    to run inside a Docker container) instead of the legacy
+    ``update_docs_task``. See
     ``readthedocs-builder/docs/architecture.md`` for the broader design.
 
     :param project: project's documentation to be built
@@ -214,7 +216,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     """
     # Avoid circular import.
     from readthedocs.projects.models import Feature
-    from readthedocs.projects.tasks.ecs import submit_build_to_ecs
+    from readthedocs.projects.tasks.isolated_builder import submit_build_to_isolated
 
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
@@ -239,14 +241,15 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         # Build was skipped
         return (None, None)
 
-    # Feature-flag dispatch: ECS builder path vs legacy Celery path.
-    if project.has_feature(Feature.USE_ECS_BUILDER):
-        log.info("Dispatching build via submit_build_to_ecs (ECS builder path).")
-        task = submit_build_to_ecs.delay(build_pk=build.pk)
-        # The Build's ECS task_arn is populated by submit_build_to_ecs once
-        # ``ecs:RunTask`` returns; we don't write task_id here (that's the
-        # legacy-Celery-path's cancellation handle). cancel_build branches
-        # on which one is set.
+    # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
+    if project.has_feature(Feature.USE_ISOLATED_BUILDER):
+        log.info("Dispatching build via submit_build_to_isolated.")
+        task = submit_build_to_isolated.delay(build_pk=build.pk)
+        # We deliberately don't write ``task.id`` (the bootstrap task's id)
+        # to ``Build.task_id`` here. ``submit_build_to_isolated`` overwrites
+        # it with the *worker* task's id once it sends to the
+        # ``isolated-builds`` queue — so ``cancel_build`` revokes the
+        # worker (which holds the docker container), not the bootstrap.
         return task, build
 
     task = update_docs_task.apply_async()
@@ -276,13 +279,13 @@ def cancel_build(build):
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
 
-    Routing during the ECS builder rollout: branches on which task identifier
-    is set on the build. ``Build.task_arn`` (ECS builder path) takes
-    precedence — if the build was dispatched to ECS, we call
-    ``ecs:StopTask``. Otherwise we fall back to the legacy Celery revoke.
-    The branch is on the build's *actual* state (which dispatcher ran),
-    not the project's current feature flag, so an in-flight build that
-    started before the flag was flipped still cancels correctly.
+    Both the isolated-builders path and the legacy path use the Celery
+    revoke mechanism to terminate a running build — the worker task
+    that holds the docker container catches the signal and propagates
+    it to the container. The only special case is local docker-compose
+    dev: the dispatcher there runs ``docker run`` detached (no
+    long-running Celery task to revoke), so we ``docker kill`` the
+    container by its stable ``build-<pk>`` name instead.
     """
     # NOTE: `terminate=True` is required for the child to attend our call
     # immediately when it's running the build. Otherwise, it finishes the
@@ -315,64 +318,41 @@ def cancel_build(build):
         version_slug=build.version.slug,
         build_id=build.pk,
         build_task_id=build.task_id,
-        build_task_arn=build.task_arn,
         terminate=terminate,
     )
 
-    if build.task_arn:
-        # ECS builder / local-docker path. ``task_arn`` is a container id
-        # under docker-compose dev and a real ECS task ARN in
-        # production; we branch on ``settings.RTD_DOCKER_COMPOSE``.
-        if settings.RTD_DOCKER_COMPOSE:
-            import docker
-
-            try:
-                # SIGTERM, not the default SIGKILL: the runner installs a
-                # SIGTERM handler that raises ``BuildCancelled`` so its
-                # lifecycle's ``try/except/finally`` runs (attaches the
-                # ``CANCELLED_BY_USER`` notification + PATCHes the build
-                # to ``finished`` with ``success=False``) before the
-                # process exits. SIGKILL would skip all of that and
-                # leave the build stuck mid-state. Matches ECS StopTask
-                # semantics in production.
-                docker.from_env().containers.get(build.task_arn).kill(signal="SIGTERM")
-            except Exception:
-                log.exception(
-                    "docker kill failed.",
-                    container_id=build.task_arn,
-                )
-            return
-
-        # The runner inside the ECS task catches SIGTERM via its
-        # lifecycle's try/finally and finalizes the build. If the task
-        # has already exited (race), StopTask returns a benign error
-        # which we log but don't propagate.
-        import boto3
+    if settings.RTD_DOCKER_COMPOSE:
+        # Dev: the dispatcher ran ``docker run`` detached, so there's no
+        # Celery task to revoke — kill the container by its stable name.
+        # SIGTERM (not SIGKILL): the runner's signal handler raises
+        # ``BuildCancelled`` so its lifecycle's try/except/finally runs
+        # (attaches the ``CANCELLED_BY_USER`` notification + PATCHes the
+        # build to ``finished`` with ``success=False``) before the
+        # process exits. SIGKILL would skip all of that and leave the
+        # build stuck mid-state.
+        import docker
 
         try:
-            boto3.client("ecs", region_name=settings.AWS_S3_REGION_NAME).stop_task(
-                cluster=settings.RTD_ECS_CLUSTER,
-                task=build.task_arn,
-                reason="cancelled by user",
-            )
+            docker.from_env().containers.get(f"build-{build.pk}").kill(signal="SIGTERM")
         except Exception:
-            log.exception(
-                "ecs:StopTask failed.",
-                task_arn=build.task_arn,
-            )
+            log.exception("docker kill failed.", build_pk=build.pk)
         return
 
     if build.task_id:
-        # Legacy Celery path.
+        # Prod: revoke the Celery task. For the legacy path this is the
+        # ``update_docs_task`` worker; for the isolated-builders path
+        # it's the ``worker.tasks.run_build`` worker (which holds the
+        # docker container and propagates SIGINT to it). Both honor
+        # SIGINT via their own signal handlers.
         app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
         return
 
-    # Neither path has a handle yet. This happens when the ECS bootstrap
-    # task hasn't run / hasn't called ecs:RunTask. The
-    # state-update above is enough — submit_build_to_ecs checks the
-    # build state at startup and bails out when it's CANCELLED.
+    # The bootstrap task hasn't dispatched to the isolated queue yet, so
+    # there's no worker task id on the Build. The state update above is
+    # enough — ``submit_build_to_isolated`` checks the build state at
+    # startup and bails out when it observes ``BUILD_STATE_CANCELLED``.
     log.info(
-        "No task handle on the build; relying on submit_build_to_ecs "
+        "No task handle on the build; relying on submit_build_to_isolated "
         "to bail out when it observes BUILD_STATE_CANCELLED.",
     )
 
