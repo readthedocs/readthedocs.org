@@ -217,37 +217,18 @@ def _resolve_build_resources(project):
 
 def _dispatch_build_task(*, build_pk, build_os, memory, environment, command, no_self_terminate):
     """
-    Dispatch a build to either the isolated-builders queue (prod) or
-    local Docker (dev).
+    Send the build to the ``isolated-builds`` Celery queue.
 
-    Branches on ``settings.RTD_DOCKER_COMPOSE``:
+    Same path in dev (docker-compose) and prod: the dispatcher always
+    sends to the queue. In prod the ``isolated-builders`` ASG picks it
+    up; in dev the ``isolated-builder`` compose service does. Either
+    way the worker runs ``docker run`` to spawn the build container.
 
-    - **Dev (docker-compose)**: spawn a sibling container on the
-      celery container's host docker daemon via docker-py. The
-      container is detached and stays around after exit so logs can be
-      inspected. No Celery task tracks it — ``cancel_build`` finds it
-      by name (``build-<pk>``). ``no_self_terminate`` is irrelevant
-      here (no EC2 instance to keep alive) and is ignored.
-
-    - **Prod**: send a Celery task to the ``isolated-builds`` queue. A
-      worker on a dedicated EC2 instance (one task per instance) picks
-      it up and runs the build container. ``no_self_terminate=True``
-      asks the worker to skip the post-build
-      ``autoscaling:TerminateInstanceInAutoScalingGroup`` call so the
-      instance stays alive for debugging. Returns the worker task's
-      Celery id so ``cancel_build`` can revoke it.
+    ``no_self_terminate=True`` asks the worker to skip the post-build
+    ``autoscaling:TerminateInstanceInAutoScalingGroup`` call so the
+    instance stays alive for debugging (no-op in dev). Returns the
+    worker task's Celery id so ``cancel_build`` can revoke it.
     """
-    if settings.RTD_DOCKER_COMPOSE:
-        _docker_run_task(
-            build_pk=build_pk,
-            memory=memory,
-            environment=environment,
-            command=command,
-        )
-        # No Celery task id to track — the dev container is identified
-        # by its stable name ``build-<pk>``.
-        return None
-
     return _send_isolated_build_task(
         build_pk=build_pk,
         build_os=build_os,
@@ -255,99 +236,6 @@ def _dispatch_build_task(*, build_pk, build_os, memory, environment, command, no
         environment=environment,
         command=command,
         no_self_terminate=no_self_terminate,
-    )
-
-
-def _docker_run_task(*, build_pk, memory, environment, command):
-    """
-    Spawn a builder container via the host's docker daemon (dev only).
-
-    The container shares the docker-compose network (so it can reach
-    ``web``, ``storage``, etc.). When ``settings.RTD_PATH_BUILDER`` is
-    set, the host-side readthedocs-builder checkout is bind-mounted at
-    ``/opt/readthedocs-builder`` so the entrypoint uses the live source
-    instead of the AMI clone path — matches the ``dev-run.sh`` iteration
-    loop.
-
-    Requires the celery container to have ``/var/run/docker.sock``
-    bind-mounted (docker-out-of-docker).
-    """
-    # Import lazily so the prod settings don't need the ``docker`` package
-    # available at import time.
-    import docker
-
-    client = docker.from_env()
-    # TODO: in production this is derived from build.os and points to a
-    # readthedocs/build:<os> image. For local dev we currently use a
-    # single ``builder-dev:latest`` image regardless of build.os because
-    # we don't have the OS image matrix yet. Match production once the
-    # matrix exists.
-    image = settings.RTD_LOCAL_BUILDER_IMAGE
-
-    volumes = {}
-    if settings.RTD_PATH_BUILDER:
-        # The path here is resolved by the *host* docker daemon (we're
-        # talking to it via the bind-mounted socket), so
-        # ``RTD_PATH_BUILDER`` must be a host-side absolute path —
-        # not a path inside the celery container.
-        volumes[settings.RTD_PATH_BUILDER] = {
-            "bind": "/opt/readthedocs-builder",
-            "mode": "ro",
-        }
-        # ``entrypoint.sh`` is COPYed into the image at ``/opt/entrypoint.sh``
-        # (see ``readthedocs-builder/Dockerfile``) — outside the
-        # ``/opt/readthedocs-builder`` bind-mount above, so edits on
-        # the host don't take effect without a full image rebuild.
-        # Bind-mount the host copy on top so dev iterations on the
-        # entrypoint (signal handling, watchdog, etc.) are live.
-        volumes[os.path.join(settings.RTD_PATH_BUILDER, "scripts/entrypoint.sh")] = {
-            "bind": "/opt/entrypoint.sh",
-            "mode": "ro",
-        }
-
-    # Stable container name so the user can ``docker logs build-<pk>``
-    # without having to look up the random id, AND so ``cancel_build``
-    # can find it by name. If a stopped container from a previous run
-    # of the same pk is still around, remove it first so the name is
-    # free.
-    container_name = f"build-{build_pk}"
-    try:
-        existing = client.containers.get(container_name)
-    except docker.errors.NotFound:
-        pass
-    else:
-        log.info("Removing stale container.", container_name=container_name)
-        existing.remove(force=True)
-
-    try:
-        client.containers.run(
-            image=image,
-            name=container_name,
-            command=list(command),
-            environment={k: str(v) for k, v in environment.items()},
-            mem_limit=f"{memory}m",
-            network=settings.RTD_DOCKER_COMPOSE_NETWORK,
-            volumes=volumes,
-            detach=True,
-            # Keep the container around after exit in dev so its logs
-            # remain inspectable via ``docker logs build-<pk>``. Prune
-            # accumulated stopped containers periodically with
-            # ``docker container prune``.
-            auto_remove=False,
-        )
-    except Exception as exc:
-        raise BuildAppError(
-            BuildAppError.GENERIC_WITH_BUILD_ID,
-            exception_message=f"docker run failed: {exc}",
-        ) from exc
-
-    log.info(
-        "Dispatched build to local Docker.",
-        container_name=container_name,
-        image=image,
-        mem_limit=f"{memory}m",
-        network=settings.RTD_DOCKER_COMPOSE_NETWORK,
-        bind_mount=bool(volumes),
     )
 
 
