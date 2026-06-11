@@ -215,7 +215,7 @@ def _resolve_build_resources(project):
     return memory, time_limit
 
 
-def _dispatch_build_task(*, build_pk, build_os, memory, environment, command):
+def _dispatch_build_task(*, build_pk, build_os, memory, environment, command, no_self_terminate):
     """
     Dispatch a build to either the isolated-builders queue (prod) or
     local Docker (dev).
@@ -226,13 +226,16 @@ def _dispatch_build_task(*, build_pk, build_os, memory, environment, command):
       celery container's host docker daemon via docker-py. The
       container is detached and stays around after exit so logs can be
       inspected. No Celery task tracks it — ``cancel_build`` finds it
-      by name (``build-<pk>``).
+      by name (``build-<pk>``). ``no_self_terminate`` is irrelevant
+      here (no EC2 instance to keep alive) and is ignored.
 
     - **Prod**: send a Celery task to the ``isolated-builds`` queue. A
-      worker on a dedicated EC2 instance (one task per instance, the
-      instance self-terminates after) picks it up and runs the build
-      container. Returns the worker task's Celery id so
-      ``cancel_build`` can revoke it.
+      worker on a dedicated EC2 instance (one task per instance) picks
+      it up and runs the build container. ``no_self_terminate=True``
+      asks the worker to skip the post-build
+      ``autoscaling:TerminateInstanceInAutoScalingGroup`` call so the
+      instance stays alive for debugging. Returns the worker task's
+      Celery id so ``cancel_build`` can revoke it.
     """
     if settings.RTD_DOCKER_COMPOSE:
         _docker_run_task(
@@ -251,6 +254,7 @@ def _dispatch_build_task(*, build_pk, build_os, memory, environment, command):
         memory=memory,
         environment=environment,
         command=command,
+        no_self_terminate=no_self_terminate,
     )
 
 
@@ -347,7 +351,9 @@ def _docker_run_task(*, build_pk, memory, environment, command):
     )
 
 
-def _send_isolated_build_task(*, build_pk, build_os, memory, environment, command):
+def _send_isolated_build_task(
+    *, build_pk, build_os, memory, environment, command, no_self_terminate
+):
     """
     Dispatch the build to the ``isolated-builds`` Celery queue.
 
@@ -355,6 +361,12 @@ def _send_isolated_build_task(*, build_pk, build_os, memory, environment, comman
     runs ``docker run`` with the args we pass. The worker package
     lives in the ``readthedocs-builder`` repo under ``worker/``; we
     dispatch by task name so this codebase doesn't need to import it.
+
+    ``no_self_terminate=True`` asks the worker to skip its post-build
+    ``autoscaling:TerminateInstanceInAutoScalingGroup`` call so the
+    EC2 instance stays alive for debugging. Sourced from the
+    ``KEEP_ISOLATED_BUILDER_INSTANCE`` project feature flag in
+    :func:`_submit_build_to_isolated`.
 
     Returns the worker task's Celery id so ``cancel_build`` can revoke
     it. We don't import the worker package; ``app.send_task`` only
@@ -368,6 +380,7 @@ def _send_isolated_build_task(*, build_pk, build_os, memory, environment, comman
             "memory_mib": memory,
             "environment": environment,
             "command": command,
+            "no_self_terminate": no_self_terminate,
         },
         queue=ISOLATED_BUILDER_QUEUE,
     )
@@ -554,6 +567,12 @@ def _submit_build_to_isolated(build, version, project):
 
     command = ["--build-pk", str(build.pk), "--run", "--record-commands"]
 
+    # Debug knob: ``KEEP_ISOLATED_BUILDER_INSTANCE`` feature flag asks
+    # the worker to skip its post-build self-terminate so the EC2 host
+    # stays alive for inspection. Always False in dev (no instance to
+    # keep) and ignored by the docker dispatch path.
+    no_self_terminate = project.has_feature(Feature.KEEP_ISOLATED_BUILDER_INSTANCE)
+
     # 5. Dispatch — to the isolated-builds Celery queue in prod, or to
     # the host docker daemon in dev. Returns the worker Celery task id
     # in prod; ``None`` in dev (no long-running task to revoke; cancel
@@ -564,6 +583,7 @@ def _submit_build_to_isolated(build, version, project):
         memory=memory,
         environment=environment,
         command=command,
+        no_self_terminate=no_self_terminate,
     )
 
     log.info(

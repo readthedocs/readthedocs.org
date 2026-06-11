@@ -2087,6 +2087,7 @@ class Feature(models.Model):
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
     USE_ISOLATED_BUILDER = "use_isolated_builder"
+    KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
 
     FEATURES = (
         (
@@ -2163,6 +2164,16 @@ class Feature(models.Model):
                 "Celery worker pool (one task per EC2 instance, ephemeral) via "
                 "``submit_build_to_isolated`` instead of the legacy "
                 "``update_docs_task`` Celery worker pool."
+            ),
+        ),
+        (
+            KEEP_ISOLATED_BUILDER_INSTANCE,
+            _(
+                "Build: Debug mode for isolated-builders — keep the EC2 instance "
+                "running after the build completes (instead of having the worker "
+                "self-terminate it via the AWS API). Used for inspecting state "
+                "post-build (cloned source, .venv, exited build container). "
+                "Has no effect unless USE_ISOLATED_BUILDER is also set."
             ),
         ),
     )
