@@ -625,6 +625,35 @@ class CommunityBaseSettings(Settings):
 
     BUILD_TIME_LIMIT = 900  # seconds
 
+    # ECS-on-EC2 builder defaults — see readthedocs-builder/docs/architecture.md.
+    # Per-build resources can be overridden by Project.container_cpu_limit /
+    # container_mem_limit / container_time_limit. The bootstrap task caps
+    # the resolved values at RTD_BUILD_MAX_* before calling ecs:RunTask.
+    RTD_BUILD_DEFAULT_CPU = 2048  # ECS CPU units (1024 = 1 vCPU)
+    RTD_BUILD_DEFAULT_MEMORY = 8192  # MiB
+    RTD_BUILD_DEFAULT_TIME_LIMIT = 1800  # seconds
+    RTD_BUILD_MAX_CPU = 4096
+    RTD_BUILD_MAX_MEMORY = 30720
+    RTD_BUILD_MAX_TIME_LIMIT = 3600
+    # Two-layer timeout grace periods (see entrypoint.sh):
+    RTD_BUILD_TIME_LIMIT_GRACE_SECONDS = 30
+    RTD_BUILD_TIME_LIMIT_KILL_SECONDS = 10
+
+    # Where the runner clones itself from at container startup.
+    RTD_BUILDER_REPO = "https://github.com/readthedocs/readthedocs-builder.git"
+
+    # TODO: use RTD_BUILDER_REF = "rel" when we have a stable release of the builder
+    RTD_BUILDER_REF = "main"
+
+    # ECS config. All of these MUST be set in production; left empty here
+    # so dev settings can override (or the bootstrap can short-circuit when not
+    # configured).
+    RTD_ECS_CLUSTER = ""
+    RTD_ECS_TASK_DEFINITION_FORMAT = "rtd-builder-{build_os}"
+    RTD_ECS_SUBNETS = []
+    RTD_ECS_SECURITY_GROUPS = []
+    RTD_ECS_ASSIGN_PUBLIC_IP = "ENABLED"
+
     @property
     def BUILD_MEMORY_LIMIT(self):
         """
