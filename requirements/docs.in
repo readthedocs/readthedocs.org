@@ -7,7 +7,7 @@ sphinx==8.2.3
 
 matplotlib  # opengraph social cards
 
-sphinx_rtd_theme
+furo
 sphinx-tabs
 sphinx-intl
 sphinx-design
