@@ -186,16 +186,6 @@ class Unresolver:
         "^/{version}(/{filename})?$"
     )
 
-    # This pattern matches:
-    # - /projects/subproject
-    # - /projects/subproject/
-    # - /projects/subproject/file/name/
-    subproject_pattern = _expand_regex(
-        # The path must have the `project` alias,
-        # optionally a filename, which will be recursively resolved.
-        "^/{subproject}(/{filename})?$"
-    )
-
     def unresolve_url(self, url, append_indexhtml=True):
         """
         Turn a URL into the component parts that our views would use to process them.
@@ -385,6 +375,9 @@ class Unresolver:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
 
+        Aliases may contain slashes (e.g. ``api/python``), so we resolve by
+        finding the subproject whose alias is the longest prefix of the path.
+
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
@@ -395,29 +388,47 @@ class Unresolver:
         # so syntax is black with noqa for pep8.
         path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
-        match = self.subproject_pattern.match(path)
-        if not match:
+        project_relationship = self._find_subproject_by_alias(
+            parent_project=parent_project, path=path
+        )
+        if project_relationship is None:
             return None
 
-        subproject_alias = match.group("subproject")
-        filename = self._normalize_filename(match.group("filename"))
-        project_relationship = (
-            parent_project.subprojects.filter(alias=subproject_alias)
-            .select_related("child")
-            .first()
+        # We use the subproject as the new parent project
+        # to resolve the rest of the path relative to it.
+        alias = project_relationship.alias
+        filename = self._normalize_filename(path[len("/" + alias) :])  # noqa
+        subproject = project_relationship.child
+        return self._unresolve_path_with_parent_project(
+            parent_project=subproject,
+            path=filename,
+            check_subprojects=False,
+            external_version_slug=external_version_slug,
         )
-        if project_relationship:
-            # We use the subproject as the new parent project
-            # to resolve the rest of the path relative to it.
-            subproject = project_relationship.child
-            response = self._unresolve_path_with_parent_project(
-                parent_project=subproject,
-                path=filename,
-                check_subprojects=False,
-                external_version_slug=external_version_slug,
-            )
-            return response
-        return None
+
+    @staticmethod
+    def _find_subproject_by_alias(parent_project, path):
+        """
+        Return the relationship whose alias is the longest prefix of ``path``.
+
+        ``path`` must start with a leading slash (the prefix has already been
+        stripped). Aliases are matched as full path segments — alias
+        ``api/python`` matches ``/api/python`` and ``/api/python/en/latest/``,
+        but not ``/api/python-extra``. When several aliases match (e.g. both
+        ``api`` and ``api/python``) the longest one wins.
+        """
+        relationships = parent_project.subprojects.select_related("child")
+        matched = None
+        matched_len = -1
+        for relationship in relationships:
+            alias = relationship.alias
+            if not alias:
+                continue
+            prefix = "/" + alias
+            if (path == prefix or path.startswith(prefix + "/")) and len(alias) > matched_len:
+                matched = relationship
+                matched_len = len(alias)
+        return matched
 
     def _match_single_version_without_translations_project(
         self, parent_project, path, external_version_slug=None

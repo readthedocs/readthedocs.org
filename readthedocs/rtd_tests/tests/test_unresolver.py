@@ -167,6 +167,68 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/index.html")
 
+    def test_unresolve_subproject_alias_with_slash(self):
+        """Aliases may contain slashes to expose nested-looking subproject URLs."""
+        relation = self.pip.subprojects.first()
+        relation.alias = "api/python"
+        relation.save()
+        parts = unresolve(
+            "https://pip.readthedocs.io/projects/api/python/ja/latest/foo.html"
+        )
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.subproject)
+        self.assertEqual(parts.version, self.subproject_version)
+        self.assertEqual(parts.filename, "/foo.html")
+
+    def test_unresolve_subproject_alias_with_slash_no_filename(self):
+        relation = self.pip.subprojects.first()
+        relation.alias = "api/python"
+        relation.save()
+        parts = unresolve("https://pip.readthedocs.io/projects/api/python/ja/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.subproject)
+        self.assertEqual(parts.version, self.subproject_version)
+        self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_subproject_alias_longest_prefix_wins(self):
+        """When ``api`` and ``api/python`` both exist, the longer alias wins."""
+        # ``self.pip`` already has ``self.subproject`` as a subproject.
+        relation = self.pip.subprojects.first()
+        relation.alias = "api"
+        relation.save()
+
+        nested = fixture.get(
+            self.subproject.__class__,
+            slug="api-python",
+            language="en",
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.pip.add_subproject(nested, alias="api/python")
+
+        parts = unresolve(
+            "https://pip.readthedocs.io/projects/api/python/en/latest/foo.html"
+        )
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, nested)
+        self.assertEqual(parts.filename, "/foo.html")
+
+        # The shorter alias still resolves when the longer one isn't matched.
+        parts = unresolve("https://pip.readthedocs.io/projects/api/ja/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.subproject)
+        self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_subproject_alias_with_slash_must_match_segment_boundary(self):
+        """An alias prefix that doesn't end on a segment boundary doesn't match."""
+        relation = self.pip.subprojects.first()
+        relation.alias = "api/python"
+        relation.save()
+        # ``/projects/api/python-extra/...`` should NOT match the alias
+        # ``api/python`` — alias must be a full path-segment prefix.
+        with pytest.raises(InvalidPathForVersionedProjectError):
+            unresolve("https://pip.readthedocs.io/projects/api/python-extra/en/latest/")
+
     def test_unresolve_subproject_invalid_version(self):
         with pytest.raises(VersionNotFoundError) as excinfo:
             unresolve("https://pip.readthedocs.io/projects/sub/ja/nothing/foo.html")
