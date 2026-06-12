@@ -34,14 +34,26 @@ class GitHubAppInstallationManager(models.Manager):
         Only the installation_id is unique, the target_id and target_type could change,
         but this should never happen.
         """
+        extra_data = extra_data or {}
         installation, created = self.get_or_create(
             installation_id=installation_id,
             defaults={
                 "target_id": target_id,
                 "target_type": target_type,
-                "extra_data": extra_data or {},
+                "extra_data": extra_data,
             },
         )
+
+        # Keep the extra data about the installation up to date.
+        new_installation_data = extra_data.get("installation", {})
+        installation_has_changed = (
+            new_installation_data
+            and new_installation_data != installation.extra_data.get("installation", {})
+        )
+        if not created and installation_has_changed:
+            installation.extra_data = extra_data
+            installation.save()
+
         # NOTE: An installation can't change its target_id or target_type.
         # This should never happen, unless this assumption is wrong.
         if installation.target_id != target_id or installation.target_type != target_type:
@@ -77,6 +89,16 @@ class GitHubAppInstallation(TimeStampedModel):
         help_text=_("Account type that the target_id belongs to (user or organization)"),
         choices=GitHubAccountType,
         max_length=255,
+    )
+    target_login = models.CharField(
+        help_text=_("The account login the installation belongs to"),
+        null=True,
+        max_length=255,
+    )
+    all_repositories_selected = models.BooleanField(
+        help_text=_("Whether the installation has access to all repositories or just some of them"),
+        db_default=False,
+        default=False,
     )
     extra_data = models.JSONField(
         help_text=_("Extra data returned by the webhook when the installation is created"),
@@ -172,6 +194,12 @@ class GitHubAppInstallation(TimeStampedModel):
             target_id=self.target_id,
             target_type=self.target_type,
         )
+
+    def save(self, *args, **kwargs):
+        installation_data = self.extra_data.get("installation", {})
+        self.target_login = installation_data.get("account", {}).get("login")
+        self.all_repositories_selected = installation_data.get("repository_selection") == "all"
+        super().save(*args, **kwargs)
 
 
 class RemoteOrganization(TimeStampedModel):
