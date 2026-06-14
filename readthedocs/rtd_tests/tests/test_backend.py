@@ -15,7 +15,7 @@ from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
     create_git_tag,
@@ -444,3 +444,41 @@ class TestGitBackend(TestCase):
         # Checkout the master branch to verify that we can checkout something
         # from the above clone+fetch
         repo.checkout("master")
+
+    def test_set_parallel_configs_executes_git_commands(self):
+        """Test that parallel git config commands are executed by _set_parallel_configs()."""
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+
+        with mock.patch.object(repo, "run") as mock_run:
+            mock_run.return_value = (0, "", "")
+            repo._set_parallel_configs()
+
+        mock_run.assert_any_call("git", "config", "--global", "fetch.parallel", "0")
+        mock_run.assert_any_call("git", "config", "--global", "checkout.workers", "0")
+        mock_run.assert_any_call("git", "config", "--global", "submodule.fetchJobs", "0")
+        mock_run.assert_any_call("git", "config", "--global", "pack.threads", "0")
+        self.assertEqual(mock_run.call_count, 4)
+
+    def test_update_does_not_set_parallel_configs_when_feature_disabled(self):
+        """Test that parallel git configs are NOT set when BUILD_IN_PARALLEL feature is disabled."""
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+
+        with mock.patch.object(repo, "_set_parallel_configs") as mock_set_parallel:
+            repo.update()
+
+        mock_set_parallel.assert_not_called()
+
+    def test_update_calls_set_parallel_configs_when_feature_enabled(self):
+        """Test that update() calls _set_parallel_configs() when BUILD_IN_PARALLEL is enabled."""
+        feature = get(Feature, feature_id=Feature.BUILD_IN_PARALLEL)
+        feature.projects.add(self.project)
+
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+
+        with mock.patch.object(repo, "_set_parallel_configs") as mock_set_parallel:
+            repo.update()
+
+        mock_set_parallel.assert_called_once()
