@@ -68,6 +68,7 @@ class BuildWithOs(ConfigBaseModel):
     jobs: BuildJobs = BuildJobs()
     apt_packages: list[str] = []
     commands: list[str] = []
+    environment: dict[str, str] = {}
 
 
 class PythonInstallRequirements(ConfigBaseModel):

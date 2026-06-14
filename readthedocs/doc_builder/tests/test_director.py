@@ -32,6 +32,7 @@ class TestBuildDirectorEnvironmentVariables(TestCase):
         self.data.config = mock.Mock()
         self.data.config.conda = None
         self.data.config.is_using_uv = False
+        self.data.config.build.environment = {}
 
         self.director = BuildDirector(self.data)
 
