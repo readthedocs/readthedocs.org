@@ -721,11 +721,9 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     """Serve llms.txt files from the domain's root."""
 
-    # Always cache this view, since it's the same for all users.
-    cache_response = True
     # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "llms.txt"
 
@@ -744,25 +742,23 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         version = get_object_or_404(project.versions, slug=version_slug)
         self._llms_version = version
 
-        no_serve_llms_txt = any(
-            [
-                # If the default version is private or,
-                version.is_private,
-                # default version is not active or,
-                not version.active,
-                # default version is not built
-                not version.built,
-            ]
-        )
-
-        if no_serve_llms_txt:
-            # ... we do return a 404
+        # Serve only for active and built versions.
+        serve_llms_txt = version.active and version.built
+        if not serve_llms_txt:
             raise Http404()
+
+        # Only public versions can be cached,
+        # since private versions check for authorization.
+        self.cache_response = version.is_public
 
         structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
         )
+
+        # Check user permissions and return an unauthed response if needed.
+        if not self.allowed_user(request, version):
+            return self.get_unauthed_response(request, project)
 
         try:
             response = self._serve_docs(
@@ -791,6 +787,10 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         project = self._get_project()
         version_slug = project.get_default_version()
         return project.versions.filter(slug=version_slug).first()
+
+
+class ServeLLMSTXT(SettingsOverrideObject):
+    _default_class = ServeLLMSTXTBase
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
