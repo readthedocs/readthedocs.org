@@ -36,6 +36,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.12 \
         python3.12-venv \
         docker.io \
+        nodejs \
+        npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Symlink so ``python`` works without a version suffix (matches the AMI,
@@ -45,6 +47,10 @@ RUN ln -sf /usr/bin/python3.12 /usr/local/bin/python
 # Install uv at the same path the AMI uses (/usr/local/bin/uv) so the
 # entrypoint script is identical to the production setup unit.
 RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh
+
+# Install nodemon globally so the entrypoint can optionally run the
+# Celery worker with reload (dev-only, not in the AMI).
+RUN npm install -g nodemon
 
 # Pre-create the same directories the AMI's Packer step provisions.
 # /opt/readthedocs-builder is replaced by a compose bind-mount of
