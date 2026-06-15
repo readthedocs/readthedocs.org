@@ -16,6 +16,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.validators import VersionValidator
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -31,6 +32,8 @@ from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.projects.validators import EnvironmentVariableValidator
+from readthedocs.projects.validators import ProjectValidator
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
@@ -393,7 +396,7 @@ class VersionSerializer(serializers.ModelSerializer):
         return []
 
 
-class VersionUpdateSerializer(serializers.ModelSerializer):
+class VersionUpdateSerializer(VersionValidator, serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
@@ -688,7 +691,7 @@ class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer):
+class ProjectUpdateSerializerBase(ProjectValidator, TaggitSerializer, serializers.ModelSerializer):
     """Serializer used to modify a Project once imported."""
 
     repository = RepositorySerializer(source="*")
@@ -1141,7 +1144,7 @@ class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class EnvironmentVariableSerializer(serializers.ModelSerializer):
+class EnvironmentVariableSerializer(EnvironmentVariableValidator, serializers.ModelSerializer):
     project = serializers.SlugRelatedField(slug_field="slug", read_only=True)
     _links = EnvironmentVariableLinksSerializer(source="*", read_only=True)
 
