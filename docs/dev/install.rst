@@ -216,7 +216,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
 
-    * ``--only-required`` pulls only the image ``ubuntu-20.04``.
+    * ``--only-required`` pulls only the image ``ubuntu-24.04``.
 
 ``inv docker.buildassets``
     Build all the assets and "deploy" them to the storage.

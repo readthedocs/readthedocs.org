@@ -28,7 +28,7 @@ All enabled automation rules are evaluated for that version,
 in the order they are listed.
 A rule has three groups of conditions, which are checked in order:
 
-1. The version **type** must be one of the version types selected in the rule (tag, branch, or external).
+1. The version **type** must be one of the version types selected in the rule (tag, branch, or pull request).
 2. The version **name** must match the version pattern in the rule.
 3. If any **webhook filter** is configured, the data from the webhook event
    (changed files, commit message, or pull request labels) must also match.
@@ -49,7 +49,7 @@ Each rule applies to one or more version types:
 
 - **Tag** — Git tags pushed to the repository.
 - **Branch** — Git branches pushed to the repository.
-- **External** — pull/merge requests opened against the repository.
+- **Pull request** — pull/merge requests opened against the repository.
 
 You can select any combination of types in a single rule.
 
@@ -259,7 +259,7 @@ Only build when documentation files change
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Match: ``Any version``
-- Version types: ``Tag``, ``Branch``, ``External``
+- Version types: ``Tag``, ``Branch``, ``Pull request``
 - Changed files:
 
   .. code-block:: text
@@ -277,7 +277,7 @@ Configure a single rule that triggers a build only when the commit message
 does *not* contain ``[skip ci]``:
 
 - Match: ``Any version``
-- Version types: ``Tag``, ``Branch``, ``External``
+- Version types: ``Tag``, ``Branch``, ``Pull request``
 - Commit message: ``^(?!.*\[skip ci\]).*``
 - Action: ``Trigger build for version``
 
@@ -285,6 +285,6 @@ Only build pull requests labeled with ``documentation``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Match: ``Any version``
-- Version type: ``External``
+- Version type: ``Pull request``
 - Pull request labels: ``^documentation$``
 - Action: ``Trigger build for version``

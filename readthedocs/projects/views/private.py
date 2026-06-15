@@ -46,7 +46,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
-from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
@@ -959,6 +958,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
+                user_pk=self.request.user.pk,
                 integration=self.object,
             )
         return HttpResponseRedirect(self.get_success_url())
@@ -1021,14 +1021,22 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
+        integration = None
         if "integration_pk" in kwargs:
             integration = self.get_integration()
-            update_webhook(self.get_project(), integration, request=request)
-        else:
-            # This is a brute force form of the webhook sync, if a project has a
-            # webhook or a remote repository object, the user should be using
-            # the per-integration sync instead.
-            attach_webhook(project_pk=self.get_project().pk)
+            # TODO: remove after integrations without a secret are removed.
+            if not integration.secret:
+                integration.save()
+
+        # If no integration is provided, we try to guess the integration, or create a new one.
+        success = attach_webhook(
+            project_pk=self.get_project().pk,
+            user_pk=request.user.pk,
+            integration=integration,
+        )
+        if success:
+            messages.success(request, _("Webhook activated"))
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
