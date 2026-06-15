@@ -92,7 +92,7 @@ def _sparse_clone_yaml(repo_url, ref, clone_token, dest):
         raise BuildAppError(
             BuildAppError.GENERIC_WITH_BUILD_ID,
             exception_message=(
-                f"ECS bootstrap doesn't support SSH clone URLs yet; project repo: {repo_url}"
+                f"Isolated-builders bootstrap doesn't support SSH clone URLs yet; project repo: {repo_url}"
             ),
         )
 
