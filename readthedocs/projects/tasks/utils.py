@@ -277,12 +277,6 @@ def terminate_builder_instance(builder, build_id=None):
         builder=builder,
     )
 
-    if settings.RTD_DOCKER_COMPOSE:
-        log.info(
-            "Running development environment. Skipping instance termination.",
-        )
-        return
-
     # web-extra-i-0c3e866c4e323928f
     hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", builder)
     if not hostname_match:

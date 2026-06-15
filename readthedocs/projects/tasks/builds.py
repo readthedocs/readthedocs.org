@@ -823,6 +823,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.project and self.data.project.has_feature(
             Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
         ):
+            if settings.RTD_DOCKER_COMPOSE:
+                log.info(
+                    "Running development environment. Skipping instance termination.",
+                )
+                return
+
             # Stop consuming new tasks first so this worker doesn't grab a
             # build that would be killed mid-flight when the instance is
             # terminated.
