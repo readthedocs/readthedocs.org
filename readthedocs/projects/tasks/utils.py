@@ -248,7 +248,7 @@ def stop_consuming_tasks_and_terminate(build_id):
         log.info("Cancelling consumer.", queue=queue, node=node_name)
 
         reply = app.control.cancel_consumer(queue, destination=[node_name], reply=True)
-        if len(reply) > 0 and "ok" in reply[0][node_name]:
+        if len(reply) > 0 and node_name in reply[0] and "ok" in reply[0][node_name]:
             log.info(
                 "Terminating the instance...",
             )
