@@ -6,6 +6,8 @@
         "error": "",
         "finished": null,
         "id": 3,
+        "builder": null,
+        "commands": [],
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
             "notifications": "https://readthedocs.org/api/v3/projects/project/builds/3/notifications/",
@@ -15,7 +17,9 @@
         "urls": {
             "build": "https://readthedocs.org/projects/project/builds/3/",
             "project": "https://readthedocs.org/projects/project/",
-            "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
+            "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/",
+            "documentation": "http://project.readthedocs.io/en/v1.0/",
+            "commit": null
         },
         "project": "project",
         "state": {

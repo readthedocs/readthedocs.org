@@ -102,7 +102,9 @@
       "urls": {
         "build": "https://readthedocs.org/projects/project/builds/1/",
         "project": "https://readthedocs.org/projects/project/",
-        "version": "https://readthedocs.org/projects/project/version/latest/edit/"
+        "version": "https://readthedocs.org/projects/project/version/latest/edit/",
+        "documentation": "https://project.dev.readthedocs.io/en/latest/",
+        "commit": "https://github.com/readthedocs/project/commit/a1b2c3"
       },
       "version": "latest"
     }
