@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
@@ -41,6 +42,7 @@ def all_projects(es_index, mock_processed_json, db, settings):
             Version,
             project=project,
             slug=STABLE,
+            verbose_name=STABLE_VERBOSE_NAME,
             built=True,
             active=True,
         )
