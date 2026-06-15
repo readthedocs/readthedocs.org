@@ -715,6 +715,49 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
+    def test_partial_update_project_language_already_in_translation(self):
+        """The project language can't collide with one of its translations."""
+        translation = get(
+            Project,
+            users=[self.me],
+            main_language_project=self.project,
+            language="es",
+        )
+
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Changing the main project language to the translation's one fails.
+        response = self.client.patch(url, {"language": "es"})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("language", response.json())
+
+        # The project keeps its original language.
+        self.project.refresh_from_db()
+        self.assertNotEqual(self.project.language, "es")
+
+        # A language not used by any translation is accepted.
+        response = self.client.patch(url, {"language": "br"})
+        self.assertEqual(response.status_code, 204)
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.language, "br")
+
+        # The translation can't take its main project's language either.
+        translation_url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": translation.slug,
+            },
+        )
+        response = self.client.patch(translation_url, {"language": "br"})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("language", response.json())
+
     def test_partial_update_project_readthedocs_yaml_path(self):
         """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
         url = reverse(
