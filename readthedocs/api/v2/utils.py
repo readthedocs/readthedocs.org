@@ -7,6 +7,7 @@ import structlog
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 
+from readthedocs.api.v2.dataclasses import VersionData
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
@@ -33,7 +34,7 @@ def sync_versions_to_db(project, versions, type):
     - it does not delete versions
 
     :param project: project to update versions
-    :param versions: list of VCSVersion fetched from the repository
+    :param versions: list of VersionData fetched from the repository
     :param type: internal or external version
     :returns: set of versions' slug added
     """
@@ -49,8 +50,8 @@ def sync_versions_to_db(project, versions, type):
     has_user_stable = False
     has_user_latest = False
     for version in versions:
-        version_id = version["identifier"]
-        version_name = version["verbose_name"]
+        version_id = version.identifier
+        version_name = version.verbose_name
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
             created_version, created = _set_or_create_version(
@@ -171,8 +172,8 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 def _get_deleted_versions_qs(project, tags_data, branches_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [version["verbose_name"] for version in tags_data]
-    versions_branches = [version["identifier"] for version in branches_data]
+    versions_tags = [version.verbose_name for version in tags_data]
+    versions_branches = [version.identifier for version in branches_data]
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
