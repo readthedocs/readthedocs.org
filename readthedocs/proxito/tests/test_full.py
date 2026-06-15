@@ -27,6 +27,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Domain, Feature, HTMLFile, Project
+from readthedocs.proxito.views.serve import ServeLLMSTXTBase
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import (
     BuildMediaFileSystemStorageTest,
@@ -1044,10 +1045,8 @@ class TestAdditionalDocViews(BaseDocServing):
         """Test serving a custom llms.txt file from the default version."""
         self.project.versions.update(active=True, built=True)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(
-            response["x-accel-redirect"],
-            "/proxito/media/html/project/latest/llms.txt",
-        )
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "public"
 
     def test_custom_llms_full_txt(self):
         """Test serving a custom llms-full.txt file from the default version."""
@@ -1078,11 +1077,24 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_llms_txt_private_version(self):
-        """Test that 404 is returned when default version is private."""
+        """Test that llms.txt from a private version is served, but not cached."""
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 200
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "private"
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @mock.patch.object(ServeLLMSTXTBase, "allowed_user")
+    def test_llms_txt_private_version_unauthorized_user(self, allowed_user):
+        """Test that users without access to the private version get an unauthorized response."""
+        allowed_user.return_value = False
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        assert response.status_code == 401
+        assert response["CDN-Cache-Control"] == "private"
 
     def test_llms_txt_inactive_version(self):
         """Test that 404 is returned when default version is inactive."""

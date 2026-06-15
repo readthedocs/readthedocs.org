@@ -252,6 +252,9 @@ class ServeDocsMixin:
             if is_serve_docs_denied(project):
                 return render(request, template_name="errors/proxito/spam.html", status=410)
 
+    def get_unauthed_response(self, request, project):
+        return self._serve_401(request, project)
+
 
 class ServeRedirectMixin:
     def system_redirect(
