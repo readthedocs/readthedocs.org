@@ -390,6 +390,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
+        # Track when the build task starts running on the builder. This is used
+        # to compute the build duration (``length``), so it does not include the
+        # time the build spent waiting in the queue (see ``Build.queue_time``).
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
@@ -433,7 +436,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         # Save when the task was executed by a builder
-        self.data.build["task_executed_at"] = timezone.now()
+        task_executed_at = timezone.now()
+        self.data.build["task_executed_at"] = task_executed_at
+
+        # Store the total time the build spent queued, measured from when it was
+        # originally triggered (``date``) to now. ``date`` is set once at
+        # creation and is not reset on retries, so this captures the full wait
+        # even across retries. It's stored separately from ``length`` so queue
+        # time does not inflate the build duration.
+        triggered_at = datetime.datetime.fromisoformat(self.data.build["date"])
+        self.data.build["queue_time"] = int((task_executed_at - triggered_at).total_seconds())
 
         # Enable scale-in protection on this instance
         #
