@@ -242,6 +242,7 @@ def stop_consuming_tasks_and_terminate(build_id):
     instance so we don't grab a build that would be killed mid-flight on
     shutdown.
     """
+    terminate_instance = False
     active_queues = ["build:default", "build:large"]
     for queue in active_queues:
         node_name = f"{queue}@{socket.gethostname()}"
@@ -249,13 +250,17 @@ def stop_consuming_tasks_and_terminate(build_id):
 
         reply = app.control.cancel_consumer(queue, destination=[node_name], reply=True)
         if len(reply) > 0 and node_name in reply[0] and "ok" in reply[0][node_name]:
-            log.info(
-                "Terminating the instance...",
-            )
-            terminate_builder_instance.delay(
-                builder=socket.gethostname(),
-                build_id=build_id,
-            )
+            terminate_instance = True
+
+    if terminate_instance:
+        log.info(
+            "Terminating the instance...",
+            hostname=socket.gethostname(),
+        )
+        terminate_builder_instance.delay(
+            builder=socket.gethostname(),
+            build_id=build_id,
+        )
 
 
 @app.task(queue="web")
