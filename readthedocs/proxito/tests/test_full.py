@@ -555,6 +555,12 @@ class TestDocServingBackends(BaseDocServing):
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
+            self.assertTrue(
+                resp["Content-Disposition"].startswith("attachment; filename=")
+            )
+            self.assertTrue(
+                resp["Content-Disposition"].endswith(f'.{extension}"')
+            )
 
             # Translation
             resp = self.client.get(
