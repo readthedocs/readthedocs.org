@@ -47,7 +47,7 @@ RUN apt-get -y install \
 # The mc client is compatible with any S3-compatible storage, including RustFS.
 # If this client should have issues running inside this image, it is also
 # fine to defer it to a separate image.
-RUN curl --disable https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
+RUN curl --disable --location https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
     chmod +x /usr/bin/mc
 
 RUN npm install -g nodemon

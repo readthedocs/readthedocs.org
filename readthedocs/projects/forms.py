@@ -854,6 +854,7 @@ class AddonsConfigForm(forms.ModelForm):
             "enabled",
             "project",
             "options_root_selector",
+            "options_base_version",
             "analytics_enabled",
             "customscript_enabled",
             "customscript_src",
@@ -888,6 +889,14 @@ class AddonsConfigForm(forms.ModelForm):
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
+            "options_base_version": _("Base version for diffing"),
+        }
+
+        help_texts = {
+            "options_base_version": _(
+                "Visual diff and File tree diff compare the current page against this version. "
+                "Defaults to the <code>latest</code> version."
+            ),
         }
 
         widgets = {
@@ -902,6 +911,11 @@ class AddonsConfigForm(forms.ModelForm):
         # Keep the ability to disable addons completely on Read the Docs Business
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
+
+        # External (pull-request) versions are transient and not meaningful as a
+        # diff baseline; only show internal (branch/tag) versions for this project.
+        self.fields["options_base_version"].queryset = self.project.versions(manager=INTERNAL)
+        self.fields["options_base_version"].empty_label = _("Default (latest)")
 
     def clean(self):
         if (
