@@ -19,6 +19,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_CHOICES
@@ -1055,6 +1056,16 @@ class Build(models.Model):
                 return BITBUCKET_COMMIT_URL.format(user=user, repo=repo, commit=self.commit)
 
         return None
+
+    def get_result_display(self):
+        """Human-readable build result combining state and success."""
+        if self.state == BUILD_STATE_FINISHED:
+            if self.success:
+                return _("Build passed")
+            return _("Build failed")
+        if self.state == BUILD_STATE_CANCELLED:
+            return _("Build cancelled")
+        return _("Building")
 
     @property
     def finished(self):

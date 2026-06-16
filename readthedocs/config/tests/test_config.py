@@ -447,7 +447,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": value,
                 },
             },
@@ -468,7 +468,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "2.6"},
                 },
             },
@@ -485,14 +485,14 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
         )
         build.validate()
         assert isinstance(build.build, BuildWithOs)
-        assert build.build.os == "ubuntu-20.04"
+        assert build.build.os == "ubuntu-24.04"
         assert build.build.tools["python"].version == "3.9"
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.9"]
         assert build.build.tools["python"].full_version == full_version
@@ -503,7 +503,7 @@ class TestBuildConfigV2:
             {
                 "build": {
                     "image": "latest",
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
@@ -517,7 +517,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                 },
                 "python": {"version": "3.8"},
@@ -535,7 +535,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": ["pip install pelican", "pelican content"],
                 },
@@ -568,7 +568,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": "command as string",
                 },
@@ -613,7 +613,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {value: ["echo 1234", "git fetch --unshallow"]},
                 },
@@ -629,7 +629,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_install": value,
@@ -646,7 +646,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_checkout": ["echo pre_checkout"],
@@ -699,7 +699,7 @@ class TestBuildConfigV2:
             {
                 "formats": ["pdf", "htmlzip", "epub"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3"},
                     "jobs": {
                         "create_environment": ["echo make_environment"],
@@ -2002,7 +2002,7 @@ class TestBuildConfigV2:
                 "version": 2,
                 "formats": ["pdf"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.9",
                         "nodejs": "16",
@@ -2030,7 +2030,7 @@ class TestBuildConfigV2:
                 ],
             },
             "build": {
-                "os": "ubuntu-20.04",
+                "os": "ubuntu-24.04",
                 "tools": {
                     "python": {
                         "version": "3.9",

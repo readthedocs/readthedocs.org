@@ -638,9 +638,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # Override the ``container_image`` if we pass it via argument.
         #
         # FIXME: This is a temporal fix while we explore how to make
-        # ``ubuntu-20.04`` the default build image without breaking lot of
+        # ``ubuntu-22.04`` the default build image without breaking lot of
         # builds. For now, we are passing
-        # ``container_image='readthedocs/build:ubuntu-20.04'`` for the setup
+        # ``container_image='readthedocs/build:ubuntu-22.04'`` for the setup
         # VCS step.
         if container_image:
             self.container_image = container_image
