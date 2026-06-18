@@ -67,12 +67,9 @@ class EdgeSerializationTests(TestCase):
         )
         assert edge.get_edge_redirects(self.project) == []
 
-    def test_serialize_project_includes_routing_config(self):
+    def test_serialize_project_includes_redirects(self):
         payload = edge.serialize_project(self.project)
         assert payload["project"] == "pip"
-        assert payload["default_version"] == "latest"
-        assert payload["default_language"] == "en"
-        assert payload["canonical_domain"] is None
         assert payload["redirects"] == []
 
     def test_get_project_hosts_includes_subdomain(self):

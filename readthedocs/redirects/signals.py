@@ -1,6 +1,5 @@
 """Signals to keep the edge redirect store in sync with the database."""
 
-import structlog
 from django.conf import settings
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
@@ -10,9 +9,6 @@ from readthedocs.projects.models import Domain
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.tasks import remove_domain_from_edge
 from readthedocs.redirects.tasks import sync_project_to_edge
-
-
-log = structlog.get_logger(__name__)
 
 
 def _enabled():

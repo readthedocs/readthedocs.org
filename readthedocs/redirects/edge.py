@@ -31,27 +31,6 @@ from readthedocs.redirects.constants import SPLAT_PLACEHOLDER
 
 log = structlog.get_logger(__name__)
 
-# Redirect types that the edge can evaluate from the request path alone.
-# Forced exact redirects are the only ones that don't need origin state
-# (file existence, version list, privacy). See the design doc for the
-# follow-up needed to support page/clean-url redirects at the edge.
-EDGE_REDIRECT_TYPES = (EXACT_REDIRECT,)
-
-
-def is_edge_eligible(redirect):
-    """
-    Whether a redirect can be served entirely from the edge.
-
-    Only enabled, forced redirects of an edge-eligible type qualify.
-    Non-forced redirects only fire when the origin can't serve the file,
-    which the edge can't know, so they stay at the origin.
-    """
-    return bool(
-        redirect.enabled
-        and redirect.force
-        and redirect.redirect_type in EDGE_REDIRECT_TYPES
-    )
-
 
 def serialize_redirect(redirect):
     """Serialize a single redirect into the compact edge representation."""
@@ -67,13 +46,21 @@ def serialize_redirect(redirect):
 
 
 def get_edge_redirects(project):
-    """Return the ordered, edge-eligible redirects for a project."""
-    redirects = project.redirects.all().order_by("position", "-update_dt")
-    return [
-        serialize_redirect(redirect)
-        for redirect in redirects
-        if is_edge_eligible(redirect)
-    ]
+    """
+    Return the ordered, edge-eligible redirects for a project.
+
+    Only enabled, forced exact redirects can be served at the edge: they match
+    on the whole request path and don't depend on origin state (file existence,
+    version list, privacy). Everything else stays at the origin. Page and
+    clean-URL redirects are a follow-up (see the design doc).
+    """
+    redirects = (
+        project.redirects.filter(force=True, redirect_type=EXACT_REDIRECT)
+        # ``enabled`` is nullable, so exclude only explicit ``False``.
+        .exclude(enabled=False)
+        .order_by("position", "-update_dt")
+    )
+    return [serialize_redirect(redirect) for redirect in redirects]
 
 
 def get_project_hosts(project):
@@ -94,19 +81,14 @@ def get_project_hosts(project):
 
 def serialize_project(project):
     """
-    Build the routing payload the edge needs to serve this project.
+    Build the routing payload the edge needs to serve a project.
 
-    This includes the canonical-domain configuration (for structural
-    redirects) and the edge-eligible redirect rules.
+    For now this is just the edge-eligible redirect rules. When structural
+    redirects (canonical domain, default version) move to the edge, their
+    config gets added here as the Worker grows to consume it.
     """
-    canonical_domain = project.canonical_custom_domain
     return {
         "project": project.slug,
-        "canonical_domain": canonical_domain.domain if canonical_domain else None,
-        "https": bool(canonical_domain.https) if canonical_domain else False,
-        "default_version": project.get_default_version(),
-        "default_language": project.language,
-        "single_version": project.is_single_version,
         "redirects": get_edge_redirects(project),
     }
 
@@ -193,12 +175,15 @@ def cached_edge_redirects_header(project):
     one query per project per TTL.
     """
     cache_key = f"edge-redirects-header:{project.slug}"
-    sentinel = ""  # Cache "no redirects" as well, to avoid repeated queries.
-    value = cache.get(cache_key, sentinel)
-    if value is sentinel:
-        value = edge_redirects_header(project)
+    # We cache "no redirects" as ``""`` (not ``None``) so that the common case
+    # of a project without forced redirects is a cache hit, not a miss that
+    # re-queries on every response. ``cache.get`` returns ``None`` only on a
+    # true miss.
+    value = cache.get(cache_key)
+    if value is None:
+        value = edge_redirects_header(project) or ""
         cache.set(cache_key, value, settings.RTD_EDGE_REDIRECTS_HEADER_TTL)
-    return value
+    return value or None
 
 
 def get_edge_store():
