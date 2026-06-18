@@ -213,11 +213,66 @@ small, well-tested module that we can validate against the existing
 ``redirects`` test suite — ideally sharing fixtures so the edge and origin
 can't silently diverge.
 
-Keeping the edge in sync
+Reference implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The database stays the source of truth. We propagate changes to KV
-asynchronously so the dashboard and API are unaffected:
+A first cut lives in the ``redirects`` app:
+
+- ``readthedocs/redirects/edge.py`` — serializes a project's routing config
+  and edge-eligible redirects, a reference matcher (``match_redirect``) for
+  parity testing, the ``X-RTD-Edge-Redirects`` header builder, and the
+  ``EdgeStore`` abstraction (in-memory ``LocalEdgeStore`` plus the Cloudflare
+  KV backend in ``edge_cloudflare.py``).
+- ``readthedocs/proxito/middleware.py`` — emits the ``X-RTD-Edge-Redirects``
+  header (Option A), behind ``RTD_EDGE_REDIRECTS_ENABLED``.
+- ``readthedocs/redirects/edge_worker.js`` — the reference Worker, supporting
+  both header learning (Option A) and pre-warmed KV (Option B).
+
+The first cut deliberately serves only **forced exact redirects**: they match
+on the whole request path, so the edge needs no version list or language
+parsing. Page and clean-URL redirects need the edge to split the language and
+version out of the path first, which requires more project metadata; they are
+a follow-up, and until then they remain at the origin.
+
+Getting the data to the edge
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are two ways to get the routing data from the origin to the edge.
+They are complementary, and we can ship the first on its own.
+
+**Option A — header delivery (no config).**
+The origin already talks to our Cloudflare Workers through response headers
+(for example ``X-RTD-Force-Addons``). We reuse that channel: the origin emits
+the project's forced redirects on an ``X-RTD-Edge-Redirects`` response header,
+and the Worker caches them per host (in the Cloudflare Cache API) for a short
+TTL. The next requests for that host are answered at the edge.
+
+This needs **no Cloudflare API credentials, no KV namespace, and no sync
+pipeline** — the data simply rides on responses the origin is already sending,
+and the edge learns it lazily. To keep this from adding a database query to
+every response, the origin caches the serialized header value per project for
+a short TTL, so the cost is roughly one query per project per TTL.
+
+Under the attack we saw, the first request to a host warms the edge with that
+project's forced redirects; every subsequent (unique, cache-busting) URL under
+those rules is then served at the edge without touching the origin.
+
+**Option B — pre-warmed KV (for the first request too).**
+Header delivery only protects the origin *after* the edge has seen one
+response for a host. To also absorb the very first request, we can push the
+same data into Workers KV ahead of time via the Cloudflare API. The Worker
+checks its learned cache first, then falls back to KV, then to the origin.
+
+The trade-off: Option B removes the cold-start window but adds the operational
+cost Option A avoids (credentials, a sync pipeline, and an eventually-consistent
+replica to reason about). We start with Option A and add B only if the
+cold-start window proves to matter under load.
+
+Keeping the pre-warmed KV in sync
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If we adopt Option B, the database stays the source of truth and we propagate
+changes to KV asynchronously so the dashboard and API are unaffected:
 
 - On ``Project``, ``Domain``, ``Version``, and ``Redirect`` save/delete,
   enqueue a Celery task that rebuilds the affected ``domain:{host}`` and/or
