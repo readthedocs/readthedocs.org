@@ -59,7 +59,7 @@ We don't enforce that the branch/tag/commit exists in the Git repository, we jus
 This is useful to keep the same modeling for versions, and most of the UI the same.
 If the version for that Git branch/tag/commit already exists, it will be reused for the new build.
 
-Versions will have a new field to indicate the source of their latest build (build_source), either "rtd-build" or "external-upload".
+Versions will have a new field to indicate the source of their latest build (``build_source``), either "rtd-build" or "external-upload".
 This will allow us to do some checks and validations.
 
 Versions marked as active and where their latest build is from an external upload can't be built using our current build system.
@@ -85,7 +85,7 @@ The "build version" option should be disabled/hidden for versions created from e
 Builds
 ------
 
-Builds will have a new field to indicate the source of the build (build_source), either "rtd-build" or "external-upload".
+Builds will have a new field to indicate the source of the build (``build_source``), either "rtd-build" or "external-upload".
 This will allow us to differentiate between builds that were triggered by our current build system and builds that were triggered by the new upload system.
 
 Latest triggered build wins, previous build is cancelled. Just like our current build system.
@@ -130,7 +130,7 @@ POST /api/v3/_internal/upload/initiate:
          "name": "main",  // name of the Git branch/tag or PR number.
          "type": "branch",  // or "tag" or "external" (PR).
          "commit": "abc123", // full commit hash
-         # Optional, if not provided, it's derived from the ref_name.
+         # Optional, if not provided, it's derived from the name of the branch/tag.
          # If the version with that slug exists, but it points to a different Git ref, we error out.
          "slug": "main",
          "configuration": {
