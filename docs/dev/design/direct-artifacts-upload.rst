@@ -184,6 +184,7 @@ POST /api/v3/_internal/upload/initiate:
       }
 
    The presigned URL will have a limit on the size, content type, and expiration time.
+   See https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/generate_presigned_post.html.
 
    The zip to upload should contain all artifacts in the following structure:
 
