@@ -318,28 +318,32 @@ Zip file validation using unzip/zipinfo provided by Claude:
 
    import os, stat, zipfile
 
-   MAX_TOTAL = 5 * 1024**3   # uncompressed cap
+   MAX_TOTAL = 5 * 1024**3  # uncompressed cap
    MAX_FILES = 50_000
-   MAX_RATIO = 100           # uncompressed/compressed
+   MAX_RATIO = 100  # uncompressed/compressed
 
    with zipfile.ZipFile(path) as zf:
-      total = comp = 0
-      for info in zf.infolist():
-         mode = info.external_attr >> 16
-         if stat.S_ISLNK(mode):                 # no symlinks
+       total = comp = 0
+       for info in zf.infolist():
+           mode = info.external_attr >> 16
+           if stat.S_ISLNK(mode):  # no symlinks
                raise ValueError("symlink entry")
-         norm = os.path.normpath(info.filename)
-         if norm.startswith(("/", "..")) or os.path.isabs(info.filename):
+           norm = os.path.normpath(info.filename)
+           if norm.startswith(("/", "..")) or os.path.isabs(info.filename):
                raise ValueError("path traversal")  # zip-slip
-         total += info.file_size
-         comp  += info.compress_size
-      if total > MAX_TOTAL or len(zf.infolist()) > MAX_FILES or (comp and total/comp > MAX_RATIO):
-         raise ValueError("archive too large / bomb")
-      zf.extractall(dest)   # already strips leading "/" and ".." components
+           total += info.file_size
+           comp += info.compress_size
+       if (
+           total > MAX_TOTAL
+           or len(zf.infolist()) > MAX_FILES
+           or (comp and total / comp > MAX_RATIO)
+       ):
+           raise ValueError("archive too large / bomb")
+       zf.extractall(dest)  # already strips leading "/" and ".." components
 
 Two things worth knowing:
   zipfile.extractall already neutralizes zip-slip (it sanitizes .. and leading slashes), but it does not guard against bombs or restore-then-write-through symlinks — that's why the explicit checks above exist. If you reach for the unzip CLI instead, you get none of these guards, so I'd stay in Python.
-  Header sizes can lie. The central-directory file_size is attacker-controlled, so the pre-scan is a fast first gate, not the real boundary. Back it with container limits so a lying header still can't hurt you: ulimit -f, a size-capped tmpfs (or disk quota) for dest, non-root, no network. Defense in depth — cheap given you already have the container.
+  Header sizes can lie. The central-directory ``file_size`` is attacker-controlled, so the pre-scan is a fast first gate, not the real boundary. Back it with container limits so a lying header still can't hurt you: ``ulimit -f``, a size-capped tmpfs (or disk quota) for dest, non-root, no network. Defense in depth — cheap given you already have the container.
 
 .. code-block:: bash
 
@@ -369,8 +373,8 @@ Two things worth knowing:
    timeout 300 unzip -qq -o "$zip" -d "$dest" )
 
 Notes that matter:
-  zipinfo -t field positions can shift with locale/version, so sanity-check the awk columns ($3 uncompressed, $6 compressed) against your actual image once.
+  ``zipinfo -t`` field positions can shift with locale/version, so sanity-check the awk columns ($3 uncompressed, $6 compressed) against your actual image once.
   unzip already refuses ../ traversal by default (it skips and warns), so step 3 is belt-and-suspenders — but keep it, since the listing check lets you reject the whole upload instead of silently dropping entries. Don't add -j (it flattens directories and would destroy the html/ layout).
-  Steps 2–4 read only the central directory, which is attacker-controlled and can lie. So step 5's ulimit -f + timeout + a size-capped dest (tmpfs -o size= or a quota) is the part that's actually load-bearing; the rest is fast-fail.
+  Steps 2–4 read only the central directory, which is attacker-controlled and can lie. So step 5's ``ulimit -f`` + ``timeout`` + a size-capped destination (``tmpfs -o size=`` or a quota) is the part that's actually load-bearing; the rest is fast-fail.
 
-If Python's in the image (it will be), python -m zipfile -l artifacts.zip lists contents, and the zipfile pre-scan I showed earlier does steps 2–4 more robustly than parsing zipinfo text — but the commands above are the pure-shell answer you asked for.
+If Python's in the image (it will be), ``python -m zipfile -l artifacts.zip`` lists contents, and the zipfile pre-scan I showed earlier does steps 2–4 more robustly than parsing zipinfo text — but the commands above are the pure-shell answer you asked for.
