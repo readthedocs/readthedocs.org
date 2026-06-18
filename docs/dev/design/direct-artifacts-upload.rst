@@ -68,11 +68,7 @@ This should mainly happen while users migrate to the new system, new users shoul
 
 We will no longer update the version to keep in sync with the Git branch/tag/commit,
 this will be updated after the upload is complete and the build is processed for that version.
-
-.. note::
-
-   It's kind weird that we keep active/built versions in sync with the Git branch/tag/commit.
-   Active versions should reflect the state from where the documentation was built.
+Active versions should reflect the state from where the documentation was built.
 
 Versions that are deleted from the Git repository will be deleted from Read the Docs if an automation rule is configured to do so.
 This includes versions created from external uploads, as they are still linked to a Git branch/tag/commit.
@@ -81,6 +77,10 @@ This includes versions created from external uploads, as they are still linked t
 
    With this new system, we don't have the need to keep a copy of the Git repository versions in Read the Docs.
    We can discuss in the future how we want to handle that.
+   The only reason to keep it is to be able to trigger builds from our current build system (while projects migrate),
+   and to keep automation rules working on deleted versions.
+
+The "build version" option should be disabled/hidden for versions created from external uploads.
 
 Builds
 ------
@@ -88,7 +88,7 @@ Builds
 Builds will have a new field to indicate the source of the build (build_source), either "rtd-build" or "external-upload".
 This will allow us to differentiate between builds that were triggered by our current build system and builds that were triggered by the new upload system.
 
-Latest build wins, previous build is cancelled. Just like our current build system.
+Latest triggered build wins, previous build is cancelled. Just like our current build system.
 
 Statuses:
 
@@ -105,51 +105,7 @@ Statuses:
   or when the user cancels the build manually.
   Just like our current build system,
 
-Aliases: latest/stable
-----------------------
-
-After a build has been processed, we can decide if latest or stable aliases should point to the results of that build.
-If so, we trigger a task to update the latest/stable.
-
-This task will only do a copy of the artifacts from the version to the latest/stable location.
-While this task won't spin up a docker container, it will create a build object with some dummy output
-to keep the same modeling as our current builders, and to be able to send the same webhooks.
-
-.. note::
-
-   We can start thinking about making latest/stable real aliases instead of copying the artifacts to a new location,
-   or duplicating builds for the same source.
-
-As we allow right now, users can also manually create versions named "latest" or "stable" to skip our logic.
-
-Webhooks and status API
------------------------
-
-Webhook events:
-
-- Build triggered: we can emit this one when the upload is initiated,
-  or replace it with "uploading".
-- Build passed: we can emit this one when the build is finished and successful.
-  Same as our current "build passed" event.
-- Build failed: we can emit this one when the build is finished and failed.
-  Same as our current "build failed" event.
-
-Commit status doesn't require any changes, we can update the status as we do now with the three states: pending, success, failure.
-
-Configuration file
-------------------
-
-In the case of the GH action, we can use the action inputs to provide the settings,
-or fallback to read the configuration file from the repository if it exists.
-
-When the upload is initiated, we can pass the configuration to the API,
-which will be stored in the build object and used when processing the build.
-We already store the configuration in the build object.
-
-.. note::
-
-   Currently, only the search configuration is relevant for processing the artifacts.
-   It can be left out for a future iteration if we want to simplify the initial implementation.
+The "rebuild" option should be disabled/hidden for builds created from external uploads.
 
 Upload API
 ----------
@@ -200,16 +156,24 @@ POST /api/v3/_internal/upload/complete:
   This endpoint will receive the build ID.
 
   This endpoint will trigger a task similar to our builders.
-  This task will start a docker container, download the artifacts, validate them,
-  upload them to their final destination, and update the build status,
+  This task will start a docker container (we can re-use the docker image used to clone the repository),
+  download the artifacts, validate them, upload them to their final destination, and update the build status,
   send the webhooks, update the commit status, etc.
   Just like our current builders do.
+  
+  The zip validation includes checking that the expected files are present,
+  and that the size of the artifacts is within the limits.
 
   This endpoint could also be used to notify that the upload has failed,
   so the build is cancelled and the status is updated to "failure".
 
   We also need to have a task to cancel builds that are in "uploading" state for a long time,
   in case the upload is never completed.
+
+  .. note::
+
+     S3 sends events when a file is uploaded, while we can use that to trigger the processing task,
+     it's better to have an explicit endpoint, it lets us report failures easily.
 
 .. note::
 
@@ -231,17 +195,49 @@ Upload script / GitHub Action
 -----------------------------
 
 In theory, given the token, users can upload the artifacts from anywhere,
-but we shouldn't encourage users to do manually call the API directly.
+but we shouldn't encourage users to manually call the API directly.
 We can provide a simple bash script that can be downloaded and used to upload the artifacts,
 or a GitHub Action that can be used in their workflows.
 
-When run from GiHub, we can automatically get the Git branch/tag/commit information from the environment variables,
+When run from GitHub, we can automatically get the Git branch/tag/commit information from the environment variables,
 and pass it to the API, when run outside of GitHub, we could still try to get this information from the environment,
 but we should make it explicit to start with.
 
 The action/script should be called after the documentation is built, and it will handle the upload process.
 The action/script will make sure to generate the zip file with the correct structure,
 given the paths to the artifacts.
+
+Configuration file
+------------------
+
+In the case of the GH action, we can use the action inputs to provide the settings,
+or fallback to read the configuration file from the repository if it exists.
+
+When the upload is initiated, we can pass the configuration to the API,
+which will be stored in the build object and used when processing the build.
+We already store the configuration in the build object.
+
+.. note::
+
+   Currently, only the search configuration is relevant for processing the artifacts.
+   It can be left out for a future iteration if we want to simplify the initial implementation.
+
+Aliases: latest/stable
+----------------------
+
+After a build has been processed, we can decide if latest or stable aliases should point to the results of that build.
+If so, we trigger a task to update the latest/stable.
+
+This task will only do a copy of the artifacts from the version to the latest/stable location.
+While this task won't spin up a docker container, it will create a build object with some dummy output
+to keep the same modeling as our current builders, and to be able to send the same webhooks.
+
+.. note::
+
+   We can start thinking about making latest/stable real aliases instead of copying the artifacts to a new location,
+   or duplicating builds for the same source.
+
+As we allow right now, users can also manually create versions named "latest" or "stable" to skip our logic.
 
 Pull requests
 -------------
@@ -253,19 +249,33 @@ Building from PRs that originate from the same repository is straightforward, as
 But for PRs that originate from forks, it's more complicated, as the user doesn't have access to the repository and can't generate a token to upload the artifacts,
 there are ways to share this token using a ``pull_request_target`` event in GitHub Actions, but it can be easily misused to run malicious code in the context of the base repository.
 
-We can try to offer a token that's only scoped for PR builds, this is still a security risk,
-as anyone can see it and use it to upload builds for that project,
-but the impact is limited to PR builds.
+We can try to offer a token that's only scoped for PR builds.
+This token should still be kept secret, as it can be used to upload builds to the pull request previews domain of the project,
+but the impact of the token being leaked is much smaller, as it doesn't affect production documentation.
+
+Webhooks and status API
+-----------------------
+
+Webhook events:
+
+- Build triggered: we can emit this one when the upload is initiated,
+  or replace it with "uploading".
+- Build passed: we can emit this one when the build is finished and successful.
+  Same as our current "build passed" event.
+- Build failed: we can emit this one when the build is finished and failed.
+  Same as our current "build failed" event.
+
+Commit status doesn't require any changes, we can update the status as we do now with the three states: pending, success, failure.
 
 First iteration
 ---------------
 
 The first iteration would be like a half polished proof of concept, to validate the architecture and the implementation.
-While not all things dissussed in this document will be implemented in the first iteration,
-this first iteration can be improved in the following weeks without mayor changes.
+While not all things discussed in this document will be implemented in the first iteration,
+this first iteration can be improved in the following weeks without major changes.
 
 - Implement the upload API and the processing task.
-- Bash script to upload the artifacts using the API.
+- Internal bash script to upload the artifacts using the API.
   Almost not client side validations.
 - Skip search configuration.
 - Add the new S3 bucket with the lifecycle policy.
@@ -274,9 +284,12 @@ this first iteration can be improved in the following weeks without mayor change
 - Minimal integration in the UI.
 - Minimal checks/enforcement for versions and builds created from external uploads.
 
+This first iteration is not a beta, it will be used for our own projects only.
+
 Future improvements and ideas
 -----------------------------
 
+- Use a more lightweight docker image to unzip the artifacts.
 - Use a lambda instead of a docker container to process the build.
   Lambdas have a maximum storage of 10GB, which may not be enough for some builds.
   But AWS has some other options for big files:
@@ -287,6 +300,8 @@ Future improvements and ideas
 - Support OIDC for authentication instead of API tokens.
 - Make latest/stable real aliases instead of copying the artifacts to a new location.
 - Sign the script used to upload the artifacts.
+- Do indexing tasks (search, file tree diff) just after the artifacts are uploaded to their final destination,
+  instead of querying the files again from storage.
 
 References
 ----------
