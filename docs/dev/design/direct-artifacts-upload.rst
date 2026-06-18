@@ -160,7 +160,7 @@ POST /api/v3/_internal/upload/complete:
   download the artifacts, validate them, upload them to their final destination, and update the build status,
   send the webhooks, update the commit status, etc.
   Just like our current builders do.
-  
+
   The zip validation includes checking that the expected files are present,
   and that the size of the artifacts is within the limits.
 
