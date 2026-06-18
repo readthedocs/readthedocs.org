@@ -419,6 +419,55 @@ class Unresolver:
             return response
         return None
 
+    def _match_project_by_path(self, parent_project, path, external_version_slug=None):
+        """
+        Try to match another project served under this project's domain by path.
+
+        This mirrors ``_match_subproject``, but resolves the leading path segment
+        to a project by its slug directly, instead of via a ``ProjectRelationship``.
+        It lets a single domain serve many projects under one prefix
+        (e.g. ``example.com/docs/<project-slug>/``) without modeling each one as a
+        subproject.
+
+        Opt-in via the ``SERVE_PROJECTS_BY_PATH`` feature on ``parent_project``, and
+        scoped to projects that share an owner with it, so a domain can't expose
+        unrelated projects.
+
+        :returns: A tuple with the current project, version and filename.
+         Returns `None` if there isn't a total or partial match.
+        """
+        if not parent_project.has_feature(Feature.SERVE_PROJECTS_BY_PATH):
+            return None
+
+        prefix = parent_project.custom_subproject_prefix or "/projects/"
+        if not path.startswith(prefix):
+            return None
+        # pep8 and black don't agree on having a space before :,
+        # so syntax is black with noqa for pep8.
+        path = self._normalize_filename(path[len(prefix) :])  # noqa
+
+        match = self.subproject_pattern.match(path)
+        if not match:
+            return None
+
+        project_slug = match.group("subproject")
+        filename = self._normalize_filename(match.group("filename"))
+
+        project = Project.objects.filter(
+            slug=project_slug,
+            users__in=parent_project.users.all(),
+        ).first()
+        if project:
+            # We use the matched project as the new parent project
+            # to resolve the rest of the path relative to it.
+            return self._unresolve_path_with_parent_project(
+                parent_project=project,
+                path=filename,
+                check_subprojects=False,
+                external_version_slug=external_version_slug,
+            )
+        return None
+
     def _match_single_version_without_translations_project(
         self, parent_project, path, external_version_slug=None
     ):
@@ -503,6 +552,16 @@ class Unresolver:
         # Subprojects.
         if check_subprojects:
             response = self._match_subproject(
+                parent_project=parent_project,
+                path=path,
+                external_version_slug=external_version_slug,
+            )
+            if response:
+                return response
+
+            # Other projects served under this domain by path (no subproject
+            # relationship). Checked after subprojects so those take precedence.
+            response = self._match_project_by_path(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,
