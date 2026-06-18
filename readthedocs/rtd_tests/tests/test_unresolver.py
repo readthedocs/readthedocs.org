@@ -20,7 +20,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
-from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
@@ -40,6 +40,39 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/foo.html")
         self.assertEqual(parts.parsed_url.fragment, "fragment")
         self.assertEqual(parts.parsed_url.query, "search=api")
+
+    def test_serve_projects_by_path(self):
+        sibling = get(
+            Project,
+            slug="sibling",
+            users=[self.owner],
+            main_language_project=None,
+        )
+
+        # Without the feature, the path doesn't resolve to the sibling project.
+        with pytest.raises(InvalidPathForVersionedProjectError):
+            unresolve("https://pip.readthedocs.io/projects/sibling/en/latest/")
+
+        get(Feature, projects=[self.pip], feature_id=Feature.SERVE_PROJECTS_BY_PATH)
+
+        parts = unresolve("https://pip.readthedocs.io/projects/sibling/en/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, sibling)
+        self.assertEqual(parts.version, sibling.versions.first())
+        self.assertEqual(parts.filename, "/index.html")
+
+    def test_serve_projects_by_path_requires_shared_owner(self):
+        # A project owned by a different user is not served under this domain.
+        get(
+            Project,
+            slug="stranger",
+            users=[self.tester],
+            main_language_project=None,
+        )
+        get(Feature, projects=[self.pip], feature_id=Feature.SERVE_PROJECTS_BY_PATH)
+
+        with pytest.raises(InvalidPathForVersionedProjectError):
+            unresolve("https://pip.readthedocs.io/projects/stranger/en/latest/")
 
     def test_filename_wihtout_index(self):
         parts = unresolve(

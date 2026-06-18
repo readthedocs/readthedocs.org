@@ -2071,6 +2071,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
+    SERVE_PROJECTS_BY_PATH = "serve_projects_by_path"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
 
@@ -2106,6 +2107,13 @@ class Feature(models.Model):
             USE_PROXIED_APIS_WITH_PREFIX,
             _(
                 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has one (Project.custom_prefix)."
+            ),
+        ),
+        (
+            SERVE_PROJECTS_BY_PATH,
+            _(
+                "Proxito: Serve other projects under this project's domain by path "
+                "(/<subproject-prefix>/<project-slug>/), without a subproject relationship."
             ),
         ),
         (
