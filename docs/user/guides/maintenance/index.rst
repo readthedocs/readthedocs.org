@@ -16,7 +16,7 @@ How-to guides: upgrading and maintaining projects
 
 ⏩️ :doc:`Migrating projects from Community to Business </guides/migrate-community-to-business>`
     Moving documentation that already exists on |org_brand| to an
-    organization on |com_brand|, including subprojects, custom domains, and access.
+    organization on |com_brand|.
 
 
 .. toctree::

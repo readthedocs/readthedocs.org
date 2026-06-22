@@ -16,7 +16,7 @@ In order to get started quickly, you can start a `free 30-day trial <https://abo
 
    :doc:`/guides/migrate-community-to-business`
       Already have documentation on |org_brand|? Learn how to move your
-      projects, subprojects, and custom domains to an organization on |com_brand|.
+      projects to an organization on |com_brand|.
 
 Commercial documentation solutions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
