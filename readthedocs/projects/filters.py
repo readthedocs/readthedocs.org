@@ -11,6 +11,7 @@ from django_filters import OrderingFilter
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import TYPE_CHOICES
 
 
 log = structlog.get_logger(__name__)
@@ -242,3 +243,36 @@ class ProjectVersionListFilterSet(ModelFilterSet):
         if value == self.VISIBILITY_VISIBLE:
             return queryset.filter(hidden=False)
         return queryset
+
+
+class RedirectListFilterSet(ModelFilterSet):
+    """
+    Filter for the project redirects listing page.
+
+    Addresses https://github.com/readthedocs/readthedocs.org/issues/12214.
+    """
+
+    redirect_type = ChoiceFilter(
+        field_name="redirect_type",
+        label=_("Redirect type"),
+        choices=TYPE_CHOICES,
+        empty_label=_("All types"),
+    )
+
+    url = FilteredModelChoiceFilter(
+        label=_("URL"),
+        empty_label=_("All URLs"),
+        to_field_name="from_url",
+        queryset_method="get_redirect_queryset",
+        method="get_redirect",
+        label_attribute="from_url",
+    )
+
+    def get_redirect_queryset(self):
+        # Scope choices to the project's redirects passed in at instantiation;
+        # otherwise the dropdown would show every Redirect across all projects.
+        # Exclude redirects without a ``from_url`` (eg. clean URL <-> HTML types).
+        return self.queryset.exclude(from_url="")
+
+    def get_redirect(self, queryset, field_name, redirect):
+        return queryset.filter(from_url=redirect.from_url)

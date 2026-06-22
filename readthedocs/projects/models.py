@@ -37,6 +37,7 @@ from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERNS
+from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
@@ -50,6 +51,7 @@ from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.querysets import ChildRelatedProjectQuerySet
@@ -442,7 +444,7 @@ class Project(models.Model):
     )
     show_build_overview_in_comment = models.BooleanField(
         _("Show build overview in a comment"),
-        db_default=False,
+        db_default=True,
         help_text=_(
             "Show an overview of the build and files changed in a comment when a pull request is built."
         ),
@@ -698,6 +700,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -726,7 +730,12 @@ class Project(models.Model):
         super().save(*args, **kwargs)
         self.update_latest_version()
 
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
+
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # NOTE: We use _raw_delete to avoid Django fetching all objects
@@ -737,6 +746,20 @@ class Project(models.Model):
         qs._raw_delete(qs.db)
         qs = self.search_queries.all()
         qs._raw_delete(qs.db)
+
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         # Remove extra resources
         clean_project_resources(self)
@@ -2068,6 +2091,7 @@ class Feature(models.Model):
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
+    USE_GVISOR_RUNTIME = "use_gvisor_runtime"
 
     FEATURES = (
         (
@@ -2132,6 +2156,10 @@ class Feature(models.Model):
         (
             BUILD_IN_PARALLEL,
             _("Build: Enable parallel building."),
+        ),
+        (
+            USE_GVISOR_RUNTIME,
+            _("Build: Run build containers under the gVisor (runsc) runtime."),
         ),
     )
 
@@ -2245,14 +2273,14 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
-    VERSION_ACTIONS = (
+    VERSION_ADDED_ACTIONS = (
         ACTIVATE_VERSION_ACTION,
         HIDE_VERSION_ACTION,
         MAKE_VERSION_PUBLIC_ACTION,
         MAKE_VERSION_PRIVATE_ACTION,
         SET_DEFAULT_VERSION_ACTION,
-        DELETE_VERSION_ACTION,
     )
+    VERSION_DELETED_ACTIONS = (DELETE_VERSION_ACTION,)
 
     BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
 
@@ -2587,7 +2615,6 @@ class AutomationRule(TimeStampedModel):
         """
         # Avoid circular imports
         import readthedocs.builds.automation_actions as actions
-        from readthedocs.builds.models import AutomationRuleMatch
 
         actions_map = {
             self.ACTIVATE_VERSION_ACTION: actions.activate_version,
@@ -2618,3 +2645,42 @@ class AutomationRule(TimeStampedModel):
             "projects_automation_rule_edit",
             args=[self.project.slug, self.pk],
         )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    ACTIONS_PAST_TENSE = {
+        AutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        AutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        AutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
+        AutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
+        AutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        AutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        AutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
+    }
+
+    rule = models.ForeignKey(
+        AutomationRule,
+        verbose_name=_("Matched rule"),
+        related_name="matches",
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=AutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ("-modified", "-created")
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

@@ -1,10 +1,6 @@
 {% extends "core/email/common.txt" %}
 {% block salutation %}Build Failed for {{ project.name }} ({{ version.verbose_name }}){% endblock %}
 {% block content %}
-{% if build.error %}
-Error:
-{{ build.error }}
-{% endif %}
 You can find out more about this failure here:
 {{ build_url }}
 

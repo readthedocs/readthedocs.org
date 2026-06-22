@@ -7,12 +7,10 @@ from django_safemigrate import Safe
 def forward_migrate_data(apps, schema_editor):
     RegexAutomationRule = apps.get_model("builds", "RegexAutomationRule")
     AutomationRule = apps.get_model("projects", "AutomationRule")
+    AutomationRuleMatch = apps.get_model("projects", "AutomationRuleMatch")
 
     for rule in RegexAutomationRule.objects.iterator():
-        AutomationRule.objects.create(
-            # Keep the same date for the migrated rules.
-            created=rule.created,
-            modified=rule.modified,
+        newrule = AutomationRule.objects.create(
             project=rule.project,
             priority=rule.priority,
             description=rule.description,
@@ -28,6 +26,29 @@ def forward_migrate_data(apps, schema_editor):
             action=rule.action,
             enabled=True,
         )
+
+        # ``auto_now_add`` and ``auto_now`` fields ignore values passed to create(),
+        # so we use update() to preserve the original timestamps.
+        AutomationRule.objects.filter(pk=newrule.pk).update(
+            created=rule.created,
+            modified=rule.modified,
+        )
+
+        for match in rule.matches.iterator():
+            newmatch = AutomationRuleMatch.objects.create(
+                rule=newrule,
+                match_arg=match.match_arg,
+                action=match.action,
+                version_name=match.version_name,
+                version_type=match.version_type,
+            )
+
+            # ``auto_now_add`` and ``auto_now`` fields ignore values passed to create(),
+            # so we use update() to preserve the original timestamps.
+            AutomationRuleMatch.objects.filter(pk=newmatch.pk).update(
+                created=match.created,
+                modified=match.modified,
+            )
 
 
 class Migration(migrations.Migration):

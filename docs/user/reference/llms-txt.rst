@@ -31,7 +31,6 @@ To use this feature:
 
    The ``llms.txt`` file will only be served if:
 
-   * Your default version is **public**
    * Your default version is **active**
    * Your default version has been **built**
    * The ``llms.txt`` file exists in your build output

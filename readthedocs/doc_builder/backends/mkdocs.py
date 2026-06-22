@@ -11,6 +11,7 @@ import yaml
 from django.conf import settings
 
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.projects.exceptions import UserFileNotFound
 
 
@@ -66,9 +67,7 @@ class BaseMkdocs(BaseBuilder):
 
     def build(self):
         build_command = [
-            self.python_env.venv_bin(filename="python"),
-            "-m",
-            "mkdocs",
+            *self.get_mkdocs_cmd(),
             self.builder,
             "--clean",
             "--site-dir",
@@ -85,6 +84,20 @@ class BaseMkdocs(BaseBuilder):
             bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
+
+    def get_mkdocs_cmd(self):
+        if isinstance(self.python_env, UvEnv):
+            return (
+                "uv",
+                "run",
+                "mkdocs",
+            )
+
+        return (
+            self.python_env.venv_bin(filename="python"),
+            "-m",
+            "mkdocs",
+        )
 
 
 class MkdocsHTML(BaseMkdocs):

@@ -23,7 +23,6 @@ DOCKER_DEFAULT_IMAGE = "readthedocs/build"
 RTD_DOCKER_BUILD_SETTINGS = {
     # Mapping of build.os options to docker image.
     "os": {
-        "ubuntu-20.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04",
         "ubuntu-22.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04",
         "ubuntu-24.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-24.04",
         "ubuntu-26.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-26.04",
@@ -35,11 +34,11 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.6": "3.6.15",
             "3.7": "3.7.17",
             "3.8": "3.8.20",
-            "3.9": "3.9.22",
-            "3.10": "3.10.17",
-            "3.11": "3.11.12",
-            "3.12": "3.12.10",
-            "3.13": "3.13.3",
+            "3.9": "3.9.25",
+            "3.10": "3.10.19",
+            "3.11": "3.11.14",
+            "3.12": "3.12.12",
+            "3.13": "3.13.9",
             "3.14": "3.14.0",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "miniconda3-3.12-24.1": "miniconda3-3.12-24.1.2-0",

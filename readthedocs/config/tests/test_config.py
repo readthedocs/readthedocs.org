@@ -447,7 +447,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": value,
                 },
             },
@@ -468,7 +468,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "2.6"},
                 },
             },
@@ -485,14 +485,14 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
         )
         build.validate()
         assert isinstance(build.build, BuildWithOs)
-        assert build.build.os == "ubuntu-20.04"
+        assert build.build.os == "ubuntu-24.04"
         assert build.build.tools["python"].version == "3.9"
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.9"]
         assert build.build.tools["python"].full_version == full_version
@@ -503,7 +503,7 @@ class TestBuildConfigV2:
             {
                 "build": {
                     "image": "latest",
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
@@ -517,7 +517,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                 },
                 "python": {"version": "3.8"},
@@ -535,7 +535,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": ["pip install pelican", "pelican content"],
                 },
@@ -568,7 +568,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": "command as string",
                 },
@@ -613,7 +613,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {value: ["echo 1234", "git fetch --unshallow"]},
                 },
@@ -629,7 +629,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_install": value,
@@ -646,7 +646,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_checkout": ["echo pre_checkout"],
@@ -699,7 +699,7 @@ class TestBuildConfigV2:
             {
                 "formats": ["pdf", "htmlzip", "epub"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3"},
                     "jobs": {
                         "create_environment": ["echo make_environment"],
@@ -1203,6 +1203,48 @@ class TestBuildConfigV2:
         assert len(install) == 1
         assert install[0].extra_requirements == []
 
+    @pytest.mark.parametrize("value", [["docs"], ["docs", "tests"]])
+    def test_python_install_extra_requirements_valid_strings(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].extra_requirements == value
+
+    @pytest.mark.parametrize("value", [[["docs"]], [1], [{"key": "val"}]])
+    def test_python_install_extra_requirements_check_element_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
+        assert excinfo.value.format_values.get("key") == "python.install.0.extra_requirements"
+
     def test_python_install_several_respects_order(self, tmpdir):
         apply_fs(
             tmpdir,
@@ -1306,6 +1348,33 @@ class TestBuildConfigV2:
         )
         build.validate()
         assert build.sphinx.configuration == "conf.py"
+
+    def test_sphinx_configuration_check_valid_nested(self, tmpdir):
+        apply_fs(tmpdir, {"docs": {"conf.py": ""}})
+        build = get_build_config(
+            {"sphinx": {"configuration": "docs/conf.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.sphinx.configuration == "docs/conf.py"
+
+    @pytest.mark.parametrize(
+        "value,fs",
+        [
+            ("conf-custom.py", {"conf-custom.py": ""}),
+            ("docs/myconf.py", {"docs": {"myconf.py": ""}}),
+            ("docs/conf.py.bak", {"docs": {"conf.py.bak": ""}}),
+        ],
+    )
+    def test_sphinx_configuration_invalid_filename(self, tmpdir, value, fs):
+        apply_fs(tmpdir, fs)
+        build = get_build_config(
+            {"sphinx": {"configuration": value}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.SPHINX_INVALID_CONFIG_FILE
 
     def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
         apply_fs(tmpdir, {"conf.py": ""})
@@ -1933,7 +2002,7 @@ class TestBuildConfigV2:
                 "version": 2,
                 "formats": ["pdf"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.9",
                         "nodejs": "16",
@@ -1961,7 +2030,7 @@ class TestBuildConfigV2:
                 ],
             },
             "build": {
-                "os": "ubuntu-20.04",
+                "os": "ubuntu-24.04",
                 "tools": {
                     "python": {
                         "version": "3.9",

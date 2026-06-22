@@ -82,6 +82,38 @@ class TestViews(TestCase):
         self.assertContains(resp, self.redirect.from_url)
         self.assertContains(resp, self.redirect.to_url)
 
+    def test_list_redirect_filter_by_type(self):
+        get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/config.html",
+            to_url="/configuration.html",
+        )
+        resp = self.client.get(
+            reverse("projects_redirects", args=[self.project.slug]),
+            {"redirect_type": PAGE_REDIRECT},
+        )
+        assert resp.status_code == 200
+        assert len(resp.context["redirects"]) == 1
+        assert resp.context["redirects"][0].redirect_type == PAGE_REDIRECT
+
+    def test_list_redirect_filter_by_url(self):
+        other = get(
+            Redirect,
+            project=self.project,
+            redirect_type=PAGE_REDIRECT,
+            from_url="/config.html",
+            to_url="/configuration.html",
+        )
+        resp = self.client.get(
+            reverse("projects_redirects", args=[self.project.slug]),
+            {"url": other.from_url},
+        )
+        assert resp.status_code == 200
+        pks = {r.pk for r in resp.context["redirects"]}
+        assert pks == {other.pk}
+
     def test_get_redirect(self):
         resp = self.client.get(
             reverse(

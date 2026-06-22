@@ -47,3 +47,18 @@ class TestRTDS3Storage(TestCase):
         self.storage.location = "projects"
         with pytest.raises(SuspiciousFileOperation):
             self.storage.delete_directory("")
+
+    def test_delete_paths(self):
+        mock_bucket = mock.MagicMock()
+        self.storage._bucket = mock_bucket
+        self.storage.delete_paths(["one.txt", "another-path/two.txt", "projects/my-project/en/latest/index.html"])
+        mock_bucket.delete_objects.assert_called_once_with(
+            Delete={
+                "Objects": [
+                    {"Key": "one.txt"},
+                    {"Key": "another-path/two.txt"},
+                    {"Key": "projects/my-project/en/latest/index.html"},
+                ],
+                "Quiet": True,
+            }
+        )

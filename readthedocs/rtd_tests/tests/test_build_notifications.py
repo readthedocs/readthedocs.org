@@ -26,6 +26,8 @@ class BuildNotificationsTests(TestCase):
         self.project = get(Project, slug="test", language="en")
         self.version = get(Version, project=self.project, slug="1.0")
         self.build = get(Build, version=self.version, commit="abc1234567890")
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     @mock.patch("readthedocs.builds.managers.log")
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):
@@ -327,6 +329,8 @@ class TestForms(TestCase):
         self.project = get(Project)
         self.version = get(Version, project=self.project)
         self.build = get(Build, version=self.version)
+        for name, _ in WebHookEvent.EVENTS:
+            WebHookEvent.objects.get_or_create(name=name)
 
     def test_webhook_form_url_length(self):
         form = WebHookForm(

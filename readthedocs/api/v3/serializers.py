@@ -176,6 +176,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
+    # Kept for backward compatibility. The field was removed from the model,
+    # but we still return it as an empty string to avoid breaking API clients.
+    error = serializers.SerializerMethodField()
 
     class Meta:
         model = Build
@@ -195,6 +198,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {"config": (BuildConfigSerializer,)}
+
+    def get_error(self, obj):
+        return ""
 
     def get_finished(self, obj):
         if obj.date and obj.length:
@@ -263,7 +269,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         read_only_fields = ["dismissable", "news"]
 
     def get_attached_to_content_type(self, obj):
-        return obj.attached_to_content_type.name
+        # NOTE: Don't use name, because it can change based on the current language.
+        return obj.attached_to_content_type.model
 
 
 class VersionLinksSerializer(BaseLinksSerializer):
@@ -1083,9 +1090,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         validate_redirect(
             project=instance.project,
             pk=instance.pk,
-            redirect_type=validated_data["redirect_type"],
-            from_url=validated_data.get("from_url", ""),
-            to_url=validated_data.get("to_url", ""),
+            redirect_type=validated_data.get("redirect_type", instance.redirect_type),
+            from_url=validated_data.get("from_url", instance.from_url),
+            to_url=validated_data.get("to_url", instance.to_url),
             error_class=serializers.ValidationError,
         )
         return super().update(instance, validated_data)

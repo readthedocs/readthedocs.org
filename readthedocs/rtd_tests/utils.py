@@ -142,7 +142,7 @@ def make_git_repo(directory, name="sample_repo"):
     chdir(directory)
 
     # Initialize and configure
-    check_output(["git", "init"] + [directory], env=env)
+    check_output(["git", "init", "--initial-branch=master"] + [directory], env=env)
     check_output(
         ["git", "config", "user.email", "dev@readthedocs.org"],
         env=env,

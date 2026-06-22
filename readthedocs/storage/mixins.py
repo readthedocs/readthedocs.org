@@ -55,6 +55,16 @@ class RTDBaseStorage:
     def delete_directory(self, path):
         raise NotImplementedError
 
+    def delete_paths(self, paths):
+        """
+        Delete multiple paths from storage.
+
+        This is a convenience method to delete multiple paths at once, which can be more efficient
+        for some storage backends that support batch deletion (eg. S3).
+        """
+        for path in paths:
+            self.delete(path)
+
     def join(self, directory, filepath):
         raise NotImplementedError
 

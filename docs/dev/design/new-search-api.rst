@@ -182,7 +182,7 @@ But also, re-using the current serializers shouldn't be a problem either.
              "type": "section",
              "id": "full-text-search",
              "title": "Full-Text Search",
-             "content": "We provide search across all the projects that we host. This actually comes in two different search experiences: dashboard search on the Read the Docs dashboard and in-doc search on documentation sites, using your own theme and our search results. We offer a number of search features: Search across subprojects Search results land on the exact content you were looking for Search across projects you have access to (available on Read the Docs for Business) A full range of search operators including exact matching and excluding phrases. Learn more about Server Side Search.",
+             "content": "We provide search across all the projects that we host. This actually comes in two different search experiences: dashboard search on the Read the Docs dashboard and in-doc search on documentation sites, using your own theme and our search results. We offer a number of search features: Search across subprojects Search results land on the exact content you were looking for Search across projects you have access to (available on Read the Docs Business) A full range of search operators including exact matching and excluding phrases. Learn more about Server Side Search.",
              "highlights": {
                "title": [
                  "Full-<span>Text</span> Search"
@@ -195,7 +195,7 @@ But also, re-using the current serializers shouldn't be a problem either.
              "role": "http:post",
              "name": "/api/v3/projects/",
              "id": "post--api-v3-projects-",
-             "content": "Import a project under authenticated user. Example request: BashPython$ curl \\ -X POST \\ -H \"Authorization: Token <token>\" https://app.readthedocs.org/api/v3/projects/ \\ -H \"Content-Type: application/json\" \\ -d @body.json import requests import json URL = 'https://app.readthedocs.org/api/v3/projects/' TOKEN = '<token>' HEADERS = {'Authorization': f'token {TOKEN}'} data = json.load(open('body.json', 'rb')) response = requests.post( URL, json=data, headers=HEADERS, ) print(response.json()) The content of body.json is like, { \"name\": \"Test Project\", \"repository\": { \"url\": \"https://github.com/readthedocs/template\", \"type\": \"git\" }, \"homepage\": \"http://template.readthedocs.io/\", \"programming_language\": \"py\", \"language\": \"es\" } Example response: See Project details Note Read the Docs for Business, also accepts",
+             "content": "Import a project under authenticated user. Example request: BashPython$ curl \\ -X POST \\ -H \"Authorization: Token <token>\" https://app.readthedocs.org/api/v3/projects/ \\ -H \"Content-Type: application/json\" \\ -d @body.json import requests import json URL = 'https://app.readthedocs.org/api/v3/projects/' TOKEN = '<token>' HEADERS = {'Authorization': f'token {TOKEN}'} data = json.load(open('body.json', 'rb')) response = requests.post( URL, json=data, headers=HEADERS, ) print(response.json()) The content of body.json is like, { \"name\": \"Test Project\", \"repository\": { \"url\": \"https://github.com/readthedocs/template\", \"type\": \"git\" }, \"homepage\": \"http://template.readthedocs.io/\", \"programming_language\": \"py\", \"language\": \"es\" } Example response: See Project details Note Read the Docs Business, also accepts",
              "highlights": {
                "name": [],
                "content": [

@@ -10,6 +10,7 @@ in our Docker Development environment.
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
 from functools import cached_property
+from itertools import batched
 
 import structlog
 from django.conf import settings
@@ -75,6 +76,17 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
 
         log.debug("Deleting path from storage", path=path)
         self.bucket.objects.filter(Prefix=path).delete()
+
+    def delete_paths(self, paths):
+        """
+        Delete multiple paths from storage in batches.
+
+        S3 has a limit of 1000 objects per delete request, so we batch the deletions accordingly.
+        See https://docs.aws.amazon.com/boto3/latest/reference/services/s3/bucket/delete_objects.html#S3.Bucket.delete_objects.
+        """
+        for batch in batched(paths, 1000):
+            objects = [{"Key": path} for path in batch]
+            self.bucket.delete_objects(Delete={"Objects": objects, "Quiet": True})
 
 
 class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
