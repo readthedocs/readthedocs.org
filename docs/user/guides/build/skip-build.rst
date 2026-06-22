@@ -5,6 +5,20 @@ Read the Docs provides a special build cancellation mechanism that allows you to
 based on custom conditions. This is useful when you want to avoid unnecessary documentation builds,
 saving build time and resources.
 
+.. tip:: Recommended: use Automation Rules with webhook filters
+
+   For most cases, the recommended way to skip builds is to use
+   :doc:`automation rules </automation-rules>` with **webhook filters**.
+   This lets you filter which changes can trigger builds,
+   such as **only building when files matching a pattern are changed**
+   (for example, files under ``docs/`` or ``.readthedocs.yaml``),
+   or building when a commit message or pull request labels match a pattern.
+
+   Webhook filters are available for projects connected through the
+   :doc:`GitHub App integration </reference/git-integration>`.
+   For other Git providers, or for conditions that require shell logic at build time,
+   keep using the exit code ``183`` mechanism documented below.
+
 .. contents:: Table of contents
    :local:
    :backlinks: none
@@ -61,6 +75,14 @@ in your ``.readthedocs.yaml`` file.
 
 Skip builds when documentation files haven't changed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. tip::
+
+   If your project is connected through the GitHub App,
+   using an :doc:`automation rule </automation-rules>` with a *Changed files* webhook filter
+   is the recommended approach for skipping builds.
+   Automation rules allow for builds to be skipped entirely,
+   whereas the approach below can only *cancel* a running build.
 
 This example skips pull request builds when there are no changes to documentation-related files
 compared to the ``main`` branch:

@@ -169,7 +169,7 @@ so that you can log in to Read the Docs with your connected account credentials.
 
       .. note::
 
-          :doc:`Read the Docs for Business </commercial/index>`
+          :doc:`Read the Docs Business </commercial/index>`
           asks for one additional permission (``repo``) to allow access to private repositories
           and to allow us to set up SSH keys to clone your private repositories.
           Unfortunately, this is the permission for read/write control of the repository

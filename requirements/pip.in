@@ -4,7 +4,6 @@ virtualenv
 
 django~=5.2.0
 django-extensions
-django-polymorphic
 django-autoslug
 
 # https://www.psycopg.org/psycopg3/docs/basic/install.html
@@ -56,14 +55,12 @@ redis
 celery
 django-celery-beat
 
-# 65.13.0 performs some breaking changes to Okta that we need to review before upgrading.
-# https://docs.allauth.org/en/latest/release-notes/recent.html#id1
-django-allauth[socialaccount,saml,mfa]==65.12.1
+django-allauth[socialaccount,saml,mfa]==65.17.0
 
 requests-oauthlib
 
 # Search
-elasticsearch~=9.0
+elasticsearch~=9.3.0
 django-elasticsearch-dsl~=9.0
 
 selectolax

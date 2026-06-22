@@ -269,7 +269,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         read_only_fields = ["dismissable", "news"]
 
     def get_attached_to_content_type(self, obj):
-        # NOTE: Don't user name, because it can change based on the current language.
+        # NOTE: Don't use name, because it can change based on the current language.
         return obj.attached_to_content_type.model
 
 
@@ -1090,9 +1090,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         validate_redirect(
             project=instance.project,
             pk=instance.pk,
-            redirect_type=validated_data["redirect_type"],
-            from_url=validated_data.get("from_url", ""),
-            to_url=validated_data.get("to_url", ""),
+            redirect_type=validated_data.get("redirect_type", instance.redirect_type),
+            from_url=validated_data.get("from_url", instance.from_url),
+            to_url=validated_data.get("to_url", instance.to_url),
             error_class=serializers.ValidationError,
         )
         return super().update(instance, validated_data)

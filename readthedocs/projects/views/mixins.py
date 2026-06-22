@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
-from readthedocs.projects.signals import project_import
 
 
 log = structlog.get_logger(__name__)
@@ -101,14 +100,13 @@ class ProjectImportMixin:
         Perform last steps to import a project into Read the Docs.
 
         - Add the user from request as maintainer
-        - Send Django Signal
-        - Trigger initial build
+        - Run extra tasks that are needed before building the project
+        - Trigger the initial build
 
         It requires the Project was already saved into the DB.
 
         :param request: Django Request object
         :param project: Project instance just imported (already saved)
-        :param tags: tags to add to the project
         """
         project.users.add(request.user)
         log.info(
@@ -117,28 +115,26 @@ class ProjectImportMixin:
             user_username=request.user.username,
         )
 
-        # TODO: this signal could be removed, or used for sync task
-        project_import.send(sender=project, request=request)
-
-        self.trigger_initial_build(project, request.user)
-
-    def trigger_initial_build(self, project, user):
-        """
-        Trigger initial build after project is imported.
-
-        :param project: project's documentation to be built
-        :returns: Celery AsyncResult promise
-        """
-
         update_docs, build = prepare_build(project)
         if (update_docs, build) == (None, None):
             return None
 
+        tasks = self._get_post_import_tasks(project, request.user)
+        tasks.append(update_docs)
+        task_promise = chain(*tasks)
+        task_promise.apply_async()
+
+    def _get_post_import_tasks(self, project, user):
+        """
+        Tasks to run after importing a project, before triggering the initial build.
+
+        We attach the webhook, if needed. This is overridden in .com
+        to attach the SSH key as well.
+        """
         from readthedocs.oauth.tasks import attach_webhook
 
-        task_promise = chain(
-            attach_webhook.si(project.pk),
-            update_docs,
-        )
-        async_result = task_promise.apply_async()
-        return async_result
+        tasks = []
+        if project.remote_repository and not project.is_github_app_project:
+            tasks.append(attach_webhook.si(project_pk=project.pk, user_pk=user.pk))
+
+        return tasks

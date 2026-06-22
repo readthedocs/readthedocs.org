@@ -23,7 +23,6 @@ DOCKER_DEFAULT_IMAGE = "readthedocs/build"
 RTD_DOCKER_BUILD_SETTINGS = {
     # Mapping of build.os options to docker image.
     "os": {
-        "ubuntu-20.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04",
         "ubuntu-22.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04",
         "ubuntu-24.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-24.04",
         "ubuntu-26.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-26.04",
