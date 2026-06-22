@@ -14,6 +14,10 @@ In order to get started quickly, you can start a `free 30-day trial <https://abo
       A high-level overview of platform features, and the
       `pricing page <https://about.readthedocs.com/pricing/>`__ has a feature breakdown by subscription level.
 
+   :doc:`/guides/migrate-community-to-business`
+      Already have documentation on |org_brand|? Learn how to move your
+      projects, subprojects, and custom domains to an organization on |com_brand|.
+
 Commercial documentation solutions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
