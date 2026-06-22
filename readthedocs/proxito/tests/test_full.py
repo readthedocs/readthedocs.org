@@ -1832,7 +1832,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400", url)
             self.assertEqual(resp.headers["Cache-Tag"], "project", url)
 
         # Proxied static files are always cached.
@@ -1846,7 +1846,7 @@ class TestCDNCache(BaseDocServing):
         url = "/en//latest//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/en/latest/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Forced redirects will be cached only if the version is public.
@@ -1861,7 +1861,13 @@ class TestCDNCache(BaseDocServing):
         url = "/en/latest/install.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+        # Forced redirects are cached (with a ``max-age``) only for public versions.
+        forced_redirect_cache_control = (
+            "public, max-age=14400" if expected_value == "public" else expected_value
+        )
+        self.assertEqual(
+            resp.headers["CDN-Cache-Control"], forced_redirect_cache_control, url
+        )
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
     def _test_cache_control_header_subproject(self, expected_value, host=None):
@@ -1893,7 +1899,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400", url)
             self.assertEqual(resp.headers["Cache-Tag"], "subproject", url)
 
         # Proxied static files are always cached.
@@ -1907,7 +1913,7 @@ class TestCDNCache(BaseDocServing):
         url = "/projects//subproject//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/projects/subproject/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions(self):
@@ -1923,7 +1929,7 @@ class TestCDNCache(BaseDocServing):
         # HTTPS redirects can always be cached.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions(self):
@@ -1939,7 +1945,7 @@ class TestCDNCache(BaseDocServing):
         # HTTPS redirect respects the privacy level of the version.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400")
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
 
     def test_cache_on_private_versions_subproject(self):
@@ -1964,7 +1970,7 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions_subproject(self):
@@ -1987,7 +1993,7 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=14400")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_disable_on_rtd_header_resolved_project(self):
