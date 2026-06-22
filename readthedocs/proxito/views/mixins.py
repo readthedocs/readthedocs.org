@@ -111,7 +111,7 @@ class ServeDocsMixin:
         else:
             filename = f"{domain}-{project.language}-{version.slug}.{filename_ext}"
         response["Content-Disposition"] = content_disposition_header(
-            as_attachment=True, filename=filename
+            as_attachment=False, filename=filename
         )
         return response
 

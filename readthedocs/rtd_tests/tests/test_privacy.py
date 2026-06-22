@@ -238,7 +238,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.pdf"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.pdf"',
         )
 
         r = self.client.get("/projects/django-kong/downloads/epub/latest/")
@@ -249,7 +249,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.epub"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.epub"',
         )
 
         r = self.client.get("/projects/django-kong/downloads/htmlzip/latest/")
@@ -260,7 +260,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.zip"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.zip"',
         )
 
     # Public download tests
@@ -283,7 +283,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.pdf"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.pdf"',
         )
 
         # Auth'd user
@@ -298,7 +298,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.pdf"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.pdf"',
         )
 
     @override_settings(
@@ -327,7 +327,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.pdf"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.pdf"',
         )
 
     @override_settings(
@@ -346,7 +346,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.pdf"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.pdf"',
         )
 
         r = self.client.get("/projects/django-kong/downloads/epub/latest/")
@@ -357,7 +357,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.epub"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.epub"',
         )
 
         r = self.client.get("/projects/django-kong/downloads/htmlzip/latest/")
@@ -368,7 +368,7 @@ class PrivacyTests(TestCase):
         )
         self.assertEqual(
             r.headers["content-disposition"],
-            'attachment; filename="django-kong-readthedocs-io-en-latest.zip"',
+            'inline; filename="django-kong-readthedocs-io-en-latest.zip"',
         )
 
     # Build Filtering

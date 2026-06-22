@@ -556,7 +556,7 @@ class TestDocServingBackends(BaseDocServing):
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
             self.assertTrue(
-                resp["Content-Disposition"].startswith("attachment; filename=")
+                resp["Content-Disposition"].startswith("inline; filename=")
             )
             self.assertTrue(
                 resp["Content-Disposition"].endswith(f'.{extension}"')
