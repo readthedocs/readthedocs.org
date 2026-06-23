@@ -254,20 +254,31 @@ def stop_consuming_tasks_and_terminate(build_id):
             terminate_instance = True
 
     if terminate_instance:
+        hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", hostname)
+        if not hostname_match:
+            log.warning(
+                "Unable to terminate instance. Hostname name matching not found.",
+                hostname=hostname,
+                build_id=build_id,
+            )
+            return
+
+        _, instance_id = hostname_match.groups()
         log.info(
             "Terminating the instance...",
             hostname=hostname,
+            instance_id=instance_id,
         )
         terminate_builder_instance.delay(
-            builder=hostname,
+            instance_id=instance_id,
             build_id=build_id,
         )
 
 
 @app.task(queue="web")
-def terminate_builder_instance(builder, build_id=None):
+def terminate_builder_instance(instance_id, build_id=None):
     """
-    Terminate the builder instance ``builder`` after a build finishes.
+    Terminate the builder instance ``instance_id`` after a build finishes.
 
     This is used for ephemeral build instances (one build per instance): once
     the build is done, the instance is no longer needed. We let the Auto
@@ -275,18 +286,9 @@ def terminate_builder_instance(builder, build_id=None):
     """
     structlog.contextvars.bind_contextvars(
         build_id=build_id,
-        builder=builder,
+        builder=instance_id,
     )
 
-    # web-extra-i-0c3e866c4e323928f
-    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", builder)
-    if not hostname_match:
-        log.warning(
-            "Unable to terminate instance. Hostname name matching not found.",
-        )
-        return
-
-    _, instance_id = hostname_match.groups()
     asg = boto3.client(
         "autoscaling",
         aws_access_key_id=settings.RTD_AWS_SCALE_IN_ACCESS_KEY,
