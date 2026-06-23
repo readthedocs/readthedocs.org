@@ -1,15 +1,11 @@
 import structlog
+from django.conf import settings
 
 
 log = structlog.get_logger(__name__)
 
 CACHE_TAG_HEADER = "Cache-Tag"
 CDN_CACHE_CONTROL_HEADER = "CDN-Cache-Control"
-
-# Redirects without an explicit freshness lifetime are bypassed by the CDN
-# (a bare ``CDN-Cache-Control: public`` isn't enough), so we cache them at the
-# CDN level for a few hours. This doesn't affect browser caching.
-REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 14400  # 4 hours
 
 
 def add_cache_tags(response, cache_tags):
@@ -60,16 +56,22 @@ def cache_redirect_response(response):
 
     The CDN bypasses redirects that only carry a bare ``CDN-Cache-Control:
     public`` (no freshness lifetime), so we add a ``max-age`` to make them
-    cacheable at the CDN level only. We only do this for responses that are
-    already public, to avoid caching private (e.g. private repos) redirects.
+    cacheable at the CDN level only. Permanent redirects (301/308) are cached
+    longer than temporary ones (302/303/307). We only do this for responses
+    that are already public, to avoid caching private documentation.
     This doesn't affect caching at the browser level (``Cache-Control``).
 
     :param response: The redirect response to cache.
     """
-    if response.headers.get(CDN_CACHE_CONTROL_HEADER) == "public":
-        response.headers[CDN_CACHE_CONTROL_HEADER] = (
-            f"public, max-age={REDIRECT_CDN_CACHE_CONTROL_MAX_AGE}"
-        )
+    if response.headers.get(CDN_CACHE_CONTROL_HEADER) != "public":
+        return
+
+    if response.status_code in (301, 308):
+        max_age = settings.RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+    else:
+        max_age = settings.RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+
+    response.headers[CDN_CACHE_CONTROL_HEADER] = f"public, max-age={max_age}"
 
 
 def private_response(response, force=True):

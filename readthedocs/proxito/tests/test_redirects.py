@@ -5,6 +5,8 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC, SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.proxito.constants import RedirectType
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.models import Redirect
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
 
@@ -43,6 +45,30 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=14400")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
+
+    def test_permanent_redirect_cached_longer_at_cdn(self):
+        # Permanent redirects (301) are cached at the CDN level for 24 hours,
+        # longer than the temporary redirects above (302, 4 hours).
+        get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
+            http_status=301,
+        )
+        r = self.client.get(
+            "/woot/faq.html",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=86400")
+        self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.user.name)
 
     def test_custom_domain_root_url(self):
         self.domain.canonical = True
