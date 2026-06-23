@@ -187,7 +187,8 @@ POST /api/v3/_internal/upload/complete:
 
   ::
       {
-         "build": 123
+         "build": 123,
+         "status": "uploaded", // or "failed" if the upload failed and the build should be cancelled.
       }
 
   ::
