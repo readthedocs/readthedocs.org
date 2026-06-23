@@ -244,8 +244,9 @@ def stop_consuming_tasks_and_terminate(build_id):
     """
     terminate_instance = False
     active_queues = ["build:default", "build:large"]
+    hostname = socket.gethostname()
     for queue in active_queues:
-        node_name = f"{queue}@{socket.gethostname()}"
+        node_name = f"{queue}@{hostname}"
         log.info("Cancelling consumer.", queue=queue, node=node_name)
 
         reply = app.control.cancel_consumer(queue, destination=[node_name], reply=True)
@@ -255,10 +256,10 @@ def stop_consuming_tasks_and_terminate(build_id):
     if terminate_instance:
         log.info(
             "Terminating the instance...",
-            hostname=socket.gethostname(),
+            hostname=hostname,
         )
         terminate_builder_instance.delay(
-            builder=socket.gethostname(),
+            builder=hostname,
             build_id=build_id,
         )
 
