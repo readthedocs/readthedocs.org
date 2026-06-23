@@ -60,7 +60,7 @@ django-allauth[socialaccount,saml,mfa]==65.17.0
 requests-oauthlib
 
 # Search
-elasticsearch~=9.0
+elasticsearch~=9.3.0
 django-elasticsearch-dsl~=9.0
 
 selectolax
