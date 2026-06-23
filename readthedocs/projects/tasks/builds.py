@@ -75,6 +75,7 @@ from .utils import BuildRequest
 from .utils import clean_build
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
+from .utils import stop_consuming_tasks_and_terminate
 
 
 log = structlog.get_logger(__name__)
@@ -818,6 +819,23 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             length=self.data.build["length"],
             success=self.data.build["success"],
         )
+
+        if self.data.project and self.data.project.has_feature(
+            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
+        ):
+            if settings.RTD_DOCKER_COMPOSE:
+                log.info(
+                    "Running development environment. Skipping instance termination.",
+                )
+                return
+
+            # Stop consuming new tasks first so this worker doesn't grab a
+            # build that would be killed mid-flight when the instance is
+            # terminated.
+            log.info(
+                "Stopping consumption of new tasks before terminating the instance...",
+            )
+            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
 
     def update_build(self, state=None):
         if state:
