@@ -272,10 +272,6 @@ depending on where the project you are trying to access has permissions from.
 GitHub App
 ----------
 
-.. warning::
-
-   Our GitHub App is currently in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/announcing-our-github-app-beta/>`__ for more information.
-
 We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
 We have two GitHub Apps, one for each of our platforms:
 
