@@ -6,11 +6,11 @@ import django.utils.timezone
 import django_extensions.db.fields
 import simple_history.models
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
+from django.db import models
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("core", "0001_initial"),
         ("core", "0002_make_userprofile_user_a_onetoonefield"),
@@ -54,9 +54,7 @@ class Migration(migrations.Migration):
                 ("password", models.CharField(max_length=128, verbose_name="password")),
                 (
                     "last_login",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="last login"
-                    ),
+                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
                 ),
                 (
                     "is_superuser",
@@ -70,34 +68,24 @@ class Migration(migrations.Migration):
                     "username",
                     models.CharField(
                         db_index=True,
-                        error_messages={
-                            "unique": "A user with that username already exists."
-                        },
+                        error_messages={"unique": "A user with that username already exists."},
                         help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
                         max_length=150,
-                        validators=[
-                            django.contrib.auth.validators.UnicodeUsernameValidator()
-                        ],
+                        validators=[django.contrib.auth.validators.UnicodeUsernameValidator()],
                         verbose_name="username",
                     ),
                 ),
                 (
                     "first_name",
-                    models.CharField(
-                        blank=True, max_length=150, verbose_name="first name"
-                    ),
+                    models.CharField(blank=True, max_length=150, verbose_name="first name"),
                 ),
                 (
                     "last_name",
-                    models.CharField(
-                        blank=True, max_length=150, verbose_name="last name"
-                    ),
+                    models.CharField(blank=True, max_length=150, verbose_name="last name"),
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        blank=True, max_length=254, verbose_name="email address"
-                    ),
+                    models.EmailField(blank=True, max_length=254, verbose_name="email address"),
                 ),
                 (
                     "is_staff",
@@ -127,9 +115,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "extra_history_user_username",
-                    models.CharField(
-                        max_length=150, null=True, verbose_name="username"
-                    ),
+                    models.CharField(max_length=150, null=True, verbose_name="username"),
                 ),
                 (
                     "extra_history_ip",
@@ -201,9 +187,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "extra_history_user_username",
-                    models.CharField(
-                        max_length=150, null=True, verbose_name="username"
-                    ),
+                    models.CharField(max_length=150, null=True, verbose_name="username"),
                 ),
                 (
                     "extra_history_ip",
@@ -222,9 +206,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "homepage",
-                    models.CharField(
-                        blank=True, max_length=100, verbose_name="Homepage"
-                    ),
+                    models.CharField(blank=True, max_length=100, verbose_name="Homepage"),
                 ),
                 (
                     "allow_ads",
@@ -325,9 +307,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "homepage",
-                    models.CharField(
-                        blank=True, max_length=100, verbose_name="Homepage"
-                    ),
+                    models.CharField(blank=True, max_length=100, verbose_name="Homepage"),
                 ),
                 (
                     "allow_ads",
