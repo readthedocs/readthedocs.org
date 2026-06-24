@@ -253,7 +253,7 @@ depending on where the project you are trying to access has permissions from.
    If you are using the :ref:`GitHub App <reference/git-integration:GitHub App>`,
    you only need to make sure that the GitHub App is installed in your account or organization,
    and that it has access to the repository you want to use for your project.
-   See :ref:`the troubleshooting steps <reference/git-integration:Troubleshooting>` for more information.
+   See :ref:`GitHub App troubleshooting <reference/git-integration:Troubleshooting>` for more information.
 
 .. tabs::
 
@@ -279,9 +279,9 @@ depending on where the project you are trying to access has permissions from.
 GitHub App
 ----------
 
-Our `GitHub App <https://docs.github.com/en/apps/overview>`__ is a new way to connect your GitHub account to Read the Docs,
-replacing the old OAuth application.
-We have two GitHub Apps, one for each of our platforms:
+A `GitHub App <https://docs.github.com/en/apps/overview>`__ is a new way to connect your GitHub account to Read the Docs,
+and is replacing the old OAuth application.
+Read the Docs provides two GitHub Apps, one for each of our platforms:
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business>`__
