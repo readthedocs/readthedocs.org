@@ -249,7 +249,7 @@ This can happen at the personal or organization level,
 depending on where the project you are trying to access has permissions from.
 
 .. note::
-   
+
    If you are using the :ref:`GitHub App <reference/git-integration:GitHub App>`,
    you only need to make sure that the GitHub App is installed in your account or organization,
    and that it has access to the repository you want to use for your project.
