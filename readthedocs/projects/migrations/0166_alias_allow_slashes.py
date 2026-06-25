@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                             "Aliases must be slug-like segments separated by slashes "
                             "(e.g. 'api' or 'api/python')."
                         ),
-                        regex=r"^[-\w]+(/[-\w]+)*$",
+                        regex=r"^[-\w]+(?:/[-\w]+)*$",
                     ),
                 ],
                 verbose_name=_("Alias"),

@@ -83,10 +83,12 @@ proxied_urls = [
     ),
     # Serve subproject downloads
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
+    # Aliases may contain slashes (e.g. ``api/python``), so this uses the
+    # multi-segment capture group rather than ``project_slug``.
     re_path(
         (
             r"^{DOC_PATH_PREFIX}downloads/"
-            r"(?P<subproject_slug>{project_slug})/"
+            r"(?P<subproject_slug>{subproject_alias_slug})/"
             r"(?P<lang_slug>{lang_slug})/"
             r"(?P<version_slug>{version_slug})/"
             r"(?P<type_>{downloadable_type})/$".format(
@@ -147,8 +149,9 @@ core_urls = [
 docs_urls = [
     # # TODO: Support this?
     # (Sub)project `page` redirect
+    # Subproject aliases may contain slashes, so use the multi-segment capture.
     re_path(
-        r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
+        r"^(?:projects/(?P<subproject_slug>{subproject_alias_slug})/)?"
         r"page/(?P<filename>.*)$".format(**pattern_opts),
         ServePageRedirect.as_view(),
         name="redirect_page_with_filename",

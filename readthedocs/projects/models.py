@@ -122,7 +122,7 @@ class ProjectRelationship(models.Model):
         db_index=False,
         validators=[
             RegexValidator(
-                regex=r"^[-\w]+(/[-\w]+)*$",
+                regex=rf"^{constants.SUBPROJECT_ALIAS_REGEX}$",
                 message=_(
                     "Aliases must be slug-like segments separated by slashes "
                     "(e.g. 'api' or 'api/python')."
