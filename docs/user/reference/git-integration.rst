@@ -279,8 +279,8 @@ depending on where the project you are trying to access has permissions from.
 GitHub App
 ----------
 
-A `GitHub App <https://docs.github.com/en/apps/overview>`__ is a new way to connect your GitHub account to Read the Docs,
-and is replacing the old OAuth application.
+We now provide a `GitHub App <https://docs.github.com/en/apps/overview>`__ for connecting your GitHub account to Read the Docs.
+This will replace the old OAuth GitHub integration.
 Read the Docs provides two GitHub Apps, one for each of our platforms:
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
