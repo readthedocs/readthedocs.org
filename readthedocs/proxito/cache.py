@@ -30,7 +30,8 @@ def cache_response(response, cache_tags=None, force=True):
     Cache the response at the CDN level.
 
     We add the ``Cache-Tag`` header to the response, to be able to purge
-    the cache by a given tag. And we set the ``CDN-Cache-Control: public`` header
+    the cache by a given tag. And we set the ``CDN-Cache-Control: public``
+    (plus optional ``max-age`` for redirects) header
     to cache the response at the CDN level only. This doesn't
     affect caching at the browser level (``Cache-Control``).
 
@@ -46,32 +47,16 @@ def cache_response(response, cache_tags=None, force=True):
     """
     if cache_tags:
         add_cache_tags(response, cache_tags)
+
     if force or CDN_CACHE_CONTROL_HEADER not in response.headers:
-        response.headers[CDN_CACHE_CONTROL_HEADER] = "public"
-
-
-def cache_redirect_response(response):
-    """
-    Cache a redirect response at the CDN level with an explicit ``max-age``.
-
-    The CDN bypasses redirects that only carry a bare ``CDN-Cache-Control:
-    public`` (no freshness lifetime), so we add a ``max-age`` to make them
-    cacheable at the CDN level only. Permanent redirects (301/308) are cached
-    longer than temporary ones (302/303/307). We only do this for responses
-    that are already public, to avoid caching private documentation.
-    This doesn't affect caching at the browser level (``Cache-Control``).
-
-    :param response: The redirect response to cache.
-    """
-    if response.headers.get(CDN_CACHE_CONTROL_HEADER) != "public":
-        return
-
-    if response.status_code in (301, 308):
-        max_age = settings.RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
-    else:
-        max_age = settings.RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
-
-    response.headers[CDN_CACHE_CONTROL_HEADER] = f"public, max-age={max_age}"
+        cache_control = "public"
+        if response.status_code in (301, 308):
+            max_age = settings.RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+            cache_control = f"public, max-age={max_age}"
+        elif response.status_code in (302, 303, 307):
+            max_age = settings.RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+            cache_control = f"public, max-age={max_age}"
+        response.headers[CDN_CACHE_CONTROL_HEADER] = cache_control
 
 
 def private_response(response, force=True):

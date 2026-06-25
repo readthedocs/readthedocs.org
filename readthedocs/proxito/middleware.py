@@ -29,7 +29,6 @@ from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import AddonsConfig
 from readthedocs.proxito.cache import add_cache_tags
-from readthedocs.proxito.cache import cache_redirect_response
 from readthedocs.proxito.cache import cache_response
 from readthedocs.proxito.cache import private_response
 from readthedocs.proxito.redirects import redirect_to_https
@@ -193,11 +192,6 @@ class ProxitoMiddleware(MiddlewareMixin):
             private_response(response, force=False)
         else:
             cache_response(response, force=False)
-
-        # Redirects need an explicit ``max-age`` to be cached by the CDN,
-        # otherwise they are bypassed. We only cache publicly-cacheable ones.
-        if response.status_code in (301, 302, 303, 307, 308):
-            cache_redirect_response(response)
 
     def add_x_robots_tag_headers(self, request, response):
         """Add `X-Robots-Tag: noindex` header for external versions."""

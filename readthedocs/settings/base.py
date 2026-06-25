@@ -964,7 +964,7 @@ class CommunityBaseSettings(Settings):
     # Redirects need an explicit freshness lifetime or they are bypassed by the
     # CDN. Permanent redirects (301/308) are cached longer than temporary ones
     # (302/303/307). This doesn't affect browser caching.
-    RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 14400  # 4 hours
+    RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 1200   # 20 minutes
     RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 86400  # 24 hours
 
     # Organization settings
