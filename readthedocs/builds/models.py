@@ -350,7 +350,7 @@ class Version(TimeStampedModel):
         # For all other cases, verbose_name contains the actual name of the branch/tag.
         return self.verbose_name
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, resolver=None, project=None):
         """
         Get the absolute URL to the docs of the version.
 
@@ -361,7 +361,14 @@ class Version(TimeStampedModel):
 
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
+
+        ``resolver`` is an optional :class:`Resolver` to share with other URL
+        builders in the same request, avoiding repeated domain lookups.
+
+        ``project`` lets callers pass an already-loaded project to skip the FK
+        lookup back to ``self.project``.
         """
+        project = project or self.project
         if not self.built and not self.uploaded:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
@@ -380,15 +387,16 @@ class Version(TimeStampedModel):
                 reverse(
                     "project_version_detail",
                     kwargs={
-                        "project_slug": self.project.slug,
+                        "project_slug": project.slug,
                         "version_slug": self.slug,
                     },
                 ),
             )
         external = self.type == EXTERNAL
-        return self.project.get_docs_url(
+        return project.get_docs_url(
             version_slug=self.slug,
             external=external,
+            resolver=resolver,
         )
 
     def delete(self, *args, **kwargs):

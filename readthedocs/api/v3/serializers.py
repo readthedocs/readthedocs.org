@@ -146,9 +146,13 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
     def get_documentation(self, obj):
-        if obj.version:
-            return obj.version.get_absolute_url()
-        return None
+        if not obj.version:
+            return None
+        # Reuse the parent serializer's resolver (when available) so we share
+        # cached domain lookups with the rest of the addons/API response, and
+        # pass the build's project to avoid an FK lookup back to version.project.
+        resolver = getattr(self.parent, "resolver", None)
+        return obj.version.get_absolute_url(resolver=resolver, project=obj.project)
 
     def get_commit(self, obj):
         if obj.commit:
@@ -158,7 +162,6 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
 class BuildCommandSerializer(serializers.ModelSerializer):
     run_time = serializers.ReadOnlyField()
-    command = serializers.SerializerMethodField()
 
     class Meta:
         model = BuildCommandResult
@@ -171,13 +174,6 @@ class BuildCommandSerializer(serializers.ModelSerializer):
             "end_time",
             "run_time",
         ]
-
-    def get_command(self, obj):
-        return normalize_build_command(
-            obj.command,
-            obj.build.project.slug,
-            obj.build.get_version_slug(),
-        )
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
@@ -240,6 +236,28 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {"config": (BuildConfigSerializer,)}
+
+    def __init__(self, *args, resolver=None, **kwargs):
+        # Use a shared resolver to reduce DB queries when building URLs that
+        # need a domain lookup (e.g. ``urls.documentation``).
+        self.resolver = resolver
+        super().__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Normalize commands at the build level so we don't trigger an FK
+        # lookup back to project/version per command in the nested serializer.
+        commands = data.get("commands")
+        if commands:
+            project_slug = instance.project.slug
+            version_slug = instance.get_version_slug()
+            for cmd in commands:
+                cmd["command"] = normalize_build_command(
+                    cmd["command"],
+                    project_slug,
+                    version_slug,
+                )
+        return data
 
     def get_error(self, obj):
         return ""

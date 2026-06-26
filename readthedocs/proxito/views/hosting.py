@@ -409,7 +409,7 @@ class AddonsResponseBase:
                 ).data,
             },
             "builds": {
-                "current": BuildAddonsSerializer(build).data if build else None,
+                "current": BuildAddonsSerializer(build, resolver=resolver).data if build else None,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
