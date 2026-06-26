@@ -1,16 +1,4 @@
-"""
-End-to-end coverage for subproject aliases that contain slashes.
-
-This file exercises every URL surface that resolves a subproject by its
-alias, to make sure slash aliases (e.g. ``api/python``) work consistently:
-
-- ``/projects/<alias>/<lang>/<version>/<file>`` doc serving
-- ``/projects/<alias>/`` default-version redirect
-- ``/projects/<alias>/page/<file>`` page redirect
-- ``/_/downloads/<alias>/<lang>/<version>/<type>/`` proxied downloads
-- ``Resolver`` building outbound URLs for a slash-aliased subproject
-- Longest-prefix-match disambiguation between ``api`` and ``api/python``
-"""
+"""End-to-end coverage for subproject aliases that contain slashes."""
 
 import django_dynamic_fixture as fixture
 import pytest
@@ -34,57 +22,48 @@ from .base import BaseDocServing
 )
 @pytest.mark.proxito
 class TestSlashSubprojectAliases(BaseDocServing):
-    """Hit every URL that resolves a subproject by alias with a slash alias."""
+    """Every URL that resolves a subproject by alias, exercised with ``api/python``."""
 
-    SLASH_ALIAS = "api/python"
+    ALIAS = "api/python"
     HOST = "project.dev.readthedocs.io"
 
     def setUp(self):
         super().setUp()
-        # ``BaseDocServing`` mounts ``self.subproject_alias`` at
-        # ``this-is-an-alias``. Re-mount it with a slash alias.
+        # BaseDocServing mounts self.subproject_alias under "this-is-an-alias";
+        # re-mount it under a slash alias for every test in this class.
         relation = self.project.subprojects.get(child=self.subproject_alias)
-        relation.alias = self.SLASH_ALIAS
+        relation.alias = self.ALIAS
         relation.save()
 
-    def test_docs_serving_html_file(self):
-        resp = self.client.get(
-            f"/projects/{self.SLASH_ALIAS}/en/latest/awesome.html",
-            headers={"host": self.HOST},
-        )
+    def _get(self, path):
+        return self.client.get(path, headers={"host": self.HOST})
+
+    def test_serves_html_file(self):
+        resp = self._get(f"/projects/{self.ALIAS}/en/latest/awesome.html")
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/subproject-alias/latest/awesome.html",
         )
 
-    def test_docs_serving_root_redirects_to_default_version(self):
-        resp = self.client.get(
-            f"/projects/{self.SLASH_ALIAS}/",
-            headers={"host": self.HOST},
-        )
+    def test_root_redirects_to_default_version(self):
+        resp = self._get(f"/projects/{self.ALIAS}/")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            f"http://{self.HOST}/projects/{self.SLASH_ALIAS}/en/latest/",
+            f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/",
         )
 
     def test_page_redirect(self):
-        resp = self.client.get(
-            f"/projects/{self.SLASH_ALIAS}/page/awesome.html",
-            headers={"host": self.HOST},
-        )
+        resp = self._get(f"/projects/{self.ALIAS}/page/awesome.html")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            f"http://{self.HOST}/projects/{self.SLASH_ALIAS}/en/latest/awesome.html",
+            f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/awesome.html",
         )
 
-    def test_download_files_for_each_media_type(self):
+    def test_serves_downloads(self):
         for type_ in DOWNLOADABLE_MEDIA_TYPES:
-            resp = self.client.get(
-                f"/_/downloads/{self.SLASH_ALIAS}/en/latest/{type_}/",
-                headers={"host": self.HOST},
-            )
+            resp = self._get(f"/_/downloads/{self.ALIAS}/en/latest/{type_}/")
             self.assertEqual(resp.status_code, 200)
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
@@ -92,13 +71,14 @@ class TestSlashSubprojectAliases(BaseDocServing):
                 f"/proxito/media/{type_}/subproject-alias/latest/subproject-alias.{extension}",
             )
 
-    def test_resolver_builds_slash_alias_url(self):
-        """``Resolver.resolve`` for the subproject embeds the slash alias path."""
+    def test_resolver_emits_slash_url(self):
         url = Resolver().resolve(self.subproject_alias)
-        self.assertIn(f"/projects/{self.SLASH_ALIAS}/", url)
+        self.assertIn(f"/projects/{self.ALIAS}/", url)
 
     def test_longest_prefix_match_wins(self):
-        """When ``api`` and ``api/python`` both exist, the longer alias wins."""
+        # With both ``api`` and ``api/python`` mounted, the longer alias wins
+        # for ``/projects/api/python/...`` and the shorter still serves
+        # ``/projects/api/...``.
         nested = fixture.get(
             Project,
             slug="api-only",
@@ -111,34 +91,20 @@ class TestSlashSubprojectAliases(BaseDocServing):
         nested.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(nested, alias="api")
 
-        # /projects/api/python/... → subproject_alias (longer alias wins)
-        resp = self.client.get(
-            "/projects/api/python/en/latest/awesome.html",
-            headers={"host": self.HOST},
-        )
+        resp = self._get("/projects/api/python/en/latest/awesome.html")
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/subproject-alias/latest/awesome.html",
         )
 
-        # /projects/api/... → falls back to the shorter ``api`` alias
-        resp = self.client.get(
-            "/projects/api/en/latest/awesome.html",
-            headers={"host": self.HOST},
-        )
+        resp = self._get("/projects/api/en/latest/awesome.html")
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/api-only/latest/awesome.html",
         )
 
     def test_segment_boundary_required(self):
-        """A path that doesn't end on a segment boundary doesn't match."""
-        # /projects/api/python-extra/... must NOT match alias ``api/python``.
-        # With no matching subproject the request falls through to the
-        # parent's path resolver, which returns a 404 because the path is
-        # not a valid language/version pair.
-        resp = self.client.get(
-            "/projects/api/python-extra/en/latest/",
-            headers={"host": self.HOST},
-        )
+        # ``api/python-extra`` must NOT match alias ``api/python`` — only full
+        # path segments count. No subproject matches, so the request 404s.
+        resp = self._get("/projects/api/python-extra/en/latest/")
         self.assertEqual(resp.status_code, 404)
