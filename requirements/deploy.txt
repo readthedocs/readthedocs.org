@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.24
+boto3==1.43.29
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.24
+botocore==1.43.29
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -88,7 +88,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==48.0.0
+cryptography==48.0.1
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -99,7 +99,7 @@ cssselect==1.4.0
     #   pyquery
 decorator==5.3.1
     # via ipython
-distlib==0.4.1
+distlib==0.4.3
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -210,7 +210,7 @@ fido2==2.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.29.1
+filelock==3.29.4
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -344,7 +344,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.4.0
+python-discovery==1.4.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -390,7 +390,7 @@ s3transfer==0.18.0
     #   boto3
 selectolax==0.4.10
     # via -r requirements/pip.txt
-sentry-sdk==2.61.1
+sentry-sdk==2.62.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -488,9 +488,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.4.2
+virtualenv==21.5.0
     # via -r requirements/pip.txt
-wcwidth==0.8.0
+wcwidth==0.8.1
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
