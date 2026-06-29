@@ -13,14 +13,13 @@ Non-goals
 ---------
 
 - Complete re-design of the build/version system/modeling.
-- Deprecate our current build system for existing projects.
-  We want to support both for the long term.
+- Deprecate our current build system, we want to support both for the long term.
 
 Motivation
 ----------
 
 - Most requested feature since ever.
-- Security: we would no longer run arbitrary code on our servers.
+- Security: we would no longer run arbitrary code on our servers when uploading artifacts.
 - Performance: some projects have very long build times, our builders are slow compared to other CI services.
 - Flexibility: we aren't as flexible as other CI services. We aren't a CI service.
 - Easy to integrate: users already build their docs in their CI, no need to replicate that on our side.
@@ -59,7 +58,7 @@ We don't enforce that the branch/tag/commit exists in the Git repository, we jus
 This is useful to keep the same modeling for versions, and most of the UI the same.
 If the version for that Git branch/tag/commit already exists, it will be reused for the new build.
 
-Versions will have a new field to indicate the source of their latest build (``build_source``), either "rtd-build" or "external-upload".
+Versions will have a new field to indicate the source of their latest build (``is_uploaded``).
 This will allow us to do some checks and validations.
 
 Versions marked as active and where their latest build is from an external upload can't be built using our current build system.
@@ -74,9 +73,9 @@ This includes versions created from external uploads, as they are still linked t
 
 .. note::
 
-   With this new system, we don't have the need to keep a copy of the Git repository versions in Read the Docs.
+   With this new system, we don't have the need to keep a copy of the Git repository versions in Read the Docs for projects uploading all versions for a project.
    We can discuss in the future how we want to handle that.
-   The only reason to keep it is to be able to trigger builds from our current build system (while projects migrate),
+   The only reason to keep it is to be able to trigger builds from our current build system,
    and to keep automation rules working on deleted versions.
 
 The "build version" option should be disabled/hidden for versions created from external uploads.
@@ -84,7 +83,7 @@ The "build version" option should be disabled/hidden for versions created from e
 Builds
 ------
 
-Builds will have a new field to indicate the source of the build (``build_source``), either "rtd-build" or "external-upload".
+Builds will have a new field to indicate the source of the build (``is_uploaded``).
 This will allow us to differentiate between builds that were triggered by our current build system and builds that were triggered by the new upload system.
 
 Latest triggered build wins, previous build is cancelled. Just like our current build system.
