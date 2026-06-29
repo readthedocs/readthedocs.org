@@ -148,11 +148,8 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_documentation(self, obj):
         if not obj.version:
             return None
-        # Reuse the parent serializer's resolver (when available) so we share
-        # cached domain lookups with the rest of the addons/API response, and
-        # pass the build's project to avoid an FK lookup back to version.project.
-        resolver = getattr(self.parent, "resolver", None)
-        return obj.version.get_absolute_url(resolver=resolver, project=obj.project)
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
+        return resolver.resolve_version(project=obj.project, version=obj.version)
 
     def get_commit(self, obj):
         if obj.commit:
@@ -213,7 +210,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
     # Kept for backward compatibility. The field was removed from the model,
     # but we still return it as an empty string to avoid breaking API clients.
     error = serializers.SerializerMethodField()
-    builder = serializers.CharField(read_only=True)
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta:
@@ -229,7 +225,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "success",
             "error",
             "commit",
-            "builder",
             "commands",
             "_links",
             "urls",

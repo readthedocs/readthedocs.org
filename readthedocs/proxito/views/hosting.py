@@ -279,7 +279,6 @@ class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
     FIELDS_TO_REMOVE = [
         "_links",
         # Keep proxito payload small and avoid expensive lookups.
-        "builder",
         "commands",
     ]
 

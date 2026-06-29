@@ -310,10 +310,7 @@ def get_build_commands_from_storage(build):
     if not build.cold_storage:
         return None
 
-    storage_path = "{date}/{id}.json".format(
-        date=str(build.date.date()),
-        id=build.id,
-    )
+    storage_path = build.storage_path
     if not build_commands_storage.exists(storage_path):
         return None
 

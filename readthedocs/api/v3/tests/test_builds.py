@@ -322,7 +322,6 @@ class BuildsEndpointTests(APIEndpointMixin):
             data["urls"]["commit"],
             "https://github.com/rtfd/project/commit/a1b2c3",
         )
-        self.assertEqual(data["builder"], "builder01")
         self.assertEqual(len(data["commands"]), 1)
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
 

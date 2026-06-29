@@ -6,7 +6,6 @@
         "error": "",
         "finished": null,
         "id": 3,
-        "builder": null,
         "commands": [],
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
