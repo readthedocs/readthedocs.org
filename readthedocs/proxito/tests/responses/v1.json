@@ -98,6 +98,7 @@
         "code": "finished",
         "name": "Finished"
       },
+      "state_display": "Finished",
       "success": true,
       "urls": {
         "build": "https://readthedocs.org/projects/project/builds/1/",
