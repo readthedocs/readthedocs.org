@@ -48,24 +48,25 @@ class RedirectTests(BaseDocServing):
 
     def test_permanent_redirect_cached_longer_at_cdn(self):
         # Permanent redirects (301) are cached at the CDN level for 24 hours,
-        # longer than the temporary redirects above (302, 4 hours).
+        # longer than the temporary redirects above (302).
         get(
             Redirect,
             project=self.project,
             redirect_type=EXACT_REDIRECT,
-            from_url="/woot/*",
-            to_url="/en/latest/:splat",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
             http_status=301,
+            force=True,
         )
         r = self.client.get(
-            "/woot/faq.html",
+            "/en/latest/install.html",
             secure=True,
             headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 301)
         self.assertEqual(
             r["Location"],
-            "https://project.dev.readthedocs.io/en/latest/faq.html",
+            "https://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=86400")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.user.name)
