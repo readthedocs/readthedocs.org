@@ -117,7 +117,7 @@ and it's linked to the project, not to a user.
 
    The user token can be re-used for initial testing.
 
-POST /api/v3/_internal/upload/initiate:
+POST /api/v3/upload/initiate:
   Initiate the upload process and create a build object with the state "uploading".
   This endpoint will receive some metadata like Git branch/tag/commit, configuration, etc,
   and return build object and the presigned URL to upload the artifacts.
@@ -184,7 +184,7 @@ POST /api/v3/_internal/upload/initiate:
 
    The names of pdf/epub/zip files can be anything, as long as there is just one.
 
-POST /api/v3/_internal/upload/complete:
+POST /api/v3/upload/complete:
   Notify that the upload is complete and the build can be processed.
   This endpoint will receive the build ID.
 
