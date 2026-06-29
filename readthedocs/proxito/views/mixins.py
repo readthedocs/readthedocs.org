@@ -11,6 +11,7 @@ from django.http import HttpResponsePermanentRedirect
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
+from django.utils.http import content_disposition_header
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
@@ -109,7 +110,9 @@ class ServeDocsMixin:
             filename = f"{domain}-{project.alias}-{project.language}-{version.slug}.{filename_ext}"
         else:
             filename = f"{domain}-{project.language}-{version.slug}.{filename_ext}"
-        response["Content-Disposition"] = f"filename={filename}"
+        response["Content-Disposition"] = content_disposition_header(
+            as_attachment=False, filename=filename
+        )
         return response
 
     def _serve_file(self, request, storage_path, storage_backend):

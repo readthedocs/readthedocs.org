@@ -4,6 +4,7 @@ import csv
 
 import structlog
 from django.http import StreamingHttpResponse
+from django.utils.http import content_disposition_header
 
 
 log = structlog.get_logger(__name__)
@@ -30,5 +31,7 @@ def get_csv_file(filename, csv_data):
         (writer.writerow(row) for row in csv_data),
         content_type="text/csv",
     )
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response["Content-Disposition"] = content_disposition_header(
+        as_attachment=True, filename=filename
+    )
     return response
