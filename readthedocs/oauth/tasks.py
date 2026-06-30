@@ -597,8 +597,8 @@ class GitHubAppWebhookHandler:
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
             webhook_rules = [
-                rule for rule in
-                project.automation_rules.filter(
+                rule
+                for rule in project.automation_rules.filter(
                     enabled=True,
                     action__in=AutomationRule.BUILD_ACTIONS,
                     # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
@@ -678,8 +678,8 @@ class GitHubAppWebhookHandler:
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
                 webhook_rules = [
-                    rule for rule in
-                    project.automation_rules.filter(
+                    rule
+                    for rule in project.automation_rules.filter(
                         enabled=True,
                         action__in=AutomationRule.BUILD_ACTIONS,
                         # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
