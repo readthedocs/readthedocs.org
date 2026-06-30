@@ -398,6 +398,12 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    permit_list_expands = [
+        "config",
+    ]
+    permit_detail_expands = [
+        "config",
+    ]
 
     def get_queryset(self):
         return (
@@ -406,7 +412,6 @@ class BuildsViewSet(
             .select_related(
                 "project",
                 "version",
-                "readthedocs_yaml_config",
             )
             .prefetch_related(
                 "commands",

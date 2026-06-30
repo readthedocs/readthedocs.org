@@ -1,8 +1,5 @@
 {
     "commit": "a1b2c3",
-    "config": {
-        "property": "test value"
-    },
     "created": "2019-04-29T10:00:00Z",
     "duration": 60,
     "error": "",

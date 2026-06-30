@@ -212,7 +212,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
     # but we still return it as an empty string to avoid breaking API clients.
     error = serializers.SerializerMethodField()
     commands = BuildCommandSerializer(many=True, read_only=True)
-    config = BuildConfigSerializer(read_only=True)
 
     class Meta:
         model = Build
@@ -229,10 +228,11 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "error",
             "commit",
             "commands",
-            "config",
             "_links",
             "urls",
         ]
+
+        expandable_fields = {"config": (BuildConfigSerializer,)}
 
     def __init__(self, *args, resolver=None, **kwargs):
         # Use a shared resolver to reduce DB queries when building URLs that
