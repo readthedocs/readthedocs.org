@@ -358,7 +358,7 @@ are by far the most widely used for historical reasons.
 
 However, to compensate some of the disadvantages of the ``.ipynb`` format
 (like cumbersome integration with version control systems),
-`jupytext`_ offers :doc:`other formats <jupytext:formats-markdown>`
+`jupytext`_ offers `other formats <https://jupytext.org/formats/markdown/>`__
 based on plain text rather than JSON.
 
 As a result, there are three modes of operation:
@@ -378,7 +378,7 @@ As a result, there are three modes of operation:
     to improve the review process.
   - Use a different collaboration workflow that doesn't involve notebooks.
 
-- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats-markdown>`.
+- Replace ``.ipynb`` notebooks with `a text-based format <https://jupytext.org/formats/markdown/>`__.
   These formats behave better under version control
   and they can also be edited with normal text editors
   that do not support cell-based JSON notebooks.
@@ -386,14 +386,13 @@ As a result, there are three modes of operation:
   and this might not be what you want.
 - Pairing ``.ipynb`` notebooks with a text-based format,
   and putting the text-based file in version control,
-  as suggested in the :doc:`jupytext documentation <jupytext:paired-notebooks>`.
+  as suggested in the `jupytext documentation <https://jupytext.org/using/paired-notebooks/>`__.
   This solution has the best of both worlds.
   In some rare cases you might experience synchronization issues between both files.
 
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
-For the examples in this document, we have used the :doc:`MyST Markdown
-format <jupytext:formats-markdown>`.
+For the examples in this document, we have used the `MyST Markdown format <https://jupytext.org/formats/markdown/>`__.
 
 If you are using alternative formats for Jupyter notebooks,
 you can include them in your Sphinx documentation
