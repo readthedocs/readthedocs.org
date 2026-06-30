@@ -706,7 +706,7 @@ class OrganizationsViewSetBase(
     # /api/v3/organizations/<slug>/notifications/
     # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
     # We can implement these endpoints when we need them, tho.
-    # Also note that Read the Docs for Business expose this endpoint already.
+    # Also note that Read the Docs Business exposes this endpoint already.
 
     model = Organization
     serializer_class = OrganizationSerializer

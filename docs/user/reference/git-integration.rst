@@ -145,37 +145,6 @@ so that you can log in to Read the Docs with your connected account credentials.
 
 .. tabs::
 
-   .. tab:: GitHub
-
-      Read the Docs requests the following permissions (more precisely, `OAuth scopes`_)
-      when connecting your Read the Docs account to GitHub.
-
-      .. _OAuth scopes: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/
-
-      Read access to your email address (``user:email``)
-          We ask for this so you can create a Read the Docs account and log in with your GitHub credentials.
-
-      Administering webhooks (``admin:repo_hook``)
-          We ask for this so we can create :term:`webhooks <webhook>` on your repositories when you import them into Read the Docs.
-          This allows us to build the docs when you push new commits.
-
-      Read access to your organizations (``read:org``)
-          We ask for this so we know which organizations you have access to.
-          This allows you to filter repositories by organization when importing repositories.
-
-      Repository status (``repo:status``)
-          Repository statuses allow Read the Docs to report the status
-          (e.g. passed, failed, pending) of pull requests to GitHub.
-
-      .. note::
-
-          :doc:`Read the Docs for Business </commercial/index>`
-          asks for one additional permission (``repo``) to allow access to private repositories
-          and to allow us to set up SSH keys to clone your private repositories.
-          Unfortunately, this is the permission for read/write control of the repository
-          but there isn't a more granular permission
-          that only allows setting up SSH keys for read access.
-
    .. tab:: GitHub App
 
       Read the Docs requests the following permissions when connecting your Read the Docs account to our :ref:`GitHub App <reference/git-integration:GitHub App>`.
@@ -203,6 +172,37 @@ so that you can log in to Read the Docs with your connected account credentials.
       Organization permissions
         Members (read only)
           This allows Read the Docs to read the organization members.
+
+   .. tab:: GitHub
+
+      Read the Docs requests the following permissions (more precisely, `OAuth scopes`_)
+      when connecting your Read the Docs account to GitHub.
+
+      .. _OAuth scopes: https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/
+
+      Read access to your email address (``user:email``)
+          We ask for this so you can create a Read the Docs account and log in with your GitHub credentials.
+
+      Administering webhooks (``admin:repo_hook``)
+          We ask for this so we can create :term:`webhooks <webhook>` on your repositories when you import them into Read the Docs.
+          This allows us to build the docs when you push new commits.
+
+      Read access to your organizations (``read:org``)
+          We ask for this so we know which organizations you have access to.
+          This allows you to filter repositories by organization when importing repositories.
+
+      Repository status (``repo:status``)
+          Repository statuses allow Read the Docs to report the status
+          (e.g. passed, failed, pending) of pull requests to GitHub.
+
+      .. note::
+
+          :doc:`Read the Docs Business </commercial/index>`
+          asks for one additional permission (``repo``) to allow access to private repositories
+          and to allow us to set up SSH keys to clone your private repositories.
+          Unfortunately, this is the permission for read/write control of the repository
+          but there isn't a more granular permission
+          that only allows setting up SSH keys for read access.
 
    .. tab:: Bitbucket
 
@@ -248,6 +248,13 @@ or you might have disabled it in the past for your personal account.
 This can happen at the personal or organization level,
 depending on where the project you are trying to access has permissions from.
 
+.. note::
+
+   If you are using the :ref:`GitHub App <reference/git-integration:GitHub App>`,
+   you only need to make sure that the GitHub App is installed in your account or organization,
+   and that it has access to the repository you want to use for your project.
+   See :ref:`GitHub App troubleshooting <reference/git-integration:Troubleshooting>` for more information.
+
 .. tabs::
 
    .. tab:: Personal Account
@@ -272,12 +279,9 @@ depending on where the project you are trying to access has permissions from.
 GitHub App
 ----------
 
-.. warning::
-
-   Our GitHub App is currently in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/announcing-our-github-app-beta/>`__ for more information.
-
-We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
-We have two GitHub Apps, one for each of our platforms:
+We now provide a `GitHub App <https://docs.github.com/en/apps/overview>`__ for connecting your GitHub account to Read the Docs.
+This will replace the old OAuth GitHub integration.
+Read the Docs provides two GitHub Apps, one for each of our platforms:
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business>`__

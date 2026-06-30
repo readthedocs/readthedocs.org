@@ -102,7 +102,7 @@ There are some URL attributes that applies to all of these resources:
 
 .. note::
 
-   If you are using :doc:`Read the Docs for Business </commercial/index>` take into account that you will need to replace
+   If you are using :doc:`Read the Docs Business </commercial/index>` take into account that you will need to replace
    https://app.readthedocs.org/ by https://app.readthedocs.com/ in all the URLs used in the following examples.
 
 
@@ -208,7 +208,7 @@ Projects list
 
        .. FIXME: we can't use :query string: here because it doesn't render properly
 
-      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+      :doc:`Read the Docs Business </commercial/index>`, also accepts
 
       :Query Parameters:
 
@@ -322,7 +322,7 @@ Project details
 
        .. FIXME: we can't use :query string: here because it doesn't render properly
 
-      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+      :doc:`Read the Docs Business </commercial/index>`, also accepts
 
       :Query Parameters:
 
@@ -407,7 +407,7 @@ Project create
 
        .. FIXME: we can't use :query string: here because it doesn't render properly
 
-      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+      :doc:`Read the Docs Business </commercial/index>`, also accepts
 
       :Request JSON Object:
 
@@ -416,7 +416,7 @@ Project create
 
       .. note::
 
-         Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
+         Privacy levels are only available in :doc:`Read the Docs Business </commercial/index>`.
 
 Project update
 ++++++++++++++
@@ -487,7 +487,7 @@ Project update
 
     .. note::
 
-       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
+       Privacy levels are only available in :doc:`Read the Docs Business </commercial/index>`.
 
     :statuscode 204: Updated successfully
 
@@ -696,7 +696,7 @@ Version update
 
     .. note::
 
-       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
+       Privacy levels are only available in :doc:`Read the Docs Business </commercial/index>`.
 
 Builds
 ~~~~~~
@@ -1578,7 +1578,7 @@ See :doc:`/commercial/sharing` for more information.
 
 .. note::
 
-   The ``/api/v3/projects/<project_slug>/sharing/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>`.
+   The ``/api/v3/projects/<project_slug>/sharing/`` endpoint is only available in :doc:`Read the Docs Business </commercial/index>`.
 
 
 Sharing method details
@@ -1804,7 +1804,7 @@ Organizations
 
 .. note::
 
-   The ``/api/v3/organizations/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>` currently.
+   The ``/api/v3/organizations/`` endpoint is only available in :doc:`Read the Docs Business </commercial/index>` currently.
    We plan to have organizations on |org_brand| in a near future and we will add support for this endpoint at the same time.
 
 

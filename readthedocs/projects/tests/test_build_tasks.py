@@ -600,7 +600,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.14.0",
+                            "full_version": "3.14.6",
                             "version": "3",
                         }
                     },
@@ -1750,7 +1750,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -1802,7 +1802,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.7"},
                     "jobs": {
                         "post_checkout": ["git fetch --unshallow"],
@@ -2175,7 +2175,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -2488,7 +2488,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "mambaforge-4.10",
                     },
