@@ -101,7 +101,6 @@ intersphinx_mapping = {
     "nbsphinx": ("https://nbsphinx.readthedocs.io/en/latest/", None),
     "myst-nb": ("https://myst-nb.readthedocs.io/en/stable/", None),
     "ipywidgets": ("https://ipywidgets.readthedocs.io/en/stable/", None),
-    "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
