@@ -883,6 +883,7 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=self.version,
+            commit=None,
             from_webhook=True,
         )
 
@@ -955,6 +956,7 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=external_version,
+            commit=None,
             from_webhook=True,
         )
 
