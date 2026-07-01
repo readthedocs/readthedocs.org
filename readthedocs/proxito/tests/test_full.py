@@ -856,6 +856,7 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Cache-Tag"], "project,project:robots.txt")
         expected = dedent(
             """
             User-agent: *
@@ -908,6 +909,7 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Cache-Tag"], "project,project:robots.txt")
         expected = dedent(
             """
             User-agent: *
@@ -1019,6 +1021,7 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
+        self.assertNotIn("Cache-Tag", response.headers)
 
     def test_custom_robots_txt(self):
         self.project.versions.update(active=True, built=True)
@@ -1029,6 +1032,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response["x-accel-redirect"],
             "/proxito/media/html/project/latest/robots.txt",
         )
+        self.assertEqual(response.headers["Cache-Tag"], "project,project:latest,project:robots.txt")
 
     def test_custom_robots_txt_private_version(self):
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
@@ -1036,6 +1040,7 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
+        self.assertNotIn("Cache-Tag", response.headers)
 
     def test_custom_sitemap_xml(self):
         self.project.versions.update(active=True, built=True)
