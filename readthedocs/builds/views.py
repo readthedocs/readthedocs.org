@@ -22,6 +22,7 @@ from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
 from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.filetreediff import get_diff_for_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.base import ProjectSpamMixin
 
@@ -116,6 +117,7 @@ class BuildDetail(BuildBase, ProjectSpamMixin, DetailView):
 
         build = self.get_object()
         context["notifications"] = build.notifications.all()
+        context["files_changed_diff"] = get_diff_for_build(build)
         if not build.notifications.filter(message_id=BuildAppError.GENERIC_WITH_BUILD_ID).exists():
             # Do not suggest to open an issue if the error is not generic
             return context
