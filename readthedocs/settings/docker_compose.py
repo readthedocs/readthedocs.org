@@ -33,6 +33,11 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Reference: https://docs.djangoproject.com/en/4.2/ref/settings/#secure-proxy-ssl-header
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+    # Dev runs over plain HTTP on devthedocs.org, so browsers ignore COOP and
+    # log a warning. Disable it in dev to keep the console clean; production
+    # still uses Django's default ("same-origin").
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
     STATIC_URL = "/static/"
 
     # In the local docker environment, nginx should be trusted to set the host correctly
