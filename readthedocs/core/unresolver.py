@@ -14,6 +14,7 @@ from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Feature
@@ -303,6 +304,7 @@ class Unresolver:
         language = match.group("language")
         # Normalize old language codes to lowercase with dashes.
         language = language.lower().replace("_", "-")
+        language = OLD_LANGUAGES_CODE_MAPPING.get(language, language)
 
         version_slug = match.group("version")
         filename = self._normalize_filename(match.group("filename"))

@@ -110,10 +110,21 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_translation_zh_deprecated_code_serving(self):
-        self.translation.language = "zh"
+        self.translation.language = "zh-hans"
         self.translation.save()
+
+        # Accessing with the deprecated "zh" code redirects to the new "zh-hans" code.
         url = "/zh/latest/awesome.html"
         host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["location"],
+            "http://project.dev.readthedocs.io/zh-hans/latest/awesome.html",
+        )
+
+        # Accessing with the new "zh-hans" code serves directly.
+        url = "/zh-hans/latest/awesome.html"
         resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
             resp["x-accel-redirect"],
@@ -496,6 +507,27 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/latest/bt_BR/index.html",
         )
 
+    def test_renamed_old_language_code(self):
+        self.project.language = "zh-hans"
+        self.project.save()
+        host = "project.dev.readthedocs.io"
+
+        url = "/zh_CN/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["location"],
+            "http://project.dev.readthedocs.io/zh-hans/latest/index.html",
+        )
+
+        url = "/zh-hans/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/index.html",
+        )
+
 
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
@@ -593,6 +625,33 @@ class TestDocServingBackends(BaseDocServing):
 
             resp = self.client.get(
                 f"/_/downloads/pt-br/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_project_with_renamed_old_language_code(self):
+        self.project.language = "zh-hans"
+        self.project.save()
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/zh_CN/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp["Location"],
+                f"//project.dev.readthedocs.io/_/downloads/zh-hans/latest/{type_}/",
+            )
+
+            resp = self.client.get(
+                f"/_/downloads/zh-hans/latest/{type_}/",
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
@@ -1578,7 +1637,7 @@ class TestAdditionalDocViews(BaseDocServing):
         hreflang_test_translation_project = fixture.get(
             Project,
             main_language_project=self.project,
-            language="zh_CN",
+            language="zh-hans",
             privacy_level=constants.PUBLIC,
         )
         hreflang_test_translation_project.versions.update(
@@ -1631,9 +1690,9 @@ class TestAdditionalDocViews(BaseDocServing):
                 lang_slug=translation.language,
             ),
         )
-        # hreflang should use hyphen instead of underscore
-        # in language and country value. (zh_CN should be zh-CN)
-        self.assertContains(response, "zh-CN")
+        # hreflang should use locale casing with hyphens.
+        # zh-hans should be normalized to zh-Hans.
+        self.assertContains(response, "zh-Hans")
 
         # External Versions should not be in the sitemap_xml.
         self.assertNotContains(
