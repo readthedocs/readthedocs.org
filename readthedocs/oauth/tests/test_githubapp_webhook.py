@@ -1733,3 +1733,101 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             commit=external_version.identifier,
             from_webhook=True,
         )
+
+    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    def test_push_branch_with_pr_only_webhook_rule(self, trigger_build):
+        """Test that a rule for PRs (EXTERNAL) doesn't skip push builds for branches."""
+        # Create a webhook automation rule that only matches PRs (EXTERNAL),
+        # not branches or tags.
+        get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/*.rst"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[EXTERNAL],
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+            "commits": [
+                {
+                    "added": ["src/code.py"],
+                    "modified": [],
+                    "removed": [],
+                }
+            ],
+        }
+        r = self.post_webhook("push", payload)
+        assert r.status_code == 200
+
+        # Should trigger build normally since the rule is for PRs only, not branches.
+        trigger_build.assert_has_calls(
+            [
+                mock.call(project=self.project, version=self.version_main, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
+            ]
+        )
+
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    def test_pull_request_with_branch_only_webhook_rule(self, trigger_build):
+        """Test that a rule for branches (BRANCH) doesn't skip PR builds."""
+        self.project.external_builds_enabled = True
+        self.project.save()
+
+        # Create a webhook automation rule that only matches branches, not PRs.
+        get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern=["docs/*.rst"],
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[BRANCH],
+        )
+
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+
+        # Should trigger build normally since the rule is for branches only, not PRs.
+        external_version = self.project.versions.get(verbose_name="1", type=EXTERNAL)
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=external_version.identifier,
+            from_webhook=True,
+        )

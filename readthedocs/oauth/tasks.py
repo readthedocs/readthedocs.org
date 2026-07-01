@@ -596,22 +596,25 @@ class GitHubAppWebhookHandler:
             # If none one matches, it finishes here.
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
-            webhook_rules = project.automation_rules.filter(
-                enabled=True,
-                action__in=AutomationRule.BUILD_ACTIONS,
-                # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                # We are using `rule.match_version` below to check this instead.
-                # version_types__contains=version_type,
-            )
-            if webhook_rules.exists():
+            webhook_rules = [
+                rule
+                for rule in project.automation_rules.filter(
+                    enabled=True,
+                    action__in=AutomationRule.BUILD_ACTIONS,
+                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                    # We are using `rule.match_version` below to check this instead.
+                    # version_types__contains=version_type,
+                )
+                if version_type in rule.version_types
+            ]
+            if webhook_rules:
                 changed_files = self._get_changed_files_from_push_event()
                 commit_message = self.data["head_commit"]["message"]
                 labels = []  # We don't have labels in push events, so we leave it empty.
 
                 rule_triggered_for_project = False
                 for version in project.versions_from_name(version_name, version_type):
-                    rule_triggered_for_version = False
-                    for rule in webhook_rules.iterator():
+                    for rule in webhook_rules:
                         if rule.match_version(version=version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
@@ -627,12 +630,10 @@ class GitHubAppWebhookHandler:
                                 version_type=version_type,
                             )
                             rule_triggered_for_project = True
-                            rule_triggered_for_version = True
                             rule.run(version)
 
-                        # We only trigger the first matching rule per version
-                        # to avoid triggering multiple builds for the same tag/branches.
-                        if rule_triggered_for_version:
+                            # We only trigger the first matching rule per version
+                            # to avoid triggering multiple builds for the same tag/branches.
                             break
 
                 if not rule_triggered_for_project:
@@ -676,14 +677,18 @@ class GitHubAppWebhookHandler:
                 # If none one matches, it finishes here.
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
-                webhook_rules = project.automation_rules.filter(
-                    enabled=True,
-                    action__in=AutomationRule.BUILD_ACTIONS,
-                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                    # We are using `rule.match_version` below to check this instead.
-                    # version_types__contains=EXTERNAL,
-                )
-                if webhook_rules.exists():
+                webhook_rules = [
+                    rule
+                    for rule in project.automation_rules.filter(
+                        enabled=True,
+                        action__in=AutomationRule.BUILD_ACTIONS,
+                        # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                        # We are using `rule.match_version` below to check this instead.
+                        # version_types__contains=EXTERNAL,
+                    )
+                    if EXTERNAL in rule.version_types
+                ]
+                if webhook_rules:
                     rule_triggered = False
                     changed_files = self._get_changed_files_from_pull_request_event(
                         project,
@@ -692,7 +697,7 @@ class GitHubAppWebhookHandler:
                     commit_message = self._get_commit_message_from_pull_request_event(project)
                     labels = self._get_labels_from_pull_request_event()
 
-                    for rule in webhook_rules.iterator():
+                    for rule in webhook_rules:
                         if rule.match_version(version=external_version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
