@@ -1223,8 +1223,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should trigger build because commit message matches '^docs:'
         trigger_build.assert_has_calls(
             [
-                mock.call(project=self.project, version=self.version_main, from_webhook=True),
-                mock.call(project=self.project, version=self.version_latest, from_webhook=True),
+                mock.call(project=self.project, version=self.version_main, commit=None, from_webhook=True),
+                mock.call(project=self.project, version=self.version_latest, commit=None, from_webhook=True),
             ]
         )
 
@@ -1384,6 +1384,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             ],
         )
 
+        commit = "1234abcd"
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -1395,7 +1396,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 "number": 1,
                 "head": {
                     "ref": "new-feature",
-                    "sha": "1234abcd",
+                    "sha": commit,
                 },
                 "base": {
                     "ref": "main",
@@ -1419,6 +1420,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         trigger_build.assert_called_once_with(
             project=self.project,
             version=external_version,
+            commit=commit,
             from_webhook=True,
         )
 
@@ -1559,6 +1561,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             },
         )
 
+        commit = "1234abcd"
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -1570,7 +1573,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
                 "number": 1,
                 "head": {
                     "ref": "new-feature",
-                    "sha": "1234abcd",
+                    "sha": commit,
                 },
                 "base": {
                     "ref": "main",
@@ -1593,6 +1596,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         trigger_build.assert_called_once_with(
             project=self.project,
             version=external_version,
+            commit=commit,
             from_webhook=True,
         )
 
