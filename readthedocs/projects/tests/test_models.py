@@ -6,7 +6,7 @@ from django_dynamic_fixture import get
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.models import Feature, ImportedFile, Project
+from readthedocs.projects.models import Feature, ImportedFile, Project, ProjectRelationship
 from readthedocs.search.models import SearchQuery
 
 
@@ -93,6 +93,41 @@ class TestProjectModel(TestCase):
             remote_repository=None,
         )
         assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+
+class TestProjectRelationshipAlias(TestCase):
+    def setUp(self):
+        self.parent = get(Project, slug="parent")
+        self.child = get(Project, slug="child")
+
+    def _build_relationship(self, alias):
+        return ProjectRelationship(
+            parent=self.parent, child=self.child, alias=alias
+        )
+
+    def test_alias_accepts_simple_slug(self):
+        relation = self._build_relationship("api")
+        relation.full_clean()
+        relation.save()
+        assert relation.alias == "api"
+
+    def test_alias_accepts_slashes(self):
+        relation = self._build_relationship("api/python")
+        relation.full_clean()
+        relation.save()
+        assert relation.alias == "api/python"
+
+    def test_alias_rejects_invalid_paths(self):
+        invalid = ["/api", "api/", "api//python", "api/../etc"]
+        for alias in invalid:
+            with self.subTest(alias=alias):
+                relation = self._build_relationship(alias)
+                with pytest.raises(ValidationError):
+                    relation.full_clean()
+
+    def test_subproject_prefix_with_slash_alias(self):
+        relation = self.parent.add_subproject(self.child, alias="api/python")
+        assert relation.subproject_prefix == "/projects/api/python/"
 
 
 class TestURLPatternsUtils(TestCase):
