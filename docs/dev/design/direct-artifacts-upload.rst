@@ -63,7 +63,8 @@ This will allow us to do some checks and validations.
 
 Versions marked as active and where their latest build is from an external upload can't be built using our current build system.
 This is to avoid overwriting the documentation built from an external upload with a build from our current build system.
-This should mainly happen while users migrate to the new system, new users should only use the new upload system.
+This should mainly happen when using both systems at the same time (kee building on Read the Docs, and upload artifacts from their CI for some branches),
+users using the new system from the start or that no longer need to build on Read the Docs won't have this problem.
 
 We will no longer update the version to keep in sync with the Git branch/tag/commit,
 as they will be created when the upload is initiated.
