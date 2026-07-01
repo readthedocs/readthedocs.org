@@ -255,6 +255,9 @@ The action/script should be called after the documentation is built, and it will
 The action/script will make sure to generate the zip file with the correct structure,
 given the paths to the artifacts.
 
+In case of the script, it will be downloaded and run by the user,
+while in the case of the action, it will be used in a workflow.
+
 Configuration file
 ------------------
 
