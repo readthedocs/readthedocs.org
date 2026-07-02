@@ -7,7 +7,6 @@ import structlog
 import yaml
 
 from readthedocs.config import PIP
-from readthedocs.config import SETUPTOOLS
 from readthedocs.config import ParseError
 from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall
@@ -64,7 +63,7 @@ class PythonEnvironment:
 
     def install_package(self, install):
         """
-        Install the package using pip or setuptools.
+        Install the package using pip.
 
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
@@ -94,15 +93,6 @@ class PythonEnvironment:
                     path=local_path,
                     extra_requirements=extra_req_param,
                 ),
-                cwd=self.checkout_path,
-                bin_path=self.venv_bin(),
-            )
-        elif install.method == SETUPTOOLS:
-            self.build_env.run(
-                self.venv_bin(filename="python"),
-                os.path.join(install.path, "setup.py"),
-                "install",
-                "--force",
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )

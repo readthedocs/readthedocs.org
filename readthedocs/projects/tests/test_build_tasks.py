@@ -2654,38 +2654,6 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_python_install_setuptools(self, load_yaml_config):
-        load_yaml_config.return_value = get_build_config(
-            {
-                "version": 2,
-                "python": {
-                    "install": [
-                        {
-                            "path": ".",
-                            "method": "setuptools",
-                        }
-                    ],
-                },
-            },
-            validate=True,
-        )
-
-        self._trigger_update_docs_task()
-
-        self.mocker.mocks["environment.run"].assert_has_calls(
-            [
-                mock.call(
-                    mock.ANY,
-                    "./setup.py",
-                    "install",
-                    "--force",
-                    cwd=mock.ANY,
-                    bin_path=mock.ANY,
-                )
-            ]
-        )
-
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_pip(self, load_yaml_config):
         load_yaml_config.return_value = get_build_config(
             {
@@ -2778,7 +2746,7 @@ class TestBuildTask(BuildEnvironmentBase):
                         },
                         {
                             "path": "two",
-                            "method": "setuptools",
+                            "method": "pip",
                         },
                         {
                             "requirements": "three.txt",
@@ -2808,9 +2776,14 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call(
                     mock.ANY,
-                    "two/setup.py",
+                    "-m",
+                    "pip",
                     "install",
-                    "--force",
+                    "--upgrade",
+                    "--upgrade-strategy",
+                    "only-if-needed",
+                    "--no-cache-dir",
+                    "./two",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
