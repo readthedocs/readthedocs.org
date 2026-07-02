@@ -234,6 +234,48 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
         self.assertEqual(env_var.value, "test_value")
         self.assertTrue(env_var.public)
 
+    def test_create_environment_variable_invalid_name(self):
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        invalid_names = [
+            "__PRIVATE",
+            "READTHEDOCS_TOKEN",
+            "WITH SPACE",
+            "WITH-DASH",
+        ]
+        for name in invalid_names:
+            response = self.client.post(
+                url,
+                data={"name": name, "value": "value", "public": True},
+            )
+            assert response.status_code == 400, name
+            assert "name" in response.json()
+
+        # An invalid name doesn't create the variable.
+        self.assertEqual(self.project.environmentvariable_set.count(), 1)
+
+    def test_create_environment_variable_duplicated_name(self):
+        url = reverse(
+            "projects-environmentvariables-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(
+            url,
+            data={"name": "ENVVAR", "value": "value", "public": True},
+        )
+        assert response.status_code == 400
+        assert "name" in response.json()
+        self.assertEqual(self.project.environmentvariable_set.count(), 1)
+
     def test_create_environment_variable_without_public_flag(self):
         self.assertEqual(self.project.environmentvariable_set.count(), 1)
         data = {
