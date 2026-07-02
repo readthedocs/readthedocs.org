@@ -98,7 +98,6 @@ django-crispy-forms<2
 
 docker
 
-django-annoying
 djangorestframework-jsonp
 django-taggit
 dj-pagination
