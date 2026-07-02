@@ -872,6 +872,12 @@ class BuildDirector:
 
         self._add_git_ssh_command_env_var(env)
 
+        # Update environment from config file's ``build.environment`` key.
+        # These are merged before project-level variables so that project-level
+        # variables (set via the UI) take precedence over config file variables.
+        if self.data.config.build.environment:
+            env.update(self.data.config.build.environment)
+
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
