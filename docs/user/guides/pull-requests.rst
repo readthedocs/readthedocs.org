@@ -22,6 +22,13 @@ See `Limitations`_ for more information.
    The previous method of pull request previews using a GitHub workflow that called `@readthedocs/actions <https://github.com/readthedocs/actions/>`__ is now deprecated.
    If you used that method, you should remove its configuration.
 
+Build overview
+--------------
+
+You can enable a build overview comment to be added to your pull requests when changes are detected between the pull request and the latest version of the documentation.
+This comment includes a list of the files that changed, and links to view the built documentation.
+See :ref:`visual-diff:Show build overview in pull requests` for more information.
+
 Privacy levels
 --------------
 
@@ -52,13 +59,6 @@ To change the privacy level:
 #. Click on :guilabel:`Update`
 
 Privacy levels work the same way as :ref:`normal versions <versions:Version states>`.
-
-Build overview
---------------
-
-You can enable a build overview comment to be added to your pull requests when changes are detected between the pull request and the latest version of the documentation.
-This comment includes a list of the files that changed, and links to view the built documentation.
-See :ref:`visual-diff:Show build overview in pull requests` for more information.
 
 Limitations
 -----------
