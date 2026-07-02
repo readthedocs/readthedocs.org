@@ -1,5 +1,5 @@
-Read the Docs tutorial
-======================
+Read the Docs tutorial for Sphinx
+=================================
 
 In this tutorial you will learn how to host a public documentation project on Read the Docs Community.
 
