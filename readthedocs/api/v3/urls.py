@@ -172,3 +172,8 @@ router.register(
 
 urlpatterns = []
 urlpatterns += router.urls
+
+# Upload API endpoints (not router-based)
+from readthedocs.api.v3.upload.urls import urlpatterns as upload_urlpatterns  # noqa: E402
+
+urlpatterns += upload_urlpatterns

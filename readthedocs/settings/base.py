@@ -539,6 +539,9 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_COMMANDS_STORAGE = (
         "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     )
+    RTD_BUILD_UPLOADS_STORAGE = (
+        "readthedocs.builds.storage.BuildMediaFileSystemStorage"
+    )
     # This is for serving static files on proxito, not Django static files
     # https://github.com/readthedocs/readthedocs.org/pull/9237
     RTD_STATICFILES_STORAGE = "readthedocs.builds.storage.StaticFilesStorage"
@@ -1226,6 +1229,9 @@ class CommunityBaseSettings(Settings):
             },
             "build-tools": {
                 "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
+            },
+            "build-uploads": {
+                "BACKEND": self.RTD_BUILD_UPLOADS_STORAGE,
             },
             "usercontent": {
                 "BACKEND": "django.core.files.storage.FileSystemStorage",

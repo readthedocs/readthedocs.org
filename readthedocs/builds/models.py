@@ -806,6 +806,13 @@ class Build(models.Model):
         help_text="Build steps stored outside the database.",
     )
 
+    # Whether this build was created from an external upload (direct artifacts upload).
+    is_uploaded = models.BooleanField(
+        _("Is uploaded"),
+        default=False,
+        help_text="Whether this build was created from an external artifacts upload.",
+    )
+
     task_id = models.CharField(
         _("Celery task id"),
         max_length=36,

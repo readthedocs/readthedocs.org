@@ -148,7 +148,9 @@ class S3StaticStorage(
     """
 
 
-class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Storage):
+class NoManifestS3StaticStorage(
+    S3StaticStorageMixin, OverrideHostnameMixin, RTDS3Storage
+):
     """
     Storage backend for static files used outside Django's static files.
 
@@ -159,6 +161,50 @@ class NoManifestS3StaticStorage(S3StaticStorageMixin, OverrideHostnameMixin, RTD
     # Root path of the nginx internal redirect
     # that will serve files from this storage.
     internal_redirect_root_path = "proxito-static"
+
+
+class S3BuildUploadsStorage(S3PrivateBucketMixin, RTDS3Storage):
+    """An AWS S3 Storage backend for direct artifact uploads.
+
+    This bucket stores uploaded zip files temporarily before they are processed.
+    A lifecycle policy should be configured to clean up old files.
+    """
+
+    bucket_name = getattr(settings, "S3_BUILD_UPLOADS_STORAGE_BUCKET", None)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.bucket_name:
+            raise ImproperlyConfigured(
+                "AWS S3 not configured correctly. "
+                "Ensure S3_BUILD_UPLOADS_STORAGE_BUCKET is defined.",
+            )
+
+    def generate_presigned_post(
+        self, key, content_type="application/zip", max_size=1 * 1024**3, expiration=1800
+    ):
+        """Generate a presigned POST URL for uploading a file to S3.
+
+        :param key: The S3 key (path) where the file will be stored.
+        :param content_type: Expected content type of the upload.
+        :param max_size: Maximum allowed file size in bytes (default 1GB).
+        :param expiration: URL expiration time in seconds (default 30 minutes).
+        :returns: A dict with 'url' and 'fields' for the presigned POST.
+        """
+        conditions = [
+            ["content-length-range", 1, max_size],
+            {"Content-Type": content_type},
+        ]
+        fields = {"Content-Type": content_type}
+
+        return self.connection.meta.client.generate_presigned_post(
+            Bucket=self.bucket_name,
+            Key=key,
+            Fields=fields,
+            Conditions=conditions,
+            ExpiresIn=expiration,
+        )
 
 
 class S3BuildToolsStorage(S3PrivateBucketMixin, RTDS3Storage):
