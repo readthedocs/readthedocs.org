@@ -712,7 +712,7 @@ class GitHubAppWebhookHandler:
                                 version_type=EXTERNAL,
                             )
                             rule_triggered = True
-                            rule.run(external_version)
+                            rule.run(external_version, commit=external_version.identifier)
 
                             # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
                             break
