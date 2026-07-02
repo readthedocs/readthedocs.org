@@ -189,9 +189,8 @@ def sync_active_users_remote_repositories(self):
                 log.exception("There was a problem re-syncing RemoteRepository.")
 
 
-# TODO: Make user_pk is always required on next release.
 @app.task(queue="web")
-def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
+def attach_webhook(project_pk, user_pk, integration=None, **kwargs):
     """
     Attach a webhook to the Git provider of the project's repository.
 
@@ -206,11 +205,9 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
     :param integration: Integration instance. If used, this function should
      be called directly, not as a task.
     """
-    # TODO: user should be required in the next release.
-    # Only kept for backwards compatibility during deploy.
-    user = None
-    if user_pk:
-        user = User.objects.filter(pk=user_pk).first()
+    user = User.objects.filter(pk=user_pk).first()
+    if not user:
+        return False
 
     project = Project.objects.filter(pk=project_pk).first()
     if not project:
@@ -242,11 +239,7 @@ def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
         )
         return False
 
-    if user:
-        services = list(service_class.for_user(user))
-    else:
-        services = list(service_class.for_project(project))
-
+    services = list(service_class.for_user(user))
     if not services:
         Notification.objects.add(
             message_id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
