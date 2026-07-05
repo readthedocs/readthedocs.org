@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.13.0
+anyio==4.14.0
     # via
     #   starlette
     #   watchfiles
@@ -14,7 +14,7 @@ babel==2.18.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   requests
     #   sphinx-prompt

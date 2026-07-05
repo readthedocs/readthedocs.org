@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-anyio==4.13.0
+anyio==4.14.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.29
+boto3==1.43.34
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.29
+botocore==1.43.34
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -47,7 +47,7 @@ celery==5.6.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -149,7 +149,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.8
     # via -r requirements/pip.txt
-django-debug-toolbar==6.3.0
+django-debug-toolbar==7.0.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
@@ -202,7 +202,7 @@ drf-extensions==0.8.0
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==9.4.1
+elastic-transport==9.4.2
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -414,7 +414,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 rich==15.0.0
     # via -r requirements/docker.in
-s3transfer==0.18.0
+s3transfer==0.19.0
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -488,7 +488,7 @@ tzdata==2026.2
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   kombu
-tzlocal==5.3.1
+tzlocal==5.4.3
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -516,7 +516,7 @@ urllib3==2.7.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.11.21
+uv==0.11.23
     # via tox-uv
 vine==5.1.0
     # via
@@ -524,7 +524,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.5.0
+virtualenv==21.5.1
     # via
     #   -r requirements/pip.txt
     #   tox
