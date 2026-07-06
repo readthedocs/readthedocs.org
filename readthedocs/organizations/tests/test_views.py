@@ -194,6 +194,28 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertFalse(Team.objects.filter(pk=self.team.pk).exists())
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
 
+    def test_delete_blocked_for_banned_owner(self):
+        self.owner.profile.banned = True
+        self.owner.profile.save()
+
+        resp = self.client.post(
+            reverse("organization_delete", args=[self.organization.slug])
+        )
+
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
+
+    @override_settings(RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD=1)
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score", return_value=2)
+    def test_delete_blocked_for_spam_project_score(self, get_spam_score):
+        resp = self.client.post(
+            reverse("organization_delete", args=[self.organization.slug])
+        )
+
+        assert resp.status_code == 410
+        assert Organization.objects.filter(pk=self.organization.pk).exists()
+        get_spam_score.assert_called_once_with(self.project)
+
     def test_add_owner(self):
         url = reverse("organization_owner_add", args=[self.organization.slug])
         user = get(User, username="test-user", email="test-user@example.com")
@@ -244,6 +266,37 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(invitation.to_user, user_b)
         self.assertEqual(invitation.to_email, None)
         self.assertNotIn(user_b, self.organization.owners.all())
+
+    def test_add_owner_with_username_matching_other_user_email(self):
+        squatter = get(
+            User, username="victim@example.com", email="squatter@example.com"
+        )
+        squatter.emailaddress_set.create(email=squatter.email, verified=True)
+        victim = get(User, username="victim", email="victim@example.com")
+        victim.emailaddress_set.create(email=victim.email, verified=True)
+
+        url = reverse("organization_owner_add", args=[self.organization.slug])
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 302
+
+        invitation = Invitation.objects.for_object(self.organization).get()
+        assert invitation.to_user == victim
+        assert invitation.to_email is None
+
+    def test_add_owner_with_username_matching_unverified_email(self):
+        url = reverse("organization_owner_add", args=[self.organization.slug])
+        get(User, username="victim@example.com", email="squatter@example.com")
+
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "does not exist" in form.errors["username_or_email"][0]
+        assert not Invitation.objects.for_object(self.organization).exists()
 
 
 @override_settings(

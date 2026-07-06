@@ -242,27 +242,34 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    version_slugs = added_versions.union(deleted_active_versions)
-    versions = project.versions.filter(slug__in=version_slugs)
-    rules = project.automation_rules.filter(
-        enabled=True,
-        action__in=AutomationRule.VERSION_ACTIONS,
-    ).order_by("priority")
-    log.info(
-        "Running version automation rules.",
-        project_slug=project.slug,
-        version_slugs=version_slugs,
-    )
-    for version, rule in itertools.product(versions, rules):
-        if rule.match_version(version):
-            log.info(
-                "Automation rule matched.",
-                project_slug=project.slug,
-                rule_id=rule.pk,
-                rule_version_types=rule.version_types,
-                version_type=version.type,
-            )
-            rule.run(version)
+    actions = [
+        (added_versions, AutomationRule.VERSION_ADDED_ACTIONS),
+        (deleted_active_versions, AutomationRule.VERSION_DELETED_ACTIONS),
+    ]
+    for version_slugs, allowed_actions in actions:
+        if not version_slugs:
+            continue
+
+        versions = project.versions.filter(slug__in=version_slugs)
+        rules = project.automation_rules.filter(
+            enabled=True,
+            action__in=allowed_actions,
+        ).order_by("priority")
+        log.info(
+            "Running version automation rules.",
+            project_slug=project.slug,
+            version_slugs=version_slugs,
+        )
+        for version, rule in itertools.product(versions, rules):
+            if rule.match_version(version):
+                log.info(
+                    "Automation rule matched.",
+                    project_slug=project.slug,
+                    rule_id=rule.pk,
+                    rule_version_types=rule.version_types,
+                    version_type=version.type,
+                )
+                rule.run(version)
 
 
 def normalize_build_command(command, project_slug, version_slug):

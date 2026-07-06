@@ -1342,6 +1342,96 @@ class TestAddonsConfigForm(TestCase):
         )
 
 
+class TestAddonsConfigFormOptionsBaseVersion(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        # DDF creates a single initial version; normalize to a known set.
+        self.project.versions.all().delete()
+        self.internal_v1 = get(
+            Version, project=self.project, slug="v1", verbose_name="v1", type=BRANCH
+        )
+        self.internal_stable = get(
+            Version,
+            project=self.project,
+            slug="stable",
+            verbose_name="stable",
+            type=TAG,
+        )
+        self.external_pr = get(
+            Version,
+            project=self.project,
+            slug="123",
+            verbose_name="123",
+            type=EXTERNAL,
+        )
+        self.other_project_version = get(Version, slug="v1", type=BRANCH)
+
+    def _base_data(self, **overrides):
+        data = {
+            "enabled": True,
+            "options_root_selector": "main",
+            "analytics_enabled": False,
+            "doc_diff_enabled": False,
+            "filetreediff_enabled": True,
+            "filetreediff_ignored_files": "",
+            "flyout_enabled": True,
+            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
+            "flyout_sorting_latest_stable_at_beginning": True,
+            "flyout_sorting_custom_pattern": None,
+            "flyout_position": "bottom-left",
+            "hotkeys_enabled": False,
+            "search_enabled": False,
+            "linkpreviews_enabled": False,
+            "notifications_enabled": True,
+            "notifications_show_on_latest": True,
+            "notifications_show_on_non_stable": True,
+            "notifications_show_on_external": True,
+        }
+        data.update(overrides)
+        return data
+
+    def test_queryset_only_includes_project_internal_versions(self):
+        form = AddonsConfigForm(project=self.project)
+        queryset = form.fields["options_base_version"].queryset
+        assert set(queryset) == {self.internal_v1, self.internal_stable}
+
+    def test_selecting_internal_version_saves(self):
+        form = AddonsConfigForm(
+            data=self._base_data(options_base_version=self.internal_v1.pk),
+            project=self.project,
+        )
+        assert form.is_valid(), form.errors
+        form.save()
+        self.project.addons.refresh_from_db()
+        assert self.project.addons.options_base_version == self.internal_v1
+
+    def test_selecting_external_version_rejected(self):
+        form = AddonsConfigForm(
+            data=self._base_data(options_base_version=self.external_pr.pk),
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "options_base_version" in form.errors
+
+    def test_selecting_other_project_version_rejected(self):
+        form = AddonsConfigForm(
+            data=self._base_data(options_base_version=self.other_project_version.pk),
+            project=self.project,
+        )
+        assert not form.is_valid()
+        assert "options_base_version" in form.errors
+
+    def test_blank_selection_allowed(self):
+        form = AddonsConfigForm(
+            data=self._base_data(options_base_version=""),
+            project=self.project,
+        )
+        assert form.is_valid(), form.errors
+        form.save()
+        self.project.addons.refresh_from_db()
+        assert self.project.addons.options_base_version is None
+
+
 class TestProjectPullRequestForm(TestCase):
     def setUp(self):
         self.project = get(Project, external_builds_enabled=False)

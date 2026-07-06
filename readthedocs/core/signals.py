@@ -4,6 +4,7 @@ import requests
 import structlog
 from allauth.account.signals import email_confirmed
 from django.conf import settings
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal
 from django.dispatch import receiver
@@ -76,6 +77,13 @@ def process_email_confirmed(request, email_address, **kwargs):
             log.warning("Timeout subscribing user to newsletter.")
         except Exception:  # noqa
             log.exception("Unknown error subscribing user to newsletter.")
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create a :py:class:`UserProfile` automatically when a user is created."""
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)

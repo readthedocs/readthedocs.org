@@ -17,6 +17,11 @@ See `Limitations`_ for more information.
    Pull requests opened before enabling pull request builds will not trigger new builds automatically.
    Push a new commit to the pull request to trigger its first build.
 
+.. note::
+
+   The previous method of pull request previews using a GitHub workflow that called `@readthedocs/actions <https://github.com/readthedocs/actions/>`__ is now deprecated.
+   If you used that method, you should remove its configuration.
+
 Privacy levels
 --------------
 

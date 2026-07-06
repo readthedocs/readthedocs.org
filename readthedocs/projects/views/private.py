@@ -29,9 +29,7 @@ from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
@@ -48,7 +46,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
-from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
@@ -118,14 +115,12 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
 
         # We can't yet back down to another announcement as we don't have
         # the ability to evaluate local storage. Until we add the ability to
-        # dynamically change the announcement, this is going to be the only
-        # announcement shown.
+        # dynamically change the announcement, the first matching branch
+        # below is the only announcement a user will see.
         if n_projects == 0 or (
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects:
-            template_name = "github-app.html"
         elif n_projects and not projects.filter(external_builds_enabled=True).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
@@ -963,6 +958,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
+                user_pk=self.request.user.pk,
                 integration=self.object,
             )
         return HttpResponseRedirect(self.get_success_url())
@@ -1025,14 +1021,22 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
+        integration = None
         if "integration_pk" in kwargs:
             integration = self.get_integration()
-            update_webhook(self.get_project(), integration, request=request)
-        else:
-            # This is a brute force form of the webhook sync, if a project has a
-            # webhook or a remote repository object, the user should be using
-            # the per-integration sync instead.
-            attach_webhook(project_pk=self.get_project().pk)
+            # TODO: remove after integrations without a secret are removed.
+            if not integration.secret:
+                integration.save()
+
+        # If no integration is provided, we try to guess the integration, or create a new one.
+        success = attach_webhook(
+            project_pk=self.get_project().pk,
+            user_pk=request.user.pk,
+            integration=integration,
+        )
+        if success:
+            messages.success(request, _("Webhook activated"))
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -1120,30 +1124,15 @@ class AutomationRuleDelete(AutomationRuleMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
 
 
-class RegexAutomationRuleMixin(AutomationRuleMixin):
-    model = RegexAutomationRule
-    form_class = RegexAutomationRuleForm
-
-
-class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
-    success_message = _("Automation rule created")
-
-
-class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
-    success_message = _("Automation rule updated")
-
-
-class AutomationRuleMixin(AutomationRuleMixin):
-    model = AutomationRule
+class AutomationRuleEditMixin(AutomationRuleMixin):
     form_class = AutomationRuleForm
-    lookup_url_kwarg = "automation_rule_pk"
 
 
-class AutomationRuleCreate(AutomationRuleMixin, CreateView):
+class AutomationRuleCreate(AutomationRuleEditMixin, CreateView):
     success_message = _("Automation rule created")
 
 
-class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
+class AutomationRuleUpdate(AutomationRuleEditMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 

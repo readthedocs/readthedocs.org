@@ -426,6 +426,42 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_get_env_vars_using_uv(self, load_yaml_config, build_environment):
+        config = {
+            "version": 2,
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3.10",
+                },
+            },
+            "python": {
+                "install": [
+                    {
+                        "method": "uv",
+                        "command": "sync",
+                    },
+                ],
+            },
+        }
+        load_yaml_config.return_value = get_build_config(config, validate=True)
+
+        self._trigger_update_docs_task()
+
+        build_env_vars = build_environment.call_args_list[1][1]["environment"]
+
+        venv_path = os.path.join(
+            self.project.doc_path,
+            "envs",
+            self.version.slug,
+        )
+        # `READTHEDOCS_VIRTUALENV_PATH` must be defined even when building with `uv`,
+        # and it must match `UV_PROJECT_ENVIRONMENT`.
+        assert build_env_vars["READTHEDOCS_VIRTUALENV_PATH"] == venv_path
+        assert build_env_vars["UV_PROJECT_ENVIRONMENT"] == venv_path
+
     @override_settings(
         DOCROOT="/tmp/readthedocs-tests/git-repository/",
         RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
@@ -600,7 +636,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.14.0",
+                            "full_version": "3.14.6",
                             "version": "3",
                         }
                     },
@@ -1750,7 +1786,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -1802,7 +1838,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.7"},
                     "jobs": {
                         "post_checkout": ["git fetch --unshallow"],
@@ -2175,7 +2211,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -2488,7 +2524,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "mambaforge-4.10",
                     },

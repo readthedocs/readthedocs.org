@@ -444,7 +444,7 @@ class Project(models.Model):
     )
     show_build_overview_in_comment = models.BooleanField(
         _("Show build overview in a comment"),
-        db_default=False,
+        db_default=True,
         help_text=_(
             "Show an overview of the build and files changed in a comment when a pull request is built."
         ),
@@ -700,6 +700,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -727,6 +729,10 @@ class Project(models.Model):
 
         super().save(*args, **kwargs)
         self.update_latest_version()
+
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
 
     def delete(self, *args, **kwargs):
         from readthedocs.builds.tasks import remove_build_commands_storage_paths
@@ -2085,6 +2091,8 @@ class Feature(models.Model):
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
+    USE_GVISOR_RUNTIME = "use_gvisor_runtime"
+    TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
 
     FEATURES = (
         (
@@ -2149,6 +2157,14 @@ class Feature(models.Model):
         (
             BUILD_IN_PARALLEL,
             _("Build: Enable parallel building."),
+        ),
+        (
+            USE_GVISOR_RUNTIME,
+            _("Build: Run build containers under the gVisor (runsc) runtime."),
+        ),
+        (
+            TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            _("Build: Terminate instance on build finish."),
         ),
     )
 
@@ -2262,14 +2278,14 @@ class AutomationRule(TimeStampedModel):
         (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
     )
 
-    VERSION_ACTIONS = (
+    VERSION_ADDED_ACTIONS = (
         ACTIVATE_VERSION_ACTION,
         HIDE_VERSION_ACTION,
         MAKE_VERSION_PUBLIC_ACTION,
         MAKE_VERSION_PRIVATE_ACTION,
         SET_DEFAULT_VERSION_ACTION,
-        DELETE_VERSION_ACTION,
     )
+    VERSION_DELETED_ACTIONS = (DELETE_VERSION_ACTION,)
 
     BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
 
@@ -2595,11 +2611,13 @@ class AutomationRule(TimeStampedModel):
                 return False
         return True
 
-    def run(self, version):
+    def run(self, version, *args, **kwargs):
         """
         Run the rule.
 
         :param version: Version instance to check and act upon
+        :param args: Additional positional arguments to pass to the action function
+        :param kwargs: Additional keyword arguments to pass to the action function
         :return: True if the action was performed, False otherwise
         """
         # Avoid circular imports
@@ -2617,7 +2635,7 @@ class AutomationRule(TimeStampedModel):
 
         action_func = actions_map.get(self.action)
         if action_func:
-            action_func(version)
+            action_func(version, *args, **kwargs)
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 

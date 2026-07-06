@@ -37,7 +37,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
 
 commands:
   setup-checkout:
@@ -85,7 +85,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -115,7 +116,7 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
         name: search
         environment:
@@ -123,6 +124,7 @@ jobs:
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
           xpack.security.transport.ssl.enabled: 'false'
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -151,7 +153,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.12'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
