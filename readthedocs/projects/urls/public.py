@@ -22,8 +22,8 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="projects_dashboard", permanent=True),
         name="projects_dashboard_redirect",
     ),
-    re_path(
-        r"^tags/(?P<tag>[-\w]+)/$",
+    path(
+        "tags/<slug:tag>/",
         ProjectTagIndex.as_view(),
         name="projects_tag_detail",
     ),
@@ -34,13 +34,13 @@ urlpatterns = [
         public.project_redirect,
         name="project_redirect",
     ),
-    re_path(
-        r"^(?P<project_slug>{project_slug})/$".format(**pattern_opts),
+    path(
+        "<slug:project_slug>/",
         ProjectDetailView.as_view(),
         name="projects_detail",
     ),
-    re_path(
-        r"^(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts),
+    path(
+        "<slug:project_slug>/downloads/",
         RedirectView.as_view(pattern_name="projects_detail", permanent=False),
         name="projects_downloads",
     ),
@@ -56,28 +56,28 @@ urlpatterns = [
         public.ProjectDownloadMedia.as_view(),
         name="project_download_media",
     ),
-    re_path(
-        r"^(?P<project_slug>{project_slug})/badge/$".format(**pattern_opts),
+    path(
+        "<slug:project_slug>/badge/",
         public.project_badge,
         name="project_badge",
     ),
-    re_path(
-        r"^(?P<project_slug>{project_slug})/search/$".format(**pattern_opts),
+    path(
+        "<slug:project_slug>/search/",
         ProjectSearchView.as_view(),
         name="elastic_project_search",
     ),
-    re_path(
-        (r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(**pattern_opts)),
+    path(
+        "<slug:project_slug>/builds/<int:build_pk>/",
         build_views.BuildDetail.as_view(),
         name="builds_detail",
     ),
-    re_path(
-        (r"^(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
+    path(
+        "<slug:project_slug>/builds/",
         build_views.BuildList.as_view(),
         name="builds_project_list",
     ),
-    re_path(
-        r"^(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
+    path(
+        "<slug:project_slug>/versions/",
         project_versions_list,
         name="project_version_list",
     ),

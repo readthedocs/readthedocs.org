@@ -6,7 +6,7 @@ from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get, new
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
@@ -21,7 +21,7 @@ from readthedocs.projects.models import (
     WebHook,
     WebHookEvent,
 )
-from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.mixins import ProjectImportMixin, ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
@@ -372,7 +372,7 @@ class TestPublicViews(TestCase):
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
 class TestPrivateViews(TestCase):
     def setUp(self):
-        self.user = new(User, username="eric")
+        self.user = get(User, username="eric")
         self.user.set_password("test")
         self.user.save()
         self.client.login(username="eric", password="test")
@@ -402,7 +402,7 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(28):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
@@ -468,6 +468,7 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
+            user_pk=self.user.pk,
             integration=integration.first(),
         )
 
@@ -486,9 +487,8 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
 
-    def test_integration_webhooks_sync_no_remote_repository(self):
-        self.project.has_valid_webhook = True
-        self.project.save()
+    @mock.patch("readthedocs.projects.views.private.attach_webhook")
+    def test_integration_webhooks_sync_with_integration(self, attach_webhook):
         integration = get(
             GitHubWebhook,
             project=self.project,
@@ -503,10 +503,33 @@ class TestPrivateViews(TestCase):
                 },
             ),
         )
-        self.project.refresh_from_db()
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(self.project.has_valid_webhook)
+        # The webhook is attached using the requesting user's accounts.
+        attach_webhook.assert_called_once_with(
+            project_pk=self.project.pk,
+            user_pk=self.user.pk,
+            integration=integration,
+        )
+
+    @mock.patch("readthedocs.projects.views.private.attach_webhook")
+    def test_integration_webhooks_sync_without_integration(self, attach_webhook):
+        response = self.client.post(
+            reverse(
+                "projects_integrations_webhooks_sync",
+                kwargs={
+                    "project_slug": self.project.slug,
+                },
+            ),
+        )
+
+        self.assertEqual(response.status_code, 302)
+        # The webhook is attached using the requesting user's accounts.
+        attach_webhook.assert_called_once_with(
+            project_pk=self.project.pk,
+            user_pk=self.user.pk,
+            integration=None,
+        )
 
     def test_remove_user(self):
         user = get(User, username="test")

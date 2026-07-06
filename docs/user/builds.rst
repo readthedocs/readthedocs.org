@@ -159,5 +159,5 @@ Our build limits are:
       Send an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
 
       If your business is hitting build limits hosting documentation on Read the Docs,
-      please consider :doc:`Read the Docs for Business </commercial/index>`
+      please consider :doc:`Read the Docs Business </commercial/index>`
       which has options for additional build resources.

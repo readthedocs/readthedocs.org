@@ -26,7 +26,8 @@ from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
-from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
 from readthedocs.oauth.services import GitHubAppService
@@ -188,48 +189,64 @@ def sync_active_users_remote_repositories(self):
                 log.exception("There was a problem re-syncing RemoteRepository.")
 
 
-# TODO: remove user_pk from the signature on the next release.
+# TODO: Make user_pk is always required on next release.
 @app.task(queue="web")
 def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
     """
-    Add post-commit hook on project import.
+    Attach a webhook to the Git provider of the project's repository.
 
-    This is a brute force approach to add a webhook to a repository. We try
-    all accounts until we set up a webhook. This should remain around for legacy
-    connections -- that is, projects that do not have a remote repository them
-    and were not set up with a VCS provider.
+    The user making the request needs to have access to the repository
+    to be able to attach the webhook, otherwise it will fail. We don't
+    brute force with all the users that have access to project, since
+    a user from the same project could attach a webhook to a repository
+    that they don't have access to.
 
     :param project_pk: Project primary key
+    :param user_pk: The user making the request.
     :param integration: Integration instance. If used, this function should
      be called directly, not as a task.
     """
+    # TODO: user should be required in the next release.
+    # Only kept for backwards compatibility during deploy.
+    user = None
+    if user_pk:
+        user = User.objects.filter(pk=user_pk).first()
+
     project = Project.objects.filter(pk=project_pk).first()
     if not project:
         return False
 
-    if integration:
-        service_class = SERVICE_MAP.get(integration.integration_type)
-    else:
-        # Get the service class for the project e.g: GitHubService.
-        # We fallback to guess the service from the repo,
-        # in the future we should only consider projects that have a remote repository.
-        service_class = project.get_git_service_class(fallback_to_clone_url=True)
+    if project.is_github_app_project:
+        return True
 
+    # Get the service class for the project e.g: GitHubService.
+    # We fallback to guess the service from the repo,
+    # in the future we should only consider projects that have a remote repository.
+    service_class = project.get_git_service_class(fallback_to_clone_url=True)
     if not service_class:
         Notification.objects.add(
-            message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
+            message_id=MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER,
             attached_to=project,
             dismissable=True,
-            format_values={
-                "url_integrations": reverse(
-                    "projects_integrations",
-                    args=[project.slug],
-                ),
-            },
         )
         return False
 
-    services = list(service_class.for_project(project))
+    if integration and SERVICE_MAP.get(integration.integration_type) != service_class:
+        # The user is trying to attach an integration to a project
+        # that is not compatible with that integration
+        # (e.g: trying to attach a GitHub integration to a GitLab project).
+        Notification.objects.add(
+            message_id=MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH,
+            attached_to=project,
+            dismissable=True,
+        )
+        return False
+
+    if user:
+        services = list(service_class.for_user(user))
+    else:
+        services = list(service_class.for_project(project))
+
     if not services:
         Notification.objects.add(
             message_id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
@@ -579,22 +596,25 @@ class GitHubAppWebhookHandler:
             # If none one matches, it finishes here.
             # However, if there are no webhook automation rules configured,
             # we continue with the build as usual.
-            webhook_rules = project.automation_rules.filter(
-                enabled=True,
-                action__in=AutomationRule.BUILD_ACTIONS,
-                # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                # We are using `rule.match_version` below to check this instead.
-                # version_types__contains=version_type,
-            )
-            if webhook_rules.exists():
+            webhook_rules = [
+                rule
+                for rule in project.automation_rules.filter(
+                    enabled=True,
+                    action__in=AutomationRule.BUILD_ACTIONS,
+                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                    # We are using `rule.match_version` below to check this instead.
+                    # version_types__contains=version_type,
+                )
+                if version_type in rule.version_types
+            ]
+            if webhook_rules:
                 changed_files = self._get_changed_files_from_push_event()
                 commit_message = self.data["head_commit"]["message"]
                 labels = []  # We don't have labels in push events, so we leave it empty.
 
                 rule_triggered_for_project = False
                 for version in project.versions_from_name(version_name, version_type):
-                    rule_triggered_for_version = False
-                    for rule in webhook_rules.iterator():
+                    for rule in webhook_rules:
                         if rule.match_version(version=version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
@@ -610,12 +630,10 @@ class GitHubAppWebhookHandler:
                                 version_type=version_type,
                             )
                             rule_triggered_for_project = True
-                            rule_triggered_for_version = True
                             rule.run(version)
 
-                        # We only trigger the first matching rule per version
-                        # to avoid triggering multiple builds for the same tag/branches.
-                        if rule_triggered_for_version:
+                            # We only trigger the first matching rule per version
+                            # to avoid triggering multiple builds for the same tag/branches.
                             break
 
                 if not rule_triggered_for_project:
@@ -659,14 +677,18 @@ class GitHubAppWebhookHandler:
                 # If none one matches, it finishes here.
                 # However, if there are no webhook automation rules configured,
                 # we continue with the build as usual.
-                webhook_rules = project.automation_rules.filter(
-                    enabled=True,
-                    action__in=AutomationRule.BUILD_ACTIONS,
-                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
-                    # We are using `rule.match_version` below to check this instead.
-                    # version_types__contains=EXTERNAL,
-                )
-                if webhook_rules.exists():
+                webhook_rules = [
+                    rule
+                    for rule in project.automation_rules.filter(
+                        enabled=True,
+                        action__in=AutomationRule.BUILD_ACTIONS,
+                        # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                        # We are using `rule.match_version` below to check this instead.
+                        # version_types__contains=EXTERNAL,
+                    )
+                    if EXTERNAL in rule.version_types
+                ]
+                if webhook_rules:
                     rule_triggered = False
                     changed_files = self._get_changed_files_from_pull_request_event(
                         project,
@@ -675,7 +697,7 @@ class GitHubAppWebhookHandler:
                     commit_message = self._get_commit_message_from_pull_request_event(project)
                     labels = self._get_labels_from_pull_request_event()
 
-                    for rule in webhook_rules.iterator():
+                    for rule in webhook_rules:
                         if rule.match_version(version=external_version) and rule.match_webhook(
                             changed_files=changed_files,
                             commit_message=commit_message,
@@ -690,7 +712,7 @@ class GitHubAppWebhookHandler:
                                 version_type=EXTERNAL,
                             )
                             rule_triggered = True
-                            rule.run(external_version)
+                            rule.run(external_version, commit=external_version.identifier)
 
                             # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
                             break

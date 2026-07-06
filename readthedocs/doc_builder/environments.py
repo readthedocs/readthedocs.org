@@ -638,9 +638,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # Override the ``container_image`` if we pass it via argument.
         #
         # FIXME: This is a temporal fix while we explore how to make
-        # ``ubuntu-20.04`` the default build image without breaking lot of
+        # ``ubuntu-22.04`` the default build image without breaking lot of
         # builds. For now, we are passing
-        # ``container_image='readthedocs/build:ubuntu-20.04'`` for the setup
+        # ``container_image='readthedocs/build:ubuntu-22.04'`` for the setup
         # VCS step.
         if container_image:
             self.container_image = container_image
@@ -803,9 +803,13 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         The object returned is passed to Docker function
         ``client.create_container``.
         """
+        runtime = None
+        if self.project.has_feature(Feature.USE_GVISOR_RUNTIME):
+            runtime = "runsc"
         return self.get_client().create_host_config(
             binds=self._get_binds(),
             mem_limit=self.container_mem_limit,
+            runtime=runtime,
         )
 
     @property
@@ -885,7 +889,11 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
-                runtime="runsc",  # gVisor runtime
+                # No-op: docker-py serializes this kwarg to a top-level
+                # `Runtime` field, which the Engine ignores. The runtime is
+                # actually applied via `HostConfig.Runtime` set in
+                # `get_container_host_config` (gated on USE_GVISOR_RUNTIME).
+                runtime="runsc",
                 networking_config=networking_config,
             )
             client.start(container=self.container_id)

@@ -29,6 +29,8 @@ create either a tag or branch in your project with that name.
 .. note::
    If you have at least one tag,
    tags will take preference over branches when selecting the stable version.
+   The comparison uses the tag or branch name from your Git repository,
+   not the version slug shown in URLs.
 
 When you have :doc:`/reference/git-integration` configured for your repository,
 we will automatically build each version when you push a commit.

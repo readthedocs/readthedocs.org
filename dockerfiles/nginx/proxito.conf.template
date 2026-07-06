@@ -52,6 +52,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Host $host;
 
+        # Don't pass the Cookie header to the storage backend.
+        # Real S3 rejects requests whose header section exceeds 8192 bytes with a
+        # `RequestHeaderSectionTooLarge` error, and a large enough cookie triggers
+        # it. The storage backend doesn't need the cookie anyway. This mirrors the
+        # production config in the readthedocs-ops repo.
+        proxy_set_header Cookie "";
+
         proxy_intercept_errors on;
         error_page 404 = @notfoundfallback;
 
