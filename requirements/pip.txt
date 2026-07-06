@@ -75,7 +75,6 @@ django==5.2.15
     #   -r requirements/pip.in
     #   dj-stripe
     #   django-allauth
-    #   django-annoying
     #   django-celery-beat
     #   django-cors-headers
     #   django-csp
@@ -93,8 +92,6 @@ django==5.2.15
     #   drf-extensions
     #   jsonfield
 django-allauth[mfa,saml,socialaccount]==65.17.0
-    # via -r requirements/pip.in
-django-annoying==0.10.8
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
@@ -285,7 +282,6 @@ selectolax==0.4.10
     # via -r requirements/pip.in
 six==1.17.0
     # via
-    #   django-annoying
     #   django-elasticsearch-dsl
     #   python-dateutil
     #   unicode-slugify
