@@ -312,7 +312,6 @@ To keep going:
 
 - Compare what the agent did with the manual :doc:`Docusaurus tutorial </tutorial/docusaurus>`
   so you understand the pieces it touched.
-- Read the :doc:`API v3 reference </api/v3>` to see what else the agent can automate.
 - Skim :doc:`/intro/doctools` if you want to try the same pattern with a different
   documentation generator.
 - Browse :doc:`/guides/index` for deeper how-to guides on specific features.
