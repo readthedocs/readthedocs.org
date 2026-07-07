@@ -71,60 +71,7 @@ Create an empty folder, open your AI agent inside it, and send this prompt:
       and push.
 
 The agent runs the scaffold, writes the configuration files, and pushes the repository.
-When it finishes, you will have a working Docusaurus project on GitHub and a
-``.readthedocs.yaml`` like this:
-
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
-
-   version: 2
-
-   build:
-     os: "ubuntu-22.04"
-     tools:
-       nodejs: "22"
-     jobs:
-       install:
-         - cd docs/ && npm install
-       build:
-         html:
-           - cd docs/ && npm run build
-           - mkdir --parents $READTHEDOCS_OUTPUT/html/
-           - cp --recursive docs/build/* $READTHEDOCS_OUTPUT/html/
-
-It will also update ``docs/docusaurus.config.js`` so the site loads correctly
-under the version path Read the Docs serves it from (for example ``/en/latest/``)
-and sets the :doc:`canonical URL </canonical-urls>`:
-
-.. code-block:: js
-   :caption: docs/docusaurus.config.js
-
-   // Derive `url` and `baseUrl` from the canonical URL Read the Docs provides.
-   // Together they define the canonical URL of the site.
-   const canonical = process.env.READTHEDOCS_CANONICAL_URL;
-   const { origin, pathname } = canonical
-     ? new URL(canonical)
-     : { origin: "http://localhost:3000", pathname: "/" };
-
-   const config = {
-     // Required for compatibility with Read the Docs
-     trailingSlash: true,
-     url: origin,
-     baseUrl: pathname,
-
-     // ... the rest of your Docusaurus configuration
-   };
-
-   export default config;
-
-.. note::
-
-   If you skip this step, the published site fails to load with an error like
-   ``A very common reason is a wrong site baseUrl configuration``. Read the Docs
-   serves each version under a path such as ``/en/latest/``, so Docusaurus needs
-   a matching ``baseUrl``. Deriving ``url`` and ``baseUrl`` from
-   ``READTHEDOCS_CANONICAL_URL`` also sets the site's canonical URL. See
-   :doc:`/intro/docusaurus` for background.
+When it finishes, you will have a working Docusaurus project on GitHub.
 
 .. tip::
 
