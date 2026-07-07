@@ -157,7 +157,7 @@ Now send this prompt to the same agent:
    before continuing.
 
    Then ask me to create a Read the Docs API token at
-   https://app.readthedocs.org/accounts/tokens/create/ and paste it.
+   https://app.readthedocs.org/accounts/tokens/ and paste it.
    Use that token with the Read the Docs API v3
    (https://docs.readthedocs.com/platform/stable/api/v3.html) to:
 
