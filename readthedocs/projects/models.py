@@ -2611,11 +2611,13 @@ class AutomationRule(TimeStampedModel):
                 return False
         return True
 
-    def run(self, version):
+    def run(self, version, *args, **kwargs):
         """
         Run the rule.
 
         :param version: Version instance to check and act upon
+        :param args: Additional positional arguments to pass to the action function
+        :param kwargs: Additional keyword arguments to pass to the action function
         :return: True if the action was performed, False otherwise
         """
         # Avoid circular imports
@@ -2633,7 +2635,7 @@ class AutomationRule(TimeStampedModel):
 
         action_func = actions_map.get(self.action)
         if action_func:
-            action_func(version)
+            action_func(version, *args, **kwargs)
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 

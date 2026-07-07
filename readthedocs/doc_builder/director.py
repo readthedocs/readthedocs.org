@@ -836,37 +836,32 @@ class BuildDirector:
                 }
             )
 
+        # UV_PROJECT_ENVIRONMENT and READTHEDOCS_VIRTUALENV_PATH are the same
+        venv_path = os.path.join(
+            self.data.project.doc_path,
+            "envs",
+            self.data.version.slug,
+        )
         if self.data.config.is_using_uv:
             try:
                 UV_PROJECT = self.data.config.python.install[0].path
-            except (AttributeError, IndexError):
+            except AttributeError, IndexError:
                 UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
+
             env.update(
                 {
                     # UV_PYTHON is set in `install_build_tools` once we have Python installed,
                     # here I'm setting just an empty string.
                     "UV_PYTHON": "",
                     "UV_PROJECT": UV_PROJECT,
-                    # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
-                    "UV_PROJECT_ENVIRONMENT": os.path.join(
-                        self.data.project.doc_path,
-                        "envs",
-                        self.data.version.slug,
-                    ),
-                }
-            )
-        else:
-            env.update(
-                {
-                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
-                        self.data.project.doc_path, "envs", self.data.version.slug
-                    ),
+                    "UV_PROJECT_ENVIRONMENT": venv_path,
                 }
             )
 
         env.update(
             {
                 "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
+                "READTHEDOCS_VIRTUALENV_PATH": venv_path,
             }
         )
 

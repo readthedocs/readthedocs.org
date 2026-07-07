@@ -98,7 +98,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     commit=last_build.commit,
                     status=status,
                 )
-        except (TokenExpiredError, InvalidGrantError):
+        except TokenExpiredError, InvalidGrantError:
             log.info("Failed to send status due to expired/invalid token.")
         except Exception:
             log.exception(
