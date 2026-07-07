@@ -599,7 +599,11 @@ class BuildDirector:
                 with tarfile.open(fileobj=remote_fd) as tar:
                     # Extract it on the shared path between host and Docker container
                     extract_path = os.path.join(self.data.project.doc_path, "tools")
-                    tar.extractall(extract_path)
+
+                    # NOTE: we are using `filter="fully_trusted"` to avoid the following error:
+                    # AbsoluteLink: 'miniforge3-25.11.0-1/_conda' is a link to an absolute path
+                    # We should find a better solution.
+                    tar.extractall(extract_path, filter="fully_trusted")
 
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
