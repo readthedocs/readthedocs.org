@@ -193,47 +193,6 @@ come back, and confirm when you're done so it can continue.
    Paste it only into a local AI agent you trust. Tokens can be revoked any
    time at https://app.readthedocs.org/accounts/tokens/ if you suspect a leak.
 
-What happens during this step
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Behind the scenes, the agent calls these endpoints
-(all documented under :doc:`API v3 </api/v3>`):
-
-- ``POST /api/v3/projects/`` — creates the project linked to your GitHub repository.
-- ``PATCH /api/v3/projects/{slug}/`` — turns on pull request builds and sets the description and tags.
-- ``POST /api/v3/projects/{slug}/versions/latest/builds/`` — triggers the first build.
-- ``GET /api/v3/projects/{slug}/builds/{id}/`` — polls until the build finishes.
-
-If anything fails (for example the GitHub App is not installed,
-or the repository is not visible to your Read the Docs account),
-the API returns an explanatory error and the agent surfaces it back to you.
-
-.. warning:: Pull request builds require a *connected* repository
-
-   Read the Docs only builds pull request previews and posts the build status on
-   the pull request when the project is **connected to the repository through the
-   GitHub App** — not when it was created with a manually typed repository URL.
-
-   The project is linked to the connected repository automatically at creation
-   time, but only when the GitHub App is already installed and the repository
-   URL you pass matches the connected repository exactly. If the project was
-   created before the GitHub App finished importing the repository, or with a
-   ``.git`` suffix or a different URL, it stays *manually connected* and pull
-   request builds will not run.
-
-   To fix a project that is already in this state:
-
-   #. Install the `Read the Docs Community GitHub App
-      <https://github.com/apps/read-the-docs-community>`_ for the repository and
-      wait for it to appear under https://app.readthedocs.org/dashboard/import/.
-   #. Open ``https://app.readthedocs.org/dashboard/{slug}/edit/`` and set the
-      **Connected repository** field to your GitHub repository, then save.
-   #. Make sure **pull request builds** are enabled at
-      ``https://app.readthedocs.org/dashboard/{slug}/pull-requests/``.
-
-   A ``PATCH`` to the API cannot connect a repository after the fact — this is a
-   dashboard-only step.
-
 Step 3: Verify the result
 -------------------------
 
