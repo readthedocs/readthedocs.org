@@ -104,7 +104,7 @@ Now send this prompt to the same agent:
    before continuing.
 
    Then ask me to create a Read the Docs API token at
-   https://app.readthedocs.org/accounts/tokens/create/ and paste it.
+   https://app.readthedocs.org/accounts/tokens/ and paste it.
    Use that token with the Read the Docs API v3
    (https://docs.readthedocs.com/platform/stable/api/v3.html) to:
 
@@ -218,7 +218,6 @@ To keep going:
 
 - Compare what the agent did with the manual :doc:`Docusaurus tutorial </tutorial/docusaurus>`
   so you understand the pieces it touched.
-- Read the :doc:`API v3 reference </api/v3>` to see what else the agent can automate.
 - Skim :doc:`/intro/doctools` if you want to try the same pattern with a different
   documentation generator.
 - Browse :doc:`/guides/index` for deeper how-to guides on specific features.
