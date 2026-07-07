@@ -845,7 +845,7 @@ class BuildDirector:
         if self.data.config.is_using_uv:
             try:
                 UV_PROJECT = self.data.config.python.install[0].path
-            except (AttributeError, IndexError):
+            except AttributeError, IndexError:
                 UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
 
             env.update(
