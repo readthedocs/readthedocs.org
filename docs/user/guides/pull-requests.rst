@@ -19,7 +19,7 @@ See `Limitations`_ for more information.
 
 .. note::
 
-   The previous method of pull request previews using a GitHub workflow that called `@readthedocs/actions <https://github.com/readthedocs/actions/>_ is now deprecated.
+   The previous method of pull request previews using a GitHub workflow that called `@readthedocs/actions <https://github.com/readthedocs/actions/>`__ is now deprecated.
    If you used that method, you should remove its configuration.
 
 Privacy levels

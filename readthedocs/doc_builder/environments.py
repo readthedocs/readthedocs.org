@@ -193,7 +193,7 @@ class BuildCommand(BuildCommandResultMixin):
         decoded = ""
         try:
             decoded = output.decode("utf-8", "replace")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
         return decoded
 
@@ -219,7 +219,7 @@ class BuildCommand(BuildCommandResultMixin):
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
             sanitized = output.replace("\x00", "")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
@@ -732,7 +732,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             )
         # Catch direct failures from Docker API or with an HTTP request.
         # These errors should not surface to the user.
-        except (DockerAPIError, ConnectionError, ReadTimeout):
+        except DockerAPIError, ConnectionError, ReadTimeout:
             log.exception("Couldn't remove container")
 
         self.raise_container_error(state)

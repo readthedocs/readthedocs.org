@@ -277,7 +277,6 @@ class CommunityBaseSettings(Settings):
             "rest_framework_api_key",
             "generic_relations",
             "corsheaders",
-            "annoying",
             "django_extensions",
             "crispy_forms",
             "django_elasticsearch_dsl",
