@@ -149,18 +149,34 @@ Now send this prompt to the same agent:
    - If I do, confirm the GitHub App is installed for this repository.
      If not, walk me through installing it.
 
+   Installing the GitHub App is REQUIRED and must happen BEFORE creating the
+   project: it is what lets Read the Docs build pull request previews and post
+   the build status back on the pull request. After I install it, wait until
+   Read the Docs has finished importing the repository (it appears under
+   https://app.readthedocs.org/dashboard/import/ as a connected repository)
+   before continuing.
+
    Then ask me to create a Read the Docs API token at
    https://app.readthedocs.org/accounts/tokens/create/ and paste it.
    Use that token with the Read the Docs API v3
    (https://docs.readthedocs.com/platform/stable/api/v3.html) to:
 
-   1. POST /api/v3/projects/ to create the project, using the GitHub repository
-      URL from `gh repo view --json url`. Prefix the project name with my
-      GitHub username, e.g. `{username}-docusaurus-tutorial`.
-   2. PATCH /api/v3/projects/{slug}/ to enable pull request builds
+   1. POST /api/v3/projects/ to create the project. For the repository URL, use
+      the exact GitHub HTML URL from `gh repo view --json url` (for example
+      `https://github.com/{username}/docusaurus-tutorial`, with NO `.git` suffix
+      and no trailing slash) so Read the Docs links the project to the repository
+      connected through the GitHub App. Prefix the project name with my GitHub
+      username, e.g. `{username}-docusaurus-tutorial`.
+   2. Verify the project is connected to the GitHub repository, not just created
+      with a manual URL: GET /api/v3/projects/{slug}/ and confirm it succeeded,
+      then tell me to open https://app.readthedocs.org/dashboard/{slug}/edit/ and
+      check that the "Connected repository" field points to my GitHub repository.
+      If it says the project is not connected, have me select the repository in
+      that dropdown and save before continuing.
+   3. PATCH /api/v3/projects/{slug}/ to enable pull request builds
       (`external_builds_enabled: true`) and to set a short description and
       a couple of tags like `docusaurus, documentation`.
-   3. POST /api/v3/projects/{slug}/versions/latest/builds/ to trigger the
+   4. POST /api/v3/projects/{slug}/versions/latest/builds/ to trigger the
       first build, then poll the build endpoint until it finishes and report
       the result.
 
@@ -191,6 +207,32 @@ Behind the scenes, the agent calls these endpoints
 If anything fails (for example the GitHub App is not installed,
 or the repository is not visible to your Read the Docs account),
 the API returns an explanatory error and the agent surfaces it back to you.
+
+.. warning:: Pull request builds require a *connected* repository
+
+   Read the Docs only builds pull request previews and posts the build status on
+   the pull request when the project is **connected to the repository through the
+   GitHub App** — not when it was created with a manually typed repository URL.
+
+   The project is linked to the connected repository automatically at creation
+   time, but only when the GitHub App is already installed and the repository
+   URL you pass matches the connected repository exactly. If the project was
+   created before the GitHub App finished importing the repository, or with a
+   ``.git`` suffix or a different URL, it stays *manually connected* and pull
+   request builds will not run.
+
+   To fix a project that is already in this state:
+
+   #. Install the `Read the Docs Community GitHub App
+      <https://github.com/apps/read-the-docs-community>`_ for the repository and
+      wait for it to appear under https://app.readthedocs.org/dashboard/import/.
+   #. Open ``https://app.readthedocs.org/dashboard/{slug}/edit/`` and set the
+      **Connected repository** field to your GitHub repository, then save.
+   #. Make sure **pull request builds** are enabled at
+      ``https://app.readthedocs.org/dashboard/{slug}/pull-requests/``.
+
+   A ``PATCH`` to the API cannot connect a repository after the fact — this is a
+   dashboard-only step.
 
 Step 3: Verify the result
 -------------------------
