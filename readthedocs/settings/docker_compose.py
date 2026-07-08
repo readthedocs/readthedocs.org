@@ -269,6 +269,15 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
                 },
             },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": "build-uploads",
+                    "url_protocol": "http:",
+                    "default_acl": "private",
+                    # "custom_domain": "http://127.0.0.1:9000" + "/build-uploads",
+                },
+            },
         }
 
 

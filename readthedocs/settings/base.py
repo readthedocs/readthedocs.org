@@ -1233,6 +1233,9 @@ class CommunityBaseSettings(Settings):
                     "allow_overwrite": True,
                 },
             },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+            },
         }
 
     @property

@@ -13,6 +13,7 @@ log = structlog.get_logger(__name__)
 class StorageType(StrEnum):
     build_media = auto()
     build_tools = auto()
+    build_uploads = auto()
 
 
 def get_storage(*, build_id, api_client, storage_type: StorageType):

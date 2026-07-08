@@ -170,6 +170,23 @@ class Version(TimeStampedModel):
         help_text=_("Type of documentation the version was built with."),
     )
 
+    # is_uploaded = models.BooleanField(
+    #     _("Artifacts uploaded using the upload API"),
+    #     default=False,
+    #     db_default=False,
+    # )
+
+    # build = models.OneToOneField(
+    #     "Build",
+    #     verbose_name=_("Build"),
+    #     help_text=_("The latest build that generated the artifacts for this version."),
+    #     # No reverse relation needed.
+    #     related_name="+",
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True,
+    # )
+
     build_data = models.JSONField(
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
@@ -825,6 +842,12 @@ class Build(models.Model):
         object_id_field="attached_to_id",
     )
 
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
+    )
+
     # Managers
     objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
@@ -965,6 +988,17 @@ class Build(models.Model):
         """
         date = self.date.date()
         return f"{date}/{self.id}.json"
+
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_id>/<build_id>/artifacts.zip
+
+        Example: 1234/1111/artifacts.zip
+        """
+        return f"{self.project.id}/{self.id}/artifacts.zip"
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])

@@ -88,6 +88,39 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
             objects = [{"Key": path} for path in batch]
             self.bucket.delete_objects(Delete={"Objects": objects, "Quiet": True})
 
+    def generate_presigned_post(
+        self, key, content_type, expires_in=3600, min_size=1, max_size=1024 * 1024 * 1024
+    ):
+        """
+        Generate a presigned URL for uploading to S3.
+
+        See https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/generate_presigned_post.html.
+
+        :param key: The object key in S3.
+        :param content_type: The content type of the object (e.g., 'application/zip').
+        :param expires_in: Time in seconds for the presigned URL to remain valid.
+        :param min_size: Minimum size of the file in bytes. Default is 1 byte.
+        :param max_size: Maximum size of the file in bytes. Default is 1GB.
+        """
+        conditions = [
+            {"bucket": self.bucket_name},
+            {"acl": self.default_acl},
+            {"Content-Type": content_type},
+            ["content-length-range", min_size, max_size],
+        ]
+        fields = {
+            "bucket": self.bucket_name,
+            "acl": self.default_acl,
+            "Content-Type": content_type,
+        }
+        return self.bucket.meta.client.generate_presigned_post(
+            Bucket=self.bucket_name,
+            Key=key,
+            Fields=fields,
+            Conditions=conditions,
+            ExpiresIn=expires_in,
+        )
+
 
 class S3BuildMediaStorage(OverrideHostnameMixin, RTDS3Storage):
     """An AWS S3 Storage backend for build artifacts."""
