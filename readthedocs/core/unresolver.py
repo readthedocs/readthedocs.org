@@ -394,7 +394,10 @@ class Unresolver:
         # Build the set of aliases the path could match — every prefix of the
         # path that ends on a segment boundary. The DB then returns the
         # longest matching one in a single indexed-set lookup.
-        segments = path.strip("/").split("/")
+        stripped = path.strip("/")
+        if not stripped:
+            return None
+        segments = stripped.split("/")
         candidates = ["/".join(segments[: i + 1]) for i in range(len(segments))]
         project_relationship = (
             parent_project.subprojects.filter(alias__in=candidates)
