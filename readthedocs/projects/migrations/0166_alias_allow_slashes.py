@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 validators=[
                     RegexValidator(
                         message=_(
-                            "Aliases must be slug-like segments separated by slashes "
+                            "Aliases can contain letters, numbers, underscores, hyphens, and slashes "
                             "(e.g. 'api' or 'api/python')."
                         ),
                         regex=r"^[-\w]+(?:/[-\w]+)*$",

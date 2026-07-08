@@ -40,40 +40,28 @@ class TestSlashSubprojectAliases(BaseDocServing):
 
     def test_serves_html_file(self):
         resp = self._get(f"/projects/{self.ALIAS}/en/latest/awesome.html")
-        self.assertEqual(
-            resp["x-accel-redirect"],
-            "/proxito/media/html/subproject-alias/latest/awesome.html",
-        )
+        assert resp["x-accel-redirect"] == "/proxito/media/html/subproject-alias/latest/awesome.html"
 
     def test_root_redirects_to_default_version(self):
         resp = self._get(f"/projects/{self.ALIAS}/")
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp["Location"],
-            f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/",
-        )
+        assert resp.status_code == 302
+        assert resp["Location"] == f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/"
 
     def test_page_redirect(self):
         resp = self._get(f"/projects/{self.ALIAS}/page/awesome.html")
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp["Location"],
-            f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/awesome.html",
-        )
+        assert resp.status_code == 302
+        assert resp["Location"] == f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/awesome.html"
 
     def test_serves_downloads(self):
         for type_ in DOWNLOADABLE_MEDIA_TYPES:
             resp = self._get(f"/_/downloads/{self.ALIAS}/en/latest/{type_}/")
-            self.assertEqual(resp.status_code, 200)
+            assert resp.status_code == 200
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
-            self.assertEqual(
-                resp["X-Accel-Redirect"],
-                f"/proxito/media/{type_}/subproject-alias/latest/subproject-alias.{extension}",
-            )
+            assert resp["X-Accel-Redirect"] == f"/proxito/media/{type_}/subproject-alias/latest/subproject-alias.{extension}"
 
     def test_resolver_emits_slash_url(self):
         url = Resolver().resolve(self.subproject_alias)
-        self.assertIn(f"/projects/{self.ALIAS}/", url)
+        assert f"/projects/{self.ALIAS}/" in url
 
     def test_longest_prefix_match_wins(self):
         # With both ``api`` and ``api/python`` mounted, the longer alias wins
@@ -92,19 +80,13 @@ class TestSlashSubprojectAliases(BaseDocServing):
         self.project.add_subproject(nested, alias="api")
 
         resp = self._get("/projects/api/python/en/latest/awesome.html")
-        self.assertEqual(
-            resp["x-accel-redirect"],
-            "/proxito/media/html/subproject-alias/latest/awesome.html",
-        )
+        assert resp["x-accel-redirect"] == "/proxito/media/html/subproject-alias/latest/awesome.html"
 
         resp = self._get("/projects/api/en/latest/awesome.html")
-        self.assertEqual(
-            resp["x-accel-redirect"],
-            "/proxito/media/html/api-only/latest/awesome.html",
-        )
+        assert resp["x-accel-redirect"] == "/proxito/media/html/api-only/latest/awesome.html"
 
     def test_segment_boundary_required(self):
         # ``api/python-extra`` must NOT match alias ``api/python`` — only full
         # path segments count. No subproject matches, so the request 404s.
         resp = self._get("/projects/api/python-extra/en/latest/")
-        self.assertEqual(resp.status_code, 404)
+        assert resp.status_code == 404
