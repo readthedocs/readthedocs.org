@@ -2093,6 +2093,7 @@ class Feature(models.Model):
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
     TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
+    ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
         (
@@ -2165,6 +2166,10 @@ class Feature(models.Model):
         (
             TERMINATE_INSTANCE_ON_BUILD_FINISH,
             _("Build: Terminate instance on build finish."),
+        ),
+        (
+            ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            _("Build: Allow using the dreict artifacts upload API."),
         ),
     )
 

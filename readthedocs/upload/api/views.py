@@ -15,6 +15,7 @@ from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.upload.tasks import process_uploaded_build
 
@@ -48,6 +49,12 @@ class UploadInitiateView(APIv3Settings, APIView):
             return Response(
                 {"detail": "Project not found."},
                 status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD):
+            return Response(
+                {"detail": "Direct artifacts upload is not enabled for this project."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         if not AdminPermission.is_admin(request.user, project):
