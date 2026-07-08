@@ -81,7 +81,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "2026.06.23"
+version = "2026.07.07"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 # Exclude design docs from dev documentation
@@ -101,7 +101,6 @@ intersphinx_mapping = {
     "nbsphinx": ("https://nbsphinx.readthedocs.io/en/latest/", None),
     "myst-nb": ("https://myst-nb.readthedocs.io/en/stable/", None),
     "ipywidgets": ("https://ipywidgets.readthedocs.io/en/stable/", None),
-    "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),

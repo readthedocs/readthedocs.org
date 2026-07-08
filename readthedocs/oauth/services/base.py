@@ -249,7 +249,7 @@ class UserService(Service):
                 )
             )
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except RequestException, ValueError:
             # Response data should always be JSON, still try to log if not
             # though
             try:

@@ -135,15 +135,15 @@ core_urls = [
         ServeError404.as_view(),
         name="proxito_404_handler",
     ),
-    re_path(r"robots\.txt$", ServeRobotsTXT.as_view(), name="robots_txt"),
-    re_path(r"llms\.txt$", ServeLLMSTXT.as_view(), name="llms_txt"),
-    re_path(
-        r"llms-full\.txt$",
+    path("robots.txt", ServeRobotsTXT.as_view(), name="robots_txt"),
+    path("llms.txt", ServeLLMSTXT.as_view(), name="llms_txt"),
+    path(
+        "llms-full.txt",
         ServeLLMSTXT.as_view(),
         {"filename": "llms-full.txt"},
         name="llms_full_txt",
     ),
-    re_path(r"sitemap\.xml$", ServeSitemapXML.as_view(), name="sitemap_xml"),
+    path("sitemap.xml", ServeSitemapXML.as_view(), name="sitemap_xml"),
 ]
 
 docs_urls = [

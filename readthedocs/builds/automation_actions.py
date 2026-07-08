@@ -17,10 +17,10 @@ from readthedocs.projects.constants import PUBLIC
 log = structlog.get_logger(__name__)
 
 
-def trigger_build_for_version(version, *args, **kwargs):
+def trigger_build_for_version(version, *args, commit=None, **kwargs):
     """Trigger a build for this version."""
     if version.active:
-        trigger_build(project=version.project, version=version, from_webhook=True)
+        trigger_build(project=version.project, version=version, commit=commit, from_webhook=True)
 
 
 def activate_version(version, *args, **kwargs):

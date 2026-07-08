@@ -18,5 +18,5 @@ class CoreAppConfig(AppConfig):
 
         try:
             import readthedocsext.monitoring.metrics.tasks  # noqa
-        except (ModuleNotFoundError, ImportError):
+        except ModuleNotFoundError, ImportError:
             log.info("Metrics tasks could not be imported.")
