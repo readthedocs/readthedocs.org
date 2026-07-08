@@ -47,6 +47,8 @@ def _get_storage_class(storage_type: StorageType):
         return _get_build_media_storage_class()
     if storage_type == StorageType.build_tools:
         return _get_build_tools_storage_class()
+    if storage_type == StorageType.build_uploads:
+        return _get_storage_backend_class("build-uploads")
     raise ValueError("Invalid storage type")
 
 
