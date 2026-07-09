@@ -411,7 +411,7 @@ class Unresolver:
         # We use the subproject as the new parent project
         # to resolve the rest of the path relative to it.
         alias = project_relationship.alias
-        filename = self._normalize_filename(path[len(alias) + 1 :])  # noqa
+        filename = self._normalize_filename(path.removeprefix(self._normalize_filename(alias)))
         return self._unresolve_path_with_parent_project(
             parent_project=project_relationship.child,
             path=filename,

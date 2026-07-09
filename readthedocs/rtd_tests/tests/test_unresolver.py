@@ -20,7 +20,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
-from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Domain, Project
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
@@ -198,7 +198,7 @@ class UnResolverTests(ResolverBase):
         relation.save()
 
         nested = fixture.get(
-            self.subproject.__class__,
+            Project,
             slug="api-python",
             language="en",
             users=[self.owner],
