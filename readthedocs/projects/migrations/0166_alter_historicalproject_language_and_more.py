@@ -7,7 +7,7 @@ from django_safemigrate import Safe
 
 class Migration(migrations.Migration):
     safe = Safe.before_deploy()
-    
+
     dependencies = [
         ("projects", "0165_alter_automationrulematch_version_type"),
     ]
