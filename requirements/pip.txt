@@ -8,7 +8,7 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
-anyio==4.14.0
+anyio==4.14.1
     # via elasticsearch
 asgiref==3.11.1
     # via
@@ -18,9 +18,9 @@ asgiref==3.11.1
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.43.34
+boto3==1.43.36
     # via django-storages
-botocore==1.43.34
+botocore==1.43.36
     # via
     #   boto3
     #   s3transfer
@@ -41,7 +41,7 @@ cffi==2.0.0
     #   pynacl
 charset-normalizer==3.4.7
     # via requests
-click==8.4.1
+click==8.4.2
     # via
     #   bumpver
     #   celery
@@ -121,7 +121,7 @@ django-ipware==7.0.1
     # via django-structlog
 django-safemigrate==6.0
     # via -r requirements/pip.in
-django-simple-history==3.11.0
+django-simple-history==3.12.0
     # via -r requirements/pip.in
 django-storages[s3]==1.14.6
     # via -r requirements/pip.in
@@ -256,7 +256,7 @@ pyyaml==6.0.3
     # via -r requirements/pip.in
 qrcode==8.2
     # via django-allauth
-redis==8.0.0
+redis==8.0.1
     # via -r requirements/pip.in
 regex==2026.5.9
     # via -r requirements/pip.in

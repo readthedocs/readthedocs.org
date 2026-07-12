@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-anyio==4.14.0
+anyio==4.14.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.34
+boto3==1.43.36
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.34
+botocore==1.43.36
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -61,7 +61,7 @@ charset-normalizer==3.4.7
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.4.1
+click==8.4.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -166,7 +166,7 @@ django-ipware==7.0.1
     #   django-structlog
 django-safemigrate==6.0
     # via -r requirements/pip.txt
-django-simple-history==3.11.0
+django-simple-history==3.12.0
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
@@ -230,7 +230,7 @@ idna==3.18
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==9.14.1
+ipython==9.15.0
     # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -389,7 +389,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==8.0.0
+redis==8.0.1
     # via -r requirements/pip.txt
 regex==2026.5.9
     # via -r requirements/pip.txt
@@ -451,7 +451,7 @@ toml==0.10.2
     #   bumpver
 tomli-w==1.2.0
     # via tox
-tox==4.55.1
+tox==4.56.1
     # via
     #   -r requirements/docker.in
     #   tox-uv-bare
@@ -512,7 +512,7 @@ urllib3==2.7.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.11.23
+uv==0.11.25
     # via tox-uv
 vine==5.1.0
     # via
