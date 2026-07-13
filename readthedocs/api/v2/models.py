@@ -11,9 +11,14 @@ from readthedocs.projects.models import Project
 
 class BuildAPIKeyManager(BaseAPIKeyManager):
     # pylint: disable=arguments-differ
-    def create_key(self, project):
+    def create_key_for_project(self, project):
         """
-        Create a new API key for a project.
+        Create a project-scoped API key.
+
+        The returned key can read + write anything under ``project``:
+        every ``Build`` / ``Version`` / ``Command`` /
+        ``Notification`` associated with the project. Used by the
+        legacy ``update_docs_task`` path and the webhook path.
 
         Build API keys are valid for
 
@@ -43,13 +48,59 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
             project=project,
         )
 
+    def create_key_for_build(self, build):
+        """
+        Create a build-scoped API key.
+
+        Same 24h expiry as ``create_key_for_project``. Difference is
+        the ``build`` FK — when set, the API restricts writes to that
+        specific Build (and its Version, commands, notifications).
+        See ``permissions.HasBuildScopedBuildAPIKey`` and the per-
+        viewset ``get_queryset_for_api_key`` branches for the concrete
+        rules.
+
+        The narrower scope keeps the token's blast-radius bounded if
+        it leaks: an attacker with a build-scoped key can only
+        interfere with that one build, not the whole project.
+
+        Used by the isolated-builders dispatcher in
+        ``core/utils/__init__.py::_submit_to_isolated_builders``.
+        """
+        delta = 60 * 60 * 24  # 24h — matches create_key_for_project
+        expiry_date = timezone.now() + timedelta(seconds=delta)
+        name_max_length = self.model._meta.get_field("name").max_length
+        # Include the build pk in the name so it's easy to identify the
+        # key in the Django admin / logs. Distinct from a project-scoped
+        # key's name (which is just the slug).
+        name = f"{build.project.slug}-b{build.pk}"[:name_max_length]
+        return super().create_key(
+            name=name,
+            expiry_date=expiry_date,
+            project=build.project,
+            build=build,
+        )
+
 
 class BuildAPIKey(AbstractAPIKey):
     """
     API key for securely interacting with the API from the builders.
 
-    The key is attached to a single project,
-    it can be used to have write access to the API V2.
+    Two scopes are supported, driven by the optional ``build`` FK:
+
+    - **Project-scoped** (``build`` is null): the key can read + write
+      anything under ``project``. Legacy behavior, used by the
+      ``update_docs_task`` path and the webhook path.
+
+    - **Build-scoped** (``build`` is set): the key can read what the
+      build needs (Project details, its Version, ``clone_token``,
+      SSH deploy key) but writes are restricted to that specific
+      Build and its associated Version / commands / notifications.
+      Used by the isolated-builders dispatcher.
+
+    Scope enforcement lives in ``permissions.py`` (permission classes
+    that gate access by the ``build`` field) and each viewset's
+    ``get_queryset_for_api_key`` (queryset narrowing for build-scoped
+    keys).
     """
 
     project = models.ForeignKey(
@@ -57,6 +108,20 @@ class BuildAPIKey(AbstractAPIKey):
         on_delete=models.CASCADE,
         related_name="build_api_keys",
         help_text=_("Project that this API key grants access to"),
+    )
+
+    build = models.ForeignKey(
+        "builds.Build",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="api_keys",
+        help_text=_(
+            "Optional. When set, this API key is scoped to a specific "
+            "Build — writes are restricted to that Build (and its "
+            "Version, commands, notifications). When null, the key "
+            "retains project-wide scope (legacy behavior)."
+        ),
     )
 
     objects = BuildAPIKeyManager()
