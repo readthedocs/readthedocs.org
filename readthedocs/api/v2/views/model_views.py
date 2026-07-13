@@ -185,14 +185,20 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     """List, filter, etc, Projects."""
 
-    # Project-scoped BuildAPIKey can read + write. Build-scoped keys
-    # are deliberately NOT accepted here — they must not be able to
-    # PATCH a Project. Anonymous / read-only clients fall through to
-    # ``ReadOnlyPermission``. Note that a build-scoped key still needs
-    # to READ the project (for ``clone_token`` etc.) — that flows
-    # through ``ReadOnlyPermission`` too since the request method is
-    # ``GET`` in that case.
-    permission_classes = [HasProjectScopedBuildAPIKey | ReadOnlyPermission]
+    # Project-scoped BuildAPIKey: full read + write.
+    # Build-scoped BuildAPIKey: read-only. It needs GET to pull
+    # ``clone_token`` for the sparse clone, but must never PATCH the
+    # project — the ``& ReadOnlyPermission`` composition enforces
+    # that. Its True branch is also what attaches the key to the
+    # request so ``get_serializer_class`` picks
+    # ``ProjectAdminSerializer`` (the one exposing ``clone_token``).
+    # Anonymous / regular users: read-only via the trailing
+    # ``ReadOnlyPermission``.
+    permission_classes = [
+        HasProjectScopedBuildAPIKey
+        | (HasBuildScopedBuildAPIKey & ReadOnlyPermission)
+        | ReadOnlyPermission
+    ]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
