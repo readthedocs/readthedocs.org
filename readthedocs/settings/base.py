@@ -647,6 +647,15 @@ class CommunityBaseSettings(Settings):
     # TODO: use RTD_BUILDER_REF = "rel" when we have a stable release of the builder
     RTD_BUILDER_REF = "main"
 
+    # Celery task name + queue for the isolated-builders worker.
+    # Must match what the worker registers in
+    # ``readthedocs-builder/worker/tasks.py`` (``@app.task(name=...)``)
+    # and ``worker/celery.py`` (``task_default_queue``). We dispatch by
+    # name (rather than importing the function) so this codebase doesn't
+    # need the ``worker`` package installed.
+    RTD_ISOLATED_BUILDER_TASK_NAME = "worker.tasks.run_build"
+    RTD_ISOLATED_BUILDER_QUEUE = "isolated-builds"
+
     @property
     def BUILD_MEMORY_LIMIT(self):
         """

@@ -2161,9 +2161,11 @@ class Feature(models.Model):
             USE_ISOLATED_BUILDER,
             _(
                 "Build: Dispatch this project's builds to the isolated-builders "
-                "Celery worker pool (one task per EC2 instance, ephemeral) via "
-                "``submit_build_to_isolated`` instead of the legacy "
-                "``update_docs_task`` Celery worker pool."
+                "Celery worker pool (one task per EC2 instance, ephemeral) "
+                "instead of the legacy ``update_docs_task`` Celery worker "
+                "pool. ``trigger_build`` sends the task directly to the "
+                "``isolated-builds`` queue; the worker fetches project data "
+                "from the API and runs the build container itself."
             ),
         ),
         (
