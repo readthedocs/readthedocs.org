@@ -59,34 +59,80 @@ class TokenKeyParser(KeyParser):
     keyword = "Token"
 
 
-class HasBuildAPIKey(BaseHasAPIKey):
+class _BuildAPIKeyPermissionBase(BaseHasAPIKey):
     """
-    Custom permission to inject the build API key into the request.
+    Base class for BuildAPIKey permission classes.
 
-    We completely override the ``has_permission`` method
-    to avoid having to parse and validate the key again on each view.
-    The key is injected in the ``request.build_api_key`` attribute
-    only if it's valid, otherwise it's set to ``None``.
+    Validates the token and hangs the key on
+    ``request.build_api_key`` for the viewset to read (queryset
+    narrowing lives on the views, not here). Subclasses gate access
+    by the key's SCOPE — either project-scoped
+    (``build_id is None``) or build-scoped (``build_id is not None``).
 
-    This grants read and write access to the API.
+    Composing them with DRF's ``|`` gives the readable
+    ``HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey`` shape
+    at each viewset's callsite.
+
+    Note on ``request.build_api_key``: we always hang the key on the
+    request when the token is valid, EVEN when this permission class
+    returns False (scope mismatch). That lets the next class in the OR
+    chain reuse the validated key without re-hitting the DB. The
+    request attribute is set to ``None`` up-front so viewsets can rely
+    on it being present.
     """
 
     model = BuildAPIKey
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
+        # Fast path: another permission class in an OR chain already
+        # validated the key; reuse it.
+        if getattr(request, "build_api_key", None) is not None:
+            return self._matches_scope(request.build_api_key)
+
         request.build_api_key = None
         key = self.get_key(request)
         if not key:
             return False
 
         try:
-            build_api_key = self.model.objects.get_from_key(key)
+            api_key = self.model.objects.get_from_key(key)
         except self.model.DoesNotExist:
             return False
 
-        if build_api_key.has_expired:
+        if api_key.has_expired:
             return False
 
-        request.build_api_key = build_api_key
-        return True
+        # Hang the validated key on the request so subsequent OR-chain
+        # classes and the view's ``get_queryset_for_api_key`` can read
+        # it. Then gate on scope.
+        request.build_api_key = api_key
+        return self._matches_scope(api_key)
+
+    def _matches_scope(self, api_key):
+        raise NotImplementedError
+
+
+class HasProjectScopedBuildAPIKey(_BuildAPIKeyPermissionBase):
+    """
+    Grants access to project-scoped BuildAPIKeys (``build_id is None``).
+
+    Used everywhere the current API needs project-wide read+write from
+    the builder — legacy ``update_docs_task`` path, webhooks, etc.
+    """
+
+    def _matches_scope(self, api_key):
+        return api_key.build_id is None
+
+
+class HasBuildScopedBuildAPIKey(_BuildAPIKeyPermissionBase):
+    """
+    Grants access to build-scoped BuildAPIKeys (``build_id is not None``).
+
+    Used by the isolated-builders dispatcher path. Writes are further
+    narrowed to that specific Build (and its Version, commands,
+    notifications) by each viewset's ``get_queryset_for_api_key``.
+    """
+
+    def _matches_scope(self, api_key):
+        return api_key.build_id is not None
