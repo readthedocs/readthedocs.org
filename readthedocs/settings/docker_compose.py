@@ -275,7 +275,9 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "bucket_name": "build-uploads",
                     "url_protocol": "http:",
                     "default_acl": "private",
-                    # "custom_domain": "http://127.0.0.1:9000" + "/build-uploads",
+                    # Overriden so we return the public URL for uploading artifacts,
+                    # instead of the internal hostname (storage), which is not accessible from the host machine.
+                    "endpoint_url": "http://127.0.0.1:9000/",
                 },
             },
         }

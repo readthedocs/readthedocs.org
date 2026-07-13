@@ -26,8 +26,8 @@ echo "Response from Read the Docs API:"
 echo "$RESPONSE"
 
 # 2. Extract the target upload URL using jq
-# UPLOAD_URL=$(echo "$RESPONSE" | jq -r '.upload_url.url')
-UPLOAD_URL=http://127.0.0.1:9000/build-uploads
+UPLOAD_URL=$(echo "$RESPONSE" | jq -r '.upload_url.url')
+# UPLOAD_URL=http://127.0.0.1:9000/build-uploads
 
 if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" == "null" ]; then
     echo "Error: Failed to fetch upload URL. Response was:"

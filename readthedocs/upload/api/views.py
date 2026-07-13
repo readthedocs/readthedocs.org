@@ -191,7 +191,6 @@ class UploadCompleteView(APIv3Settings, APIView):
         _, build_api_key = BuildAPIKey.objects.create_key(project=project)
         process_uploaded_build.delay(
             build_id=build.id,
-            version_id=build.version.id,
             build_api_key=build_api_key,
         )
         return Response(
