@@ -10,7 +10,7 @@
 #
 # What this image installs corresponds to the Packer template's
 # bake-time steps:
-#   - git, python3.12, ca-certificates                (AL2023 base + dnf step)
+#   - git, python3.14, ca-certificates                (AL2023 base + dnf step)
 #   - docker CLI                                      (docker-in-docker for build dispatch)
 #   - uv at /usr/local/bin/uv                         (same path as the AMI)
 #   - empty /opt/{readthedocs-builder,runner-venv,worker-venv} dirs
@@ -23,7 +23,7 @@
 # resolves correctly when spawning build containers). See the
 # entrypoint header for the full compose wiring.
 
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
@@ -33,16 +33,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         git \
-        python3.12 \
-        python3.12-venv \
+        python3.14 \
+        python3.14-venv \
         docker.io \
         nodejs \
         npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Symlink so ``python`` works without a version suffix (matches the AMI,
-# where ``python3.12`` is the default and ``uv`` resolves it via PATH).
-RUN ln -sf /usr/bin/python3.12 /usr/local/bin/python
+# where ``python3.14`` is the default and ``uv`` resolves it via PATH).
+RUN ln -sf /usr/bin/python3.14 /usr/local/bin/python
 
 # Install uv at the same path the AMI uses (/usr/local/bin/uv) so the
 # entrypoint script is identical to the production setup unit.
