@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 from django.test import override_settings
@@ -238,6 +239,32 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), expected_response)
+
+    def test_projects_builds_detail_queue_time(self):
+        # The build was queued for 30s before it started running, then took
+        # ``length`` (60s) to build.
+        self.build.queue_time = 30
+        self.build.task_executed_at = self.created + datetime.timedelta(seconds=30)
+        self.build.save()
+
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        # Queue time is reported separately and does not inflate the duration.
+        self.assertEqual(data["queue_time"], 30)
+        self.assertEqual(data["duration"], 60)
+        # ``finished`` is execution start (task_executed_at) + duration, so the
+        # queue wait is not counted towards it.
+        self.assertEqual(data["finished"], "2019-04-29T10:01:30Z")
 
     def test_projects_builds_detail_other_user(self):
         url = reverse(

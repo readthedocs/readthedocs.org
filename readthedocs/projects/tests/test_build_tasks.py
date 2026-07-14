@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 import textwrap
@@ -10,6 +11,7 @@ from django_dynamic_fixture import get
 import pytest
 from django.conf import settings
 from django.test.utils import override_settings
+from django.utils import timezone
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
@@ -592,6 +594,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
         }
 
         # Update build state: installing
@@ -601,6 +605,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "commit": "a1b2c3",
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
             "readthedocs_yaml_path": None,
             # We update the `config` field at the same time we send the
             # `installing` state, to reduce one API call
@@ -682,6 +688,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "config": mock.ANY,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
         }
         # Update build state: uploading
         assert self.requests_mock.request_history[8].json() == {
@@ -692,6 +700,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "config": mock.ANY,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
         }
 
         # Get temporary credentials
@@ -728,6 +738,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "config": mock.ANY,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
             "length": mock.ANY,
             "success": True,
         }
@@ -746,6 +758,37 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call(mock.ANY, "epub/project/latest"),
             ]
         )
+
+    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
+    @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    def test_build_stores_queue_time(
+        self,
+        clean_build,
+        send_notifications,
+        execute,
+        send_external_build_status,
+        build_complete,
+    ):
+        # The build was triggered a while ago and is only now picked up by a
+        # builder. The queued time is measured from the original trigger date.
+        self.build.date = timezone.now() - datetime.timedelta(seconds=45)
+        self.build.save()
+
+        # The queue time is computed in ``before_start``, so the actual build
+        # outcome doesn't matter; force a clean stop to reach the final PATCH.
+        execute.side_effect = BuildUserError(message_id=BuildUserError.GENERIC)
+
+        self._trigger_update_docs_task()
+
+        # The last PATCH to the build stores the queued time, measured from the
+        # original trigger date to when the task started running.
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json()["queue_time"] >= 45
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
@@ -815,6 +858,8 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.json() == {
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
             "commit": self.build.commit,
             "id": self.build.pk,
             "length": mock.ANY,
@@ -869,6 +914,8 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_status_request.json() == {
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
             "commit": self.build.commit,
             "id": self.build.pk,
             "length": mock.ANY,
@@ -3022,6 +3069,8 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "success": False,
             "builder": mock.ANY,
             "task_executed_at": mock.ANY,
+            "queue_time": mock.ANY,
+            "date": mock.ANY,
             "length": 0,
         }
 
