@@ -940,17 +940,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         :param build_pk: Build primary key
         """
-        build = {}
-        if build_pk:
-            build = self.data.api_client.build(build_pk).get()
-        private_keys = [
-            "project",
-            "version",
-            "resource_uri",
-            "absolute_uri",
-        ]
-        # TODO: try to use the same technique than for ``APIProject``.
-        return {key: val for key, val in build.items() if key not in private_keys}
+        return self.data.api_client.build(build_pk).get()
 
     # NOTE: this can be just updated on `self.data.build['']` and sent once the
     # build has finished to reduce API calls.
