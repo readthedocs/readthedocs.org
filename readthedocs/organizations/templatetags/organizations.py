@@ -48,7 +48,7 @@ def org_owner(user, obj):  # noqa
             organization__owners=user,
             organization=obj.organization,
         ).exists()
-    except (FieldError, AttributeError):
+    except FieldError, AttributeError:
         return False
 
 

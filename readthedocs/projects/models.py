@@ -700,6 +700,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -727,6 +729,10 @@ class Project(models.Model):
 
         super().save(*args, **kwargs)
         self.update_latest_version()
+
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
 
     def delete(self, *args, **kwargs):
         from readthedocs.builds.tasks import remove_build_commands_storage_paths
@@ -2086,6 +2092,7 @@ class Feature(models.Model):
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
+    TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
     USE_ISOLATED_BUILDER = "use_isolated_builder"
     KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
 
@@ -2156,6 +2163,10 @@ class Feature(models.Model):
         (
             USE_GVISOR_RUNTIME,
             _("Build: Run build containers under the gVisor (runsc) runtime."),
+        ),
+        (
+            TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            _("Build: Terminate instance on build finish."),
         ),
         (
             USE_ISOLATED_BUILDER,
@@ -2623,11 +2634,13 @@ class AutomationRule(TimeStampedModel):
                 return False
         return True
 
-    def run(self, version):
+    def run(self, version, *args, **kwargs):
         """
         Run the rule.
 
         :param version: Version instance to check and act upon
+        :param args: Additional positional arguments to pass to the action function
+        :param kwargs: Additional keyword arguments to pass to the action function
         :return: True if the action was performed, False otherwise
         """
         # Avoid circular imports
@@ -2645,7 +2658,7 @@ class AutomationRule(TimeStampedModel):
 
         action_func = actions_map.get(self.action)
         if action_func:
-            action_func(version)
+            action_func(version, *args, **kwargs)
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 

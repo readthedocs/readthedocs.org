@@ -37,7 +37,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
 
 commands:
   setup-checkout:
@@ -83,9 +83,10 @@ jobs:
     # Core tests — excludes search, proxito, and embed_api markers.
     # No Elasticsearch sidecar needed.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -96,7 +97,7 @@ jobs:
       - run: sudo apt install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
-      - run: tox -e py312
+      - run: tox -e py314
       - run: cp .coverage .coverage.tests
       - save_cache:
           key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -113,7 +114,7 @@ jobs:
     # Search tests — needs Elasticsearch sidecar.
     # Runs in Stage 2 to avoid starting ES on broken builds.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
@@ -123,6 +124,7 @@ jobs:
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
           xpack.security.transport.ssl.enabled: 'false'
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -149,9 +151,10 @@ jobs:
     # Proxito tests — uses readthedocs.settings.proxito.test Django settings.
     # No Elasticsearch sidecar needed.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+    resource_class: large.gen2
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -176,7 +179,7 @@ jobs:
     # Embed API tests — tests against 6 Sphinx versions.
     # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - setup-checkout
       - skip-if-docs-only
@@ -197,7 +200,7 @@ jobs:
     # Combines coverage from tests, tests-search, and tests-proxito,
     # then uploads a single unified report to codecov.
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - checkout
       - attach_workspace:
@@ -217,7 +220,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.12'
+      - image: 'cimg/python:3.14'
     steps:
       - setup-checkout
       # Recipe: https://pre-commit.com/#managing-ci-caches

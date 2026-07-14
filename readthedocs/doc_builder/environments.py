@@ -193,7 +193,7 @@ class BuildCommand(BuildCommandResultMixin):
         decoded = ""
         try:
             decoded = output.decode("utf-8", "replace")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
         return decoded
 
@@ -219,7 +219,7 @@ class BuildCommand(BuildCommandResultMixin):
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
             sanitized = output.replace("\x00", "")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
@@ -638,9 +638,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # Override the ``container_image`` if we pass it via argument.
         #
         # FIXME: This is a temporal fix while we explore how to make
-        # ``ubuntu-20.04`` the default build image without breaking lot of
+        # ``ubuntu-22.04`` the default build image without breaking lot of
         # builds. For now, we are passing
-        # ``container_image='readthedocs/build:ubuntu-20.04'`` for the setup
+        # ``container_image='readthedocs/build:ubuntu-22.04'`` for the setup
         # VCS step.
         if container_image:
             self.container_image = container_image
@@ -732,7 +732,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             )
         # Catch direct failures from Docker API or with an HTTP request.
         # These errors should not surface to the user.
-        except (DockerAPIError, ConnectionError, ReadTimeout):
+        except DockerAPIError, ConnectionError, ReadTimeout:
             log.exception("Couldn't remove container")
 
         self.raise_container_error(state)

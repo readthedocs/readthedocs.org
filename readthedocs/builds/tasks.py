@@ -98,7 +98,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     commit=last_build.commit,
                     status=status,
                 )
-        except (TokenExpiredError, InvalidGrantError):
+        except TokenExpiredError, InvalidGrantError:
             log.info("Failed to send status due to expired/invalid token.")
         except Exception:
             log.exception(
@@ -219,7 +219,7 @@ def send_build_status(build_pk, commit, status):
 
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
-    :param status: build status failed, pending, or success to be sent.
+    :param status: build status failed, pending, success, or skipped to be sent.
     """
     build = Build.objects.filter(pk=build_pk).select_related("version").first()
     # Bulds without a verion shouldn't send status, it can happen when
