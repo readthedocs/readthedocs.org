@@ -374,41 +374,7 @@ def cancel_build(build):
         build_task_id=build.task_id,
         terminate=terminate,
     )
-
-    if settings.RTD_DOCKER_COMPOSE:
-        # Dev: the dispatcher ran ``docker run`` detached, so there's no
-        # Celery task to revoke — kill the container by its stable name.
-        # SIGTERM (not SIGKILL): the runner's signal handler raises
-        # ``BuildCancelled`` so its lifecycle's try/except/finally runs
-        # (attaches the ``CANCELLED_BY_USER`` notification + PATCHes the
-        # build to ``finished`` with ``success=False``) before the
-        # process exits. SIGKILL would skip all of that and leave the
-        # build stuck mid-state.
-        import docker
-
-        try:
-            docker.from_env().containers.get(f"build-{build.pk}").kill(signal="SIGTERM")
-        except Exception:
-            log.exception("docker kill failed.", build_pk=build.pk)
-        return
-
-    if build.task_id:
-        # Prod: revoke the Celery task. For the legacy path this is the
-        # ``update_docs_task`` worker; for the isolated-builders path
-        # it's the ``worker.tasks.run_build`` worker (which holds the
-        # docker container and propagates SIGINT to it). Both honor
-        # SIGINT via their own signal handlers.
-        app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
-        return
-
-    # No task id on the Build — either the legacy ``apply_async`` failed
-    # or the isolated-builders ``send_task`` failed before saving the
-    # id. The state update above is enough; if the task DOES land on a
-    # worker later, the isolated-builders ``run_build`` reads the state
-    # off the API at startup and bails out on ``BUILD_STATE_CANCELLED``.
-    log.info(
-        "No task handle on the build; nothing to revoke.",
-    )
+    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
