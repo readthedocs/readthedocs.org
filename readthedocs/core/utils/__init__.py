@@ -332,14 +332,6 @@ def cancel_build(build):
     - Running:
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
-
-    Both the isolated-builders path and the legacy path use the Celery
-    revoke mechanism to terminate a running build — the worker task
-    that holds the docker container catches the signal and propagates
-    it to the container. The only special case is local docker-compose
-    dev: the dispatcher there runs ``docker run`` detached (no
-    long-running Celery task to revoke), so we ``docker kill`` the
-    container by its stable ``build-<pk>`` name instead.
     """
     # NOTE: `terminate=True` is required for the child to attend our call
     # immediately when it's running the build. Otherwise, it finishes the
