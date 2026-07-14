@@ -202,7 +202,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
 
     When the project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
     the build is sent directly to the ``isolated-builds`` Celery queue
-    (via :func:`_submit_to_isolated_builders` below). A worker on a
+    (via :func:`submit_to_isolated_builders` below). A worker on a
     dedicated EC2 instance picks it up, fetches build/project data from
     the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
     runs the build inside a ``readthedocs/build:<os>`` container. See
@@ -242,7 +242,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
 
     # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
     if project.has_feature(Feature.USE_ISOLATED_BUILDER):
-        return _submit_to_isolated_builders(project=project, build=build)
+        return submit_to_isolated_builders(project=project, build=build)
 
     task = update_docs_task.apply_async()
 
@@ -258,7 +258,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     return task, build
 
 
-def _submit_to_isolated_builders(*, project, build):
+def submit_to_isolated_builders(*, project, build):
     """
     Dispatch a build directly to the ``isolated-builds`` Celery queue.
 
