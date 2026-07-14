@@ -42,8 +42,6 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
-from readthedocs.builds.models import Build
-from readthedocs.builds.signals import build_complete
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
@@ -233,6 +231,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         )
 
         with environment:
+            # This signal is used to setup the SSH key on .com.
             before_vcs.send(
                 sender=self.data.version,
                 environment=environment,
@@ -791,12 +790,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         self.update_build(build_state)
         self.save_build_data()
-
-        # Be defensive with the signal, so if a listener fails we still clean up
-        try:
-            build_complete.send(sender=Build, build=self.data.build)
-        except Exception:
-            log.exception("Error during build_complete", exc_info=True)
 
         if self.data.version:
             clean_build(self.data.version)
