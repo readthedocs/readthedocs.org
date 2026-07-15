@@ -1,4 +1,5 @@
 import structlog
+from django.conf import settings
 from django.core.files.storage import storages
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
@@ -10,11 +11,17 @@ from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import cancel_build
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.upload.tasks import process_uploaded_build
@@ -63,13 +70,18 @@ class UploadInitiateView(APIv3Settings, APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        if not Project.objects.is_active(project):
+            return Response(
+                {"detail": "Project is not active."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         # Get or create version
         version_name = version_data["name"]
         version_type = version_data["type"]
         version_commit = version_data["commit"]
         privacy_level = version_data["privacy_level"]
         version_slug = version_data.get("slug", "")
-
         version = self._get_or_create_version(
             project=project,
             name=version_name,
@@ -77,6 +89,11 @@ class UploadInitiateView(APIv3Settings, APIView):
             slug=version_slug,
             privacy_level=privacy_level,
         )
+
+        # TODO: put a limit on the number of builds that are on the triggered state.
+        # We don't want users creating a lot of builds and never uploading them.
+        # It may be by erorr or abuse, the limit should be high enough to allow for multiple builds to be triggered,
+        # but not too high to allow for abuse.
 
         build = Build.objects.create(
             project=project,
@@ -87,6 +104,37 @@ class UploadInitiateView(APIv3Settings, APIView):
         )
 
         upload_url = self._generate_upload_url(build)
+
+        send_build_status.delay(
+            build_pk=build.id,
+            commit=version_commit,
+            status=BUILD_STATUS_PENDING,
+        )
+
+        # Reduce overhead when doing multiple push on the same version.
+        running_builds = (
+            Build.objects.filter(
+                project=project,
+                version=version,
+            )
+            .exclude(
+                state__in=BUILD_FINAL_STATES,
+            )
+            .exclude(
+                pk=build.pk,
+            )
+        )
+        running_builds_count = running_builds.count()
+        if running_builds_count > 0:
+            log.warning(
+                "Canceling running builds automatically due a new one arrived.",
+                running_builds=running_builds_count,
+            )
+
+        # If there are builds triggered/running for this particular project and version,
+        # we cancel all of them and trigger a new one for the latest commit received.
+        for running_build in running_builds:
+            cancel_build(running_build)
 
         return Response(
             {
@@ -179,6 +227,8 @@ class UploadCompleteView(APIv3Settings, APIView):
 
         # Clean up
         if upload_status == "failed":
+            # NOTE: attach a notification about the build failing
+            # because the upload didn't complete/failed.
             build.state = BUILD_STATE_FINISHED
             build.success = False
             build.save()
@@ -187,12 +237,36 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_200_OK,
             )
 
+        options = {}
+        # Start the build in X minutes and mark it as limited
+        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+        if limit_reached:
+            log.warning(
+                "Delaying tasks at trigger step due to concurrency limit.",
+            )
+            # Delay the start of the build for the build retry delay.
+            # We're still triggering the task, but it won't run immediately,
+            # and the user will be alerted in the UI from the Error below.
+            options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
+            options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
+            Notification.objects.add(
+                message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                attached_to=build,
+                dismissable=False,
+                format_values={"limit": max_concurrent_builds},
+            )
+
         # Trigger processing task
         _, build_api_key = BuildAPIKey.objects.create_key(project=project)
-        process_uploaded_build.delay(
-            build_id=build.id,
-            build_api_key=build_api_key,
+        task = process_uploaded_build.apply_async(
+            kwargs={
+                "build_id": build.id,
+                "build_api_key": build_api_key,
+            },
+            **options,
         )
+        build.task_id = task.id
+        build.save()
         return Response(
             {"build": BuildSerializer(build).data},
             status=status.HTTP_202_ACCEPTED,

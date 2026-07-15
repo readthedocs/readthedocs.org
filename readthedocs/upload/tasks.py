@@ -104,7 +104,7 @@ class ProcessUploadedBuildTask(Task):
     acks_late = True
     track_started = True
 
-    # These values have to be dynamic based on project
+    # TODO: Hard code some limits here, unzipping and uploading shuldn't take more than 10 minutes.
     time_limit = None
     soft_time_limit = None
 
@@ -251,6 +251,7 @@ class ProcessUploadedBuildTask(Task):
         )
         local_artifacts_path = output_dir / "_readthedocs"
         with environment:
+            # NOTE: do we want to put the actual command in the build output? Maybe just fake it?
             # Exctract zip
             environment.run(
                 "unzip",
