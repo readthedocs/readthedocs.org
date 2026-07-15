@@ -111,7 +111,17 @@ class TestProjectRelationshipAlias(TestCase):
         relation.save()
         assert relation.alias == "api"
 
+    def test_alias_doesnt_accept_slashes(self):
+        relation = self._build_relationship("api/python")
+        with pytest.raises(ValidationError):
+            relation.full_clean()
+
     def test_alias_accepts_slashes(self):
+        get(
+            Feature,
+            feature_id=Feature.ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            projects=[self.parent]
+        )
         relation = self._build_relationship("api/python")
         relation.full_clean()
         relation.save()

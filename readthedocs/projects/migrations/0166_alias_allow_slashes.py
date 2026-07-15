@@ -24,8 +24,7 @@ class Migration(migrations.Migration):
                 validators=[
                     RegexValidator(
                         message=_(
-                            "Aliases can contain letters, numbers, underscores, hyphens, and slashes "
-                            "(e.g. 'api' or 'api/python')."
+                            "Aliases can contain letters, numbers, underscores, and hyphens."
                         ),
                         regex=r"^[-\w]+(?:/[-\w]+)*$",
                     ),
