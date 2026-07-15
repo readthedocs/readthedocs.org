@@ -14,7 +14,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
-anyio==4.14.0
+anyio==4.14.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -31,11 +31,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.34
+boto3==1.43.36
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.34
+botocore==1.43.36
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -61,7 +61,7 @@ charset-normalizer==3.4.7
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.4.1
+click==8.4.2
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -85,7 +85,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.14.2
+coverage[toml]==7.14.3
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -163,7 +163,7 @@ django-ipware==7.0.1
     #   django-structlog
 django-safemigrate==6.0
     # via -r requirements/pip.txt
-django-simple-history==3.11.0
+django-simple-history==3.12.0
     # via -r requirements/pip.txt
 django-storages[s3]==1.14.6
     # via -r requirements/pip.txt
@@ -374,7 +374,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==8.0.0
+redis==8.0.1
     # via -r requirements/pip.txt
 regex==2026.5.9
     # via -r requirements/pip.txt
