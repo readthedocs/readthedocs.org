@@ -415,6 +415,18 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         build_retry = None
         commit = None
 
+        if version.is_uploaded:
+            return Response(
+                data={
+                    "build": None,
+                    "project": ProjectSerializer(project).data,
+                    "version": VersionSerializer(version).data,
+                    "triggered": False,
+                    "error": "Cannot trigger a build for an uploaded version.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if version.is_external:
             # We use the last build for a version here as we want to update VCS
             # providers and need to reference the latest commit to do so.

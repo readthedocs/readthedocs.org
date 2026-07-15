@@ -170,11 +170,15 @@ class Version(TimeStampedModel):
         help_text=_("Type of documentation the version was built with."),
     )
 
-    # is_uploaded = models.BooleanField(
-    #     _("Artifacts uploaded using the upload API"),
-    #     default=False,
-    #     db_default=False,
-    # )
+    # NOTE: should we re-purpose the uploaded field instead of creating a new one?
+    # We have some versions with this attribute, but that attirbute isn't relaveant anymore.
+    # NOTE: we can also do a denormalization, and have a build attribute
+    # tha links to the latest successful build of the version.
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
+    )
 
     # build = models.OneToOneField(
     #     "Build",
@@ -1119,6 +1123,7 @@ class Build(models.Model):
             type = self.version.type
         return type == EXTERNAL
 
+    # NOTE: this isn't used
     @property
     def can_rebuild(self):
         """

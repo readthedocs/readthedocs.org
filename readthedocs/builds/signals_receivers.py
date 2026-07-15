@@ -22,3 +22,13 @@ def update_latest_build_for_project(sender, instance, created, **kwargs):
         Project.objects.filter(pk=instance.project_id).update(
             latest_build=instance,
         )
+
+
+@receiver(post_save, sender=Build)
+def update_is_uploaded_for_version(sender, instance, created, **kwargs):
+    """When a successful build via the upload API is completed, update the version."""
+    build = instance
+    if build.finished and build.success:
+        version = instance.version
+        version.is_uploaded = True
+        version.save(update_fields=["is_uploaded"])
