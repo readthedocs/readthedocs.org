@@ -3,7 +3,6 @@
 import json
 import re
 from random import choice
-from re import fullmatch
 from urllib.parse import urlparse
 
 import dns.name
@@ -51,6 +50,8 @@ from readthedocs.projects.models import WebHook
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import EnvironmentVariableValidator
+from readthedocs.projects.validators import ProjectValidator
 from readthedocs.redirects.models import Redirect
 
 
@@ -476,6 +477,7 @@ class ProjectConfigForm(forms.Form):
 
 
 class UpdateProjectForm(
+    ProjectValidator,
     ProjectTriggerBuildMixin,
     ProjectForm,
     ProjectPRBuildsMixin,
@@ -643,46 +645,6 @@ class UpdateProjectForm(
             all_versions = [(version.slug, version.verbose_name) for version in version_qs]
             return all_versions
         return None
-
-    def clean_language(self):
-        """Ensure that language isn't already active."""
-        language = self.cleaned_data["language"]
-        project = self.instance
-        if project:
-            msg = _(
-                'There is already a "{lang}" translation for the {proj} project.',
-            )
-            if project.translations.filter(language=language).exists():
-                raise forms.ValidationError(
-                    msg.format(lang=language, proj=project.slug),
-                )
-            main_project = project.main_language_project
-            if main_project:
-                if main_project.language == language:
-                    raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug),
-                    )
-                siblings = (
-                    main_project.translations.filter(language=language)
-                    .exclude(pk=project.pk)
-                    .exists()
-                )
-                if siblings:
-                    raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug),
-                    )
-        return language
-
-    def clean_tags(self):
-        tags = self.cleaned_data.get("tags", [])
-        for tag in tags:
-            if len(tag) > 100:
-                raise forms.ValidationError(
-                    _(
-                        "Length of each tag must be less than or equal to 100 characters.",
-                    ),
-                )
-        return tags
 
     def clean_git_checkout_command(self):
         """Parse and validate git_checkout_command as a JSON array."""
@@ -1367,7 +1329,7 @@ class FeatureForm(forms.ModelForm):
         self.fields["feature_id"].choices = Feature.FEATURES
 
 
-class EnvironmentVariableForm(forms.ModelForm):
+class EnvironmentVariableForm(EnvironmentVariableValidator, forms.ModelForm):
     """
     Form to add an EnvironmentVariable to a Project.
 
@@ -1391,33 +1353,6 @@ class EnvironmentVariableForm(forms.ModelForm):
 
     def clean_project(self):
         return self.project
-
-    def clean_name(self):
-        """Validate environment variable name chosen."""
-        name = self.cleaned_data["name"]
-        if name.startswith("__"):
-            raise forms.ValidationError(
-                _("Variable name can't start with __ (double underscore)"),
-            )
-        if name.startswith("READTHEDOCS"):
-            raise forms.ValidationError(
-                _("Variable name can't start with READTHEDOCS"),
-            )
-        if self.project.environmentvariable_set.filter(name=name).exists():
-            raise forms.ValidationError(
-                _(
-                    "There is already a variable with this name for this project",
-                ),
-            )
-        if " " in name:
-            raise forms.ValidationError(
-                _("Variable name can't contain spaces"),
-            )
-        if not fullmatch("[a-zA-Z0-9_]+", name):
-            raise forms.ValidationError(
-                _("Only letters, numbers and underscore are allowed"),
-            )
-        return name
 
 
 # TODO if you are extending this form or reusing this pattern for any similar views,

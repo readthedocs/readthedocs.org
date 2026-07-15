@@ -10,10 +10,11 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.builds.validators import VersionValidator
 from readthedocs.builds.version_slug import generate_version_slug
 
 
-class VersionForm(forms.ModelForm):
+class VersionForm(VersionValidator, forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
@@ -69,21 +70,6 @@ class VersionForm(forms.ModelForm):
         # We use this value in the save method.
         self._was_active = self.instance.active if self.instance else False
         self._previous_slug = self.instance.slug if self.instance else None
-
-    def clean_active(self):
-        active = self.cleaned_data["active"]
-        if self._is_default_version() and not active:
-            msg = _(
-                "{version} is the default version of the project, it should be active.",
-            )
-            raise forms.ValidationError(
-                msg.format(version=self.instance.verbose_name),
-            )
-        return active
-
-    def _is_default_version(self):
-        project = self.instance.project
-        return project.default_version == self.instance.slug
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]

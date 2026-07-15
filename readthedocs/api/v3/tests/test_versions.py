@@ -281,6 +281,24 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertFalse(self.version.built)
         self.assertEqual(self.version.type, TAG)
 
+    def test_projects_versions_partial_update_deactivate_default_version(self):
+        self.project.default_version = self.version.slug
+        self.project.save()
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": self.version.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, {"active": False})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("active", response.json())
+
+        self.version.refresh_from_db()
+        self.assertTrue(self.version.active)
+
     def test_projects_versions_partial_update_privacy_levels_disabled(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         data = {
