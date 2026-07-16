@@ -170,7 +170,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.notifications.count(), 1)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(self.project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         r = client.post(reverse("build-reset", args=(build.pk,)))
@@ -201,7 +201,7 @@ class APIBuildTests(TestCase):
         )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(self.project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
         get_s3_build_media_scoped_credentials.return_value = AWSS3TemporaryCredentials(
             access_key_id="access_key_id",
@@ -281,7 +281,7 @@ class APIBuildTests(TestCase):
         build_one = Build.objects.create(project=project, version=version)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.patch(
@@ -494,7 +494,7 @@ class APIBuildTests(TestCase):
         resp = client.get("/api/v2/build/{}/".format(build.pk), format="json")
         self.assertEqual(resp.status_code, 200)
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
         resp = client.get("/api/v2/build/{}/".format(build.pk), format="json")
         self.assertEqual(resp.status_code, 200)
@@ -502,7 +502,7 @@ class APIBuildTests(TestCase):
 
     def test_make_build_commands(self):
         """Create build commands."""
-        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(self.project)
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
@@ -759,14 +759,14 @@ class APITests(TestCase):
     def test_create_key_for_project_with_long_slug(self):
         user = get(User)
         project = get(Project, users=[user], slug="a" * 60)
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
         self.assertEqual(build_api_key_obj.name, "a" * 50)
 
     def test_revoke_build_api_key(self):
         user = get(User)
         project = get(Project, users=[user])
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client = APIClient()
         revoke_url = "/api/v2/revoke/"
         self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
@@ -791,14 +791,14 @@ class APITests(TestCase):
     @override_settings(BUILD_TIME_LIMIT=600)
     def test_expiricy_key(self):
         project = get(Project)
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
         # Project with a custom containe time limit
         project.container_time_limit = 1200
         project.save()
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
@@ -818,7 +818,7 @@ class APITests(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertNotIn("readthedocs_yaml_path", resp.data)
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -905,7 +905,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1027,7 +1027,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1079,7 +1079,7 @@ class APITests(TestCase):
         self.assertEqual(BuildCommandResult.objects.count(), 0)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         now = timezone.now()
@@ -1208,7 +1208,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1392,7 +1392,7 @@ class APITests(TestCase):
         Version.objects.all().update(privacy_level=PUBLIC)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1520,7 +1520,7 @@ class APITests(TestCase):
         Version.objects.all().update(privacy_level=PUBLIC)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1556,7 +1556,7 @@ class APITests(TestCase):
         get(Feature, projects=[], default_true=False)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -1572,7 +1572,7 @@ class APITests(TestCase):
         project2 = get(Project, main_language_project=None)
         feature = get(Feature, projects=[project1, project2], default_true=True)
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project1)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project1)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project1.pk))
@@ -1587,7 +1587,7 @@ class APITests(TestCase):
         project = get(Project)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # No remote repository, no token.
@@ -1669,7 +1669,7 @@ class APITests(TestCase):
         )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -1761,7 +1761,7 @@ class APITests(TestCase):
             )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get(
@@ -1788,7 +1788,7 @@ class APITests(TestCase):
 
         self.assertEqual(Notification.objects.count(), 0)
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         response = client.post(url, data=data)
@@ -1806,6 +1806,296 @@ class APITests(TestCase):
         self.assertEqual(n1.state, READ)
         self.assertEqual(n2.state, UNREAD)
         self.assertNotEqual(n1.modified, n2.modified)
+
+
+class BuildScopedAPIKeyTests(TestCase):
+    """
+    Coverage for the build-scoped ``BuildAPIKey`` variant.
+
+    Keys minted via ``BuildAPIKeyManager.create_key_for_build(build)``
+    are narrower than the historical project-scoped keys — writes are
+    restricted to the specific Build (and its Version, commands,
+    notifications). Reads of the parent Project stay allowed so the
+    isolated-builders worker can pull ``clone_token`` for the sparse
+    clone.
+
+    Companion coverage for project-scoped keys already lives on
+    :class:`APITests` (``test_project_read_and_write_endpoints_for_build_api_token``,
+    ``test_build_read_and_write_endpoints_for_build_api_token``,
+    ``test_versions_read_and_write_endpoints_for_build_api_token``,
+    ``test_build_commands_read_and_write_endpoints_for_build_api_token``).
+    These tests deliberately DON'T re-test the project-scoped path —
+    they exercise the new build-scoped narrowing only.
+    """
+
+    fixtures = ["eric.json", "test_data.json"]
+
+    def setUp(self):
+        self.user = get(User, is_staff=False)
+        self.project = get(Project, users=[self.user], privacy_level=PUBLIC)
+        Version.objects.filter(project=self.project).update(privacy_level=PUBLIC)
+        self.version = self.project.versions.first()
+        self.build = get(Build, project=self.project, version=self.version)
+
+        # Sibling resources under the SAME project — used to verify
+        # the build-scoped key can't reach beyond its own build even
+        # when the sibling belongs to the same project.
+        self.sibling_version = get(Version, project=self.project, privacy_level=PUBLIC)
+        self.sibling_build = get(Build, project=self.project, version=self.sibling_version)
+
+        # Foreign project — used to verify cross-project isolation
+        # still holds (same as project-scoped keys).
+        self.other_project = get(Project, privacy_level=PUBLIC)
+        Version.objects.filter(project=self.other_project).update(privacy_level=PUBLIC)
+        self.other_version = self.other_project.versions.first()
+        self.other_build = get(
+            Build, project=self.other_project, version=self.other_version
+        )
+
+        _, self.build_api_key = BuildAPIKey.objects.create_key_for_build(build=self.build)
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.build_api_key}")
+
+    # ---- Model / manager ----
+
+    def test_create_key_for_build_sets_both_fks(self):
+        obj, _key = BuildAPIKey.objects.create_key_for_build(build=self.build)
+        assert obj.project_id == self.project.pk
+        assert obj.build_id == self.build.pk
+
+    def test_create_key_for_project_leaves_build_null(self):
+        """Regression: project-scoped keys must not accidentally get a build FK."""
+        obj, _key = BuildAPIKey.objects.create_key_for_project(project=self.project)
+        assert obj.project_id == self.project.pk
+        assert obj.build_id is None
+
+    # ---- Project endpoint ----
+    #
+    # ``ProjectViewSet.permission_classes`` is
+    # ``[HasProjectScopedBuildAPIKey | (HasBuildScopedBuildAPIKey &
+    # ReadOnlyPermission) | ReadOnlyPermission]``. A build-scoped
+    # key matches the middle branch on GET — that branch is what
+    # attaches ``request.build_api_key`` and lets
+    # ``get_serializer_class`` pick ``ProjectAdminSerializer`` (which
+    # exposes ``clone_token``). On PATCH, the ``ReadOnlyPermission``
+    # inside the ``&`` rejects the request, and the trailing
+    # ``ReadOnlyPermission`` also rejects because PATCH isn't safe.
+
+    def test_project_get_own_project_returns_clone_token(self):
+        """Build-scoped key can GET the project AND ``clone_token`` is in the payload.
+
+        Necessary for the isolated-builders worker to authenticate its
+        sparse-clone of ``.readthedocs.yaml``. If ``ProjectAdminSerializer``
+        wasn't selected here, ``clone_token`` would be absent and the
+        HTTPS clone path would break.
+
+        Regression guard on the composed permission chain — dropping
+        ``HasBuildScopedBuildAPIKey`` from
+        ``ProjectViewSet.permission_classes``, or moving it out of
+        the ``& ReadOnlyPermission`` composition, would silently make
+        ``clone_token`` disappear from the response for build-scoped
+        keys.
+        """
+        resp = self.client.get(f"/api/v2/project/{self.project.pk}/")
+        assert resp.status_code == 200
+        # Presence check: value can be None for public repos; what
+        # matters is that the field is exposed (i.e. the admin
+        # serializer was picked).
+        assert "clone_token" in resp.data
+
+    def test_project_patch_denied(self):
+        """Build-scoped keys must NOT be able to PATCH the project."""
+        resp = self.client.patch(
+            f"/api/v2/project/{self.project.pk}/",
+            {"description": "malicious edit"},
+            format="json",
+        )
+        # 403 because ReadOnlyPermission denies non-safe methods and
+        # HasProjectScopedBuildAPIKey rejects the build-scoped key.
+        assert resp.status_code == 403
+
+    def test_project_get_other_project_returns_404(self):
+        """Queryset narrowing: other projects invisible even on GET."""
+        resp = self.client.get(f"/api/v2/project/{self.other_project.pk}/")
+        assert resp.status_code == 404
+
+    # ---- Build endpoint ----
+
+    def test_build_get_own_build_allowed(self):
+        resp = self.client.get(f"/api/v2/build/{self.build.pk}/")
+        assert resp.status_code == 200
+
+    def test_build_patch_own_build_allowed(self):
+        """The runner PATCHes state / success / length on its own build."""
+        resp = self.client.patch(
+            f"/api/v2/build/{self.build.pk}/",
+            {"state": "finished", "success": True, "length": 42},
+            format="json",
+        )
+        assert resp.status_code == 200
+
+    def test_build_get_sibling_build_returns_404(self):
+        """Other builds in the same project are not reachable."""
+        resp = self.client.get(f"/api/v2/build/{self.sibling_build.pk}/")
+        assert resp.status_code == 404
+
+    def test_build_patch_sibling_build_returns_404(self):
+        resp = self.client.patch(
+            f"/api/v2/build/{self.sibling_build.pk}/",
+            {"success": False},
+            format="json",
+        )
+        assert resp.status_code == 404
+
+    def test_build_get_other_project_returns_404(self):
+        resp = self.client.get(f"/api/v2/build/{self.other_build.pk}/")
+        assert resp.status_code == 404
+
+    def test_build_reset_own_build_allowed(self):
+        resp = self.client.post(f"/api/v2/build/{self.build.pk}/reset/")
+        assert resp.status_code == 204
+
+    def test_build_reset_sibling_build_returns_404(self):
+        resp = self.client.post(f"/api/v2/build/{self.sibling_build.pk}/reset/")
+        assert resp.status_code == 404
+
+    def test_build_concurrent_endpoint_allowed(self):
+        """The concurrency-check endpoint is available to build-scoped keys."""
+        resp = self.client.get(
+            "/api/v2/build/concurrent/", data={"project__slug": self.project.slug}
+        )
+        # 200 with dict payload — same shape project-scoped keys get.
+        assert resp.status_code == 200
+        assert "concurrent" in resp.data
+        assert "limit_reached" in resp.data
+
+    # ---- Version endpoint ----
+
+    def test_version_get_own_version_allowed(self):
+        resp = self.client.get(f"/api/v2/version/{self.version.pk}/")
+        assert resp.status_code == 200
+
+    def test_version_patch_own_version_allowed(self):
+        """The runner PATCHes ``built`` / ``has_pdf`` / etc. on the version.
+
+        See ``readthedocs.projects.tasks.builds.on_success``.
+        """
+        resp = self.client.patch(
+            f"/api/v2/version/{self.version.pk}/",
+            {"built": True},
+            format="json",
+        )
+        assert resp.status_code == 200
+
+    def test_version_get_sibling_version_returns_404(self):
+        """Other versions of the same project are unreachable."""
+        resp = self.client.get(f"/api/v2/version/{self.sibling_version.pk}/")
+        assert resp.status_code == 404
+
+    def test_version_patch_sibling_version_returns_404(self):
+        resp = self.client.patch(
+            f"/api/v2/version/{self.sibling_version.pk}/",
+            {"built": True},
+            format="json",
+        )
+        assert resp.status_code == 404
+
+    # ---- Command endpoint ----
+
+    def test_command_create_for_own_build_allowed(self):
+        now = timezone.now()
+        resp = self.client.post(
+            "/api/v2/command/",
+            {
+                "build": self.build.pk,
+                "command": "echo hello",
+                "output": "hello",
+                "exit_code": 0,
+                "start_time": (now - datetime.timedelta(seconds=1)).isoformat(),
+                "end_time": now.isoformat(),
+            },
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_201_CREATED
+
+    def test_command_create_for_sibling_build_forbidden(self):
+        """``perform_create`` rejects commands attached to another build."""
+        now = timezone.now()
+        resp = self.client.post(
+            "/api/v2/command/",
+            {
+                "build": self.sibling_build.pk,
+                "command": "echo hello",
+                "output": "hello",
+                "exit_code": 0,
+                "start_time": (now - datetime.timedelta(seconds=1)).isoformat(),
+                "end_time": now.isoformat(),
+            },
+            format="json",
+        )
+        assert resp.status_code == 403
+
+    def test_command_get_sibling_build_command_returns_404(self):
+        sibling_cmd = get(
+            BuildCommandResult,
+            build=self.sibling_build,
+            command="echo sibling",
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            exit_code=0,
+        )
+        resp = self.client.get(f"/api/v2/command/{sibling_cmd.pk}/")
+        assert resp.status_code == 404
+
+    # ---- Notification endpoint ----
+
+    def test_notification_attached_to_own_build_allowed(self):
+        resp = self.client.post(
+            "/api/v2/notifications/",
+            {
+                "attached_to": f"build/{self.build.pk}",
+                "message_id": "generic",
+            },
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_201_CREATED
+
+    def test_notification_attached_to_sibling_build_forbidden(self):
+        resp = self.client.post(
+            "/api/v2/notifications/",
+            {
+                "attached_to": f"build/{self.sibling_build.pk}",
+                "message_id": "generic",
+            },
+            format="json",
+        )
+        assert resp.status_code == 403
+
+    def test_notification_attached_to_project_forbidden(self):
+        """Build-scoped keys can never attach a notification to a Project."""
+        resp = self.client.post(
+            "/api/v2/notifications/",
+            {
+                "attached_to": f"project/{self.project.pk}",
+                "message_id": "generic",
+            },
+            format="json",
+        )
+        assert resp.status_code == 403
+
+    # ---- Revoke endpoint ----
+
+    def test_revoke_allowed_for_build_scoped_key(self):
+        """Build-scoped keys can revoke themselves.
+
+        The isolated-builders worker calls this at end-of-build to
+        drop the token immediately (rather than waiting for the 24h
+        expiry).
+        """
+        assert BuildAPIKey.objects.is_valid(self.build_api_key)
+        resp = self.client.post("/api/v2/revoke/")
+        assert resp.status_code == 204
+        assert not BuildAPIKey.objects.is_valid(self.build_api_key)
 
 
 class APIImportTests(TestCase):
@@ -3530,7 +3820,7 @@ class APIVersionTests(TestCase):
         """
         pip = Project.objects.get(slug="pip")
         version = pip.versions.get(slug="0.8")
-        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(pip)
 
         data = {
             "pk": version.pk,
@@ -3658,7 +3948,7 @@ class APIVersionTests(TestCase):
     def test_modify_version(self):
         pip = Project.objects.get(slug="pip")
         version = pip.versions.get(slug="0.8")
-        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(pip)
 
         data = {
             "pk": version.pk,

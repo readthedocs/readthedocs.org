@@ -88,7 +88,7 @@ def trigger_sync_versions(project):
             log.info("Skipping sync versions for project.", project_slug=project.slug)
             return None
 
-        _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+        _, build_api_key = BuildAPIKey.objects.create_key_for_project(project=project)
 
         log.debug(
             "Triggering sync repository.",

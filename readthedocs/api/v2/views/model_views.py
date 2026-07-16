@@ -25,7 +25,8 @@ from rest_framework.renderers import BaseRenderer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import HasBuildScopedBuildAPIKey
+from readthedocs.api.v2.permissions import HasProjectScopedBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
@@ -184,7 +185,20 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     """List, filter, etc, Projects."""
 
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    # Project-scoped BuildAPIKey: full read + write.
+    # Build-scoped BuildAPIKey: read-only. It needs GET to pull
+    # ``clone_token`` for the sparse clone, but must never PATCH the
+    # project — the ``& ReadOnlyPermission`` composition enforces
+    # that. Its True branch is also what attaches the key to the
+    # request so ``get_serializer_class`` picks
+    # ``ProjectAdminSerializer`` (the one exposing ``clone_token``).
+    # Anonymous / regular users: read-only via the trailing
+    # ``ReadOnlyPermission``.
+    permission_classes = [
+        HasProjectScopedBuildAPIKey
+        | (HasBuildScopedBuildAPIKey & ReadOnlyPermission)
+        | ReadOnlyPermission
+    ]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -236,7 +250,9 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [
+        HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey | ReadOnlyPermission
+    ]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
@@ -247,6 +263,12 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     )
 
     def get_queryset_for_api_key(self, api_key):
+        # Build-scoped keys can only reach the one Version they were
+        # minted against — matches the ``on_success`` PATCH the runner
+        # does on ``version.built``, ``documentation_type``, etc.
+        # Project-scoped keys retain the wider access.
+        if api_key.build_id:
+            return self.model.objects.filter(pk=api_key.build.version_id)
         return self.model.objects.filter(project=api_key.project)
 
     def get_queryset(self):
@@ -254,7 +276,9 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [
+        HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey | ReadOnlyPermission
+    ]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
     filterset_fields = ("project__slug", "commit")
@@ -277,7 +301,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=False,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey],
         methods=["get"],
     )
     def concurrent(self, request, **kwargs):
@@ -369,7 +393,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey],
         methods=["post"],
     )
     def reset(self, request, **kwargs):
@@ -379,11 +403,15 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset_for_api_key(self, api_key):
+        # Build-scoped keys can only reach the one Build they were
+        # minted against; project-scoped keys keep the wider access.
+        if api_key.build_id:
+            return self.model.objects.filter(pk=api_key.build_id)
         return self.model.objects.filter(project=api_key.project)
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey],
         methods=["post"],
         url_path="credentials/storage",
     )
@@ -424,17 +452,25 @@ class BuildCommandViewSet(
     DisableListEndpoint, CreateModelMixin, UpdateModelMixin, UserSelectViewSet
 ):
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [
+        HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey | ReadOnlyPermission
+    ]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
 
     def perform_create(self, serializer):
-        """Restrict creation to builds attached to the project from the api key."""
+        """Restrict creation to builds allowed by the api key's scope."""
         build_pk = serializer.validated_data["build"].pk
         build_api_key = self.request.build_api_key
-        if not build_api_key.project.builds.filter(pk=build_pk).exists():
-            raise PermissionDenied()
+        if build_api_key.build_id:
+            # Build-scoped key can only attach commands to its own Build.
+            if build_api_key.build_id != build_pk:
+                raise PermissionDenied()
+        else:
+            # Project-scoped key: any Build under the same project.
+            if not build_api_key.project.builds.filter(pk=build_pk).exists():
+                raise PermissionDenied()
 
         if BuildCommandResult.objects.filter(
             build=serializer.validated_data["build"],
@@ -446,6 +482,8 @@ class BuildCommandViewSet(
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
+        if api_key.build_id:
+            return self.model.objects.filter(build_id=api_key.build_id)
         return self.model.objects.filter(build__project=api_key.project)
 
 
@@ -459,17 +497,26 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
     """
 
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey]
+    permission_classes = [HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey]
     renderer_classes = (JSONRenderer,)
     serializer_class = NotificationSerializer
     model = Notification
 
     def perform_create(self, serializer):
-        """Restrict creation to notifications attached to the project's builds from the api key."""
+        """Restrict creation to notifications the api key is allowed to attach."""
         attached_to = serializer.validated_data["attached_to"]
 
         build_api_key = self.request.build_api_key
 
+        # Build-scoped keys can only attach notifications to their own
+        # Build, and never to a Project.
+        if build_api_key.build_id:
+            if not isinstance(attached_to, Build) or attached_to.pk != build_api_key.build_id:
+                raise PermissionDenied()
+            return super().perform_create(serializer)
+
+        # Project-scoped keys: existing check — Build or Project must
+        # match the key's project slug.
         project_slug = None
         if isinstance(attached_to, Build):
             project_slug = attached_to.project.slug
