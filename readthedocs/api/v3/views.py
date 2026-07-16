@@ -40,6 +40,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import SUBPROJECT_ALIAS_REGEX
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
@@ -281,6 +282,9 @@ class SubprojectRelationshipViewSet(
     model = ProjectRelationship
     lookup_field = "alias"
     lookup_url_kwarg = "alias_slug"
+    # Aliases may contain slashes (e.g. ``api/python``). DRF's default lookup
+    # regex stops at the first ``/``, so widen it to match the model validator.
+    lookup_value_regex = SUBPROJECT_ALIAS_REGEX
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
     def get_serializer_class(self):

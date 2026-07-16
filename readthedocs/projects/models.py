@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -65,6 +66,7 @@ from readthedocs.projects.validators import validate_domain_name
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.projects.validators import validate_no_ip
 from readthedocs.projects.validators import validate_repository_url
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
 from readthedocs.vcs_support.backends import backend_cls
@@ -108,12 +110,25 @@ class ProjectRelationship(models.Model):
         related_name="superprojects",
         on_delete=models.CASCADE,
     )
-    alias = models.SlugField(
+    # Aliases may be a single slug (``api``) or several slug-like segments
+    # joined by ``/`` (``api/python``). Multi-segment aliases let a parent
+    # project expose what looks like a nested set of subprojects under
+    # ``/projects/api/python/`` without modeling actual subprojects of
+    # subprojects.
+    # NOTE: slashes in aliases are allowed for projects with
+    # the ALLOW_SLASHES_IN_SUBPROJECT_ALIAS feature flag only.
+    alias = models.CharField(
         _("Alias"),
         max_length=255,
         null=True,
         blank=True,
         db_index=False,
+        validators=[
+            RegexValidator(
+                regex=rf"^{constants.SUBPROJECT_ALIAS_REGEX}$",
+                message=_("Aliases can contain letters, numbers, underscores, and hyphens."),
+            ),
+        ],
     )
 
     objects = ChildRelatedProjectQuerySet.as_manager()
@@ -138,6 +153,10 @@ class ProjectRelationship(models.Model):
         """
         prefix = self.parent.custom_subproject_prefix or "/projects/"
         return unsafe_join_url_path(prefix, self.alias, "/")
+
+    def clean(self):
+        if self.alias:
+            validate_subproject_alias(parent_project=self.parent, alias=self.alias)
 
 
 class AddonsConfig(TimeStampedModel):
@@ -2073,6 +2092,7 @@ class Feature(models.Model):
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_SLASHES_IN_SUBPROJECT_ALIAS = "allow_slashes_in_subproject_alias"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -2116,6 +2136,10 @@ class Feature(models.Model):
         (
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
+        ),
+        (
+            ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            _("Subprojects: Allow slashes in subproject alias"),
         ),
         # Versions sync related features
         (
