@@ -2172,7 +2172,7 @@ class Feature(models.Model):
             USE_ISOLATED_BUILDER,
             _(
                 "Build: Dispatch this project's builds to the `isolated-builders` ASG "
-                "instead of the `build-default` ASG".
+                "instead of the `build-default` ASG."
             ),
         ),
         (
@@ -2180,7 +2180,7 @@ class Feature(models.Model):
             _(
                 "Build: Debug mode for `isolated-builders` — keep the EC2 instance "
                 "running after the build completes (instead of having the worker "
-                "self-terminate it via the AWS API).
+                "self-terminate it via the AWS API)."
             ),
         ),
     )
