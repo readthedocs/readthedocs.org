@@ -22,3 +22,18 @@ def update_latest_build_for_project(sender, instance, created, **kwargs):
         Project.objects.filter(pk=instance.project_id).update(
             latest_build=instance,
         )
+
+
+@receiver(post_save, sender=Build)
+def set_valid_clone_after_successful_build(sender, instance, created, **kwargs):
+    """
+    Set the valid_clone flag to True after a successful build.
+
+    This is used to indicate that the project has been successfully built at least once.
+    """
+    build = instance
+    if build.finished and build.success:
+        project = build.project
+        if not project.valid_clone:
+            project.valid_clone = True
+            project.save()

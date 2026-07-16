@@ -43,6 +43,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
+from readthedocs.builds.tasks import send_build_status
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.core.utils.filesystem import assert_path_is_inside_docroot
@@ -386,6 +387,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Comes from the signature of the task and they are the only
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
+        # Initialize the build dictionary with the minimum required data,
+        # so it can be updated via the API even if the build object is not
+        # retrieved from the API.
+        self.data.build = {
+            "id": self.data.build_pk,
+        }
 
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
@@ -479,16 +486,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            object may not be defined.
         """
         log.info("Task failed.")
-        if not self.data.build:
-            # NOTE: use `self.data.build_id` (passed to the task) instead
-            # `self.data.build` (retrieved from the API) because it's not present,
-            # probably due the API failed when retrieving it.
-            #
-            # So, we create the `self.data.build` with the minimum required data.
-            self.data.build = {
-                "id": self.data.build_pk,
-            }
-
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         if isinstance(exc, BuildAppError):
@@ -523,42 +520,27 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Grab the format values from the exception in case it contains
         format_values = exc.format_values if hasattr(exc, "format_values") else None
 
-        # Attach the notification to the build, only when ``BuildDirector`` is available.
-        # It may happens the director is not created because the API failed to retrieve
-        # required data to initialize it on ``before_start``.
-        if self.data.build_director:
-            self.data.build_director.attach_notification(
-                attached_to=f"build/{self.data.build['id']}",
-                message_id=message_id,
-                format_values=format_values,
-            )
-        else:
-            log.warning(
-                "We couldn't attach a notification to the build since it failed on an early stage."
-            )
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f"build/{self.data.build_pk}",
+                "message_id": message_id,
+                "format_values": format_values,
+            }
+        )
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:
             self.send_notifications(
                 self.data.version_pk,
-                self.data.build["id"],
+                self.data.build_pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
 
-        # NOTE: why we wouldn't have `self.data.build_commit` here?
-        # This attribute is set when we get it after cloning the repository
-        #
-        # Oh, I think this is to differentiate a task triggered with
-        # `Build.commit` than a one triggered just with the `Version` to build
-        # the _latest_ commit of it
+        # NOTE: only tasks for builds from pull requests have a commit associated with them.
         if (
             self.data.build_commit
             and message_id not in self.exceptions_without_external_build_status
         ):
-            version_type = None
-            if self.data.version:
-                version_type = self.data.version.type
-
             status = BUILD_STATUS_FAILURE
             if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # The build was skipped by returning the magic exit code,
@@ -568,16 +550,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # "success" but uses a distinct description so reviewers can tell
                 # the build was intentionally skipped rather than actually built.
                 status = BUILD_STATUS_SKIPPED
-
-            send_external_build_status(
-                version_type=version_type,
-                build_pk=self.data.build["id"],
+            send_build_status.delay(
+                build_pk=self.data.build_pk,
                 commit=self.data.build_commit,
                 status=status,
             )
 
         # Trigger task to check number of failed builds and disable the project if needed (only for community)
-        if not settings.ALLOW_PRIVATE_REPOS:
+        if not settings.ALLOW_PRIVATE_REPOS and self.data.project and self.data.version:
             check_and_disable_project_for_consecutive_failed_builds.delay(
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
@@ -677,33 +657,29 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         valid_artifacts = self.get_valid_artifact_types()
-
-        # NOTE: we are updating the db version instance *only* when
-        # TODO: remove this condition and *always* update the DB Version instance
-        if "html" in valid_artifacts:
-            data = {
-                "built": True,
-                "documentation_type": self.data.version.documentation_type,
-                "has_pdf": "pdf" in valid_artifacts,
-                "has_epub": "epub" in valid_artifacts,
-                "has_htmlzip": "htmlzip" in valid_artifacts,
-                "build_data": self.data.version.build_data,
-                "addons": self.data.version.addons,
-            }
-            # Update the latest version to point to the current VCS default branch
-            # if the project doesn't have an explicit default branch set.
-            if self.data.default_branch:
-                data["identifier"] = self.data.default_branch
-                data["type"] = BRANCH
-            try:
-                self.data.api_client.version(self.data.version.pk).patch(data)
-            except HttpClientError:
-                # NOTE: I think we should fail the build if we cannot update
-                # the version at this point. Otherwise, we will have inconsistent data
-                log.exception(
-                    "Updating version db object failed. "
-                    'Files are synced in the storage, but "Version" object is not updated',
-                )
+        data = {
+            "built": True,
+            "documentation_type": self.data.version.documentation_type,
+            "has_pdf": "pdf" in valid_artifacts,
+            "has_epub": "epub" in valid_artifacts,
+            "has_htmlzip": "htmlzip" in valid_artifacts,
+            "build_data": self.data.version.build_data,
+            "addons": self.data.version.addons,
+        }
+        # Update the latest version to point to the current VCS default branch
+        # if the project doesn't have an explicit default branch set.
+        if self.data.default_branch:
+            data["identifier"] = self.data.default_branch
+            data["type"] = BRANCH
+        try:
+            self.data.api_client.version(self.data.version.pk).patch(data)
+        except HttpClientError:
+            # NOTE: I think we should fail the build if we cannot update
+            # the version at this point. Otherwise, we will have inconsistent data
+            log.exception(
+                "Updating version db object failed. "
+                'Files are synced in the storage, but "Version" object is not updated',
+            )
 
         # Index search data
         index_build.delay(build_id=self.data.build["id"])
@@ -714,14 +690,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 spam_check_after_build_complete,
             )
 
-            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
-
-        if not self.data.project.has_valid_clone:
-            self.set_valid_clone()
+            spam_check_after_build_complete.delay(build_id=self.data.build_pk)
 
         self.send_notifications(
             self.data.version.pk,
-            self.data.build["id"],
+            self.data.build_pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
@@ -929,14 +902,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param build_pk: Build primary key
         """
         return self.data.api_client.build(build_pk).get()
-
-    # NOTE: this can be just updated on `self.data.build['']` and sent once the
-    # build has finished to reduce API calls.
-    def set_valid_clone(self):
-        """Mark on the project that it has been cloned properly."""
-        self.data.api_client.project(self.data.project.pk).patch({"has_valid_clone": True})
-        self.data.project.has_valid_clone = True
-        self.data.version.project.has_valid_clone = True
 
     def store_build_artifacts(self):
         """
