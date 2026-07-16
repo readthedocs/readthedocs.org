@@ -2171,22 +2171,16 @@ class Feature(models.Model):
         (
             USE_ISOLATED_BUILDER,
             _(
-                "Build: Dispatch this project's builds to the isolated-builders "
-                "Celery worker pool (one task per EC2 instance, ephemeral) "
-                "instead of the legacy ``update_docs_task`` Celery worker "
-                "pool. ``trigger_build`` sends the task directly to the "
-                "``isolated-builds`` queue; the worker fetches project data "
-                "from the API and runs the build container itself."
+                "Build: Dispatch this project's builds to the `isolated-builders` ASG "
+                "instead of the `build-default` ASG".
             ),
         ),
         (
             KEEP_ISOLATED_BUILDER_INSTANCE,
             _(
-                "Build: Debug mode for isolated-builders — keep the EC2 instance "
+                "Build: Debug mode for `isolated-builders` — keep the EC2 instance "
                 "running after the build completes (instead of having the worker "
-                "self-terminate it via the AWS API). Used for inspecting state "
-                "post-build (cloned source, .venv, exited build container). "
-                "Has no effect unless USE_ISOLATED_BUILDER is also set."
+                "self-terminate it via the AWS API).
             ),
         ),
     )
