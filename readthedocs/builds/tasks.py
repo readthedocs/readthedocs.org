@@ -3,6 +3,7 @@ import json
 import requests
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
@@ -18,6 +19,7 @@ from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
@@ -693,3 +695,87 @@ def remove_build_commands_storage_paths(paths):
         build_commands_storage.delete_paths(paths)
     except Exception:
         log.info("Failed to delete build commands from storage.", exc_info=True)
+
+
+@app.task(queue="web")
+def run_post_build_tasks(build_pk):
+    """
+    Run the post-build work for a build from the isolated-builders fleet.
+
+    On the legacy path ``update_docs_task`` does this from ``on_success`` /
+    ``on_failure``, because the builder is itself a Celery worker with database
+    access. The isolated runner has neither: it only PATCHes the API, so the
+    dispatch has to happen here instead. Triggered from ``BuildViewSet`` when a
+    build reaches a final state — see ``perform_update`` there for the gating.
+
+    The Version is *not* updated here: ``built``, ``has_pdf`` and friends are
+    derived from the artifacts the build produced, which only the runner can see.
+    It PATCHes them itself before finishing.
+    """
+    # Avoid circular imports: readthedocs.projects.tasks imports from this module.
+    from readthedocs.doc_builder.exceptions import BuildCancelled
+    from readthedocs.projects.tasks.search import index_build
+
+    build = Build.objects.filter(pk=build_pk).select_related("project", "version").first()
+    if not build:
+        log.warning("Build not found; skipping post-build tasks.", build_id=build_pk)
+        return
+
+    structlog.contextvars.bind_contextvars(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        version_slug=build.version.slug if build.version else None,
+    )
+
+    if build.success:
+        index_build.delay(build_id=build.pk)
+
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.tasks import spam_check_after_build_complete  # noqa
+
+            spam_check_after_build_complete.delay(build_id=build.pk)
+
+        send_build_notifications.delay(
+            version_pk=build.version_id,
+            build_pk=build.pk,
+            event=WebHookEvent.BUILD_PASSED,
+        )
+
+        if build.commit:
+            send_build_status.delay(build.pk, build.commit, BUILD_STATUS_SUCCESS)
+    else:
+        notification = (
+            Notification.objects.filter(
+                attached_to_content_type=ContentType.objects.get_for_model(Build),
+                attached_to_id=build.pk,
+            )
+            .order_by("-modified")
+            .first()
+        )
+        message_id = notification.message_id if notification else None
+
+        cancelled = message_id in (
+            BuildCancelled.CANCELLED_BY_USER,
+            BuildCancelled.SKIPPED_EXIT_CODE_183,
+        )
+        if not cancelled:
+            send_build_notifications.delay(
+                version_pk=build.version_id,
+                build_pk=build.pk,
+                event=WebHookEvent.BUILD_FAILED,
+            )
+
+        if build.commit:
+            status = BUILD_STATUS_FAILURE
+            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
+                # A build skipped via the magic exit code is reported to the Git
+                # provider as a success, so it doesn't block the pull request.
+                status = BUILD_STATUS_SKIPPED
+            send_build_status.delay(build.pk, build.commit, status)
+
+        # Only community disables projects for repeated failures.
+        if not settings.ALLOW_PRIVATE_REPOS and build.version:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=build.project.slug,
+                version_slug=build.version.slug,
+            )

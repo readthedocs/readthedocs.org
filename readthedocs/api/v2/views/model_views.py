@@ -37,11 +37,13 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import run_post_build_tasks
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
 
@@ -258,6 +260,20 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
     filterset_fields = ("project__slug", "commit")
+
+    def perform_update(self, serializer):
+        """
+        Run the post-build tasks when an isolated build reaches a final state.
+        """
+        # Read before saving: this is still the state stored in the database.
+        previous_state = serializer.instance.state
+        build = serializer.save()
+
+        entered_final_state = (
+            previous_state not in BUILD_FINAL_STATES and build.state in BUILD_FINAL_STATES
+        )
+        if entered_final_state and build.project.has_feature(Feature.USE_ISOLATED_BUILDER):
+            run_post_build_tasks.delay(build_pk=build.pk)
 
     def get_serializer_class(self):
         """
