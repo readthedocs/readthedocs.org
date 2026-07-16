@@ -26,7 +26,7 @@ from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import EnvironmentVariable, Feature, Project, WebHookEvent
+from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
@@ -558,8 +558,8 @@ class TestBuildTask(BuildEnvironmentBase):
         # TODO: mock `build_tasks.send_build_notifications` instead and add
         # another tests to check that they are not sent for EXTERNAL versions
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
@@ -765,8 +765,8 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_FAILED,
         )
 

@@ -530,8 +530,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:
             self.send_notifications(
-                self.data.version_pk,
-                self.data.build_pk,
+                version_pk=self.data.version_pk,
+                build_pk=self.data.build_pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
 
