@@ -35,26 +35,23 @@ class TestSlashSubprojectAliases(BaseDocServing):
         relation.alias = self.ALIAS
         relation.save()
 
-    def _get(self, path):
-        return self.client.get(path, headers={"host": self.HOST})
-
     def test_serves_html_file(self):
-        resp = self._get(f"/projects/{self.ALIAS}/en/latest/awesome.html")
+        resp = self.client.get(f"/projects/{self.ALIAS}/en/latest/awesome.html", headers={"host": self.HOST})
         assert resp["x-accel-redirect"] == "/proxito/media/html/subproject-alias/latest/awesome.html"
 
     def test_root_redirects_to_default_version(self):
-        resp = self._get(f"/projects/{self.ALIAS}/")
+        resp = self.client.get(f"/projects/{self.ALIAS}/", headers={"host": self.HOST})
         assert resp.status_code == 302
         assert resp["Location"] == f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/"
 
     def test_page_redirect(self):
-        resp = self._get(f"/projects/{self.ALIAS}/page/awesome.html")
+        resp = self.client.get(f"/projects/{self.ALIAS}/page/awesome.html", headers={"host": self.HOST})
         assert resp.status_code == 302
         assert resp["Location"] == f"http://{self.HOST}/projects/{self.ALIAS}/en/latest/awesome.html"
 
     def test_serves_downloads(self):
         for type_ in DOWNLOADABLE_MEDIA_TYPES:
-            resp = self._get(f"/_/downloads/{self.ALIAS}/en/latest/{type_}/")
+            resp = self.client.get(f"/_/downloads/{self.ALIAS}/en/latest/{type_}/", headers={"host": self.HOST})
             assert resp.status_code == 200
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             assert resp["X-Accel-Redirect"] == f"/proxito/media/{type_}/subproject-alias/latest/subproject-alias.{extension}"
@@ -79,14 +76,14 @@ class TestSlashSubprojectAliases(BaseDocServing):
         nested.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(nested, alias="api")
 
-        resp = self._get("/projects/api/python/en/latest/awesome.html")
+        resp = self.client.get("/projects/api/python/en/latest/awesome.html", headers={"host": self.HOST})
         assert resp["x-accel-redirect"] == "/proxito/media/html/subproject-alias/latest/awesome.html"
 
-        resp = self._get("/projects/api/en/latest/awesome.html")
+        resp = self.client.get("/projects/api/en/latest/awesome.html", headers={"host": self.HOST})
         assert resp["x-accel-redirect"] == "/proxito/media/html/api-only/latest/awesome.html"
 
     def test_segment_boundary_required(self):
         # ``api/python-extra`` must NOT match alias ``api/python`` — only full
         # path segments count. No subproject matches, so the request 404s.
-        resp = self._get("/projects/api/python-extra/en/latest/")
+        resp = self.client.get("/projects/api/python-extra/en/latest/", headers={"host": self.HOST})
         assert resp.status_code == 404

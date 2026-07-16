@@ -394,6 +394,8 @@ class Unresolver:
         # Build the set of aliases the path could match — every prefix of the
         # path that ends on a segment boundary. The DB then returns the
         # longest matching one in a single indexed-set lookup.
+        # e.g. /api/python/en/latest/ yields candidates api, api/python,
+        # api/python/en, api/python/en/latest.
         stripped = path.strip("/")
         if not stripped:
             return None
