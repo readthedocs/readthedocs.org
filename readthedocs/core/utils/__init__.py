@@ -200,12 +200,23 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
+    When the project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
+    the build is sent directly to the ``isolated-builds`` Celery queue
+    (via :func:`submit_to_isolated_builders` below). A worker on a
+    dedicated EC2 instance picks it up, fetches build/project data from
+    the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
+    runs the build inside a ``readthedocs/build:<os>`` container. See
+    ``readthedocs-builder/docs/architecture.md`` for the broader design.
+
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    # Avoid circular import.
+    from readthedocs.projects.models import Feature
+
     structlog.contextvars.bind_contextvars(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
@@ -229,6 +240,10 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         # Build was skipped
         return (None, None)
 
+    # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
+    if project.has_feature(Feature.USE_ISOLATED_BUILDER):
+        return submit_to_isolated_builders(project=project, build=build)
+
     task = update_docs_task.apply_async()
 
     # FIXME: I'm using `isinstance` here because I wasn't able to mock this
@@ -241,6 +256,68 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         build.save()
 
     return task, build
+
+
+def submit_to_isolated_builders(*, project, build):
+    """
+    Dispatch a build directly to the ``isolated-builds`` Celery queue.
+
+    Called from :func:`trigger_build` when the project has
+    ``USE_ISOLATED_BUILDER`` set. The dispatched task runs on the
+    isolated-builders EC2 fleet (worker code lives in the
+    ``readthedocs-builder`` repository under ``worker/``).
+
+    What this function does *not* do — deliberately — is any Git
+    operation, YAML parsing, or resource resolution against
+    ``.readthedocs.yaml``. That all happens in the worker, using the
+    ``build_api_key`` we mint here to fetch build / project data from
+    the API.
+    """
+    # Avoid circular import
+    from readthedocs.api.v2.models import BuildAPIKey
+    from readthedocs.projects.models import Feature
+
+    # TODO: create a build API key that's scoped to the build itself,
+    # not the project.
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
+    environment = {
+        "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
+        "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
+    }
+    if settings.RTD_DOCKER_COMPOSE:
+        # Local dev: rustfs endpoint for storage boto3 calls, root user
+        # inside the container (the bind-mounted docroot doesn't match
+        # the container's ``docs`` uid), API-via-nginx override so the
+        # build container can reach us on the compose network.
+        environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
+        environment["RTD_DOCKER_USER"] = "root"
+        # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
+        # are fully migrated and remove this override here.
+        environment["RTD_API_URL"] = "http://nginx"
+
+    # Debug knob: ``KEEP_ISOLATED_BUILDER_INSTANCE`` feature flag asks
+    # the worker to skip its post-build self-terminate so the EC2 host
+    # stays alive for inspection. Ignored in dev (no instance to keep).
+    no_self_terminate = project.has_feature(Feature.KEEP_ISOLATED_BUILDER_INSTANCE)
+
+    log.info("Dispatching build to isolated-builders queue.")
+    result = app.send_task(
+        settings.RTD_ISOLATED_BUILDER_TASK_NAME,
+        kwargs={
+            "build_pk": build.pk,
+            "build_api_key": build_api_key,
+            "environment": environment,
+            "no_self_terminate": no_self_terminate,
+        },
+        queue=settings.RTD_ISOLATED_BUILDER_QUEUE,
+    )
+
+    # Save the worker task id so ``cancel_build`` can revoke it.
+    build.task_id = result.id
+    build.save()
+
+    return result, build
 
 
 def cancel_build(build):
