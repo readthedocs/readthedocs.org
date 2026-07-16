@@ -391,6 +391,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
+        # Enable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=True,
+        )
+
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
@@ -435,17 +442,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Save when the task was executed by a builder
         self.data.build["task_executed_at"] = timezone.now()
-
-        # Enable scale-in protection on this instance
-        #
-        # TODO: move this to the beginning of this method
-        # once we don't need to rely on `self.data.project`.
-        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=True,
-            )
 
         if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
             # Clean DOCROOT path completely to avoid conflicts other projects
@@ -807,12 +803,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Failed to revoke build api key.", exc_info=True)
 
         # Disable scale-in protection on this instance
-        if self.data.project and self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=False,
-            )
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=False,
+        )
 
         log.info(
             "Build finished.",

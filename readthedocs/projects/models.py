@@ -2106,7 +2106,6 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
-    SCALE_IN_PROTECTION = "scale_in_prtection"
     BUILD_FULL_CLEAN = "build_full_clean"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
@@ -2164,10 +2163,6 @@ class Feature(models.Model):
             _("Search: Default to fuzzy search for simple search queries"),
         ),
         # Build related features.
-        (
-            SCALE_IN_PROTECTION,
-            _("Build: Set scale-in protection before/after building."),
-        ),
         (
             BUILD_FULL_CLEAN,
             _("Build: Clean all build directories to avoid leftovers from other projects."),
