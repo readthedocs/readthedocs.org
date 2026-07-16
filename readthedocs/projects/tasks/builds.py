@@ -465,7 +465,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # that needs to be removed from the build.
         # See https://github.com/readthedocs/readthedocs.org/issues/11131
         log.info("Resetting build.")
-        self.data.api_client.build(self.data.build["id"]).reset.post()
+        self.data.api_client.build(self.data.build_pk).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
@@ -479,16 +479,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            object may not be defined.
         """
         log.info("Task failed.")
-        if not self.data.build:
-            # NOTE: use `self.data.build_id` (passed to the task) instead
-            # `self.data.build` (retrieved from the API) because it's not present,
-            # probably due the API failed when retrieving it.
-            #
-            # So, we create the `self.data.build` with the minimum required data.
-            self.data.build = {
-                "id": self.data.build_pk,
-            }
-
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         if isinstance(exc, BuildAppError):
@@ -528,7 +518,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required data to initialize it on ``before_start``.
         if self.data.build_director:
             self.data.build_director.attach_notification(
-                attached_to=f"build/{self.data.build['id']}",
+                attached_to=f"build/{self.data.build_pk}",
                 message_id=message_id,
                 format_values=format_values,
             )
@@ -541,7 +531,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if message_id not in self.exceptions_without_notifications:
             self.send_notifications(
                 self.data.version_pk,
-                self.data.build["id"],
+                self.data.build_pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
 
@@ -571,13 +561,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             send_external_build_status(
                 version_type=version_type,
-                build_pk=self.data.build["id"],
+                build_pk=self.data.build_pk,
                 commit=self.data.build_commit,
                 status=status,
             )
 
         # Trigger task to check number of failed builds and disable the project if needed (only for community)
-        if not settings.ALLOW_PRIVATE_REPOS:
+        if not settings.ALLOW_PRIVATE_REPOS and self.data.project and self.data.version:
             check_and_disable_project_for_consecutive_failed_builds.delay(
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
@@ -706,7 +696,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         # Index search data
-        index_build.delay(build_id=self.data.build["id"])
+        index_build.delay(build_id=self.data.build_pk)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
@@ -714,21 +704,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 spam_check_after_build_complete,
             )
 
-            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
+            spam_check_after_build_complete.delay(build_id=self.data.build_pk)
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
 
         self.send_notifications(
-            self.data.version.pk,
-            self.data.build["id"],
+            version_pk=self.data.version.pk,
+            build_pk=self.data.build_pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
         if self.data.build_commit:
             send_external_build_status(
                 version_type=self.data.version.type,
-                build_pk=self.data.build["id"],
+                build_pk=self.data.build_pk,
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
             )
@@ -829,13 +819,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if state:
             self.data.build["state"] = state
 
-        # Attempt to stop unicode errors on build reporting
-        # for key, val in list(self.data.build.items()):
-        #     if isinstance(val, bytes):
-        #         self.data.build[key] = val.decode('utf-8', 'ignore')
+        # Nothing to update.
+        if not self.data.build:
+            return
 
         try:
-            self.data.api_client.build(self.data.build["id"]).patch(self.data.build)
+            self.data.api_client.build(self.data.build_pk).patch(self.data.build)
         except Exception:
             # NOTE: we are updating the "Build" object on each `state`.
             # Only if the last update fails, there may be some inconsistency
@@ -958,7 +947,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         build_media_storage = get_storage(
-            build_id=self.data.build["id"],
+            build_id=self.data.build_pk,
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,
         )
