@@ -31,7 +31,6 @@ from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
-from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
 from readthedocs.projects.tasks.storage import StorageType
@@ -85,6 +84,7 @@ class BuildDirector:
         if not self.data.project.vcs_class():
             raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
+        # This signal is used to setup the SSH key on .com.
         before_vcs.send(
             sender=self.data.version,
             environment=self.vcs_environment,
@@ -155,10 +155,7 @@ class BuildDirector:
             config=self.data.config,
         )
 
-        # TODO: check if `before_build` and `after_build` are still useful
-        # (maybe in commercial?)
-        #
-        # I didn't find they are used anywhere, we should probably remove them
+        # This signal is used to setup the SSH key on .com.
         before_build.send(
             sender=self.data.version,
             environment=self.build_environment,
@@ -198,10 +195,6 @@ class BuildDirector:
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
-
-        after_build.send(
-            sender=self.data.version,
-        )
 
     # VCS checkout
     def checkout(self):

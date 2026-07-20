@@ -32,6 +32,7 @@ from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.validators import validate_environment_variable_size
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
@@ -925,6 +926,12 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             raise serializers.ValidationError(
                 _("A subproject with this alias already exists"),
             )
+
+        validate_subproject_alias(
+            parent_project=self.parent_project,
+            alias=value,
+            error_class=serializers.ValidationError,
+        )
         return value
 
     def validate(self, data):  # pylint: disable=arguments-renamed

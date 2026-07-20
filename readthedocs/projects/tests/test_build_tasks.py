@@ -469,7 +469,6 @@ class TestBuildTask(BuildEnvironmentBase):
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
@@ -480,7 +479,6 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         send_external_build_status,
-        build_complete,
         index_build,
         shutilmock,
     ):
@@ -570,11 +568,6 @@ class TestBuildTask(BuildEnvironmentBase):
             build_pk=self.build.pk,
             commit=self.build.commit,
             status=BUILD_STATUS_SUCCESS,
-        )
-
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
         )
 
         index_build.delay.assert_called_once_with(build_id=self.build.pk)
@@ -747,7 +740,6 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
@@ -758,7 +750,6 @@ class TestBuildTask(BuildEnvironmentBase):
         send_notifications,
         execute,
         send_external_build_status,
-        build_complete,
     ):
         assert not BuildData.objects.all().exists()
 
@@ -786,11 +777,6 @@ class TestBuildTask(BuildEnvironmentBase):
             status=BUILD_STATUS_FAILURE,
         )
 
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
-        )
-
         # The build data is None (we are failing the build before the environment is created)
         # and the task won't be run.
         assert not BuildData.objects.all().exists()
@@ -801,9 +787,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildUserError.GENERIC,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -855,9 +838,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildCancelled.CANCELLED_BY_USER,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -3006,9 +2986,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": ConfigError.INVALID_VERSION,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 

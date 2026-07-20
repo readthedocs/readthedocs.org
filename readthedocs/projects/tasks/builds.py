@@ -42,8 +42,6 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
-from readthedocs.builds.models import Build
-from readthedocs.builds.signals import build_complete
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
@@ -233,6 +231,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         )
 
         with environment:
+            # This signal is used to setup the SSH key on .com.
             before_vcs.send(
                 sender=self.data.version,
                 environment=environment,
@@ -391,6 +390,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
 
+        # Enable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=True,
+        )
+
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
@@ -435,17 +441,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Save when the task was executed by a builder
         self.data.build["task_executed_at"] = timezone.now()
-
-        # Enable scale-in protection on this instance
-        #
-        # TODO: move this to the beginning of this method
-        # once we don't need to rely on `self.data.project`.
-        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=True,
-            )
 
         if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
             # Clean DOCROOT path completely to avoid conflicts other projects
@@ -526,21 +521,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             message_id = BuildAppError.GENERIC_WITH_BUILD_ID
 
         # Grab the format values from the exception in case it contains
-        format_values = exc.format_values if hasattr(exc, "format_values") else None
-
-        # Attach the notification to the build, only when ``BuildDirector`` is available.
-        # It may happens the director is not created because the API failed to retrieve
-        # required data to initialize it on ``before_start``.
-        if self.data.build_director:
-            self.data.build_director.attach_notification(
-                attached_to=f"build/{self.data.build['id']}",
-                message_id=message_id,
-                format_values=format_values,
-            )
-        else:
-            log.warning(
-                "We couldn't attach a notification to the build since it failed on an early stage."
-            )
+        format_values = getattr(exc, "format_values", None) or {}
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f"build/{self.data.build_pk}",
+                "message_id": message_id,
+                "format_values": format_values,
+            }
+        )
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:
@@ -792,12 +780,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        # Be defensive with the signal, so if a listener fails we still clean up
-        try:
-            build_complete.send(sender=Build, build=self.data.build)
-        except Exception:
-            log.exception("Error during build_complete", exc_info=True)
-
         if self.data.version:
             clean_build(self.data.version)
 
@@ -807,12 +789,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Failed to revoke build api key.", exc_info=True)
 
         # Disable scale-in protection on this instance
-        if self.data.project and self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=False,
-            )
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=False,
+        )
 
         log.info(
             "Build finished.",
