@@ -787,9 +787,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildUserError.GENERIC,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -841,9 +838,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildCancelled.CANCELLED_BY_USER,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -2992,9 +2986,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": ConfigError.INVALID_VERSION,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
