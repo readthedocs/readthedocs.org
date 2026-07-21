@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define your variables
-RTD_TOKEN=ea74e0cef65a935ade1e9fe77d8f9d001b85cbed
+RTD_TOKEN=${RTD_TOKEN:-"your_default_token_here"}
 RTD_UPLOAD_API="http://devthedocs.org/api/v3/upload"
 RTD_PROJECT="test-builds"
 FILE_TO_UPLOAD="artifacts.zip"
