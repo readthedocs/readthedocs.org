@@ -438,7 +438,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Read the Docs could not find a PDF file to publish after running the PDF build.
+            Read the Docs could not find a PDF file to publish after running the PDF build step.
             """
             ).strip(),
         ),
