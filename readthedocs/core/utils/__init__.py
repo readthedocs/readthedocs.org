@@ -293,6 +293,11 @@ def submit_to_isolated_builders(*, project, build):
         # build container can reach us on the compose network.
         environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
         environment["RTD_DOCKER_USER"] = "root"
+        # Tells the builder it's running under docker-compose so it symlinks
+        # ``/root/.asdf`` -> ``docs``' asdf install. Required because we run as
+        # ``root`` here (above): ``asdf`` resolves plugins from ``$HOME/.asdf``,
+        # which is ``/root/.asdf`` for root.
+        environment["RTD_DOCKER_COMPOSE"] = "1"
         # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
         # are fully migrated and remove this override here.
         environment["RTD_API_URL"] = "http://nginx"
