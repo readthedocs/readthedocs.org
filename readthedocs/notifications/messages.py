@@ -446,6 +446,18 @@ BUILD_MESSAGES = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=BuildUserError.PDF_NOT_FOUND,
+        header=_("No PDF file was found"),
+        body=_(
+            textwrap.dedent(
+                """
+            Read the Docs could not find a PDF file to publish after running the PDF build step.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [
