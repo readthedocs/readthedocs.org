@@ -189,6 +189,7 @@ LANGUAGES = (
     ("ku", "Kurdish"),
     ("ky", "Kyrgyz"),
     ("la", "Latin"),
+    ("lb", "Luxembourgish"),
     ("ln", "Lingala"),
     ("lo", "Lao"),
     ("lt", "Lithuanian"),
