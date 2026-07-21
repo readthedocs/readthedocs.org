@@ -266,13 +266,14 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         Run the post-build tasks when an isolated build reaches a final state.
         """
         # Read before saving: this is still the state stored in the database.
-        previous_state = serializer.instance.state
+        was_finished = serializer.instance.finished
         build = serializer.save()
 
-        entered_final_state = (
-            previous_state not in BUILD_FINAL_STATES and build.state in BUILD_FINAL_STATES
-        )
-        if entered_final_state and build.project.has_feature(Feature.USE_ISOLATED_BUILDER):
+        if (
+            not was_finished
+            and build.finished
+            and build.project.has_feature(Feature.USE_ISOLATED_BUILDER)
+        ):
             run_post_build_tasks.delay(build_pk=build.pk)
 
     def get_serializer_class(self):
