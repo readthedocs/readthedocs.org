@@ -702,7 +702,7 @@ def run_post_build_tasks(build_pk):
     """
     Run the post-build work for a build from the isolated-builders fleet.
 
-    Triggered from ``BuildViewSet`` when a build reaches a final state — 
+    Triggered from ``BuildViewSet`` when a build reaches a final state —
     see ``perform_update`` there for the gating.
 
     The Version is *not* updated here: ``built``, ``has_pdf`` and friends are
@@ -712,6 +712,7 @@ def run_post_build_tasks(build_pk):
     # Avoid circular imports: readthedocs.projects.tasks imports from this module.
     from readthedocs.doc_builder.exceptions import BuildCancelled
     from readthedocs.projects.tasks.search import index_build
+    from readthedocs.projects.tasks.utils import send_external_build_status
 
     build = Build.objects.filter(pk=build_pk).select_related("project", "version").first()
     if not build:
@@ -738,8 +739,13 @@ def run_post_build_tasks(build_pk):
             event=WebHookEvent.BUILD_PASSED,
         )
 
-        if build.commit:
-            send_build_status.delay(build.pk, build.commit, BUILD_STATUS_SUCCESS)
+        if build.commit and build.version:
+            send_external_build_status(
+                version_type=build.version.type,
+                build_pk=build.pk,
+                commit=build.commit,
+                status=BUILD_STATUS_SUCCESS,
+            )
     else:
         notification = (
             Notification.objects.filter(
@@ -762,13 +768,18 @@ def run_post_build_tasks(build_pk):
                 event=WebHookEvent.BUILD_FAILED,
             )
 
-        if build.commit:
+        if build.commit and build.version:
             status = BUILD_STATUS_FAILURE
             if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # A build skipped via the magic exit code is reported to the Git
                 # provider as a success, so it doesn't block the pull request.
                 status = BUILD_STATUS_SKIPPED
-            send_build_status.delay(build.pk, build.commit, status)
+            send_external_build_status(
+                version_type=build.version.type,
+                build_pk=build.pk,
+                commit=build.commit,
+                status=status,
+            )
 
         # Only community disables projects for repeated failures.
         if not settings.ALLOW_PRIVATE_REPOS and build.version:
