@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 from django.conf import settings
 from rest_framework import serializers
 
@@ -72,6 +74,11 @@ class UploadInitiateResponseSerializer(serializers.Serializer):
     upload_url = UploadURLSerializer()
 
 
+class UploadStatus(StrEnum):
+    succes = "success"
+    failed = "failed"
+
+
 class UploadCompleteSerializer(serializers.Serializer):
     """Serializer for the upload complete endpoint."""
 
@@ -79,6 +86,6 @@ class UploadCompleteSerializer(serializers.Serializer):
         help_text="Build ID returned from the initiate endpoint.",
     )
     status = serializers.ChoiceField(
-        choices=["success", "failed"],
+        choices=[status for status in UploadStatus],
         help_text="Status of the upload after completion.",
     )

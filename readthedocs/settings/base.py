@@ -1208,6 +1208,16 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
 
+    # Max number of builds that can be waiting to be uploaded by the user using the upload API.
+    # This is to prevent users from requesting too many builds to be uploaded at once,
+    # which could be because of a bug in their code or abuse of the API.
+    # This limit isn't the same as the concurrency limit, as we don't want to put the responsibility
+    # of retrying the upload on the user unless they are doing something wrong.
+    # Post-processing of the uploaded artifacts is done in a separate task,
+    # which is limited by the concurrency limit, but has automatic retries,
+    # so the user doesn't have to worry about it.
+    RTD_UPLOAD_MAX_PENDING_UPLOADS = 50
+
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.
     AWS_STS_ASSUME_ROLE_ARN = "arn:aws:iam::1234:role/SomeRole"

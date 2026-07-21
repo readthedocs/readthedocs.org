@@ -59,6 +59,10 @@ class BuildMaxConcurrencyError(BuildUserError):
     LIMIT_REACHED = "build:user:concurrency-limit-reached"
 
 
+class BuildFailedArtifactsUpload(BuildUserError):
+    UPLOAD_FAILED = "build:upload-api:artifacts-upload-failed"
+
+
 class BuildCancelled(BuildUserError):
     CANCELLED_BY_USER = "build:user:cancelled"
     SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"

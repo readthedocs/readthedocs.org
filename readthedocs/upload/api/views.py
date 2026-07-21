@@ -20,14 +20,15 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
+from readthedocs.doc_builder.exceptions import BuildFailedArtifactsUpload
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.upload.api.serializers import UploadCompleteSerializer
+from readthedocs.upload.api.serializers import UploadInitiateSerializer
+from readthedocs.upload.api.serializers import UploadStatus
 from readthedocs.upload.tasks import process_uploaded_build
-
-from .serializers import UploadCompleteSerializer
-from .serializers import UploadInitiateSerializer
 
 
 log = structlog.get_logger(__name__)
@@ -76,6 +77,20 @@ class UploadInitiateView(APIv3Settings, APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        # We don't want users creating a lot of builds and never uploading them.
+        # It may be by error or abuse, this limit is high enough to allow for multiple builds to be triggered,
+        # but not too high to allow for abuse.
+        # NOTE: we filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
+        # and we don't want to count those builds as pending uploads.
+        pending_uploads_count = project.builds.filter(
+            state=BUILD_STATE_TRIGGERED, is_uploaded=True, task_id=None
+        ).count()
+        if pending_uploads_count >= settings.RTD_UPLOAD_MAX_PENDING_UPLOADS:
+            return Response(
+                {"detail": "Too many pending uploads for this project."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         # Get or create version
         version_name = version_data["name"]
         version_type = version_data["type"]
@@ -89,11 +104,6 @@ class UploadInitiateView(APIv3Settings, APIView):
             slug=version_slug,
             privacy_level=privacy_level,
         )
-
-        # TODO: put a limit on the number of builds that are on the triggered state.
-        # We don't want users creating a lot of builds and never uploading them.
-        # It may be by erorr or abuse, the limit should be high enough to allow for multiple builds to be triggered,
-        # but not too high to allow for abuse.
 
         build = Build.objects.create(
             project=project,
@@ -147,13 +157,9 @@ class UploadInitiateView(APIv3Settings, APIView):
 
     def _get_or_create_version(self, project, name, version_type, slug, privacy_level):
         """Get or create a version for the given project."""
-        if slug:
-            version = project.versions.filter(slug=slug).first()
-            if version:
-                return version
-
         version = project.versions.filter(verbose_name=name, type=version_type).first()
         if version:
+            # NOTE: what to do in case the version already exists, but the slug doesn't match?
             return version
 
         version = Version.objects.create(
@@ -219,19 +225,22 @@ class UploadCompleteView(APIv3Settings, APIView):
             )
 
         # Check build is still in a valid state for completion
-        if build.state != BUILD_STATE_TRIGGERED:
+        if build.state != BUILD_STATE_TRIGGERED or build.task_id:
             return Response(
                 {"detail": "Build is already in process."},
                 status=status.HTTP_409_CONFLICT,
             )
 
-        # Clean up
-        if upload_status == "failed":
-            # NOTE: attach a notification about the build failing
-            # because the upload didn't complete/failed.
+        # Clean up the build if the upload failed.
+        if upload_status == UploadStatus.failed:
             build.state = BUILD_STATE_FINISHED
             build.success = False
             build.save()
+            Notification.objects.add(
+                message_id=BuildFailedArtifactsUpload.UPLOAD_FAILED,
+                attached_to=build,
+                dismissable=False,
+            )
             return Response(
                 {"build": BuildSerializer(build).data},
                 status=status.HTTP_200_OK,
@@ -239,6 +248,7 @@ class UploadCompleteView(APIv3Settings, APIView):
 
         options = {}
         # Start the build in X minutes and mark it as limited
+        # if the project has reached the concurrency limit.
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
             log.warning(
