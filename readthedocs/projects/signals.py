@@ -18,7 +18,6 @@ log = structlog.get_logger(__name__)
 before_vcs = django.dispatch.Signal()
 
 before_build = django.dispatch.Signal()
-after_build = django.dispatch.Signal()
 
 # Used to purge files from the CDN
 files_changed = django.dispatch.Signal()
