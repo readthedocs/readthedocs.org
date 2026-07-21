@@ -25,8 +25,6 @@ from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
-from readthedocs.builds.models import Build
-from readthedocs.builds.signals import build_complete
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.tasks import send_build_notifications
 from readthedocs.builds.tasks import send_build_status
@@ -56,7 +54,7 @@ logger = structlog.get_logger(__name__)
 
 @dataclass(slots=True)
 class TaskData:
-    build_id: int | None = None
+    build_pk: int | None = None
     start_time: datetime.datetime = field(default_factory=timezone.now)
 
     api_client: API | None = None
@@ -145,7 +143,7 @@ class ProcessUploadedBuildTask(Task):
             protected_from_scale_in=True,
         )
 
-        self.data = TaskData(build_id=build_id)
+        self.data = TaskData(build_pk=build_id)
         self.data.api_client = setup_api(build_api_key)
 
         self.data.build = self.data.api_client.build(build_id).get()
@@ -179,18 +177,12 @@ class ProcessUploadedBuildTask(Task):
         # Clean the build paths for this version to avoid conflicts with a previous run.
         clean_build(self.data.version)
 
-        # NOTE: this should be done before triggering the build
-        # self._check_project_disabled()
-        # NOTE: I think we do want this, but we should just rely on autoretry_for.
-        # Maybe we also want to have a limit when starting the upload process?
-        # self._check_concurrency_limit()
-
         # Always reset the build before starting, in case the build was retried.
-        self.data.api_client.build(self.data.build_id).reset.post()
+        self.data.api_client.build(self.data.build_pk).reset.post()
 
         # actual run
         build_uploads_storage = get_storage(
-            build_id=self.data.build_id,
+            build_id=self.data.build_pk,
             api_client=self.data.api_client,
             storage_type=StorageType.build_uploads,
         )
@@ -198,20 +190,13 @@ class ProcessUploadedBuildTask(Task):
         self._update_build()
 
         # Download zip
-        resp = self.data.api_client.command.post(
-            {
-                "build": self.data.build_id,
-                "command": "Downloading artifacts from storage...",
-                "output": "",
-                "start_time": timezone.now().isoformat(),
-            }
-        )
-        command_id = resp["id"]
+        command = self._create_command(command="Downloading artifacts from storage")
+        command_id = command["id"]
 
         # TODO: use the build id instead? probably the docker env is hardcoded to use the version slug.
         output_dir = Path(self.data.project.checkout_path(self.data.version.slug))
         local_zip_artifacts_path = output_dir / "artifacts.zip"
-        artifacts_storage_path = f"{self.data.project.id}/{self.data.build_id}/artifacts.zip"
+        artifacts_storage_path = self.data.build["uploaded_artifacts_storage_path"]
         try:
             with build_uploads_storage.open(artifacts_storage_path, "rb") as artifacts_file:
                 local_zip_artifacts_path.parent.mkdir(parents=True, exist_ok=True)
@@ -222,25 +207,22 @@ class ProcessUploadedBuildTask(Task):
                 "Error downloading artifacts from storage",
                 artifacts_storage_path=artifacts_storage_path,
             )
-            self.data.api_client.command(command_id).patch(
-                {
-                    "output": "Error downloading artifacts from storage.",
-                    "end_time": timezone.now().isoformat(),
-                    "exit_code": 1,
-                }
+            self._update_command(
+                command_id=command_id,
+                output="Error downloading artifacts from storage.",
+                exit_code=1,
             )
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID,
                 exception_message="Unexpected error downloading artifacts from storage.",
             ) from exc
         else:
-            self.data.api_client.command(command_id).patch(
-                {
-                    "output": "Artifacts downloaded from storage.",
-                    "end_time": timezone.now().isoformat(),
-                    "exit_code": 0,
-                }
+            self._update_command(
+                command_id=command_id, output="Artifacts downloaded from storage.", exit_code=0
             )
+
+        command = self._create_command(command="Extracting artifacts")
+        command_id = command["id"]
 
         environment = DockerBuildEnvironment(
             project=self.data.project,
@@ -251,15 +233,33 @@ class ProcessUploadedBuildTask(Task):
         )
         local_artifacts_path = output_dir / "_readthedocs"
         with environment:
-            # NOTE: do we want to put the actual command in the build output? Maybe just fake it?
-            # Exctract zip
-            environment.run(
+            # Extract zip
+            result = environment.run(
                 "unzip",
                 str(local_zip_artifacts_path),
                 "-d",
                 str(local_artifacts_path),
                 cwd=str(output_dir),
+                record=False,
             )
+
+        if result.exit_code != 0:
+            logger.error(
+                "Error extracting artifacts.",
+                exit_code=result.exit_code,
+                output=result.output,
+            )
+            self._update_command(
+                command_id=command_id,
+                output="Error extracting artifacts.",
+                exit_code=result.exit_code,
+            )
+            raise BuildAppError(
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message="Unexpected error extracting artifacts.",
+            )
+        else:
+            self._update_command(command_id=command_id, output="Artifacts extracted.", exit_code=0)
 
         # Validate files
         self.data.build["state"] = BUILD_STATE_UPLOADING
@@ -268,7 +268,7 @@ class ProcessUploadedBuildTask(Task):
         logger.info("Uploading artifacts to storage.")
         # Upload artifacts to the right place
         build_media_storage = get_storage(
-            build_id=self.data.build_id,
+            build_id=self.data.build_pk,
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,
         )
@@ -318,7 +318,7 @@ class ProcessUploadedBuildTask(Task):
         self.data.build["state"] = BUILD_STATE_FINISHED
         self._update_build()
 
-        index_build.delay(build_id=self.data.build_id)
+        index_build.delay(build_id=self.data.build_pk)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
@@ -326,18 +326,18 @@ class ProcessUploadedBuildTask(Task):
                 spam_check_after_build_complete,
             )
 
-            spam_check_after_build_complete.delay(build_id=self.data.build_id)
+            spam_check_after_build_complete.delay(build_id=self.data.build_pk)
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
 
         send_build_notifications.delay(
             version_pk=self.data.version.id,
-            build_pk=self.data.build_id,
+            build_pk=self.data.build_pk,
             event=WebHookEvent.BUILD_PASSED,
         )
         send_build_status.delay(
-            build_pk=self.data.build_id,
+            build_pk=self.data.build_pk,
             commit=self.data.build["commit"],
             status=BUILD_STATUS_SUCCESS,
         )
@@ -349,7 +349,7 @@ class ProcessUploadedBuildTask(Task):
             return
 
         try:
-            self.data.api_client.build(self.data.build_id).patch(self.data.build)
+            self.data.api_client.build(self.data.build_pk).patch(self.data.build)
         except Exception as e:
             # Get json response from slumber
             error_json = ""
@@ -417,7 +417,7 @@ class ProcessUploadedBuildTask(Task):
         # Attach the notification to the build.
         self.data.api_client.notifications.post(
             {
-                "attached_to": f"build/{self.data.build_id}",
+                "attached_to": f"build/{self.data.build_pk}",
                 "message_id": message_id,
                 "format_values": format_values,
             }
@@ -427,7 +427,7 @@ class ProcessUploadedBuildTask(Task):
         if message_id not in self.exceptions_without_notifications:
             send_build_notifications.delay(
                 version_pk=self.data.version.id,
-                build_pk=self.data.build_id,
+                build_pk=self.data.build_pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
 
@@ -436,7 +436,7 @@ class ProcessUploadedBuildTask(Task):
         if message_id not in self.exceptions_without_external_build_status:
             status = BUILD_STATUS_FAILURE
             send_build_status.delay(
-                build_pk=self.data.build_id,
+                build_pk=self.data.build_pk,
                 commit=self.data.build["commit"],
                 status=status,
             )
@@ -479,7 +479,7 @@ class ProcessUploadedBuildTask(Task):
             format_values = exc.format_values if hasattr(exc, "format_values") else None
             self.data.api_client.notifications.post(
                 {
-                    "attached_to": f"build/{self.data.build_id}",
+                    "attached_to": f"build/{self.data.build_pk}",
                     "message_id": BuildMaxConcurrencyError.LIMIT_REACHED,
                     "format_values": format_values,
                 }
@@ -508,13 +508,6 @@ class ProcessUploadedBuildTask(Task):
 
         self._update_build()
 
-        # TODO: just move this here, we don't need a signal for this.
-        # Be defensive with the signal, so if a listener fails we still clean up
-        try:
-            build_complete.send(sender=Build, build=self.data.build)
-        except Exception:
-            logger.exception("Error during build_complete", exc_info=True)
-
         if self.data.version:
             clean_build(self.data.version)
 
@@ -525,7 +518,7 @@ class ProcessUploadedBuildTask(Task):
 
         # Disable scale-in protection on this instance
         set_builder_scale_in_protection.delay(
-            build_id=self.data.build_id,
+            build_id=self.data.build_pk,
             builder=socket.gethostname(),
             protected_from_scale_in=False,
         )
@@ -551,7 +544,7 @@ class ProcessUploadedBuildTask(Task):
             logger.info(
                 "Stopping consumption of new tasks before terminating the instance...",
             )
-            stop_consuming_tasks_and_terminate(build_id=self.data.build_id)
+            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
 
     def _log_directory_size(self, directory, media_type):
         try:
@@ -569,6 +562,25 @@ class ProcessUploadedBuildTask(Task):
                 "Error getting build artifacts directory size.",
                 exc_info=True,
             )
+
+    def _create_command(self, command):
+        return self.data.api_client.command.post(
+            {
+                "build": self.data.build_pk,
+                "command": command,
+                "output": "",
+                "start_time": timezone.now().isoformat(),
+            }
+        )
+
+    def _update_command(self, command_id, output, exit_code=0):
+        return self.data.api_client.command(command_id).patch(
+            {
+                "output": output,
+                "end_time": timezone.now().isoformat(),
+                "exit_code": exit_code,
+            }
+        )
 
 
 process_uploaded_build = app.register_task(ProcessUploadedBuildTask())

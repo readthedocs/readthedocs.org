@@ -276,6 +276,7 @@ class BuildAdminSerializer(BuildSerializer):
     """
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    uploaded_artifacts_storage_path = serializers.ReadOnlyField()
 
     class Meta(BuildSerializer.Meta):
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
