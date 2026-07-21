@@ -699,9 +699,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             spam_check_after_build_complete.delay(build_id=self.data.build_pk)
 
-        if not self.data.project.has_valid_clone:
-            self.set_valid_clone()
-
         self.send_notifications(
             version_pk=self.data.version.pk,
             build_pk=self.data.build_pk,
@@ -911,14 +908,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param build_pk: Build primary key
         """
         return self.data.api_client.build(build_pk).get()
-
-    # NOTE: this can be just updated on `self.data.build['']` and sent once the
-    # build has finished to reduce API calls.
-    def set_valid_clone(self):
-        """Mark on the project that it has been cloned properly."""
-        self.data.api_client.project(self.data.project.pk).patch({"has_valid_clone": True})
-        self.data.project.has_valid_clone = True
-        self.data.version.project.has_valid_clone = True
 
     def store_build_artifacts(self):
         """
