@@ -702,11 +702,8 @@ def run_post_build_tasks(build_pk):
     """
     Run the post-build work for a build from the isolated-builders fleet.
 
-    On the legacy path ``update_docs_task`` does this from ``on_success`` /
-    ``on_failure``, because the builder is itself a Celery worker with database
-    access. The isolated runner has neither: it only PATCHes the API, so the
-    dispatch has to happen here instead. Triggered from ``BuildViewSet`` when a
-    build reaches a final state — see ``perform_update`` there for the gating.
+    Triggered from ``BuildViewSet`` when a build reaches a final state — 
+    see ``perform_update`` there for the gating.
 
     The Version is *not* updated here: ``built``, ``has_pdf`` and friends are
     derived from the artifacts the build produced, which only the runner can see.
