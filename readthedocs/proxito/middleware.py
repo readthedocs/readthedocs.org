@@ -32,6 +32,7 @@ from readthedocs.proxito.cache import add_cache_tags
 from readthedocs.proxito.cache import cache_response
 from readthedocs.proxito.cache import private_response
 from readthedocs.proxito.redirects import redirect_to_https
+from readthedocs.redirects.edge import cached_edge_redirects_header
 
 from .exceptions import DomainDNSHttp404
 from .exceptions import ProjectHttp404
@@ -300,6 +301,31 @@ class ProxitoMiddleware(MiddlewareMixin):
                 if addons.enabled:
                     response["X-RTD-Force-Addons"] = "true"
 
+    def add_edge_redirects_header(self, request, response):
+        """
+        Communicate a project's forced redirects to the Cloudflare edge.
+
+        This is the "no-config" delivery path for serving heavy redirects at
+        the edge (see ``docs/dev/design/redirects-at-the-edge.rst``). Instead
+        of pushing data to the edge through the Cloudflare API, the origin
+        emits the project's edge-eligible redirects on the
+        ``X-RTD-Edge-Redirects`` response header. The Worker learns and caches
+        them, so subsequent (cache-busting) requests are answered at the edge
+        without reaching the origin.
+
+        This reuses the same mechanism as ``X-RTD-Force-Addons``.
+        """
+        if not settings.RTD_EDGE_REDIRECTS_ENABLED:
+            return
+
+        unresolved_domain = request.unresolved_domain
+        if not unresolved_domain:
+            return
+
+        header_value = cached_edge_redirects_header(unresolved_domain.project)
+        if header_value:
+            response["X-RTD-Edge-Redirects"] = header_value
+
     def add_cors_headers(self, request, response):
         """
         Add CORS headers only to files from docs.
@@ -377,6 +403,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_edge_redirects_header(request, response)
         self.add_resolver_headers(request, response)
         self.add_cors_headers(request, response)
         return response

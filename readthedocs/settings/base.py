@@ -184,6 +184,17 @@ class CommunityBaseSettings(Settings):
     # Number of days the validation process for a domain will be retried.
     RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD = 30
 
+    # Edge redirects: replicate routing config and forced redirects to the
+    # Cloudflare edge so they can be served without hitting the origin.
+    # See docs/dev/design/redirects-at-the-edge.rst.
+    RTD_EDGE_REDIRECTS_ENABLED = False
+    RTD_EDGE_REDIRECTS_STORE_CLASS = "readthedocs.redirects.edge.LocalEdgeStore"
+    # TTL (seconds) for the cached ``X-RTD-Edge-Redirects`` header value.
+    RTD_EDGE_REDIRECTS_HEADER_TTL = 60
+    RTD_EDGE_REDIRECTS_CLOUDFLARE_ACCOUNT_ID = None
+    RTD_EDGE_REDIRECTS_CLOUDFLARE_NAMESPACE_ID = None
+    RTD_EDGE_REDIRECTS_CLOUDFLARE_TOKEN = None
+
     # Keep BuildData models on database during this time
     RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
 
