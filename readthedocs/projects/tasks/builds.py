@@ -268,20 +268,25 @@ def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
         self.execute()
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+class BuildTaskBase(Task):
     """
-    The main entry point for updating documentation.
+    Base class for tasks that make use of builders via a build object.
 
-    It handles all of the logic around whether a project is imported, was
-    created or a webhook is received. Then it will sync the repository and
-    build all the documentation formats and upload them to the storage.
+    This is used for the task that builds the documentation,
+    and the task that unzips build artifacts uploaded via the upload API.
+
+    This task is designed to execute one build at a time on each server,
+    running more will have unexpected results. A self.data object is used
+    to store all the data related to the task execution.
+    Depending on the stage, some attributes may not be initialized,
+    the task should check for that before using them.
     """
 
-    name = __name__ + ".update_docs_task"
     autoretry_for = (BuildMaxConcurrencyError,)
     max_retries = settings.RTD_BUILDS_MAX_RETRIES
     default_retry_delay = settings.RTD_BUILDS_RETRY_DELAY
     retry_backoff = False
+    ignore_result = True
 
     # Expected exceptions that will be logged as info only and not retried.
     # These exceptions are not sent to Sentry either because we are using
@@ -313,10 +318,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     acks_late = True
     track_started = True
 
-    # These values have to be dynamic based on project
-    time_limit = None
-    soft_time_limit = None
-
     Request = BuildRequest
 
     def _setup_sigterm(self):
@@ -340,6 +341,259 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         signal.signal(signal.SIGTERM, sigterm_received)
 
         signal.signal(signal.SIGINT, sigint_received)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """
+        Celery handler to be executed when a task fails.
+
+        Updates build data, adds tasks to send build notifications.
+
+        .. note::
+
+           Since the task has failed, some attributes from the `self.data`
+           object may not be defined.
+        """
+        log.info("Task failed.")
+        # Known errors in our application code (e.g. we couldn't connect to
+        # Docker API). Report a generic message to the user.
+        if isinstance(exc, BuildAppError):
+            message_id = exc.message_id
+
+        # Known errors in the user's project (e.g. invalid config file, invalid
+        # repository, command failed, etc). Report the error back to the user
+        # by creating a notification attached to the build
+        # Otherwise, use a notification with a generic message.
+        elif isinstance(exc, BuildUserError):
+            if hasattr(exc, "message_id") and exc.message_id is not None:
+                message_id = exc.message_id
+            else:
+                message_id = BuildUserError.GENERIC
+
+            # Set build state as cancelled if the user cancelled the build
+            if isinstance(exc, BuildCancelled):
+                self.data.build["state"] = BUILD_STATE_CANCELLED
+
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            log.info("Soft time limit exceeded.")
+            message_id = BuildUserError.BUILD_TIME_OUT
+
+        else:
+            # We don't know what happened in the build. Log the exception and
+            # report a generic notification to the user.
+            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
+            # because this is not executed inside a try/except block.
+            log.error("Build failed with unhandled exception.", exc_info=exc)
+            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
+
+        # Grab the format values from the exception in case it contains
+        format_values = getattr(exc, "format_values", None) or {}
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f"build/{self.data.build_pk}",
+                "message_id": message_id,
+                "format_values": format_values,
+            }
+        )
+
+        # Send notifications for unhandled errors
+        if message_id not in self.exceptions_without_notifications:
+            self.send_notifications(
+                version_pk=self.data.version_pk,
+                build_pk=self.data.build_pk,
+                event=WebHookEvent.BUILD_FAILED,
+            )
+
+        # NOTE: why we wouldn't have `self.data.build_commit` here?
+        # This attribute is set when we get it after cloning the repository
+        #
+        # Oh, I think this is to differentiate a task triggered with
+        # `Build.commit` than a one triggered just with the `Version` to build
+        # the _latest_ commit of it
+        if (
+            self.data.build_commit
+            and message_id not in self.exceptions_without_external_build_status
+        ):
+            version_type = None
+            if self.data.version:
+                version_type = self.data.version.type
+
+            status = BUILD_STATUS_FAILURE
+            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
+                # The build was skipped by returning the magic exit code,
+                # marked as CANCELLED, and communicated to the Git provider as
+                # a success so that the pull request is not blocked from merging.
+                # The SKIPPED status keeps the underlying provider state as
+                # "success" but uses a distinct description so reviewers can tell
+                # the build was intentionally skipped rather than actually built.
+                status = BUILD_STATUS_SKIPPED
+
+            send_external_build_status(
+                version_type=version_type,
+                build_pk=self.data.build_pk,
+                commit=self.data.build_commit,
+                status=status,
+            )
+
+        # Trigger task to check number of failed builds and disable the project if needed (only for community)
+        if not settings.ALLOW_PRIVATE_REPOS and self.data.project and self.data.version:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+
+        # Update build object
+        self.data.build["success"] = False
+
+    def on_retry(self, exc, task_id, args, kwargs, einfo):
+        """
+        Celery helper called when the task is retried.
+
+        This happens when any of the exceptions defined in ``autoretry_for``
+        argument is raised or when ``self.retry`` is called from inside the
+        task.
+
+        See https://docs.celeryproject.org/en/master/userguide/tasks.html#retrying
+        """
+        log.info("Retrying this task.")
+
+        if isinstance(exc, BuildMaxConcurrencyError):
+            log.warning(
+                "Delaying tasks due to concurrency limit.",
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+
+            # Grab the format values from the exception in case it contains
+            format_values = exc.format_values if hasattr(exc, "format_values") else None
+            self.data.build_director.attach_notification(
+                attached_to=f"build/{self.data.build['id']}",
+                message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                format_values=format_values,
+            )
+
+        # Always update the build on retry
+        self.update_build(state=BUILD_STATE_TRIGGERED)
+
+    def update_build(self, state=None):
+        if state:
+            self.data.build["state"] = state
+
+        # Nothing to update.
+        if not self.data.build:
+            return
+
+        try:
+            self.data.api_client.build(self.data.build_pk).patch(self.data.build)
+        except Exception:
+            # NOTE: we are updating the "Build" object on each `state`.
+            # Only if the last update fails, there may be some inconsistency
+            # between the "Build" object in our db and the reality.
+            #
+            # The `state` argument will help us to track this more and understand
+            # at what state our updates are failing and decide what to do.
+            log.exception("Error while updating the build object.", state=state)
+
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        """
+        Celery handler to be executed after a task runs.
+
+        .. note::
+
+           This handler is called even if the task has failed,
+           so some attributes from the `self.data` object may not be defined.
+        """
+        # Update build object
+        self.data.build["length"] = (timezone.now() - self.data.start_time).seconds
+
+        build_state = None
+        # The state key might not be defined
+        # previous to finishing the task.
+        if self.data.build.get("state") not in BUILD_FINAL_STATES:
+            build_state = BUILD_STATE_FINISHED
+
+        self.update_build(build_state)
+        self.save_build_data()
+
+        if self.data.version:
+            clean_build(self.data.version)
+
+        try:
+            self.data.api_client.revoke.post()
+        except Exception:
+            log.exception("Failed to revoke build api key.", exc_info=True)
+
+        # Disable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=False,
+        )
+
+        log.info(
+            "Build finished.",
+            length=self.data.build["length"],
+            success=self.data.build["success"],
+        )
+
+        if self.data.project and self.data.project.has_feature(
+            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
+        ):
+            if settings.RTD_DOCKER_COMPOSE:
+                log.info(
+                    "Running development environment. Skipping instance termination.",
+                )
+                return
+
+            # Stop consuming new tasks first so this worker doesn't grab a
+            # build that would be killed mid-flight when the instance is
+            # terminated.
+            log.info(
+                "Stopping consumption of new tasks before terminating the instance...",
+            )
+            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
+
+    def send_notifications(self, version_pk, build_pk, event):
+        """Send notifications to all subscribers of `event`."""
+        # Try to infer the version type if we can
+        # before creating a task.
+        if not self.data.version or self.data.version.type != EXTERNAL:
+            build_tasks.send_build_notifications.delay(
+                version_pk=version_pk,
+                build_pk=build_pk,
+                event=event,
+            )
+
+    def save_build_data(self):
+        """
+        Save the data collected from the build after it has ended.
+
+        This must be called after the build has finished updating its state,
+        otherwise some attributes like ``length`` won't be available.
+        """
+        try:
+            if self.data.build_data:
+                save_build_data.delay(
+                    build_id=self.data.build_pk,
+                    data=self.data.build_data,
+                )
+        except Exception:
+            log.exception("Error while saving build data")
+
+
+class UpdateDocsTask(SyncRepositoryMixin, BuildTaskBase):
+    """
+    The main entry point for updating documentation.
+
+    It handles all of the logic around whether a project is imported, was
+    created or a webhook is received. Then it will sync the repository and
+    build all the documentation formats and upload them to the storage.
+    """
+
+    name = __name__ + ".update_docs_task"
+
+    # These values have to be dynamic based on project
+    time_limit = None
+    soft_time_limit = None
 
     def _check_concurrency_limit(self):
         try:
@@ -466,108 +720,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # See https://github.com/readthedocs/readthedocs.org/issues/11131
         log.info("Resetting build.")
         self.data.api_client.build(self.data.build_pk).reset.post()
-
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        """
-        Celery handler to be executed when a task fails.
-
-        Updates build data, adds tasks to send build notifications.
-
-        .. note::
-
-           Since the task has failed, some attributes from the `self.data`
-           object may not be defined.
-        """
-        log.info("Task failed.")
-        # Known errors in our application code (e.g. we couldn't connect to
-        # Docker API). Report a generic message to the user.
-        if isinstance(exc, BuildAppError):
-            message_id = exc.message_id
-
-        # Known errors in the user's project (e.g. invalid config file, invalid
-        # repository, command failed, etc). Report the error back to the user
-        # by creating a notification attached to the build
-        # Otherwise, use a notification with a generic message.
-        elif isinstance(exc, BuildUserError):
-            if hasattr(exc, "message_id") and exc.message_id is not None:
-                message_id = exc.message_id
-            else:
-                message_id = BuildUserError.GENERIC
-
-            # Set build state as cancelled if the user cancelled the build
-            if isinstance(exc, BuildCancelled):
-                self.data.build["state"] = BUILD_STATE_CANCELLED
-
-        elif isinstance(exc, SoftTimeLimitExceeded):
-            log.info("Soft time limit exceeded.")
-            message_id = BuildUserError.BUILD_TIME_OUT
-
-        else:
-            # We don't know what happened in the build. Log the exception and
-            # report a generic notification to the user.
-            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
-            # because this is not executed inside a try/except block.
-            log.error("Build failed with unhandled exception.", exc_info=exc)
-            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
-
-        # Grab the format values from the exception in case it contains
-        format_values = getattr(exc, "format_values", None) or {}
-        self.data.api_client.notifications.post(
-            {
-                "attached_to": f"build/{self.data.build_pk}",
-                "message_id": message_id,
-                "format_values": format_values,
-            }
-        )
-
-        # Send notifications for unhandled errors
-        if message_id not in self.exceptions_without_notifications:
-            self.send_notifications(
-                version_pk=self.data.version_pk,
-                build_pk=self.data.build_pk,
-                event=WebHookEvent.BUILD_FAILED,
-            )
-
-        # NOTE: why we wouldn't have `self.data.build_commit` here?
-        # This attribute is set when we get it after cloning the repository
-        #
-        # Oh, I think this is to differentiate a task triggered with
-        # `Build.commit` than a one triggered just with the `Version` to build
-        # the _latest_ commit of it
-        if (
-            self.data.build_commit
-            and message_id not in self.exceptions_without_external_build_status
-        ):
-            version_type = None
-            if self.data.version:
-                version_type = self.data.version.type
-
-            status = BUILD_STATUS_FAILURE
-            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
-                # The build was skipped by returning the magic exit code,
-                # marked as CANCELLED, and communicated to the Git provider as
-                # a success so that the pull request is not blocked from merging.
-                # The SKIPPED status keeps the underlying provider state as
-                # "success" but uses a distinct description so reviewers can tell
-                # the build was intentionally skipped rather than actually built.
-                status = BUILD_STATUS_SKIPPED
-
-            send_external_build_status(
-                version_type=version_type,
-                build_pk=self.data.build_pk,
-                commit=self.data.build_commit,
-                status=status,
-            )
-
-        # Trigger task to check number of failed builds and disable the project if needed (only for community)
-        if not settings.ALLOW_PRIVATE_REPOS and self.data.project and self.data.version:
-            check_and_disable_project_for_consecutive_failed_builds.delay(
-                project_slug=self.data.project.slug,
-                version_slug=self.data.version.slug,
-            )
-
-        # Update build object
-        self.data.build["success"] = False
 
     def get_valid_artifact_types(self):
         """
@@ -719,114 +871,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Update build object
         self.data.build["success"] = True
 
-    def on_retry(self, exc, task_id, args, kwargs, einfo):
-        """
-        Celery helper called when the task is retried.
-
-        This happens when any of the exceptions defined in ``autoretry_for``
-        argument is raised or when ``self.retry`` is called from inside the
-        task.
-
-        See https://docs.celeryproject.org/en/master/userguide/tasks.html#retrying
-        """
-        log.info("Retrying this task.")
-
-        if isinstance(exc, BuildMaxConcurrencyError):
-            log.warning(
-                "Delaying tasks due to concurrency limit.",
-                project_slug=self.data.project.slug,
-                version_slug=self.data.version.slug,
-            )
-
-            # Grab the format values from the exception in case it contains
-            format_values = exc.format_values if hasattr(exc, "format_values") else None
-            self.data.build_director.attach_notification(
-                attached_to=f"build/{self.data.build['id']}",
-                message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
-                format_values=format_values,
-            )
-
-        # Always update the build on retry
-        self.update_build(state=BUILD_STATE_TRIGGERED)
-
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        """
-        Celery handler to be executed after a task runs.
-
-        .. note::
-
-           This handler is called even if the task has failed,
-           so some attributes from the `self.data` object may not be defined.
-        """
-        # Update build object
-        self.data.build["length"] = (timezone.now() - self.data.start_time).seconds
-
-        build_state = None
-        # The state key might not be defined
-        # previous to finishing the task.
-        if self.data.build.get("state") not in BUILD_FINAL_STATES:
-            build_state = BUILD_STATE_FINISHED
-
-        self.update_build(build_state)
-        self.save_build_data()
-
-        if self.data.version:
-            clean_build(self.data.version)
-
-        try:
-            self.data.api_client.revoke.post()
-        except Exception:
-            log.exception("Failed to revoke build api key.", exc_info=True)
-
-        # Disable scale-in protection on this instance
-        set_builder_scale_in_protection.delay(
-            build_id=self.data.build_pk,
-            builder=socket.gethostname(),
-            protected_from_scale_in=False,
-        )
-
-        log.info(
-            "Build finished.",
-            length=self.data.build["length"],
-            success=self.data.build["success"],
-        )
-
-        if self.data.project and self.data.project.has_feature(
-            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
-        ):
-            if settings.RTD_DOCKER_COMPOSE:
-                log.info(
-                    "Running development environment. Skipping instance termination.",
-                )
-                return
-
-            # Stop consuming new tasks first so this worker doesn't grab a
-            # build that would be killed mid-flight when the instance is
-            # terminated.
-            log.info(
-                "Stopping consumption of new tasks before terminating the instance...",
-            )
-            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
-
-    def update_build(self, state=None):
-        if state:
-            self.data.build["state"] = state
-
-        # Nothing to update.
-        if not self.data.build:
-            return
-
-        try:
-            self.data.api_client.build(self.data.build_pk).patch(self.data.build)
-        except Exception:
-            # NOTE: we are updating the "Build" object on each `state`.
-            # Only if the last update fails, there may be some inconsistency
-            # between the "Build" object in our db and the reality.
-            #
-            # The `state` argument will help us to track this more and understand
-            # at what state our updates are failing and decide what to do.
-            log.exception("Error while updating the build object.", state=state)
-
     def execute(self):
         # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
@@ -887,22 +931,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             return BuildDataCollector(self.data.build_director.build_environment).collect()
         except Exception:
             log.exception("Error while collecting build data")
-
-    def save_build_data(self):
-        """
-        Save the data collected from the build after it has ended.
-
-        This must be called after the build has finished updating its state,
-        otherwise some attributes like ``length`` won't be available.
-        """
-        try:
-            if self.data.build_data:
-                save_build_data.delay(
-                    build_id=self.data.build_pk,
-                    data=self.data.build_data,
-                )
-        except Exception:
-            log.exception("Error while saving build data")
 
     def get_build(self, build_pk):
         """
@@ -1024,22 +1052,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 exc_info=True,
             )
 
-    def send_notifications(self, version_pk, build_pk, event):
-        """Send notifications to all subscribers of `event`."""
-        # Try to infer the version type if we can
-        # before creating a task.
-        if not self.data.version or self.data.version.type != EXTERNAL:
-            build_tasks.send_build_notifications.delay(
-                version_pk=version_pk,
-                build_pk=build_pk,
-                event=event,
-            )
-
 
 @app.task(
     base=UpdateDocsTask,
     bind=True,
-    ignore_result=True,
 )
 def update_docs_task(self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
