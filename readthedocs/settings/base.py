@@ -174,6 +174,9 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
     RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
+    # How long a build may sit dispatched to the isolated-builders fleet before
+    # we consider it "lost" (no builder ever picked it up) and cancel it.
+    RTD_BUILD_DISPATCH_TIMEOUT = 5 * 60  # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds

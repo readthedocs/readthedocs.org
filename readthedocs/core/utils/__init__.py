@@ -326,8 +326,10 @@ def submit_to_isolated_builders(*, project, build):
         queue=settings.RTD_ISOLATED_BUILDER_QUEUE,
     )
 
-    # Save the worker task id so ``cancel_build`` can revoke it.
+    # Save the worker task id so ``cancel_build`` can revoke it, and record the
+    # dispatch time so the reaper can spot builds no builder ever picked up.
     build.task_id = result.id
+    build.dispatched_date = timezone.now()
     build.save()
 
     return result, build
@@ -378,7 +380,7 @@ def admit_project_builds(project):
         if not acquired:
             return
 
-        _, in_flight, max_concurrent = Build.objects.concurrent(project, include_dispatched=True)
+        _, in_flight, max_concurrent = Build.objects.concurrent(project)
         free = max_concurrent - in_flight
 
         structlog.contextvars.bind_contextvars(project_slug=project.slug)
