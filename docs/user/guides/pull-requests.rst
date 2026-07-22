@@ -22,6 +22,13 @@ See `Limitations`_ for more information.
    The previous method of pull request previews using a GitHub workflow that called `@readthedocs/actions <https://github.com/readthedocs/actions/>`__ is now deprecated.
    If you used that method, you should remove its configuration.
 
+Build overview
+--------------
+
+You can enable a build overview comment to be added to your pull requests when changes are detected between the pull request and the latest version of the documentation.
+This comment includes a list of the files that changed, and links to view the built documentation.
+See :ref:`visual-diff:Show build overview in pull requests` for more information.
+
 Privacy levels
 --------------
 
@@ -65,7 +72,7 @@ Limitations
 - Additional formats like PDF aren't built in order to reduce build time.
 - Read the Docs doesn't index search on pull request builds. This means that Addons search and the Read the Docs Search API will return no results.
 - The built documentation is kept for 90 days after the pull request has been closed or merged.
-- In order to have pull request build links automatically added to your pull requests, you must configure an automation to accomplish this with your Git provider. For example, see `these instructions <https://github.com/readthedocs/actions/blob/v1/preview/README.md>`_ to configure with GitHub Actions.
+- The build overview comment is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
 
 Troubleshooting
 ---------------
@@ -88,11 +95,6 @@ No new builds are started when I open a pull request
    connected to your Git provider account, or if it needs to be reconnected.
    You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
-
-Pull request build links (such as those generated from `the official GitHub Action <https://github.com/readthedocs/actions/blob/v1/preview/README.md>`_) return a 404 error
-   This means that a build is not being triggered.
-
-   Verify your repository's webhook is properly synced with Read the Docs, and configured to send pull request events. For GitHub, you can check this by visiting the "Webhooks" section of the repository's "Settings" page. For your Read the Docs webhook, under "Which events would you like to trigger this webhook?", choose "Send Me Everything," or manually select push events and all events relevant to pull requests.
 
 Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
