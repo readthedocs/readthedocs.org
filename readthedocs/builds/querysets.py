@@ -214,7 +214,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         # different for .com, this method is overridden there.
         return self.api(*args, **kwargs)
 
-    def concurrent(self, project):
+    def concurrent(self, project, include_dispatched=False):
         """
         Check if the max build concurrency for this project was reached.
 
@@ -226,6 +226,13 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
+
+        ``include_dispatched`` counts builds that are still ``triggered`` but have
+        already been dispatched to the isolated-builders fleet (they carry a
+        ``task_id``). Their container hasn't started yet, so they wouldn't
+        otherwise be counted, which leaves a window where the admission routine
+        could over-admit while an instance is booting. See
+        ``readthedocs-builder/docs/concurrency.md``.
 
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
@@ -253,19 +260,23 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         # Limit builds to 5 hours ago to speed up the query
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
 
-        concurrent = (
-            (
-                self.filter(query).exclude(
-                    state__in=[
-                        BUILD_STATE_TRIGGERED,
-                        BUILD_STATE_FINISHED,
-                        BUILD_STATE_CANCELLED,
-                    ]
-                )
-            )
-            .distinct()
-            .count()
+        running = self.filter(query).exclude(
+            state__in=[
+                BUILD_STATE_FINISHED,
+                BUILD_STATE_CANCELLED,
+            ]
         )
+        if include_dispatched:
+            # Keep dispatched-but-not-yet-started builds (``triggered`` with a
+            # ``task_id``); drop only the ones still waiting for admission.
+            running = running.exclude(
+                state=BUILD_STATE_TRIGGERED,
+                task_id__isnull=True,
+            )
+        else:
+            running = running.exclude(state=BUILD_STATE_TRIGGERED)
+
+        concurrent = running.distinct().count()
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(

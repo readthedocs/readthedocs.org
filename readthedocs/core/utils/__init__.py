@@ -1,5 +1,6 @@
 """Common utility functions."""
 
+import datetime
 import re
 
 import structlog
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText
 from django.utils.safestring import mark_safe
@@ -136,9 +138,11 @@ def prepare_build(
     for running_build in running_builds:
         cancel_build(running_build)
 
-    # Start the build in X minutes and mark it as limited
+    # Start the build in X minutes and mark it as limited.
+    # The isolated-builders path enforces concurrency on the web side instead
+    # (see :func:`admit_project_builds`), so this only applies to the legacy path.
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-    if limit_reached:
+    if limit_reached and not project.has_feature(Feature.USE_ISOLATED_BUILDER):
         log.warning(
             "Delaying tasks at trigger step due to concurrency limit.",
         )
@@ -242,7 +246,10 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
 
     # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
     if project.has_feature(Feature.USE_ISOLATED_BUILDER):
-        return submit_to_isolated_builders(project=project, build=build)
+        # The build stays in ``triggered``; the periodic ``admit_queued_builds``
+        # task enforces concurrency and dispatches it to the isolated-builders
+        # fleet when a slot is free. See :func:`admit_project_builds`.
+        return None, build
 
     task = update_docs_task.apply_async()
 
@@ -324,6 +331,85 @@ def submit_to_isolated_builders(*, project, build):
     build.save()
 
     return result, build
+
+
+def _concurrency_lock_id(project):
+    """
+    Lock scope for build admission.
+
+    The concurrency limit is shared across an organization (and across a
+    project's translations), so admission must serialize over that whole scope,
+    not just the single project — otherwise two projects in the same
+    organization could both read the same free-slot count and over-admit.
+    """
+    organization = project.organization
+    if organization:
+        return f"admit-org-{organization.pk}"
+    root = project.main_language_project or project
+    return f"admit-project-{root.pk}"
+
+
+def admit_project_builds(project):
+    """
+    Admit queued isolated builds for ``project`` up to the free-slot count.
+
+    Concurrency for the isolated-builders path is enforced here, on the ``web``
+    side, rather than inside the build task. Builds sit in ``triggered`` until a
+    slot frees; this dispatches the oldest ones to the fleet, FIFO.
+
+    Called from the periodic ``admit_queued_builds`` beat task.
+    See ``readthedocs-builder/docs/concurrency.md``.
+    """
+    # Avoid circular import
+    from readthedocs.builds.models import Build
+    from readthedocs.builds.utils import memcache_lock
+    from readthedocs.projects.models import Feature
+
+    # The legacy path enforces concurrency inside the build task itself.
+    if not project.has_feature(Feature.USE_ISOLATED_BUILDER):
+        return
+
+    # Serialize admission across the whole concurrency scope so two passes can't
+    # both read the same free-slot count and over-admit. Whoever holds the lock
+    # drains the queue; concurrent passes are no-ops (they'd see the updated
+    # count anyway once they acquire it).
+    lock_expire = 60
+    with memcache_lock(_concurrency_lock_id(project), lock_expire, app.oid) as acquired:
+        if not acquired:
+            return
+
+        _, in_flight, max_concurrent = Build.objects.concurrent(project, include_dispatched=True)
+        free = max_concurrent - in_flight
+
+        # Only look at recently-triggered builds. A build sitting in
+        # ``triggered`` for over a day is stuck, not queued, and the ``date``
+        # index keeps this query fast.
+        queued = Build.objects.filter(
+            project=project,
+            state=BUILD_STATE_TRIGGERED,
+            task_id__isnull=True,
+            date__gt=timezone.now() - datetime.timedelta(days=1),
+        ).order_by("date")
+
+        for position, build in enumerate(queued):
+            if position < free:
+                # Admit: clear the "waiting" notification and dispatch.
+                Notification.objects.cancel(
+                    message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                    attached_to=build,
+                )
+                log.info("Admitting queued build.", build_id=build.pk)
+                submit_to_isolated_builders(project=project, build=build)
+            else:
+                # Blocked by the concurrency limit: surface the wait in the UI.
+                # A later finish hook or the beat sweep will admit it.
+                log.info("Build queued due to concurrency limit.", build_id=build.pk)
+                Notification.objects.add(
+                    message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                    attached_to=build,
+                    dismissable=False,
+                    format_values={"limit": max_concurrent},
+                )
 
 
 def cancel_build(build):

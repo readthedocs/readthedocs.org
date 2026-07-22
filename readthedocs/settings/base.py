@@ -6,6 +6,7 @@ import socket
 import subprocess
 
 import structlog
+from datetime import timedelta
 from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
@@ -685,6 +686,11 @@ class CommunityBaseSettings(Settings):
         "every-minute-finish-unhealthy-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
             "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        "every-5s-admit-queued-builds": {
+            "task": "readthedocs.builds.tasks.admit_queued_builds",
+            "schedule": timedelta(seconds=5),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {

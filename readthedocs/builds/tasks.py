@@ -17,6 +17,7 @@ from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
@@ -30,6 +31,7 @@ from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.db import delete_in_batches
@@ -787,3 +789,36 @@ def run_post_build_tasks(build_pk):
                 project_slug=build.project.slug,
                 version_slug=build.version.slug,
             )
+
+
+@app.task(queue="web", bind=True)
+def admit_queued_builds(self):
+    """
+    Admit queued isolated builds as concurrency slots free up.
+
+    Runs periodically (see the ``admit-queued-builds`` beat schedule). For every
+    project with builds waiting in ``triggered``, it runs the admission routine
+    (:func:`readthedocs.core.utils.admit_project_builds`), which dispatches as
+    many as there are free concurrency slots.
+
+    See ``readthedocs-builder/docs/concurrency.md``.
+    """
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+        if not acquired:
+            # A previous sweep is still running; skip this tick.
+            return
+
+        # Only projects with recently-triggered builds; the ``date`` index keeps
+        # this query fast even though it runs every few seconds.
+        project_ids = (
+            Build.objects.filter(
+                state=BUILD_STATE_TRIGGERED,
+                task_id__isnull=True,
+                date__gt=timezone.now() - timezone.timedelta(days=1),
+            )
+            .values_list("project_id", flat=True)
+            .distinct()
+        )
+        for project in Project.objects.filter(pk__in=project_ids):
+            admit_project_builds(project)
