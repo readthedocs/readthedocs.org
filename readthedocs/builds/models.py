@@ -743,6 +743,15 @@ class Build(models.Model):
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
+    # When the build was dispatched to the isolated-builders fleet. Unlike
+    # ``date`` (creation), this marks delivery: a build can wait in ``triggered``
+    # for a while before a slot frees. Used to reap "lost" builds that were
+    # dispatched but no builder ever picked up. See ``admit_project_builds``.
+    dispatched_date = models.DateTimeField(
+        _("Dispatched date"),
+        null=True,
+        blank=True,
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.

@@ -227,6 +227,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
+        A build only counts once it has actually started (left the ``triggered``
+        state). A build that's merely been dispatched to the isolated-builders
+        fleet is still queued, waiting for a builder to pick it up, so it does
+        not count. See ``readthedocs-builder/docs/concurrency.md``.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
@@ -254,14 +259,13 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
 
         concurrent = (
-            (
-                self.filter(query).exclude(
-                    state__in=[
-                        BUILD_STATE_TRIGGERED,
-                        BUILD_STATE_FINISHED,
-                        BUILD_STATE_CANCELLED,
-                    ]
-                )
+            self.filter(query)
+            .exclude(
+                state__in=[
+                    BUILD_STATE_TRIGGERED,
+                    BUILD_STATE_FINISHED,
+                    BUILD_STATE_CANCELLED,
+                ]
             )
             .distinct()
             .count()
