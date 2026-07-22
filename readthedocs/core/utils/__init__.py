@@ -381,6 +381,8 @@ def admit_project_builds(project):
         _, in_flight, max_concurrent = Build.objects.concurrent(project, include_dispatched=True)
         free = max_concurrent - in_flight
 
+        structlog.contextvars.bind_contextvars(project_slug=project.slug)
+
         # Only look at recently-triggered builds. A build sitting in
         # ``triggered`` for over a day is stuck, not queued, and the ``date``
         # index keeps this query fast.
@@ -392,24 +394,25 @@ def admit_project_builds(project):
         ).order_by("date")
 
         for position, build in enumerate(queued):
-            if position < free:
-                # Admit: clear the "waiting" notification and dispatch.
-                Notification.objects.cancel(
-                    message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
-                    attached_to=build,
-                )
-                log.info("Admitting queued build.", build_id=build.pk)
-                submit_to_isolated_builders(project=project, build=build)
-            else:
-                # Blocked by the concurrency limit: surface the wait in the UI.
-                # A later finish hook or the beat sweep will admit it.
-                log.info("Build queued due to concurrency limit.", build_id=build.pk)
-                Notification.objects.add(
-                    message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
-                    attached_to=build,
-                    dismissable=False,
-                    format_values={"limit": max_concurrent},
-                )
+            with structlog.contextvars.bound_contextvars(build_id=build.pk):
+                if position < free:
+                    # Admit: clear the "waiting" notification and dispatch.
+                    Notification.objects.cancel(
+                        message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                        attached_to=build,
+                    )
+                    log.info("Admitting queued build.")
+                    submit_to_isolated_builders(project=project, build=build)
+                else:
+                    # Blocked by the concurrency limit: surface the wait in the UI.
+                    # A later finish hook or the beat sweep will admit it.
+                    log.info("Build queued due to concurrency limit.")
+                    Notification.objects.add(
+                        message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                        attached_to=build,
+                        dismissable=False,
+                        format_values={"limit": max_concurrent},
+                    )
 
 
 def cancel_build(build):
