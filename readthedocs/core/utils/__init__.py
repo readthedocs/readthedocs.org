@@ -285,6 +285,7 @@ def submit_to_isolated_builders(*, project, build):
         "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
         "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         "RTD_HEALTHCHECK_API_HOST": settings.SLUMBER_API_HOST,
+        "RTD_ALLOW_PRIVATE_REPOS": str(settings.ALLOW_PRIVATE_REPOS),
     }
     if settings.RTD_DOCKER_COMPOSE:
         # Local dev: rustfs endpoint for storage boto3 calls, root user
