@@ -25,7 +25,6 @@ from .models import BuildWithOs
 from .models import Conda
 from .models import Mkdocs
 from .models import Python
-from .models import PythonInstall
 from .models import Search
 from .models import Sphinx
 from .models import Submodules
@@ -46,7 +45,6 @@ __all__ = (
     "load",
     "BuildConfigV2",
     "PIP",
-    "SETUPTOOLS",
     "UV",
     "LATEST_CONFIGURATION_VERSION",
 )
@@ -207,14 +205,6 @@ class BuildConfigBase:
     @property
     def is_using_build_commands(self):
         return self.build.commands != []
-
-    @property
-    def is_using_setup_py_install(self):
-        """Check if this project is using `setup.py install` as installation method."""
-        for install in self.python.install:
-            if isinstance(install, PythonInstall) and install.method == SETUPTOOLS:
-                return True
-        return False
 
     @property
     def is_using_uv(self):
@@ -582,10 +572,12 @@ class BuildConfigV2(BuildConfigBase):
 
             method_key = key + ".method"
             with self.catch_validation_error(method_key):
-                method = validate_choice(
-                    self.pop_config(method_key, PIP),
-                    [PIP, SETUPTOOLS, UV],
-                )
+                method = self.pop_config(method_key, PIP)
+                if method == SETUPTOOLS:
+                    raise ConfigError(
+                        message_id=ConfigError.PYTHON_SETUP_PY_INSTALL_REMOVED,
+                    )
+                method = validate_choice(method, [PIP, UV])
                 python_install["method"] = method
 
             extra_req_key = key + ".extra_requirements"
