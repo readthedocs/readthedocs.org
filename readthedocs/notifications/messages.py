@@ -9,6 +9,7 @@ from django.utils.translation import gettext_noop as _
 from readthedocs.core.context_processors import readthedocs_processor
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.doc_builder.exceptions import BuildFailedArtifactsUpload
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
@@ -150,6 +151,19 @@ BUILD_MESSAGES = [
             Your project, organization, or user has reached its maximum number of concurrent builds allowed ({{limit}}).
             This build will automatically retry in 5 minutes.
             """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildFailedArtifactsUpload.UPLOAD_FAILED,
+        header=_("There was a problem while uploading your artifacts"),
+        body=_(
+            textwrap.dedent(
+                """
+                Artifacts for this build could not be uploaded to Read the Docs.
+                Check your CI job for more information, or try again later.
+                """
             ).strip(),
         ),
         type=ERROR,

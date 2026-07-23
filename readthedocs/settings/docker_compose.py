@@ -276,6 +276,17 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
                 },
             },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": "build-uploads",
+                    "url_protocol": "http:",
+                    "default_acl": "private",
+                    # Overriden so we return the public URL for uploading artifacts,
+                    # instead of the internal hostname (http://storage), which is not accessible from the host machine.
+                    "endpoint_url": "http://127.0.0.1:9000/",
+                },
+            },
         }
 
 

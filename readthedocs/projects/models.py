@@ -2114,6 +2114,7 @@ class Feature(models.Model):
     TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
     USE_ISOLATED_BUILDER = "use_isolated_builder"
     KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
+    ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
         (
@@ -2201,6 +2202,10 @@ class Feature(models.Model):
                 "running after the build completes (instead of having the worker "
                 "self-terminate it via the AWS API)."
             ),
+        ),
+        (
+            ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            _("Build: Allow using the dreict artifacts upload API."),
         ),
     )
 

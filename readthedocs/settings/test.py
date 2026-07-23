@@ -176,6 +176,13 @@ class CommunityTestSettings(CommunityBaseSettings):
                     "allow_overwrite": True,
                 },
             },
+            "build-uploads": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "build-uploads",
+                    "allow_overwrite": True,
+                },
+            },
         }
 
 

@@ -27,6 +27,7 @@ from dataclasses import dataclass
 import boto3
 import structlog
 from django.conf import settings
+from django.core.files.storage import storages
 
 
 log = structlog.get_logger(__name__)
@@ -252,6 +253,57 @@ def get_s3_build_tools_scoped_credentials(
         ],
     }
     session_name = f"rtd-{build.id}-{project.slug}-{version.slug}"
+    credentials = _get_scoped_credentials(
+        session_name=session_name,
+        policy=policy,
+        duration=duration,
+    )
+    return AWSS3TemporaryCredentials(
+        access_key_id=credentials.access_key_id,
+        secret_access_key=credentials.secret_access_key,
+        session_token=credentials.session_token,
+        region_name=settings.AWS_S3_REGION_NAME,
+        bucket_name=bucket,
+    )
+
+
+def get_s3_build_uploads_scoped_credentials(
+    *,
+    build,
+    duration=60 * 15,
+) -> AWSS3TemporaryCredentials:
+    """
+    Get temporary credentials with read-only access to the build-uploads bucket.
+
+    :param build: The build to get the credentials for.
+    :param duration: The duration of the credentials in seconds. Default is 15 minutes.
+     Note that the minimum duration time is 15 minutes and the maximum is given by the role (defaults to 1 hour).
+    """
+    storage = storages["build-uploads"]
+    project = build.project
+    bucket = storage.bucket_name
+    bucket_arn = f"arn:aws:s3:::{bucket}"
+
+    # Inline policy to limit the permissions of the temporary credentials.
+    # We only need to read the uploaded zip from the build-uploads bucket,
+    # so we limit the permissions to the specific path of the build.
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "s3:GetObject",
+                    "s3:ListBucket",
+                ],
+                "Resource": [
+                    bucket_arn,
+                    f"{bucket_arn}/{build.uploaded_artifacts_storage_path}",
+                ],
+            },
+        ],
+    }
+    session_name = f"rtd-{build.id}-{project.slug}"
     credentials = _get_scoped_credentials(
         session_name=session_name,
         policy=policy,
