@@ -288,16 +288,13 @@ def submit_to_isolated_builders(*, project, build):
         "RTD_ALLOW_PRIVATE_REPOS": str(settings.ALLOW_PRIVATE_REPOS),
     }
     if settings.RTD_DOCKER_COMPOSE:
-        # Local dev: rustfs endpoint for storage boto3 calls, root user
-        # inside the container (the bind-mounted docroot doesn't match
-        # the container's ``docs`` uid), API-via-nginx override so the
-        # build container can reach us on the compose network.
+        # Local dev: rustfs endpoint for storage boto3 calls, and an
+        # API-via-nginx override so the build container can reach us on the
+        # compose network. The build user defaults to ``docs`` (like
+        # production) — the isolated builder has no bind-mounted docroot, so
+        # there's no host-uid mismatch to work around.
         environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
-        environment["RTD_DOCKER_USER"] = "root"
-        # Tells the builder it's running under docker-compose so it symlinks
-        # ``/root/.asdf`` -> ``docs``' asdf install. Required because we run as
-        # ``root`` here (above): ``asdf`` resolves plugins from ``$HOME/.asdf``,
-        # which is ``/root/.asdf`` for root.
+        # Tells the builder it's running under docker-compose
         environment["RTD_DOCKER_COMPOSE"] = "1"
         # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
         # are fully migrated and remove this override here.
