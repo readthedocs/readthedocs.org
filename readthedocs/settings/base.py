@@ -1217,6 +1217,10 @@ class CommunityBaseSettings(Settings):
     # which is limited by the concurrency limit, but has automatic retries,
     # so the user doesn't have to worry about it.
     RTD_UPLOAD_MAX_PENDING_UPLOADS = 50
+    # 15 minutes in seconds.
+    RTD_UPLOAD_PROCESS_UPLOAD_TIME_LIMIT = 15 * 60
+    # 12 minutes in seconds.
+    RTD_UPLOAD_PROCESS_UPLOAD_SOFT_TIME_LIMIT = 12 * 60
 
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.

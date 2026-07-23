@@ -258,7 +258,6 @@ class UploadCompleteView(APIv3Settings, APIView):
             # We're still triggering the task, but it won't run immediately,
             # and the user will be alerted in the UI from the Error below.
             options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
-            options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
             Notification.objects.add(
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
                 attached_to=build,
