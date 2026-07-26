@@ -31,11 +31,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.40
+boto3==1.43.46
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.40
+botocore==1.43.46
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -52,12 +52,12 @@ certifi==2026.6.17
     #   -r requirements/pip.txt
     #   elastic-transport
     #   requests
-cffi==2.0.0
+cffi==2.1.0
     # via
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -108,7 +108,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.15
+django==5.2.16
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -149,9 +149,9 @@ django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
-django-filter==25.2
+django-filter==26.1
     # via -r requirements/pip.txt
-django-formtools==2.6.1
+django-formtools==2.7
     # via -r requirements/pip.txt
 django-gravatar2==1.4.5
     # via -r requirements/pip.txt
@@ -188,7 +188,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 dnspython==2.8.0
     # via -r requirements/pip.txt
-docker==7.1.0
+docker==7.2.0
     # via -r requirements/pip.txt
 docutils==0.21.2
     # via
@@ -212,7 +212,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.29.5
+filelock==3.29.7
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -354,7 +354,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.4.3
+python-discovery==1.4.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -376,7 +376,7 @@ qrcode==8.2
     #   django-allauth
 redis==8.0.1
     # via -r requirements/pip.txt
-regex==2026.6.28
+regex==2026.7.10
     # via -r requirements/pip.txt
 requests==2.34.2
     # via
@@ -400,7 +400,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.txt
 roman-numerals==4.1.0
     # via sphinx
-s3transfer==0.19.0
+s3transfer==0.19.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -468,7 +468,7 @@ typing-inspection==0.4.2
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2026.2
+tzdata==2026.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -507,7 +507,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.5.1
+virtualenv==21.6.1
     # via -r requirements/pip.txt
 wcwidth==0.8.2
     # via
