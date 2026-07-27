@@ -537,7 +537,7 @@ class TestPostBuildOverview(TestCase):
             <summary>3 files changed</summary>
             <br>
             <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
-            <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
+            <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a> · <a href="http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true">visual diff</a><br>
             <code>-</code> <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
             </details>
 
@@ -585,10 +585,10 @@ class TestPostBuildOverview(TestCase):
             - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
             `±` **Modified**
-            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
-            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
-            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
-            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
+            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [visual diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
+            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [visual diff](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true)
+            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [visual diff](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true)
+            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [visual diff](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true)
 
             `-` **Deleted**
             - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
