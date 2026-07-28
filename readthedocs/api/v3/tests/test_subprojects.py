@@ -1,7 +1,7 @@
 from django.test import override_settings
 from django.urls import reverse
 
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Feature, Project
 from django_dynamic_fixture import get
 
@@ -64,18 +64,9 @@ class SubprojectsEndpointTests(APIEndpointMixin):
 
     def test_projects_subprojects_list_is_ordered_by_child_slug(self):
         # Create subprojects in non-alphabetical order to make sure the list
-        # is ordered by the queryset, and not by creation order.
+        # is ordered by slug, and not by creation order.
         for slug in ["delta", "alpha", "charlie"]:
-            subproject = get(
-                Project,
-                slug=slug,
-                related_projects=[],
-                main_language_project=None,
-                users=[self.me],
-                versions=[],
-                privacy_level=PUBLIC,
-            )
-            self.project.add_subproject(subproject)
+            self._create_subproject(slug=slug)
 
         url = reverse(
             "projects-subprojects-list",

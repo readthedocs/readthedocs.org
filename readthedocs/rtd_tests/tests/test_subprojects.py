@@ -308,29 +308,18 @@ class SubprojectFormTests(TestCase):
 
 
 class SubprojectListViewTests(TestCase):
-    def setUp(self):
-        self.user = fixture.get(User)
-        self.project = fixture.get(Project, slug="mainproject", users=[self.user])
-        # Create subprojects in non-alphabetical order to make sure the list
-        # is ordered by the queryset, and not by creation order.
-        for slug in ["delta", "alpha", "charlie", "bravo"]:
-            subproject = fixture.get(Project, slug=slug, users=[self.user])
-            self.project.add_subproject(subproject)
-
-        self.client.force_login(self.user)
-        self.response = self.client.get(
-            reverse("projects_subprojects", args=[self.project.slug]),
-        )
-
     def test_list_is_ordered_by_subproject_slug(self):
-        assert self.response.status_code == 200
-        assert [
-            relationship.child.slug for relationship in self.response.context["object_list"]
-        ] == ["alpha", "bravo", "charlie", "delta"]
+        user = fixture.get(User)
+        project = fixture.get(Project, slug="mainproject", users=[user])
+        # Create subprojects in non-alphabetical order to make sure the list
+        # is ordered by slug, and not by creation order.
+        for slug in ["delta", "alpha", "charlie"]:
+            project.add_subproject(fixture.get(Project, slug=slug))
 
-    def test_subprojects_and_urls_are_ordered_by_subproject_slug(self):
-        assert self.response.status_code == 200
-        assert [
-            relationship.child.slug
-            for relationship, _ in self.response.context["subprojects_and_urls"]
-        ] == ["alpha", "bravo", "charlie", "delta"]
+        self.client.force_login(user)
+        response = self.client.get(reverse("projects_subprojects", args=[project.slug]))
+
+        assert response.status_code == 200
+        expected = ["alpha", "charlie", "delta"]
+        assert [rel.child.slug for rel in response.context["object_list"]] == expected
+        assert [rel.child.slug for rel, _ in response.context["subprojects_and_urls"]] == expected
