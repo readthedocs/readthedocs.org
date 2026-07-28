@@ -236,6 +236,12 @@ def send_build_status(build_pk, commit, status):
         status=status,
     )
 
+    # Builds that failed before checking out the repository don't have
+    # a commit, so there is nothing to report the status on.
+    if not commit:
+        log.info("Build doesn't have a commit, not sending build status.")
+        return False
+
     log.debug("Sending build status.")
 
     # Get the service class for the project e.g: GitHubService.

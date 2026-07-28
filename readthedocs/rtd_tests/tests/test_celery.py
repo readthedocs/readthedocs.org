@@ -98,7 +98,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -118,7 +120,9 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -137,7 +141,9 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = "https://github.com/test/test/"
         self.project.save()
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -177,7 +183,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -187,6 +195,22 @@ class TestCeleryBuilding(TestCase):
             commit=external_build.commit,
             status=BUILD_STATUS_SUCCESS,
         )
+        self.assertEqual(Notification.objects.count(), 0)
+
+    @patch("readthedocs.oauth.services.github.GitHubService.send_build_status")
+    def test_send_build_status_without_commit(self, send_build_status):
+        get(SocialAccount, user=self.eric, provider="github")
+
+        self.project.repo = "https://github.com/test/test/"
+        self.project.save()
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit=None
+        )
+        build_tasks.send_build_status(external_build.id, None, BUILD_STATUS_SUCCESS)
+
+        send_build_status.assert_not_called()
         self.assertEqual(Notification.objects.count(), 0)
 
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
@@ -205,7 +229,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -225,7 +251,9 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
@@ -244,7 +272,9 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = "https://gitlab.com/test/test/"
         self.project.save()
         external_version = get(Version, project=self.project, type=EXTERNAL)
-        external_build = get(Build, project=self.project, version=external_version)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit="1234abcd"
+        )
         build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
