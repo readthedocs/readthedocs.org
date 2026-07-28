@@ -241,7 +241,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 version=self.data.version,
                 environment=environment,
             )
-            log.info("Syncing repository via remote listing.")
+            log.debug("Syncing repository via remote listing.")
             self.sync_versions(vcs_repository)
 
 
@@ -930,7 +930,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
         """
         time_before_store_build_artifacts = timezone.now()
-        log.info("Writing build artifacts to media storage")
+        log.debug("Writing build artifacts to media storage")
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
@@ -1002,7 +1002,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     exception_message="Error deleting files from storage.",
                 ) from exc
 
-        log.info(
+        log.debug(
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
@@ -1012,7 +1012,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             output = subprocess.check_output(["du", "--summarize", "-m", "--", directory])
             # The output is something like: "5\t/path/to/directory".
             directory_size = int(output.decode().split()[0])
-            log.info(
+            log.debug(
                 "Build artifacts directory size.",
                 directory=directory,
                 size=directory_size,  # Size in mega bytes

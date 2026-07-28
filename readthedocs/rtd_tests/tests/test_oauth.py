@@ -1733,7 +1733,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
@@ -1797,7 +1797,7 @@ class GitHubOAuthTests(TestCase):
         self.assertFalse(success)
         self.assertIsNotNone(self.integration.secret)
         mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
-        mock_logger.warning.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
@@ -1924,7 +1924,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.warning.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
             https_status_code=404,
         )
