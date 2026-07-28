@@ -2324,6 +2324,68 @@ class IntegrationsTests(TestCase):
         self.assertNotEqual(prev_identifier, external_version.identifier)
 
     @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
+    def test_github_pull_request_with_duplicated_external_versions(
+        self, trigger_build, core_trigger_build
+    ):
+        client = APIClient()
+
+        pull_request_number = "9"
+        identifier = "95790bf891e76fee5e1747ab589903a6a1f80f23"
+        # Duplicated external versions for the same pull request,
+        # created by a race condition between webhook deliveries.
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            active=True,
+            verbose_name=pull_request_number,
+            slug=pull_request_number,
+            identifier=identifier,
+        )
+        duplicated_version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            active=True,
+            verbose_name=pull_request_number,
+            slug=f"{pull_request_number}-abc123",
+            identifier=identifier,
+        )
+
+        # Update the payload for `synchronize` webhook event
+        payload = self.github_pull_request_payload
+        payload["action"] = GITHUB_PULL_REQUEST_SYNC
+        payload["number"] = pull_request_number
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            payload,
+            format="json",
+            headers=headers,
+        )
+
+        assert resp.status_code == status.HTTP_200_OK
+        assert resp.data["build_triggered"]
+        # The oldest external version is kept and updated,
+        # the duplicated one is deleted.
+        external_version = self.project.versions(manager=EXTERNAL).get(
+            verbose_name=pull_request_number
+        )
+        assert external_version == version
+        assert external_version.identifier == self.commit
+        assert not self.project.versions.filter(pk=duplicated_version.pk).exists()
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=self.commit,
+            from_webhook=True,
+        )
+
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 

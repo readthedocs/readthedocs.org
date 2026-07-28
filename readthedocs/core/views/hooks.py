@@ -9,6 +9,7 @@ from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
@@ -125,15 +126,36 @@ def get_or_create_external_version(project, version_data):
     :returns: External version.
     :rtype: Version
     """
-    external_version, created = project.versions.get_or_create(
-        verbose_name=version_data.id,
-        type=EXTERNAL,
-        defaults={
-            "identifier": version_data.commit,
-            "active": True,
-            "state": EXTERNAL_VERSION_STATE_OPEN,
-        },
-    )
+    try:
+        external_version, created = project.versions.get_or_create(
+            verbose_name=version_data.id,
+            type=EXTERNAL,
+            defaults={
+                "identifier": version_data.commit,
+                "active": True,
+                "state": EXTERNAL_VERSION_STATE_OPEN,
+            },
+        )
+    except Version.MultipleObjectsReturned:
+        # Duplicated external versions can be created by concurrent webhook
+        # deliveries for the same PR/MR, since there is no db-level constraint
+        # on (project, verbose_name, type). Keep the oldest version, which has
+        # the canonical slug, and delete the duplicates.
+        duplicated_versions = list(
+            project.versions.filter(
+                verbose_name=version_data.id,
+                type=EXTERNAL,
+            ).order_by("pk")
+        )
+        external_version = duplicated_versions[0]
+        created = False
+        for duplicated_version in duplicated_versions[1:]:
+            log.warning(
+                "Removing duplicated external version.",
+                project_slug=project.slug,
+                version_slug=duplicated_version.slug,
+            )
+            duplicated_version.delete()
 
     if created:
         log.info(
