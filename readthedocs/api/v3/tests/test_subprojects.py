@@ -1,7 +1,7 @@
 from django.test import override_settings
 from django.urls import reverse
 
-from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Feature, Project
 from django_dynamic_fixture import get
 
@@ -61,6 +61,36 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), expected_response)
+
+    def test_projects_subprojects_list_is_ordered_by_child_slug(self):
+        # Create subprojects in non-alphabetical order to make sure the list
+        # is ordered by the queryset, and not by creation order.
+        for slug in ["delta", "alpha", "charlie"]:
+            subproject = get(
+                Project,
+                slug=slug,
+                related_projects=[],
+                main_language_project=None,
+                users=[self.me],
+                versions=[],
+                privacy_level=PUBLIC,
+            )
+            self.project.add_subproject(subproject)
+
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert [result["child"]["slug"] for result in response.json()["results"]] == [
+            "alpha",
+            "charlie",
+            "delta",
+            "subproject",
+        ]
 
     def test_projects_subprojects_list_other_user(self):
         url = reverse(
