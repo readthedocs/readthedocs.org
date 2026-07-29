@@ -18,7 +18,7 @@ certifi==2026.6.17
     # via
     #   requests
     #   sphinx-prompt
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
 click==8.4.2
     # via
@@ -170,11 +170,11 @@ urllib3==2.7.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.50.0
+uvicorn==0.51.0
     # via sphinx-autobuild
 watchfiles==1.2.0
     # via sphinx-autobuild
-websockets==16.0
+websockets==16.1
     # via sphinx-autobuild
 
 # The following packages are considered to be unsafe in a requirements file:
