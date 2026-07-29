@@ -227,10 +227,10 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
-        A build only counts once it has actually started (left the ``triggered``
-        state). A build that's merely been dispatched to the isolated-builders
-        fleet is still queued, waiting for a builder to pick it up, so it does
-        not count.
+        A build counts as soon as it's been dispatched to the isolated-builders
+        fleet (``dispatched_date`` set) — it occupies a slot even while it waits
+        in the broker for a builder to pick it up. A build still genuinely
+        queued (``triggered`` but not yet dispatched) does not count.
 
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
@@ -260,13 +260,14 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
         concurrent = (
             self.filter(query)
-            .exclude(
-                state__in=[
-                    BUILD_STATE_TRIGGERED,
-                    BUILD_STATE_FINISHED,
-                    BUILD_STATE_CANCELLED,
-                ]
-            )
+            .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED])
+            # A ``triggered`` build counts only once it's been dispatched to the
+            # isolated-builders fleet (``dispatched_date`` set): a dispatched
+            # build occupies a slot even while it waits in the broker for a
+            # builder to pick it up. Builds still genuinely queued (triggered,
+            # not yet dispatched) don't count. Legacy builds never set
+            # ``dispatched_date``, so they stay excluded exactly as before.
+            .exclude(Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__isnull=True))
             .distinct()
             .count()
         )
