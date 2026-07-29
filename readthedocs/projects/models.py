@@ -2280,7 +2280,8 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
 
     objects = RelatedProjectQuerySet.as_manager()
 
-    class Meta:
+    # Inherit the Meta to keep ``get_latest_by`` from ``TimeStampedModel``.
+    class Meta(TimeStampedModel.Meta):
         # The dashboard and APIv3 list this model paginated; an unordered
         # queryset returns rows in a database-dependent order across pages.
         ordering = ("name", "pk")
