@@ -230,7 +230,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         A build only counts once it has actually started (left the ``triggered``
         state). A build that's merely been dispatched to the isolated-builders
         fleet is still queued, waiting for a builder to pick it up, so it does
-        not count. See ``readthedocs-builder/docs/concurrency.md``.
+        not count.
 
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent

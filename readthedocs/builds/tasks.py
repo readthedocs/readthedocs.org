@@ -800,8 +800,6 @@ def admit_queued_builds(self):
     project with builds waiting in ``triggered``, it runs the admission routine
     (:func:`readthedocs.core.utils.admit_project_builds`), which dispatches as
     many as there are free concurrency slots.
-
-    See ``readthedocs-builder/docs/concurrency.md``.
     """
     lock_id = "{0}-lock".format(self.name)
     with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:

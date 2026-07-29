@@ -360,7 +360,6 @@ def admit_project_builds(project):
     slot frees; this dispatches the oldest ones to the fleet, FIFO.
 
     Called from the periodic ``admit_queued_builds`` beat task.
-    See ``readthedocs-builder/docs/concurrency.md``.
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
