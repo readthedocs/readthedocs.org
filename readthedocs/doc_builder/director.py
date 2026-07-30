@@ -840,10 +840,13 @@ class BuildDirector:
             self.data.version.slug,
         )
         if self.data.config.is_using_uv:
+            checkout_path = self.data.project.checkout_path(self.data.version.slug)
             try:
-                UV_PROJECT = self.data.config.python.install[0].path
+                # UV_PROJECT has to be an absolute path because we run `uv venv` and `uv run`
+                # from different `cwd` directories.
+                UV_PROJECT = os.path.join(checkout_path, self.data.config.python.install[0].path)
             except AttributeError, IndexError:
-                UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
+                UV_PROJECT = checkout_path
 
             env.update(
                 {
