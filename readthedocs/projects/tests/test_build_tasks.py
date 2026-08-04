@@ -1975,6 +1975,78 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_without_sphinx_using_uv(self, load_yaml_config):
+        """The uv environment is created and synced even when the builder is generic."""
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["uv run zensical build --clean"],
+                        },
+                    },
+                },
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs"],
+                        },
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call("asdf", "plugin", "add", "uv", record=True),
+                mock.call("asdf", "install", "uv", "latest", record=True),
+                mock.call("asdf", "global", "uv", "latest", record=True),
+                mock.call("asdf", "which", "python", record=True),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "uv",
+                    "venv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    "uv",
+                    "sync",
+                    "--group",
+                    "docs",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "uv run zensical build --clean",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_jobs_partial_build_override_sphinx(self, load_yaml_config):
         config = BuildConfigV2(
             {
