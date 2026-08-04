@@ -351,9 +351,9 @@ class BuildDirector:
             self.run_build_job("create_environment")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.setup_base()
@@ -364,9 +364,9 @@ class BuildDirector:
             self.run_build_job("install")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.install_core_requirements()
