@@ -1,3 +1,4 @@
+import os
 from unittest import mock
 
 from django.test import TestCase, override_settings
@@ -62,3 +63,29 @@ class TestBuildDirectorEnvironmentVariables(TestCase):
 
         env_vars = self.director.get_vcs_env_vars()
         self.assertNotIn("GIT_SSH_COMMAND", env_vars)
+
+    def test_uv_project_is_absolute_path_from_install_path(self):
+        """UV_PROJECT joins the checkout path with the configured install path."""
+        self.data.config.is_using_uv = True
+        self.data.config.python.install = [mock.Mock(path="docs")]
+
+        env_vars = self.director.get_build_env_vars()
+
+        checkout_path = self.project.checkout_path(self.version.slug)
+        self.assertEqual(
+            env_vars["UV_PROJECT"],
+            os.path.join(checkout_path, "docs"),
+        )
+        # It must be absolute: `uv venv` and `uv run` run from different cwds.
+        self.assertTrue(os.path.isabs(env_vars["UV_PROJECT"]))
+
+    def test_uv_project_falls_back_to_checkout_path(self):
+        """UV_PROJECT falls back to the checkout path when there's no install path."""
+        self.data.config.is_using_uv = True
+        # Empty install list raises IndexError when accessing [0].
+        self.data.config.python.install = []
+
+        env_vars = self.director.get_build_env_vars()
+
+        checkout_path = self.project.checkout_path(self.version.slug)
+        self.assertEqual(env_vars["UV_PROJECT"], checkout_path)
