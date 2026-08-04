@@ -30,6 +30,7 @@ from readthedocs.builds.models import APIVersion
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.tasks import send_build_notifications
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.utils.filesystem import assert_path_is_inside_docroot
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildCancelled
@@ -81,8 +82,10 @@ class ProcessUploadedBuildTask(Task):
         BuildAppError,
     ]
 
+    # Messages for this task will be acknowledged after the task has been
+    # executed, not just before. If a worker crashes or loses power mid-execution,
+    # the broker re-queues the message for another worker.
     acks_late = True
-    track_started = True
 
     time_limit = settings.RTD_UPLOAD_PROCESS_UPLOAD_TIME_LIMIT
     soft_time_limit = settings.RTD_UPLOAD_PROCESS_UPLOAD_SOFT_TIME_LIMIT
@@ -113,12 +116,8 @@ class ProcessUploadedBuildTask(Task):
         signal.signal(signal.SIGINT, sigint_received)
 
     def run(self, build_id, build_api_key):
-        structlog.contextvars.bind_contextvars(build_id=build_id)
-        logger.info("Running task.", name=self.name)
-
-        # Clean the build paths to avoid conflicts with a previous run.
-        clean_build()
-        self._setup_sigterm()
+        structlog.contextvars.bind_contextvars(build_id=build_id, task_name=self.name)
+        logger.info("Running task.")
 
         builder = socket.gethostname()
         # Enable scale-in protection on this instance
@@ -128,11 +127,16 @@ class ProcessUploadedBuildTask(Task):
             protected_from_scale_in=True,
         )
 
+        # Clean the build paths to avoid conflicts with a previous run.
+        clean_build()
+        self._setup_sigterm()
+
         self.data = TaskData(build_pk=build_id)
         self.data.api_client = setup_api(build_api_key)
 
         # Always reset the build before starting, in case the build was retried.
         self.data.api_client.build(self.data.build_pk).reset.post()
+
         self.data.build = self.data.api_client.build(build_id).get()
         self.data.build["builder"] = builder
         # Save when the task was executed by a builder
@@ -189,6 +193,15 @@ class ProcessUploadedBuildTask(Task):
         local_artifacts_path = output_dir / "_readthedocs"
         try:
             self._extract_artifacts(source=zip_destination, destination=local_artifacts_path)
+        except BuildUserError:
+            message = "Unexpected error extracting artifacts. Check your build artifacts are valid."
+            self._update_command(
+                command_id=command_id,
+                output=message,
+                exit_code=1,
+            )
+            # Re-reaise, this is a known error.
+            raise
         except Exception as exc:
             logger.exception("Error extracting artifacts")
             message = "Unexpected error extracting artifacts. Check your build artifacts or try again later."
@@ -501,14 +514,15 @@ class ProcessUploadedBuildTask(Task):
                 # cwd=str(output_dir),
                 record=False,
             )
+            return result
 
         if result.exit_code != 0:
-            logger.error(
+            logger.info(
                 "Error extracting artifacts.",
                 exit_code=result.exit_code,
                 output=result.output,
             )
-            raise BuildAppError(BuildAppError.GENERIC_WITH_BUILD_ID)
+            raise BuildUserError(BuildUserError.BUILD_ARTIFACTS_ZIP_INVALID)
 
     def _validate_artifacts(self):
         for artifact_type in ARTIFACT_TYPES:
@@ -538,8 +552,10 @@ class ProcessUploadedBuildTask(Task):
                 )
 
             if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
+                # NOTE: maybe just check that there is only one file with the right extension,
+                # and ignore any other files that may be present.
+
                 # Make sure there is only one file in the artifact directory, and that it has the right extension.
-                # NOTE: maybe just check that there is only one file with the right extension, and ignore any other files that may be present.
                 files = artifact_path.iterdir()
                 # Skip the first file/dir
                 file = next(files, None)
@@ -560,14 +576,7 @@ class ProcessUploadedBuildTask(Task):
                         },
                     )
 
-                if not file.is_file():
-                    # TODO: use a better error message.
-                    raise BuildUserError(
-                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
-                        format_values={"artifact_type": artifact_type},
-                    )
-
-                # Check that we have only one file with the right extension in the artifact directory.
+                # Check the file has the right extension.
                 extension = artifact_type.replace("htmlzip", "zip")
                 if file.suffix != f".{extension}":
                     # TODO: use a better error message.
@@ -577,6 +586,21 @@ class ProcessUploadedBuildTask(Task):
                             "artifact_type": artifact_type,
                         },
                     )
+
+                if not file.is_file():
+                    # TODO: use a better error message.
+                    raise BuildUserError(
+                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
+                        format_values={"artifact_type": artifact_type},
+                    )
+
+                # Rename file as "<project_slug>.<extension>",
+                # which is the filename that proxito expects for the artifact.
+                # TODO: don't rename the file, and instead upload it with the right name to storage.
+                new_file_name = artifact_path / f"{self.data.project.slug}.{extension}"
+                assert_path_is_inside_docroot(file)
+                assert_path_is_inside_docroot(new_file_name)
+                file.rename(new_file_name)
 
     def _sync_artifacts_to_storage(self):
         build_media_storage = get_storage(
@@ -600,7 +624,7 @@ class ProcessUploadedBuildTask(Task):
             artifact_storage_path = self.data.version.get_storage_path(media_type=artifact_type)
             if artifact_path.exists():
                 self._log_directory_size(directory=artifact_path, artifact_type=artifact_type)
-                # NOTE: use rclone sync only for directories,
+                # TODO: use rclone sync only for html,
                 # for single files, like PDF, just upload the file directly
                 # under the required name.
                 build_media_storage.rclone_sync_directory(

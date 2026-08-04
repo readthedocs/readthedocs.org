@@ -24,11 +24,15 @@ class UploadVersionSerializer(serializers.Serializer):
         max_length=255,
         help_text="Full commit hash.",
     )
-    slug = serializers.SlugField(
-        required=False,
-        allow_blank=True,
-        help_text="Optional slug. If not provided, derived from the name.",
-    )
+    # NOTE: this was left out of the first version,
+    # we need to decide what to do if the version already exists,
+    # but the slug doesn't match. We are also still keeping versions in sync,
+    # so versions kind of always exist.
+    # slug = serializers.SlugField(
+    #     required=False,
+    #     allow_blank=True,
+    #     help_text="Optional slug. If not provided, derived from the name.",
+    # )
     privacy_level = serializers.ChoiceField(
         choices=[PUBLIC, PRIVATE],
         required=False,
@@ -50,6 +54,7 @@ class UploadURLSerializer(serializers.Serializer):
         help_text="URL for uploading the build artifacts.",
     )
     # NOTE: url_fields is used to avoid a conflict with the `fields` attribute of the serializer.
+    # But the actual data returned from the API will have a `fields` key.
     url_fields = serializers.DictField(
         source="fields",
         help_text="Additional fields required for the upload.",

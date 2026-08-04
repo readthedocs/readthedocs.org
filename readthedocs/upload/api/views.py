@@ -59,15 +59,15 @@ class UploadInitiateView(APIv3Settings, APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD):
+        if not AdminPermission.is_admin(request.user, project):
             return Response(
-                {"detail": "Direct artifacts upload is not enabled for this project."},
+                {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        if not AdminPermission.is_admin(request.user, project):
+        if not project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD):
             return Response(
-                {"detail": "You do not have permission to upload to this project."},
+                {"detail": "Direct artifacts upload is not enabled for this project."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -87,7 +87,9 @@ class UploadInitiateView(APIv3Settings, APIView):
         ).count()
         if pending_uploads_count >= settings.RTD_UPLOAD_MAX_PENDING_UPLOADS:
             return Response(
-                {"detail": "Too many pending uploads for this project."},
+                {
+                    "detail": "Too many pending uploads for this project. Finish or cancel some builds before triggering new ones."
+                },
                 status=status.HTTP_429_TOO_MANY_REQUESTS,
             )
 
@@ -96,12 +98,10 @@ class UploadInitiateView(APIv3Settings, APIView):
         version_type = version_data["type"]
         version_commit = version_data["commit"]
         privacy_level = version_data["privacy_level"]
-        version_slug = version_data.get("slug", "")
         version = self._get_or_create_version(
             project=project,
             name=version_name,
             version_type=version_type,
-            slug=version_slug,
             privacy_level=privacy_level,
         )
 
@@ -155,11 +155,12 @@ class UploadInitiateView(APIv3Settings, APIView):
             status=status.HTTP_201_CREATED,
         )
 
-    def _get_or_create_version(self, project, name, version_type, slug, privacy_level):
+    def _get_or_create_version(self, *, project, name, version_type, privacy_level):
         """Get or create a version for the given project."""
         version = project.versions.filter(verbose_name=name, type=version_type).first()
         if version:
-            # NOTE: what to do in case the version already exists, but the slug doesn't match?
+            version.privacy_level = privacy_level
+            version.save()
             return version
 
         version = Version.objects.create(
@@ -169,7 +170,6 @@ class UploadInitiateView(APIv3Settings, APIView):
             identifier=name,
             privacy_level=privacy_level,
             active=True,
-            slug=slug,
         )
         return version
 
@@ -178,7 +178,8 @@ class UploadInitiateView(APIv3Settings, APIView):
         storage = storages["build-uploads"]
         response = storage.generate_presigned_post(
             key=build.uploaded_artifacts_storage_path,
-            # 30 minutes in seconds
+            # Should be enough time for users to upload the artifacts with an slow connection.
+            # 30 minutes in seconds.
             expires_in=60 * 30,
             content_type="application/zip",
             # 1GB in bytes
@@ -220,7 +221,7 @@ class UploadCompleteView(APIv3Settings, APIView):
         project = build.project
         if not AdminPermission.is_admin(request.user, project):
             return Response(
-                {"detail": "You do not have permission for this project."},
+                {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -246,17 +247,21 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_200_OK,
             )
 
+        # TODO: Check that the file was uploaded (make sure it exists in S3).
+
         options = {}
         # Start the build in X minutes and mark it as limited
         # if the project has reached the concurrency limit.
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
-            log.warning(
-                "Delaying tasks at trigger step due to concurrency limit.",
+            log.info(
+                "Delaying postprocessing of uploaded artifacts due to concurrency limit.",
             )
             # Delay the start of the build for the build retry delay.
             # We're still triggering the task, but it won't run immediately,
             # and the user will be alerted in the UI from the Error below.
+            # TODO: this task should be fast, it could make sense having
+            # its own delay of like 2 minutes instead of 5.
             options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
             Notification.objects.add(
                 message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
