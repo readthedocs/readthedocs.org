@@ -5,7 +5,9 @@ from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.director import BuildDirector
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.projects.models import Project
 
 
@@ -115,3 +117,31 @@ class TestBuildDirectorEnvironmentVariables(TestCase):
         self.assertNotIn("UV_PYTHON", env_vars)
         self.assertNotIn("UV_PROJECT", env_vars)
         self.assertNotIn("UV_PROJECT_ENVIRONMENT", env_vars)
+
+    def test_uv_python_removed_while_running_uv_venv(self):
+        """
+        UV_PYTHON is removed while running ``uv venv`` and re-added afterwards.
+
+        It points to the Python binary inside the virtualenv, which doesn't
+        exist yet when creating it.
+        """
+        build_env = mock.MagicMock()
+        build_env._environment = {"UV_PYTHON": "/envs/latest/bin/python"}
+        python_env = UvEnv(
+            version=self.version,
+            build_env=build_env,
+            config=get_build_config(
+                {"python": {"install": [{"method": "uv", "command": "sync"}]}},
+                validate=True,
+            ),
+        )
+
+        environment_during_run = {}
+        build_env.run.side_effect = lambda *args, **kwargs: environment_during_run.update(
+            build_env._environment
+        )
+
+        python_env.setup_base()
+
+        self.assertNotIn("UV_PYTHON", environment_during_run)
+        self.assertEqual(build_env._environment["UV_PYTHON"], "/envs/latest/bin/python")
