@@ -26,9 +26,16 @@ def update_latest_build_for_project(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Build)
 def update_is_uploaded_for_version(sender, instance, created, **kwargs):
-    """When a successful build via the upload API is completed, update the version."""
+    """
+    When a successful build via the upload API is completed, update the version.
+
+    .. note::
+
+       This isn't 100% accurate, as an old build could be saved again,
+       and the version would be marked as uploaded even if the latest build isn't uploaded.
+    """
     build = instance
-    if build.finished and build.success:
+    if build.version and build.finished and build.success:
         version = instance.version
         version.is_uploaded = True
         version.save(update_fields=["is_uploaded"])

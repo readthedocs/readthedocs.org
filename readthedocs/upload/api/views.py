@@ -225,7 +225,7 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # Check build is still in a valid state for completion
+        # Check build is in a valid state for processing.
         if build.state != BUILD_STATE_TRIGGERED or build.task_id:
             return Response(
                 {"detail": "Build is already in process."},
@@ -247,7 +247,14 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_200_OK,
             )
 
-        # TODO: Check that the file was uploaded (make sure it exists in S3).
+        storage = storages["build-uploads"]
+        if not storage.exists(build.uploaded_artifacts_storage_path):
+            return Response(
+                {
+                    "detail": "Uploaded artifacts file not found in storage. Make sure the upload was successful."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         options = {}
         # Start the build in X minutes and mark it as limited
