@@ -35,7 +35,7 @@ def update_is_uploaded_for_version(sender, instance, created, **kwargs):
        and the version would be marked as uploaded even if the latest build isn't uploaded.
     """
     build = instance
-    if build.version and build.finished and build.success:
+    if build.version and build.finished and build.success and build.is_uploaded:
         version = instance.version
         version.is_uploaded = True
         version.save(update_fields=["is_uploaded"])
