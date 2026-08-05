@@ -284,7 +284,9 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "default_acl": "private",
                     # Overriden so we return the public URL for uploading artifacts,
                     # instead of the internal hostname (http://storage), which is not accessible from the host machine.
-                    "endpoint_url": "http://127.0.0.1:9000/",
+                    # NOTE: this is overriding other places where the container doesn't have access to the host network.
+                    # we are replacing the URL returned on the fly for now.
+                    # "endpoint_url": "http://127.0.0.1:9000/",
                 },
             },
         }

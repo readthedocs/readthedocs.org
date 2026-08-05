@@ -3,8 +3,29 @@
 # Define your variables
 RTD_TOKEN=${RTD_TOKEN:-"your_default_token_here"}
 RTD_UPLOAD_API="http://devthedocs.org/api/v3/upload"
-RTD_PROJECT="test-builds"
-FILE_TO_UPLOAD="artifacts.zip"
+RTD_PROJECT=${RTD_PROJECT:-"test-builds"}
+RTD_OUTPUT_HTML=${RTD_OUTPUT_HTML:-"output/html"}
+# Make it an absolute path.
+RTD_OUTPUT_HTML="$(pwd)/$RTD_OUTPUT_HTML"
+TMP_DIR=$(mktemp -d)
+FILE_TO_UPLOAD="$TMP_DIR/artifacts.zip"
+RTD_VERSION_COMMIT=${RTD_VERSION_COMMIT:-"abc123"}
+RTD_VERSION_NAME=${RTD_VERSION_NAME:-"1.0.0"}
+RTD_VERSION_TYPE=${RTD_VERSION_TYPE:-"branch"}
+
+echo "Temporary directory created at $TMP_DIR"
+
+# 0. Create zip
+echo "Creating zip file of the HTML output..."
+if [ -d "$RTD_OUTPUT_HTML" ]; then
+    # Create a symlink so the zip command uses the name "html" instead of last part of the directory.
+    ln -s "$RTD_OUTPUT_HTML" "$TMP_DIR/html"
+    (cd "$TMP_DIR" && zip -r "$FILE_TO_UPLOAD" html)
+    echo "Zip file created: $FILE_TO_UPLOAD"
+  else
+    echo "Error: Directory $RTD_OUTPUT_HTML does not exist."
+    exit 1
+fi
 
 # 1. Initiate the upload and capture the JSON response
 echo "Initiating upload with Read the Docs..."
@@ -14,9 +35,9 @@ RESPONSE=$(curl -s -H "Authorization: token $RTD_TOKEN" \
   -d "{
     \"project\": \"$RTD_PROJECT\",
     \"version\": {
-      \"commit\": \"abc123\",
-      \"name\": \"1.0.0\",
-      \"type\": \"branch\"
+      \"commit\": \"$RTD_VERSION_COMMIT\",
+      \"name\": \"$RTD_VERSION_NAME\",
+      \"type\": \"$RTD_VERSION_TYPE\"
     }
   }" \
   "$RTD_UPLOAD_API/initiate/")

@@ -263,7 +263,7 @@ class ProcessUploadedBuildTask(Task):
         command_id = command["id"]
 
         try:
-            self._sync_artifacts_to_storage()
+            artifacts_uploaded = self._sync_artifacts_to_storage()
         except Exception as exc:
             logger.exception("Error syncing artifacts to storage")
             message = "Unexpected error syncing artifacts to storage. Try again later."
@@ -283,6 +283,16 @@ class ProcessUploadedBuildTask(Task):
                 output="Artifacts synced to storage.",
                 exit_code=0,
             )
+
+        # Update version
+        self.data.api_client.version(self.data.version.pk).patch(
+            {
+                "built": True,
+                "has_pdf": "pdf" in artifacts_uploaded,
+                "has_epub": "epub" in artifacts_uploaded,
+                "has_htmlzip": "htmlzip" in artifacts_uploaded,
+            }
+        )
 
         self.data.build["state"] = BUILD_STATE_FINISHED
         self.data.build["success"] = True
@@ -608,6 +618,7 @@ class ProcessUploadedBuildTask(Task):
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,
         )
+        artifacts_uploaded = []
         for artifact_type in ARTIFACT_TYPES:
             # Skip json, we aren't using it, nor allowing it.
             # TODO: we should just remove it from the list.
@@ -631,8 +642,10 @@ class ProcessUploadedBuildTask(Task):
                     source=str(artifact_path),
                     destination=artifact_storage_path,
                 )
+                artifacts_uploaded.append(artifact_type)
             elif artifact_path not in UNDELETABLE_ARTIFACT_TYPES:
                 build_media_storage.delete_directory(artifact_storage_path)
+        return artifacts_uploaded
 
     def _create_command(self, command):
         return self.data.api_client.command.post(
