@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import requests
@@ -17,6 +18,7 @@ from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
@@ -33,6 +35,7 @@ from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
@@ -115,6 +118,67 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                 version_slug=version.slug,
             )
             version.delete()
+
+
+def finish_inactive_build(build):
+    """
+    Finish a build that has been detected as inactive.
+
+    The state of the build is set to cancelled, and a notification is attached
+    to the build to inform the user that it was terminated due to inactivity.
+
+    In case the build is still running, we also revoke the Celery task to cancel it.
+    """
+    log.info(
+        "Finishing inactive build.",
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        version_slug=build.version_slug,
+    )
+    build.success = False
+    build.state = BUILD_STATE_CANCELLED
+    build.save()
+
+    # Tell Celery to cancel this task in case it's in a zombie state.
+    if build.task_id:
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
+
+    Notification.objects.add(
+        message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+        attached_to=build,
+    )
+
+
+@app.task(queue="web")
+def finish_inactive_uploaded_builds():
+    """
+    Finish builds created using the upload API that are inactive.
+
+    - Finish builds that were never uploaded, and have been inactive past the expiration time.
+    - Finish builds where a post-upload task was triggered, but never finished.
+    """
+    expired = timezone.now() - datetime.timedelta(
+        seconds=settings.RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME
+    )
+    # Finish builds where the upload was never completed.
+    # NOTE: select related on project, since finish_inactive_build uses it for logging.
+    expired_builds = (
+        Build.objects.pending_upload().filter(date__lt=expired).select_related("project")
+    )
+    for build in expired_builds:
+        finish_inactive_build(build)
+
+    # Finish builds that were uploaded, but didn't finish.
+    # NOTE: select related on project, since finish_inactive_build uses it for logging.
+    inactive_builds = Build.objects.filter(
+        is_uploaded=True,
+        finished=False,
+        # We don't have a health check for builds using the upload API,
+        # so finish any builds that haven't finished after 6 hours.
+        date__gt=timezone.now() - datetime.timedelta(hours=6),
+    ).select_related("project")
+    for build in inactive_builds:
+        finish_inactive_build(build)
 
 
 @app.task(max_retries=1, default_retry_delay=60, queue="web")

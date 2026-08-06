@@ -80,11 +80,7 @@ class UploadInitiateView(APIv3Settings, APIView):
         # We don't want users creating a lot of builds and never uploading them.
         # It may be by error or abuse, this limit is high enough to allow for multiple builds to be triggered,
         # but not too high to allow for abuse.
-        # NOTE: we filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
-        # and we don't want to count those builds as pending uploads.
-        pending_uploads_count = project.builds.filter(
-            state=BUILD_STATE_TRIGGERED, is_uploaded=True, task_id=None
-        ).count()
+        pending_uploads_count = project.builds.pending_upload().count()
         if pending_uploads_count >= settings.RTD_UPLOAD_API_MAX_PENDING_UPLOADS:
             return Response(
                 {
@@ -227,7 +223,7 @@ class UploadCompleteView(APIv3Settings, APIView):
             )
 
         # Check build hasn't already been queued for processing.
-        if build.task_id:
+        if build.task_id or build.state != BUILD_STATE_TRIGGERED:
             return Response(
                 {"detail": "Build is already in process."},
                 status=status.HTTP_409_CONFLICT,
