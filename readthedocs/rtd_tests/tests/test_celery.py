@@ -213,6 +213,29 @@ class TestCeleryBuilding(TestCase):
         send_build_status.assert_not_called()
         self.assertEqual(Notification.objects.count(), 0)
 
+    @patch("readthedocs.oauth.services.githubapp.GitHubAppService.send_build_status")
+    def test_send_build_status_without_commit_github_app(self, send_build_status):
+        self.project.repo = "https://github.com/test/test/"
+        self.project.save()
+
+        github_app_installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=1111,
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repo = get(RemoteRepository, vcs_provider=GITHUB_APP, github_app_installation=github_app_installation)
+        remote_repo.projects.add(self.project)
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version, commit=None
+        )
+        build_tasks.send_build_status(external_build.id, None, BUILD_STATUS_SUCCESS)
+
+        send_build_status.assert_not_called()
+        self.assertEqual(Notification.objects.count(), 0)
+
     @patch("readthedocs.oauth.services.gitlab.GitLabService.send_build_status")
     def test_send_build_status_with_remote_repo_gitlab(self, send_build_status):
         self.project.repo = "https://gitlab.com/test/test/"
