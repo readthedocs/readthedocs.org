@@ -87,8 +87,8 @@ class ProcessUploadedBuildTask(Task):
     # the broker re-queues the message for another worker.
     acks_late = True
 
-    time_limit = settings.RTD_UPLOAD_PROCESS_UPLOAD_TIME_LIMIT
-    soft_time_limit = settings.RTD_UPLOAD_PROCESS_UPLOAD_SOFT_TIME_LIMIT
+    time_limit = settings.RTD_UPLOAD_API_PROCESS_UPLOAD_TIME_LIMIT
+    soft_time_limit = settings.RTD_UPLOAD_API_PROCESS_UPLOAD_SOFT_TIME_LIMIT
 
     Request = BuildRequest
 

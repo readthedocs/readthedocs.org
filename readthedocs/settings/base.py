@@ -1216,13 +1216,22 @@ class CommunityBaseSettings(Settings):
     # Post-processing of the uploaded artifacts is done in a separate task,
     # which is limited by the concurrency limit, but has automatic retries,
     # so the user doesn't have to worry about it.
-    RTD_UPLOAD_MAX_PENDING_UPLOADS = 50
+    RTD_UPLOAD_API_MAX_PENDING_UPLOADS = 50
     # Hard and soft time limit for the task to download, unzip, check,
     # and upload the artifacts to their final destination.
     # 15 minutes in seconds.
-    RTD_UPLOAD_PROCESS_UPLOAD_TIME_LIMIT = 15 * 60
+    RTD_UPLOAD_API_PROCESS_UPLOAD_TIME_LIMIT = 15 * 60
     # 12 minutes in seconds.
-    RTD_UPLOAD_PROCESS_UPLOAD_SOFT_TIME_LIMIT = 12 * 60
+    RTD_UPLOAD_API_PROCESS_UPLOAD_SOFT_TIME_LIMIT = 12 * 60
+
+    # Time the upload URL is valid for after it is generated.
+    # Should be enough time for users to upload the artifacts with an slow connection.
+    # 30 minutes in seconds.
+    RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME = 30 * 60
+
+    # The maximum size of the generated zip file to be uploaded using the upload API.
+    # 1GB in bytes.
+    RTD_UPLOAD_API_MAX_UPLOAD_SIZE = 1024 * 1024 * 1024
 
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.

@@ -20,8 +20,8 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
-from readthedocs.doc_builder.exceptions import BuildFailedArtifactsUpload
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
@@ -85,7 +85,7 @@ class UploadInitiateView(APIv3Settings, APIView):
         pending_uploads_count = project.builds.filter(
             state=BUILD_STATE_TRIGGERED, is_uploaded=True, task_id=None
         ).count()
-        if pending_uploads_count >= settings.RTD_UPLOAD_MAX_PENDING_UPLOADS:
+        if pending_uploads_count >= settings.RTD_UPLOAD_API_MAX_PENDING_UPLOADS:
             return Response(
                 {
                     "detail": "Too many pending uploads for this project. Finish or cancel some builds before triggering new ones."
@@ -178,12 +178,9 @@ class UploadInitiateView(APIv3Settings, APIView):
         storage = storages["build-uploads"]
         response = storage.generate_presigned_post(
             key=build.uploaded_artifacts_storage_path,
-            # Should be enough time for users to upload the artifacts with an slow connection.
-            # 30 minutes in seconds.
-            expires_in=60 * 30,
+            expires_in=settings.RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME,
             content_type="application/zip",
-            # 1GB in bytes
-            max_size=1024 * 1024 * 1024,
+            max_size=settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE,
         )
         if settings.RTD_DOCKER_COMPOSE:
             # Overriden so we return the public URL for uploading artifacts,
@@ -229,8 +226,8 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # Check build is in a valid state for processing.
-        if build.state != BUILD_STATE_TRIGGERED or build.task_id:
+        # Check build hasn't already been queued for processing.
+        if build.task_id:
             return Response(
                 {"detail": "Build is already in process."},
                 status=status.HTTP_409_CONFLICT,
@@ -242,7 +239,7 @@ class UploadCompleteView(APIv3Settings, APIView):
             build.success = False
             build.save()
             Notification.objects.add(
-                message_id=BuildFailedArtifactsUpload.UPLOAD_FAILED,
+                message_id=BuildUserError.BUILD_ARTIFACTS_ZIP_UPLOAD_FAILED,
                 attached_to=build,
                 dismissable=False,
             )

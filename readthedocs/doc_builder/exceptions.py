@@ -44,6 +44,7 @@ class BuildUserError(BuildBaseException):
     TEX_FILE_NOT_FOUND = "build:user:tex-file-not-found"
     PDF_NOT_FOUND = "build:user:pdf-not-found"
     BUILD_ARTIFACTS_ZIP_INVALID = "build:user:artifacts-zip-invalid"
+    BUILD_ARTIFACTS_ZIP_UPLOAD_FAILED = "build:user:artifacts-zip-upload-failed"
 
     NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"
@@ -59,10 +60,6 @@ class BuildUserError(BuildBaseException):
 
 class BuildMaxConcurrencyError(BuildUserError):
     LIMIT_REACHED = "build:user:concurrency-limit-reached"
-
-
-class BuildFailedArtifactsUpload(BuildUserError):
-    UPLOAD_FAILED = "build:upload-api:artifacts-upload-failed"
 
 
 class BuildCancelled(BuildUserError):

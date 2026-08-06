@@ -2205,7 +2205,7 @@ class Feature(models.Model):
         ),
         (
             ALLOW_DIRECT_ARTIFACTS_UPLOAD,
-            _("Build: Allow using the dreict artifacts upload API."),
+            _("Build: Allow using the direct artifacts upload API."),
         ),
     )
 
