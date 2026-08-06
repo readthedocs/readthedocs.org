@@ -14,6 +14,7 @@ class ConfigError(BuildUserError):
     BUILD_JOBS_BUILD_TYPE_MISSING_IN_FORMATS = "config:build:jobs:build:missing-in-formats"
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"
     APT_INVALID_PACKAGE_NAME = "config:apt:invalid-package-name"
+    BUILD_ENVIRONMENT_VARIABLE_INVALID_NAME = "config:build:environment:invalid-name"
     USE_PIP_FOR_EXTRA_REQUIREMENTS = "config:python:pip-required"
     PIP_PATH_OR_REQUIREMENT_REQUIRED = "config:python:pip-path-requirement-required"
     SPHINX_MKDOCS_CONFIG_TOGETHER = "config:base:sphinx-mkdocs-together"
