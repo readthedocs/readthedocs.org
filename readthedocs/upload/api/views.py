@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
@@ -20,15 +19,14 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
+from readthedocs.core.utils import submit_to_isolated_builders
 from readthedocs.doc_builder.exceptions import BuildFailedArtifactsUpload
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.upload.api.serializers import UploadCompleteSerializer
 from readthedocs.upload.api.serializers import UploadInitiateSerializer
 from readthedocs.upload.api.serializers import UploadStatus
-from readthedocs.upload.tasks import process_uploaded_build
 
 
 log = structlog.get_logger(__name__)
@@ -260,38 +258,8 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        options = {}
-        # Start the build in X minutes and mark it as limited
-        # if the project has reached the concurrency limit.
-        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-        if limit_reached:
-            log.info(
-                "Delaying postprocessing of uploaded artifacts due to concurrency limit.",
-            )
-            # Delay the start of the build for the build retry delay.
-            # We're still triggering the task, but it won't run immediately,
-            # and the user will be alerted in the UI from the Error below.
-            # TODO: this task should be fast, it could make sense having
-            # its own delay of like 2 minutes instead of 5.
-            options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
-            Notification.objects.add(
-                message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
-                attached_to=build,
-                dismissable=False,
-                format_values={"limit": max_concurrent_builds},
-            )
+        submit_to_isolated_builders(project=project, build=build)
 
-        # Trigger processing task
-        _, build_api_key = BuildAPIKey.objects.create_key(project=project)
-        task = process_uploaded_build.apply_async(
-            kwargs={
-                "build_id": build.id,
-                "build_api_key": build_api_key,
-            },
-            **options,
-        )
-        build.task_id = task.id
-        build.save()
         return Response(
             {"build": BuildSerializer(build).data},
             status=status.HTTP_202_ACCEPTED,
