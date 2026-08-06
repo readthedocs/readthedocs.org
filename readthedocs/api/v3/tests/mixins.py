@@ -222,7 +222,7 @@ class APIEndpointMixin(TestCase):
             privacy_level=PUBLIC,
         )
 
-    def _create_subproject(self):
+    def _create_subproject(self, slug="subproject"):
         """Helper to create a sub-project with all the fields set."""
         self.subproject = fixture.get(
             Project,
@@ -231,8 +231,8 @@ class APIEndpointMixin(TestCase):
             description="SubProject description",
             repo="https://github.com/rtfd/subproject",
             project_url="http://subproject.com",
-            name="subproject",
-            slug="subproject",
+            name=slug,
+            slug=slug,
             related_projects=[],
             main_language_project=None,
             users=[self.me],
