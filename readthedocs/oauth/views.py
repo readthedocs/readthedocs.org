@@ -46,7 +46,7 @@ class GitHubAppWebhookView(APIView):
             event_id=event_id,
         )
         if event not in GitHubAppWebhookHandler(request.data, event).event_handlers:
-            log.info("Unsupported event")
+            log.debug("Unsupported event")
             raise ValidationError(f"Unsupported event: {event}")
 
         log.info("Handling event from view.")
