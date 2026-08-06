@@ -26,6 +26,7 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiff
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.storage import build_media_storage
 
 
@@ -59,11 +60,10 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     outdated = current_latest_build.id != current_version_manifest.build.id
 
     # For external versions (PRs), prefer the snapshotted base manifest
-    # (pinned at first PR build) over the live base manifest. This prevents
-    # false positives when the base branch has moved forward since the PR was
-    # created. Falls back to the live manifest if no snapshot exists.
-    # TODO: call clear_base_manifest_snapshot() on PR rebase/synchronize
-    # events so the snapshot is refreshed against the new base.
+    # (pinned at first PR build, refreshed once the PR merges in newer base)
+    # over the live base manifest. This prevents false positives when the
+    # base branch has moved forward since the PR was created. Falls back to
+    # the live manifest if no snapshot exists.
     #
     # When a snapshot is used, we intentionally skip the base-side `outdated`
     # check. The snapshot's build will be older than the base version's latest
@@ -159,11 +159,18 @@ def _get_base_manifest_snapshot(
     return FileTreeDiffManifest.from_dict(data)
 
 
-def snapshot_base_manifest(external_version: Version, base_version: Version):
+def snapshot_base_manifest(
+    external_version: Version,
+    base_version: Version,
+    force_refresh: bool = False,
+):
     """
     Snapshot the base version's current manifest for a PR version.
 
-    Only writes if no snapshot exists yet (first build of the PR).
+    By default (``force_refresh=False``), only writes if no snapshot exists
+    yet (first build of the PR). When called with ``force_refresh=True``,
+    rewrites the snapshot with the base version's current manifest — used by
+    ``refresh_snapshot_if_stale`` once the PR has merged in newer base.
 
     This stores a full copy of the base manifest per PR. If many PRs branch
     from the same base commit, the same content is duplicated. This is a
@@ -181,7 +188,7 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
         media_type=MEDIA_TYPE_DIFF,
         filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
     )
-    if build_media_storage.exists(snapshot_path):
+    if not force_refresh and build_media_storage.exists(snapshot_path):
         return
 
     base_manifest = get_manifest(base_version)
@@ -197,8 +204,83 @@ def snapshot_base_manifest(external_version: Version, base_version: Version):
         external_version_slug=external_version.slug,
         base_version_slug=base_version.slug,
         base_build_id=base_manifest.build.id,
+        force_refresh=force_refresh,
     )
-    # TODO: add a clear_base_manifest_snapshot() helper and call it on PR
-    # rebase/synchronize webhook events so the snapshot refreshes when the
-    # PR is rebased against a newer base.
-    # See https://github.com/readthedocs/readthedocs.org/issues/12232
+
+
+def should_refresh_snapshot(
+    external_version: Version,
+    base_version: Version,
+    vcs_repository,
+) -> bool:
+    """
+    Return True iff the PR has merged in the base version's current state.
+
+    The snapshot is always written from ``base_version``'s latest build, so
+    adopting it is correct exactly when the PR has pulled that base commit
+    into its own history. We check this with a single ``merge-base
+    --is-ancestor`` against the existing clone — no extra fetch. The base
+    commit is present in the clone only if it's reachable from ``HEAD`` (i.e.
+    the user merged the base branch in), so an unmerged base simply isn't an
+    ancestor and we leave the snapshot pinned.
+
+    Any missing data or git failure returns False so the existing snapshot is
+    preserved.
+    """
+    snapshot = _get_base_manifest_snapshot(external_version)
+    if snapshot is None:
+        # First PR build; the indexer will create the snapshot on success.
+        return False
+
+    base_latest_build = base_version.latest_successful_build
+    if not base_latest_build or not base_latest_build.commit:
+        return False
+
+    # Snapshot already reflects the base version's latest build; nothing to do.
+    if snapshot.build.id == base_latest_build.id:
+        return False
+
+    try:
+        code, _, _ = vcs_repository.run(
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            base_latest_build.commit,
+            "HEAD",
+            record=False,
+        )
+    except RepositoryError:
+        return False
+
+    # 0 = base commit is in the PR's history (merged in) → refresh.
+    # Anything else (not an ancestor, or not in the clone) → stay pinned.
+    return code == 0
+
+
+def refresh_snapshot_if_stale(external_version: Version, vcs_repository) -> None:
+    """
+    Rewrite the PR's base manifest snapshot if the PR has merged in newer base.
+
+    Best-effort: any failure is swallowed and the existing snapshot (if any)
+    is left in place. No-op when no snapshot exists yet — the indexer
+    creates it on first PR build.
+
+    Must be called while the VCS clone is live (i.e. inside the build
+    task's VCS environment context).
+    """
+    if not external_version.is_external:
+        return
+    try:
+        base_version = external_version.get_base_version_for_diff()
+        if not base_version:
+            return
+        if should_refresh_snapshot(external_version, base_version, vcs_repository):
+            snapshot_base_manifest(
+                external_version, base_version, force_refresh=True
+            )
+    except Exception:
+        log.exception(
+            "Filetreediff snapshot refresh check failed.",
+            project_slug=external_version.project.slug,
+            version_slug=external_version.slug,
+        )

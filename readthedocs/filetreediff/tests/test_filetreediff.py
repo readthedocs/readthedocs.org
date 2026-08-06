@@ -7,7 +7,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_diff, snapshot_base_manifest
+from readthedocs.filetreediff import (
+    get_diff,
+    should_refresh_snapshot,
+    snapshot_base_manifest,
+)
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -240,3 +245,130 @@ class TestsBaseManifestSnapshot(TestCase):
         """snapshot_base_manifest is a no-op if a snapshot already exists."""
         snapshot_base_manifest(self.pr_version, self.base_version)
         storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists", return_value=True)
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_force_refresh_overwrites_existing_snapshot(self, storage_open, storage_exists):
+        """``force_refresh=True`` bypasses the write-once early-return."""
+        base_files = {"index.html": "fresh-hash"}
+        storage_open.side_effect = [
+            _mock_manifest(self.base_build.id, base_files)(),
+            mock.MagicMock(),
+        ]
+        snapshot_base_manifest(
+            self.pr_version, self.base_version, force_refresh=True
+        )
+        # Two calls: read live base manifest, then write snapshot.
+        assert storage_open.call_count == 2
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists", return_value=True)
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_force_refresh_noop_when_base_manifest_missing(self, storage_open, storage_exists):
+        """If the live base manifest is missing, no write happens."""
+        storage_open.side_effect = FileNotFoundError
+        snapshot_base_manifest(
+            self.pr_version, self.base_version, force_refresh=True
+        )
+        # Only the read attempt; no second open() for the write.
+        assert storage_open.call_count == 1
+
+
+@mock.patch(
+    "readthedocs.filetreediff.build_media_storage",
+    new=BuildMediaFileSystemStorageTest(),
+)
+class TestsShouldRefreshSnapshot(TestCase):
+    """Tests for the snapshot refresh decision (no extra git fetch)."""
+
+    def setUp(self):
+        self.project = get(Project, default_branch="main")
+        self.base_version = self.project.versions.get(slug=LATEST)
+        # The build the snapshot was captured from (older base state).
+        self.snap_build = get(
+            Build,
+            project=self.project,
+            version=self.base_version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            commit="snap-sha",
+        )
+        # The base version's current latest build (newer base state).
+        self.base_latest_build = get(
+            Build,
+            project=self.project,
+            version=self.base_version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            commit="base-latest-sha",
+        )
+        self.pr_version = get(
+            Version,
+            project=self.project,
+            slug="pr-42",
+            verbose_name="42",
+            type=EXTERNAL,
+            active=True,
+            built=True,
+        )
+        self.vcs_repository = mock.MagicMock()
+        # Default: the base commit is an ancestor of HEAD (merged in).
+        self.vcs_repository.run.return_value = (0, "", "")
+
+    def _snapshot_mock(self, build_id):
+        return _mock_manifest(build_id, {"index.html": "h"})()
+
+    def _refresh(self):
+        return should_refresh_snapshot(
+            self.pr_version, self.base_version, self.vcs_repository
+        )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_no_existing_snapshot_returns_false(self, storage_open):
+        storage_open.side_effect = FileNotFoundError
+        assert self._refresh() is False
+        self.vcs_repository.run.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_commit_null_returns_false(self, storage_open):
+        self.base_latest_build.commit = None
+        self.base_latest_build.save()
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        assert self._refresh() is False
+        self.vcs_repository.run.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_snapshot_already_at_latest_returns_false(self, storage_open):
+        """Snapshot already points at the base's latest build; no git needed."""
+        storage_open.side_effect = [self._snapshot_mock(self.base_latest_build.id)]
+        assert self._refresh() is False
+        self.vcs_repository.run.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_merged_in_returns_true(self, storage_open):
+        """is-ancestor exit 0: base's latest commit is in the PR history."""
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.return_value = (0, "", "")
+        assert self._refresh() is True
+        assert self.vcs_repository.run.call_count == 1
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_not_merged_in_returns_false(self, storage_open):
+        """is-ancestor exit 1: PR hasn't pulled in the base; stay pinned."""
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.return_value = (1, "", "")
+        assert self._refresh() is False
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_commit_unknown_to_clone_returns_false(self, storage_open):
+        """is-ancestor exit 128 (commit not in shallow clone); stay pinned."""
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.return_value = (128, "", "fatal: Not a valid commit")
+        assert self._refresh() is False
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_repository_error_returns_false(self, storage_open):
+        storage_open.side_effect = [self._snapshot_mock(self.snap_build.id)]
+        self.vcs_repository.run.side_effect = RepositoryError(
+            message_id=RepositoryError.GENERIC
+        )
+        assert self._refresh() is False

@@ -151,16 +151,14 @@ class FileManifestIndexer(Indexer):
         write_manifest(self.version, manifest)
 
         # For PR previews, snapshot the base version's manifest on the first
-        # PR build where the snapshot can be created.
-        # This pins the diff baseline so that subsequent builds compare against
-        # that snapshotted base-version state instead of the base version's
-        # current state. This prevents false file changes when the base branch
-        # moves forward (the "stale branch" problem).
+        # PR build where the snapshot can be created. This pins the diff
+        # baseline so subsequent builds compare against that snapshotted base
+        # state instead of the base version's current state, preventing false
+        # file changes when the base branch moves forward (the "stale branch"
+        # problem). Subsequent rebases are handled by ``refresh_snapshot_if_stale``
+        # in the build task.
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = self.version.get_base_version_for_diff()
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 

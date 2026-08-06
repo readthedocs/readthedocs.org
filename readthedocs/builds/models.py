@@ -609,6 +609,19 @@ class Version(TimeStampedModel):
         filename = f"{self.project.slug}.{extension}"
         return self.get_storage_path(media_type=media_type, filename=filename)
 
+    def get_base_version_for_diff(self):
+        """
+        Resolve the base version this version is compared against in file tree diffs.
+
+        Uses the project's configured override
+        (``addons.options_base_version``) if set, otherwise the project's
+        "latest" version. Intended for external (PR) versions.
+        """
+        return (
+            self.project.addons.options_base_version
+            or self.project.get_latest_version()
+        )
+
 
 class APIVersion(Version):
     """
