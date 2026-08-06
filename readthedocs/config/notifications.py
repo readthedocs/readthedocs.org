@@ -356,6 +356,20 @@ messages = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=ConfigError.PYTHON_SETUP_PY_INSTALL_REMOVED,
+        header=_("Invalid Python install method"),
+        body=_(
+            textwrap.dedent(
+                """
+            Support for <code>python.install.method: setuptools</code> has been removed.
+            Please update your configuration to use <code>python.install.method: pip</code> instead.
+            Read our <a href="https://blog.readthedocs.com/deprecate-setuptools-install/">blog post</a> for more information.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
 ]
 registry.add(messages)
 

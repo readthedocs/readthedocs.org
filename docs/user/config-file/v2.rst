@@ -182,7 +182,6 @@ Packages
 ''''''''
 
 Install the project using ``pip install``.
-The use of ``python setup.py install`` is deprecated.
 
 The path to the package, relative to the root of the project.
 
@@ -193,7 +192,7 @@ The path to the package, relative to the root of the project.
 The installation method.
 
 :Key: ``method``
-:Options: ``pip``, ``setuptools`` (deprecated), ``uv``
+:Options: ``pip``, ``uv``
 :Default: ``pip``
 
 `Extra requirements`_ section to install in addition to the `package dependencies`_.
