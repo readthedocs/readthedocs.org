@@ -7,7 +7,6 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from djstripe.enums import SubscriptionStatus
 
-from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
@@ -70,7 +69,7 @@ def remove_organization_completely(sender, instance, using, **kwargs):
 def mark_organization_assets_not_cleaned(sender, instance, created, **kwargs):
     """Mark the organization assets as not cleaned if there is a new successful build."""
     build = instance
-    if build.state in BUILD_FINAL_STATES and build.success:
+    if build.finished and build.success:
         organization = build.project.organization
         if organization and organization.artifacts_cleaned:
             log.info(
@@ -78,4 +77,4 @@ def mark_organization_assets_not_cleaned(sender, instance, created, **kwargs):
                 origanization_slug=organization.slug,
             )
             organization.artifacts_cleaned = False
-            organization.save()
+            organization.save(update_fields=["artifacts_cleaned"])
