@@ -67,6 +67,13 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
+    if version.is_uploaded:
+        log.info(
+            "Build not triggered because version is uploaded.",
+            version_slug=version.slug,
+        )
+        return (None, None)
+
     build = Build.objects.create(
         project=project,
         version=version,

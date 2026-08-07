@@ -109,6 +109,7 @@ api_urls = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/v3/", include("readthedocs.api.v3.urls")),
     path("api/v3/embed/", include("readthedocs.embed.v3.urls")),
+    path("api/v3/upload/", include("readthedocs.upload.api.urls")),
 ]
 
 i18n_urls = [

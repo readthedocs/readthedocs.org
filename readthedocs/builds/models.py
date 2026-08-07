@@ -170,6 +170,27 @@ class Version(TimeStampedModel):
         help_text=_("Type of documentation the version was built with."),
     )
 
+    # NOTE: should we re-purpose the uploaded field instead of creating a new one?
+    # We have some versions with this attribute, but that attirbute isn't relaveant anymore.
+    # NOTE: we can also do a denormalization, and have a build attribute
+    # tha links to the latest successful build of the version.
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
+    )
+
+    # build = models.OneToOneField(
+    #     "Build",
+    #     verbose_name=_("Build"),
+    #     help_text=_("The latest build that generated the artifacts for this version."),
+    #     # No reverse relation needed.
+    #     related_name="+",
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True,
+    # )
+
     build_data = models.JSONField(
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
@@ -825,6 +846,12 @@ class Build(models.Model):
         object_id_field="attached_to_id",
     )
 
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
+    )
+
     # Managers
     objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
@@ -966,6 +993,17 @@ class Build(models.Model):
         date = self.date.date()
         return f"{date}/{self.id}.json"
 
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_id>/<build_id>/artifacts.zip
+
+        Example: 1234/1111/artifacts.zip
+        """
+        return f"{self.project.id}/{self.id}/artifacts.zip"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1085,6 +1123,7 @@ class Build(models.Model):
             type = self.version.type
         return type == EXTERNAL
 
+    # NOTE: this isn't used
     @property
     def can_rebuild(self):
         """
