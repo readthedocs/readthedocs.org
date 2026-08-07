@@ -64,7 +64,7 @@ class TaskData:
 class ProcessUploadedBuildTask(Task):
     name = __name__ + ".process_uploaded_build"
     # Retry only if something from our side failed.
-    max_retries = 10
+    max_retries = 5
     default_retry_delay = 1 * 60  # 1 minute in seconds
     ignore_result = True
 

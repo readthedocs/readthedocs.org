@@ -176,7 +176,7 @@ def finish_inactive_uploaded_builds():
             is_uploaded=True,
             # We don't have a health check for builds using the upload API,
             # so finish any builds that haven't finished after 6 hours.
-            date__gt=timezone.now() - datetime.timedelta(hours=6),
+            date__lt=timezone.now() - datetime.timedelta(hours=6),
         )
         .exclude(state__in=BUILD_FINAL_STATES)
         .select_related("project")
