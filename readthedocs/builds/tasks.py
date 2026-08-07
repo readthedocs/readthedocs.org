@@ -18,6 +18,7 @@ from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
@@ -170,13 +171,16 @@ def finish_inactive_uploaded_builds():
 
     # Finish builds that were uploaded, but didn't finish.
     # NOTE: select related on project, since finish_inactive_build uses it for logging.
-    inactive_builds = Build.objects.filter(
-        is_uploaded=True,
-        finished=False,
-        # We don't have a health check for builds using the upload API,
-        # so finish any builds that haven't finished after 6 hours.
-        date__gt=timezone.now() - datetime.timedelta(hours=6),
-    ).select_related("project")
+    inactive_builds = (
+        Build.objects.filter(
+            is_uploaded=True,
+            # We don't have a health check for builds using the upload API,
+            # so finish any builds that haven't finished after 6 hours.
+            date__gt=timezone.now() - datetime.timedelta(hours=6),
+        )
+        .exclude(state__in=BUILD_FINAL_STATES)
+        .select_related("project")
+    )
     for build in inactive_builds:
         finish_inactive_build(build)
 
