@@ -83,7 +83,7 @@ class UploadInitiateResponseSerializer(serializers.Serializer):
 
 
 class UploadStatus(StrEnum):
-    succes = "success"
+    success = "success"
     failed = "failed"
 
 

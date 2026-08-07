@@ -503,7 +503,9 @@ class ProcessUploadedBuildTask(Task):
         storage_path = self.data.build["uploaded_artifacts_storage_path"]
         with build_uploads_storage.open(storage_path, "rb") as artifacts_file:
             with destination.open("wb") as local_file:
-                local_file.write(artifacts_file.read())
+                # Read the file in chunks of 1MB to avoid loading the entire file into memory.
+                for chunk in artifacts_file.chunks(chunk_size=1024 * 1024):
+                    local_file.write(chunk)
 
     def _extract_artifacts(self, source, destination):
         environment = DockerBuildEnvironment(
@@ -519,10 +521,8 @@ class ProcessUploadedBuildTask(Task):
                 str(source),
                 "-d",
                 str(destination),
-                # cwd=str(output_dir),
                 record=False,
             )
-            return result
 
         if result.exit_code != 0:
             logger.info(
@@ -531,6 +531,8 @@ class ProcessUploadedBuildTask(Task):
                 output=result.output,
             )
             raise BuildUserError(BuildUserError.BUILD_ARTIFACTS_ZIP_INVALID)
+
+        return result
 
     def _validate_artifacts(self):
         for artifact_type in ARTIFACT_TYPES:
@@ -641,7 +643,7 @@ class ProcessUploadedBuildTask(Task):
                     destination=artifact_storage_path,
                 )
                 artifacts_uploaded.append(artifact_type)
-            elif artifact_path not in UNDELETABLE_ARTIFACT_TYPES:
+            elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:
                 build_media_storage.delete_directory(artifact_storage_path)
         return artifacts_uploaded
 
