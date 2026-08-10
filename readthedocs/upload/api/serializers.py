@@ -64,6 +64,9 @@ class UploadURLSerializer(serializers.Serializer):
 class UploadInitiateSerializer(serializers.Serializer):
     """Serializer for the upload initiate endpoint."""
 
+    # NOTE: if a project-scoped token is used in the future,
+    # we can infer the project from the token and make this
+    # field optional or remove it entirely.
     project = serializers.CharField(
         required=True,
         help_text="Project identifier (slug).",
@@ -80,7 +83,7 @@ class UploadInitiateResponseSerializer(serializers.Serializer):
 
 
 class UploadStatus(StrEnum):
-    succes = "success"
+    success = "success"
     failed = "failed"
 
 
