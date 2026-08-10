@@ -176,7 +176,7 @@ class UploadInitiateView(APIv3Settings, APIView):
             content_type="application/zip",
             max_size=settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE,
         )
-        if settings.RTD_DOCKER_COMPOSE and not settings.USING_AWS:
+        if settings.RTD_DOCKER_COMPOSE:
             # Overriden so we return the public URL for uploading artifacts,
             # instead of the internal hostname (http://storage),
             # which is not accessible from the host machine.

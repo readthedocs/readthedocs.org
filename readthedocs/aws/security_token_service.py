@@ -81,15 +81,11 @@ def _get_scoped_credentials(
 
     .. note::
 
-       If USING_AWS is set to False, this function will return
+       If RTD_DOCKER_COMPOSE is set to True, this function will return
        the values of the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY settings.
        Useful for local development where we don't have a service like AWS STS.
     """
-    if not settings.USING_AWS:
-        if not settings.DEBUG:
-            raise ValueError(
-                "Not returning global credentials, AWS STS should always be used in production."
-            )
+    if settings.RTD_DOCKER_COMPOSE:
         return AWSTemporaryCredentials(
             access_key_id=settings.AWS_ACCESS_KEY_ID,
             secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
