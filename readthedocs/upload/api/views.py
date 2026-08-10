@@ -178,8 +178,9 @@ class UploadInitiateView(APIv3Settings, APIView):
         )
         if settings.RTD_DOCKER_COMPOSE and not settings.USING_AWS:
             # Overriden so we return the public URL for uploading artifacts,
-            # instead of the internal hostname (http://storage), which is not accessible from the host machine.
-            response["url"] = response["url"].replace("http://storage", "http://127.0.0.1", 1)
+            # instead of the internal hostname (http://storage),
+            # which is not accessible from the host machine.
+            response["url"] = "http://127.0.0.1:9000/build-uploads"
         return response
 
 
