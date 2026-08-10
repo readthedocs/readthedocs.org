@@ -285,19 +285,48 @@ class IsolatedBuilderConcurrencyTests(TestCase):
         return build
 
     @mock.patch("readthedocs.core.utils.app.send_task")
-    def test_trigger_build_isolated_path_defers_to_admission(self, send_task):
-        """The isolated path leaves the build queued for the admission task."""
+    def test_trigger_build_isolated_path_dispatches_when_slot_free(self, send_task):
+        """The isolated path admits the build immediately if there is a free slot."""
+        send_task.return_value.id = "task-id"
+
+        task, build = trigger_build(project=self.project, version=self.version)
+
+        # The isolated path never returns a Celery task; admission owns dispatch.
+        assert task is None
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.task_id == "task-id"
+        assert build.dispatched_date is not None
+        assert send_task.call_count == 1
+        assert build.notifications.count() == 0
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_queues_when_limit_reached(self, send_task):
+        """With no free slot the build stays queued for a later admission pass."""
+        # On other versions: a new build on the same version cancels the
+        # running ones instead of queueing behind them.
+        for i in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=get(Version, project=self.project),
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+
         task, build = trigger_build(project=self.project, version=self.version)
 
         assert task is None
         build.refresh_from_db()
         assert build.state == BUILD_STATE_TRIGGERED
-        # Not dispatched at trigger time; the admission task owns that.
         assert build.task_id is None
         assert build.dispatched_date is None
         send_task.assert_not_called()
-        # No trigger-time concurrency notification on the isolated path.
-        assert build.notifications.count() == 0
+        assert (
+            build.notifications.get().message_id
+            == BuildMaxConcurrencyError.LIMIT_REACHED
+        )
 
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_admit_dispatches_up_to_free_slots_fifo(self, send_task):
