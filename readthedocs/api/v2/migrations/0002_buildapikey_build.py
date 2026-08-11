@@ -7,11 +7,11 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("api_v2", "0001_initial"),
+        ("v2", "0001_initial"),
         # We add a nullable FK to Build; depend on the latest builds
         # migration at the time this one was written to keep the
         # dependency graph unambiguous.
-        ("builds", "0072_remove_deprecated_build_fields"),
+        ("builds", "0073_remove_deprecated_build_fields"),
     ]
 
     operations = [
