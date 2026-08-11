@@ -279,12 +279,8 @@ class DockerBaseSettings(CommunityBaseSettings):
             "build-uploads": {
                 "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
                 "OPTIONS": {
-                    "bucket_name": "build-uploads",
-                    "url_protocol": "http:",
+                    "bucket_name": os.environ.get("RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET", "build-uploads"),
                     "default_acl": "private",
-                    # NOTE: this is needed so the upload URL doesn't create a redirect,
-                    # otherwise the upload will fail with a 307 redirect.
-                    "addressing_style": "virtual",
                 },
             },
         }

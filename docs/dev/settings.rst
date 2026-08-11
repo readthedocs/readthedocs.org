@@ -177,6 +177,7 @@ Useful for testing :doc:`temporary credentials </aws-temporary-credentials>`.
 .. envvar:: RTD_S3_BUILD_COMMANDS_STORAGE_BUCKET
 .. envvar:: RTD_S3_BUILD_TOOLS_STORAGE_BUCKET
 .. envvar:: RTD_S3_STATIC_STORAGE_BUCKET
+.. envvar:: RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET
 .. envvar:: RTD_AWS_S3_REGION_NAME
 
 GitHub App
