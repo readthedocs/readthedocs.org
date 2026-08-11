@@ -63,22 +63,11 @@ class _BuildAPIKeyPermissionBase(BaseHasAPIKey):
     """
     Base class for BuildAPIKey permission classes.
 
-    Validates the token, then — only when the key's scope matches —
+    We completely override the ``has_permission`` method to
+    validate the token, then — only when the key's scope matches —
     hangs the key on ``request.build_api_key`` for the viewset to
     read. Subclasses gate access by scope: project-scoped
     (``build_id is None``) or build-scoped (``build_id is not None``).
-
-    A False return NEVER mutates ``request.build_api_key``. False
-    means "not my scope, defer to the next class in the OR chain,"
-    and downstream code that reads ``request.build_api_key`` should
-    only ever see keys that actually earned view access.
-
-    Consequence for ``ProjectViewSet``: a build-scoped key needs to
-    GET the project (to pull ``clone_token`` for the sparse clone),
-    so its permission chain composes ``HasBuildScopedBuildAPIKey &
-    ReadOnlyPermission`` — the build-scoped class attaches the key
-    on its own True branch. Don't rely on another class's False
-    branch to attach it for you.
 
     A private ``_validated_build_api_key`` attribute is cached on the
     request so a second ``_BuildAPIKeyPermissionBase`` subclass in

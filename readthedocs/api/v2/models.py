@@ -52,19 +52,8 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         """
         Create a build-scoped API key.
 
-        Same 24h expiry as ``create_key_for_project``. Difference is
-        the ``build`` FK — when set, the API restricts writes to that
+        Same as `create_key_for_project`, but the API restricts writes to a
         specific Build (and its Version, commands, notifications).
-        See ``permissions.HasBuildScopedBuildAPIKey`` and the per-
-        viewset ``get_queryset_for_api_key`` branches for the concrete
-        rules.
-
-        The narrower scope keeps the token's blast-radius bounded if
-        it leaks: an attacker with a build-scoped key can only
-        interfere with that one build, not the whole project.
-
-        Used by the isolated-builders dispatcher in
-        ``core/utils/__init__.py::_submit_to_isolated_builders``.
         """
         delta = 60 * 60 * 24  # 24h — matches create_key_for_project
         expiry_date = timezone.now() + timedelta(seconds=delta)
@@ -95,12 +84,6 @@ class BuildAPIKey(AbstractAPIKey):
       build needs (Project details, its Version, ``clone_token``,
       SSH deploy key) but writes are restricted to that specific
       Build and its associated Version / commands / notifications.
-      Used by the isolated-builders dispatcher.
-
-    Scope enforcement lives in ``permissions.py`` (permission classes
-    that gate access by the ``build`` field) and each viewset's
-    ``get_queryset_for_api_key`` (queryset narrowing for build-scoped
-    keys).
     """
 
     project = models.ForeignKey(

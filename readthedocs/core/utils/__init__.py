@@ -277,10 +277,6 @@ def submit_to_isolated_builders(*, project, build):
     from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.projects.models import Feature
 
-    # Build-scoped API key: only allows writes to *this specific
-    # Build* (its Version, commands, notifications). Limits blast
-    # radius if the token leaks. See ``permissions.py`` and each
-    # viewset's ``get_queryset_for_api_key`` for the enforcement.
     _, build_api_key = BuildAPIKey.objects.create_key_for_build(build=build)
 
     environment = {

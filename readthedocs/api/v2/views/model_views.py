@@ -265,9 +265,7 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     )
 
     def get_queryset_for_api_key(self, api_key):
-        # Build-scoped keys can only reach the one Version they were
-        # minted against — matches the ``on_success`` PATCH the runner
-        # does on ``version.built``, ``documentation_type``, etc.
+        # Build-scoped keys can only reach the one Version they were linked against
         # Project-scoped keys retain the wider access.
         if api_key.build_id:
             return self.model.objects.filter(pk=api_key.build.version_id)
@@ -420,8 +418,6 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset_for_api_key(self, api_key):
-        # Build-scoped keys can only reach the one Build they were
-        # minted against; project-scoped keys keep the wider access.
         if api_key.build_id:
             return self.model.objects.filter(pk=api_key.build_id)
         return self.model.objects.filter(project=api_key.project)

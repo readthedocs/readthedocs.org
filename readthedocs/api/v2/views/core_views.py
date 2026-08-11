@@ -24,10 +24,6 @@ class RevokeBuildAPIKeyView(APIView):
     """
 
     http_method_names = ["post"]
-    # Revocation is fine to allow with either scope — a key can only
-    # revoke itself (``request.build_api_key`` is set by whichever
-    # permission class matched), and revoking a build-scoped key is
-    # part of the normal shutdown flow for that build.
     permission_classes = [HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey]
     renderer_classes = [JSONRenderer]
 
