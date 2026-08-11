@@ -5,7 +5,9 @@ from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.director import BuildDirector
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.projects.models import Project
 
 
@@ -89,3 +91,57 @@ class TestBuildDirectorEnvironmentVariables(TestCase):
 
         checkout_path = self.project.checkout_path(self.version.slug)
         self.assertEqual(env_vars["UV_PROJECT"], checkout_path)
+
+    def test_uv_python_points_to_the_python_inside_the_virtualenv(self):
+        """
+        UV_PYTHON is the venv's Python, not the one installed by asdf.
+
+        Otherwise `uv pip install` installs the packages at system level
+        instead of inside the virtualenv created by `uv venv`.
+        """
+        self.data.config.is_using_uv = True
+        self.data.config.python.install = []
+
+        env_vars = self.director.get_build_env_vars()
+
+        venv_path = os.path.join(self.project.doc_path, "envs", self.version.slug)
+        self.assertEqual(env_vars["UV_PYTHON"], os.path.join(venv_path, "bin", "python"))
+        # UV_PROJECT_ENVIRONMENT and READTHEDOCS_VIRTUALENV_PATH are the same venv.
+        self.assertEqual(env_vars["UV_PROJECT_ENVIRONMENT"], venv_path)
+        self.assertEqual(env_vars["READTHEDOCS_VIRTUALENV_PATH"], venv_path)
+
+    def test_uv_env_vars_not_defined_when_not_using_uv(self):
+        """The UV_* variables are only defined for uv-managed environments."""
+        env_vars = self.director.get_build_env_vars()
+
+        self.assertNotIn("UV_PYTHON", env_vars)
+        self.assertNotIn("UV_PROJECT", env_vars)
+        self.assertNotIn("UV_PROJECT_ENVIRONMENT", env_vars)
+
+    def test_uv_python_removed_while_running_uv_venv(self):
+        """
+        UV_PYTHON is removed while running ``uv venv`` and re-added afterwards.
+
+        It points to the Python binary inside the virtualenv, which doesn't
+        exist yet when creating it.
+        """
+        build_env = mock.MagicMock()
+        build_env._environment = {"UV_PYTHON": "/envs/latest/bin/python"}
+        python_env = UvEnv(
+            version=self.version,
+            build_env=build_env,
+            config=get_build_config(
+                {"python": {"install": [{"method": "uv", "command": "sync"}]}},
+                validate=True,
+            ),
+        )
+
+        environment_during_run = {}
+        build_env.run.side_effect = lambda *args, **kwargs: environment_during_run.update(
+            build_env._environment
+        )
+
+        python_env.setup_base()
+
+        self.assertNotIn("UV_PYTHON", environment_during_run)
+        self.assertEqual(build_env._environment["UV_PYTHON"], "/envs/latest/bin/python")

@@ -101,6 +101,35 @@ class TestTasks(TestCase):
         self.assertEqual(Version.external.all().count(), 2)
         self.assertFalse(Version.objects.filter(slug="external-inactive-old").exists())
 
+    def test_delete_closed_external_versions_build_without_commit(self):
+        """Closed external versions are deleted even if their last build has no commit."""
+        github_app_installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=1111,
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            remote_id="1234",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=github_app_installation,
+        )
+        project = get(Project, remote_repository=remote_repository)
+        version = get(
+            Version,
+            project=project,
+            slug="external-closed",
+            type=EXTERNAL,
+            state=EXTERNAL_VERSION_STATE_CLOSED,
+            modified=datetime.now() - timedelta(days=7),
+        )
+        get(Build, project=project, version=version, commit=None)
+
+        delete_closed_external_versions(days=6)
+
+        self.assertFalse(Version.objects.filter(slug="external-closed").exists())
+
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.builds.models.build_commands_storage")
     def test_archive_builds(self, build_commands_storage):
