@@ -1281,3 +1281,8 @@ class CommunityBaseSettings(Settings):
                 },
             },
         }
+
+    @property
+    def USING_AWS(self):
+        """Return True if we are using AWS as our storage/cloud provider."""
+        return self.S3_PROVIDER == "AWS"
