@@ -22,6 +22,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    design
    docs
    style-guide
+   code-style-guide
    front-end
    i18n
    migrations
