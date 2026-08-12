@@ -95,7 +95,9 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     for version in queryset:
         try:
             last_build = version.last_build
-            if last_build:
+            # Builds without a commit failed before checking out the
+            # repository, so there is no commit to report the status on.
+            if last_build and last_build.commit:
                 status = BUILD_STATUS_PENDING
                 if last_build.finished:
                     status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
@@ -292,9 +294,11 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, success, or skipped to be sent.
     """
     build = Build.objects.filter(pk=build_pk).select_related("version").first()
-    # Bulds without a verion shouldn't send status, it can happen when
+    # Builds without a version shouldn't send status, it can happen when
     # a build from a deleted version is being processed (race condition).
-    if not build or not build.version:
+    # Builds without a commit failed before checking out the repository,
+    # so there is no commit to report the status on.
+    if not build or not build.version or not commit:
         return
 
     structlog.contextvars.bind_contextvars(
