@@ -1,7 +1,13 @@
+import json
+from pathlib import Path
+
 import django_dynamic_fixture as fixture
+from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
+
+from readthedocs.core.views import schema
 
 
 class HomepageTest(TestCase):
@@ -46,3 +52,25 @@ class HomepageTest(TestCase):
             reverse("welcome"),
         )
         assert response.headers.get("Location") == "https://about.readthedocs.com/?ref=readthedocs.org"
+
+    def test_schema(self):
+        response = self.client.get(reverse("schema"))
+        assert response.status_code == 200
+        assert response.headers.get("Content-Type") == "application/json"
+
+        schema_path = (
+            Path(settings.SITE_ROOT)
+            / "readthedocs"
+            / "rtd_tests"
+            / "fixtures"
+            / "spec"
+            / "v2"
+            / "schema.json"
+        )
+        with schema_path.open(encoding="utf-8") as schema_file:
+            expected_schema = json.load(schema_file)
+
+        assert response.json() == expected_schema
+
+    def test_schema_is_login_exempt(self):
+        assert schema.login_required is False
