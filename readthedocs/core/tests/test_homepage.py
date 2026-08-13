@@ -58,15 +58,7 @@ class HomepageTest(TestCase):
         assert response.status_code == 200
         assert response.headers.get("Content-Type") == "application/json"
 
-        schema_path = (
-            Path(settings.SITE_ROOT)
-            / "readthedocs"
-            / "rtd_tests"
-            / "fixtures"
-            / "spec"
-            / "v2"
-            / "schema.json"
-        )
+        schema_path = Path(settings.SITE_ROOT) / "readthedocs/rtd_tests/fixtures/spec/v2/schema.json"
         with schema_path.open(encoding="utf-8") as schema_file:
             expected_schema = json.load(schema_file)
 
