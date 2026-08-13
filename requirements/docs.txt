@@ -77,8 +77,6 @@ packaging==26.2
     # via
     #   matplotlib
     #   sphinx
-pbr==7.0.3
-    # via sphinxcontrib-video
 pillow==12.3.0
     # via matplotlib
 pygments==2.20.0
@@ -118,6 +116,7 @@ sphinx==8.2.3
     #   sphinx-tabs
     #   sphinxcontrib-httpdomain
     #   sphinxcontrib-jquery
+    #   sphinxcontrib-video
     #   sphinxemoji
     #   sphinxext-opengraph
 sphinx-autobuild==2025.8.25
@@ -154,7 +153,7 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
+sphinxcontrib-video==0.4.2
     # via -r requirements/docs.in
 sphinxemoji==0.3.2
     # via -r requirements/docs.in
@@ -172,6 +171,3 @@ watchfiles==1.2.0
     # via sphinx-autobuild
 websockets==16.1.1
     # via sphinx-autobuild
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools

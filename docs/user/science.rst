@@ -73,7 +73,6 @@ Here's a brief overview of some :doc:`features </reference/features>` that peopl
     Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via pull requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
     .. video:: https://anti-pattern-sphinx-video-downloader.readthedocs.io/_static/videos/enable-pull-request-builders.mp4
-       :width: 100%
        :height: 300
 
 .. dropdown:: 💬 Collaboration and community
