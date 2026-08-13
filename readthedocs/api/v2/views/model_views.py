@@ -267,7 +267,7 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def get_queryset_for_api_key(self, api_key):
         # Build-scoped keys can only reach the one Version they were linked against
         # Project-scoped keys retain the wider access.
-        if api_key.build_id:
+        if api_key.is_build_scoped:
             return self.model.objects.filter(pk=api_key.build.version_id)
         return self.model.objects.filter(project=api_key.project)
 
@@ -418,8 +418,8 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset_for_api_key(self, api_key):
-        if api_key.build_id:
-            return self.model.objects.filter(pk=api_key.build_id)
+        if api_key.is_build_scoped:
+            return self.model.objects.filter(pk=api_key.build.pk)
         return self.model.objects.filter(project=api_key.project)
 
     @decorators.action(
@@ -474,19 +474,19 @@ class BuildCommandViewSet(
 
     def perform_create(self, serializer):
         """Restrict creation to builds allowed by the api key's scope."""
-        build_pk = serializer.validated_data["build"].pk
+        build = serializer.validated_data["build"]
         build_api_key = self.request.build_api_key
-        if build_api_key.build_id:
+        if build_api_key.is_build_scoped:
             # Build-scoped key can only attach commands to its own Build.
-            if build_api_key.build_id != build_pk:
+            if build != build_api_key.build:
                 raise PermissionDenied()
         else:
             # Project-scoped key: any Build under the same project.
-            if not build_api_key.project.builds.filter(pk=build_pk).exists():
+            if not build_api_key.project.builds.filter(pk=build.pk).exists():
                 raise PermissionDenied()
 
         if BuildCommandResult.objects.filter(
-            build=serializer.validated_data["build"],
+            build=build,
             start_time=serializer.validated_data["start_time"],
         ).exists():
             log.warning("Build command is duplicated. Skipping...")
@@ -495,8 +495,8 @@ class BuildCommandViewSet(
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
-        if api_key.build_id:
-            return self.model.objects.filter(build_id=api_key.build_id)
+        if api_key.is_build_scoped:
+            return self.model.objects.filter(build=api_key.build)
         return self.model.objects.filter(build__project=api_key.project)
 
 
@@ -523,8 +523,8 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
         # Build-scoped keys can only attach notifications to their own
         # Build, and never to a Project.
-        if build_api_key.build_id:
-            if not isinstance(attached_to, Build) or attached_to.pk != build_api_key.build_id:
+        if build_api_key.is_build_scoped:
+            if not isinstance(attached_to, Build) or attached_to != build_api_key.build:
                 raise PermissionDenied()
             return super().perform_create(serializer)
 

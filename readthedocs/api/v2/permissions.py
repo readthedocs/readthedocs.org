@@ -66,8 +66,8 @@ class _BuildAPIKeyPermissionBase(BaseHasAPIKey):
     We completely override the ``has_permission`` method to
     validate the token, then — only when the key's scope matches —
     hangs the key on ``request.build_api_key`` for the viewset to
-    read. Subclasses gate access by scope: project-scoped
-    (``build_id is None``) or build-scoped (``build_id is not None``).
+    read. Subclasses gate access by scope, using
+    ``BuildAPIKey.is_build_scoped``.
 
     A private ``_validated_build_api_key`` attribute is cached on the
     request so a second ``_BuildAPIKeyPermissionBase`` subclass in
@@ -110,19 +110,19 @@ class _BuildAPIKeyPermissionBase(BaseHasAPIKey):
 
 class HasProjectScopedBuildAPIKey(_BuildAPIKeyPermissionBase):
     """
-    Grants access to project-scoped BuildAPIKeys (``build_id is None``).
+    Grants access to project-scoped BuildAPIKeys (no ``build`` attached).
 
     Used everywhere the current API needs project-wide read+write from
     the builder — legacy ``update_docs_task`` path, webhooks, etc.
     """
 
     def _matches_scope(self, api_key):
-        return api_key.build_id is None
+        return not api_key.is_build_scoped
 
 
 class HasBuildScopedBuildAPIKey(_BuildAPIKeyPermissionBase):
     """
-    Grants access to build-scoped BuildAPIKeys (``build_id is not None``).
+    Grants access to build-scoped BuildAPIKeys (with a ``build`` attached).
 
     Used by the isolated-builders dispatcher path. Writes are further
     narrowed to that specific Build (and its Version, commands,
@@ -130,4 +130,4 @@ class HasBuildScopedBuildAPIKey(_BuildAPIKeyPermissionBase):
     """
 
     def _matches_scope(self, api_key):
-        return api_key.build_id is not None
+        return api_key.is_build_scoped

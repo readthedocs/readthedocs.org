@@ -1860,14 +1860,24 @@ class BuildScopedAPIKeyTests(TestCase):
 
     def test_create_key_for_build_sets_both_fks(self):
         obj, _key = BuildAPIKey.objects.create_key_for_build(build=self.build)
-        assert obj.project_id == self.project.pk
-        assert obj.build_id == self.build.pk
+        assert obj.project == self.project
+        assert obj.build == self.build
+        assert obj.is_build_scoped
 
     def test_create_key_for_project_leaves_build_null(self):
         """Regression: project-scoped keys must not accidentally get a build FK."""
         obj, _key = BuildAPIKey.objects.create_key_for_project(project=self.project)
-        assert obj.project_id == self.project.pk
-        assert obj.build_id is None
+        assert obj.project == self.project
+        assert obj.build is None
+        assert not obj.is_build_scoped
+
+    def test_get_from_key_prefetches_related_objects(self):
+        """The scope checks and querysets must not cost extra queries per request."""
+        api_key = BuildAPIKey.objects.get_from_key(self.build_api_key)
+        with self.assertNumQueries(0):
+            assert api_key.is_build_scoped
+            assert api_key.build == self.build
+            assert api_key.project == self.project
 
     # ---- Project endpoint ----
     #

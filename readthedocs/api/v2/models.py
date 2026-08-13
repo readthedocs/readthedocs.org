@@ -11,6 +11,11 @@ from readthedocs.projects.models import Project
 
 class BuildAPIKeyManager(BaseAPIKeyManager):
     # pylint: disable=arguments-differ
+    def get_usable_keys(self):
+        # ``get_from_key`` (used when authenticating the request) goes through
+        # here, so the related objects the API needs come in the same query.
+        return super().get_usable_keys().select_related("project", "build")
+
     def create_key_for_project(self, project):
         """
         Create a project-scoped API key.
@@ -108,6 +113,11 @@ class BuildAPIKey(AbstractAPIKey):
     )
 
     objects = BuildAPIKeyManager()
+
+    @property
+    def is_build_scoped(self):
+        """Whether this key is scoped to a single build (vs. the whole project)."""
+        return self.build is not None
 
     class Meta(AbstractAPIKey.Meta):
         verbose_name = _("Build API key")
