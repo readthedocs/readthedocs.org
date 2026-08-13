@@ -2014,7 +2014,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "plugin", "add", "uv", record=True),
                 mock.call("asdf", "install", "uv", "latest", record=True),
                 mock.call("asdf", "global", "uv", "latest", record=True),
-                mock.call("asdf", "which", "python", record=True),
                 mock.call(
                     "python",
                     "-mpip",

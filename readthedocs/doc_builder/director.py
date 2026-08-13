@@ -677,19 +677,6 @@ class BuildDirector:
                     *cmd,
                     record=True,
                 )
-                # Save the Python path under UV_PYTHON to define it as an environment variable
-                cmd = ["asdf", "which", "python"]
-                command = self.build_environment.run(
-                    *cmd,
-                    record=True,
-                )
-                # Add UV_PYTHON to build environment variables now we have Python installed.
-                # NOTE: we can't do this at `get_build_env_vars` because we need to have Python installed to get the path of it.
-                self.build_environment._environment.update(
-                    {
-                        "UV_PYTHON": command.output.strip(),
-                    },
-                )
 
             if all(
                 [
@@ -850,9 +837,9 @@ class BuildDirector:
 
             env.update(
                 {
-                    # UV_PYTHON is set in `install_build_tools` once we have Python installed,
-                    # here I'm setting just an empty string.
-                    "UV_PYTHON": "",
+                    # Point UV_PYTHON to the Python binary inside the virtualenv created by UV.
+                    # This is used by `uv run/sync` but also by `uv pip install` to find the correct Python binary to use.
+                    "UV_PYTHON": os.path.join(venv_path, "bin", "python"),
                     "UV_PROJECT": UV_PROJECT,
                     "UV_PROJECT_ENVIRONMENT": venv_path,
                 }
