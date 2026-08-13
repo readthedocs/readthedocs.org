@@ -79,12 +79,7 @@ class _BuildAPIKeyPermissionBase(BaseHasAPIKey):
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
-        # Downstream code (viewsets, serializer selection) reads
-        # ``request.build_api_key`` unconditionally; make sure it's
-        # defined even when no key is supplied or scope doesn't match.
-        if not hasattr(request, "build_api_key"):
-            request.build_api_key = None
-
+        request.build_api_key = None
         api_key = getattr(request, "_validated_build_api_key", None)
         if api_key is None:
             key = self.get_key(request)
