@@ -179,5 +179,5 @@ def schema(request):
     schema_path = Path(settings.SITE_ROOT) / "readthedocs/rtd_tests/fixtures/spec/v2/schema.json"
     return HttpResponse(
         schema_path.read_text(encoding="utf-8"),
-        content_type="application/json",
+        content_type="application/schema+json",
     )
