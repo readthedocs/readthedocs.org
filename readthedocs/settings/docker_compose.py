@@ -280,7 +280,6 @@ class DockerBaseSettings(CommunityBaseSettings):
                 "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
                 "OPTIONS": {
                     "bucket_name": os.environ.get("RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET", "build-uploads"),
-                    "default_acl": "private",
                 },
             },
         }

@@ -171,25 +171,14 @@ class Version(TimeStampedModel):
     )
 
     # NOTE: should we re-purpose the uploaded field instead of creating a new one?
-    # We have some versions with this attribute, but that attirbute isn't relaveant anymore.
-    # NOTE: we can also do a denormalization, and have a build attribute
-    # tha links to the latest successful build of the version.
+    # We have some versions with this attribute, but that attribute isn't relevant anymore.
+    # NOTE: we can also do a normalization, and have a build attribute
+    # that links to the latest successful build of the version.
     is_uploaded = models.BooleanField(
         _("Artifacts uploaded using the upload API"),
         default=False,
         db_default=False,
     )
-
-    # build = models.OneToOneField(
-    #     "Build",
-    #     verbose_name=_("Build"),
-    #     help_text=_("The latest build that generated the artifacts for this version."),
-    #     # No reverse relation needed.
-    #     related_name="+",
-    #     on_delete=models.SET_NULL,
-    #     null=True,
-    #     blank=True,
-    # )
 
     build_data = models.JSONField(
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
