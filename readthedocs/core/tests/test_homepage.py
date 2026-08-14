@@ -56,7 +56,7 @@ class HomepageTest(TestCase):
     def test_schema(self):
         response = self.client.get(reverse("schema"))
         assert response.status_code == 200
-        assert response.headers.get("Content-Type") == "application/json"
+        assert response.headers.get("Content-Type") == "application/schema+json"
 
         schema_path = Path(settings.SITE_ROOT) / "readthedocs/rtd_tests/fixtures/spec/v2/schema.json"
         with schema_path.open(encoding="utf-8") as schema_file:
