@@ -225,7 +225,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
             AutoScalingGroupName=scaling_group,
             ProtectedFromScaleIn=protected_from_scale_in,
         )
-    except (ValidationError, ClientError):
+    except ValidationError, ClientError:
         # Don't log these as exceptions,
         # since there isn't much we can do about it here.
         log.info("Failed when trying to set instance protection.")
@@ -301,7 +301,7 @@ def terminate_builder_instance(instance_id, build_id=None):
             InstanceId=instance_id,
             ShouldDecrementDesiredCapacity=False,
         )
-    except (ValidationError, ClientError):
+    except ValidationError, ClientError:
         # Don't log these as exceptions,
         # since there isn't much we can do about it here.
         log.info("Failed when trying to terminate instance.", instance_id=instance_id)

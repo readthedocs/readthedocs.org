@@ -192,7 +192,7 @@ class HttpExchange(models.Model):
             formatter = HtmlFormatter()
             html = highlight(json_value, JsonLexer(), formatter)
             return mark_safe(html)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return value
 
     @property
@@ -347,7 +347,7 @@ class GitHubWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["id", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
@@ -421,7 +421,7 @@ class BitbucketWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["uuid", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
@@ -436,7 +436,7 @@ class GitLabWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["id", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
@@ -451,7 +451,7 @@ class GenericAPIWebhook(Integration):
         """Ensure model has token data before saving."""
         try:
             token = self.provider_data.get("token")
-        except (AttributeError, TypeError):
+        except AttributeError, TypeError:
             token = None
         finally:
             if token is None:

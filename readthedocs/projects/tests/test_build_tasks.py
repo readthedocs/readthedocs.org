@@ -26,7 +26,7 @@ from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import EnvironmentVariable, Feature, Project, WebHookEvent
+from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
@@ -426,6 +426,42 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_get_env_vars_using_uv(self, load_yaml_config, build_environment):
+        config = {
+            "version": 2,
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3.10",
+                },
+            },
+            "python": {
+                "install": [
+                    {
+                        "method": "uv",
+                        "command": "sync",
+                    },
+                ],
+            },
+        }
+        load_yaml_config.return_value = get_build_config(config, validate=True)
+
+        self._trigger_update_docs_task()
+
+        build_env_vars = build_environment.call_args_list[1][1]["environment"]
+
+        venv_path = os.path.join(
+            self.project.doc_path,
+            "envs",
+            self.version.slug,
+        )
+        # `READTHEDOCS_VIRTUALENV_PATH` must be defined even when building with `uv`,
+        # and it must match `UV_PROJECT_ENVIRONMENT`.
+        assert build_env_vars["READTHEDOCS_VIRTUALENV_PATH"] == venv_path
+        assert build_env_vars["UV_PROJECT_ENVIRONMENT"] == venv_path
+
     @override_settings(
         DOCROOT="/tmp/readthedocs-tests/git-repository/",
         RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
@@ -433,7 +469,6 @@ class TestBuildTask(BuildEnvironmentBase):
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
@@ -444,7 +479,6 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         send_external_build_status,
-        build_complete,
         index_build,
         shutilmock,
     ):
@@ -524,8 +558,8 @@ class TestBuildTask(BuildEnvironmentBase):
         # TODO: mock `build_tasks.send_build_notifications` instead and add
         # another tests to check that they are not sent for EXTERNAL versions
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
@@ -534,11 +568,6 @@ class TestBuildTask(BuildEnvironmentBase):
             build_pk=self.build.pk,
             commit=self.build.commit,
             status=BUILD_STATUS_SUCCESS,
-        )
-
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
         )
 
         index_build.delay.assert_called_once_with(build_id=self.build.pk)
@@ -711,7 +740,6 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
@@ -722,7 +750,6 @@ class TestBuildTask(BuildEnvironmentBase):
         send_notifications,
         execute,
         send_external_build_status,
-        build_complete,
     ):
         assert not BuildData.objects.all().exists()
 
@@ -738,8 +765,8 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_FAILED,
         )
 
@@ -748,11 +775,6 @@ class TestBuildTask(BuildEnvironmentBase):
             build_pk=self.build.pk,
             commit=self.build.commit,
             status=BUILD_STATUS_FAILURE,
-        )
-
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
         )
 
         # The build data is None (we are failing the build before the environment is created)
@@ -765,9 +787,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildUserError.GENERIC,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -819,9 +838,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildCancelled.CANCELLED_BY_USER,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -1959,6 +1975,77 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_without_sphinx_using_uv(self, load_yaml_config):
+        """The uv environment is created and synced even when the builder is generic."""
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["uv run zensical build --clean"],
+                        },
+                    },
+                },
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs"],
+                        },
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call("asdf", "plugin", "add", "uv", record=True),
+                mock.call("asdf", "install", "uv", "latest", record=True),
+                mock.call("asdf", "global", "uv", "latest", record=True),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "uv",
+                    "venv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    "uv",
+                    "sync",
+                    "--group",
+                    "docs",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "uv run zensical build --clean",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_jobs_partial_build_override_sphinx(self, load_yaml_config):
         config = BuildConfigV2(
             {
@@ -2970,9 +3057,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": ConfigError.INVALID_VERSION,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 

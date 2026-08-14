@@ -21,7 +21,7 @@ that match the CI pipeline:
 
 .. prompt:: bash
 
-   tox -e py312          # Core tests (no search, no proxito)
+   tox -e py314          # Core tests (no search, no proxito)
    tox -e search         # Search tests (requires Elasticsearch)
    tox -e proxito        # Proxito tests
 
@@ -29,13 +29,13 @@ To run all test suites at once:
 
 .. prompt:: bash
 
-   tox -e py312,search,proxito
+   tox -e py314,search,proxito
 
 To run a subset of tests:
 
 .. prompt:: bash
 
-   tox -e py312 -- -k test_celery
+   tox -e py314 -- -k test_celery
 
 .. tip::
 
@@ -52,7 +52,7 @@ Tox environments
 The ``tox`` configuration has the following environments configured.
 You can target a single environment to limit the test suite:
 
-py312
+py314
     Core tests — excludes search, proxito, and embed API markers.
 
 search

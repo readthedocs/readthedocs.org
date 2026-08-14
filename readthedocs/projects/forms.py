@@ -1272,7 +1272,7 @@ class DomainForm(forms.ModelForm):
             # dnspython doesn't recursively resolve CNAME records.
             # We always have one response or none.
             return str(answers[0].target)
-        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+        except dns.resolver.NoAnswer, dns.resolver.NXDOMAIN:
             return None
         except dns.resolver.LifetimeTimeout:
             raise forms.ValidationError(

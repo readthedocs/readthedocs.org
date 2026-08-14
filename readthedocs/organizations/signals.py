@@ -2,19 +2,17 @@
 
 import structlog
 from allauth.account.signals import user_signed_up
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
-from readthedocs.builds.signals import build_complete
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
 from readthedocs.organizations.models import TeamMember
 from readthedocs.payments.utils import cancel_subscription
-
-from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
 
 
 log = structlog.get_logger(__name__)
@@ -68,15 +66,16 @@ def remove_organization_completely(sender, instance, using, **kwargs):
         project.delete()
 
 
-@receiver(build_complete, sender=Build)
-def mark_organization_assets_not_cleaned(sender, build, **kwargs):
-    """
-    Mark the organization assets as not cleaned if there is a new build.
-
-    This signal triggers a Celery task because the `build_complete` signal is
-    fired by the builder and it does not have access to the database. So, we
-    trigger a Celery task that will be executed in the web and mark the
-    organization assets as not cleaned.
-    """
-    if build["state"] in BUILD_FINAL_STATES:
-        mark_organization_assets_not_cleaned_task.delay(build["id"])
+@receiver(post_save, sender=Build)
+def mark_organization_assets_not_cleaned(sender, instance, created, **kwargs):
+    """Mark the organization assets as not cleaned if there is a new successful build."""
+    build = instance
+    if build.state in BUILD_FINAL_STATES and build.success:
+        organization = build.project.organization
+        if organization and organization.artifacts_cleaned:
+            log.info(
+                "Marking organization as not cleaned.",
+                origanization_slug=organization.slug,
+            )
+            organization.artifacts_cleaned = False
+            organization.save()

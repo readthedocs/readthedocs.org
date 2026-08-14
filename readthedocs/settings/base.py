@@ -277,7 +277,6 @@ class CommunityBaseSettings(Settings):
             "rest_framework_api_key",
             "generic_relations",
             "corsheaders",
-            "annoying",
             "django_extensions",
             "crispy_forms",
             "django_elasticsearch_dsl",
@@ -624,6 +623,15 @@ class CommunityBaseSettings(Settings):
     USE_L10N = True
 
     BUILD_TIME_LIMIT = 900  # seconds
+
+    # Celery task name + queue for the isolated-builders worker.
+    # Must match what the worker registers in
+    # ``readthedocs-builder/worker/tasks.py`` (``@app.task(name=...)``)
+    # and ``worker/celery.py`` (``task_default_queue``). We dispatch by
+    # name (rather than importing the function) so this codebase doesn't
+    # need the ``worker`` package installed.
+    RTD_ISOLATED_BUILDER_TASK_NAME = "worker.tasks.run_build"
+    RTD_ISOLATED_BUILDER_QUEUE = "isolated-builds"
 
     @property
     def BUILD_MEMORY_LIMIT(self):

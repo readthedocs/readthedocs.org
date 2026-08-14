@@ -402,7 +402,7 @@ class NotificationAttachedToRelatedField(serializers.RelatedField):
 
         try:
             return self.queryset.get(pk=pk)
-        except (ObjectDoesNotExist, ValueError, TypeError):
+        except ObjectDoesNotExist, ValueError, TypeError:
             self.fail("does_not_exist")
 
 

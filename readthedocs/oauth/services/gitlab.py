@@ -97,7 +97,7 @@ class GitLabService(UserService):
                 remote_repository = self.create_repository(repo)
                 if remote_repository:
                     remote_ids.append(remote_repository.remote_id)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             log.warning("Error syncing GitLab repositories")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -551,7 +551,7 @@ class GitLabService(UserService):
             return False
 
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except RequestException, ValueError:
             # Response data should always be JSON, still try to log if not
             # though
             if resp is not None:

@@ -31,7 +31,6 @@ from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
-from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
 from readthedocs.projects.tasks.storage import StorageType
@@ -85,6 +84,7 @@ class BuildDirector:
         if not self.data.project.vcs_class():
             raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
+        # This signal is used to setup the SSH key on .com.
         before_vcs.send(
             sender=self.data.version,
             environment=self.vcs_environment,
@@ -155,10 +155,7 @@ class BuildDirector:
             config=self.data.config,
         )
 
-        # TODO: check if `before_build` and `after_build` are still useful
-        # (maybe in commercial?)
-        #
-        # I didn't find they are used anywhere, we should probably remove them
+        # This signal is used to setup the SSH key on .com.
         before_build.send(
             sender=self.data.version,
             environment=self.build_environment,
@@ -198,10 +195,6 @@ class BuildDirector:
 
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
-
-        after_build.send(
-            sender=self.data.version,
-        )
 
     # VCS checkout
     def checkout(self):
@@ -358,9 +351,9 @@ class BuildDirector:
             self.run_build_job("create_environment")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.setup_base()
@@ -371,9 +364,9 @@ class BuildDirector:
             self.run_build_job("install")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.install_core_requirements()
@@ -599,7 +592,11 @@ class BuildDirector:
                 with tarfile.open(fileobj=remote_fd) as tar:
                     # Extract it on the shared path between host and Docker container
                     extract_path = os.path.join(self.data.project.doc_path, "tools")
-                    tar.extractall(extract_path)
+
+                    # NOTE: we are using `filter="fully_trusted"` to avoid the following error:
+                    # AbsoluteLink: 'miniforge3-25.11.0-1/_conda' is a link to an absolute path
+                    # We should find a better solution.
+                    tar.extractall(extract_path, filter="fully_trusted")
 
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
@@ -679,19 +676,6 @@ class BuildDirector:
                 self.build_environment.run(
                     *cmd,
                     record=True,
-                )
-                # Save the Python path under UV_PYTHON to define it as an environment variable
-                cmd = ["asdf", "which", "python"]
-                command = self.build_environment.run(
-                    *cmd,
-                    record=True,
-                )
-                # Add UV_PYTHON to build environment variables now we have Python installed.
-                # NOTE: we can't do this at `get_build_env_vars` because we need to have Python installed to get the path of it.
-                self.build_environment._environment.update(
-                    {
-                        "UV_PYTHON": command.output.strip(),
-                    },
                 )
 
             if all(
@@ -836,37 +820,35 @@ class BuildDirector:
                 }
             )
 
+        # UV_PROJECT_ENVIRONMENT and READTHEDOCS_VIRTUALENV_PATH are the same
+        venv_path = os.path.join(
+            self.data.project.doc_path,
+            "envs",
+            self.data.version.slug,
+        )
         if self.data.config.is_using_uv:
+            checkout_path = self.data.project.checkout_path(self.data.version.slug)
             try:
-                UV_PROJECT = self.data.config.python.install[0].path
-            except (AttributeError, IndexError):
-                UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
+                # UV_PROJECT has to be an absolute path because we run `uv venv` and `uv run`
+                # from different `cwd` directories.
+                UV_PROJECT = os.path.join(checkout_path, self.data.config.python.install[0].path)
+            except AttributeError, IndexError, TypeError:
+                UV_PROJECT = checkout_path
+
             env.update(
                 {
-                    # UV_PYTHON is set in `install_build_tools` once we have Python installed,
-                    # here I'm setting just an empty string.
-                    "UV_PYTHON": "",
+                    # Point UV_PYTHON to the Python binary inside the virtualenv created by UV.
+                    # This is used by `uv run/sync` but also by `uv pip install` to find the correct Python binary to use.
+                    "UV_PYTHON": os.path.join(venv_path, "bin", "python"),
                     "UV_PROJECT": UV_PROJECT,
-                    # UV_PROJECT_ENVIRONMENT is the same as READTHEDOCS_VIRTUALENV_PATH
-                    "UV_PROJECT_ENVIRONMENT": os.path.join(
-                        self.data.project.doc_path,
-                        "envs",
-                        self.data.version.slug,
-                    ),
-                }
-            )
-        else:
-            env.update(
-                {
-                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
-                        self.data.project.doc_path, "envs", self.data.version.slug
-                    ),
+                    "UV_PROJECT_ENVIRONMENT": venv_path,
                 }
             )
 
         env.update(
             {
                 "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
+                "READTHEDOCS_VIRTUALENV_PATH": venv_path,
             }
         )
 

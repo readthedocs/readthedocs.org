@@ -251,7 +251,7 @@ class ProjectBadgeView(View):
                     fd.read(),
                     content_type="image/svg+xml",
                 )
-        except (IOError, OSError):
+        except IOError, OSError:
             log.exception(
                 "Failed to read local filesystem while serving a docs badge",
             )

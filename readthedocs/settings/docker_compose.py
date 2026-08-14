@@ -17,6 +17,13 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
+    # Personal access token used by the isolated-builder dev container's
+    # entrypoint to clone the readthedocs-builder repo when it's
+    # private. Not strictly needed when the host's checkout is
+    # bind-mounted into the dev container (the entrypoint skips the
+    # clone in that case). Leave empty when the repo is public.
+    RTD_BUILDER_TOKEN = os.environ.get("RTD_BUILDER_TOKEN", "")
+
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
     PUBLIC_API_URL = f"http://{PRODUCTION_DOMAIN}"

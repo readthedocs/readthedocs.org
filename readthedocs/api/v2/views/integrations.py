@@ -156,7 +156,7 @@ class WebhookMixin:
         if hasattr(self, "project") and self.project:
             try:
                 integration = self.get_integration()
-            except (Http404, ParseError):
+            except Http404, ParseError:
                 # If we can't get a single integration (either none or multiple exist),
                 # we can't store the HTTP exchange
                 integration = None
@@ -408,7 +408,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if self.request.content_type == "application/x-www-form-urlencoded":
             try:
                 return json.loads(self.request.data["payload"])
-            except (ValueError, KeyError):
+            except ValueError, KeyError:
                 pass
         return super().get_data()
 
