@@ -328,7 +328,7 @@ this first iteration can be improved in the following weeks without major change
 
 - Implement the upload API and the processing task.
 - Internal bash script to upload the artifacts using the API.
-  Almost no client side validations (size, structure, etc),
+  Basic commands, with almost no client side validations (size, structure, etc),
   server side validations will be done when processing the build.
 - Skip search configuration.
 - Add the new S3 bucket with the lifecycle policy.
