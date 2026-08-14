@@ -44,7 +44,7 @@ basic_urls = [
         ".well-known/security.txt",
         TemplateView.as_view(template_name="security.txt", content_type="text/plain"),
     ),
-    path("schemas/config/v2", schema, name="schema"),
+    path("schemas/config/v2.json", schema, name="schema"),
     path("support/", SupportView.as_view(), name="support"),
     # These are redirected to from the support form
     path(
