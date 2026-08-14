@@ -524,6 +524,7 @@ class Version(TimeStampedModel):
                 "pdf",
                 self.slug,
                 resolver=resolver,
+                external=self.is_external,
             )
 
         if self.has_htmlzip:
@@ -531,12 +532,14 @@ class Version(TimeStampedModel):
                 "htmlzip",
                 self.slug,
                 resolver=resolver,
+                external=self.is_external,
             )
         if self.has_epub:
             data[prettify("Epub")] = project.get_production_media_url(
                 "epub",
                 self.slug,
                 resolver=resolver,
+                external=self.is_external,
             )
         return data
 

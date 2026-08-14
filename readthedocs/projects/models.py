@@ -844,11 +844,15 @@ class Project(models.Model):
         storage_paths.extend(f"{EXTERNAL}/{type_}/{self.slug}" for type_ in MEDIA_TYPES)
         return storage_paths
 
-    def get_production_media_url(self, type_, version_slug, resolver=None):
+    def get_production_media_url(self, type_, version_slug, resolver=None, external=False):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
-        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-        domain = self.subdomain(resolver=resolver)
+        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com).
+        # External versions are only served from the external version domain.
+        domain = self.subdomain(
+            resolver=resolver,
+            external_version_slug=version_slug if external else None,
+        )
 
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
@@ -970,10 +974,14 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
-    def subdomain(self, use_canonical_domain=True, resolver=None):
+    def subdomain(self, use_canonical_domain=True, resolver=None, external_version_slug=None):
         """Get project subdomain from resolver."""
         resolver = resolver or Resolver()
-        return resolver.get_domain_without_protocol(self, use_canonical_domain=use_canonical_domain)
+        return resolver.get_domain_without_protocol(
+            self,
+            use_canonical_domain=use_canonical_domain,
+            external_version_slug=external_version_slug,
+        )
 
     def get_downloads(self, resolver=None):
         downloads = {}
