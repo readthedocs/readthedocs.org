@@ -966,6 +966,17 @@ class Build(models.Model):
         date = self.date.date()
         return f"{date}/{self.id}.json"
 
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_id>/<build_id>/artifacts.zip
+
+        Example: 1234/1111/artifacts.zip
+        """
+        return f"{self.project.id}/{self.id}/artifacts.zip"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
