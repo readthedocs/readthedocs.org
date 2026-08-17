@@ -87,7 +87,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_time_limit",
             "skip",
             "features",
-            "has_valid_clone",
             "has_valid_webhook",
             "show_advertising",
             "environment_variables",

@@ -3564,7 +3564,6 @@ class APIVersionTests(TestCase):
                 "environment_variables": {},
                 "features": [],
                 "git_checkout_command": None,
-                "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,
                 "language": "en",
