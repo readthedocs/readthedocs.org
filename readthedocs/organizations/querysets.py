@@ -125,16 +125,29 @@ class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
             .exclude(disabled=True)
         )
 
+    def disable_serving(self):
+        """
+        Filter organizations which docs serving must be blocked.
+
+        These are organizations that have been disabled for at least
+        3*DISABLE_AFTER_DAYS (~3 months) after their subscription ended.
+        Their docs keep being served during that grace window, so a
+        billing mistake doesn't take customer docs down immediately.
+        """
+        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=False).filter(
+            disabled=True,
+        )
+
     def clean_artifacts(self):
         """
         Filter organizations which their artifacts can be cleaned up.
 
         These organizations are at least 3*DISABLE_AFTER_DAYS (~3 months) that
         are disabled and their artifacts weren't cleaned already. We should be
-        safe to cleanup all their artifacts at this point.
+        safe to cleanup all their artifacts at this point,
+        since their docs aren't being served anymore (see ``disable_serving``).
         """
-        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=False).filter(
-            disabled=True,
+        return self.disable_serving().filter(
             artifacts_cleaned=False,
         )
 
