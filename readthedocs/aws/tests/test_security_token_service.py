@@ -301,7 +301,7 @@ class TestSecurityTokenService(TestCase):
             secret_access_key="global_secret_access_key",
             session_token=None,
             region_name="us-east-1",
-            bucket_name="readthedocs-build-uploads",
+            bucket_name="build-uploads",
         )
 
     @mock.patch("readthedocs.aws.security_token_service.boto3.client")
@@ -319,7 +319,7 @@ class TestSecurityTokenService(TestCase):
             secret_access_key="secret_access_key",
             session_token="session_token",
             region_name="us-east-1",
-            bucket_name="readthedocs-build-uploads",
+            bucket_name="build-uploads",
         )
 
         policy = {
@@ -332,8 +332,8 @@ class TestSecurityTokenService(TestCase):
                         "s3:ListBucket",
                     ],
                     "Resource": [
-                        "arn:aws:s3:::readthedocs-build-uploads",
-                        f"arn:aws:s3:::readthedocs-build-uploads/{self.project.id}/{self.build.id}/artifacts.zip",
+                        "arn:aws:s3:::build-uploads",
+                        f"arn:aws:s3:::build-uploads/{self.project.id}/{self.build.id}/artifacts.zip",
                     ],
                 },
             ],
