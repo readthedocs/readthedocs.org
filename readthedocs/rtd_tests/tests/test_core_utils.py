@@ -47,9 +47,9 @@ class CoreUtilTests(TestCase):
             project=self.project,
             version=self.version,
         )
-        self.assertEqual(result, (None, None))
-        self.assertFalse(update_docs_task.signature.called)
-        self.assertFalse(update_docs_task.signature().apply_async.called)
+        assert result == (None, None)
+        assert not update_docs_task.signature.called
+        assert not update_docs_task.signature().apply_async.called
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_build_when_version_not_provided_default_version_exist(
