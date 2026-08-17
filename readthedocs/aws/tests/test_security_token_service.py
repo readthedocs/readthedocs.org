@@ -12,6 +12,7 @@ from readthedocs.aws.security_token_service import (
     AWSS3TemporaryCredentials,
     get_s3_build_media_scoped_credentials,
     get_s3_build_tools_scoped_credentials,
+    get_s3_build_uploads_scoped_credentials,
 )
 
 
@@ -287,6 +288,60 @@ class TestSecurityTokenService(TestCase):
         boto3_client().assume_role.assert_called_once_with(
             RoleArn="arn:aws:iam::1234:role/RoleName",
             RoleSessionName=f"rtd-{self.build.id}-project-latest",
+            Policy=json.dumps(policy, separators=(",", ":")),
+            Tags=[],
+            DurationSeconds=15 * 60,
+        )
+
+    @override_settings(USING_AWS=False, DEBUG=True)
+    def test_get_s3_build_uploads_global_credentials(self):
+        credentials = get_s3_build_uploads_scoped_credentials(build=self.build)
+        assert credentials == AWSS3TemporaryCredentials(
+            access_key_id="global_access_key_id",
+            secret_access_key="global_secret_access_key",
+            session_token=None,
+            region_name="us-east-1",
+            bucket_name="readthedocs-build-uploads",
+        )
+
+    @mock.patch("readthedocs.aws.security_token_service.boto3.client")
+    def test_get_s3_build_uploads_scoped_credentials(self, boto3_client):
+        boto3_client().assume_role.return_value = {
+            "Credentials": {
+                "AccessKeyId": "access_key_id",
+                "SecretAccessKey": "secret_access_key",
+                "SessionToken": "session_token",
+            }
+        }
+        credentials = get_s3_build_uploads_scoped_credentials(build=self.build)
+        assert credentials == AWSS3TemporaryCredentials(
+            access_key_id="access_key_id",
+            secret_access_key="secret_access_key",
+            session_token="session_token",
+            region_name="us-east-1",
+            bucket_name="readthedocs-build-uploads",
+        )
+
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::readthedocs-build-uploads",
+                        f"arn:aws:s3:::readthedocs-build-uploads/{self.project.id}/{self.build.id}/artifacts.zip",
+                    ],
+                },
+            ],
+        }
+
+        boto3_client().assume_role.assert_called_once_with(
+            RoleArn="arn:aws:iam::1234:role/RoleName",
+            RoleSessionName=f"rtd-{self.build.id}-project",
             Policy=json.dumps(policy, separators=(",", ":")),
             Tags=[],
             DurationSeconds=15 * 60,
