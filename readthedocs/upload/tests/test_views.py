@@ -39,10 +39,7 @@ class UploadAPIEndpointMixin(TestCase):
         self.project = get(
             Project,
             slug="project",
-            related_projects=[],
-            main_language_project=None,
             users=[self.user],
-            versions=[],
         )
         self.feature = get(
             Feature,
@@ -100,10 +97,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         other_project = get(
             Project,
             slug="other-project",
-            related_projects=[],
-            main_language_project=None,
             users=[self.other_user],
-            versions=[],
         )
         self.feature.projects.add(other_project)
         self.data["project"] = other_project.slug
@@ -121,14 +115,20 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    @override_settings(RTD_UPLOAD_API_MAX_PENDING_UPLOADS=1)
+    @override_settings(RTD_UPLOAD_API_MAX_PENDING_UPLOADS=2)
     @mock.patch("readthedocs.upload.api.views.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_too_many_pending_uploads(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
+        self.data["version"]["name"] = "v1"
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
 
+        self.data["version"]["name"] = "v2"
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        self.data["version"]["name"] = "main"
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
 
@@ -303,10 +303,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         other_project = get(
             Project,
             slug="other-project",
-            related_projects=[],
-            main_language_project=None,
             users=[self.other_user],
-            versions=[],
         )
         other_version = get(Version, project=other_project)
         other_build = get(
