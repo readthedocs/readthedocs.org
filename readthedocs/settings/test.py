@@ -177,10 +177,10 @@ class CommunityTestSettings(CommunityBaseSettings):
                 },
             },
             "build-uploads": {
-                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
                 "OPTIONS": {
-                    "location": Path(self.MEDIA_ROOT) / "build-uploads",
-                    "allow_overwrite": True,
+                    "bucket_name": "build-uploads",
+                    "default_acl": "private",
                 },
             },
         }

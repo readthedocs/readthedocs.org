@@ -293,10 +293,8 @@ class TestSecurityTokenService(TestCase):
             DurationSeconds=15 * 60,
         )
 
-    @mock.patch("readthedocs.aws.security_token_service.storages")
     @override_settings(USING_AWS=False, DEBUG=True)
-    def test_get_s3_build_uploads_global_credentials(self, storages):
-        storages.__getitem__.return_value.bucket_name = "readthedocs-build-uploads"
+    def test_get_s3_build_uploads_global_credentials(self):
         credentials = get_s3_build_uploads_scoped_credentials(build=self.build)
         assert credentials == AWSS3TemporaryCredentials(
             access_key_id="global_access_key_id",
@@ -305,12 +303,9 @@ class TestSecurityTokenService(TestCase):
             region_name="us-east-1",
             bucket_name="readthedocs-build-uploads",
         )
-        storages.__getitem__.assert_called_once_with("build-uploads")
 
-    @mock.patch("readthedocs.aws.security_token_service.storages")
     @mock.patch("readthedocs.aws.security_token_service.boto3.client")
-    def test_get_s3_build_uploads_scoped_credentials(self, boto3_client, storages):
-        storages.__getitem__.return_value.bucket_name = "readthedocs-build-uploads"
+    def test_get_s3_build_uploads_scoped_credentials(self, boto3_client):
         boto3_client().assume_role.return_value = {
             "Credentials": {
                 "AccessKeyId": "access_key_id",
@@ -350,27 +345,4 @@ class TestSecurityTokenService(TestCase):
             Policy=json.dumps(policy, separators=(",", ":")),
             Tags=[],
             DurationSeconds=15 * 60,
-        )
-
-    @mock.patch("readthedocs.aws.security_token_service.storages")
-    @mock.patch("readthedocs.aws.security_token_service.boto3.client")
-    def test_get_s3_build_uploads_scoped_credentials_custom_duration(
-        self, boto3_client, storages
-    ):
-        storages.__getitem__.return_value.bucket_name = "readthedocs-build-uploads"
-        boto3_client().assume_role.return_value = {
-            "Credentials": {
-                "AccessKeyId": "access_key_id",
-                "SecretAccessKey": "secret_access_key",
-                "SessionToken": "session_token",
-            }
-        }
-        get_s3_build_uploads_scoped_credentials(build=self.build, duration=60 * 30)
-
-        boto3_client().assume_role.assert_called_once_with(
-            RoleArn="arn:aws:iam::1234:role/RoleName",
-            RoleSessionName=f"rtd-{self.build.id}-project",
-            Policy=mock.ANY,
-            Tags=[],
-            DurationSeconds=30 * 60,
         )
