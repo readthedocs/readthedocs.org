@@ -84,16 +84,16 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
 
     def test_requires_authentication(self):
         self.client.credentials()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_invalid_payload(self):
-        response = self.client.post(self.url, {"project": self.project.slug}, format="json")
+        response = self.client.post(self.url, {"project": self.project.slug})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_project_not_found(self):
         self.data["project"] = "does-not-exist"
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_user_without_admin_permission(self):
@@ -107,18 +107,18 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         )
         self.feature.projects.add(other_project)
         self.data["project"] = other_project.slug
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_feature_not_enabled(self):
         self.project.feature_set.all().delete()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_project_not_active(self):
         self.project.skip = True
         self.project.save()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @override_settings(RTD_UPLOAD_API_MAX_PENDING_UPLOADS=1)
@@ -126,17 +126,17 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_too_many_pending_uploads(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
 
     @mock.patch("readthedocs.upload.api.views.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_creates_build_and_version(self, storages_mock, send_build_status):
         storage_mock = self._mock_storage(storages_mock)
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
 
         build = Build.objects.get(pk=response.data["build"]["id"])
@@ -178,7 +178,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             privacy_level=PRIVATE,
         )
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         assert self.project.versions.filter(verbose_name="main", type=BRANCH).count() == 1
 
@@ -195,7 +195,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             "type": EXTERNAL,
             "commit": "b" * 40,
         }
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         version = self.project.versions.get(verbose_name="123", type=EXTERNAL)
         assert version.identifier == "123"
@@ -206,14 +206,14 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     def test_private_version_allowed(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
         self.data["version"]["privacy_level"] = PRIVATE
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         version = self.project.versions.get(verbose_name="main", type=BRANCH)
         assert version.privacy_level == PRIVATE
 
     def test_private_version_not_allowed(self):
         self.data["version"]["privacy_level"] = PRIVATE
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     @mock.patch("readthedocs.core.utils.app")
@@ -235,7 +235,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             task_id="task-1",
         )
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
 
         app_mock.control.revoke.assert_called_once_with(
@@ -254,7 +254,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             "url": "http://storage/build-uploads",
             "fields": {"key": "1/1/artifacts.zip"},
         }
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["upload_url"]["url"] == "http://127.0.0.1/build-uploads"
 
@@ -281,22 +281,22 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
 
     def test_requires_authentication(self):
         self.client.credentials()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_invalid_payload(self):
-        response = self.client.post(self.url, {"build": self.build.pk}, format="json")
+        response = self.client.post(self.url, {"build": self.build.pk})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_build_not_found(self):
         self.data["build"] = self.build.pk + 1000
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_build_not_uploaded_is_not_found(self):
         self.build.is_uploaded = False
         self.build.save()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_user_without_admin_permission(self):
@@ -318,24 +318,24 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
             task_id=None,
         )
         self.data["build"] = other_build.pk
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_build_already_has_task_id(self):
         self.build.task_id = "already-queued"
         self.build.save()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_409_CONFLICT
 
     def test_build_not_in_triggered_state(self):
         self.build.state = BUILD_STATE_FINISHED
         self.build.save()
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_409_CONFLICT
 
     def test_upload_failed(self):
         self.data["status"] = UploadStatus.failed.value
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_200_OK
 
         self.build.refresh_from_db()
@@ -353,7 +353,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         storage_mock = storages_mock.__getitem__.return_value
         storage_mock.exists.return_value = False
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         storage_mock.exists.assert_called_once_with(self.build.uploaded_artifacts_storage_path)
 
@@ -364,7 +364,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         storage_mock.exists.return_value = True
         process_uploaded_build.apply_async.return_value = mock.Mock(id="task-id-123")
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_202_ACCEPTED
 
         self.build.refresh_from_db()
@@ -386,7 +386,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         storage_mock.exists.return_value = True
         process_uploaded_build.apply_async.return_value = mock.Mock(id="task-id-456")
 
-        response = self.client.post(self.url, self.data, format="json")
+        response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_202_ACCEPTED
 
         call_kwargs = process_uploaded_build.apply_async.call_args.kwargs
