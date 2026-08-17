@@ -27,5 +27,4 @@ sphinx-copybutton
 # Markdown
 myst_parser
 
-# spinxcontrib-video
-git+https://github.com/readthedocs/sphinxcontrib-video/
+sphinxcontrib-video
