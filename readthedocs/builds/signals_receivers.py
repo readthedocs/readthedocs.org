@@ -24,6 +24,7 @@ def update_latest_build_for_project(sender, instance, created, **kwargs):
         )
 
 
+# TODO: this should be moved to an API call done after the build is completed.
 @receiver(post_save, sender=Build)
 def update_is_uploaded_for_version(sender, instance, created, **kwargs):
     """

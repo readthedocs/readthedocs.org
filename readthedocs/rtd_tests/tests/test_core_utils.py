@@ -40,6 +40,18 @@ class CoreUtilTests(TestCase):
         self.assertFalse(update_docs_task.signature().apply_async.called)
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_skipped_uploaded_version(self, update_docs_task):
+        self.version.is_uploaded = True
+        self.version.save()
+        result = trigger_build(
+            project=self.project,
+            version=self.version,
+        )
+        assert result == (None, None)
+        assert not update_docs_task.signature.called
+        assert not update_docs_task.signature().apply_async.called
+
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_build_when_version_not_provided_default_version_exist(
         self, update_docs_task
     ):

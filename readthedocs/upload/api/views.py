@@ -116,18 +116,7 @@ class UploadInitiateView(APIv3Settings, APIView):
         )
 
         # Reduce overhead when doing multiple push on the same version.
-        running_builds = (
-            Build.objects.filter(
-                project=project,
-                version=version,
-            )
-            .exclude(
-                state__in=BUILD_FINAL_STATES,
-            )
-            .exclude(
-                pk=build.pk,
-            )
-        )
+        running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
         running_builds_count = running_builds.count()
         if running_builds_count > 0:
             log.warning(

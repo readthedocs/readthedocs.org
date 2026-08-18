@@ -649,6 +649,7 @@ class Project(models.Model):
     has_valid_clone = models.BooleanField(
         default=False,
         help_text=_("This project has been successfully cloned"),
+        null=True,
     )
 
     tags = TaggableManager(blank=True, ordering=["name"])
