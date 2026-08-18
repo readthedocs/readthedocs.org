@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -193,3 +194,28 @@ class TestBuildMediaStorage(TestCase):
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
                 self.storage.rclone_sync_directory(tmp_dir, "files")
+
+    def test_rclone_download_directory(self):
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "files")
+
+        download_dir = tempfile.mkdtemp()
+        self.storage.rclone_download_directory("files", download_dir)
+        self.assertCountEqual(
+            os.listdir(download_dir),
+            ["api", "404.html", "api.fjson", "conf.py", "index.html", "test.html"],
+        )
+        self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
+
+    def test_rclone_download_directory_not_found(self):
+        # rclone exits with code 3 when the source directory doesn't exist.
+        # ``_process_files`` relies on this to handle versions without files.
+        download_dir = tempfile.mkdtemp()
+        with pytest.raises(subprocess.CalledProcessError) as exc:
+            self.storage.rclone_download_directory("does-not-exist", download_dir)
+        assert exc.value.returncode == 3
+        self.assertEqual(os.listdir(download_dir), [])
+
+    def test_rclone_download_all_storage(self):
+        with pytest.raises(SuspiciousFileOperation):
+            self.storage.rclone_download_directory("/", tempfile.mkdtemp())
