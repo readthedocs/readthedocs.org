@@ -29,7 +29,6 @@ or taking the open source Read the Docs codebase for your own custom installatio
    search-integration
    aws-temporary-credentials
    subscriptions
-   commercial-onboarding
    github-app
    settings
    tests
