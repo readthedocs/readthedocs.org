@@ -314,6 +314,7 @@ class TestBuildCommand(TestCase):
     def test_obfuscate_output_private_variables(self):
         build_env = mock.MagicMock()
         build_env.project = mock.MagicMock()
+        build_env.project.clone_token = None
         build_env.project._environment_variables = mock.MagicMock()
         build_env.project._environment_variables.items.return_value = [
             (
@@ -335,6 +336,20 @@ class TestBuildCommand(TestCase):
         checks = (
             ("public-value", "public-value"),
             ("private-value", "priv****"),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
+
+    def test_obfuscate_output_clone_token(self):
+        build_env = mock.MagicMock()
+        build_env.project = mock.MagicMock()
+        build_env.project.clone_token = "x-access-token:1234"
+        build_env.project._environment_variables = {}
+        cmd = BuildCommand(["/bin/bash", "-c", "echo"], build_env=build_env)
+        checks = (
+            ("https://x-access-token:1234@github.com/org/repo", "https://****@github.com/org/repo"),
+            ("the token is 1234", "the token is ****"),
+            ("no token here", "no token here"),
         )
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
