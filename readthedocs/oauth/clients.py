@@ -84,4 +84,9 @@ def get_gh_app_client() -> GithubIntegration:
         # PyGithub will handle the token expiration and renew it automatically.
         jwt_expiry=60 * 10,
     )
-    return GithubIntegration(auth=app_auth)
+    return GithubIntegration(
+        auth=app_auth,
+        # Fetch the maximum number of items per page (default is 30),
+        # so paginated requests consume less of the API rate limit.
+        per_page=100,
+    )
