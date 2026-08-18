@@ -1010,7 +1010,7 @@ class TestGitHubAppWebhook(TestCase):
         }
         r = self.post_webhook("organization", payload)
         assert r.status_code == 200
-        sync.assert_called_once()
+        sync.assert_called_once_with(sync_all_collaborators=False)
 
     def test_organization_deleted(self):
         organization_id = 1234
