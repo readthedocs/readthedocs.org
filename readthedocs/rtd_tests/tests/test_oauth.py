@@ -597,6 +597,72 @@ class GitHubAppTests(TestCase):
         ).exists()
 
     @requests_mock.Mocker(kw="request")
+    def test_update_member_access(self, request):
+        member = get(User)
+        member_account = get(
+            SocialAccount,
+            uid="9999",
+            user=member,
+            provider=GitHubAppProvider.id,
+        )
+        # ``self.remote_repository`` is linked to a project, ``repo2`` is not.
+        repo2 = get(
+            RemoteRepository,
+            remote_id="7777",
+            name="repo2",
+            full_name="user/repo2",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.installation,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        # Only permissions on repositories linked to a project are checked,
+        # requesting the permissions on user/repo2 would fail the test (not mocked).
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/collaborators/member/permission",
+            json={"permission": "admin"},
+        )
+
+        service = self.installation.service
+        service.update_member_access(member_account, "member")
+
+        relation = member.remote_repository_relations.get()
+        assert relation.remote_repository == self.remote_repository
+        assert relation.account == member_account
+        assert relation.admin is True
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_member_access_without_access(self, request):
+        member = get(User)
+        member_account = get(
+            SocialAccount,
+            uid="9999",
+            user=member,
+            provider=GitHubAppProvider.id,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=member,
+            account=member_account,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/collaborators/member/permission",
+            json={"permission": "none"},
+        )
+
+        service = self.installation.service
+        service.update_member_access(member_account, "member")
+
+        assert not member.remote_repository_relations.exists()
+
+    @requests_mock.Mocker(kw="request")
     def test_sync(self, request):
         assert self.installation.repositories.count() == 1
         request.get(
