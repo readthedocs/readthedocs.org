@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Github
 from github import GithubException
+from github import RateLimitExceededException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -393,6 +394,49 @@ class GitHubAppService(Service):
             uid__in=ids,
             provider=self.allauth_provider.id,
         ).select_related("user")
+
+    def update_member_access(self, account: SocialAccount, login: str):
+        """
+        Update the relations of a user with the repositories linked to a project.
+
+        Instead of re-syncing all collaborators of all repositories,
+        we check the permission of the user on each repository linked to a project
+        (one API request per repository). Their access to the rest of the repositories
+        is synced when they sign in or manually re-sync their repositories.
+
+        :param account: The social account connected to the user.
+        :param login: The GitHub username of the user.
+        """
+        remote_repositories = self.installation.repositories.filter(
+            projects__isnull=False
+        ).distinct()
+        for remote_repo in remote_repositories:
+            try:
+                # NOTE: we use the lazy option to avoid fetching the repository object,
+                # since we only need the object to interact with the permissions API.
+                gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+                permission = gh_repo.get_collaborator_permission(login)
+            except RateLimitExceededException:
+                # All the remaining requests will fail as well.
+                raise
+            except GithubException:
+                log.info(
+                    "Failed to fetch the repository permissions of the user",
+                    repository_id=remote_repo.remote_id,
+                    exc_info=True,
+                )
+                continue
+
+            if permission == "none":
+                RemoteRepositoryRelation.objects.filter(
+                    remote_repository=remote_repo,
+                    account=account,
+                ).delete()
+                continue
+
+            remote_repo_relation = remote_repo.get_remote_repository_relation(account.user, account)
+            remote_repo_relation.admin = permission == "admin"
+            remote_repo_relation.save()
 
     def send_build_status(self, *, build, commit, status):
         """

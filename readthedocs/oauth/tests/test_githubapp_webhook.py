@@ -32,6 +32,7 @@ from readthedocs.oauth.models import (
     GitHubAppInstallation,
     RemoteOrganization,
     RemoteRepository,
+    RemoteRepositoryRelation,
 )
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.models import Project
@@ -901,8 +902,16 @@ class TestGitHubAppWebhook(TestCase):
         r = self.post_webhook("repository", payload)
         assert r.status_code == 200
 
+    @mock.patch.object(GitHubAppService, "update_member_access")
     @mock.patch.object(GitHubAppService, "sync")
-    def test_organization_member_added(self, sync):
+    def test_organization_member_added(self, sync, update_member_access):
+        member = get(User)
+        member_account = get(
+            SocialAccount,
+            user=member,
+            provider=GitHubAppProvider.id,
+            uid="9999",
+        )
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -910,13 +919,63 @@ class TestGitHubAppWebhook(TestCase):
                 "target_type": self.installation.target_type,
             },
             "action": "member_added",
+            "membership": {
+                "user": {
+                    "login": "member",
+                    "id": 9999,
+                },
+            },
         }
         r = self.post_webhook("organization", payload)
         assert r.status_code == 200
-        sync.assert_called_once()
+        update_member_access.assert_called_once_with(member_account, "member")
+        sync.assert_not_called()
+
+    @mock.patch.object(GitHubAppService, "update_member_access")
+    @mock.patch.object(GitHubAppService, "sync")
+    def test_organization_member_added_without_account(self, sync, update_member_access):
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "member_added",
+            "membership": {
+                "user": {
+                    "login": "member",
+                    "id": 9999,
+                },
+            },
+        }
+        r = self.post_webhook("organization", payload)
+        assert r.status_code == 200
+        # The member doesn't have an account connected,
+        # their access is synced when they sign in.
+        update_member_access.assert_not_called()
+        sync.assert_not_called()
 
     @mock.patch.object(GitHubAppService, "sync")
     def test_organization_member_removed(self, sync):
+        member = get(User)
+        member_account = get(
+            SocialAccount,
+            user=member,
+            provider=GitHubAppProvider.id,
+            uid="9999",
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=member,
+            account=member_account,
+        )
+        relation = get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=self.user,
+            account=self.socialaccount,
+        )
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -924,10 +983,20 @@ class TestGitHubAppWebhook(TestCase):
                 "target_type": self.installation.target_type,
             },
             "action": "member_removed",
+            "membership": {
+                "user": {
+                    "login": "member",
+                    "id": 9999,
+                },
+            },
         }
         r = self.post_webhook("organization", payload)
         assert r.status_code == 200
-        sync.assert_called_once()
+        sync.assert_not_called()
+        # The relations from the removed member are deleted without querying the API,
+        # relations from other users are kept.
+        assert not member.remote_repository_relations.exists()
+        assert list(self.user.remote_repository_relations.all()) == [relation]
 
     @mock.patch.object(GitHubAppService, "sync")
     def test_organization_renamed(self, sync):

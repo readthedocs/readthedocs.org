@@ -4,11 +4,13 @@ import datetime
 from functools import cached_property
 
 import structlog
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractIsoWeekDay
 from django.urls import reverse
 from django.utils import timezone
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.utils import memcache_lock
@@ -25,6 +27,7 @@ from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH
@@ -753,11 +756,12 @@ class GitHubAppWebhookHandler:
         if created:
             return
 
-        # We need to do a full sync of the repositories if members were added or removed,
-        # this is since we don't know to which repositories the members have access.
-        # GH doesn't send a member event for this.
-        if action in ("member_added", "member_removed"):
-            installation.service.sync()
+        if action == "member_added":
+            self._add_member_repository_relations(installation)
+            return
+
+        if action == "member_removed":
+            self._remove_member_repository_relations(installation)
             return
 
         # NOTE: installation_target should handle this instead?
@@ -780,6 +784,49 @@ class GitHubAppWebhookHandler:
         # Ignore other actions:
         # - member_invited: We don't do anything with invited members.
         return
+
+    def _add_member_repository_relations(self, installation):
+        """
+        Grant the member the event was triggered for access to relevant repositories.
+
+        If the member has an account connected, we check their access to each
+        repository linked to a project. Their access to the rest of the repositories
+        is synced when they sign in or manually re-sync their repositories.
+        """
+        member = self.data.get("membership", {}).get("user", {})
+        member_id = member.get("id")
+        if not member_id:
+            log.info("Organization event doesn't include the affected member.")
+            return
+        account = SocialAccount.objects.filter(
+            provider=GitHubAppProvider.id,
+            uid=str(member_id),
+        ).first()
+        if not account:
+            return
+        installation.service.update_member_access(account, member["login"])
+
+    def _remove_member_repository_relations(self, installation):
+        """
+        Remove all repository relations from the member the event was triggered for.
+
+        A member removed from the organization lost access to all its repositories,
+        so we can revoke their access without querying the GH API.
+        """
+        member_id = self.data.get("membership", {}).get("user", {}).get("id")
+        if not member_id:
+            log.info("Organization event doesn't include the affected member.")
+            return
+        count, _ = RemoteRepositoryRelation.objects.filter(
+            account__provider=GitHubAppProvider.id,
+            account__uid=str(member_id),
+            remote_repository__github_app_installation=installation,
+        ).delete()
+        log.info(
+            "Removed repository relations from member removed from the organization.",
+            member_id=member_id,
+            count=count,
+        )
 
     def _handle_member_event(self):
         """
