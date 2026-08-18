@@ -741,6 +741,61 @@ class GitHubAppTests(TestCase):
         assert relation.admin
 
     @requests_mock.Mocker(kw="request")
+    def test_sync_collaborators_from_repositories_with_projects_only(self, request):
+        # ``self.remote_repository`` is linked to a project, ``repo2`` is not.
+        repo2 = get(
+            RemoteRepository,
+            remote_id="7777",
+            name="repo2",
+            full_name="user/repo2",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=self.installation,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo2,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        request.get(
+            f"{self.api_url}/app/installations/1111",
+            json=self._get_installation_json(id=1111),
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/installation/repositories",
+            json={
+                "repositories": [
+                    self._get_repository_json(
+                        full_name="user/repo", id=int(self.remote_repository.remote_id)
+                    ),
+                    self._get_repository_json(
+                        full_name="user/repo2", id=7777, description="New description"
+                    ),
+                ]
+            },
+        )
+        # Only the repository linked to a project has its collaborators listed,
+        # requesting the collaborators of user/repo2 would fail the test (not mocked).
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.sync(sync_all_collaborators=False)
+
+        # The metadata of the repository without projects is still updated,
+        # and its existing relations are kept.
+        repo2.refresh_from_db()
+        assert repo2.description == "New description"
+        assert repo2.remote_repository_relations.count() == 1
+
+    @requests_mock.Mocker(kw="request")
     def test_sync_delete_remote_repositories(self, request):
         assert self.installation.repositories.count() == 1
         request.get(

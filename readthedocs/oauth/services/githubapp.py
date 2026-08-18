@@ -174,7 +174,7 @@ class GitHubAppService(Service):
         if has_error:
             raise SyncServiceError()
 
-    def sync(self):
+    def sync(self, *, sync_all_collaborators=True):
         """
         Sync all repositories and organizations that are accessible to the installation.
 
@@ -183,6 +183,13 @@ class GitHubAppService(Service):
 
         If a remote organization doesn't have any repositories after removing the repositories,
         we remove the organization from the database.
+
+        :param sync_all_collaborators: If ``False``, collaborators are synced only for
+         repositories that are linked to a project. Listing collaborators costs at least
+         one API request per repository, which makes a full sync of a large installation
+         exceed the GitHub API rate limit. Collaborators of repositories without a project
+         are only used to build the list of repositories available to import, which is
+         refreshed when each user signs in or manually re-syncs their repositories.
         """
         try:
             app_installation = self.get_app_installation()
@@ -208,9 +215,22 @@ class GitHubAppService(Service):
             self.installation.delete()
             raise SyncServiceError()
 
+        repos_with_projects = set()
+        if not sync_all_collaborators:
+            repos_with_projects = set(
+                self.installation.repositories.filter(projects__isnull=False).values_list(
+                    "remote_id", flat=True
+                )
+            )
+
         remote_repositories = []
         for gh_repo in app_installation.get_repos():
-            remote_repo = self._create_or_update_repository_from_gh(gh_repo)
+            remote_repo = self._create_or_update_repository_from_gh(
+                gh_repo,
+                resync_collaborators=(
+                    sync_all_collaborators or str(gh_repo.id) in repos_with_projects
+                ),
+            )
             if remote_repo:
                 remote_repositories.append(remote_repo)
 
@@ -266,12 +286,13 @@ class GitHubAppService(Service):
             self.installation.delete_repositories(repositories_to_delete)
 
     def _create_or_update_repository_from_gh(
-        self, gh_repo: GHRepository
+        self, gh_repo: GHRepository, *, resync_collaborators: bool = True
     ) -> RemoteRepository | None:
         """
         Create or update a remote repository from a GitHub repository object.
 
-        We also sync the collaborators of the repository with the database,
+        We also sync the collaborators of the repository with the database
+        (unless ``resync_collaborators`` is ``False``),
         and create or update the organization of the repository.
         """
         target_id = self.installation.target_id
@@ -324,7 +345,8 @@ class GitHubAppService(Service):
             remote_repo.organization = self.update_or_create_organization(gh_repo.owner.login)
 
         remote_repo.save()
-        self._resync_collaborators(gh_repo, remote_repo)
+        if resync_collaborators:
+            self._resync_collaborators(gh_repo, remote_repo)
         return remote_repo
 
     # NOTE: normally, this should cache only one organization at a time, but just in case...

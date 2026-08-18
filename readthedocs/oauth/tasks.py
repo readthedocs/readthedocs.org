@@ -768,8 +768,9 @@ class GitHubAppWebhookHandler:
         # But I wasn't able to trigger neither of those events when renaming an organization.
         # Maybe a bug?
         # If the organization is renamed, we need to sync the repositories, so they use the new name.
+        # Renaming doesn't change permissions, so we don't need to sync all collaborators.
         if action == "renamed":
-            installation.service.sync()
+            installation.service.sync(sync_all_collaborators=False)
             return
 
         if action == "deleted":
