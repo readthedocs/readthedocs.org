@@ -30,6 +30,7 @@ def prepare_build(
     project,
     version=None,
     commit=None,
+    is_uploaded=False,
     immutable=True,
 ):
     """
@@ -42,6 +43,7 @@ def prepare_build(
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
     :param immutable: whether or not create an immutable Celery signature
+    :param is_uploaded: whether or not the build is using the upload API.
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
     """
@@ -67,7 +69,7 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
-    if version.is_uploaded:
+    if version.is_uploaded and not is_uploaded:
         log.info(
             "Build not triggered because version is uploaded.",
             version_slug=version.slug,
@@ -81,6 +83,7 @@ def prepare_build(
         state=BUILD_STATE_TRIGGERED,
         success=True,
         commit=commit,
+        is_uploaded=is_uploaded,
     )
 
     structlog.contextvars.bind_contextvars(
@@ -120,18 +123,7 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = (
-        Build.objects.filter(
-            project=project,
-            version=version,
-        )
-        .exclude(
-            state__in=BUILD_FINAL_STATES,
-        )
-        .exclude(
-            pk=build.pk,
-        )
-    )
+    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
     if running_builds.count() > 0:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
@@ -369,15 +361,16 @@ def cancel_build(build):
         # itself to be executed in the `on_failure` handler.
         terminate = True
 
-    log.warning(
-        "Canceling build.",
-        project_slug=build.project.slug,
-        version_slug=build.version.slug,
-        build_id=build.pk,
-        build_task_id=build.task_id,
-        terminate=terminate,
-    )
-    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+    if build.task_id:
+        log.warning(
+            "Canceling build.",
+            project_slug=build.project.slug,
+            version_slug=build.version.slug,
+            build_id=build.pk,
+            build_task_id=build.task_id,
+            terminate=terminate,
+        )
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):

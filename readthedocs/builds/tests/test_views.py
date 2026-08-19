@@ -74,6 +74,7 @@ class CancelBuildViewTests(TestCase):
             project=another_project,
             version=another_project.versions.first(),
             state=BUILD_STATE_INSTALLING,
+            task_id="5678",
         )
 
         self.client.force_login(another_user)

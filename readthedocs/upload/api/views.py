@@ -10,15 +10,12 @@ from rest_framework.views import APIView
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
-from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
-from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils import cancel_build
+from readthedocs.core.utils import prepare_build
 from readthedocs.core.utils import submit_to_isolated_builders
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
@@ -99,35 +96,11 @@ class UploadInitiateView(APIv3Settings, APIView):
             privacy_level=privacy_level,
         )
 
-        build = Build.objects.create(
-            project=project,
-            version=version,
-            state=BUILD_STATE_TRIGGERED,
-            commit=version_commit,
-            is_uploaded=True,
+        _, build = prepare_build(
+            project=project, version=version, commit=version_commit, is_uploaded=True
         )
 
         upload_url = self._generate_upload_url(build)
-
-        send_build_status.delay(
-            build_pk=build.id,
-            commit=version_commit,
-            status=BUILD_STATUS_PENDING,
-        )
-
-        # Reduce overhead when doing multiple push on the same version.
-        running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
-        running_builds_count = running_builds.count()
-        if running_builds_count > 0:
-            log.warning(
-                "Canceling running builds automatically due a new one arrived.",
-                running_builds=running_builds_count,
-            )
-
-        # If there are builds triggered/running for this particular project and version,
-        # we cancel all of them and trigger a new one for the latest commit received.
-        for running_build in running_builds:
-            cancel_build(running_build)
 
         return Response(
             {
@@ -216,7 +189,7 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        # Clean up the build if the upload failed.
+        # Mark the build as finished if the upload failed.
         if upload_status == UploadStatus.failed:
             build.state = BUILD_STATE_FINISHED
             build.success = False

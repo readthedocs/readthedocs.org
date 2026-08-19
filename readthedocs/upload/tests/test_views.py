@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
@@ -116,7 +117,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @override_settings(RTD_UPLOAD_API_MAX_PENDING_UPLOADS=2)
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_too_many_pending_uploads(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
@@ -132,7 +133,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
 
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_creates_build_and_version(self, storages_mock, send_build_status):
         storage_mock = self._mock_storage(storages_mock)
@@ -160,13 +161,9 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             content_type="application/zip",
             max_size=mock.ANY,
         )
-        send_build_status.delay.assert_called_once_with(
-            build_pk=build.id,
-            commit="a" * 40,
-            status=mock.ANY,
-        )
+        send_build_status.delay.assert_not_called()
 
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_reuses_existing_version(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
@@ -186,10 +183,10 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert version.privacy_level == PUBLIC
         assert response.data["version"]["id"] == version.pk
 
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_external_version_type(self, storages_mock, send_build_status):
-        self._mock_storage(storages_mock)
+        storage_mock = self._mock_storage(storages_mock)
         self.data["version"] = {
             "name": "123",
             "type": EXTERNAL,
@@ -197,11 +194,36 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         }
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
+
+        build = Build.objects.get(pk=response.data["build"]["id"])
+        assert build.project == self.project
+        assert build.commit == "b" * 40
+        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.is_uploaded
+
         version = self.project.versions.get(verbose_name="123", type=EXTERNAL)
         assert version.identifier == "123"
+        assert version.privacy_level == PUBLIC
+        assert version.active
+
+        assert (
+            response.data["upload_url"]["url"]
+            == storage_mock.generate_presigned_post.return_value["url"]
+        )
+        storage_mock.generate_presigned_post.assert_called_once_with(
+            key=build.uploaded_artifacts_storage_path,
+            expires_in=mock.ANY,
+            content_type="application/zip",
+            max_size=mock.ANY,
+        )
+        send_build_status.delay.assert_called_once_with(
+            build.pk,
+            "b" * 40,
+            BUILD_STATUS_PENDING,
+        )
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_private_version_allowed(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
@@ -217,7 +239,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     @mock.patch("readthedocs.core.utils.app")
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_cancels_running_builds_for_same_version(self, storages_mock, send_build_status, app_mock):
         self._mock_storage(storages_mock)
@@ -246,7 +268,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert running_build.pk != response.data["build"]["id"]
 
     @override_settings(RTD_DOCKER_COMPOSE=True, USING_AWS=False)
-    @mock.patch("readthedocs.upload.api.views.send_build_status")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_docker_compose_replaces_storage_hostname(self, storages_mock, send_build_status):
         storage_mock = self._mock_storage(storages_mock)
@@ -354,12 +376,12 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         storage_mock.exists.assert_called_once_with(self.build.uploaded_artifacts_storage_path)
 
-    @mock.patch("readthedocs.upload.api.views.process_uploaded_build")
+    @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.upload.api.views.storages")
-    def test_success_triggers_processing_task(self, storages_mock, process_uploaded_build):
+    def test_success_triggers_processing_task(self, storages_mock, app_mock):
         storage_mock = storages_mock.__getitem__.return_value
         storage_mock.exists.return_value = True
-        process_uploaded_build.apply_async.return_value = mock.Mock(id="task-id-123")
+        app_mock.send_task.return_value = mock.Mock(id="task-id-123")
 
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_202_ACCEPTED
@@ -367,30 +389,6 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         self.build.refresh_from_db()
         assert self.build.task_id == "task-id-123"
 
-        process_uploaded_build.apply_async.assert_called_once()
-        call_kwargs = process_uploaded_build.apply_async.call_args.kwargs
-        assert call_kwargs["kwargs"]["build_id"] == self.build.id
-        assert "countdown" not in call_kwargs
-
-    @mock.patch("readthedocs.upload.api.views.process_uploaded_build")
-    @mock.patch("readthedocs.upload.api.views.storages")
-    @mock.patch.object(Build.objects, "concurrent")
-    def test_success_delayed_when_concurrency_limit_reached(
-        self, concurrent_mock, storages_mock, process_uploaded_build
-    ):
-        concurrent_mock.return_value = (True, 5, 4)
-        storage_mock = storages_mock.__getitem__.return_value
-        storage_mock.exists.return_value = True
-        process_uploaded_build.apply_async.return_value = mock.Mock(id="task-id-456")
-
-        response = self.client.post(self.url, self.data)
-        assert response.status_code == status.HTTP_202_ACCEPTED
-
-        call_kwargs = process_uploaded_build.apply_async.call_args.kwargs
-        assert "countdown" in call_kwargs
-
-        notification = Notification.objects.get(
-            attached_to_content_type__model="build",
-            attached_to_id=self.build.pk,
-        )
-        assert notification.message_id == BuildMaxConcurrencyError.LIMIT_REACHED
+        app_mock.send_task.assert_called_once()
+        call_kwargs = app_mock.send_task.call_args.kwargs
+        assert call_kwargs["kwargs"]["build_pk"] == self.build.id
