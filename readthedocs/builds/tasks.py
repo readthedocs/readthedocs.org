@@ -798,6 +798,11 @@ def run_post_build_tasks(build_pk):
     )
 
     if build.success:
+        if build.is_uploaded and build.version:
+            version = build.version
+            version.is_uploaded = True
+            version.save(update_fields=["is_uploaded"])
+
         index_build.delay(build_id=build.pk)
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
