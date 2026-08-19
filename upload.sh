@@ -2,7 +2,7 @@
 
 # Define your variables
 RTD_TOKEN=${RTD_TOKEN:-"your_default_token_here"}
-RTD_UPLOAD_API="http://devthedocs.org/api/v3/upload"
+RTD_UPLOAD_API=${RTD_UPLOAD_API:-"http://devthedocs.org/api/v3/upload"}
 RTD_PROJECT=${RTD_PROJECT:-"test-builds"}
 RTD_OUTPUT_HTML=${RTD_OUTPUT_HTML:-"output/html"}
 # Make it an absolute path.
@@ -68,7 +68,8 @@ done < <(echo "$RESPONSE" | jq -r '.upload_url.fields | to_entries[] | "\(.key)=
 # 4. Execute the Upload and capture the HTTP status code
 echo "Uploading file..."
 # -o /dev/null hides the XML response body from S3, -w "%{http_code}" extracts just the status code
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+# -f turns 4xx/5xx into a non-zero exit, so --retry-all-errors retries them.
+HTTP_STATUS=$(curl -sf --retry 5 --retry-all-errors --retry-delay 1 -o /dev/null -w "%{http_code}" -X POST \
   "${eval_args[@]}" \
   -F "file=@$FILE_TO_UPLOAD;type=application/zip" \
   "$UPLOAD_URL")
