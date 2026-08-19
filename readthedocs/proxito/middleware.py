@@ -27,6 +27,7 @@ from readthedocs.core.unresolver import InvalidXRTDSlugHeaderError
 from readthedocs.core.unresolver import SuspiciousHostnameError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import AddonsConfig
 from readthedocs.proxito.cache import add_cache_tags
 from readthedocs.proxito.cache import cache_response
@@ -194,10 +195,24 @@ class ProxitoMiddleware(MiddlewareMixin):
             cache_response(response, force=False)
 
     def add_x_robots_tag_headers(self, request, response):
-        """Add `X-Robots-Tag: noindex` header for external versions."""
+        """
+        Add `X-Robots-Tag: noindex` header to keep documentation out of search engines.
+
+        The header is added to external versions,
+        and to projects owned by an organization on trial (to fight spam).
+        """
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_external_domain:
+        if not unresolved_domain:
+            return
+
+        if unresolved_domain.is_from_external_domain:
             response["X-Robots-Tag"] = "noindex"
+            return
+
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            project = unresolved_domain.project
+            if Organization.objects.on_trial().filter(projects=project).exists():
+                response["X-Robots-Tag"] = "noindex"
 
     def _set_request_attributes(self, request, unresolved_domain):
         """
