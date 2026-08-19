@@ -919,7 +919,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             "Project with {slug_name}={value} is not valid as subproject"
         )
 
-    def validate(self, data):  # pylint: disable=arguments-renamed
+    def validate(self, data):
         self.parent_project.is_valid_as_superproject(serializers.ValidationError)
 
         # Alias is optional, it defaults to the child's slug when not given.
