@@ -2,7 +2,7 @@
 
 # Define your variables
 RTD_TOKEN=${RTD_TOKEN:-"your_default_token_here"}
-RTD_UPLOAD_API="http://devthedocs.org/api/v3/upload"
+RTD_UPLOAD_API=${RTD_UPLOAD_API:-"http://devthedocs.org/api/v3/upload"}
 RTD_PROJECT=${RTD_PROJECT:-"test-builds"}
 RTD_OUTPUT_HTML=${RTD_OUTPUT_HTML:-"output/html"}
 # Make it an absolute path.
