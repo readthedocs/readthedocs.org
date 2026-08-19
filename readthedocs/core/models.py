@@ -30,9 +30,6 @@ class UserProfile(TimeStampedModel):
         related_name="profile",
         on_delete=models.CASCADE,
     )
-    # Shown on the users profile
-    homepage = models.CharField(_("Homepage"), max_length=100, blank=True)
-
     # User configuration options
     allow_ads = models.BooleanField(
         _("See paid advertising"),
