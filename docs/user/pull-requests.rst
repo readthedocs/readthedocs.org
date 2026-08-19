@@ -2,8 +2,7 @@ Pull request previews
 =====================
 
 Read the Docs builds and previews your documentation for every new pull request.
-Previewing changes during review makes it
-easier to catch formatting and display issues before they go live.
+Previewing changes during review makes it easier to catch formatting and display issues before they go live.
 
 Pull request previews are enabled by default on new projects.
 You can turn them off from :guilabel:`Settings` → :guilabel:`Pull request builds`.

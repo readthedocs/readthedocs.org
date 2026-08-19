@@ -4,8 +4,8 @@ How to configure pull request builds
 In this section, you can learn how to configure :doc:`pull request builds </pull-requests>`.
 
 Pull request builds are enabled by default on new projects.
-Your Read the Docs project needs to be connected to a repository from a supported Git provider,
-see `Limitations`_ for more information.
+Your Read the Docs project needs to be connected to a repository from a supported Git provider.
+See `Limitations`_ for more information.
 
 To enable or disable pull request builds:
 
