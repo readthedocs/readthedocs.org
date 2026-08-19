@@ -12,6 +12,7 @@ from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
@@ -112,10 +113,17 @@ class UploadInitiateView(APIv3Settings, APIView):
         )
 
     def _get_or_create_version(self, *, project, name, version_type, privacy_level):
-        """Get or create a version for the given project."""
+        """
+        Get or create a version for the given project.
+
+        If the version already exists, it will be updated with the new privacy level and set to active.
+        """
         version = project.versions.filter(verbose_name=name, type=version_type).first()
         if version:
+            version.identifier = name
             version.privacy_level = privacy_level
+            version.state = EXTERNAL_VERSION_STATE_OPEN
+            version.active = True
             version.save()
             return version
 
@@ -125,6 +133,7 @@ class UploadInitiateView(APIv3Settings, APIView):
             type=version_type,
             identifier=name,
             privacy_level=privacy_level,
+            state=EXTERNAL_VERSION_STATE_OPEN,
             active=True,
         )
         return version

@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
@@ -150,6 +151,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert version.identifier == "main"
         assert version.privacy_level == PUBLIC
         assert version.active
+        assert version.state == EXTERNAL_VERSION_STATE_OPEN
 
         assert (
             response.data["upload_url"]["url"]
@@ -171,8 +173,11 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             Version,
             project=self.project,
             verbose_name="main",
+            identifier="foo",
             type=BRANCH,
             privacy_level=PRIVATE,
+            active=False,
+            state=None,
         )
 
         response = self.client.post(self.url, self.data)
@@ -180,8 +185,11 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert self.project.versions.filter(verbose_name="main", type=BRANCH).count() == 1
 
         version.refresh_from_db()
-        assert version.privacy_level == PUBLIC
         assert response.data["version"]["id"] == version.pk
+        assert version.identifier == "main"
+        assert version.privacy_level == PUBLIC
+        assert version.active
+        assert version.state == EXTERNAL_VERSION_STATE_OPEN
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")

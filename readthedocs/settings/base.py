@@ -1222,12 +1222,6 @@ class CommunityBaseSettings(Settings):
     # which is limited by the concurrency limit, but has automatic retries,
     # so the user doesn't have to worry about it.
     RTD_UPLOAD_API_MAX_PENDING_UPLOADS = 50
-    # Hard and soft time limit for the task to download, unzip, check,
-    # and upload the artifacts to their final destination.
-    # 15 minutes in seconds.
-    RTD_UPLOAD_API_PROCESS_UPLOAD_TIME_LIMIT = 15 * 60
-    # 12 minutes in seconds.
-    RTD_UPLOAD_API_PROCESS_UPLOAD_SOFT_TIME_LIMIT = 12 * 60
 
     # Time the upload URL is valid for after it is generated.
     # Should be enough time for users to upload the artifacts with an slow connection.
