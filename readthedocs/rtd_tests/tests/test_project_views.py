@@ -402,9 +402,25 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(29):
+        with self.assertNumQueries(28):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
+
+    def test_dashboard_pull_request_previews_announcement(self):
+        announcement = "projects/partials/announcements/pull-request-previews.html"
+        # NOTE: create more than 3 projects, as the example projects
+        # announcement takes precedence for new users.
+        for i in range(3):
+            get(Project, slug=f"project-{i}", users=[self.user])
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] == announcement
+
+        # Once the user has a pull request preview, the announcement is gone.
+        get(Version, project=self.project, type=EXTERNAL, slug="1", verbose_name="1")
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] != announcement
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
