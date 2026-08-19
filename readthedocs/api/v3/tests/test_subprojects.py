@@ -188,6 +188,51 @@ class SubprojectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-subprojects-list_POST"),
         )
 
+    def test_projects_subprojects_list_post_without_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+
+        assert response.status_code == 201
+        assert self.project.subprojects.count() == 2
+        # The alias defaults to the child's slug when not given.
+        assert response.json()["alias"] == newproject.slug
+
+    def test_projects_subprojects_list_post_with_null_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+            "alias": None,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data, format="json")
+
+        assert response.status_code == 201
+        assert self.project.subprojects.count() == 2
+        # The alias defaults to the child's slug when explicitly set to null.
+        assert response.json()["alias"] == newproject.slug
+
     def test_projects_subprojects_list_post_with_slash_in_alias(self):
         newproject = self._create_new_project()
 

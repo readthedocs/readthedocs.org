@@ -919,23 +919,26 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             "Project with {slug_name}={value} is not valid as subproject"
         )
 
-    def validate_alias(self, value):
+    def validate(self, data):  # pylint: disable=arguments-renamed
+        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+
+        # Alias is optional, it defaults to the child's slug when not given.
+        alias = data.get("alias") or data["child"].slug
+
         # Check there is not a subproject with this alias already
-        subproject = self.parent_project.subprojects.filter(alias=value)
+        subproject = self.parent_project.subprojects.filter(alias=alias)
         if subproject.exists():
             raise serializers.ValidationError(
-                _("A subproject with this alias already exists"),
+                {"alias": _("A subproject with this alias already exists")},
             )
 
         validate_subproject_alias(
             parent_project=self.parent_project,
-            alias=value,
+            alias=alias,
             error_class=serializers.ValidationError,
         )
-        return value
 
-    def validate(self, data):  # pylint: disable=arguments-renamed
-        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+        data["alias"] = alias
         return data
 
 
