@@ -1,4 +1,5 @@
 #!/bin/bash
+# Internal upload script for testing only until we have a proper upload client.
 
 # Define your variables
 RTD_TOKEN=${RTD_TOKEN:-"your_default_token_here"}
