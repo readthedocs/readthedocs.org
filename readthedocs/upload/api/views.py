@@ -124,6 +124,7 @@ class UploadInitiateView(APIv3Settings, APIView):
             version.privacy_level = privacy_level
             version.state = EXTERNAL_VERSION_STATE_OPEN
             version.active = True
+            version.machine = False
             version.save()
             return version
 
