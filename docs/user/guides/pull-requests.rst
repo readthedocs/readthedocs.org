@@ -27,7 +27,10 @@ Build overview
 
 You can enable a build overview comment to be added to your pull requests when changes are detected between the pull request and the latest version of the documentation.
 This comment includes a list of the files that changed, and links to view the built documentation.
-See :ref:`visual-diff:Show build overview in pull requests` for more information.
+
+.. seealso::
+    :ref:`visual-diff:Show build overview in pull requests`
+        How to configure your project to enable build overviews
 
 Privacy levels
 --------------
