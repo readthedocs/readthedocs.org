@@ -433,7 +433,18 @@ class GitHubAppService(Service):
                 context=context,
             )
             return True
-        except GithubException:
+        except RateLimitExceededException:
+            log.info(
+                "Rate limit exceeded while sending build status to GitHub",
+                project=project.slug,
+                build=build.pk,
+                commit=commit,
+                status=status,
+                exc_info=True,
+            )
+            # THis is a temporary error, we raise the exception so the caller can retry later.
+            raise
+        except GithubException as e:
             log.info(
                 "Failed to send build status to GitHub",
                 project=project.slug,
@@ -442,7 +453,12 @@ class GitHubAppService(Service):
                 status=status,
                 exc_info=True,
             )
-            return False
+            # if we lost access to the repository,
+            # return False, so the caller can handle it.
+            if e.status in [404, 403]:
+                return False
+            # Anythin else, we raise the exception, since it may be a temporary error.
+            raise
 
     def get_clone_token(self, project):
         """

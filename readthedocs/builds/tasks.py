@@ -1,5 +1,6 @@
 import json
 
+from github import GithubException
 import requests
 import structlog
 from django.conf import settings
@@ -216,7 +217,13 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     return True
 
 
-@app.task(max_retries=3, default_retry_delay=60, queue="web")
+@app.task(
+    queue="web",
+    max_retries=3,
+    default_retry_delay=60,
+    # If GitHub is down or we hit a rate limit, we want to retry the task.
+    autoretry_for=(GithubException,),
+)
 def send_build_status(build_pk, commit, status):
     """
     Send build status to GitHub/GitLab for a given build/commit.
