@@ -192,9 +192,11 @@ Triggering builds from pull requests
 Read the Docs can :doc:`trigger builds from GitHub pull requests </pull-requests>`
 and show you a preview of the documentation with those changes.
 
-To trigger builds from pull requests:
+This is enabled by default on new projects.
+You can check it under the :guilabel:`⚙ Admin` menu,
+in :guilabel:`Settings`, then :guilabel:`Pull request builds`.
 
-#. Click the :guilabel:`Settings` link on the left under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox, and click the :guilabel:`Save` button at the bottom of the page.
+To see it in action:
 
 #. Make some changes to your documentation:
 
