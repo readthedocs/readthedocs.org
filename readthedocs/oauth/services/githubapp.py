@@ -408,6 +408,10 @@ class GitHubAppService(Service):
         """
         Create a commit status on GitHub for the given build.
 
+        Returns True if the status was sent successfully,
+        False if the repository is no longer accessible to the installation,
+        or raises an exception if there was a temporary error.
+
         See https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status.
         """
         project = build.project
@@ -442,7 +446,7 @@ class GitHubAppService(Service):
                 status=status,
                 exc_info=True,
             )
-            # This is a temporary error, we raise the exception so the caller can retry later.
+            # This is a temporary error.
             raise
         except GithubException as e:
             log.info(

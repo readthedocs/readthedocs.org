@@ -8,7 +8,6 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from github import GithubException
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
@@ -217,13 +216,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     return True
 
 
-@app.task(
-    queue="web",
-    max_retries=3,
-    default_retry_delay=60,
-    # If GitHub is down or we hit a rate limit, we want to retry the task.
-    autoretry_for=(GithubException,),
-)
+@app.task(max_retries=3, default_retry_delay=60, queue="web")
 def send_build_status(build_pk, commit, status):
     """
     Send build status to GitHub/GitLab for a given build/commit.
