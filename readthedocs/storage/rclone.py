@@ -123,6 +123,17 @@ class BaseRClone:
         """
         return self.execute("sync", args=[source, self.get_target(destination)])
 
+    def copy_to_local(self, source, destination):
+        """
+        Run the `rclone copy` command from the remote to a local directory.
+
+        See https://rclone.org/commands/rclone_copy/.
+
+        :params source: Remote path to the source directory.
+        :params destination: Local path to the destination directory.
+        """
+        return self.execute("copy", args=[self.get_target(source), destination])
+
 
 class RCloneLocal(BaseRClone):
     """
