@@ -6,6 +6,7 @@ from django.utils import timezone
 from github import Auth
 from github import GithubIntegration
 from requests_oauthlib import OAuth2Session
+from urllib3.util.retry import Retry
 
 
 log = structlog.get_logger(__name__)
@@ -89,4 +90,12 @@ def get_gh_app_client() -> GithubIntegration:
         # Fetch the maximum number of items per page (default is 30),
         # so paginated requests consume less of the API rate limit.
         per_page=100,
+        # Retry up to 3 times on server errors (5xx), and rate limit errors (429, 403).
+        retry=Retry(
+            total=3,
+            backoff_factor=0.5,  # 0.5, 1, 2 seconds
+            # Retry on all methods.
+            allowed_methods=None,
+            status_forcelist=(500, 502, 503, 504, 429, 403),
+        ),
     )
