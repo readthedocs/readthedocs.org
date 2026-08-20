@@ -116,7 +116,6 @@ sphinx==8.2.3
     #   sphinx-tabs
     #   sphinxcontrib-httpdomain
     #   sphinxcontrib-jquery
-    #   sphinxcontrib-video
     #   sphinxemoji
     #   sphinxext-opengraph
 sphinx-autobuild==2025.8.25
@@ -153,8 +152,6 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sphinxcontrib-video==0.4.2
-    # via -r requirements/docs.in
 sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
