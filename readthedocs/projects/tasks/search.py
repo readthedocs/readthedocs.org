@@ -138,14 +138,28 @@ class FileManifestIndexer(Indexer):
         self.post_build_overview = post_build_overview
 
     def process(self, html_file: HTMLFile, sync_id: int):
-        self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
+        processed_json = html_file.processed_json
+        self._hashes[html_file.path] = (
+            processed_json["main_content_hash"],
+            processed_json["text_hash"],
+            processed_json["markup_hash"],
+        )
 
     def collect(self, sync_id: int):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
-                for path, content_hash in self._hashes.items()
+                FileTreeDiffManifestFile(
+                    path=path,
+                    main_content_hash=main_content_hash,
+                    text_hash=text_hash,
+                    markup_hash=markup_hash,
+                )
+                for path, (
+                    main_content_hash,
+                    text_hash,
+                    markup_hash,
+                ) in self._hashes.items()
             ],
         )
         write_manifest(self.version, manifest)

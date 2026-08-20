@@ -22,18 +22,26 @@ def _mock_open(content):
     return f
 
 
-def _mock_manifest(build_id: int, files: dict[str, str]):
-    return _mock_open(
-        json.dumps(
-            {
-                "build": {"id": build_id},
-                "files": {
-                    path: {"main_content_hash": content_hash}
-                    for path, content_hash in files.items()
-                },
-            }
-        )
-    )
+def _mock_manifest(
+    build_id: int,
+    files: dict[str, str],
+    text_hashes: dict[str, str] | None = None,
+):
+    """
+    Mock the manifest file of a version.
+
+    ``files`` maps each path to the hash of its HTML, ``text_hashes`` to the
+    hash of its content, defaulting to the same hash. Manifests written before
+    the content hash was introduced don't have it, pass an empty dict for those.
+    """
+    if text_hashes is None:
+        text_hashes = files
+    manifest_files = {}
+    for path, main_content_hash in files.items():
+        manifest_files[path] = {"main_content_hash": main_content_hash}
+        if path in text_hashes:
+            manifest_files[path]["text_hash"] = text_hashes[path]
+    return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
 
 
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
@@ -121,6 +129,37 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert not diff.outdated
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_manifests_without_content_hashes(self, storage_open):
+        """Manifests written before the content hash compare by their HTML hash."""
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "hash-changed"}, text_hashes={})(),
+            _mock_manifest(self.build_b.id, {"index.html": "hash1"}, text_hashes={})(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert [file.path for file in diff.modified] == ["index.html"]
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_one_manifest_without_content_hashes(self, storage_open):
+        """When one side has no content hash, both sides compare by their HTML hash."""
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, {"index.html": "content1"})(),
+            _mock_manifest(self.build_b.id, {"index.html": "html1"}, text_hashes={})(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.modified == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_prefers_content_hashes(self, storage_open):
+        """A page whose HTML changed but whose content didn't isn't modified."""
+        text_hashes = {"index.html": "same-content"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, text_hashes)(),
+            _mock_manifest(self.build_b.id, {"index.html": "html2"}, text_hashes)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.modified == []
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_missing_manifest(self, storage_open):
