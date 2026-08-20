@@ -442,7 +442,7 @@ class GitHubAppService(Service):
                 status=status,
                 exc_info=True,
             )
-            # THis is a temporary error, we raise the exception so the caller can retry later.
+            # This is a temporary error, we raise the exception so the caller can retry later.
             raise
         except GithubException as e:
             log.info(

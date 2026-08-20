@@ -1,6 +1,5 @@
 import json
 
-from github import GithubException
 import requests
 import structlog
 from django.conf import settings
@@ -9,6 +8,7 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from github import GithubException
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
