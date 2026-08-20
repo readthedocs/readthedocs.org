@@ -13,6 +13,7 @@ import structlog
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_METHODS
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -36,6 +37,12 @@ from readthedocs.proxito.redirects import redirect_to_https
 
 from .exceptions import DomainDNSHttp404
 from .exceptions import ProjectHttp404
+
+
+#: How long we cache whether a project should be kept out of search engines.
+#: Matched to the spam re-check cadence, so clearing a project's score takes
+#: effect without an explicit cache purge.
+NOINDEX_CACHE_TIMEOUT = 60 * 60
 
 
 log = structlog.get_logger(__name__)
@@ -199,7 +206,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         Add `X-Robots-Tag: noindex` header to keep documentation out of search engines.
 
         The header is added to external versions,
-        and to projects owned by an organization on trial (to fight spam).
+        to projects owned by an organization on trial (to fight spam),
+        and to delisted and spam projects.
         """
         unresolved_domain = request.unresolved_domain
         if not unresolved_domain:
@@ -209,10 +217,43 @@ class ProxitoMiddleware(MiddlewareMixin):
             response["X-Robots-Tag"] = "noindex"
             return
 
+        project = unresolved_domain.project
+
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            project = unresolved_domain.project
             if Organization.objects.on_trial().filter(projects=project).exists():
                 response["X-Robots-Tag"] = "noindex"
+                return
+
+        if self._is_search_engine_denied(project):
+            response["X-Robots-Tag"] = "noindex"
+
+    def _is_search_engine_denied(self, project):
+        """
+        Whether this project's documentation should be kept out of search engines.
+
+        This covers delisted projects and projects detected as spam.
+        We serve ``noindex`` rather than relying only on the ``Disallow`` we
+        return in ``robots.txt``: a disallowed page that is already indexed
+        stays indexed, because the crawler never fetches it again and so never
+        sees that we want it dropped.
+        """
+        if project.delisted:
+            return True
+
+        if "readthedocsext.spamfighting" not in settings.INSTALLED_APPS:
+            return False
+
+        cache_key = f"proxito:noindex:{project.slug}"
+        denied = cache.get(cache_key)
+        if denied is None:
+            from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
+
+            denied = is_robotstxt_denied(project)
+            # TODO: denormalize the spam score onto the project so it can be read
+            # directly and this cache can go away. It is summed from the matched
+            # rules on every read, which is too expensive for the hot path.
+            cache.set(cache_key, denied, timeout=NOINDEX_CACHE_TIMEOUT)
+        return denied
 
     def _set_request_attributes(self, request, unresolved_domain):
         """

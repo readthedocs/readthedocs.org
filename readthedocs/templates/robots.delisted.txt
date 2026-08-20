@@ -1,4 +1,10 @@
 # Delisted project, removing from search indexing
 # See: https://docs.readthedocs.io/en/stable/unofficial-projects.html
+#
+# Crawling is allowed on purpose: these pages are served with an
+# `X-Robots-Tag: noindex` header, and a search engine has to fetch them to see
+# it. Disallowing the crawl here instead would leave any already-indexed pages
+# in search results, because the crawler would never come back to find the
+# noindex.
 User-agent: *
-Disallow: /
+Disallow: # Allow everything

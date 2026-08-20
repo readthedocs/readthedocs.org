@@ -4,6 +4,7 @@ from corsheaders.middleware import (
     ACCESS_CONTROL_ALLOW_METHODS,
     ACCESS_CONTROL_ALLOW_ORIGIN,
 )
+from django.core.cache import cache
 from django.test import override_settings
 from django_dynamic_fixture import get
 from djstripe import models as djstripe
@@ -422,6 +423,17 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["X-Robots-Tag"], "noindex")
+
+    def test_x_robots_tag_header_delisted_project(self):
+        cache.clear()
+        self.project.delisted = True
+        self.project.save()
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert r["X-Robots-Tag"] == "noindex"
 
     def _create_stripe_subscription(self, status, price_id):
         price = get(djstripe.Price, id=price_id)
