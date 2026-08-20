@@ -233,6 +233,33 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         # The alias defaults to the child's slug when explicitly set to null.
         assert response.json()["alias"] == newproject.slug
 
+    def test_projects_subprojects_list_post_with_invalid_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+            "alias": "subproject/alias",
+        }
+        invalid_alias = [
+            "alias with spaces",
+            "alias!with@special-char$",
+            "alias.with.periods",
+            "alias:with;some.punctuation",
+        ]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        for alias in invalid_alias:
+            data["alias"] = alias
+            response = self.client.post(url, data)
+            assert response.status_code == 400, f"Alias '{alias}' should be invalid"
+            assert self.project.subprojects.count() == 1
+
     def test_projects_subprojects_list_post_with_slash_in_alias(self):
         newproject = self._create_new_project()
 
