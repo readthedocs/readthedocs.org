@@ -1144,7 +1144,7 @@ class GitHubAppTests(TestCase):
         success = service.send_build_status(
             build=build, commit=commit, status=BUILD_STATUS_SUCCESS
         )
-        self.assertFalse(success)
+        assert success is False
         assert status_api_request.called
 
     @requests_mock.Mocker(kw="request")
@@ -1175,7 +1175,7 @@ class GitHubAppTests(TestCase):
         success = service.send_build_status(
             build=build, commit=commit, status=BUILD_STATUS_SUCCESS
         )
-        self.assertFalse(success)
+        assert success is False
         assert status_api_request.called
 
     @requests_mock.Mocker(kw="request")
@@ -1203,7 +1203,7 @@ class GitHubAppTests(TestCase):
         )
 
         service = self.installation.service
-        with self.assertRaises(RateLimitExceededException):
+        with pytest.raises(RateLimitExceededException):
             service.send_build_status(
                 build=build, commit=commit, status=BUILD_STATUS_SUCCESS
             )
@@ -1234,7 +1234,7 @@ class GitHubAppTests(TestCase):
         )
 
         service = self.installation.service
-        with self.assertRaises(GithubException):
+        with pytest.raises(GithubException):
             service.send_build_status(
                 build=build, commit=commit, status=BUILD_STATUS_SUCCESS
             )
