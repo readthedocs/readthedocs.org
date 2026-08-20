@@ -89,4 +89,7 @@ def get_gh_app_client() -> GithubIntegration:
         # Fetch the maximum number of items per page (default is 30),
         # so paginated requests consume less of the API rate limit.
         per_page=100,
+        # Interacting with a nested resource doesn't make an extra
+        # request to fetch the parent resource, which saves API calls.
+        lazy=True,
     )
