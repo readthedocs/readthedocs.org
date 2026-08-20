@@ -743,6 +743,11 @@ class Build(models.Model):
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
+    dispatched_date = models.DateTimeField(
+        _("Dispatched date"),
+        null=True,
+        blank=True,
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.
