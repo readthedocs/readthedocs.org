@@ -6,6 +6,7 @@ import pytest
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 import requests_mock
+from github import GithubException
 from github import RateLimitExceededException
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
@@ -1114,6 +1115,130 @@ class GitHubAppTests(TestCase):
             # docs, since no new documentation was produced for this commit.
             "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
         }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_repository_not_accessible(self, request):
+        """A 404 from GitHub means we lost access to the repository, so we return False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            status_code=404,
+            json={"message": "Not Found"},
+        )
+
+        service = self.installation.service
+        success = service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert success is False
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_forbidden(self, request):
+        """A non-rate-limit 403 also means we lost access, so we return False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            status_code=403,
+            json={"message": "Resource not accessible by integration"},
+        )
+
+        service = self.installation.service
+        success = service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert success is False
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_rate_limit_exceeded(self, request):
+        """Rate limit errors are temporary, so we raise instead of returning False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            status_code=403,
+            json={"message": "API rate limit exceeded for installation ID 1111."},
+        )
+
+        service = self.installation.service
+        with pytest.raises(RateLimitExceededException):
+            service.send_build_status(
+                build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+            )
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_server_error(self, request):
+        """Non rate-limit, non 404/403 errors are temporary, so we raise instead of returning False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            status_code=500,
+            json={"message": "Internal Server Error"},
+        )
+
+        service = self.installation.service
+        with pytest.raises(GithubException):
+            service.send_build_status(
+                build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+            )
+        assert status_api_request.called
 
     @requests_mock.Mocker(kw="request")
     def test_get_clone_token(self, request):
