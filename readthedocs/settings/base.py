@@ -6,6 +6,7 @@ import socket
 import subprocess
 
 import structlog
+from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from django.conf.global_settings import PASSWORD_HASHERS
@@ -97,6 +98,36 @@ class CommunityBaseSettings(Settings):
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
+    @property
+    def RTD_RESTRICTED_DOMAINS(self):
+        """
+        Domains that are restricted for users to use as custom domains.
+
+        This is to avoid users hijacking our domains.
+        We return the last two parts of our public domains to cover all subdomains,
+        e.g, if our domain is "app.readthedocs.org", we restrict all subdomains from "readthedocs.org".
+
+        If your domain is like "readthedocs.co.uk", you might want to override this property.
+
+        We recommend disallowing:
+
+        - Dashboard domain
+        - Public domain (from where documentation pages are served)
+        - External version domain (from where PR previews are served)
+        - Any public domains that point to the validation record (e.g., CNAME to readthedocs.io)
+        """
+        domains = [
+            self.PRODUCTION_DOMAIN,
+            self.PUBLIC_DOMAIN,
+            self.RTD_EXTERNAL_VERSION_DOMAIN,
+            "rtfd.io",
+            "rtfd.org",
+        ]
+        return [
+            ".".join(domain.split(".")[-2:])
+            for domain in domains
+        ]
+
     # Doc Builder Backends
     MKDOCS_BACKEND = "readthedocs.doc_builder.backends.mkdocs"
     SPHINX_BACKEND = "readthedocs.doc_builder.backends.sphinx"
@@ -127,15 +158,11 @@ class CommunityBaseSettings(Settings):
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = "DENY"
 
-    # Content Security Policy
-    # https://django-csp.readthedocs.io/
-    CSP_DEFAULT_SRC = None  # This could be improved
-    CSP_FRAME_ANCESTORS = ("'none'",)
-    CSP_OBJECT_SRC = ("'none'",)
-    CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = False
-    CSP_EXCLUDE_URL_PREFIXES = ("/admin/",)
-    RTD_CSP_UPDATE_HEADERS = {}
+    # Pagination
+    # Only show 1 page on either side of the current page
+    PAGINATION_DEFAULT_WINDOW = 1
+    # Only show 1 page at the beginning and end 
+    PAGINATION_DEFAULT_MARGIN = 1
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -144,9 +171,12 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
+    RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
+    RTD_BUILDS_MAX_CONSECUTIVE_FAILURES = 25  # The project is disabled when hitting this limit on the default version
     RTD_BUILD_STATUS_API_NAME = "docs/readthedocs"
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
@@ -247,16 +277,15 @@ class CommunityBaseSettings(Settings):
             "rest_framework_api_key",
             "generic_relations",
             "corsheaders",
-            "annoying",
             "django_extensions",
             "crispy_forms",
             "django_elasticsearch_dsl",
             "django_filters",
-            "polymorphic",
             "simple_history",
             "djstripe",
             "django_celery_beat",
             "django_safemigrate.apps.SafeMigrateConfig",
+            "django_structlog",
             # our apps
             "readthedocs.projects",
             "readthedocs.organizations",
@@ -338,7 +367,7 @@ class CommunityBaseSettings(Settings):
             "readthedocs.core.middleware.UpdateCSPMiddleware",
             "simple_history.middleware.HistoryRequestMiddleware",
             "readthedocs.core.logs.ReadTheDocsRequestMiddleware",
-            "django_structlog.middlewares.CeleryMiddleware",
+            "django_structlog.middlewares.RequestMiddleware",
         ]
         if self.SHOW_DEBUG_TOOLBAR:
             middlewares.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
@@ -382,8 +411,6 @@ class CommunityBaseSettings(Settings):
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, "readthedocs", "templates")
     DOCROOT = os.path.join(SITE_ROOT, "user_builds")
     LOGS_ROOT = os.path.join(SITE_ROOT, "logs")
-    PRODUCTION_ROOT = os.path.join(SITE_ROOT, "prod_artifacts")
-    PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, "media")
 
     # Assets and media
     STATIC_ROOT = os.path.join(SITE_ROOT, "static")
@@ -401,6 +428,108 @@ class CommunityBaseSettings(Settings):
         "readthedocs.core.finders.DebugToolbarFinder",
     ]
     PYTHON_MEDIA = False
+
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = False
+
+    # Default to disallow everything, and then allow specific sources on each directive.
+    CSP_DEFAULT_SRC = ["'none'"]
+    CSP_IMG_SRC = [
+        "'self'",
+        # Some of our styles include images as data URLs.
+        "data:",
+        # We load avatars from GitHub, GitLab, and Bitbucket,
+        # and other services. They don't use a single specific domain,
+        # so we just allow any https domain here.
+        "https:",
+    ]
+    CSP_BASE_URI = ["'self'"]
+    CSP_FRAME_SRC = [
+        # Stripe (used for Gold subscriptions)
+        "https://js.stripe.com/",
+    ]
+    RTD_CSP_UPDATE_HEADERS = {}
+
+    @property
+    def CSP_CONNECT_SRC(self):
+        CSP_CONNECT_SRC = [
+            "'self'",
+            # Allow sentry to report errors.
+            "https://*.ingest.us.sentry.io",
+            # Allow fontawesome to load.
+            "https://ka-p.fontawesome.com",
+            "https://kit.fontawesome.com",
+            # Plausible analytics
+            "https://plausible.io/api/event",
+        ]
+        CSP_CONNECT_SRC.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        return CSP_CONNECT_SRC
+
+    @property
+    def CSP_SCRIPT_SRC(self):
+        CSP_SCRIPT_SRC = [
+            "'self'",
+            # Some of our JS deps are using eval.
+            "'unsafe-eval'",
+            # Allow fontawesome to load.
+            "https://kit.fontawesome.com",
+            # Stripe (used for Gold subscriptions)
+            "https://js.stripe.com/",
+        ]
+        CSP_SCRIPT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_SCRIPT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_SCRIPT_SRC
+
+    @property
+    def CSP_FONT_SRC(self):
+        CSP_FONT_SRC = [
+            "'self'",
+            # Allow fontawesome to load.
+            "data:",
+            "https://ka-p.fontawesome.com",
+        ]
+        CSP_FONT_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_FONT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_FONT_SRC
+
+    @property
+    def CSP_STYLE_SRC(self):
+        CSP_STYLE_SRC = [
+            "'self'",
+            # We have lots of inline styles!
+            # TODO: we should remove this.
+            "'unsafe-inline'",
+        ]
+        CSP_STYLE_SRC.append(self.STATIC_URL)
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            CSP_STYLE_SRC.append(self.RTD_EXT_THEME_DEV_SERVER)
+        return CSP_STYLE_SRC
+
+    @property
+    def CSP_FORM_ACTION(self):
+        CSP_FORM_ACTION = [
+            "'self'",
+            # Chrome and Safari block form submissions if it redirects to a different domain.
+            # We redirect to external domains for some forms, like login.
+            "https://github.com",
+            "https://gitlab.com",
+            "https://bitbucket.org",
+            "https://id.atlassian.com",
+            "https://accounts.google.com",
+            # We also redirect to Stripe on subscription forms.
+            "https://billing.stripe.com",
+            "https://checkout.stripe.com",
+        ]
+        # Allow our support form to submit to external domains.
+        if self.SUPPORT_FORM_ENDPOINT:
+            CSP_FORM_ACTION.append(self.SUPPORT_FORM_ENDPOINT)
+        return CSP_FORM_ACTION
+
 
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
@@ -493,30 +622,79 @@ class CommunityBaseSettings(Settings):
     USE_I18N = True
     USE_L10N = True
 
+    BUILD_TIME_LIMIT = 900  # seconds
+
+    # Celery task name + queue for the isolated-builders worker.
+    # Must match what the worker registers in
+    # ``readthedocs-builder/worker/tasks.py`` (``@app.task(name=...)``)
+    # and ``worker/celery.py`` (``task_default_queue``). We dispatch by
+    # name (rather than importing the function) so this codebase doesn't
+    # need the ``worker`` package installed.
+    RTD_ISOLATED_BUILDER_TASK_NAME = "worker.tasks.run_build"
+    RTD_ISOLATED_BUILDER_QUEUE = "isolated-builds"
+
+    @property
+    def BUILD_MEMORY_LIMIT(self):
+        """
+        Set build memory limit dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+        """
+        # Our normal default
+        default_memory_limit = "7g"
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            total_memory, memory_limit = self._get_build_memory_limit()
+            memory_limit = f"{memory_limit}m"
+        else:
+            memory_limit = default_memory_limit
+
+        log.info(
+            "Using dynamic build limits.",
+            hostname=socket.gethostname(),
+            memory=memory_limit,
+        )
+        return memory_limit
+
+
     # Celery
     CELERY_APP_NAME = "readthedocs"
-    CELERY_ALWAYS_EAGER = True
-    CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
-    CELERY_SEND_TASK_ERROR_EMAILS = False
-    CELERY_IGNORE_RESULT = True
-    CELERYD_HIJACK_ROOT_LOGGER = False
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
+    CELERY_TASK_SEND_ERROR_EMAILS = False
+    CELERY_TASK_IGNORE_RESULT = True
+    CELERY_WORKER_HIJACK_ROOT_LOGGER = False
     # This stops us from pre-fetching a task that then sits around on the builder
-    CELERY_ACKS_LATE = True
+    CELERY_TASK_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_CREATE_MISSING_QUEUES = True
+    CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+    CELERY_TASK_CREATE_MISSING_QUEUES = True
 
-    CELERY_DEFAULT_QUEUE = "celery"
-    CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-    CELERYBEAT_SCHEDULE = {
-        "quarter-finish-inactive-builds": {
-            "task": "readthedocs.projects.tasks.utils.finish_inactive_builds",
-            "schedule": crontab(minute="*/15"),
+    # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
+    # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 18000, # 5 hours
+    }
+
+    CELERY_TASK_DEFAULT_QUEUE = "celery"
+    CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+    CELERY_BEAT_SCHEDULE = {
+        "every-minute-finish-unhealthy-builds": {
+            "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
+            "schedule": crontab(minute="*"),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
             "task": "readthedocs.search.tasks.delete_old_search_queries_from_db",
             "schedule": crontab(minute=0, hour=0),
+            "options": {"queue": "web"},
+        },
+        "every-day-disable-search-indexing": {
+            "task": "readthedocs.search.tasks.disable_search_indexing_for_projects_without_recent_searches",
+            "schedule": crontab(minute=15, hour=0),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-page-views": {
@@ -526,7 +704,12 @@ class CommunityBaseSettings(Settings):
         },
         "every-day-delete-old-buildata-models": {
             "task": "readthedocs.telemetry.tasks.delete_old_build_data",
-            "schedule": crontab(minute=0, hour=2),
+            "schedule": crontab(minute=0, hour="2"),
+            "options": {"queue": "web"},
+        },
+        "every-day-delete-old-buildconfig-models": {
+            "task": "readthedocs.builds.tasks.remove_orphan_build_config",
+            "schedule": crontab(minute=30, hour=2),
             "options": {"queue": "web"},
         },
         "weekly-delete-old-personal-audit-logs": {
@@ -534,8 +717,8 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(day_of_week="wed", minute=0, hour=7),
             "options": {"queue": "web"},
         },
-        "every-day-resync-sso-organization-users": {
-            "task": "readthedocs.oauth.tasks.sync_remote_repositories_organizations",
+        "every-day-resync-repositories-from-sso-organizations": {
+            "task": "readthedocs.oauth.tasks.sync_remote_repositories_from_sso_organizations",
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
@@ -546,7 +729,6 @@ class CommunityBaseSettings(Settings):
             "kwargs": {
                 "days": 1,
                 "limit": 500,
-                "delete": True,
             },
         },
         "every-30m-delete-inactive-external-versions": {
@@ -576,10 +758,25 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=0, hour=4),
             "options": {"queue": "web"},
         },
+        "every-hour-delete-old-build-objects": {
+            "task": "readthedocs.builds.tasks.delete_old_build_objects",
+            # NOTE: we are running this task with a limit for now
+            # to don't overload the DB with many deletion queries,
+            # since we have lots of objects to delete
+            # TODO: go back to do delete without a limit after we delete the backlog of objects,
+            # or keep less build objects (keep_recent=100, days=365).
+            # It should take around 24 days to delete all the old objects on community,
+            # and 2 days on commercial.
+            "schedule": crontab(minute=22, hour="*"),
+            "options": {"queue": "web"},
+            "kwargs": {"days": 365 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 2_500},
+        },
     }
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
+
+    DJANGO_STRUCTLOG_CELERY_ENABLED = True
 
     # Docker
     DOCKER_ENABLE = False
@@ -610,7 +807,13 @@ class CommunityBaseSettings(Settings):
     # since we can't read their config file image choice before cloning
     RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
-    def _get_docker_memory_limit(self):
+    def _get_build_memory_limit(self):
+        """
+        Return the buld memory limit based on available system memory.
+
+        We subtract ~1000Mb for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
         try:
             total_memory = int(
                 subprocess.check_output(
@@ -623,47 +826,6 @@ class CommunityBaseSettings(Settings):
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
             log.exception("Failed to get memory size, using defaults Docker limits.")
-
-    # Coefficient used to determine build time limit, as a percentage of total
-    # memory. Historical values here were 0.225 to 0.3.
-    DOCKER_TIME_LIMIT_COEFF = 0.25
-
-    @property
-    def DOCKER_LIMITS(self):
-        """
-        Set docker limits dynamically, if in production, based on system memory.
-
-        We do this to avoid having separate build images. This assumes 1 build
-        process per server, which will be allowed to consume all available
-        memory.
-
-        We subtract 750MiB for overhead of processes and base system, and set
-        the build time as proportional to the memory limit.
-        """
-        # Our normal default
-        limits = {
-            "memory": "2g",
-            "time": 900,
-        }
-
-        # Only run on our servers
-        if self.RTD_IS_PRODUCTION:
-            total_memory, memory_limit = self._get_docker_memory_limit()
-            if memory_limit:
-                limits = {
-                    "memory": f"{memory_limit}m",
-                    "time": max(
-                        limits["time"],
-                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
-                    ),
-                }
-        log.info(
-            "Using dynamic docker limits.",
-            hostname=socket.gethostname(),
-            memory=limits["memory"],
-            time=limits["time"],
-        )
-        return limits
 
     # Allauth
     ACCOUNT_ADAPTER = "readthedocs.core.adapters.AccountAdapter"
@@ -697,7 +859,7 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
-                        "priority": 10,
+                        "priority": 20,
                     },
                 },
             ],
@@ -719,7 +881,7 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
-                        "priority": 20,
+                        "priority": 10,
                     },
                 },
             ],
@@ -762,7 +924,6 @@ class CommunityBaseSettings(Settings):
     GITHUB_APP_NAME = "readthedocs"
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
-    RTD_ALLOW_GITHUB_APP = True
 
     @property
     def GITHUB_APP_CLIENT_ID(self):
@@ -807,6 +968,13 @@ class CommunityBaseSettings(Settings):
     DEFAULT_VERSION_PRIVACY_LEVEL = "public"
     ALLOW_ADMIN = True
 
+    # CDN ``max-age`` (in seconds) for redirect responses served by El Proxito.
+    # Redirects need an explicit freshness lifetime or they are bypassed by the
+    # CDN. Permanent redirects (301/308) are cached longer than temporary ones
+    # (302/303/307). This doesn't affect browser caching.
+    RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 1200   # 20 minutes
+    RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 86400  # 24 hours
+
     # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE = "trial-v2-monthly"
@@ -821,17 +989,12 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 500
 
-    # Info from Honza about this:
-    # The key to determine shard number is actually usually not the node count,
-    # but the size of your data.
-    # There are advantages to just having a single shard in an index since
-    # you don't have to do the distribute/collect steps when executing a search.
-    # If your data will allow it (not significantly larger than 40GB)
-    # I would recommend going to a single shard and one replica meaning
-    # any of the two nodes will be able to serve any search without talking to the other one.
-    # Scaling to more searches will then just mean adding a third node
-    # and a second replica resulting in immediate 50% bump in max search throughput.
-
+    # The number of shards depends on the size of the data, 30GB per shard is a good rule to follow.
+    # Everytime we need to do a re-index, make sure to check the size of the index and adjust the
+    # number of shards if needed (change on ops repos). This is a static setting, it can't be changed
+    # after the index is created. In case a change is needed, a new index must be created and data
+    # reindexed. The number of replicas can be changed dynamically, one replica is a good default.
+    # See https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards.
     ES_INDEXES = {
         "project": {
             "name": "project_index",
@@ -845,16 +1008,6 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-
-    # ANALYZER = 'analysis': {
-    #     'analyzer': {
-    #         'default_icu': {
-    #             'type': 'custom',
-    #             'tokenizer': 'icu_tokenizer',
-    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
-    #         }
-    #     }
-    # }
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
@@ -1015,6 +1168,10 @@ class CommunityBaseSettings(Settings):
                 "handlers": ["null"],
                 "propagate": False,
             },
+            "django.security.DisallowedRedirect": {
+                "handlers": ["null"],
+                "propagate": False,
+            },
             "elastic_transport.transport": {
                 "handlers": ["null"],
                 "propagate": False,
@@ -1058,9 +1215,32 @@ class CommunityBaseSettings(Settings):
     @property
     def STORAGES(self):
         # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+        # https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-STORAGES
         return {
+            "default": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+            },
             "staticfiles": {
-                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage"
+                "BACKEND": "readthedocs.storage.s3_storage.S3StaticStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                },
             },
         }
 

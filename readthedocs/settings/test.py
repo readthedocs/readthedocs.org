@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import textwrap
 
 from .base import CommunityBaseSettings
@@ -23,10 +24,11 @@ class CommunityTestSettings(CommunityBaseSettings):
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
-    CELERY_ALWAYS_EAGER = True
+    CELERY_TASK_ALWAYS_EAGER = True
 
     # Skip automatic detection of Docker limits for testing
-    DOCKER_LIMITS = {"memory": "200m", "time": 600}
+    BUILD_TIME_LIMIT = 600
+    BUILD_MEMORY_LIMIT = "200m"
 
     CACHES = {
         "default": {
@@ -124,7 +126,10 @@ class CommunityTestSettings(CommunityBaseSettings):
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
 
-        logging["handlers"]["console"]["level"] = "DEBUG"
+        # Keep test output focused on failures: only warnings/errors reach the
+        # console. DEBUG-level records are still written to the debug.log file
+        # handler for post-mortem inspection.
+        logging["handlers"]["console"]["level"] = "WARNING"
         logging["formatters"]["default"]["format"] = "[%(asctime)s] " + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
@@ -139,6 +144,37 @@ class CommunityTestSettings(CommunityBaseSettings):
             },
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            },
+            "proxito-staticfiles": {
+                "BACKEND": self.RTD_STATICFILES_STORAGE,
+            },
+            "build-media": {
+                "BACKEND": self.RTD_BUILD_MEDIA_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
+            },
+            "build-commands": {
+                "BACKEND": self.RTD_BUILD_COMMANDS_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
+            },
+            "build-tools": {
+                "BACKEND": self.RTD_BUILD_TOOLS_STORAGE,
+                "OPTIONS": {
+                    "location": self.MEDIA_ROOT,
+                    "allow_overwrite": True,
+                },
+            },
+            "usercontent": {
+                "BACKEND": "django.core.files.storage.FileSystemStorage",
+                "OPTIONS": {
+                    "location": Path(self.MEDIA_ROOT) / "usercontent",
+                    "allow_overwrite": True,
+                },
             },
         }
 

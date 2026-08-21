@@ -39,6 +39,7 @@
         "slug": "subproject",
         "tags": [],
         "translation_of": null,
+        "readthedocs_yaml_path": null,
         "urls": {
             "builds": "https://readthedocs.org/projects/subproject/builds/",
             "documentation": "http://project.readthedocs.io/projects/subproject/en/latest/",

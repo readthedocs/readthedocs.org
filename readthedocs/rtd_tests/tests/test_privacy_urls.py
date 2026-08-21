@@ -8,16 +8,14 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
-from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
     Build,
     BuildCommandResult,
-    RegexAutomationRule,
-    VersionAutomationRule,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook, AutomationRule
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.utils import create_user
 
@@ -139,7 +137,14 @@ class URLAccessMixin:
                 continue
 
             request_data = self.request_data.get(name, {}).copy()
-            for key in list(re.compile(regex).groupindex.keys()):
+            # Extract named URL parameters from both path() routes and re_path() patterns.
+            # path() uses route strings like ``<slug:tag>`` while re_path() uses regex
+            # named groups like ``(?P<tag>...)``.
+            if "(?P<" in regex:
+                named_keys = list(re.compile(regex).groupindex.keys())
+            else:
+                named_keys = re.findall(r"<(?:[\w]+:)?(\w+)>", regex)
+            for key in named_keys:
                 if key in list(request_data.keys()):
                     added_kwargs[key] = request_data[key]
                     continue
@@ -195,12 +200,14 @@ class ProjectMixin(URLAccessMixin):
         )
         self.domain = get(Domain, domain="docs.foobar.com", project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
-        self.automation_rule = RegexAutomationRule.objects.create(
-            project=self.pip,
+        self.automation_rule = get(
+            AutomationRule,
             priority=0,
-            match_arg=".*",
-            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
-            version_type=BRANCH,
+            project=self.pip,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            webhook_files_match_pattern="docs/*.md",
+            action=AutomationRule.TRIGGER_BUILD_ACTION,
+            version_types=[EXTERNAL],
         )
         self.webhook = get(WebHook, project=self.pip)
         self.webhook_exchange = HttpExchange.objects.create(
@@ -359,25 +366,6 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/advanced/": {"status_code": 301},
         # Unauth access redirect for non-owners
         "/dashboard/pip/": {"status_code": 301},
-        # 405's where we should be POST'ing
-        "/dashboard/pip/users/delete/": {"status_code": 405},
-        "/dashboard/pip/notifications/delete/": {"status_code": 405},
-        "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
-        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
-            "status_code": 405
-        },
-        "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
-        "/dashboard/pip/integrations/sync/": {"status_code": 405},
-        "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
-        "/dashboard/pip/integrations/{integration_id}/delete/": {"status_code": 405},
-        "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
-            "status_code": 405
-        },
-        "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
-        "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
-        "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
-        "/dashboard/pip/rules/{automation_rule_id}/move/{steps}/": {"status_code": 405},
-        "/dashboard/pip/webhooks/{webhook_id}/delete/": {"status_code": 405},
     }
 
     # Filtered out by queryset on projects that we don't own.

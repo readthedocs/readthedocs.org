@@ -119,9 +119,9 @@ with these contents:
    version: 2
 
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-24.04"
      tools:
-       python: "mambaforge-22.9"
+       python: "miniconda3-3.12-24.9"
 
    conda:
      environment: environment.yml

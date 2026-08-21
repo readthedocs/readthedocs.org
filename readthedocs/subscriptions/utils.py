@@ -41,7 +41,7 @@ def get_or_create_stripe_customer(organization):
 
     If `organization.stripe_customer` is `None`, a new customer is created.
     """
-    log.bind(organization_slug=organization.slug)
+    structlog.contextvars.bind_contextvars(organization_slug=organization.slug)
     stripe_customer = organization.stripe_customer
     if stripe_customer:
         return stripe_customer

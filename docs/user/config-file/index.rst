@@ -123,7 +123,8 @@ specifying the requirements to install.
 
 - Use ``python.install.path`` to install the project itself as a Python package using pip
 - Use ``python.install.requirements`` to install packages from a requirements file
-- Use ``build.jobs`` to install packages using Poetry or PDM
+- Use ``python.install.method: uv`` to install packages with ``uv sync`` or ``uv pip``
+- Use ``build.jobs`` for Poetry, PDM, or advanced custom install workflows
 
 .. seealso::
 

@@ -8,12 +8,14 @@ import re
 from shlex import quote
 from urllib.parse import urlparse
 
+import regex
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -27,24 +29,32 @@ from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
+from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERNS
+from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
 from readthedocs.notifications.models import Notification as NewNotification
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.managers import HTMLFileManager
+from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.querysets import ChildRelatedProjectQuerySet
 from readthedocs.projects.querysets import FeatureQuerySet
 from readthedocs.projects.querysets import ProjectQuerySet
@@ -56,15 +66,14 @@ from readthedocs.projects.validators import validate_domain_name
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.projects.validators import validate_no_ip
 from readthedocs.projects.validators import validate_repository_url
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
-from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import ADDONS_FLYOUT_POSITION_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_CHOICES
 from .constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
-from .constants import DOWNLOADABLE_MEDIA_TYPES
 from .constants import MEDIA_TYPES
 from .constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 from .constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
@@ -101,12 +110,25 @@ class ProjectRelationship(models.Model):
         related_name="superprojects",
         on_delete=models.CASCADE,
     )
-    alias = models.SlugField(
+    # Aliases may be a single slug (``api``) or several slug-like segments
+    # joined by ``/`` (``api/python``). Multi-segment aliases let a parent
+    # project expose what looks like a nested set of subprojects under
+    # ``/projects/api/python/`` without modeling actual subprojects of
+    # subprojects.
+    # NOTE: slashes in aliases are allowed for projects with
+    # the ALLOW_SLASHES_IN_SUBPROJECT_ALIAS feature flag only.
+    alias = models.CharField(
         _("Alias"),
         max_length=255,
         null=True,
         blank=True,
         db_index=False,
+        validators=[
+            RegexValidator(
+                regex=rf"^{constants.SUBPROJECT_ALIAS_REGEX}$",
+                message=_("Aliases can contain letters, numbers, underscores, and hyphens."),
+            ),
+        ],
     )
 
     objects = ChildRelatedProjectQuerySet.as_manager()
@@ -131,6 +153,10 @@ class ProjectRelationship(models.Model):
         """
         prefix = self.parent.custom_subproject_prefix or "/projects/"
         return unsafe_join_url_path(prefix, self.alias, "/")
+
+    def clean(self):
+        if self.alias:
+            validate_subproject_alias(parent_project=self.parent, alias=self.alias)
 
 
 class AddonsConfig(TimeStampedModel):
@@ -236,8 +262,13 @@ class AddonsConfig(TimeStampedModel):
     hotkeys_enabled = models.BooleanField(default=True)
 
     # Search
-    search_enabled = models.BooleanField(default=True)
+    search_enabled = models.BooleanField(_("Enable search modal"), default=True)
     search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+    search_show_subprojects_filter = models.BooleanField(
+        "Show subprojects filter in search modal",
+        default=True,
+        db_default=True,
+    )
 
     # User JavaScript File
     customscript_enabled = models.BooleanField(default=False)
@@ -255,10 +286,24 @@ class AddonsConfig(TimeStampedModel):
     notifications_enabled = models.BooleanField(default=True)
     notifications_show_on_latest = models.BooleanField(default=True)
     notifications_show_on_non_stable = models.BooleanField(default=True)
-    notifications_show_on_external = models.BooleanField(default=True)
+    notifications_show_on_external = models.BooleanField(
+        default=False,
+        verbose_name=_("Show a notification on builds from pull requests"),
+        help_text=_(
+            "Display a notification on the rendered documentation of pull "
+            "request previews. Readers will see a toast linking to the "
+            "build and the pull request."
+        ),
+    )
 
     # Link Previews
     linkpreviews_enabled = models.BooleanField(default=False)
+    linkpreviews_selector = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="CSS selector to select links you want enabled for link previews. Leave it blank for auto-detect all links in your main page content.",
+    )
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -294,6 +339,18 @@ class Project(models.Model):
         blank=True,
         help_text=_("Short description of this project"),
     )
+
+    # Example:
+    # [
+    #     "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL .",
+    #     "git checkout $READTHEDOCS_GIT_IDENTIFIER"
+    # ]
+    git_checkout_command = models.JSONField(
+        _("Custom command to execute before Git checkout"),
+        null=True,
+        blank=True,
+    )
+
     repo = models.CharField(
         _("Repository URL"),
         max_length=255,
@@ -406,7 +463,7 @@ class Project(models.Model):
     )
     show_build_overview_in_comment = models.BooleanField(
         _("Show build overview in a comment"),
-        db_default=False,
+        db_default=True,
         help_text=_(
             "Show an overview of the build and files changed in a comment when a pull request is built."
         ),
@@ -505,6 +562,14 @@ class Project(models.Model):
     featured = models.BooleanField(_("Featured"), default=False)
 
     skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+    n_consecutive_failed_builds = models.BooleanField(
+        _("Disable builds for this project"),
+        default=False,
+        db_default=False,
+        help_text=_(
+            "Builds on this project were automatically disabled due to many consecutive failures. Uncheck this field to re-enable building."
+        ),
+    )
 
     # null=True can be removed in a later migration
     # be careful if adding new queries on this, .filter(delisted=False) does not work
@@ -517,6 +582,13 @@ class Project(models.Model):
             "Delisting a project removes it from Read the Docs search indexing and asks external "
             "search engines to remove it via robots.txt"
         ),
+    )
+
+    search_indexing_enabled = models.BooleanField(
+        _("Enable search indexing"),
+        default=True,
+        db_default=True,
+        help_text=_("Enable/disable search indexing for this project"),
     )
 
     privacy_level = models.CharField(
@@ -574,10 +646,6 @@ class Project(models.Model):
         default=False,
         help_text=_("This project has been built with a webhook"),
     )
-    has_valid_clone = models.BooleanField(
-        default=False,
-        help_text=_("This project has been successfully cloned"),
-    )
 
     tags = TaggableManager(blank=True, ordering=["name"])
     history = ExtraHistoricalRecords(
@@ -628,8 +696,16 @@ class Project(models.Model):
         null=True,
     )
 
-    # Property used for storing the latest build for a project when prefetching
-    LATEST_BUILD_CACHE = "_latest_build"
+    # Denormalized fields
+    latest_build = models.OneToOneField(
+        "builds.Build",
+        verbose_name=_("Latest build"),
+        # No reverse relation needed.
+        related_name="+",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = ("slug",)
@@ -639,6 +715,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -659,14 +737,54 @@ class Project(models.Model):
         if self.remote_repository and not dont_sync:
             self.repo = self.remote_repository.clone_url
 
+        # Normalize user input for the path to ``.readthedocs.yaml``
+        self.readthedocs_yaml_path = (
+            self.readthedocs_yaml_path.strip() if self.readthedocs_yaml_path else None
+        )
+
         super().save(*args, **kwargs)
         self.update_latest_version()
 
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
+
     def delete(self, *args, **kwargs):
+        from readthedocs.builds.tasks import remove_build_commands_storage_paths
         from readthedocs.projects.tasks.utils import clean_project_resources
+
+        # NOTE: We use _raw_delete to avoid Django fetching all objects
+        # before the deletion. Be careful when using _raw_delete, signals
+        # won't be sent, and can cause integrity problems if the model
+        # has relations with other models.
+        qs = self.page_views.all()
+        qs._raw_delete(qs.db)
+        qs = self.search_queries.all()
+        qs._raw_delete(qs.db)
+
+        # Remove build artifacts from storage for cold storage builds.
+        # Send paths in batches to avoid high memory usage and
+        # oversized Celery broker messages for projects with many builds.
+        batch_size = 1000
+        paths_to_delete = []
+        for build in self.builds.filter(cold_storage=True).iterator():
+            paths_to_delete.append(build.storage_path)
+            if len(paths_to_delete) >= batch_size:
+                remove_build_commands_storage_paths.delay(paths_to_delete)
+                paths_to_delete = []
+
+        if paths_to_delete:
+            remove_build_commands_storage_paths.delay(paths_to_delete)
 
         # Remove extra resources
         clean_project_resources(self)
+
+        # NOTE: we delete in batches to avoid expensive queries when we have lots
+        # of versions to delete. The PageView table can sometimes timeout when querying
+        # several versions like PageView.objects.filter(version_id__in=[....]).
+        # When querying more than ~67 versions, postgres will ignore the index,
+        # and do a sequential scan, which is expensive on this table.
+        delete_in_batches(self.versions.all(), batch_size=50)
 
         super().delete(*args, **kwargs)
 
@@ -715,53 +833,17 @@ class Project(models.Model):
         """
         Get the paths of all artifacts used by the project.
 
-        :return: the path to an item in storage
-                 (can be used with ``storage.url`` to get the URL).
+        :return: A list of paths where the project's artifacts are stored.
         """
         storage_paths = [f"{type_}/{self.slug}" for type_ in MEDIA_TYPES]
+        storage_paths.extend(f"{EXTERNAL}/{type_}/{self.slug}" for type_ in MEDIA_TYPES)
         return storage_paths
 
-    def get_storage_path(self, type_, version_slug=LATEST, include_file=True, version_type=None):
-        """
-        Get a path to a build artifact for use with Django's storage system.
-
-        :param type_: Media content type, ie - 'pdf', 'htmlzip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :param version_type: Project version type
-        :return: the path to an item in storage
-            (can be used with ``storage.url`` to get the URL)
-        """
-        if type_ not in MEDIA_TYPES:
-            raise ValueError("Invalid content type.")
-
-        if include_file and type_ not in DOWNLOADABLE_MEDIA_TYPES:
-            raise ValueError("Invalid content type for downloadable file.")
-
-        type_dir = type_
-        # Add `external/` prefix for external versions
-        if version_type == EXTERNAL:
-            type_dir = f"{EXTERNAL}/{type_}"
-
-        # Version slug may come from an unstrusted input,
-        # so we use join to avoid any path traversal.
-        # All other values are already validated.
-        folder_path = build_media_storage.join(f"{type_dir}/{self.slug}", version_slug)
-
-        if include_file:
-            extension = type_.replace("htmlzip", "zip")
-            return "{}/{}.{}".format(
-                folder_path,
-                self.slug,
-                extension,
-            )
-        return folder_path
-
-    def get_production_media_url(self, type_, version_slug):
+    def get_production_media_url(self, type_, version_slug, resolver=None):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
         # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-        domain = self.subdomain()
+        domain = self.subdomain(resolver=resolver)
 
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
@@ -821,6 +903,10 @@ class Project(models.Model):
             return self.custom_prefix
         return None
 
+    @property
+    def is_public(self):
+        return self.privacy_level == PUBLIC
+
     @cached_property
     def subproject_prefix(self):
         """
@@ -879,13 +965,12 @@ class Project(models.Model):
         """Return whether or not this project supports translations."""
         return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
-    def subdomain(self, use_canonical_domain=True):
+    def subdomain(self, use_canonical_domain=True, resolver=None):
         """Get project subdomain from resolver."""
-        return Resolver().get_domain_without_protocol(
-            self, use_canonical_domain=use_canonical_domain
-        )
+        resolver = resolver or Resolver()
+        return resolver.get_domain_without_protocol(self, use_canonical_domain=use_canonical_domain)
 
-    def get_downloads(self):
+    def get_downloads(self, resolver=None):
         downloads = {}
         default_version = self.get_default_version()
 
@@ -893,6 +978,7 @@ class Project(models.Model):
             downloads[type_] = self.get_production_media_url(
                 type_,
                 default_version,
+                resolver=resolver,
             )
 
         return downloads
@@ -916,6 +1002,20 @@ class Project(models.Model):
         if match:
             return f"https://{match.group('host')}/{match.group('repo')}"
         return self.repo
+
+    @property
+    def repository_full_name(self):
+        """
+        Return the full name of the repository.
+
+        If the project is linked to a remote repository,
+        it uses the remote repository full name. Otherwise,
+        it returns the path part of the repository URL.
+        """
+        if self.remote_repository:
+            return self.remote_repository.full_name
+        parsed = urlparse(self.repository_html_url)
+        return parsed.path.strip("/").removesuffix(".git")
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
@@ -974,10 +1074,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        # Check if there is `_good_build` annotation in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, "_good_build"):
-            return self._good_build
+        # Check if there is `_has_good_build` annotation in the queryset.
+        # Used for database optimization.
+        if hasattr(self, "_has_good_build"):
+            return self._has_good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def vcs_repo(self, environment, version):
@@ -1046,6 +1146,24 @@ class Project(models.Model):
         return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
+    def old_github_remote_repository(self):
+        """
+        Get the old GitHub OAuth repository for GitHub App projects.
+
+        This is mainly used for projects that migrated to the new GitHub App,
+        but its users have not yet connected their accounts to the new GitHub App.
+        We still need to reference the old repository for permissions when using GH as SSO method.
+        """
+        from readthedocs.oauth.models import RemoteRepository
+
+        if self.is_github_app_project:
+            return RemoteRepository.objects.filter(
+                vcs_provider=GITHUB,
+                remote_id=self.remote_repository.remote_id,
+            ).first()
+        return None
+
+    @property
     def is_gitlab_project(self):
         from readthedocs.oauth.services import GitLabService
 
@@ -1083,28 +1201,13 @@ class Project(models.Model):
                 matches.append(os.path.join(root, match))
         return matches
 
-    def get_latest_build(self, finished=True):
-        """
-        Get latest build for project.
-
-        :param finished: Return only builds that are in a finished state
-        """
-        # Check if there is `_latest_build` attribute in the Queryset.
-        # Used for Database optimization.
-        if hasattr(self, self.LATEST_BUILD_CACHE):
-            if self._latest_build:
-                return self._latest_build[0]
-            return None
-
-        kwargs = {"type": "html"}
-        if finished:
-            kwargs["state"] = "finished"
-        return self.builds(manager=INTERNAL).filter(**kwargs).first()
+    @cached_property
+    def latest_internal_build(self):
+        """Get the latest internal build for the project."""
+        return self.builds(manager=INTERNAL).select_related("version").first()
 
     def active_versions(self):
-        from readthedocs.builds.models import Version
-
-        versions = Version.internal.public(project=self, only_active=True)
+        versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
             active=True, uploaded=True
         )
@@ -1155,15 +1258,21 @@ class Project(models.Model):
         When latest is machine created, it's basically an alias
         for the default branch/tag (like main/master),
 
-        Returns None if the current default version doesn't point to a valid version.
+        Returns None if latest doesn't point to a valid version,
+        or if isn't managed by RTD (machine=False).
         """
-        default_version_name = self.get_default_branch()
+        # For latest, the identifier is the name of the branch/tag.
+        latest_version_identifier = (
+            self.versions.filter(slug=LATEST, machine=True)
+            .values_list("identifier", flat=True)
+            .first()
+        )
+        if not latest_version_identifier:
+            return None
         return (
             self.versions(manager=INTERNAL)
             .exclude(slug=LATEST)
-            .filter(
-                verbose_name=default_version_name,
-            )
+            .filter(verbose_name=latest_version_identifier)
             .first()
         )
 
@@ -1181,8 +1290,22 @@ class Project(models.Model):
             return
 
         # default_branch can be a tag or a branch name!
-        default_version_name = self.get_default_branch()
-        original_latest = self.get_original_latest_version()
+        default_version_name = self.get_default_branch(fallback_to_vcs=False)
+        # If the default_branch is not set, it means that the user
+        # wants to use the default branch of the respository, but
+        # we don't know what that is here, `latest` will be updated
+        # on the next build.
+        if not default_version_name:
+            return
+
+        # Search for a branch or tag with the name of the default branch,
+        # so we can sync latest with it.
+        original_latest = (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(verbose_name=default_version_name)
+            .first()
+        )
         latest.verbose_name = LATEST_VERBOSE_NAME
         latest.type = original_latest.type if original_latest else BRANCH
         # For latest, the identifier is the name of the branch/tag.
@@ -1227,11 +1350,9 @@ class Project(models.Model):
                     return new_stable
             else:
                 log.info(
-                    "Creating new stable version: %(project)s:%(version)s",
-                    {
-                        "project": self.slug,
-                        "version": new_stable.identifier,
-                    },
+                    "Creating new stable version",
+                    project_slug=self.slug,
+                    version_identifier=new_stable.identifier,
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -1284,13 +1405,21 @@ class Project(models.Model):
             return self.default_version
         return LATEST
 
-    def get_default_branch(self):
-        """Get the version representing 'latest'."""
+    def get_default_branch(self, fallback_to_vcs=True):
+        """
+        Get the name of the branch or tag that the user wants to use as 'latest'.
+
+        In case the user explicitly set a default branch, we use that,
+        otherwise we try to get it from the remote repository.
+        """
         if self.default_branch:
             return self.default_branch
 
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
+
+        if not fallback_to_vcs:
+            return None
 
         vcs_class = self.vcs_class()
         if vcs_class:
@@ -1323,7 +1452,8 @@ class Project(models.Model):
 
         return self.superprojects.select_related("parent").first()
 
-    def get_canonical_custom_domain(self):
+    @cached_property
+    def canonical_custom_domain(self):
         """Get the canonical custom domain or None."""
         if hasattr(self, "_canonical_domains"):
             # Cached custom domains
@@ -1417,7 +1547,7 @@ class Project(models.Model):
 
         Both projects need to share the same owner/admin.
         """
-        organization = self.organizations.first()
+        organization = self.organization
         queryset = (
             Project.objects.for_admin_user(user)
             .filter(organizations=organization)
@@ -1427,8 +1557,17 @@ class Project(models.Model):
         )
         return queryset
 
-    @property
+    @cached_property
     def organization(self):
+        # If organizations aren't supported,
+        # we don't need to query the database.
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return None
+
+        if hasattr(self, "_organizations"):
+            if self._organizations:
+                return self._organizations[0]
+            return None
         return self.organizations.first()
 
     @property
@@ -1707,7 +1846,7 @@ class WebHook(Notification):
             return None
 
         project = version.project
-        organization = project.organizations.first()
+        organization = project.organization
 
         organization_name = ""
         organization_slug = ""
@@ -1944,13 +2083,12 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    API_LARGE_DATA = "api_large_data"
-    RECORD_404_PAGE_VIEWS = "record_404_page_views"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_SLASHES_IN_SUBPROJECT_ALIAS = "allow_slashes_in_subproject_alias"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -1959,28 +2097,21 @@ class Feature(models.Model):
 
     # Dependencies related features
     PIP_ALWAYS_UPGRADE = "pip_always_upgrade"
-    USE_NEW_PIP_RESOLVER = "use_new_pip_resolver"
-    DONT_INSTALL_LATEST_PIP = "dont_install_latest_pip"
-    USE_SPHINX_RTD_EXT_LATEST = "rtd_sphinx_ext_latest"
-    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
-    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = "enable_mkdocs_server_side_search"
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
-    SCALE_IN_PROTECTION = "scale_in_prtection"
-    USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS = "use_s3_scoped_credentials_on_builders"
+    BUILD_FULL_CLEAN = "build_full_clean"
+    BUILD_HEALTHCHECK = "build_healthcheck"
+    BUILD_NO_ACKS_LATE = "build_no_acks_late"
+    BUILD_IN_PARALLEL = "build_in_parallel"
+    USE_GVISOR_RUNTIME = "use_gvisor_runtime"
+    TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
+    USE_ISOLATED_BUILDER = "use_isolated_builder"
+    KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
 
     FEATURES = (
-        (
-            API_LARGE_DATA,
-            _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            RECORD_404_PAGE_VIEWS,
-            _("Proxito: Record 404s page views."),
-        ),
         (
             DISABLE_PAGEVIEWS,
             _("Proxito: Disable all page views"),
@@ -2003,6 +2134,10 @@ class Feature(models.Model):
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
         ),
+        (
+            ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            _("Subprojects: Allow slashes in subproject alias"),
+        ),
         # Versions sync related features
         (
             SKIP_SYNC_BRANCHES,
@@ -2018,36 +2153,50 @@ class Feature(models.Model):
         ),
         # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _("Build: Always run pip install --upgrade")),
-        (USE_NEW_PIP_RESOLVER, _("Build: Use new pip resolver")),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _("Build: Don't install the latest version of pip"),
-        ),
-        (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
-        ),
-        (
-            INSTALL_LATEST_CORE_REQUIREMENTS,
-            _("Build: Install all the latest versions of Read the Docs core requirements"),
-        ),
         # Search related features.
-        (
-            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
-            _("Search: Enable server side search for MkDocs projects"),
-        ),
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
         ),
         # Build related features.
         (
-            SCALE_IN_PROTECTION,
-            _("Build: Set scale-in protection before/after building."),
+            BUILD_FULL_CLEAN,
+            _("Build: Clean all build directories to avoid leftovers from other projects."),
         ),
         (
-            USE_S3_SCOPED_CREDENTIALS_ON_BUILDERS,
-            _("Build: Use S3 scoped credentials for uploading build artifacts."),
+            BUILD_HEALTHCHECK,
+            _("Build: Use background cURL healthcheck."),
+        ),
+        (
+            BUILD_NO_ACKS_LATE,
+            _("Build: Do not use Celery ASK_LATE config for this project."),
+        ),
+        (
+            BUILD_IN_PARALLEL,
+            _("Build: Enable parallel building."),
+        ),
+        (
+            USE_GVISOR_RUNTIME,
+            _("Build: Run build containers under the gVisor (runsc) runtime."),
+        ),
+        (
+            TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            _("Build: Terminate instance on build finish."),
+        ),
+        (
+            USE_ISOLATED_BUILDER,
+            _(
+                "Build: Dispatch this project's builds to the `isolated-builders` ASG "
+                "instead of the `build-default` ASG."
+            ),
+        ),
+        (
+            KEEP_ISOLATED_BUILDER_INSTANCE,
+            _(
+                "Build: Debug mode for `isolated-builders` — keep the EC2 instance "
+                "running after the build completes (instead of having the worker "
+                "self-terminate it via the AWS API)."
+            ),
         ),
     )
 
@@ -2127,3 +2276,450 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def clean(self):
         validate_environment_variable_size(project=self.project, new_env_value=self.value)
         return super().clean()
+
+
+class AutomationRule(TimeStampedModel):
+    """
+    Automation rule for versions (v2 design).
+
+    This is a redesigned automation rule system that combines version matching
+    with webhook filtering in a single, more flexible model.
+
+    The rule works as follows:
+    1. Checks if the version type matches one of the configured version_types
+    2. Checks if the version name matches the version_match_pattern (regex)
+    3. If webhook_filter is set, also checks the webhook data against webhook_match_pattern
+    4. If all checks pass, executes the configured action
+    """
+
+    ACTIVATE_VERSION_ACTION = "activate-version"
+    DELETE_VERSION_ACTION = "delete-version"
+    HIDE_VERSION_ACTION = "hide-version"
+    MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
+    MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
+    SET_DEFAULT_VERSION_ACTION = "set-default-version"
+    TRIGGER_BUILD_ACTION = "trigger-build"
+
+    ACTIONS = (
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
+        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
+    )
+
+    VERSION_ADDED_ACTIONS = (
+        ACTIVATE_VERSION_ACTION,
+        HIDE_VERSION_ACTION,
+        MAKE_VERSION_PUBLIC_ACTION,
+        MAKE_VERSION_PRIVATE_ACTION,
+        SET_DEFAULT_VERSION_ACTION,
+    )
+    VERSION_DELETED_ACTIONS = (DELETE_VERSION_ACTION,)
+
+    BUILD_ACTIONS = (TRIGGER_BUILD_ACTION,)
+
+    WEBHOOK_FILTER_LABEL = "label"
+    WEBHOOK_FILTER_COMMIT_MESSAGE = "commit-message"
+    WEBHOOK_FILTER_FILE_PATTERN = "file-pattern"
+
+    WEBHOOK_FILTERS = (
+        WEBHOOK_FILTER_LABEL,
+        WEBHOOK_FILTER_COMMIT_MESSAGE,
+        WEBHOOK_FILTER_FILE_PATTERN,
+    )
+
+    TIMEOUT = 1  # timeout in seconds for regex matching
+
+    project = models.ForeignKey(
+        Project,
+        verbose_name=_("Project"),
+        related_name="automation_rules",
+        on_delete=models.CASCADE,
+    )
+
+    priority = models.PositiveIntegerField(
+        _("Rule priority"),
+        help_text=_("A lower number (0) means a higher priority"),
+        default=0,
+    )
+
+    description = models.CharField(
+        _("Description"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+    # Version filtering
+    version_types = models.JSONField(
+        _("Version types"),
+        help_text=_(
+            "List of version types this rule applies to (e.g., ['tag', 'branch', 'external'])."
+        ),
+        default=list,
+    )
+
+    version_predefined_match_pattern = models.CharField(
+        _("Version predefined match pattern"),
+        help_text=_(
+            "Predefined pattern to match against the version name (e.g., 'semver-versions')"
+        ),
+        max_length=255,
+        choices=VERSION_PREDEFINED_MATCH_PATTERNS,
+    )
+
+    version_match_pattern = models.CharField(
+        _("Version match pattern"),
+        help_text=_("Regex pattern to match against the version name (e.g., '^release-.*')"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+    # Webhook filtering (optional)
+    webhook_files_match_pattern = models.JSONField(
+        _("Webhook files match pattern"),
+        help_text=_(
+            "Pattern to match against the files changed in the webhook event. "
+            "Use fnmatch patterns (e.g., 'docs/*.md') and one pattern per line."
+        ),
+        max_length=1024,
+        null=True,
+        blank=True,
+    )
+    webhook_labels_match_pattern = models.CharField(
+        _("Webhook labels match pattern"),
+        help_text=_(
+            "Pattern to match against the labels in the webhook event. "
+            "Use a regex pattern to match against the labels (e.g., 'docs|build')."
+        ),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    webhook_commit_message_match_pattern = models.CharField(
+        _("Webhook commit message match pattern"),
+        help_text=_(
+            "Pattern to match against the commit message in the webhook event. "
+            "Use a regex pattern to match against the commit message (e.g., 'fix|feature')."
+        ),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+
+    # Action to perform
+    action = models.CharField(
+        _("Action"),
+        help_text=_("Action to apply when the rule matches"),
+        max_length=32,
+        choices=ACTIONS,
+    )
+
+    enabled = models.BooleanField(
+        _("Enabled"),
+        default=True,
+        help_text=_("Whether this rule is enabled"),
+    )
+
+    _position_manager = ProjectItemPositionManager(position_field_name="priority")
+
+    class Meta:
+        ordering = ("priority", "-modified", "-created")
+        verbose_name = _("Automation rule")
+        verbose_name_plural = _("Automation rules")
+
+    def __str__(self):
+        return f"({self.priority}) {self.get_action_display()}"
+
+    def save(self, *args, **kwargs):
+        """Override method to update the other priorities before save."""
+        self._position_manager.change_position_before_save(self)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Override method to update the other priorities after delete."""
+        super().delete(*args, **kwargs)
+        self._position_manager.change_position_after_delete(self)
+
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+        self.priority = new_priority
+        self.save()
+
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f"{self.get_action_display()}"
+
+    def get_version_match_pattern(self):
+        # If a predefined match pattern is set, use it instead of the user-defined one.
+        # This allows us to have common patterns defined by us that users can easily select
+        # without needing to write regex themselves.
+        if self.version_predefined_match_pattern == CUSTOM_MATCH:
+            return self.version_match_pattern
+        version_predefined_match_pattern = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
+            self.version_predefined_match_pattern,
+        )
+        return version_predefined_match_pattern
+
+    def match_version(self, version):
+        """
+        Check if the version matches this rule's version criteria.
+
+        :param version: Version instance to check
+        :return: True if the version matches, False otherwise
+        """
+        # Check version type
+        if version.type not in self.version_types:
+            return False
+
+        version_match_pattern = self.get_version_match_pattern()
+
+        # Check version name pattern
+        try:
+            match = regex.search(
+                version_match_pattern,
+                version.verbose_name,
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
+            )
+            return bool(match)
+        except TimeoutError:
+            log.warning(
+                "Timeout while parsing version name regex.",
+                pattern=version_match_pattern,
+                version_slug=version.slug,
+                rule_id=self.pk,
+            )
+            return False
+        except Exception:
+            log.exception(
+                "Error parsing version name regex.",
+                exc_info=True,
+            )
+            return False
+
+    def _check_changed_files(self, changed_files):
+        if not self.webhook_files_match_pattern:
+            return True
+
+        for file_path in changed_files:
+            for file_pattern in self.webhook_files_match_pattern:
+                if fnmatch.fnmatch(file_path, file_pattern):
+                    log.info(
+                        "File pattern matched for webhook rule.",
+                        file_path=file_path,
+                        pattern=file_pattern,
+                        rule_id=self.pk,
+                    )
+                    return True
+        return False
+
+    def _check_commit_message(self, commit_message):
+        commit_pattern = self.webhook_commit_message_match_pattern
+        if not commit_pattern:
+            return True
+
+        try:
+            match = regex.search(
+                commit_pattern,
+                commit_message,
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
+            )
+            if match:
+                log.info(
+                    "Commit message pattern matched for webhook rule.",
+                    commit_message=commit_message,
+                    pattern=commit_pattern,
+                    rule_id=self.pk,
+                )
+                return True
+        except TimeoutError:
+            log.warning(
+                "Timeout while parsing regex for commit message.",
+                pattern=commit_pattern,
+                rule_id=self.pk,
+            )
+        except Exception:
+            log.exception(
+                "Error parsing regex for commit message.",
+                exc_info=True,
+            )
+        return False
+
+    def _check_labels(self, labels):
+        label_pattern = self.webhook_labels_match_pattern
+        if not label_pattern:
+            return True
+
+        for label in labels:
+            try:
+                match = regex.search(
+                    label_pattern,
+                    label,
+                    flags=regex.VERSION0,
+                    timeout=self.TIMEOUT,
+                )
+                if match:
+                    log.info(
+                        "Label pattern matched for webhook rule.",
+                        label=label,
+                        pattern=label_pattern,
+                        rule_id=self.pk,
+                    )
+                    return True
+            except TimeoutError:
+                log.warning(
+                    "Timeout while parsing regex for label.",
+                    pattern=label_pattern,
+                    rule_id=self.pk,
+                )
+            except Exception:
+                log.exception(
+                    "Error parsing regex for label.",
+                    exc_info=True,
+                )
+        return False
+
+    def match_webhook(self, changed_files=None, commit_message=None, labels=None):
+        """
+        Check if the webhook data matches this rule's webhook criteria.
+
+        All the webhook criteria that are set (files, commit message, labels)
+        must match for this to return True.
+
+        :param changed_files: List of file paths that were modified/added/deleted
+        :param commit_message: Commit message from the webhook event
+        :param labels: List of labels from PR webhook event
+        :return: True if all the webhook filter match, False otherwise
+        """
+
+        changed_files = changed_files or []
+        commit_message = commit_message or ""
+        labels = labels or []
+
+        # Use fnmatch matching for file paths
+        if self.webhook_files_match_pattern:
+            if not self._check_changed_files(changed_files):
+                log.info(
+                    "Webhook rule didn't match because of changed files.",
+                    changed_files=changed_files,
+                )
+                return False
+
+        # Use regex matching for commit message
+        if self.webhook_commit_message_match_pattern:
+            if not self._check_commit_message(commit_message):
+                log.info(
+                    "Webhook rule didn't match because of commit message.",
+                    commit_message=commit_message,
+                )
+                return False
+
+        # Use regex matching for labels
+        if self.webhook_labels_match_pattern:
+            if not self._check_labels(labels):
+                log.info(
+                    "Webhook rule didn't match because of labels.",
+                    labels=labels,
+                )
+                return False
+        return True
+
+    def run(self, version, *args, **kwargs):
+        """
+        Run the rule.
+
+        :param version: Version instance to check and act upon
+        :param args: Additional positional arguments to pass to the action function
+        :param kwargs: Additional keyword arguments to pass to the action function
+        :return: True if the action was performed, False otherwise
+        """
+        # Avoid circular imports
+        import readthedocs.builds.automation_actions as actions
+
+        actions_map = {
+            self.ACTIVATE_VERSION_ACTION: actions.activate_version,
+            self.HIDE_VERSION_ACTION: actions.hide_version,
+            self.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+            self.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
+            self.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+            self.DELETE_VERSION_ACTION: actions.delete_version,
+            self.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
+        }
+
+        action_func = actions_map.get(self.action)
+        if action_func:
+            action_func(version, *args, **kwargs)
+        else:
+            raise NotImplementedError(f"Action {self.action} is not implemented")
+
+        # TODO: we could consider adding more metadata here related to the webhook match.
+        # I'm not going to add that feature for now, but I'll consider to do it in a following iteration.
+        AutomationRuleMatch.objects.register_match(
+            rule=self,
+            version=version,
+        )
+        return True
+
+    def get_edit_url(self):
+        return reverse(
+            "projects_automation_rule_edit",
+            args=[self.project.slug, self.pk],
+        )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    ACTIONS_PAST_TENSE = {
+        AutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        AutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        AutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
+        AutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
+        AutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        AutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+        AutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
+    }
+
+    rule = models.ForeignKey(
+        AutomationRule,
+        verbose_name=_("Matched rule"),
+        related_name="matches",
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=AutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ("-modified", "-created")
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

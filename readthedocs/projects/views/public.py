@@ -23,6 +23,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from taggit.models import Tag
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
@@ -105,9 +106,8 @@ class ProjectDetailViewBase(
     filterset_class = ProjectVersionListFilterSet
 
     def _get_versions(self, project):
-        return Version.internal.public(
+        return project.versions(manager=INTERNAL).public(
             user=self.request.user,
-            project=project,
         )
 
     def get_queryset(self):
@@ -135,17 +135,17 @@ class ProjectDetailViewBase(
             protocol = "https"
 
         default_version_slug = project.get_default_version()
-        default_version = project.versions.get(slug=default_version_slug)
-
-        context["badge_url"] = ProjectBadgeView.get_badge_url(
-            project.slug,
-            default_version_slug,
-            protocol=protocol,
-        )
-        context["site_url"] = "{url}?badge={version}".format(
-            url=Resolver().resolve_version(project, version=default_version),
-            version=default_version_slug,
-        )
+        default_version = project.versions.filter(slug=default_version_slug).first()
+        if default_version:
+            context["badge_url"] = ProjectBadgeView.get_badge_url(
+                project.slug,
+                default_version_slug,
+                protocol=protocol,
+            )
+            context["site_url"] = "{url}?badge={version}".format(
+                url=Resolver().resolve_version(project, version=default_version),
+                version=default_version_slug,
+            )
 
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
@@ -251,7 +251,7 @@ class ProjectBadgeView(View):
                     fd.read(),
                     content_type="image/svg+xml",
                 )
-        except (IOError, OSError):
+        except IOError, OSError:
             log.exception(
                 "Failed to read local filesystem while serving a docs badge",
             )
@@ -299,7 +299,7 @@ class ProjectBadgeView(View):
 project_badge = never_cache(ProjectBadgeView.as_view())
 
 
-class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
@@ -332,12 +332,6 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
             unresolved_domain = request.unresolved_domain
             is_external = request.unresolved_domain.is_from_external_domain
             manager = EXTERNAL if is_external else INTERNAL
-
-            # Additional protection to force all storage calls
-            # to use the external or internal versions storage.
-            # TODO: We already force the manager to match the type,
-            # so we could probably just remove this.
-            self.version_type = manager
 
             # It uses the request to get the ``project``.
             # The rest of arguments come from the URL.
@@ -382,12 +376,27 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 slug=version_slug,
             )
 
+        # TODO don't do this, it's a leftover of trying to use CDNCacheTagsMixin
+        # without class level variables. See proxito.views.serve for
+        # other instances of this pattern to update.
+        # See: https://github.com/readthedocs/readthedocs.org/pull/12495
+        self.project = version.project
+        self.version = version
+
         return self._serve_dowload(
             request=request,
             project=version.project,
             version=version,
             type_=type_,
         )
+
+    def _get_project(self):
+        """Hack for CDNCacheTagsMixin, get project set in `get()`."""
+        return self.project
+
+    def _get_version(self):
+        """Hack for CDNCacheTagsMixin, get version set in `get()`."""
+        return self.version
 
 
 class ProjectDownloadMedia(SettingsOverrideObject):
@@ -407,9 +416,8 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.internal.public(
+    versions = project.versions(manager=INTERNAL).public(
         user=request.user,
-        project=project,
         only_active=False,
     )
     active_versions = versions.filter(active=True)

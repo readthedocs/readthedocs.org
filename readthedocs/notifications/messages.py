@@ -226,7 +226,7 @@ BUILD_MESSAGES = [
                 """
                 This build has failed because the current deploy key on the repository was created with write permission.
                 For protection against abuse we've restricted use of these deploy keys.
-                A read-only deploy key will need to be set up <b>before July 31, 2025</b> to continue building this project.
+                A read-only deploy key will need to be set up <b>before December 1st, 2025</b> to continue building this project.
                 Read more about this in our <a href="https://about.readthedocs.com/blog/2025/07/ssh-keys-with-write-access/">blog post</a>.
                 """
             ).strip(),
@@ -427,6 +427,18 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             Read the Docs could not generate a PDF file because the intermediate step generating the TeX file failed.
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.PDF_NOT_FOUND,
+        header=_("No PDF file was found"),
+        body=_(
+            textwrap.dedent(
+                """
+            Read the Docs could not find a PDF file to publish after running the PDF build step.
             """
             ).strip(),
         ),

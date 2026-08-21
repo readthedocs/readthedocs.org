@@ -1,6 +1,6 @@
 [run]
 branch = true
-source = .
+source = readthedocs
 omit =
   */**/migrations/*
   */**/management/commands/*

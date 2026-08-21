@@ -47,6 +47,7 @@ from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import ServeDocs
 from readthedocs.proxito.views.serve import ServeError404
+from readthedocs.proxito.views.serve import ServeLLMSTXT
 from readthedocs.proxito.views.serve import ServePageRedirect
 from readthedocs.proxito.views.serve import ServeRobotsTXT
 from readthedocs.proxito.views.serve import ServeSitemapXML
@@ -82,10 +83,12 @@ proxied_urls = [
     ),
     # Serve subproject downloads
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
+    # Aliases may contain slashes (e.g. ``api/python``), so this uses the
+    # multi-segment capture group rather than ``project_slug``.
     re_path(
         (
             r"^{DOC_PATH_PREFIX}downloads/"
-            r"(?P<subproject_slug>{project_slug})/"
+            r"(?P<subproject_slug>{subproject_alias_slug})/"
             r"(?P<lang_slug>{lang_slug})/"
             r"(?P<version_slug>{version_slug})/"
             r"(?P<type_>{downloadable_type})/$".format(
@@ -132,15 +135,23 @@ core_urls = [
         ServeError404.as_view(),
         name="proxito_404_handler",
     ),
-    re_path(r"robots\.txt$", ServeRobotsTXT.as_view(), name="robots_txt"),
-    re_path(r"sitemap\.xml$", ServeSitemapXML.as_view(), name="sitemap_xml"),
+    path("robots.txt", ServeRobotsTXT.as_view(), name="robots_txt"),
+    path("llms.txt", ServeLLMSTXT.as_view(), name="llms_txt"),
+    path(
+        "llms-full.txt",
+        ServeLLMSTXT.as_view(),
+        {"filename": "llms-full.txt"},
+        name="llms_full_txt",
+    ),
+    path("sitemap.xml", ServeSitemapXML.as_view(), name="sitemap_xml"),
 ]
 
 docs_urls = [
     # # TODO: Support this?
     # (Sub)project `page` redirect
+    # Subproject aliases may contain slashes, so use the multi-segment capture.
     re_path(
-        r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
+        r"^(?:projects/(?P<subproject_slug>{subproject_alias_slug})/)?"
         r"page/(?P<filename>.*)$".format(**pattern_opts),
         ServePageRedirect.as_view(),
         name="redirect_page_with_filename",

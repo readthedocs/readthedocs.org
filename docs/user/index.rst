@@ -46,12 +46,15 @@ Read the Docs: documentation simplified
    /localization
    /versioning-schemes
    /custom-domains
+   /url-path-prefixes
    /doc-notifications
    /canonical-urls
    /reference/cdn
    /reference/sitemaps
    /reference/404-not-found
    /reference/robots
+   /reference/llms-txt
+   /reference/markdown-for-agents
 
 .. toctree::
    :maxdepth: 2
@@ -79,6 +82,9 @@ Read the Docs: documentation simplified
    /explanation/documentation-structure
    /guides/best-practice/links
    /security-implications
+   /reference/main-content-detection
+   /reference/agent-skills
+   /custom-script
 
 .. toctree::
    :maxdepth: 1

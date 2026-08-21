@@ -39,8 +39,8 @@ basic_urls = [
         "security/",
         RedirectView.as_view(url="https://docs.readthedocs.com/platform/stable/security.html"),
     ),
-    re_path(
-        r"^\.well-known/security.txt$",
+    path(
+        ".well-known/security.txt",
         TemplateView.as_view(template_name="security.txt", content_type="text/plain"),
     ),
     path("support/", SupportView.as_view(), name="support"),
@@ -136,10 +136,10 @@ impersonate_urls = [
 
 
 dnt_urls = [
-    re_path(r"^\.well-known/dnt/$", do_not_track),
+    path(".well-known/dnt/", do_not_track),
     # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
-    re_path(
-        r"^\.well-known/dnt-policy.txt$",
+    path(
+        ".well-known/dnt-policy.txt",
         TemplateView.as_view(template_name="dnt-policy.txt", content_type="text/plain"),
     ),
 ]

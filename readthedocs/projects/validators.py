@@ -40,13 +40,11 @@ validate_no_ip = NoIPValidator()
 
 @deconstructible
 class RepositoryURLValidator:
-    disallow_relative_url = True
-
     # Pattern for ``git@github.com:user/repo`` pattern
     re_git_user = re.compile(r"^[\w]+@.+")
 
     def __call__(self, value):
-        public_schemes = ["https", "http", "git", "ftps", "ftp"]
+        public_schemes = ["https", "http", "git"]
         private_schemes = ["ssh", "ssh+git"]
         local_schemes = ["file"]
         valid_schemes = public_schemes
@@ -67,9 +65,7 @@ class RepositoryURLValidator:
         # Launchpad
         if value.startswith("lp:"):
             return value
-        # Relative paths are conditionally supported
-        if value.startswith(".") and not self.disallow_relative_url:
-            return value
+
         # SSH cloning and ``git@github.com:user/project.git``
         if self.re_git_user.search(value) or url.scheme in private_schemes:
             if settings.ALLOW_PRIVATE_REPOS:
@@ -242,4 +238,20 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
     if existing_size + len(new_env_value) > MAX_SIZE_ENV_VARS_PER_PROJECT:
         raise error_class(
             _("The total size of all environment variables in the project cannot exceed 256 KB.")
+        )
+
+
+def validate_subproject_alias(parent_project, alias, error_class=ValidationError):
+    """
+    Validate that a subproject alias is valid.
+
+    This is an extra validation on top of the regex validation,
+    to ensure that slashes are not allowed in subproject aliases
+    for projects that don't have the feature enabled.
+    """
+    from readthedocs.projects.models import Feature
+
+    if "/" in alias and not parent_project.has_feature(Feature.ALLOW_SLASHES_IN_SUBPROJECT_ALIAS):
+        raise error_class(
+            _("Aliases can't contain slashes."),
         )

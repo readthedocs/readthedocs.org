@@ -2,9 +2,8 @@
 
 import django_dynamic_fixture as fixture
 import pytest
-from django.conf import settings
 from django.contrib.auth.models import User
-from readthedocs.storage import get_storage_class
+from django.core.files.storage import storages
 from django.test import TestCase
 
 from readthedocs.builds.constants import LATEST
@@ -19,9 +18,7 @@ class BaseDocServing(TestCase):
         # Re-initialize storage
         # Various tests override either this setting or various aspects of the storage engine
         # By resetting it every test case, we avoid this caching (which is a huge benefit in prod)
-        serve.build_media_storage = get_storage_class(
-            settings.RTD_BUILD_MEDIA_STORAGE
-        )()
+        serve.build_media_storage = storages["build-media"]
 
         self.eric = fixture.get(User, username="eric")
         self.eric.set_password("eric")

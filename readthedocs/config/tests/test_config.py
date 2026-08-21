@@ -9,7 +9,7 @@ from django.conf import settings
 from django.test import override_settings
 from pytest import raises
 
-from readthedocs.config import ALL, PIP, SETUPTOOLS, BuildConfigV2, load
+from readthedocs.config import ALL, PIP, SETUPTOOLS, UV, BuildConfigV2, load
 from readthedocs.config.config import CONFIG_FILENAME_REGEX
 from readthedocs.config.exceptions import ConfigError, ConfigValidationError
 from readthedocs.config.models import (
@@ -18,6 +18,7 @@ from readthedocs.config.models import (
     BuildWithOs,
     PythonInstall,
     PythonInstallRequirements,
+    UvInstall,
 )
 
 from .utils import apply_fs
@@ -335,6 +336,56 @@ class TestBuildConfigV2:
         with does_not_raise(ConfigError):
             build.validate()
 
+    def test_conda_key_required_for_miniforge3(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                },
+            }
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.CONDA_KEY_REQUIRED
+        assert excinfo.value.format_values.get("key") == "conda"
+
+    def test_conda_key_not_required_for_miniforge3_when_build_commands(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                    "commands": [
+                        "conda env create --file environment.yml",
+                    ],
+                },
+            }
+        )
+        with does_not_raise(ConfigError):
+            build.validate()
+
+    def test_miniforge3_python_interpreter(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniforge3-25.11",
+                    },
+                },
+                "conda": {
+                    "environment": "environment.yml",
+                },
+            },
+        )
+        build.validate()
+        assert build.python_interpreter == "conda"
+
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
         build = get_build_config({"conda": value})
@@ -396,7 +447,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": value,
                 },
             },
@@ -417,7 +468,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "2.6"},
                 },
             },
@@ -434,14 +485,14 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
         )
         build.validate()
         assert isinstance(build.build, BuildWithOs)
-        assert build.build.os == "ubuntu-20.04"
+        assert build.build.os == "ubuntu-24.04"
         assert build.build.tools["python"].version == "3.9"
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.9"]
         assert build.build.tools["python"].full_version == full_version
@@ -452,7 +503,7 @@ class TestBuildConfigV2:
             {
                 "build": {
                     "image": "latest",
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.9"},
                 },
             },
@@ -466,7 +517,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                 },
                 "python": {"version": "3.8"},
@@ -484,7 +535,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": ["pip install pelican", "pelican content"],
                 },
@@ -517,7 +568,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "commands": "command as string",
                 },
@@ -562,7 +613,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {value: ["echo 1234", "git fetch --unshallow"]},
                 },
@@ -578,7 +629,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_install": value,
@@ -595,7 +646,7 @@ class TestBuildConfigV2:
         build = get_build_config(
             {
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.8"},
                     "jobs": {
                         "pre_checkout": ["echo pre_checkout"],
@@ -648,7 +699,7 @@ class TestBuildConfigV2:
             {
                 "formats": ["pdf", "htmlzip", "epub"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3"},
                     "jobs": {
                         "create_environment": ["echo make_environment"],
@@ -1152,6 +1203,48 @@ class TestBuildConfigV2:
         assert len(install) == 1
         assert install[0].extra_requirements == []
 
+    @pytest.mark.parametrize("value", [["docs"], ["docs", "tests"]])
+    def test_python_install_extra_requirements_valid_strings(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].extra_requirements == value
+
+    @pytest.mark.parametrize("value", [[["docs"]], [1], [{"key": "val"}]])
+    def test_python_install_extra_requirements_check_element_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
+        assert excinfo.value.format_values.get("key") == "python.install.0.extra_requirements"
+
     def test_python_install_several_respects_order(self, tmpdir):
         apply_fs(
             tmpdir,
@@ -1255,6 +1348,33 @@ class TestBuildConfigV2:
         )
         build.validate()
         assert build.sphinx.configuration == "conf.py"
+
+    def test_sphinx_configuration_check_valid_nested(self, tmpdir):
+        apply_fs(tmpdir, {"docs": {"conf.py": ""}})
+        build = get_build_config(
+            {"sphinx": {"configuration": "docs/conf.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.sphinx.configuration == "docs/conf.py"
+
+    @pytest.mark.parametrize(
+        "value,fs",
+        [
+            ("conf-custom.py", {"conf-custom.py": ""}),
+            ("docs/myconf.py", {"docs": {"myconf.py": ""}}),
+            ("docs/conf.py.bak", {"docs": {"conf.py.bak": ""}}),
+        ],
+    )
+    def test_sphinx_configuration_invalid_filename(self, tmpdir, value, fs):
+        apply_fs(tmpdir, fs)
+        build = get_build_config(
+            {"sphinx": {"configuration": value}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.SPHINX_INVALID_CONFIG_FILE
 
     def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
         apply_fs(tmpdir, {"conf.py": ""})
@@ -1882,7 +2002,7 @@ class TestBuildConfigV2:
                 "version": 2,
                 "formats": ["pdf"],
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.9",
                         "nodejs": "16",
@@ -1910,7 +2030,7 @@ class TestBuildConfigV2:
                 ],
             },
             "build": {
-                "os": "ubuntu-20.04",
+                "os": "ubuntu-24.04",
                 "tools": {
                     "python": {
                         "version": "3.9",
@@ -1972,3 +2092,479 @@ class TestBuildConfigV2:
             },
         }
         assert build.as_dict() == expected_dict
+
+    def test_python_install_uv_sync_valid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "sync"
+        assert install[0].path is None
+
+    def test_python_install_uv_pip_valid_with_requirements(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "requirements": "requirements.txt",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "pip"
+        assert install[0].requirements == "requirements.txt"
+
+    def test_python_install_uv_pip_valid_with_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].method == UV
+        assert install[0].command == "pip"
+        assert install[0].path == "."
+
+    def test_python_install_uv_sync_with_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "path": ".",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], UvInstall)
+        assert install[0].command == "sync"
+        assert install[0].path == "."
+
+    def test_python_install_uv_sync_with_groups(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs", "dev"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].groups == ["docs", "dev"]
+
+    def test_python_install_uv_sync_with_groups_all(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": "all",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].groups == ALL
+
+    def test_python_install_uv_sync_with_extras(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": ["docs", "tests"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].extras == ["docs", "tests"]
+
+    def test_python_install_uv_sync_with_extras_all(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": "all",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "sync"
+        assert install[0].extras == ALL
+
+    def test_python_install_uv_pip_with_extras(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": ["docs"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert install[0].command == "pip"
+        assert install[0].extras == ["docs"]
+
+    def test_python_install_uv_command_required(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_COMMAND_REQUIRED
+
+    def test_python_install_uv_invalid_command(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "invalid",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_CHOICE
+
+    def test_python_install_uv_sync_requirements_not_allowed(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "requirements": "requirements.txt",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_SYNC_REQUIREMENTS_INVALID
+
+    def test_python_install_uv_pip_groups_not_allowed(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "requirements": "requirements.txt",
+                            "groups": ["docs"],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_PIP_GROUPS_NOT_ALLOWED
+
+    def test_python_install_uv_pip_requires_requirements_or_path(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_PIP_REQUIREMENTS_OR_PATH_REQUIRED
+
+    def test_python_install_uv_multiple_entries_invalid(self, tmpdir):
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        },
+                        {
+                            "requirements": "requirements.txt",
+                        },
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_MULTIPLE_INSTALL_ENTRIES_INVALID
+
+    def test_python_install_uv_sync_groups_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "groups"
+
+    def test_python_install_uv_sync_extras_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_sync_groups_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "groups"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_sync_extras_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "extras": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    @pytest.mark.parametrize("value", [1, True, {"key": "val"}])
+    def test_python_install_uv_pip_extras_invalid_type(self, value, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": value,
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_INVALID_TYPE
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    def test_python_install_uv_pip_extras_empty_list_invalid(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "pip",
+                            "path": ".",
+                            "extras": [],
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.UV_GROUPS_EXTRAS_EMPTY
+        assert excinfo.value.format_values.get("field") == "extras"
+
+    def test_is_using_uv_true(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.is_using_uv is True
+
+    def test_is_using_uv_false_with_pip(self, tmpdir):
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                        }
+                    ],
+                },
+            },
+            source_file=str(tmpdir.join("readthedocs.yml")),
+        )
+        build.validate()
+        assert build.is_using_uv is False
+
+    def test_is_using_uv_false_with_no_install(self):
+        build = get_build_config({})
+        build.validate()
+        assert build.is_using_uv is False

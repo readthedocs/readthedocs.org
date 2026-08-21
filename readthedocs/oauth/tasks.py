@@ -10,30 +10,35 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.api.v2.views.integrations import ExternalVersionData
-from readthedocs.core.permissions import AdminPermission
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import user_id_matches_or_superuser
 from readthedocs.core.views.hooks import VersionInfo
-from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
-from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INVALID
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS
+from readthedocs.oauth.services import GitHubAppService
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 from readthedocs.worker import app
-
-from .services import registry
 
 
 log = structlog.get_logger(__name__)
@@ -49,17 +54,25 @@ log = structlog.get_logger(__name__)
     time_limit=900,
     soft_time_limit=600,
 )
-def sync_remote_repositories(user_id):
+def sync_remote_repositories(user_id, skip_githubapp=False):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
 
     failed_services = set()
     for service_cls in registry:
+        if skip_githubapp and service_cls == GitHubAppService:
+            continue
+
         try:
             service_cls.sync_user_access(user)
         except SyncServiceError:
             failed_services.add(service_cls.allauth_provider.name)
+
+    Notification.objects.cancel(
+        message_id=MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES,
+        attached_to=user,
+    )
 
     if failed_services:
         raise SyncServiceError(
@@ -69,62 +82,59 @@ def sync_remote_repositories(user_id):
         )
 
 
-@app.task(queue="web")
-def sync_remote_repositories_organizations(organization_slugs=None):
+@app.task(
+    queue="web",
+    # This is a long running task, since it syncs all repositories one by one.
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
+def sync_remote_repositories_from_sso_organizations():
     """
-    Re-sync users member of organizations.
+    Re-sync all remote repositories from organizations with SSO enabled.
 
-    It will trigger one `sync_remote_repositories` task per user.
+    This is useful, so all the remote repositories are up to date with the
+    latest permissions from their providers.
 
-    :param organization_slugs: list containg organization's slugs to sync. If
-    not passed, all organizations with ALLAUTH SSO enabled will be synced
-
-    :type organization_slugs: list
+    We ignore repositories from GitHub App installations, since they are kept
+    up to date via webhooks. For all the other services, we need to sync the
+    repository for each user that has access to it, since we need to check for
+    their permissions individually.
     """
-    if organization_slugs:
-        query = Organization.objects.filter(slug__in=organization_slugs)
-        log.info(
-            "Triggering SSO re-sync for organizations.",
-            organization_slugs=organization_slugs,
-            count=query.count(),
+    repositories = (
+        RemoteRepository.objects.filter(
+            projects__organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
         )
-    else:
-        organization_ids = SSOIntegration.objects.filter(
-            provider=SSOIntegration.PROVIDER_ALLAUTH
-        ).values_list("organization", flat=True)
-        query = Organization.objects.filter(id__in=organization_ids)
-        log.info(
-            "Triggering SSO re-sync for all organizations.",
-            count=query.count(),
-        )
-
-    n_task = -1
-    for organization in query:
-        members = AdminPermission.members(organization)
-        log.info(
-            "Triggering SSO re-sync for organization.",
-            organization_slug=organization.slug,
-            count=members.count(),
-        )
-        for user in members:
-            n_task += 1
-            sync_remote_repositories.apply_async(
-                args=[user.pk],
-                # delay the task by 0, 5, 10, 15, ... seconds
-                countdown=n_task * 5,
-            )
+        .exclude(vcs_provider=GITHUB_APP)
+        .distinct()
+    )
+    for repository in repositories.iterator():
+        service_class = repository.get_service_class()
+        relations = repository.remote_repository_relations.select_related("user", "account")
+        for relation in relations.iterator():
+            service = service_class(user=relation.user, account=relation.account)
+            try:
+                service.update_repository(repository)
+            except Exception:
+                log.info(
+                    "There was a problem updating repository for user.",
+                    user_username=relation.user.username,
+                    account_uid=relation.account.uid,
+                    repository_remote_id=repository.remote_id,
+                    repository_name=repository.full_name,
+                )
 
 
 @app.task(
     queue="web",
     time_limit=60 * 60 * 3,  # 3h
     soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+    bind=True,
 )
-def sync_active_users_remote_repositories():
+def sync_active_users_remote_repositories(self):
     """
     Sync ``RemoteRepository`` for active users.
 
-    We consider active users those that logged in at least once in the last 90 days.
+    We consider active users those that logged in at least once in the last 45 days.
 
     This task is thought to be executed daily. It checks the weekday of the
     last login of the user with today's weekday. If they match, the re-sync is
@@ -133,78 +143,103 @@ def sync_active_users_remote_repositories():
     Note this is a long running task syncronizhing all the users in the same Celery process,
     and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
     """
-    today_weekday = timezone.now().isoweekday()
-    three_months_ago = timezone.now() - datetime.timedelta(days=90)
-    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
-        last_login__gt=three_months_ago,
-        socialaccount__isnull=False,
-        weekday=today_weekday,
-    )
+    # This task is expensive, and we run it daily.
+    # We have had issues with it being triggered multiple times per day,
+    # so we use a lock (12 hours) to avoid that.
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, 60 * 60 * 12, self.app.oid) as acquired:
+        if not acquired:
+            log.exception("Task has already been run recently, exiting.")
+            return
 
-    users_count = users.count()
-    log.bind(total_users=users_count)
-    log.info("Triggering re-sync of RemoteRepository for active users.")
-
-    for i, user in enumerate(users):
-        log.bind(
-            user_username=user.username,
-            progress=f"{i}/{users_count}",
+        today_weekday = timezone.now().isoweekday()
+        days_ago = timezone.now() - datetime.timedelta(days=45)
+        users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+            last_login__gt=days_ago,
+            socialaccount__isnull=False,
+            weekday=today_weekday,
         )
 
-        # Log an update every 50 users
-        if i % 50 == 0:
-            log.info("Progress on re-syncing RemoteRepository for active users.")
+        users_count = users.count()
+        structlog.contextvars.bind_contextvars(total_users=users_count)
+        log.info("Triggering re-sync of RemoteRepository for active users.")
 
-        try:
-            # NOTE: sync all the users/repositories in the same Celery process.
-            # Do not trigger a new task per user.
-            sync_remote_repositories(user.pk)
-        except Exception:
-            log.exception("There was a problem re-syncing RemoteRepository.")
+        for i, user in enumerate(users.iterator()):
+            structlog.contextvars.bind_contextvars(
+                user_username=user.username,
+                progress=f"{i}/{users_count}",
+            )
+
+            # Log an update every 50 users
+            if i % 50 == 0:
+                log.info("Progress on re-syncing RemoteRepository for active users.")
+
+            try:
+                # NOTE: sync all the users/repositories in the same Celery process.
+                # Do not trigger a new task per user.
+                # NOTE: We skip the GitHub App, since all the repositories
+                # and permissions are kept up to date via webhooks.
+                # Triggering a sync per-user, will re-sync the same installation
+                # multiple times.
+                sync_remote_repositories(
+                    user.pk,
+                    skip_githubapp=True,
+                )
+            except Exception:
+                log.exception("There was a problem re-syncing RemoteRepository.")
 
 
-# TODO: remove user_pk from the signature on the next release.
 @app.task(queue="web")
-def attach_webhook(project_pk, user_pk=None, integration=None, **kwargs):
+def attach_webhook(project_pk, user_pk, integration=None, **kwargs):
     """
-    Add post-commit hook on project import.
+    Attach a webhook to the Git provider of the project's repository.
 
-    This is a brute force approach to add a webhook to a repository. We try
-    all accounts until we set up a webhook. This should remain around for legacy
-    connections -- that is, projects that do not have a remote repository them
-    and were not set up with a VCS provider.
+    The user making the request needs to have access to the repository
+    to be able to attach the webhook, otherwise it will fail. We don't
+    brute force with all the users that have access to project, since
+    a user from the same project could attach a webhook to a repository
+    that they don't have access to.
 
     :param project_pk: Project primary key
+    :param user_pk: The user making the request.
     :param integration: Integration instance. If used, this function should
      be called directly, not as a task.
     """
+    user = User.objects.filter(pk=user_pk).first()
+    if not user:
+        return False
+
     project = Project.objects.filter(pk=project_pk).first()
     if not project:
         return False
 
-    if integration:
-        service_class = SERVICE_MAP.get(integration.integration_type)
-    else:
-        # Get the service class for the project e.g: GitHubService.
-        # We fallback to guess the service from the repo,
-        # in the future we should only consider projects that have a remote repository.
-        service_class = project.get_git_service_class(fallback_to_clone_url=True)
+    if project.is_github_app_project:
+        return True
 
+    # Get the service class for the project e.g: GitHubService.
+    # We fallback to guess the service from the repo,
+    # in the future we should only consider projects that have a remote repository.
+    service_class = project.get_git_service_class(fallback_to_clone_url=True)
     if not service_class:
         Notification.objects.add(
-            message_id=MESSAGE_OAUTH_WEBHOOK_INVALID,
+            message_id=MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER,
             attached_to=project,
             dismissable=True,
-            format_values={
-                "url_integrations": reverse(
-                    "projects_integrations",
-                    args=[project.slug],
-                ),
-            },
         )
         return False
 
-    services = list(service_class.for_project(project))
+    if integration and SERVICE_MAP.get(integration.integration_type) != service_class:
+        # The user is trying to attach an integration to a project
+        # that is not compatible with that integration
+        # (e.g: trying to attach a GitHub integration to a GitLab project).
+        Notification.objects.add(
+            message_id=MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH,
+            attached_to=project,
+            dismissable=True,
+        )
+        return False
+
+    services = list(service_class.for_user(user))
     if not services:
         Notification.objects.add(
             message_id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
@@ -272,16 +307,16 @@ class GitHubAppWebhookHandler:
         # Most of the events have an installation object and action.
         installation_id = self.data.get("installation", {}).get("id", "unknown")
         action = self.data.get("action", "unknown")
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             installation_id=installation_id,
             action=action,
-            event=self.event,
+            event_name=self.event,
         )
         if self.event not in self.event_handlers:
             log.debug("Unsupported event")
             raise ValueError(f"Unsupported event: {self.event}")
 
-        log.debug("Handling event")
+        log.info("Handling event from GitHubAppWebhookHandler.")
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):
@@ -458,12 +493,9 @@ class GitHubAppWebhookHandler:
             return
 
         if action == "added":
-            if self.data["repository_selection"] == "all":
-                installation.service.sync()
-            else:
-                installation.service.update_or_create_repositories(
-                    [repo["id"] for repo in self.data["repositories_added"]]
-                )
+            installation.service.update_or_create_repositories(
+                [repo["id"] for repo in self.data["repositories_added"]]
+            )
             return
 
         if action == "removed":
@@ -538,6 +570,9 @@ class GitHubAppWebhookHandler:
         If a new branch or tag is created, we trigger a sync of the versions,
         if the version already exists, we build it if it's active.
 
+        If webhook automation rules are configured, they are checked to decide whether
+        a build should be triggered based on the files that were modified.
+
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads#push.
         """
         created = self.data.get("created", False)
@@ -547,11 +582,62 @@ class GitHubAppWebhookHandler:
                 trigger_sync_versions(project)
             return
 
-        # If this is a push to an existing branch or tag,
-        # we need to build the version if active.
         version_name, version_type = parse_version_from_ref(self.data["ref"])
         for project in self._get_projects():
-            build_versions_from_names(project, [VersionInfo(name=version_name, type=version_type)])
+            # If the project has webhook automation rules,
+            # we check if any of them matches.
+            # If none one matches, it finishes here.
+            # However, if there are no webhook automation rules configured,
+            # we continue with the build as usual.
+            webhook_rules = [
+                rule
+                for rule in project.automation_rules.filter(
+                    enabled=True,
+                    action__in=AutomationRule.BUILD_ACTIONS,
+                    # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                    # We are using `rule.match_version` below to check this instead.
+                    # version_types__contains=version_type,
+                )
+                if version_type in rule.version_types
+            ]
+            if webhook_rules:
+                changed_files = self._get_changed_files_from_push_event()
+                commit_message = self.data["head_commit"]["message"]
+                labels = []  # We don't have labels in push events, so we leave it empty.
+
+                rule_triggered_for_project = False
+                for version in project.versions_from_name(version_name, version_type):
+                    for rule in webhook_rules:
+                        if rule.match_version(version=version) and rule.match_webhook(
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
+                            log.info(
+                                "Automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                                rule_version_types=rule.version_types,
+                                version_slug=version.slug,
+                                version_name=version_name,
+                                version_type=version_type,
+                            )
+                            rule_triggered_for_project = True
+                            rule.run(version)
+
+                            # We only trigger the first matching rule per version
+                            # to avoid triggering multiple builds for the same tag/branches.
+                            break
+
+                if not rule_triggered_for_project:
+                    log.info(
+                        "No automation rule matched, skipping build.",
+                        project_slug=project.slug,
+                    )
+            else:
+                build_versions_from_names(
+                    project, [VersionInfo(name=version_name, type=version_type)]
+                )
 
     def _handle_pull_request_event(self):
         """
@@ -577,7 +663,65 @@ class GitHubAppWebhookHandler:
                     project=project,
                     version_data=external_version_data,
                 )
-                build_external_version(project, external_version)
+
+                # NOTE: skip building PR if there are webhook automation rules matching.
+                # If the project has webhook automation rules,
+                # we check if any of them matches.
+                # If none one matches, it finishes here.
+                # However, if there are no webhook automation rules configured,
+                # we continue with the build as usual.
+                webhook_rules = [
+                    rule
+                    for rule in project.automation_rules.filter(
+                        enabled=True,
+                        action__in=AutomationRule.BUILD_ACTIONS,
+                        # NOTE: we cannot use __contains on JSON field on SQLite because it's not supported.
+                        # We are using `rule.match_version` below to check this instead.
+                        # version_types__contains=EXTERNAL,
+                    )
+                    if EXTERNAL in rule.version_types
+                ]
+                if webhook_rules:
+                    rule_triggered = False
+                    changed_files = self._get_changed_files_from_pull_request_event(
+                        project,
+                        action,
+                    )
+                    commit_message = self._get_commit_message_from_pull_request_event(project)
+                    labels = self._get_labels_from_pull_request_event()
+
+                    for rule in webhook_rules:
+                        if rule.match_version(version=external_version) and rule.match_webhook(
+                            changed_files=changed_files,
+                            commit_message=commit_message,
+                            labels=labels,
+                        ):
+                            log.info(
+                                "Automation rule matched, triggering build.",
+                                project_slug=project.slug,
+                                rule_id=rule.pk,
+                                rule_version_types=rule.version_types,
+                                version_slug=external_version.slug,
+                                version_type=EXTERNAL,
+                            )
+                            rule_triggered = True
+                            rule.run(external_version, commit=external_version.identifier)
+
+                            # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
+                            break
+
+                    if not rule_triggered:
+                        log.info(
+                            "No automation rule matched, skipping build.",
+                            project_slug=project.slug,
+                        )
+                else:
+                    trigger_build(
+                        project=project,
+                        version=external_version,
+                        commit=external_version.identifier,
+                        from_webhook=True,
+                    )
             return
 
         if action == "closed":
@@ -741,14 +885,100 @@ class GitHubAppWebhookHandler:
             installation.service.sync()
         return installation, created
 
+    def _get_changed_files_from_push_event(self):
+        """
+        Get the list of changed files from the push event.
+
+        It considers the changes from all commits that were pushed.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        commits = self.data.get("commits", [])
+        for commit in commits:
+            changed_files.update(commit.get("added", []))
+            changed_files.update(commit.get("modified", []))
+            changed_files.update(commit.get("removed", []))
+        return changed_files
+
+    def _get_changed_files_from_pull_request_event(self, project, action):
+        """
+        Get the list of changed files from the pull request event.
+
+        It considers the changes on all the files affected by the pull request for `opened`/`reopened` actions.
+        For `synchronize` action, it considers the changes from the commits that were pushed.
+
+        :return: List of file paths
+        """
+        changed_files = set()
+        installation, _ = self._get_or_create_installation()
+
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id),
+            lazy=True,
+        )
+
+        if action == "synchronize":
+            # If the PR is updated with new commits,
+            # we check the files changed between the "before" and "after" commits.
+            before_sha = self.data["before"]
+            after_sha = self.data["after"]
+            comparison = gh_repository.compare(before_sha, after_sha)
+            for file in comparison.files:
+                changed_files.add(file.filename)
+
+        elif action in ("opened", "reopened"):
+            # If the PR is opened or reopened, we check for all the files changed in the pull request.
+            files = gh_repository.get_pull(int(self.data["pull_request"]["number"])).get_files()
+
+            for f in files:
+                changed_files.add(f.filename)
+
+        return changed_files
+
+    def _get_commit_message_from_pull_request_event(self, project):
+        """
+        Get latest commit message from the pull request event.
+
+        :return: latest commit message
+        """
+        installation, _ = self._get_or_create_installation()
+
+        gh_repository = installation.service.installation_client.get_repo(
+            int(project.remote_repository.remote_id),
+            lazy=True,
+        )
+
+        gh_commit = gh_repository.get_commit(
+            self.data["pull_request"]["head"]["sha"],
+        )
+        return gh_commit.commit.message
+
+    def _get_labels_from_pull_request_event(self):
+        """
+        Get the list of labels from the pull request event.
+
+        :return: List of labels
+        """
+        labels = set()
+        for label in self.data["pull_request"]["labels"]:
+            labels.add(label["name"])
+
+        return labels
+
 
 @app.task(queue="web")
-def handle_github_app_webhook(data: dict, event: str):
+def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown"):
     """
     Handle GitHub App webhooks asynchronously.
 
     :param data: The webhook payload data.
     :param event: The event type of the webhook.
     """
+    structlog.contextvars.bind_contextvars(
+        event=event,
+        event_id=event_id,
+    )
+    log.info("Handling GitHub App webhook from Celery task.")
     handler = GitHubAppWebhookHandler(data, event)
     handler.handle()

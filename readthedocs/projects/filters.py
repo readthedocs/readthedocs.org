@@ -11,6 +11,7 @@ from django_filters import OrderingFilter
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import TYPE_CHOICES
 
 
 log = structlog.get_logger(__name__)
@@ -127,7 +128,7 @@ class ProjectSortOrderingFilter(OrderingFilter):
             field = field_ordered.lstrip("-")
 
             if field == self.SORT_BUILD_DATE:
-                annotations[self.SORT_BUILD_DATE] = Max("builds__date")
+                annotations[self.SORT_BUILD_DATE] = F("latest_build__date")
             elif field == self.SORT_BUILD_COUNT:
                 annotations[self.SORT_BUILD_COUNT] = Count("builds")
 
@@ -138,12 +139,8 @@ class ProjectSortOrderingFilter(OrderingFilter):
             else:
                 order_bys.append(field_ordered)
 
-        # Prefetch here not only prefetches the query, but it also changes how `get_latest_build`
-        # works. Normally from templates `project.get_latest_build` only returns
-        # the latest _finished_ build. But with prefetch, _all_ builds are
-        # considered and `get_latest_build` will pop the first off this list of
-        # _all_ builds.
-        return qs.prefetch_latest_build().annotate(**annotations).order_by(*order_bys)
+        # annotate_has_successful_build does some extra optimizations to avoid additional queries.
+        return qs.annotate_has_successful_build().annotate(**annotations).order_by(*order_bys)
 
 
 class ProjectListFilterSet(ModelFilterSet):
@@ -246,3 +243,36 @@ class ProjectVersionListFilterSet(ModelFilterSet):
         if value == self.VISIBILITY_VISIBLE:
             return queryset.filter(hidden=False)
         return queryset
+
+
+class RedirectListFilterSet(ModelFilterSet):
+    """
+    Filter for the project redirects listing page.
+
+    Addresses https://github.com/readthedocs/readthedocs.org/issues/12214.
+    """
+
+    redirect_type = ChoiceFilter(
+        field_name="redirect_type",
+        label=_("Redirect type"),
+        choices=TYPE_CHOICES,
+        empty_label=_("All types"),
+    )
+
+    url = FilteredModelChoiceFilter(
+        label=_("URL"),
+        empty_label=_("All URLs"),
+        to_field_name="from_url",
+        queryset_method="get_redirect_queryset",
+        method="get_redirect",
+        label_attribute="from_url",
+    )
+
+    def get_redirect_queryset(self):
+        # Scope choices to the project's redirects passed in at instantiation;
+        # otherwise the dropdown would show every Redirect across all projects.
+        # Exclude redirects without a ``from_url`` (eg. clean URL <-> HTML types).
+        return self.queryset.exclude(from_url="")
+
+    def get_redirect(self, queryset, field_name, redirect):
+        return queryset.filter(from_url=redirect.from_url)

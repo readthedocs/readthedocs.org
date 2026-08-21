@@ -42,6 +42,7 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_OLD_DIRECTORY_USED = "build:user:output:old-directory-used"
     FILE_TOO_LARGE = "build:user:output:file-too-large"
     TEX_FILE_NOT_FOUND = "build:user:tex-file-not-found"
+    PDF_NOT_FOUND = "build:user:pdf-not-found"
 
     NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"

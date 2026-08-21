@@ -5,13 +5,14 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.users import get_user_by_username_or_email
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.constants import ADMIN_ACCESS
 from readthedocs.organizations.constants import READ_ONLY_ACCESS
@@ -36,7 +37,7 @@ class OrganizationForm(SimpleHistoryModelForm):
 
     class Meta:
         model = Organization
-        fields = ["name", "email", "description", "url"]
+        fields = ["name", "email", "avatar", "description", "url"]
         labels = {
             "name": _("Organization Name"),
             "email": _("Billing Email"),
@@ -60,23 +61,46 @@ class OrganizationForm(SimpleHistoryModelForm):
             )
         super().__init__(*args, **kwargs)
 
-    def clean_name(self):
-        """Raise exception on duplicate organization slug."""
-        name = self.cleaned_data["name"]
+    def clean_slug(self):
+        slug_source = self.cleaned_data["slug"]
 
         # Skip slug validation on already created organizations.
         if self.instance.pk:
-            return name
+            return slug_source
 
-        potential_slug = slugify(name)
-        if not potential_slug:
-            raise forms.ValidationError(_("Invalid organization name: no slug generated"))
-        if Organization.objects.filter(slug=potential_slug).exists():
+        slug = slugify(slug_source, dns_safe=True)
+        if not slug:
+            # If the was not empty, but renders down to something empty, the
+            # user gave an invalid slug. However, we can't suggest anything
+            # useful because the slug is empty. This is an edge case for input
+            # like `---`, so the error here doesn't need to be very specific.
+            raise forms.ValidationError(_("Invalid slug, use more valid characters."))
+        elif slug != slug_source:
+            # There is a difference between the slug from the front end code, or
+            # the user is trying to submit the form without our front end code.
             raise forms.ValidationError(
-                _("Organization %(name)s already exists"),
-                params={"name": name},
+                _("Invalid slug, use suggested slug '%(slug)s' instead"),
+                params={"slug": slug},
             )
-        return name
+        if Organization.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(_("Slug is already used by another organization"))
+        return slug
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get("avatar")
+        if avatar:
+            if avatar.size > 750 * 1024:
+                raise forms.ValidationError(
+                    _("Avatar image size must not exceed 750KB."),
+                )
+            try:
+                img = Image.open(avatar)
+            except Exception:
+                raise ValidationError("Could not process image. Please upload a valid image file.")
+            width, height = img.size
+            if width > 500 or height > 500:
+                raise ValidationError("The image dimensions cannot exceed 500x500 pixels.")
+        return avatar
 
 
 class OrganizationSignupFormBase(OrganizationForm):
@@ -92,13 +116,19 @@ class OrganizationSignupFormBase(OrganizationForm):
 
     class Meta:
         model = Organization
-        fields = ["name", "email"]
+        fields = ["name", "slug", "email"]
         labels = {
             "name": _("Organization Name"),
             "email": _("Billing Email"),
         }
+        help_texts = {
+            "slug": "Used in URLs for your projects when not using a custom domain. It cannot be changed later.",
+        }
 
     url = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def _create_default_teams(organization):
@@ -138,9 +168,7 @@ class OrganizationOwnerForm(forms.Form):
     def clean_username_or_email(self):
         """Lookup owner by username or email, detect collisions with existing owners."""
         username = self.cleaned_data["username_or_email"]
-        user = User.objects.filter(
-            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
-        ).first()
+        user = get_user_by_username_or_email(username)
         if user is None:
             raise forms.ValidationError(
                 _("User %(username)s does not exist"),
@@ -226,10 +254,7 @@ class OrganizationTeamMemberForm(forms.Form):
         in that case we send an invitation to that email.
         """
         username = self.cleaned_data["username_or_email"]
-        user = User.objects.filter(
-            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
-        ).first()
-
+        user = get_user_by_username_or_email(username)
         if user:
             return self.validate_member_user(user)
 

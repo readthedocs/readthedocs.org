@@ -28,11 +28,11 @@ from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import LANGUAGES
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.validators import validate_environment_variable_size
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
@@ -177,6 +177,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source="*")
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
+    # Kept for backward compatibility. The field was removed from the model,
+    # but we still return it as an empty string to avoid breaking API clients.
+    error = serializers.SerializerMethodField()
 
     class Meta:
         model = Build
@@ -196,6 +199,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {"config": (BuildConfigSerializer,)}
+
+    def get_error(self, obj):
+        return ""
 
     def get_finished(self, obj):
         if obj.date and obj.length:
@@ -264,7 +270,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         read_only_fields = ["dismissable", "news"]
 
     def get_attached_to_content_type(self, obj):
-        return obj.attached_to_content_type.name
+        # NOTE: Don't use name, because it can change based on the current language.
+        return obj.attached_to_content_type.model
 
 
 class VersionLinksSerializer(BaseLinksSerializer):
@@ -355,19 +362,14 @@ class VersionSerializer(serializers.ModelSerializer):
             "privacy_level",
         ]
 
-    def __init__(self, *args, resolver=None, version_serializer=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self, *args, resolver=None, **kwargs):
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
-        self.resolver = kwargs.pop("resolver", Resolver())
-
-        # Allow passing a specific serializer when initializing it.
-        # This is required to pass ``VersionSerializerNoLinks`` from the addons API.
-        self.version_serializer = version_serializer or VersionSerializer
+        self.resolver = resolver or Resolver()
+        super().__init__(*args, **kwargs)
 
     def get_downloads(self, obj):
-        downloads = obj.get_downloads()
+        downloads = obj.get_downloads(resolver=self.resolver)
         data = {}
 
         for k, v in downloads.items():
@@ -387,7 +389,8 @@ class VersionSerializer(serializers.ModelSerializer):
             if obj.slug == LATEST:
                 alias_version = obj.project.get_original_latest_version()
             if alias_version and alias_version.active:
-                return [self.version_serializer(alias_version).data]
+                # NOTE: we use __class__, as this serializer can be subclassed.
+                return [self.__class__(alias_version).data]
         return []
 
 
@@ -472,17 +475,24 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return None
 
     def get_documentation(self, obj):
-        version_slug = getattr(self.parent, "version_slug", None)
+        version = getattr(self.parent, "version", None)
         resolver = getattr(self.parent, "resolver", Resolver())
-        return obj.get_docs_url(version_slug=version_slug, resolver=resolver)
+        return resolver.resolve_version(project=obj, version=version)
 
 
-class RepositorySerializer(serializers.Serializer):
-    url = serializers.CharField(source="repo")
-    type = serializers.ChoiceField(
-        source="repo_type",
-        choices=REPO_CHOICES,
-    )
+class RepositorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = [
+            "url",
+            "type",
+        ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "url": {"source": "repo"},
+            "type": {"source": "repo_type"},
+        }
 
 
 class ProjectLinksSerializer(BaseLinksSerializer):
@@ -588,7 +598,6 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source="*")
-    homepage = serializers.URLField(source="project_url", required=False)
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -602,7 +611,13 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "readthedocs_yaml_path",
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "homepage": {"source": "project_url"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -678,10 +693,6 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
     """Serializer used to modify a Project once imported."""
 
     repository = RepositorySerializer(source="*")
-    homepage = serializers.URLField(
-        source="project_url",
-        required=False,
-    )
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -704,9 +715,15 @@ class ProjectUpdateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
+            "readthedocs_yaml_path",
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "homepage": {"source": "project_url"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -798,6 +815,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "urls",
             "tags",
             "privacy_level",
+            "readthedocs_yaml_path",
             "external_builds_privacy_level",
             "versioning_scheme",
             # Kept for backwards compatibility,
@@ -837,13 +855,13 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
-        # Receive a `Version.slug` here to build URLs properly
-        self.version_slug = kwargs.pop("version_slug", None)
+    def __init__(self, *args, resolver=None, **kwargs):
+        # Receive a `Version` here to build URLs properly
+        self.version = kwargs.pop("version", None)
 
         # Use a shared resolver to reduce the amount of DB queries while
         # resolving version URLs.
-        self.resolver = kwargs.pop("resolver", Resolver())
+        self.resolver = resolver or Resolver()
 
         super().__init__(*args, **kwargs)
         # When using organizations, projects don't have the concept of users.
@@ -864,10 +882,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         return None
 
     def get_subproject_of(self, obj):
-        parent_relationship = obj.superprojects.first()
-        if parent_relationship:
+        if obj.main_language_project:
+            # If the project is a translation, it can't be a subproject,
+            # so it doesn't have a superproject.
+            return None
+
+        superproject = obj.superproject
+        if superproject:
             # Since the related project can be private, we use a restricted serializer.
-            return self.related_project_serializer(parent_relationship.parent).data
+            return self.related_project_serializer(superproject).data
         return None
 
 
@@ -896,17 +919,26 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             "Project with {slug_name}={value} is not valid as subproject"
         )
 
-    def validate_alias(self, value):
+    def validate(self, data):
+        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+
+        # Alias is optional, it defaults to the child's slug when not given.
+        alias = data.get("alias") or data["child"].slug
+
         # Check there is not a subproject with this alias already
-        subproject = self.parent_project.subprojects.filter(alias=value)
+        subproject = self.parent_project.subprojects.filter(alias=alias)
         if subproject.exists():
             raise serializers.ValidationError(
-                _("A subproject with this alias already exists"),
+                {"alias": _("A subproject with this alias already exists")},
             )
-        return value
 
-    def validate(self, data):  # pylint: disable=arguments-renamed
-        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+        validate_subproject_alias(
+            parent_project=self.parent_project,
+            alias=alias,
+            error_class=serializers.ValidationError,
+        )
+
+        data["alias"] = alias
         return data
 
 
@@ -1000,8 +1032,6 @@ class RedirectSerializerBase(serializers.ModelSerializer):
     modified = serializers.DateTimeField(source="update_dt", read_only=True)
     _links = RedirectLinksSerializer(source="*", read_only=True)
 
-    type = serializers.ChoiceField(source="redirect_type", choices=REDIRECT_TYPE_CHOICES)
-
     class Meta:
         model = Redirect
         fields = [
@@ -1019,6 +1049,11 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "position",
             "_links",
         ]
+        # NOTE: rename fields using extra kwargs instead of re-defining them,
+        # to keep other attributes like validators, help_text, etc.
+        extra_kwargs = {
+            "type": {"source": "redirect_type"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1065,9 +1100,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         validate_redirect(
             project=instance.project,
             pk=instance.pk,
-            redirect_type=validated_data["redirect_type"],
-            from_url=validated_data.get("from_url", ""),
-            to_url=validated_data.get("to_url", ""),
+            redirect_type=validated_data.get("redirect_type", instance.redirect_type),
+            from_url=validated_data.get("from_url", instance.from_url),
+            to_url=validated_data.get("to_url", instance.to_url),
             error_class=serializers.ValidationError,
         )
         return super().update(instance, validated_data)

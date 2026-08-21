@@ -1,9 +1,11 @@
 import django_dynamic_fixture as fixture
 import pytest
 
+from readthedocs.builds.constants import BRANCH, TAG
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
+    determine_stable_version,
     sort_versions_calver,
     sort_versions_custom_pattern,
     sort_versions_python_packaging,
@@ -150,6 +152,46 @@ class TestVersionHandling:
         )
 
         assert expected == [version.slug for version in sorted_versions]
+
+    def test_determine_stable_version_uses_verbose_name_not_slug(self):
+        # slug values are intentionally reversed vs. verbose_name so that
+        # selecting by slug would pick a different winner than verbose_name.
+        fixture.get(
+            Version,
+            project=self.project,
+            type=TAG,
+            slug="9-9",
+            verbose_name="0.1",
+        )
+        winner = fixture.get(
+            Version,
+            project=self.project,
+            type=TAG,
+            slug="0-5",
+            verbose_name="2.0",
+        )
+
+        stable = determine_stable_version(self.project.versions.all())
+        assert stable == winner
+
+    def test_determine_stable_version_prefers_tags_over_branches(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            slug="3-0",
+            verbose_name="3.0",
+        )
+        winner = fixture.get(
+            Version,
+            project=self.project,
+            type=TAG,
+            slug="1-0",
+            verbose_name="1.0",
+        )
+
+        stable = determine_stable_version(self.project.versions.all())
+        assert stable == winner
 
     def test_sort_versions_custom_pattern(self):
         slugs = [

@@ -1,5 +1,6 @@
-mdBook
-======
+
+Deploying mdBook on Read the Docs
+=================================
 
 .. meta::
    :description lang=en: Learn how to host mdBook documentation on Read the Docs.

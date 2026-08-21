@@ -90,3 +90,25 @@ class TestCancelOldBuilds:
         assert builds_count_before == builds_count_after - 1
         assert update_docs_task.signature.called
         assert update_docs_task.signature().apply_async.called
+
+    @mock.patch("readthedocs.core.utils.cancel_build")
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_update_latest_build_on_trigger(self, update_docs_task, cancel_build):
+        assert self.project.builds.count() == 0
+        assert self.project.latest_build is None
+        _, build = trigger_build(
+            project=self.project,
+            version=self.version,
+        )
+
+        self.project.refresh_from_db()
+        assert self.project.builds.count() == 1
+        assert self.project.latest_build == build
+
+        _, build = trigger_build(
+            project=self.project,
+            version=self.version,
+        )
+        self.project.refresh_from_db()
+        assert self.project.builds.count() == 2
+        assert self.project.latest_build == build

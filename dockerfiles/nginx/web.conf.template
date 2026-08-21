@@ -18,6 +18,11 @@ server {
         break;
     }
 
+    location /usercontent/ {
+        proxy_pass http://storage:9000/usercontent/;
+        break;
+    }
+
     location / {
         proxy_pass http://web:8000/;
         proxy_set_header X-Forwarded-Host $host;

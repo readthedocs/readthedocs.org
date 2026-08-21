@@ -126,14 +126,15 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         # since the number of results is the total
         # of searching on all projects, this specific project
         # could have had 0 results.
-        for project, version in self._get_projects_to_search():
-            tasks.record_search_query.delay(
-                project.slug,
-                version.slug,
-                query,
-                total_results,
-                time.isoformat(),
-            )
+        projects_and_versions = [
+            (project.slug, version.slug) for project, version in self._get_projects_to_search()
+        ]
+        tasks.record_search_query_batch.delay(
+            projects_and_versions=projects_and_versions,
+            query=query,
+            total_results=total_results,
+            time_string=time.isoformat(),
+        )
 
     def list(self):
         queryset = self.get_queryset()

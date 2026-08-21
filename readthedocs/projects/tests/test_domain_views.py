@@ -173,6 +173,19 @@ class TestDomainViews(TestCase):
         domain = self.project.domains.first()
         assert domain.domain == "docs.example.com"
 
+    @mock.patch("readthedocs.projects.forms.dns.resolver.resolve")
+    def test_editing_domain_doesnt_trigger_cname_validation(self, dns_resolve_mock):
+        domain = get(Domain, project=self.project, domain="docs.example.com")
+        assert not domain.canonical
+        resp = self.client.post(
+            reverse("projects_domains_edit", args=[self.project.slug, domain.pk]),
+            data={"canonical": True},
+        )
+        assert resp.status_code == 302
+        domain.refresh_from_db()
+        assert domain.canonical
+        dns_resolve_mock.assert_not_called()
+
     @override_settings(
         RTD_DEFAULT_FEATURES=dict(
             [RTDProductFeature(type=TYPE_CNAME, value=1).to_item()]

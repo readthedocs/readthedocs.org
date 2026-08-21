@@ -21,13 +21,16 @@ This version should always exist and is the default version for your project.
 
 If your project has any tags or branches with a name following
 `semantic versioning <https://semver.org/>`_ (with or without a ``v`` prefix),
-we also create a ``stable`` version tracking your most recent release.
+we also create a ``stable`` version tracking your greatest stable semantic version number release.
+It excludes pre-release versions indicated by alphas, betas, and similar unstable notations, according to semantic versioning.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
 .. note::
    If you have at least one tag,
    tags will take preference over branches when selecting the stable version.
+   The comparison uses the tag or branch name from your Git repository,
+   not the version slug shown in URLs.
 
 When you have :doc:`/reference/git-integration` configured for your repository,
 we will automatically build each version when you push a commit.

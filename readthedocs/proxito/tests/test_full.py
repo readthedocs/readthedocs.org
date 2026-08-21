@@ -10,7 +10,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
@@ -28,6 +27,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Domain, Feature, HTMLFile, Project
+from readthedocs.proxito.views.serve import ServeLLMSTXTBase
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import (
     BuildMediaFileSystemStorageTest,
@@ -548,12 +548,19 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
+            self.assertTrue(
+                resp["Content-Disposition"].startswith("inline; filename=")
+            )
+            self.assertTrue(
+                resp["Content-Disposition"].endswith(f'.{extension}"')
+            )
 
             # Translation
             resp = self.client.get(
@@ -561,6 +568,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "translation,translation:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -605,6 +613,7 @@ class TestDocServingBackends(BaseDocServing):
                 headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp["Cache-Tag"], "project,project:latest")
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
             self.assertEqual(
                 resp["X-Accel-Redirect"],
@@ -627,7 +636,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version(self):
+    def test_download_external_version_on_main_domain(self):
+        """Downloading an external version from the main domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",
@@ -644,7 +654,8 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files_from_external_version_from_main_domain(self):
+    def test_download_internal_version_on_external_domain(self):
+        """Downloading an internal version from an external domain should return 404."""
         fixture.get(
             Version,
             verbose_name="10",
@@ -749,9 +760,7 @@ class TestDocServingBackends(BaseDocServing):
             "/en/latest/..\\\\../someproject/en/target/awesome.html",
         ]
         for _path in relative_paths:
-            resp = self.client.get(
-                _path, headers={"host": "project.dev.readthedocs.io"}
-            )
+            resp = self.client.get(_path, headers={"host": "project.dev.readthedocs.io"})
             self.assertEqual(resp.status_code, 400)
 
     def test_track_html_files_only(self):
@@ -766,9 +775,7 @@ class TestDocServingBackends(BaseDocServing):
         url = "/en/latest/awesome.html"
         host = "project.dev.readthedocs.io"
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -781,17 +788,13 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.action, AuditLog.PAGEVIEW)
 
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get("/en/latest/awesome.js", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
 
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get("/en/latest/awesome.css", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -808,9 +811,7 @@ class TestDocServingBackends(BaseDocServing):
         url = "/_/downloads/en/latest/pdf/"
         host = "project.dev.readthedocs.io"
         with override_settings(
-            RTD_DEFAULT_FEATURES=dict(
-                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
-            )
+            RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()])
         ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
@@ -921,11 +922,99 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertContains(response, expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_default_robots_txt_single_version_project_with_multiple_versions(self, storage_exists):
+        """
+        Single-version projects may still have more than one active version.
+
+        When a project switches to single-version mode, the other versions are not deleted.
+        In this case, paths for other hidden versions all resolve to ``/``,
+        which matches the default version (that may not be hidden).
+        Only the hidden default version should be listed in the robots.txt.
+        """
+        storage_exists.return_value = False
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        # This extra hidden version is still active, but the project is single-version.
+        # Its path would resolve to /, which matches the default version.
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="hidden-extra",
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        assert response.status_code == 200
+        # The hidden extra version should NOT be included in robots.txt since the project
+        # is single-version and all non-default version paths resolve to /.
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: # Allow everything
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        assert expected in response.content.decode()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_default_robots_txt_single_version_project_with_multiple_versions_hidden_default(
+        self, storage_exists
+    ):
+        """
+        Single-version project with hidden default version and other active hidden versions.
+
+        Only the hidden default version should be included in the robots.txt disallow list.
+        The other hidden versions should be ignored since their paths resolve to /.
+        """
+        storage_exists.return_value = False
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        # Mark the default version as hidden.
+        default_version = self.project.versions.get(slug=self.project.get_default_version())
+        default_version.hidden = True
+        default_version.save()
+
+        # This extra hidden version is still active, but the project is single-version.
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="hidden-extra",
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        assert response.status_code == 200
+        # Only the default hidden version should be disallowed, not the extra hidden version.
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: / # Hidden version
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        assert expected in response.content.decode()
+        assert "hidden-extra" not in response.content.decode()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_private_version(self, storage_exists):
         storage_exists.return_value = False
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
@@ -942,12 +1031,87 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_custom_robots_txt_private_version(self):
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
         )
+        self.assertEqual(response.status_code, 404)
+
+    def test_custom_sitemap_xml(self):
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/sitemap.xml",
+        )
+
+    def test_custom_llms_txt(self):
+        """Test serving a custom llms.txt file from the default version."""
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "public"
+
+    def test_custom_llms_full_txt(self):
+        """Test serving a custom llms-full.txt file from the default version."""
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_full_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(
+            response["x-accel-redirect"],
+            "/proxito/media/html/project/latest/llms-full.txt",
+        )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_llms_txt_not_found(self, storage_exists):
+        """Test that 404 is returned when llms.txt doesn't exist."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_llms_full_txt_not_found(self, storage_exists):
+        """Test that 404 is returned when llms-full.txt doesn't exist."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse("llms_full_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_llms_txt_private_version(self):
+        """Test that llms.txt from a private version is served, but not cached."""
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        assert response.status_code == 200
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "private"
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @mock.patch.object(ServeLLMSTXTBase, "allowed_user")
+    def test_llms_txt_private_version_unauthorized_user(self, allowed_user):
+        """Test that users without access to the private version get an unauthorized response."""
+        allowed_user.return_value = False
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        assert response.status_code == 401
+        assert response["CDN-Cache-Control"] == "private"
+
+    def test_llms_txt_inactive_version(self):
+        """Test that 404 is returned when default version is inactive."""
+        self.project.versions.update(active=False, built=True)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        self.assertEqual(response.status_code, 404)
+
+    def test_llms_txt_unbuilt_version(self):
+        """Test that 404 is returned when default version is not built."""
+        self.project.versions.update(active=True, built=False)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
         self.assertEqual(response.status_code, 404)
 
     def test_directory_indexes(self):
@@ -1328,9 +1492,7 @@ class TestAdditionalDocViews(BaseDocServing):
         storage_open.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_404_all_paths_checked_default_version_different_doc_type(
-        self, storage_open
-    ):
+    def test_404_all_paths_checked_default_version_different_doc_type(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
@@ -1356,170 +1518,8 @@ class TestAdditionalDocViews(BaseDocServing):
         storage_open.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_track_broken_link(self, storage_exists):
+    def test_sitemap_xml(self, storage_exists):
         storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        paths = [
-            "/en/latest/not-found/",
-            "/en/latest/not-found/",
-            "/not-found",
-            "/en/not-found/",
-        ]
-        for path in paths:
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={"host": "project.readthedocs.io"},
-            )
-            self.assertEqual(resp.status_code, 404)
-
-        self.assertEqual(PageView.objects.all().count(), 3)
-
-        version = self.project.versions.get(slug="latest")
-
-        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.path, "/not-found/")
-        self.assertEqual(pageview.view_count, 2)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(full_path="/not-found")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "/not-found")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(full_path="/en/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "/en/not-found/")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_dont_track_external_domains(self, storage_exists):
-        storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        get(
-            Version,
-            slug="123",
-            type=EXTERNAL,
-            built=True,
-            active=True,
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        resp = self.client.get(
-            reverse(
-                "proxito_404_handler",
-                kwargs={"proxito_path": "/en/123/"},
-            ),
-            headers={"host": "project--123.dev.readthedocs.build"},
-        )
-        self.assertEqual(resp.status_code, 404)
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_track_broken_link_custom_404(self, storage_open):
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path="404.html",
-            name="404.html",
-        )
-
-        paths = [
-            "/en/latest/not-found",
-            "/en/latest/not-found",
-            "/en/latest/not-found/",
-        ]
-        for path in paths:
-            storage_open.reset_mock()
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={"host": "project.readthedocs.io"},
-            )
-            self.assertEqual(resp.status_code, 404)
-            storage_open.assert_called_once()
-
-        self.assertEqual(PageView.objects.all().count(), 2)
-        version = self.project.versions.get(slug="latest")
-
-        pageview = PageView.objects.get(path="/not-found")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.full_path, "/en/latest/not-found")
-        self.assertEqual(pageview.view_count, 2)
-        self.assertEqual(pageview.status, 404)
-
-        pageview = PageView.objects.get(path="/not-found/")
-        self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
-        self.assertEqual(pageview.view_count, 1)
-        self.assertEqual(pageview.status, 404)
-
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
-    def test_track_broken_link_threat_score(self, storage_exists):
-        storage_exists.return_value = False
-        get(
-            Feature,
-            feature_id=Feature.RECORD_404_PAGE_VIEWS,
-            projects=[self.project],
-        )
-        self.assertEqual(PageView.objects.all().count(), 0)
-
-        paths = [
-            ("/en/latest/one", 1),
-            ("/en/latest/two", 7),
-            ("/en/latest/three", 13),
-            ("/en/latest/four", 57),
-        ]
-        for path, score in paths:
-            resp = self.client.get(
-                reverse(
-                    "proxito_404_handler",
-                    kwargs={"proxito_path": path},
-                ),
-                headers={
-                    "host": "project.readthedocs.io",
-                    "x-cloudflare-threat-score": score,
-                },
-            )
-            self.assertEqual(resp.status_code, 404)
-
-        # Only requests with threat score below 10 are recorded.
-        self.assertEqual(
-            {"/en/latest/one", "/en/latest/two"},
-            {pageview.full_path for pageview in PageView.objects.all()},
-        )
-
-    def test_sitemap_xml(self):
         self.project.versions.update(active=True)
         private_version = fixture.get(
             Version,
@@ -1644,36 +1644,87 @@ class TestAdditionalDocViews(BaseDocServing):
             ),
         )
 
-        # Check if STABLE version has 'priority of 1 and changefreq of weekly.
-        self.assertEqual(
-            response.context["versions"][0]["loc"],
-            self.project.get_docs_url(
-                version_slug=stable_version.slug,
-                lang_slug=self.project.language,
-            ),
-        )
-        self.assertEqual(response.context["versions"][0]["priority"], 1)
-        self.assertEqual(response.context["versions"][0]["changefreq"], "weekly")
+        # Verify that changefreq and priority are not included in the sitemap.
+        self.assertNotContains(response, "<changefreq>")
+        self.assertNotContains(response, "<priority>")
 
-        # Check if LATEST version has priority of 0.9 and changefreq of daily.
-        self.assertEqual(
-            response.context["versions"][1]["loc"],
-            self.project.get_docs_url(
-                version_slug="latest",
-                lang_slug=self.project.language,
-            ),
-        )
-        self.assertEqual(response.context["versions"][1]["priority"], 0.9)
-        self.assertEqual(response.context["versions"][1]["changefreq"], "daily")
-
-    def test_sitemap_all_private_versions(self):
-        self.project.versions.update(
-            active=True, built=True, privacy_level=constants.PRIVATE
-        )
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_all_private_versions(self, storage_exists):
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml_single_version_project_with_multiple_versions(self, storage_exists):
+        """
+        Single-version projects may still have more than one active version.
+
+        When a project switches to single-version mode, the other versions are not deleted.
+        Only the default version should appear in the sitemap since all other version paths
+        resolve to ``/``.
+        """
+        storage_exists.return_value = False
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        extra_version = fixture.get(
+            Version,
+            project=self.project,
+            slug="extra-version",
+            active=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        assert response.status_code == 200
+        assert len(response.context["versions"]) == 1
+        # Only the default version should be in the sitemap.
+        assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
+            version_slug=self.project.get_default_version()
+        )
+        # Only one <loc> entry should be present (the extra version is excluded).
+        assert response.content.decode().count("<loc>") == 1
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_sitemap_xml_single_version_project_with_hidden_extra_versions(self, storage_exists):
+        """
+        Extra hidden versions in a single-version project should not appear in the sitemap.
+
+        Hidden versions are excluded from the sitemap regardless, but this test ensures
+        the single-version filter is applied before the hidden filter, so paths that would
+        incorrectly resolve to ``/`` are never considered.
+        """
+        storage_exists.return_value = False
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+        self.project.versions.update(active=True, built=True)
+
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="hidden-extra",
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        assert response.status_code == 200
+        # Only the default version should be in the sitemap.
+        assert len(response.context["versions"]) == 1
+        assert response.context["versions"][0]["loc"] == self.project.get_docs_url(
+            version_slug=self.project.get_default_version()
+        )
+        # Only one <loc> entry should be present (the hidden extra version is excluded).
+        assert response.content.decode().count("<loc>") == 1
 
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
@@ -1787,7 +1838,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
             self.assertEqual(resp.headers["Cache-Tag"], "project", url)
 
         # Proxied static files are always cached.
@@ -1801,7 +1852,7 @@ class TestCDNCache(BaseDocServing):
         url = "/en//latest//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/en/latest/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Forced redirects will be cached only if the version is public.
@@ -1815,10 +1866,14 @@ class TestCDNCache(BaseDocServing):
         )
         url = "/en/latest/install.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
-        self.assertEqual(
-            resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url
+        self.assertEqual(resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url)
+        # Forced redirects are cached (with a ``max-age``) only for public versions.
+        forced_redirect_cache_control = (
+            "public, max-age=1200" if expected_value == "public" else expected_value
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+        self.assertEqual(
+            resp.headers["CDN-Cache-Control"], forced_redirect_cache_control, url
+        )
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
     def _test_cache_control_header_subproject(self, expected_value, host=None):
@@ -1838,9 +1893,7 @@ class TestCDNCache(BaseDocServing):
         for url in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
-            self.assertEqual(
-                resp.headers["Cache-Tag"], "subproject,subproject:latest", url
-            )
+            self.assertEqual(resp.headers["Cache-Tag"], "subproject,subproject:latest", url)
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
@@ -1852,7 +1905,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
             self.assertEqual(resp.headers["Cache-Tag"], "subproject", url)
 
         # Proxied static files are always cached.
@@ -1866,7 +1919,7 @@ class TestCDNCache(BaseDocServing):
         url = "/projects//subproject//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/projects/subproject/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions(self):
@@ -1877,16 +1930,12 @@ class TestCDNCache(BaseDocServing):
         self.project.versions.update(privacy_level=PRIVATE)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(
-            expected_value="private", host=self.domain.domain
-        )
+        self._test_cache_control_header_project(expected_value="private", host=self.domain.domain)
 
         # HTTPS redirects can always be cached.
-        resp = self.client.get(
-            "/en/latest/", secure=False, headers={"host": self.domain.domain}
-        )
+        resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions(self):
@@ -1897,16 +1946,12 @@ class TestCDNCache(BaseDocServing):
         self.project.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_project(
-            expected_value="public", host=self.domain.domain
-        )
+        self._test_cache_control_header_project(expected_value="public", host=self.domain.domain)
 
         # HTTPS redirect respects the privacy level of the version.
-        resp = self.client.get(
-            "/en/latest/", secure=False, headers={"host": self.domain.domain}
-        )
+        resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
 
     def test_cache_on_private_versions_subproject(self):
@@ -1931,7 +1976,7 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions_subproject(self):
@@ -1942,9 +1987,7 @@ class TestCDNCache(BaseDocServing):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
-        self._test_cache_control_header_subproject(
-            expected_value="public", host=self.domain.domain
-        )
+        self._test_cache_control_header_subproject(expected_value="public", host=self.domain.domain)
 
         # HTTPS redirects can always be cached.
         resp = self.client.get(
@@ -1956,7 +1999,7 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_disable_on_rtd_header_resolved_project(self):

@@ -108,6 +108,7 @@ class AnalyticsPageViewsTests(TestCase):
         self.project = get(
             Project,
             slug="pip",
+            privacy_level=PUBLIC,
         )
         self.version = get(Version, slug="1.8", project=self.project)
         self.project.versions.all().update(privacy_level=PUBLIC)
@@ -134,6 +135,41 @@ class AnalyticsPageViewsTests(TestCase):
         )
         self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
+
+    def test_uri_for_another_project(self):
+        other_project = get(
+            Project,
+            slug="other",
+        )
+        other_project.versions.all().update(privacy_level=PUBLIC)
+
+        # Host and ``absolute_uri`` are from different projects
+        assert PageView.objects.all().count() == 0
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}&version=latest"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": self.host})
+        assert PageView.objects.all().count() == 0
+
+        # Host and ``absolute_uri`` are from different projects with no ``?version`` attribute
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": self.host})
+        assert PageView.objects.all().count() == 0
+
+        # Host and ``absolute_uri`` are from the same project
+        url = (
+            reverse("analytics_api")
+            + f"?project=other&version=latest"
+            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        )
+        self.client.get(url, headers={"host": "other.readthedocs.io"})
+        assert PageView.objects.all().count() == 1
 
     def test_cache_headers(self):
         resp = self.client.get(self.url, headers={"host": self.host})
@@ -207,3 +243,33 @@ class AnalyticsPageViewsTests(TestCase):
         r = self.client.get(self.url, headers={"host": host})
         self.assertEqual(r.status_code, 204)
         self.assertEqual(PageView.objects.all().count(), 0)
+
+    def test_notfound_404_pages(self):
+        self.assertEqual(PageView.objects.all().count(), 0)
+        url = self.url + "&status=404"
+        resp = self.client.get(url, headers={"host": self.host})
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(PageView.objects.all().count(), 1)
+        self.assertEqual(PageView.objects.filter(status=404).count(), 1)
+
+    def test_notfound_404_page_without_version(self):
+        self.assertEqual(PageView.objects.all().count(), 0)
+        absolute_uri = (
+            f"https://{self.project.slug}.readthedocs.io/index.html"
+        )
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}&version=null"
+            f"&absolute_uri={absolute_uri}"
+            "&status=404"
+        )
+
+        resp = self.client.get(url, headers={"host": self.host})
+        pageview = PageView.objects.all().first()
+
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(PageView.objects.all().count(), 1)
+        self.assertIsNone(pageview.version)
+        self.assertEqual(pageview.project.slug, self.project.slug)
+        self.assertEqual(pageview.path, "/index.html")
+        self.assertEqual(pageview.status, 404)

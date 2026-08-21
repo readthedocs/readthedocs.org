@@ -64,6 +64,11 @@ including the ones that were automatically created.
 Read the Docs incoming webhook
 ------------------------------
 
+.. note::
+
+   When using our :ref:`reference/git-integration:GitHub App`, Read the Docs subscribes to all required events.
+   You don't need to create a webhook on your repository.
+
 Accounts with |git_providers_and| integration automatically have Read the Docs' incoming :term:`webhook` configured on all Git repositories that are imported.
 Other setups can set up the webhook through :doc:`manual configuration </guides/setup/git-repo-manual>`.
 
@@ -109,8 +114,8 @@ We also use the token to send back build statuses and preview URLs for :doc:`pul
 
 .. note::
 
-  Access granted to Read the Docs can always be revoked.
-  This is a function offered by all Git providers.
+   Access granted to Read the Docs can always be revoked.
+   This is a function offered by all Git providers.
 
 Git provider integrations
 -------------------------
@@ -124,6 +129,12 @@ A Git provider integration is active through the authentication of the user that
 If this user is removed,
 make sure to verify and potentially recreate all Git integrations for the project.
 
+.. note::
+
+   When using our :ref:`reference/git-integration:GitHub App`,
+   If the original user who connected the repository to Read the Docs loses access to the project or repository,
+   the GitHub App will still have access to the repository, and the integrations will continue to work.
+
 Permissions for connected accounts
 ----------------------------------
 
@@ -133,6 +144,34 @@ However, we do need permissions for authorizing your account
 so that you can log in to Read the Docs with your connected account credentials.
 
 .. tabs::
+
+   .. tab:: GitHub App
+
+      Read the Docs requests the following permissions when connecting your Read the Docs account to our :ref:`GitHub App <reference/git-integration:GitHub App>`.
+
+      Account email addresses (read only)
+          We ask for this so we can verify your email address and create a Read the Docs account.
+
+      When installing the Read the Docs GitHub App in a repository, you will be asked to grant the following permissions:
+
+      Repository permissions
+        Commit statuses (read and write)
+          This allows Read the Docs to report the status of the build to GitHub.
+        Contents (read only)
+          This allows Read the Docs to clone the repository and build the documentation.
+        Metadata (read only)
+          This allows Read the Docs to read the repository collaborators and the permissions they have on the repository.
+          This is used to determine if the user can connect a repository to a Read the Docs project.
+        Pull requests (read and write)
+          This allows Read the Docs to subscribe to pull request events,
+          and to create a comment on the pull request with information about the build.
+        Checks (read and write)
+          This allows Read the Docs to use the GitHub Checks API to report the status of the build.
+          This isn't used yet, but we may use it in the future.
+
+      Organization permissions
+        Members (read only)
+          This allows Read the Docs to read the organization members.
 
    .. tab:: GitHub
 
@@ -158,7 +197,7 @@ so that you can log in to Read the Docs with your connected account credentials.
 
       .. note::
 
-          :doc:`Read the Docs for Business </commercial/index>`
+          :doc:`Read the Docs Business </commercial/index>`
           asks for one additional permission (``repo``) to allow access to private repositories
           and to allow us to set up SSH keys to clone your private repositories.
           Unfortunately, this is the permission for read/write control of the repository
@@ -209,6 +248,13 @@ or you might have disabled it in the past for your personal account.
 This can happen at the personal or organization level,
 depending on where the project you are trying to access has permissions from.
 
+.. note::
+
+   If you are using the :ref:`GitHub App <reference/git-integration:GitHub App>`,
+   you only need to make sure that the GitHub App is installed in your account or organization,
+   and that it has access to the repository you want to use for your project.
+   See :ref:`GitHub App troubleshooting <reference/git-integration:Troubleshooting>` for more information.
+
 .. tabs::
 
    .. tab:: Personal Account
@@ -233,12 +279,9 @@ depending on where the project you are trying to access has permissions from.
 GitHub App
 ----------
 
-.. warning::
-
-   Our GitHub App is currently in beta, see our `blog post <https://about.readthedocs.com/blog/2025/06/announcing-our-github-app-beta/>`__ for more information.
-
-We are in the process of migrating our GitHub OAuth application to a `GitHub App <https://docs.github.com/en/apps/overview>`__.
-We have two GitHub Apps, one for each of our platforms:
+We now provide a `GitHub App <https://docs.github.com/en/apps/overview>`__ for connecting your GitHub account to Read the Docs.
+This will replace the old OAuth GitHub integration.
+Read the Docs provides two GitHub Apps, one for each of our platforms:
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business>`__
@@ -266,11 +309,13 @@ Adding a project from a repository
 
 To add a project from a repository,
 you need to install the Read the Docs GitHub App and grant access to that repository.
+Use the links below to complete the installation and permissions,
+then create the project from your **Read the Docs account**.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
-Once you have installed the GitHub App, click on the :guilabel:`Projects` tab, and click on :guilabel:`Add project`,
+Once you have installed the GitHub App, in Read the Docs, click on the :guilabel:`Projects` tab, and click on :guilabel:`Add project`,
 search for the repository you want to create a project for, and then follow the instructions from there.
 
 Connect a repository to an existing project
@@ -279,11 +324,13 @@ Connect a repository to an existing project
 In case you manually added a project on Read the Docs,
 or if you want to connect your project to a different repository,
 you need to install the Read the Docs GitHub App and grant access to the repository you want to connect.
+As with adding a project, complete installation and permissions via the links below,
+and select the repository from your **project settings on Read the Docs**.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
-Once you have installed the GitHub App, go the :guilabel:`Settings` page of the project,
+Once you have installed the GitHub App, go to the :guilabel:`Settings` page of the project in Read the Docs,
 and select the repository you want to connect from the :guilabel:`Connected repository` dropdown.
 
 Manually migrating a project
@@ -291,23 +338,23 @@ Manually migrating a project
 
 We recommend using the migration page to migrate your projects from the old OAuth application to the new GitHub App.
 
-- `Read the Docs Community <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
+- `Read the Docs Community <https://app.readthedocs.org/accounts/migrate-to-github-app/>`__
 - `Read the Docs Business <https://app.readthedocs.com/accounts/migrate-to-github-app/>`__
 
 But in case you need to manually migrate a project,
 you can follow these steps:
 
 - Go to the :guilabel:`Settings` page of your Read the Docs project,
-  and click on :guilabel:`Integrations`, and delete all the integrations that are listed there.
+  and click on the :guilabel:`Integrations` tab in Read the Docs, and delete all the integrations that are listed there.
 - Go to the settings page of your GitHub repository,
-  click on :guilabel:`Webhooks`, and delete all the webhooks with URLs that start with:
+  click on the GitHub :guilabel:`Webhooks` tab, and delete all the webhooks with URLs that start with:
 
   - ``https://readthedocs.org/api/v2/webhook/<your-project-slug>`` or ``https://app.readthedocs.org/api/v2/webhook/<your-project-slug>`` for Read the Docs Community.
   - ``https://readthedocs.com/api/v2/webhook/<your-project-slug>`` or ``https://app.readthedocs.com/api/v2/webhook/<your-project-slug>`` for Read the Docs Business.
 
 - For projects using Read the Docs Business,
   go to the settings page of your GitHub repository,
-  click on :guilabel:`Deploy keys`, and delete the deploy with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
+  click on the GitHub :guilabel:`Deploy keys` tab, and delete the deploy with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
 - :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 Revoking access
@@ -322,6 +369,7 @@ Revoking access
    you will need to :ref:`manually connect your project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 You can revoke access to the Read the Docs GitHub App at any time from your GitHub settings.
+All revocation options happen from your **account or organization settings**; no action is required inside Read the Docs until you decide to reconnect a project.
 
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__

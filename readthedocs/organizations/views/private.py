@@ -19,6 +19,7 @@ from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
@@ -26,6 +27,7 @@ from readthedocs.organizations.filters import OrganizationListFilterSet
 from readthedocs.organizations.forms import OrganizationSignupForm
 from readthedocs.organizations.forms import OrganizationTeamProjectForm
 from readthedocs.organizations.models import Organization
+from readthedocs.organizations.views.base import BlockSpamOrganization
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.organizations.views.base import OrganizationOwnerView
 from readthedocs.organizations.views.base import OrganizationTeamMemberView
@@ -117,12 +119,21 @@ class EditOrganization(
 
 class DeleteOrganization(
     PrivateViewMixin,
+    BlockSpamOrganization,
     UpdateChangeReasonPostView,
     OrganizationView,
-    DeleteViewWithMessage,
+    AsyncDeleteViewWithMessage,
 ):
     http_method_names = ["post"]
-    success_message = _("Organization deleted")
+    success_message = _("Organization queued for deletion")
+
+    def get_organization(self):
+        """
+        Get the organization to delete.
+
+        This is used by the BlockSpamOrganization mixin.
+        """
+        return self.get_object()
 
     def get_success_url(self):
         return reverse_lazy("organization_list")

@@ -1,23 +1,19 @@
 Interesting settings
 ====================
 
-DOCKER_LIMITS
--------------
+BUILD_MEMORY_LIMIT
+------------------
 
-A dictionary of limits to virtual machines. These limits include:
+The maximum memory allocated to the virtual machine.
+If this limit is hit, build processes will be automatically killed.
+Examples: '200m' for 200MB of total memory, or '2g' for 2GB of total memory.
 
-time
-    An integer representing the total allowed time limit (in
-    seconds) of build processes. This time limit affects the parent
-    process to the virtual machine and will force a virtual machine
-    to die if a build is still running after the allotted time
-    expires.
+BUILD_TIME_LIMIT
+----------------
 
-memory
-    The maximum memory allocated to the virtual machine. If this
-    limit is hit, build processes will be automatically killed.
-    Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
-    total memory.
+An integer representing the total allowed time limit (in seconds) of build processes.
+This time limit affects the parent process to the virtual machine and will force a virtual machine
+to die if a build is still running after the allotted time expires.
 
 PRODUCTION_DOMAIN
 ------------------

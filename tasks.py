@@ -66,7 +66,13 @@ namespace.add_collection(
 )
 def update(ctx, package=None):
     """Update Python dependencies from requirements/*.txt."""
-    cmd = ["pip-compile", "--resolver=backtracking"]
+    # Only consider package versions uploaded more than 14 days ago.
+    # This avoids pulling brand-new releases that may be broken or compromised.
+    cmd = [
+        "pip-compile",
+        "--resolver=backtracking",
+        "--uploaded-prior-to=P14D",
+    ]
     if package:
         cmd.extend(["--upgrade-package", package])
     else:

@@ -106,7 +106,7 @@ def forwards_move_repos(apps, schema_editor):
             else:
                 new_repo.clone_url = data.get("clone_url")
             new_repo.json = json.dumps(data)
-        except (SyntaxError, ValueError):
+        except SyntaxError, ValueError:
             pass
         new_repo.save()
         log.info("Migrated project.", project_slug=project.slug)
@@ -145,7 +145,7 @@ def forwards_move_repos(apps, schema_editor):
                 new_repo.clone_url = clone_urls.get("ssh", project.git_url)
             else:
                 new_repo.clone_url = clone_urls.get("https", project.html_url)
-        except (SyntaxError, ValueError):
+        except SyntaxError, ValueError:
             pass
         new_repo.save()
         log.info("Migrated project.", project_slug=project.slug)

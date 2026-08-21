@@ -5,7 +5,7 @@
 Security reports
 ================
 
-Security is very important to us at Read the Docs.
+Security is extremely important to us at Read the Docs.
 We follow generally accepted industry standards to protect the personal information
 submitted to us, both during transmission and once we receive it.
 In the spirit of transparency,

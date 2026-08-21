@@ -2,7 +2,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING, BUILD_STATE_FINISHED
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, Version, BuildConfig
 from readthedocs.projects.models import Project
 
 
@@ -12,29 +12,34 @@ class VersionConfigTests(TestCase):
         self.version = get(Version, project=self.project)
 
     def test_get_correct_config(self):
+        bc1 = BuildConfig.objects.create(data={"version": 1})
+        bc2 = BuildConfig.objects.create(data={"version": 2})
+        bc3 = BuildConfig.objects.create(data={"version": 3})
+        bc4 = BuildConfig.objects.create(data={"version": 4})
+
         build_old = Build.objects.create(
             project=self.project,
             version=self.version,
-            _config={"version": 1},
+            readthedocs_yaml_config=bc1,
             state=BUILD_STATE_FINISHED,
         )
         build_new = Build.objects.create(
             project=self.project,
             version=self.version,
-            _config={"version": 2},
+            readthedocs_yaml_config=bc2,
             state=BUILD_STATE_FINISHED,
         )
         build_new_error = Build.objects.create(
             project=self.project,
             version=self.version,
-            _config={"version": 3},
             success=False,
+            readthedocs_yaml_config=bc3,
             state=BUILD_STATE_FINISHED,
         )
         build_new_unfinish = Build.objects.create(
             project=self.project,
             version=self.version,
-            _config={"version": 4},
+            readthedocs_yaml_config=bc4,
             state=BUILD_STATE_BUILDING,
         )
         self.assertEqual(self.version.config, {"version": 2})
@@ -44,7 +49,6 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={},
             state=BUILD_STATE_FINISHED,
         )
         build_old.config = {"version": 1}
@@ -54,7 +58,6 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={},
             state=BUILD_STATE_FINISHED,
         )
         build_new.config = {"version": 1}
@@ -64,7 +67,6 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={},
             success=False,
             state=BUILD_STATE_FINISHED,
         )
@@ -75,7 +77,6 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={},
             state=BUILD_STATE_BUILDING,
         )
         build_new_unfinish.config = {"version": 1}

@@ -37,7 +37,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -82,7 +81,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -127,7 +125,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -140,10 +137,10 @@
     "fields": {
         "pub_date": "2010-08-14T10:59:47Z",
         "modified_date": "2010-08-15T13:18:19Z",
-        "name": "South",
-        "slug": "south",
+        "name": "urllib3",
+        "slug": "urllib3",
         "description": "",
-        "repo": "http://github.com/dmishe/django-south",
+        "repo": "https://github.com/urllib3/urllib3",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -172,7 +169,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -217,7 +213,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -230,10 +225,10 @@
     "fields": {
         "pub_date": "2010-08-14T11:30:33Z",
         "modified_date": "2010-08-15T13:18:20Z",
-        "name": "Djangoembed",
-        "slug": "djangoembed",
+        "name": "Flask",
+        "slug": "flask",
         "description": "",
-        "repo": "https://github.com/worldcompany/djangoembed",
+        "repo": "https://github.com/pallets/flask",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -262,7 +257,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -275,10 +269,10 @@
     "fields": {
         "pub_date": "2010-08-14T13:01:57Z",
         "modified_date": "2010-08-15T13:18:20Z",
-        "name": "Kong",
-        "slug": "kong",
+        "name": "Jinja",
+        "slug": "jinja",
         "description": "ZOMG HE'S COMING?!",
-        "repo": "https://github.com/ericholscher/django-kong",
+        "repo": "https://github.com/pallets/jinja",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -307,7 +301,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -352,7 +345,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -365,10 +357,10 @@
     "fields": {
         "pub_date": "2010-08-14T13:34:59Z",
         "modified_date": "2010-08-15T13:18:22Z",
-        "name": "Django Uni Form",
-        "slug": "django-uni-form",
+        "name": "Sphinx Notfound Page",
+        "slug": "sphinx-notfound-page",
         "description": "Awesome forms!",
-        "repo": "https://github.com/pydanny/django-uni-form",
+        "repo": "https://github.com/readthedocs/sphinx-notfound-page",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -397,7 +389,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -410,10 +401,10 @@
     "fields": {
         "pub_date": "2010-08-14T23:19:49Z",
         "modified_date": "2010-08-15T13:18:18Z",
-        "name": "Cue",
-        "slug": "cue",
+        "name": "Sphinx Hoverxref",
+        "slug": "sphinx-hoverxref",
         "description": "",
-        "repo": "http://github.com/coleifer/cue.git",
+        "repo": "https://github.com/readthedocs/sphinx-hoverxref",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -442,7 +433,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -455,10 +445,10 @@
     "fields": {
         "pub_date": "2010-08-15T00:12:14Z",
         "modified_date": "2010-08-15T13:18:17Z",
-        "name": "Pinax",
-        "slug": "pinax",
+        "name": "requests",
+        "slug": "requests",
         "description": "Awesome",
-        "repo": "http://github.com/pinax/pinax",
+        "repo": "https://github.com/psf/requests",
         "repo_type": "git",
         "project_url": "",
         "canonical_url": "",
@@ -487,7 +477,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -532,7 +521,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -577,7 +565,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -622,7 +609,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -665,7 +651,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -708,7 +693,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -751,7 +735,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }

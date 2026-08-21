@@ -7,6 +7,7 @@ from functools import namedtuple
 from textwrap import dedent
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import constant_time_compare
 from rest_framework import permissions
@@ -20,19 +21,22 @@ from rest_framework.views import APIView
 
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
 from readthedocs.core.signals import webhook_bitbucket
 from readthedocs.core.signals import webhook_github
 from readthedocs.core.signals import webhook_gitlab
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import VersionInfo
-from readthedocs.core.views.hooks import build_external_version
 from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
 
 
@@ -90,7 +94,7 @@ class WebhookMixin:
         """Set up webhook post view with request and project objects."""
         self.request = request
 
-        log.bind(
+        structlog.contextvars.bind_contextvars(
             project_slug=project_slug,
             integration_type=self.integration_type,
         )
@@ -150,12 +154,20 @@ class WebhookMixin:
         """If the project was set on POST, store an HTTP exchange."""
         resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, "project") and self.project:
-            HttpExchange.objects.from_exchange(
-                req,
-                resp,
-                related_object=self.get_integration(),
-                payload=self.data,
-            )
+            try:
+                integration = self.get_integration()
+            except Http404, ParseError:
+                # If we can't get a single integration (either none or multiple exist),
+                # we can't store the HTTP exchange
+                integration = None
+
+            if integration:
+                HttpExchange.objects.from_exchange(
+                    req,
+                    resp,
+                    related_object=integration,
+                    payload=self.data,
+                )
         return resp
 
     def get_data(self):
@@ -201,11 +213,21 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        self.integration = get_object_or_404(
-            Integration,
+
+        integrations = Integration.objects.filter(
             project=self.project,
             integration_type=self.integration_type,
         )
+
+        if not integrations.exists():
+            raise Http404("No Integration matches the given query.")
+        elif integrations.count() > 1:
+            raise ParseError(
+                "Multiple integrations found for this project. "
+                "Please use the webhook URL with an explicit integration ID."
+            )
+
+        self.integration = integrations.first()
         return self.integration
 
     def get_response_push(self, project, versions_info: list[VersionInfo]):
@@ -274,9 +296,12 @@ class WebhookMixin:
             version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
-        to_build = build_external_version(
+        to_build = external_version.verbose_name
+        trigger_build(
             project=project,
             version=external_version,
+            commit=external_version.identifier,
+            from_webhook=True,
         )
 
         return {
@@ -313,7 +338,7 @@ class WebhookMixin:
 
     def update_default_branch(self, default_branch):
         """
-        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+        Update the `Version.identifier` for `latest` with the VCS's `default_branch`.
 
         The VCS's `default_branch` is the branch cloned when there is no specific branch specified
         (e.g. `git clone <URL>`).
@@ -335,7 +360,9 @@ class WebhookMixin:
             # Always check for the machine attribute, since latest can be user created.
             # RTD doesn't manage those.
             self.project.versions.filter(slug=LATEST, machine=True).update(
-                identifier=default_branch
+                identifier=default_branch,
+                verbose_name=LATEST_VERBOSE_NAME,
+                type=BRANCH,
             )
 
 
@@ -381,7 +408,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if self.request.content_type == "application/x-www-form-urlencoded":
             try:
                 return json.loads(self.request.data["payload"])
-            except (ValueError, KeyError):
+            except ValueError, KeyError:
                 pass
         return super().get_data()
 
@@ -448,12 +475,35 @@ class GitHubWebhookView(WebhookMixin, APIView):
         See https://developer.github.com/v3/activity/events/types/
 
         """
+        if self.project.is_github_app_project:
+            Notification.objects.add(
+                message_id=MESSAGE_PROJECT_DEPRECATED_WEBHOOK,
+                attached_to=self.project,
+                dismissable=True,
+            )
+            return Response(
+                {
+                    "detail": " ".join(
+                        dedent(
+                            """
+                            This project is connected to our GitHub App and doesn't require a separate webhook, ignoring webhook event.
+                            Remove the deprecated webhook from your repository to avoid duplicate events,
+                            see https://docs.readthedocs.com/platform/stable/reference/git-integration.html#manually-migrating-a-project.
+                            """
+                        )
+                        .strip()
+                        .splitlines()
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Get event and trigger other webhook events
         action = self.data.get("action", None)
         created = self.data.get("created", False)
         deleted = self.data.get("deleted", False)
         event = self.request.headers.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_github.send(
             Project,
             project=self.project,
@@ -609,7 +659,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """
         event = self.request.data.get("object_kind", GITLAB_PUSH)
         action = self.data.get("object_attributes", {}).get("action", None)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -702,7 +752,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         attribute (null if it is a creation).
         """
         event = self.request.headers.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
-        log.bind(webhook_event=event)
+        structlog.contextvars.bind_contextvars(webhook_event=event)
         webhook_bitbucket.send(
             Project,
             project=self.project,

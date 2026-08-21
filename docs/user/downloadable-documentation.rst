@@ -46,11 +46,9 @@ Examples
 If you want to see an example,
 you can download the Read the Docs documentation in the following formats:
 
-    * `PDF`_
     * `ePub`_
     * `Zipped HTML`_
 
-.. _PDF: https://docs.readthedocs.io/_/downloads/en/latest/pdf/
 .. _ePub: https://docs.readthedocs.io/_/downloads/en/latest/epub/
 .. _Zipped HTML: https://docs.readthedocs.io/_/downloads/en/latest/htmlzip/
 
@@ -83,3 +81,4 @@ but support is coming soon.**
 
    * :doc:`/guides/enable-offline-formats` - Guide to enabling and disabling this feature.
    * :ref:`config-file/v2:formats` - Configuration file options for offline formats.
+   * :ref:`build-customization:where to put files` - Where to put offline format output when using custom build commands.

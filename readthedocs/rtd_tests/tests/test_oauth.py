@@ -1,7 +1,12 @@
 import copy
+import json
 from unittest import mock
 
+import pytest
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
+from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 import requests_mock
+from github import RateLimitExceededException
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
@@ -15,6 +20,7 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
+    BUILD_STATUS_SKIPPED,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
     LATEST,
@@ -27,7 +33,6 @@ from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
     RemoteOrganization,
-    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
@@ -89,12 +94,6 @@ class GitHubAppTests(TestCase):
             slug="org",
             remote_id="2222",
             vcs_provider=GITHUB_APP,
-        )
-        get(
-            RemoteOrganizationRelation,
-            remote_organization=self.remote_organization,
-            user=self.user,
-            account=self.account,
         )
         self.organization_installation = get(
             GitHubAppInstallation,
@@ -289,10 +288,11 @@ class GitHubAppTests(TestCase):
     def _get_pull_request_json(self, number: int, repo_full_name, **kwargs):
         user, repo = repo_full_name.split("/")
         default = {
-            "url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
+            "url": f"https://api.github.com/repos/{repo_full_name}/pulls/{number}",
             "id": 1,
             "html_url": f"https://github.com/{repo_full_name}/pull/{number}",
             "comments_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}/comments",
+            "issue_url": f"https://api.github.com/repos/{repo_full_name}/issues/{number}",
             "number": number,
             "state": "open",
             "locked": False,
@@ -392,12 +392,10 @@ class GitHubAppTests(TestCase):
 
     @requests_mock.Mocker(kw="request")
     @mock.patch.object(GitHubAppService, "sync")
-    @mock.patch.object(GitHubAppService, "update_or_create_organization")
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
     def test_sync_user_access(
         self,
         update_or_create_repositories,
-        update_or_create_organization,
         sync,
         request,
     ):
@@ -421,9 +419,6 @@ class GitHubAppTests(TestCase):
                 mock.call([int(self.remote_repository_with_org.remote_id)]),
             ],
             any_order=True,
-        )
-        update_or_create_organization.assert_called_once_with(
-            self.remote_organization.slug
         )
 
     @requests_mock.Mocker(kw="request")
@@ -602,6 +597,33 @@ class GitHubAppTests(TestCase):
         assert not RemoteRepository.objects.filter(
             id=self.remote_repository.id
         ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_repository_rate_limited(self, request):
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            status_code=403,
+            json={
+                "message": f"API rate limit exceeded for installation ID {self.installation.installation_id}.",
+                "documentation_url": "https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api#rate-limiting",
+            },
+        )
+
+        service = self.installation.service
+        # The second repository isn't mocked, requesting it would fail the test,
+        # the operation should be aborted after the first rate limited response.
+        with pytest.raises(RateLimitExceededException):
+            service.update_or_create_repositories(
+                [int(self.remote_repository.remote_id), 5555]
+            )
+
+        # Being rate limited doesn't mean we lost access to the repository,
+        # it shouldn't be deleted.
+        assert RemoteRepository.objects.filter(id=self.remote_repository.id).exists()
 
     @requests_mock.Mocker(kw="request")
     def test_sync(self, request):
@@ -982,6 +1004,47 @@ class GitHubAppTests(TestCase):
         }
 
     @requests_mock.Mocker(kw="request")
+    def test_send_build_status_success_when_not_built(self, request):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This is specifically for external versions (PR builds) which are read-only and should
+        always link to the build detail page when not built.
+        """
+        commit = "1234abc"
+        # Create an external version (PR build) that is not built
+        version = get(Version, project=self.project, type=EXTERNAL, built=False)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build succeeded!",
+            "state": "success",
+            # Should link to build detail page, not version docs
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
     def test_send_build_status_failure(self, request):
         commit = "1234abc"
         version = self.project.versions.get(slug=LATEST)
@@ -1016,6 +1079,43 @@ class GitHubAppTests(TestCase):
         }
 
     @requests_mock.Mocker(kw="request")
+    def test_send_build_status_skipped(self, request):
+        """Skipped builds report as success to GitHub App with a distinct description."""
+        commit = "1234abc"
+        version = get(Version, project=self.project, type=EXTERNAL, built=False)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            json={},
+        )
+
+        service = self.installation.service
+        assert service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SKIPPED
+        )
+        assert status_api_request.called
+        assert status_api_request.last_request.json() == {
+            "context": f"docs/readthedocs:{self.project.slug}",
+            "description": "Read the Docs build skipped.",
+            "state": "success",
+            # Skipped builds link to the build detail page, not the version
+            # docs, since no new documentation was produced for this commit.
+            "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
+        }
+
+    @requests_mock.Mocker(kw="request")
     def test_get_clone_token(self, request):
         token = "ghs_16C7e42F292c6912E7710c838347Ae178B4a"
         request.post(
@@ -1045,7 +1145,7 @@ class GitHubAppTests(TestCase):
             json=self._get_access_token_json(),
         )
         request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/issues/{version.verbose_name}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
             json=self._get_pull_request_json(
                 number=int(version.verbose_name),
                 repo_full_name=self.remote_repository.full_name,
@@ -1143,12 +1243,145 @@ class GitHubAppTests(TestCase):
             "body": f"<!-- readthedocs-{another_project.id} -->\nComment from another project.",
         }
 
+    @requests_mock.Mocker(kw="request")
+    def test_post_comment_update_only(self, request):
+        version = get(
+            Version,
+            verbose_name="1234",
+            project=self.project,
+            type=EXTERNAL,
+        )
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
+            json=self._get_pull_request_json(
+                number=int(version.verbose_name),
+                repo_full_name=self.remote_repository.full_name,
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[],
+        )
+        request_post_comment = request.post(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+        )
+
+        service = self.installation.service
+
+        # No comments exist, so it will not create a new one.
+        service.post_comment(build, "Comment!", create_new=False)
+        assert not request_post_comment.called
+
+        request.get(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+            json=[
+                self._get_comment_json(
+                    id=1,
+                    issue_number=int(version.verbose_name),
+                    repo_full_name=self.remote_repository.full_name,
+                    user={"login": f"{settings.GITHUB_APP_NAME}[bot]"},
+                    body=f"<!-- readthedocs-{self.project.id} -->\nComment!",
+                ),
+            ],
+        )
+        request_patch_comment = request.patch(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/comments/1",
+            json={},
+        )
+
+        request_post_comment.reset()
+
+        # A comment exists from the bot, so it will update it.
+        service.post_comment(build, "Comment!", create_new=False)
+        assert not request_post_comment.called
+
+        assert request_patch_comment.called
+        assert request_patch_comment.last_request.json() == {
+            "body": f"<!-- readthedocs-{self.project.id} -->\nComment!",
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_post_comment_skip_on_closed_pr(self, request):
+        version = get(
+            Version,
+            verbose_name="1234",
+            project=self.project,
+            type=EXTERNAL,
+        )
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/pulls/{version.verbose_name}",
+            json=self._get_pull_request_json(
+                number=int(version.verbose_name),
+                repo_full_name=self.remote_repository.full_name,
+                state="closed",
+            ),
+        )
+        request_post_comment = request.post(
+            f"{self.api_url}/repos/{self.remote_repository.full_name}/issues/{version.verbose_name}/comments",
+        )
+
+        service = self.installation.service
+
+        service.post_comment(build, "Comment!")
+        assert not request_post_comment.called
+
     def test_integration_attributes(self):
         assert self.integration.is_active
         assert self.integration.get_absolute_url() == "https://github.com/apps/readthedocs/installations/1111"
         self.project.remote_repository = None
         assert not self.integration.is_active
         assert self.integration.get_absolute_url() is None
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        assert self.remote_repository.description == "Some description"
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            json=self._get_repository_json(
+                full_name="user/repo",
+                id=int(self.remote_repository.remote_id),
+                owner={"id": int(self.account.uid)},
+                description="New description",
+            ),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/installation",
+            json=self._get_installation_json(id=1111),
+        )
+        request.get(
+            f"{self.api_url}/repos/user/repo/collaborators",
+            json=[self._get_collaborator_json()],
+        )
+
+        service = self.installation.service
+        service.update_repository(self.remote_repository)
+
+        self.remote_repository.refresh_from_db()
+        assert self.remote_repository.description == "New description"
 
 
 @override_settings(
@@ -1209,6 +1442,7 @@ class GitHubOAuthTests(TestCase):
                 "type": "User",
                 "id": 1234,
             },
+            "permissions": {"admin": True, "push": True, "pull": True},
         }
         self.repo_with_org_response_data = copy.deepcopy(self.repo_response_data)
         self.repo_with_org_response_data["owner"] = {
@@ -1443,9 +1677,10 @@ class GitHubOAuthTests(TestCase):
         self.assertIsNotNone(github_project_2)
         self.assertEqual(github_project_2, github_project_6)
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_successful(self, session, mock_logger):
+    def test_send_build_status_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1454,14 +1689,70 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_404_error(self, session, mock_logger):
+    def test_send_build_status_on_pr_builds(self, session, mock_logger, mock_structlog):
+        """Test that when status is SUCCESS but version is not built, it links to build detail page.
+
+        This happens when a build has exit code 183 (skipped) - it reports SUCCESS
+        to GitHub so the PR can be merged, but the version is never marked as built.
+        """
+        # external_version.built is False by default
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SUCCESS,
+        )
+
+        self.assertTrue(success)
+        # Verify that the target_url points to the build detail page, not the version docs
+        call_args = mock_structlog.contextvars.bind_contextvars.call_args_list
+        # Find the call with target_url
+        target_url = None
+        for call in call_args:
+            if 'target_url' in call[1]:
+                target_url = call[1]['target_url']
+                break
+
+        self.assertIsNotNone(target_url)
+        # Should link to build detail page, not version URL
+        self.assertIn(f'/projects/{self.project.slug}/builds/{self.external_build.pk}/', target_url)
+        self.assertNotIn('.readthedocs.io', target_url)
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_skipped(self, session, mock_logger, mock_structlog):
+        """Skipped builds report as success to GitHub with a distinct description."""
+        session.post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SKIPPED,
+        )
+
+        self.assertTrue(success)
+        posted = json.loads(session.post.call_args.kwargs["data"])
+        self.assertEqual(posted["state"], "success")
+        self.assertEqual(posted["description"], "Read the Docs build skipped.")
+        # Skipped builds link to the build detail page, not the version docs,
+        # since no new documentation was produced for this commit.
+        self.assertIn(
+            f"/projects/{self.project.slug}/builds/{self.external_build.pk}/",
+            posted["target_url"],
+        )
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
+    @mock.patch("readthedocs.oauth.services.github.log")
+    @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
+    def test_send_build_status_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1470,14 +1761,15 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_send_build_status_value_error(self, session, mock_logger):
+    def test_send_build_status_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         success = self.service.send_build_status(
             build=self.external_build,
@@ -1486,7 +1778,7 @@ class GitHubOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             commit_status="success",
             user_username=self.user.username,
@@ -1505,9 +1797,11 @@ class GitHubOAuthTests(TestCase):
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(repo.remote_id, str(self.repo_with_org_response_data["id"]))
 
+
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
@@ -1516,35 +1810,37 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitHub webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.warning.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -1553,9 +1849,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook creation failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_update_webhook_successful(self, session, mock_logger):
+    def test_update_webhook_successful(self, session, mock_logger, mock_structlog):
         session.patch.return_value.status_code = 201
         session.patch.return_value.json.return_value = {}
         success = self.service.update_webhook(self.project, self.integration)
@@ -1564,7 +1861,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             http_status_code=201,
             url="https://github.com/",
         )
@@ -1591,9 +1888,10 @@ class GitHubOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_update_webhook_value_error(self, session, mock_logger):
+    def test_update_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.patch.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
 
@@ -1604,9 +1902,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub webhook update failed for project."
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1631,7 +1930,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -1640,9 +1939,10 @@ class GitHubOAuthTests(TestCase):
             "GitHub integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1658,9 +1958,10 @@ class GitHubOAuthTests(TestCase):
             https_status_code=404,
         )
 
+    @mock.patch("readthedocs.oauth.services.github.structlog")
     @mock.patch("readthedocs.oauth.services.github.log")
     @mock.patch("readthedocs.oauth.services.github.GitHubService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -1671,7 +1972,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.github.com/repos/pypa/pip/hooks",
@@ -1818,6 +2119,82 @@ class GitHubOAuthTests(TestCase):
         )
         assert self.service.remove_webhook(self.project) is True
 
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_github_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_github_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", status_code=404)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_update_user_relation_public_repo(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITHUB,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_github_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        for k in self.repo_response_data["permissions"]:
+            self.repo_response_data["permissions"][k] = False
+
+        request.get(f"https://api.github.com/repositories/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert remote_repo.description == "Test Repo"
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert not relation.admin
 
 class BitbucketOAuthTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -1829,12 +2206,22 @@ class BitbucketOAuthTests(TestCase):
         self.project.repo = "https://bitbucket.org/testuser/testrepo/"
         self.project.save()
         self.org = RemoteOrganization.objects.create(
-            slug="rtfd",
+            remote_id="{61fc5cf6-d054-47d2-b4a9-061ccf858379}",
+            slug="teamsinspace",
             vcs_provider=BITBUCKET,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
+        self.social_account = get(
+            SocialAccount,
+            user=self.user,
+            provider=BitbucketOAuth2Provider.id,
+        )
+        get(
+            SocialToken,
+            account=self.social_account,
+        )
         self.service = BitbucketService(
-            user=self.user, account=get(SocialAccount, user=self.user)
+            user=self.user, account=self.social_account,
         )
         self.integration = get(
             GitHubWebhook,
@@ -1848,6 +2235,41 @@ class BitbucketOAuthTests(TestCase):
                     "url": "https://readthedocs.io/api/v2/webhook/test/99999999/",
                 },
             ]
+        }
+        self.team_response_data = {
+            "slug": self.org.slug,
+            "name": "Teams In Space",
+            "uuid": self.org.remote_id,
+            "links": {
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace",
+                },
+                "repositories": {
+                    "href": "https://api.bitbucket.org/2.0/repositories/teamsinspace",
+                },
+                "html": {"href": "https://bitbucket.org/teamsinspace"},
+                "avatar": {
+                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
+                },
+                "members": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members",
+                },
+                "owners": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members?q=permission%3D%22owner%22",
+                },
+                "hooks": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/hooks",
+                },
+                "snippets": {
+                    "href": "https://api.bitbucket.org/2.0/snippets/teamsinspace/",
+                },
+                "projects": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/projects",
+                },
+            },
+            "created_on": "2014-04-08T00:00:14.070969+00:00",
+            "type": "workspace",
+            "is_private": True,
         }
         self.repo_response_data = {
             "scm": "hg",
@@ -1892,6 +2314,7 @@ class BitbucketOAuthTests(TestCase):
             "created_on": "2011-12-20T16:35:06.480042+00:00",
             "full_name": "tutorials/tutorials.bitbucket.org",
             "has_issues": True,
+            "workspace": self.team_response_data,
             "owner": {
                 "username": "tutorials",
                 "display_name": "tutorials account",
@@ -1918,46 +2341,9 @@ class BitbucketOAuthTests(TestCase):
             },
         }
 
-        self.team_response_data = {
-            "slug": "teamsinspace",
-            "name": "Teams In Space",
-            "uuid": "{61fc5cf6-d054-47d2-b4a9-061ccf858379}",
-            "links": {
-                "self": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace",
-                },
-                "repositories": {
-                    "href": "https://api.bitbucket.org/2.0/repositories/teamsinspace",
-                },
-                "html": {"href": "https://bitbucket.org/teamsinspace"},
-                "avatar": {
-                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
-                },
-                "members": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members",
-                },
-                "owners": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/members?q=permission%3D%22owner%22",
-                },
-                "hooks": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/hooks",
-                },
-                "snippets": {
-                    "href": "https://api.bitbucket.org/2.0/snippets/teamsinspace/",
-                },
-                "projects": {
-                    "href": "https://api.bitbucket.org/2.0/workspaces/teamsinspace/projects",
-                },
-            },
-            "created_on": "2014-04-08T00:00:14.070969+00:00",
-            "type": "workspace",
-            "is_private": True,
-        }
-
     def test_make_project_pass(self):
         repo = self.service.create_repository(
             self.repo_response_data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsInstance(repo, RemoteRepository)
@@ -1993,7 +2379,6 @@ class BitbucketOAuthTests(TestCase):
         self.repo_response_data["mainbranch"] = None
         repo = self.service.create_repository(
             self.repo_response_data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsInstance(repo, RemoteRepository)
@@ -2028,7 +2413,6 @@ class BitbucketOAuthTests(TestCase):
         data["is_private"] = True
         repo = self.service.create_repository(
             data,
-            organization=self.org,
             privacy=self.privacy,
         )
         self.assertIsNone(repo)
@@ -2040,7 +2424,7 @@ class BitbucketOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data["is_private"] = False
-        repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data)
         self.assertIsNotNone(repo)
 
     def test_make_organization(self):
@@ -2062,15 +2446,16 @@ class BitbucketOAuthTests(TestCase):
         services = list(BitbucketService.for_user(get(User)))
         self.assertEqual(services, [])
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2079,14 +2464,15 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2095,13 +2481,14 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2110,16 +2497,17 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket webhook creation failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_update_webhook_successful(self, session, mock_logger):
+    def test_update_webhook_successful(self, session, mock_logger, mock_structlog):
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
         success = self.service.update_webhook(self.project, self.integration)
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(project_slug=self.project.slug)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(project_slug=self.project.slug)
         mock_logger.info.assert_called_with(
             "Bitbucket webhook update successful for project.",
         )
@@ -2143,20 +2531,22 @@ class BitbucketOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_update_webhook_value_error(self, session, mock_logger):
+    def test_update_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.put.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
 
-        mock_logger.bind.assert_called_with(project_slug=self.project.slug)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(project_slug=self.project.slug)
         mock_logger.exception.assert_called_with(
             "Bitbucket webhook update failed for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2181,7 +2571,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data["values"][0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2190,9 +2580,10 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2203,7 +2594,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2212,9 +2603,10 @@ class BitbucketOAuthTests(TestCase):
             "Bitbucket project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.bitbucket.structlog")
     @mock.patch("readthedocs.oauth.services.bitbucket.log")
     @mock.patch("readthedocs.oauth.services.bitbucket.BitbucketService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2225,7 +2617,7 @@ class BitbucketOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks",
@@ -2233,6 +2625,279 @@ class BitbucketOAuthTests(TestCase):
         mock_logger.exception.assert_called_with(
             "Bitbucket webhook Listing failed for project.",
         )
+
+    def test_project_moved_between_groups(self):
+        repo = self.service.create_repository(self.repo_response_data)
+        assert repo.organization == self.org
+        assert repo.name == "tutorials.bitbucket.org"
+        assert repo.full_name == "tutorials/tutorials.bitbucket.org"
+        assert not repo.private
+        assert repo.remote_repository_relations.count() == 1
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+        self.repo_response_data["workspace"] = {
+            "kind": "workspace",
+            "slug": "testorg",
+            "name": "Test Org",
+            "uuid": "6",
+            "links": {
+                "html": {"href": "https://bitbucket.org/testorg"},
+                "avatar": {
+                    "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png",
+                },
+            },
+        }
+
+        repo_b = self.service.create_repository(self.repo_response_data)
+        assert repo_b == repo
+        repo.refresh_from_db()
+        another_group = RemoteOrganization.objects.get(
+            remote_id="6",
+            vcs_provider=BITBUCKET,
+        )
+        assert repo.organization == another_group
+        relationship = repo.remote_repository_relations.first()
+        assert not relationship.admin
+        assert relationship.user == self.user
+        assert relationship.account == self.service.account
+
+    def _make_workspace_access_response(self, slug, uuid):
+        """Build a minimal workspace access payload returned by the /2.0/user/workspaces/ endpoint."""
+        return {
+            "type": "workspace_access",
+            "administrator": True,
+            "workspace": {
+                "type": "workspace_base",
+                "slug": slug,
+                "uuid": uuid,
+                "links": {
+                    "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                    "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+                },
+            }
+        }
+
+    def _make_workspace_response(self, slug, uuid):
+        """Build a minimal workspace payload returned by the /2.0/workspaces/ endpoint."""
+        return {
+            "slug": slug,
+            "name": slug.title(),
+            "uuid": uuid,
+            "type": "workspace",
+            "links": {
+                "self": {"href": f"https://api.bitbucket.org/2.0/workspaces/{slug}"},
+                "html": {"href": f"https://bitbucket.org/{slug}"},
+                "avatar": {"href": f"https://bitbucket.org/{slug}/avatar"},
+            },
+        }
+
+    def _make_repo_response(self, workspace_slug, name, uuid):
+        """Build a minimal repository payload returned by the /2.0/repositories/ endpoint."""
+        workspace = self._make_workspace_response(workspace_slug, f"{{ws-{workspace_slug}}}")
+        return {
+            "scm": "git",
+            "uuid": uuid,
+            "name": name,
+            "full_name": f"{workspace_slug}/{name}",
+            "description": f"Repository {name}",
+            "is_private": False,
+            "workspace": workspace,
+            "mainbranch": {"type": "branch", "name": "main"},
+            "links": {
+                "html": {"href": f"https://bitbucket.org/{workspace_slug}/{name}"},
+                "avatar": {"href": ""},
+                "clone": [
+                    {
+                        "href": f"https://bitbucket.org/{workspace_slug}/{name}.git",
+                        "name": "https",
+                    },
+                    {
+                        "href": f"git@bitbucket.org:{workspace_slug}/{name}.git",
+                        "name": "ssh",
+                    },
+                ],
+            },
+        }
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_iterates_workspaces(self, request):
+        """
+        sync_repositories must query each workspace individually.
+
+        The cross-workspace ``/2.0/repositories/?role=<role>`` endpoint was
+        deprecated by Bitbucket on 2026-04-14, so the sync must enumerate
+        workspaces first and hit ``/2.0/repositories/{workspace}`` per workspace.
+        """
+        workspace_a = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        workspace_b = self._make_workspace_access_response("workspace-b", "{uuid-b}")
+        repo_a = self._make_repo_response("workspace-a", "repo-a", "{repo-a}")
+        repo_b = self._make_repo_response("workspace-b", "repo-b", "{repo-b}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [workspace_a, workspace_b]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a",
+            json={"values": [repo_a]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-b",
+            json={"values": [repo_b]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-a}", "{repo-b}"]
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-a}"
+        ).exists()
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-b}"
+        ).exists()
+
+        # Ensure the deprecated cross-workspace endpoint is never hit.
+        for req in request.request_history:
+            assert req.path != "/2.0/repositories/", (
+                "sync_repositories must not call the deprecated "
+                "cross-workspace /2.0/repositories/ endpoint"
+            )
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_sets_admin_flag_per_workspace(self, request):
+        """Repositories returned by the ``role=admin`` query get admin=True."""
+        workspace = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        admin_repo = self._make_repo_response("workspace-a", "admin-repo", "{repo-admin}")
+        member_repo = self._make_repo_response("workspace-a", "member-repo", "{repo-member}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [workspace]},
+        )
+        # ``?role=admin`` returns the admin-accessible repo, ``?role=member``
+        # returns every repo the user can see.
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=admin",
+            json={"values": [admin_repo]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a?role=member",
+            json={"values": [admin_repo, member_repo]},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert sorted(remote_ids) == ["{repo-admin}", "{repo-member}"]
+
+        admin_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-admin}",
+        )
+        member_relation = RemoteRepositoryRelation.objects.get(
+            user=self.user,
+            account=self.social_account,
+            remote_repository__remote_id="{repo-member}",
+        )
+        assert admin_relation.admin is True
+        assert member_relation.admin is False
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_no_workspaces(self, request):
+        """A user with no workspaces returns an empty list without API errors."""
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": []},
+        )
+
+        remote_ids = self.service.sync_repositories()
+
+        assert remote_ids == []
+        # Only the workspaces endpoint should have been called.
+        assert [req.path for req in request.request_history] == ["/2.0/user/workspaces/"]
+
+    @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_invalid_token_raises(self, request):
+        """A 401 from Bitbucket maps to ``SyncServiceError``."""
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            status_code=401,
+            json={"error": {"message": "Unauthorized"}},
+        )
+
+        with self.assertRaises(SyncServiceError):
+            self.service.sync_repositories()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=BITBUCKET,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["uuid"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": [self.repo_response_data]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": [self.repo_response_data]},
+        )
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "tutorials.bitbucket.org"
+        assert remote_repo.full_name == "tutorials/tutorials.bitbucket.org"
+        assert remote_repo.description == "Site for tutorial101 files"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=BITBUCKET,
+            full_name="testuser/testrepo",
+            remote_id=self.repo_response_data["uuid"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [self._make_workspace_access_response("testuser", "{uuid-a}")]},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=admin",
+            json={"values": []},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/testuser?role=member",
+            json={"values": []},
+        )
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testuser/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
 
 
 class GitLabOAuthTests(TestCase):
@@ -2339,8 +3004,17 @@ class GitLabOAuthTests(TestCase):
             vcs_provider=GITLAB,
         )
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
+        self.social_account = get(
+            SocialAccount,
+            user=self.user,
+            provider=GitLabProvider.id,
+        )
+        get(
+            SocialToken,
+            account=self.social_account,
+        )
         self.service = GitLabService(
-            user=self.user, account=get(SocialAccount, user=self.user)
+            user=self.user, account=self.social_account
         )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
@@ -2379,11 +3053,14 @@ class GitLabOAuthTests(TestCase):
         self.assertEqual(repo_id, "testorga%2Fsubgroup%2Ftestrepo")
 
     def test_make_project_pass(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-            privacy=self.privacy,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data, privacy=self.privacy)
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, "testrepo")
         self.assertEqual(repo.full_name, "testorga/testrepo")
@@ -2406,19 +3083,20 @@ class GitLabOAuthTests(TestCase):
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):
-        repo = self.service.create_repository(
-            self.get_private_repo_data(),
-            organization=self.org,
-            privacy=self.privacy,
-        )
+        data = self.get_private_repo_data()
+        repo = self.service.create_repository(data, privacy=self.privacy)
         self.assertIsNone(repo)
 
     def test_make_private_project_success(self):
-        repo = self.service.create_repository(
-            self.get_private_repo_data(),
-            organization=self.org,
-            privacy=constants.PRIVATE,
-        )
+        data = self.get_private_repo_data()
+        data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(data, privacy=constants.PRIVATE)
         self.assertIsInstance(repo, RemoteRepository)
         self.assertTrue(repo.private, True)
 
@@ -2440,13 +3118,14 @@ class GitLabOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data["visibility"] = "public"
-        repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data)
         self.assertIsNotNone(repo)
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_successful(self, repo_id, session, mock_logger):
+    def test_send_build_status_successful(self, repo_id, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         repo_id().return_value = "9999"
 
@@ -2457,15 +3136,42 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertTrue(success)
-        mock_logger.bind.assert_called_with(http_status_code=201)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=201)
         mock_logger.debug.assert_called_with(
             "GitLab commit status created for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_404_error(self, repo_id, session, mock_logger):
+    def test_send_build_status_skipped(self, repo_id, session, mock_logger, mock_structlog):
+        """Skipped builds report as success to GitLab with a distinct description."""
+        session.post.return_value.status_code = 201
+        repo_id().return_value = "9999"
+
+        success = self.service.send_build_status(
+            build=self.external_build,
+            commit=self.external_build.commit,
+            status=BUILD_STATUS_SKIPPED,
+        )
+
+        self.assertTrue(success)
+        posted = json.loads(session.post.call_args.kwargs["data"])
+        self.assertEqual(posted["state"], "success")
+        self.assertEqual(posted["description"], "Read the Docs build skipped.")
+        # Skipped builds link to the build detail page, not the version docs,
+        # since no new documentation was produced for this commit.
+        self.assertIn(
+            f"/projects/{self.project.slug}/builds/{self.external_build.pk}/",
+            posted["target_url"],
+        )
+
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
+    @mock.patch("readthedocs.oauth.services.gitlab.log")
+    @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
+    @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
+    def test_send_build_status_404_error(self, repo_id, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         repo_id.return_value = "9999"
 
@@ -2476,15 +3182,16 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "GitLab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_send_build_status_value_error(self, repo_id, session, mock_logger):
+    def test_send_build_status_value_error(self, repo_id, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         repo_id().return_value = "9999"
 
@@ -2495,7 +3202,7 @@ class GitLabOAuthTests(TestCase):
         )
 
         self.assertFalse(success)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             commit_status="success",
             user_username=self.user.username,
@@ -2506,9 +3213,10 @@ class GitLabOAuthTests(TestCase):
             debug_data=None,
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_successful(self, session, mock_logger):
+    def test_setup_webhook_successful(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 201
         session.post.return_value.json.return_value = {}
         success = self.service.setup_webhook(self.project, self.integration)
@@ -2517,16 +3225,17 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             http_status_code=201,
         )
         mock_logger.debug.assert_called_with(
             "GitLab webhook creation successful for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_404_error(self, session, mock_logger):
+    def test_setup_webhook_404_error(self, session, mock_logger, mock_structlog):
         session.post.return_value.status_code = 404
         success = self.service.setup_webhook(self.project, self.integration)
 
@@ -2534,21 +3243,22 @@ class GitLabOAuthTests(TestCase):
 
         self.assertFalse(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(http_status_code=404)
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "Gitlab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_setup_webhook_value_error(self, session, mock_logger):
+    def test_setup_webhook_value_error(self, session, mock_logger, mock_structlog):
         session.post.side_effect = ValueError
         self.service.setup_webhook(self.project, self.integration)
 
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
             url="https://gitlab.com/api/v4/projects/testorga%2Ftestrepo/hooks",
@@ -2557,10 +3267,11 @@ class GitLabOAuthTests(TestCase):
             "GitLab webhook creation failed.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_update_webhook_successful(self, repo_id, session, mock_logger):
+    def test_update_webhook_successful(self, repo_id, session, mock_logger, mock_structlog):
         repo_id.return_value = "9999"
         session.put.return_value.status_code = 200
         session.put.return_value.json.return_value = {}
@@ -2570,7 +3281,7 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2601,10 +3312,11 @@ class GitLabOAuthTests(TestCase):
 
         setup_webhook.assert_called_once_with(self.project, self.integration)
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService._get_repo_id")
-    def test_update_webhook_value_error(self, repo_id, session, mock_logger):
+    def test_update_webhook_value_error(self, repo_id, session, mock_logger, mock_structlog):
         repo_id.return_value = "9999"
         session.put.side_effect = ValueError
         self.service.update_webhook(self.project, self.integration)
@@ -2612,7 +3324,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertIsNotNone(self.integration.secret)
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2621,9 +3333,10 @@ class GitLabOAuthTests(TestCase):
             debug_data=None,
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_successful(self, session, mock_logger):
+    def test_get_provider_data_successful(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2648,7 +3361,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2656,9 +3369,10 @@ class GitLabOAuthTests(TestCase):
             "GitLab integration updated with provider data for project.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_404_error(self, session, mock_logger):
+    def test_get_provider_data_404_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2669,7 +3383,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2677,9 +3391,10 @@ class GitLabOAuthTests(TestCase):
             "GitLab project does not exist or user does not have permissions.",
         )
 
+    @mock.patch("readthedocs.oauth.services.gitlab.structlog")
     @mock.patch("readthedocs.oauth.services.gitlab.log")
     @mock.patch("readthedocs.oauth.services.gitlab.GitLabService.session")
-    def test_get_provider_data_attribute_error(self, session, mock_logger):
+    def test_get_provider_data_attribute_error(self, session, mock_logger, mock_structlog):
         self.integration.provider_data = {}
         self.integration.save()
 
@@ -2690,7 +3405,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertEqual(self.integration.provider_data, {})
-        mock_logger.bind.assert_called_with(
+        mock_structlog.contextvars.bind_contextvars.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
         )
@@ -2699,10 +3414,7 @@ class GitLabOAuthTests(TestCase):
         )
 
     def test_project_moved_from_user_to_group(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=None,
-        )
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization is None
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2712,10 +3424,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo_b = self.service.create_repository(self.repo_response_data)
         assert repo_b == repo
         repo.refresh_from_db()
         assert repo.organization == self.org
@@ -2725,10 +3441,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.account == self.service.account
 
     def test_project_moved_from_group_to_user(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization == self.org
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2738,10 +3458,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=None,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "user",
+            "name": "Test User",
+            "path": "testuser",
+            "id": 1,
+            "full_path": "testuser",
+        }
+        repo_b = self.service.create_repository(self.repo_response_data)
         assert repo_b == repo
         repo.refresh_from_db()
         assert repo.organization is None
@@ -2751,10 +3475,14 @@ class GitLabOAuthTests(TestCase):
         assert relationship.account == self.service.account
 
     def test_project_moved_between_groups(self):
-        repo = self.service.create_repository(
-            self.repo_response_data,
-            organization=self.org,
-        )
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Test Orga",
+            "path": "testorga",
+            "id": self.org.remote_id,
+            "full_path": self.org.slug,
+        }
+        repo = self.service.create_repository(self.repo_response_data)
         assert repo.organization == self.org
         assert repo.full_name == "testorga/testrepo"
         assert not repo.private
@@ -2764,21 +3492,99 @@ class GitLabOAuthTests(TestCase):
         assert relationship.user == self.user
         assert relationship.account == self.service.account
 
-        another_group = RemoteOrganization.objects.create(
-            slug="anothergroup",
-            name="Another Group",
+        self.repo_response_data["namespace"] = {
+            "kind": "group",
+            "name": "Another Group",
+            "path": "anothergroup",
+            "id": "2",
+            "full_path": "anothergroup",
+        }
+
+        repo_b = self.service.create_repository(self.repo_response_data)
+        assert repo_b == repo
+        repo.refresh_from_db()
+        another_group = RemoteOrganization.objects.get(
             remote_id="2",
             vcs_provider=GITLAB,
         )
-
-        repo_b = self.service.create_repository(
-            self.repo_response_data,
-            organization=another_group,
-        )
-        assert repo_b == repo
-        repo.refresh_from_db()
         assert repo.organization == another_group
         relationship = repo.remote_repository_relations.first()
         assert relationship.admin
         assert relationship.user == self.user
         assert relationship.account == self.service.account
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_gl(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+
+        remote_repo.refresh_from_db()
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert remote_repo.users.filter(id=self.user.id).exists()
+        relation = remote_repo.remote_repository_relations.get(user=self.user)
+        assert relation.account == self.social_account
+        assert relation.admin
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", status_code=404)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert not remote_repo.description
+        assert not remote_repo.users.filter(id=self.user.id).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_remote_repository_remove_user_relation_public_repo(self, request):
+        remote_repo = get(
+            RemoteRepository,
+            vcs_provider=GITLAB,
+            full_name="testorga/testrepo",
+            remote_id=self.repo_response_data["id"],
+        )
+        get(
+            RemoteRepositoryRelation,
+            user=self.user,
+            account=self.social_account,
+            remote_repository=remote_repo,
+            admin=True,
+        )
+        assert remote_repo.users.filter(id=self.user.id).exists()
+
+        for k in self.repo_response_data["permissions"]:
+            self.repo_response_data["permissions"][k] = None
+
+        request.get(f"https://gitlab.com/api/v4/projects/{remote_repo.remote_id}", json=self.repo_response_data)
+        self.service.update_repository(remote_repo)
+        remote_repo.refresh_from_db()
+
+        assert remote_repo.name == "testrepo"
+        assert remote_repo.full_name == "testorga/testrepo"
+        assert remote_repo.description == "Test Repo"
+        assert not remote_repo.users.filter(id=self.user.id).exists()

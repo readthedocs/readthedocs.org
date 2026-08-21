@@ -87,7 +87,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_time_limit",
             "skip",
             "features",
-            "has_valid_clone",
             "has_valid_webhook",
             "show_advertising",
             "environment_variables",
@@ -95,6 +94,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "readthedocs_yaml_path",
             "clone_token",
             "has_ssh_key_with_write_access",
+            "git_checkout_command",
         )
 
 
@@ -225,7 +225,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return normalize_build_command(obj.command, obj.build.project.slug, obj.build.version.slug)
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.get_version_slug()
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):
@@ -235,7 +237,7 @@ class BuildSerializer(serializers.ModelSerializer):
     This is the default serializer for Build objects over read-only operations from regular users.
     Take into account that:
 
-    - It doesn't display internal fields (builder, _config)
+    - It doesn't display internal fields (builder)
     - It's read-only for multiple fields (commands, project_slug, etc)
 
     Staff users should use either:
@@ -256,8 +258,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Build
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("builder", "_config")
+        exclude = ("builder",)
 
     def get_docs_url(self, obj):
         if obj.version:
@@ -276,8 +277,9 @@ class BuildAdminSerializer(BuildSerializer):
     commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta(BuildSerializer.Meta):
-        # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ("_config",)
+        # `healthcheck` is excluded to avoid updating it to `None` again during building.
+        # See https://github.com/readthedocs/readthedocs.org/issues/12474
+        exclude = ("healthcheck",)
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
@@ -399,7 +401,7 @@ class NotificationAttachedToRelatedField(serializers.RelatedField):
 
         try:
             return self.queryset.get(pk=pk)
-        except (ObjectDoesNotExist, ValueError, TypeError):
+        except ObjectDoesNotExist, ValueError, TypeError:
             self.fail("does_not_exist")
 
 

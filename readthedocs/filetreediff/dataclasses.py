@@ -70,7 +70,7 @@ class FileTreeDiffFileStatus(StrEnum):
         if self == FileTreeDiffFileStatus.added:
             return "➕"
         elif self == FileTreeDiffFileStatus.deleted:
-            return "❌"
+            return "➖"
         elif self == FileTreeDiffFileStatus.modified:
             return "📝"
         return ""
@@ -155,7 +155,7 @@ class FileTreeDiff:
         However, it doesn't group the results by directory.
 
         Ideally, this should sort file names by hierarchy (less deep directory
-        first), groupping them by directory and alphabetically. We should update
+        first), grouping them by directory and alphabetically. We should update
         this function to achieve that goal if we find a simple way to do it.
         """
         parts = file.path.split("/")
@@ -175,3 +175,8 @@ class FileTreeDiff:
     def modified(self):
         """List of modified files."""
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
+
+    @cached_property
+    def should_auto_expand(self):
+        """Auto-expand the details view when there are few files."""
+        return len(self.files) < 5

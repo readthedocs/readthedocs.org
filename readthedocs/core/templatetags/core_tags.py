@@ -7,6 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
+from readthedocs.core.forms import RichSelect
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 
@@ -102,3 +103,9 @@ def escapejson(data, indent=None):
             indent=indent,
         ).translate(_json_script_escapes)
     )
+
+
+@register.filter
+def is_rich_select(field):
+    """Field type comparison used by Crispy form templates."""
+    return isinstance(field.field.widget, RichSelect)

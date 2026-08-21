@@ -66,7 +66,7 @@ to avoid search engines of showing those results. For example::
 
    Disallow: /en/latest/api/v1.html # Deprecated API
 
-But your users will still see search results from that page if they use the search from your docs.
+However, your users will still see search results from that page if they use the search from your docs.
 With Read the Docs you can set a :ref:`custom rank per pages <config-file/v2:search.ranking>`.
 For example:
 
@@ -96,7 +96,7 @@ Moving and deleting pages
 After you have deprecated a feature for a while,
 you may want to get rid of its documentation,
 that's OK, you don't have to maintain that content forever.
-But be aware that users may have links of that page saved,
+However, be aware that users may have links of that page saved,
 and it will be frustrating and confusing for them to get a 404.
 
 To solve that problem you can create a redirect to a page with a similar feature/content,

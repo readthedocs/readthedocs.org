@@ -15,3 +15,4 @@ class Config(AppConfig):
 
     def ready(self):
         import readthedocs.builds.tasks  # noqa
+        import readthedocs.builds.signals_receivers  # noqa

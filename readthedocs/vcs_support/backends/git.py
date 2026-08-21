@@ -43,6 +43,15 @@ class Backend(BaseVCS):
         """Clone and/or fetch remote repository."""
         super().update()
 
+        if self.project.git_checkout_command:
+            # Run custom checkout step if defined
+            if isinstance(self.project.git_checkout_command, list):
+                for cmd in self.project.git_checkout_command:
+                    # NOTE: we need to pass ``escape_command=False`` here to be
+                    # able to expand environment variables.
+                    code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
+                return
+
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
         # This should be either explained or removed.
@@ -174,13 +183,20 @@ class Backend(BaseVCS):
            to ensure that no commands controled by the user are run.
         """
         remote_name = "rtd-test-ssh-key"
-        ssh_url = re.sub("https?://github.com/", "git@github.com:", self.project.repo, 1)
+        ssh_url = self.project.repo
+        if ssh_url.startswith("http"):
+            parsed_url = urlparse(ssh_url)
+            ssh_url = f"git@{parsed_url.netloc}:{parsed_url.path.lstrip('/')}"
 
         try:
             cmd = ["git", "remote", "add", remote_name, ssh_url]
             self.run(*cmd, record=False)
 
-            cmd = ["git", "push", "--dry-run", remote_name]
+            # NOTE: We use timeout to avoid hanging the build.
+            # Azure DevOps is known to not fail immediately when trying to push
+            # with an SSH key without write access, but instead it hangs until
+            # it times out (this happens randomly).
+            cmd = ["timeout", "10s", "git", "push", "--dry-run", remote_name]
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
@@ -215,6 +231,13 @@ class Backend(BaseVCS):
                 # but since the key can't be used from the builders,
                 # it should be safe to return False.
                 "ERROR: The repository owner has an IP allow list enabled",
+                # Gitlab:
+                "ERROR: This deploy key does not have write access to this project.",
+                "remote: This deploy key does not have write access to this project.",
+                # Bitbucket:
+                "fatal: Could not read from remote repository.",
+                # Azure:
+                "You need the Git 'GenericContribute' permission to perform this action.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
@@ -265,27 +288,32 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
+        # Fetch from HEAD (symlink to the default branch) if we are building "latest",
+        # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
+        use_default_branch = self.version.is_machine_latest and not self.project.default_branch
+        if use_default_branch:
+            cmd.append("HEAD")
+        else:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.append(remote_reference)
 
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
-
-        # Log a warning, except for machine versions since it's a known bug that
-        # we haven't stored a remote refspec in Version for those "stable" versions.
-        # This could be the case for an unknown default branch.
-        elif not self.version.machine:
-            # We are doing a fetch without knowing the remote reference.
-            # This is expensive, so log the event.
-            log.warning(
-                "Git fetch: Could not decide a remote reference for version. "
-                "Is it an empty default branch?",
-                project_slug=self.project.slug,
-                verbose_name=self.version.verbose_name,
-                version_type=self.version.type,
-                version_identifier=self.version.identifier,
-            )
+            # Log a warning, except for machine versions since it's a known bug that
+            # we haven't stored a remote refspec in Version for those "stable" versions.
+            # This could be the case for an unknown default branch.
+            elif not self.version.machine:
+                # We are doing a fetch without knowing the remote reference.
+                # This is expensive, so log the event.
+                log.warning(
+                    "Git fetch: Could not decide a remote reference for version. "
+                    "Is it an empty default branch?",
+                    project_slug=self.project.slug,
+                    verbose_name=self.version.verbose_name,
+                    version_type=self.version.type,
+                    version_identifier=self.version.identifier,
+                )
 
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
@@ -362,6 +390,25 @@ class Backend(BaseVCS):
                 },
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
@@ -380,7 +427,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.
@@ -482,6 +532,11 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
+
+        # Do not checkout anything else if the project has a custom Git checkout command.
+        # The ``git checkout`` command has to be executed inside the ``update()`` method.
+        if self.project.git_checkout_command:
+            return
 
         # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:

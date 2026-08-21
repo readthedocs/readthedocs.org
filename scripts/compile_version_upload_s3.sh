@@ -80,8 +80,11 @@ echo "Running all the commands in Docker container: $CONTAINER_ID"
 # echo -n 'asdf version: '
 # docker exec --user root $CONTAINER_ID asdf version
 
+# NOTE: we can't update asdf anymore since the new stable version is the Go version
+# and it breaks the building of build tools
 # Update asdf to the latest stable release
-docker exec $CONTAINER_ID asdf update
+# docker exec $CONTAINER_ID asdf update
+
 # Update all asdf plugins to the latest commit
 # (we require this to be able to compile newer versions)
 docker exec $CONTAINER_ID asdf plugin update --all

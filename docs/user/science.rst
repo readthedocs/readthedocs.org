@@ -72,9 +72,14 @@ Here's a brief overview of some :doc:`features </reference/features>` that peopl
 
     Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via pull requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
-    .. video:: https://anti-pattern-sphinx-video-downloader.readthedocs.io/_static/videos/enable-pull-request-builders.mp4
-       :width: 100%
-       :height: 300
+    .. raw:: html
+
+        <video controls height="300" preload="auto">
+          <source
+            src="https://anti-pattern-sphinx-video-downloader.readthedocs.io/_static/videos/enable-pull-request-builders.mp4"
+            type="video/mp4"
+          >
+        </video>
 
 .. dropdown:: 💬 Collaboration and community
 
@@ -114,7 +119,7 @@ We want science communities to use Read the Docs and to be part of the documenta
 Getting started: Jupyter Book
 -----------------------------
 
-:external+jupyterbook:doc:`Jupyter Book <intro>` on Read the Docs brings you the rich experience of computated `Jupyter <https://jupyter.org/>`__ documents built together with a modern documentation tool. The results are beautiful and automatically deployed websites, built with Sphinx and :doc:`Executable Book <executablebook:index>` + all the extensions available in this ecosystem.
+:external+jupyterbook:doc:`Jupyter Book <intro>` on Read the Docs brings you the rich experience of computed `Jupyter <https://jupyter.org/>`__ documents built together with a modern documentation tool. The results are beautiful and automatically deployed websites, built with Sphinx and :doc:`Executable Book <executablebook:index>` + all the extensions available in this ecosystem.
 
 Here are some popular activities that are well-supported by Jupyter Book:
 

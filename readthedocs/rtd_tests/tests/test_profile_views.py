@@ -1,5 +1,7 @@
 import itertools
+from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -94,6 +96,36 @@ class ProfileViewsTest(TestCase):
             User.objects.filter(username=self.user.username).exists(),
         )
 
+    def test_delete_account_banned_profile(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.user.username},
+        )
+
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
+        assert User.objects.filter(username=self.user.username).exists()
+
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score")
+    def test_delete_account_spam_score(self, mock_get_spam_score):
+        project = get(Project, users=[self.user])
+        mock_get_spam_score.return_value = settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.user.username},
+        )
+
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
+        assert User.objects.filter(username=self.user.username).exists()
+        mock_get_spam_score.assert_called_once_with(project)
+
     def test_profile_detail(self):
         resp = self.client.get(
             reverse("profiles_profile_detail", args=(self.user.username,)),
@@ -155,6 +187,12 @@ class ProfileViewsTest(TestCase):
         resp = self.client.post(reverse("profiles_tokens_delete"))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+    def test_delete_api_token_without_token(self):
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+        resp = self.client.post(reverse("profiles_tokens_delete"))
+        assert resp.status_code == 404
 
     def test_list_security_logs(self):
         project = get(Project, users=[self.user], slug="project")
@@ -366,3 +404,21 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         url = reverse("profiles_profile_detail", kwargs={"username": new_user.username})
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
+
+    @mock.patch("readthedocs.core.utils.spam.get_spam_score")
+    def test_delete_account_spam_score(self, mock_get_spam_score):
+        self.client.force_login(self.owner)
+        project = get(Project)
+        self.org.projects.add(project)
+        mock_get_spam_score.return_value = settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD
+
+        response = self.client.post(
+            reverse("delete_account"),
+            data={"username": self.owner.username},
+        )
+
+        assert response.status_code == 200
+        form = response.context.get("form")
+        assert "Your account has been flagged as spam" in form.errors["__all__"][0]
+        assert User.objects.filter(username=self.owner.username).exists()
+        mock_get_spam_score.assert_called_once_with(project)

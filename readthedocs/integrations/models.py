@@ -3,8 +3,8 @@
 import json
 import re
 import uuid
+from dataclasses import dataclass
 
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -192,7 +192,7 @@ class HttpExchange(models.Model):
             formatter = HtmlFormatter()
             html = highlight(json_value, JsonLexer(), formatter)
             return mark_safe(html)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return value
 
     @property
@@ -347,11 +347,31 @@ class GitHubWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["id", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
+@dataclass
+class GitHubAppIntegrationProviderData:
+    installation_id: int
+    repository_id: int
+    repository_full_name: str
+
+
 class GitHubAppIntegration(Integration):
+    """
+    Dummy integration for GitHub App projects.
+
+    This is a proxy model for the Integration model, which is used to
+    represent GitHub App integrations in the UI.
+
+    This integration is automatically created when a project is linked to a
+    remote repository from a GitHub App installation, and it remains
+    associated with the project even if the remote repository is removed.
+
+    The `provider_data` field is a JSON representation of the `GitHubAppIntegrationProviderData` class.
+    """
+
     integration_type_id = Integration.GITHUBAPP
     has_sync = False
     is_remote_only = True
@@ -372,11 +392,9 @@ class GitHubAppIntegration(Integration):
         # using. We might want to store this on the model later so a repository
         # that is removed from the installation can still link to the
         # installation the project was _previously_ using.
-        try:
-            installation_id = self.project.remote_repository.github_app_installation.installation_id
-            return f"https://github.com/apps/{settings.GITHUB_APP_NAME}/installations/{installation_id}"
-        except AttributeError:
-            return None
+        if self.project.is_github_app_project:
+            return self.project.remote_repository.github_app_installation.url
+        return None
 
     @property
     def is_active(self) -> bool:
@@ -403,7 +421,7 @@ class BitbucketWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["uuid", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
@@ -418,7 +436,7 @@ class GitLabWebhook(Integration):
     def can_sync(self):
         try:
             return all((k in self.provider_data) for k in ["id", "url"])
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return False
 
 
@@ -433,7 +451,7 @@ class GenericAPIWebhook(Integration):
         """Ensure model has token data before saving."""
         try:
             token = self.provider_data.get("token")
-        except (AttributeError, TypeError):
+        except AttributeError, TypeError:
             token = None
         finally:
             if token is None:

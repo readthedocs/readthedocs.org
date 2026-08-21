@@ -6,6 +6,8 @@ from corsheaders.middleware import (
 )
 from django.test import override_settings
 from django_dynamic_fixture import get
+from djstripe import models as djstripe
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
@@ -372,3 +374,112 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
         self.assertEqual(r["Cache-Tag"], "project,project:sitemap.xml")
+
+    def test_cache_headers_at_browser_level_on_external_domain(self):
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("no-cache", r.headers)
+
+        get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Cache-Control"], "no-cache")
+
+    def test_x_robots_tag_header(self):
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("X-Robots-Tag", r.headers)
+
+        get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["X-Robots-Tag"], "noindex")
+
+    def _create_stripe_subscription(self, status, price_id):
+        price = get(djstripe.Price, id=price_id)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            status=status,
+            customer=get(djstripe.Customer),
+        )
+        get(
+            djstripe.SubscriptionItem,
+            price=price,
+            quantity=1,
+            subscription=stripe_subscription,
+        )
+        return stripe_subscription
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
+    )
+    def test_x_robots_tag_header_organization_on_trial(self):
+        stripe_subscription = self._create_stripe_subscription(
+            status=SubscriptionStatus.trialing,
+            price_id="trialing",
+        )
+        get(
+            Organization,
+            owners=[self.eric],
+            projects=[self.project],
+            stripe_subscription=stripe_subscription,
+            stripe_customer=stripe_subscription.customer,
+        )
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert r["X-Robots-Tag"] == "noindex"
+
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+        RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
+    )
+    def test_x_robots_tag_header_organization_with_paid_plan(self):
+        stripe_subscription = self._create_stripe_subscription(
+            status=SubscriptionStatus.active,
+            price_id="advanced",
+        )
+        get(
+            Organization,
+            owners=[self.eric],
+            projects=[self.project],
+            stripe_subscription=stripe_subscription,
+            stripe_customer=stripe_subscription.customer,
+        )
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert "X-Robots-Tag" not in r.headers
