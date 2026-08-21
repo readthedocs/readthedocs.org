@@ -27,7 +27,8 @@
 #     the ES sidecar AND proxito Django settings, so they run in
 #     tests-search with --ds=readthedocs.settings.proxito.test.
 #   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
-#     tox 4), so it can't use tox-uv.
+#     tox 4), so it can't use tox-uv. It installs uv directly instead and
+#     calls it from the install_command in tox.embedapi.ini.
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
@@ -186,7 +187,9 @@ jobs:
       - restore_cache:
           keys:
             - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: pip install --user 'tox<4'
+      # tox-uv needs tox 4, so uv is installed on its own here and called
+      # directly from the install_command in tox.embedapi.ini.
+      - run: pip install --user 'tox<4' uv
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
