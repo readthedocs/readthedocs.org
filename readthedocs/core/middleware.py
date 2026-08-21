@@ -53,29 +53,33 @@ class AttributionMiddleware:
     """
     Stash signup attribution from the URL into the session.
 
-    Our marketing site adds a ``ref`` parameter to its signup links, carrying
-    over where the visitor originally came from. We keep it in the session so
-    it survives the trip through an OAuth provider, and store it on the user
-    at signup (see
+    Our marketing site adds these parameters to its signup links, carrying
+    over where the visitor originally came from. We keep them in the session
+    so they survive the trip through an OAuth provider, and store them on the
+    user at signup (see
     :py:func:`readthedocs.core.signals.store_signup_attribution`).
 
-    The value is a slash separated source, medium and campaign, with only the
-    source required, so ``?ref=hn`` and ``?ref=newsletter/email/launch`` are
-    both valid. We use one parameter instead of the usual ``utm_*`` set
-    because those are for our website's analytics, which has already resolved
-    them into a single answer by the time it links here. This matches the
-    ``?ref=`` that :py:class:`readthedocs.core.views.WelcomeView` already adds
-    when it sends visitors from our old domains to the website.
+    Two separate things are recorded:
 
-    First touch wins, and requests without a ``ref`` are ignored, so normal
-    traffic doesn't create sessions.
+    ``ref``
+        A label we chose, as a slash separated source, medium and campaign
+        with only the source required, so ``?ref=hn`` and
+        ``?ref=newsletter/email/launch`` are both valid. It's the same
+        parameter :py:class:`readthedocs.core.views.WelcomeView` adds when it
+        sends visitors from our old domains to the website.
+
+    ``referrer``
+        The host the visitor actually came from, which nobody chose.
+
+    They answer different questions, so a campaign link followed from a blog
+    records both. First touch wins, and requests carrying neither are
+    ignored, so normal traffic doesn't create sessions.
     """
 
     SESSION_KEY = "attribution"
-    # Keep in sync with the value our website builds,
+    # Keep in sync with the parameters our website adds to signup links,
     # see ``src/js/attribution.js`` in the website repository.
-    PARAM = "ref"
-    KEYS = ["source", "medium", "campaign"]
+    REF_KEYS = ["source", "medium", "campaign"]
     MAX_LENGTH = 100
 
     def __init__(self, get_response):
@@ -83,9 +87,12 @@ class AttributionMiddleware:
 
     def __call__(self, request):
         if request.method == "GET":
-            data = self.parse(request.GET.get(self.PARAM, ""))
-            # Checked in this order so that requests without a ``ref`` --
-            # almost all of them -- don't load the session at all.
+            data = self.parse(
+                ref=request.GET.get("ref", ""),
+                referrer=request.GET.get("referrer", ""),
+            )
+            # Checked in this order so that requests without these parameters
+            # -- almost all of them -- don't load the session at all.
             if (
                 data
                 and not request.user.is_authenticated
@@ -96,14 +103,17 @@ class AttributionMiddleware:
         return self.get_response(request)
 
     @classmethod
-    def parse(cls, ref):
-        """Parse a ``ref`` value into its named parts, ignoring empty ones."""
-        parts = ref.strip().split("/", len(cls.KEYS) - 1)
-        return {
+    def parse(cls, ref="", referrer=""):
+        """Parse a ``ref`` and ``referrer`` into named parts, dropping empty ones."""
+        parts = ref.strip().split("/", len(cls.REF_KEYS) - 1)
+        data = {
             key: part.strip()[: cls.MAX_LENGTH]
-            for key, part in zip(cls.KEYS, parts)
+            for key, part in zip(cls.REF_KEYS, parts)
             if part.strip()
         }
+        if referrer.strip():
+            data["referrer"] = referrer.strip()[: cls.MAX_LENGTH]
+        return data
 
 
 class UpdateCSPMiddleware:

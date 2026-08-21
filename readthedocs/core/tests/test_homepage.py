@@ -46,3 +46,23 @@ class HomepageTest(TestCase):
             reverse("welcome"),
         )
         assert response.headers.get("Location") == "https://about.readthedocs.com/?ref=readthedocs.org"
+
+    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
+    def test_welcome_unauth_passes_referrer(self):
+        # The referrer is lost after this redirect, so we pass it along for
+        # signup attribution.
+        response = self.client.get(
+            reverse("welcome"),
+            headers={"referer": "https://docs.python.org/3/tutorial/"},
+        )
+        assert response.headers.get("Location") == (
+            "https://about.readthedocs.com/?ref=readthedocs.org&referrer=docs.python.org"
+        )
+
+    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
+    def test_welcome_unauth_ignores_our_own_referrer(self):
+        response = self.client.get(
+            reverse("welcome"),
+            headers={"referer": "https://readthedocs.org/projects/pip/"},
+        )
+        assert response.headers.get("Location") == "https://about.readthedocs.com/?ref=readthedocs.org"

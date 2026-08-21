@@ -9,7 +9,7 @@ from readthedocs.core.middleware import AttributionMiddleware
 SESSION_KEY = AttributionMiddleware.SESSION_KEY
 
 
-class TestParseRef:
+class TestParse:
     def test_source_only(self):
         assert AttributionMiddleware.parse("hn") == {"source": "hn"}
 
@@ -41,6 +41,20 @@ class TestParseRef:
         parsed = AttributionMiddleware.parse("x" * 500)
         assert len(parsed["source"]) == AttributionMiddleware.MAX_LENGTH
 
+    def test_referrer_is_kept_apart_from_the_ref(self):
+        assert AttributionMiddleware.parse(
+            ref="newsletter/email", referrer="news.ycombinator.com"
+        ) == {
+            "source": "newsletter",
+            "medium": "email",
+            "referrer": "news.ycombinator.com",
+        }
+
+    def test_referrer_without_a_ref(self):
+        assert AttributionMiddleware.parse(referrer="news.ycombinator.com") == {
+            "referrer": "news.ycombinator.com",
+        }
+
 
 @pytest.mark.django_db
 class TestAttributionMiddleware:
@@ -59,7 +73,12 @@ class TestAttributionMiddleware:
 
         assert client.session[SESSION_KEY] == {"source": "first"}
 
-    def test_no_ref_stores_nothing(self, client):
+    def test_captures_referrer(self, client):
+        client.get("/", {"referrer": "news.ycombinator.com"})
+
+        assert client.session[SESSION_KEY] == {"referrer": "news.ycombinator.com"}
+
+    def test_no_parameters_stores_nothing(self, client):
         client.get("/")
 
         assert SESSION_KEY not in client.session
@@ -93,6 +112,13 @@ class TestSignupAttribution:
 
         # The session data is consumed at signup.
         assert SESSION_KEY not in client.session
+
+    def test_attribution_source_falls_back_to_the_referrer(self, client):
+        client.get("/", {"referrer": "news.ycombinator.com"})
+        client.post("/accounts/signup/", data=self.form_data)
+
+        profile = User.objects.get(username="test123").profile
+        assert profile.attribution_source == "news.ycombinator.com"
 
     def test_signup_without_attribution(self, client):
         response = client.post("/accounts/signup/", data=self.form_data)

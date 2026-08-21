@@ -5,6 +5,9 @@ Including the main homepage, documentation and header rendering,
 and server errors.
 """
 
+from urllib.parse import urlencode
+from urllib.parse import urlparse
+
 import structlog
 from django.conf import settings
 from django.http import Http404
@@ -68,14 +71,41 @@ class WelcomeView(View):
         if request.user.is_authenticated:
             return redirect(reverse("projects_dashboard"))
 
-        # Redirect to ``about.`` in production
-        query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
+        # Redirect to ``about.`` in production.
+        # ``ref`` marks the visitor as arriving through our old domain, and
+        # ``referrer`` carries where they were before that, which is how they
+        # actually found us. Both are used to attribute a signup back to its
+        # source, and this redirect is the last point where we can see the
+        # referrer at all.
+        params = {"ref": settings.PRODUCTION_DOMAIN}
+        referrer = self._get_referrer_host(request)
+        if referrer:
+            params["referrer"] = referrer
+
+        query_string = "?" + urlencode(params)
         if request.META["QUERY_STRING"]:
             # Small hack to not append `&` to URLs without a query_string
             query_string += "&" + request.META["QUERY_STRING"]
 
         # Do a 302 here so that it varies on logged in status
         return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
+
+    def _get_referrer_host(self, request):
+        """Get the host the visitor came from, ignoring our own domains."""
+        referrer = request.headers.get("Referer", "")
+        if not referrer:
+            return None
+
+        try:
+            host = urlparse(referrer).netloc
+        except ValueError:
+            return None
+
+        if not host or host.endswith(settings.PRODUCTION_DOMAIN) or host == request.get_host():
+            return None
+
+        # Keep this short, it's attacker controlled and only used as a label.
+        return host[:100]
 
 
 class SupportView(PrivateViewMixin, TemplateView):

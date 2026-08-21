@@ -54,9 +54,9 @@ class UserProfile(TimeStampedModel):
         default=dict,
         blank=True,
         help_text=_(
-            "Where this user came from when they signed up, as source, medium "
-            "and campaign. Empty for direct traffic, and for users who signed "
-            "up before we started tracking this."
+            "Where this user came from when they signed up, as source, medium, "
+            "campaign and referrer. Empty for direct traffic, and for users "
+            "who signed up before we started tracking this."
         ),
     )
 
@@ -78,8 +78,13 @@ class UserProfile(TimeStampedModel):
 
     @property
     def attribution_source(self):
-        """Traffic source for this user, or an empty string if direct."""
-        return self.attribution.get("source", "")
+        """
+        Traffic source for this user, or an empty string if direct.
+
+        Prefers the source we labelled the link with, falling back to
+        wherever the visitor came from.
+        """
+        return self.attribution.get("source") or self.attribution.get("referrer") or ""
 
     def use_dark_theme(self):
         return self.theme == self.THEME_DARK
