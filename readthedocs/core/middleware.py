@@ -63,7 +63,9 @@ class AttributionMiddleware:
     source required, so ``?ref=hn`` and ``?ref=newsletter/email/launch`` are
     both valid. We use one parameter instead of the usual ``utm_*`` set
     because those are for our website's analytics, which has already resolved
-    them into a single answer by the time it links here.
+    them into a single answer by the time it links here. This matches the
+    ``?ref=`` that :py:class:`readthedocs.core.views.WelcomeView` already adds
+    when it sends visitors from our old domains to the website.
 
     First touch wins, and requests without a ``ref`` are ignored, so normal
     traffic doesn't create sessions.
