@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             field=models.JSONField(
                 blank=True,
                 default=dict,
-                help_text="Where this user came from when they signed up, as UTM parameters and referrer. Empty for direct traffic, and for users who signed up before we started tracking this.",
+                help_text="Where this user came from when they signed up, as source, medium and campaign. Empty for direct traffic, and for users who signed up before we started tracking this.",
                 verbose_name="Signup attribution",
             ),
         ),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             field=models.JSONField(
                 blank=True,
                 default=dict,
-                help_text="Where this user came from when they signed up, as UTM parameters and referrer. Empty for direct traffic, and for users who signed up before we started tracking this.",
+                help_text="Where this user came from when they signed up, as source, medium and campaign. Empty for direct traffic, and for users who signed up before we started tracking this.",
                 verbose_name="Signup attribution",
             ),
         ),

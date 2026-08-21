@@ -53,34 +53,37 @@ class AttributionMiddleware:
     """
     Stash signup attribution from the URL into the session.
 
-    Our marketing site adds these parameters to its signup links, carrying
-    over where the visitor originally came from. We keep them in the session
-    so they survive the trip through an OAuth provider, and store them on the
-    user at signup (see
+    Our marketing site adds a ``ref`` parameter to its signup links, carrying
+    over where the visitor originally came from. We keep it in the session so
+    it survives the trip through an OAuth provider, and store it on the user
+    at signup (see
     :py:func:`readthedocs.core.signals.store_signup_attribution`).
 
-    First touch wins, and requests without any of these parameters are
-    ignored, so normal traffic doesn't create sessions.
+    The value is a slash separated source, medium and campaign, with only the
+    source required, so ``?ref=hn`` and ``?ref=newsletter/email/launch`` are
+    both valid. We use one parameter instead of the usual ``utm_*`` set
+    because those are for our website's analytics, which has already resolved
+    them into a single answer by the time it links here.
+
+    First touch wins, and requests without a ``ref`` are ignored, so normal
+    traffic doesn't create sessions.
     """
 
     SESSION_KEY = "attribution"
-    # Keep in sync with the parameters our website adds to signup links,
+    # Keep in sync with the value our website builds,
     # see ``src/js/attribution.js`` in the website repository.
-    PARAMS = ["utm_source", "utm_medium", "utm_campaign", "ref"]
-    MAX_LENGTH = 255
+    PARAM = "ref"
+    KEYS = ["source", "medium", "campaign"]
+    MAX_LENGTH = 100
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         if request.method == "GET":
-            data = {
-                param: request.GET[param].strip()[: self.MAX_LENGTH]
-                for param in self.PARAMS
-                if request.GET.get(param, "").strip()
-            }
-            # Checked in this order so that requests without these parameters
-            # -- almost all of them -- don't load the session at all.
+            data = self.parse(request.GET.get(self.PARAM, ""))
+            # Checked in this order so that requests without a ``ref`` --
+            # almost all of them -- don't load the session at all.
             if (
                 data
                 and not request.user.is_authenticated
@@ -89,6 +92,16 @@ class AttributionMiddleware:
                 request.session[self.SESSION_KEY] = data
 
         return self.get_response(request)
+
+    @classmethod
+    def parse(cls, ref):
+        """Parse a ``ref`` value into its named parts, ignoring empty ones."""
+        parts = ref.strip().split("/", len(cls.KEYS) - 1)
+        return {
+            key: part.strip()[: cls.MAX_LENGTH]
+            for key, part in zip(cls.KEYS, parts)
+            if part.strip()
+        }
 
 
 class UpdateCSPMiddleware:

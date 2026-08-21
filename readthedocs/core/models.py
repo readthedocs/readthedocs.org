@@ -54,8 +54,8 @@ class UserProfile(TimeStampedModel):
         default=dict,
         blank=True,
         help_text=_(
-            "Where this user came from when they signed up, as UTM parameters "
-            "and referrer. Empty for direct traffic, and for users who signed "
+            "Where this user came from when they signed up, as source, medium "
+            "and campaign. Empty for direct traffic, and for users who signed "
             "up before we started tracking this."
         ),
     )
@@ -78,13 +78,8 @@ class UserProfile(TimeStampedModel):
 
     @property
     def attribution_source(self):
-        """
-        Single traffic source for this user, or an empty string if direct.
-
-        This collapses attribution the same way Plausible does, so numbers
-        here can be compared against our website analytics.
-        """
-        return self.attribution.get("utm_source") or self.attribution.get("ref") or ""
+        """Traffic source for this user, or an empty string if direct."""
+        return self.attribution.get("source", "")
 
     def use_dark_theme(self):
         return self.theme == self.THEME_DARK

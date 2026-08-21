@@ -9,32 +9,57 @@ from readthedocs.core.middleware import AttributionMiddleware
 SESSION_KEY = AttributionMiddleware.SESSION_KEY
 
 
-@pytest.mark.django_db
-class TestAttributionMiddleware:
-    def test_captures_attribution_parameters(self, client):
-        client.get(
-            "/",
-            {"utm_source": "newsletter", "utm_medium": "email", "ref": "hn"},
-        )
+class TestParseRef:
+    def test_source_only(self):
+        assert AttributionMiddleware.parse("hn") == {"source": "hn"}
 
-        assert client.session[SESSION_KEY] == {
-            "utm_source": "newsletter",
-            "utm_medium": "email",
-            "ref": "hn",
+    def test_all_parts(self):
+        assert AttributionMiddleware.parse("newsletter/email/launch") == {
+            "source": "newsletter",
+            "medium": "email",
+            "campaign": "launch",
         }
 
-    def test_ignores_unknown_parameters(self, client):
-        client.get("/", {"utm_source": "newsletter", "utm_term": "docs"})
+    def test_empty_parts_are_ignored(self):
+        assert AttributionMiddleware.parse("newsletter//launch") == {
+            "source": "newsletter",
+            "campaign": "launch",
+        }
 
-        assert client.session[SESSION_KEY] == {"utm_source": "newsletter"}
+    def test_extra_parts_stay_with_the_campaign(self):
+        assert AttributionMiddleware.parse("a/b/c/d") == {
+            "source": "a",
+            "medium": "b",
+            "campaign": "c/d",
+        }
+
+    def test_empty_ref(self):
+        assert AttributionMiddleware.parse("") == {}
+        assert AttributionMiddleware.parse("  ") == {}
+
+    def test_long_parts_are_truncated(self):
+        parsed = AttributionMiddleware.parse("x" * 500)
+        assert len(parsed["source"]) == AttributionMiddleware.MAX_LENGTH
+
+
+@pytest.mark.django_db
+class TestAttributionMiddleware:
+    def test_captures_ref(self, client):
+        client.get("/", {"ref": "newsletter/email/launch"})
+
+        assert client.session[SESSION_KEY] == {
+            "source": "newsletter",
+            "medium": "email",
+            "campaign": "launch",
+        }
 
     def test_first_touch_is_not_overwritten(self, client):
-        client.get("/", {"utm_source": "first"})
-        client.get("/", {"utm_source": "second", "utm_medium": "email"})
+        client.get("/", {"ref": "first"})
+        client.get("/", {"ref": "second"})
 
-        assert client.session[SESSION_KEY] == {"utm_source": "first"}
+        assert client.session[SESSION_KEY] == {"source": "first"}
 
-    def test_no_parameters_stores_nothing(self, client):
+    def test_no_ref_stores_nothing(self, client):
         client.get("/")
 
         assert SESSION_KEY not in client.session
@@ -43,14 +68,9 @@ class TestAttributionMiddleware:
         user = User.objects.create_user(username="test", password="test")
         client.force_login(user)
 
-        client.get("/", {"utm_source": "newsletter"})
+        client.get("/", {"ref": "hn"})
 
         assert SESSION_KEY not in client.session
-
-    def test_truncates_long_values(self, client):
-        client.get("/", {"utm_source": "x" * 1000})
-
-        assert len(client.session[SESSION_KEY]["utm_source"]) == 255
 
 
 @pytest.mark.django_db
@@ -63,12 +83,12 @@ class TestSignupAttribution:
     }
 
     def test_signup_stores_attribution_on_profile(self, client):
-        client.get("/", {"utm_source": "newsletter", "ref": "hn"})
+        client.get("/", {"ref": "newsletter/email"})
         response = client.post("/accounts/signup/", data=self.form_data)
         assert response.status_code == 302
 
         profile = User.objects.get(username="test123").profile
-        assert profile.attribution == {"utm_source": "newsletter", "ref": "hn"}
+        assert profile.attribution == {"source": "newsletter", "medium": "email"}
         assert profile.attribution_source == "newsletter"
 
         # The session data is consumed at signup.
@@ -81,10 +101,3 @@ class TestSignupAttribution:
         profile = User.objects.get(username="test123").profile
         assert profile.attribution == {}
         assert profile.attribution_source == ""
-
-    def test_attribution_source_falls_back_to_referrer(self, client):
-        client.get("/", {"ref": "hn"})
-        client.post("/accounts/signup/", data=self.form_data)
-
-        profile = User.objects.get(username="test123").profile
-        assert profile.attribution_source == "hn"
