@@ -241,7 +241,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 version=self.data.version,
                 environment=environment,
             )
-            log.info("Syncing repository via remote listing.")
+            log.debug("Syncing repository via remote listing.")
             self.sync_versions(vcs_repository)
 
 
@@ -919,7 +919,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
         """
         time_before_store_build_artifacts = timezone.now()
-        log.info("Writing build artifacts to media storage")
+        log.debug("Writing build artifacts to media storage")
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
@@ -942,13 +942,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 types_to_delete.append(artifact_type)
 
         # Upload formats
+        artifact_sizes = {}
         for media_type in types_to_copy:
             from_path = self.data.project.artifact_path(
                 version=self.data.version.slug,
                 type_=media_type,
             )
             to_path = self.data.version.get_storage_path(media_type=media_type)
-            self._log_directory_size(from_path, media_type)
+            artifact_sizes[media_type] = self._get_directory_size(from_path)
 
             try:
                 build_media_storage.rclone_sync_directory(from_path, to_path)
@@ -991,27 +992,26 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     exception_message="Error deleting files from storage.",
                 ) from exc
 
+        # This is the only artifacts log at INFO level,
+        # useful to debug storage slowness and artifacts size abuse.
         log.info(
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
+            sizes=artifact_sizes,  # Sizes in mega bytes
         )
 
-    def _log_directory_size(self, directory, media_type):
+    def _get_directory_size(self, directory) -> int | None:
+        """Return the size of the directory in megabytes, or None on error."""
         try:
             output = subprocess.check_output(["du", "--summarize", "-m", "--", directory])
             # The output is something like: "5\t/path/to/directory".
-            directory_size = int(output.decode().split()[0])
-            log.info(
-                "Build artifacts directory size.",
-                directory=directory,
-                size=directory_size,  # Size in mega bytes
-                media_type=media_type,
-            )
+            return int(output.decode().split()[0])
         except Exception:
             log.info(
                 "Error getting build artifacts directory size.",
                 exc_info=True,
             )
+            return None
 
     def send_notifications(self, version_pk, build_pk, event):
         """Send notifications to all subscribers of `event`."""

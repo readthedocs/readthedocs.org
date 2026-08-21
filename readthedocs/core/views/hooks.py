@@ -148,7 +148,7 @@ def get_or_create_external_version(project, version_data):
         external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.active = True
         external_version.save()
-        log.info(
+        log.debug(
             "External version updated.",
             project_slug=project.slug,
             version_slug=external_version.slug,
