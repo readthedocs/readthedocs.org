@@ -218,7 +218,9 @@ class Resolver:
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, "", "", "", ""))
 
-    def get_domain_without_protocol(self, project, use_canonical_domain=True):
+    def get_domain_without_protocol(
+        self, project, use_canonical_domain=True, external_version_slug=None
+    ):
         """
         Get the domain from where the documentation of ``project`` is served from.
 
@@ -226,8 +228,13 @@ class Resolver:
 
         :param project: Project object
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
+        :param external_version_slug: If given, use the domain for this external version.
         """
-        domain, _ = self._get_project_domain(project, use_canonical_domain=use_canonical_domain)
+        domain, _ = self._get_project_domain(
+            project,
+            use_canonical_domain=use_canonical_domain,
+            external_version_slug=external_version_slug,
+        )
         return domain
 
     def resolve(
