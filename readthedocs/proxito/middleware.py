@@ -39,12 +39,6 @@ from .exceptions import DomainDNSHttp404
 from .exceptions import ProjectHttp404
 
 
-#: How long we cache whether a project should be kept out of search engines.
-#: Matched to the spam re-check cadence, so clearing a project's score takes
-#: effect without an explicit cache purge.
-NOINDEX_CACHE_TIMEOUT = 60 * 60
-
-
 log = structlog.get_logger(__name__)
 
 
@@ -240,6 +234,12 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project.delisted:
             return True
 
+        # ``is_spam`` is a manual override in both directions: ``True`` condemns
+        # the project, ``False`` clears it whatever the rules say. Either way we
+        # already have our answer and can skip computing the score.
+        if project.is_spam is not None:
+            return project.is_spam
+
         if "readthedocsext.spamfighting" not in settings.INSTALLED_APPS:
             return False
 
@@ -249,10 +249,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
 
             denied = is_robotstxt_denied(project)
-            # TODO: denormalize the spam score onto the project so it can be read
-            # directly and this cache can go away. It is summed from the matched
-            # rules on every read, which is too expensive for the hot path.
-            cache.set(cache_key, denied, timeout=NOINDEX_CACHE_TIMEOUT)
+            # TODO: this cache would be better in readthedocsext.spamfighting,
+            # which knows when a project's score actually changes and so can
+            # invalidate precisely instead of expiring on a timeout -- and every
+            # caller would benefit, not just this one. Denormalizing the score
+            # onto the project would remove the need for it altogether.
+            cache.set(cache_key, denied, timeout=settings.RTD_SPAM_NOINDEX_CACHE_TIMEOUT)
         return denied
 
     def _set_request_attributes(self, request, unresolved_domain):

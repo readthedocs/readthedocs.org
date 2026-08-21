@@ -1207,6 +1207,7 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+    RTD_SPAM_NOINDEX_CACHE_TIMEOUT = 60 * 60
 
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.

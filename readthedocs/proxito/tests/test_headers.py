@@ -1,9 +1,13 @@
+import sys
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 from corsheaders.middleware import (
     ACCESS_CONTROL_ALLOW_CREDENTIALS,
     ACCESS_CONTROL_ALLOW_METHODS,
     ACCESS_CONTROL_ALLOW_ORIGIN,
 )
+from django.conf import settings
 from django.core.cache import cache
 from django.test import override_settings
 from django_dynamic_fixture import get
@@ -434,6 +438,65 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         assert r.status_code == 200
         assert r["X-Robots-Tag"] == "noindex"
+
+    def test_x_robots_tag_header_project_flagged_as_spam(self):
+        cache.clear()
+        self.project.is_spam = True
+        self.project.save()
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert r["X-Robots-Tag"] == "noindex"
+
+    def test_x_robots_tag_header_project_over_spam_threshold(self):
+        """A project the spam rules score highly is kept out of search engines."""
+        cache.clear()
+        utils = mock.MagicMock()
+        utils.is_robotstxt_denied.return_value = True
+        # The spamfighting module only exists in the commercial deployment, so
+        # stand in for it to exercise the scored path.
+        fake_modules = {
+            "readthedocsext": mock.MagicMock(),
+            "readthedocsext.spamfighting": mock.MagicMock(),
+            "readthedocsext.spamfighting.utils": utils,
+        }
+        installed_apps = [*settings.INSTALLED_APPS, "readthedocsext.spamfighting"]
+
+        with (
+            mock.patch.dict(sys.modules, fake_modules),
+            mock.patch.object(settings, "INSTALLED_APPS", installed_apps),
+        ):
+            r = self.client.get(
+                "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+            )
+
+        assert r.status_code == 200
+        assert r["X-Robots-Tag"] == "noindex"
+        utils.is_robotstxt_denied.assert_called_with(self.project)
+
+    def test_x_robots_tag_header_project_under_spam_threshold(self):
+        cache.clear()
+        utils = mock.MagicMock()
+        utils.is_robotstxt_denied.return_value = False
+        fake_modules = {
+            "readthedocsext": mock.MagicMock(),
+            "readthedocsext.spamfighting": mock.MagicMock(),
+            "readthedocsext.spamfighting.utils": utils,
+        }
+        installed_apps = [*settings.INSTALLED_APPS, "readthedocsext.spamfighting"]
+
+        with (
+            mock.patch.dict(sys.modules, fake_modules),
+            mock.patch.object(settings, "INSTALLED_APPS", installed_apps),
+        ):
+            r = self.client.get(
+                "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+            )
+
+        assert r.status_code == 200
+        assert "X-Robots-Tag" not in r.headers
 
     def _create_stripe_subscription(self, status, price_id):
         price = get(djstripe.Price, id=price_id)
