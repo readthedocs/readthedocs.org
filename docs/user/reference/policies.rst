@@ -15,7 +15,8 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
    /unofficial-projects
    /legal/security-policy
    /security
-   `Terms of Service <https://about.readthedocs.com/terms-of-service/>`_
+   Terms of Service <https://about.readthedocs.com/terms-of-service/>
+   Privacy Policy <https://about.readthedocs.com/privacy-policy/>
    /dmca/index
    /legal/dpa/index
 
@@ -30,7 +31,8 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
     have a master services agreement for your subscription if you have a custom
     or enterprise contract.
 
-
+`Privacy Policy <https://about.readthedocs.com/privacy-policy/>`_
+    Our policy on collecting, storing, and protecting user and visitor data.
 
 :doc:`/legal/security-policy`
     Our policies around application and infrastructure security.
