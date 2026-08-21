@@ -176,6 +176,13 @@ class CommunityTestSettings(CommunityBaseSettings):
                     "allow_overwrite": True,
                 },
             },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": "build-uploads",
+                    "default_acl": "private",
+                },
+            },
         }
 
 
