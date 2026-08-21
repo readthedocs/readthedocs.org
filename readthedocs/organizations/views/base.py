@@ -129,7 +129,9 @@ class OrganizationTeamMixin(OrganizationMixin):
             .filter(
                 organization=self.get_organization(),
             )
-            .order_by("name")
+            # ``name`` is only unique per organization; tie-break by ``pk``
+            # to keep the paginated list deterministic.
+            .order_by("name", "pk")
         )
 
     @lru_cache(maxsize=1)
