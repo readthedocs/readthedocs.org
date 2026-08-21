@@ -1,6 +1,7 @@
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.models import Project, ProjectRelationship
@@ -304,3 +305,21 @@ class SubprojectFormTests(TestCase):
         form.save()
         self.relation.refresh_from_db()
         self.assertEqual(self.relation.alias, "subproject")
+
+
+class SubprojectListViewTests(TestCase):
+    def test_list_is_ordered_by_subproject_slug(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, slug="mainproject", users=[user])
+        # Create subprojects in non-alphabetical order to make sure the list
+        # is ordered by slug, and not by creation order.
+        for slug in ["delta", "alpha", "charlie"]:
+            project.add_subproject(fixture.get(Project, slug=slug))
+
+        self.client.force_login(user)
+        response = self.client.get(reverse("projects_subprojects", args=[project.slug]))
+
+        assert response.status_code == 200
+        expected = ["alpha", "charlie", "delta"]
+        assert [rel.child.slug for rel in response.context["object_list"]] == expected
+        assert [rel.child.slug for rel, _ in response.context["subprojects_and_urls"]] == expected

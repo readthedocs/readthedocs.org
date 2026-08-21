@@ -69,7 +69,7 @@ class ProjectRelationListMixin:
         subprojects_and_urls = []
 
         project = self.get_project()
-        subprojects = project.subprojects.select_related("child")
+        subprojects = project.subprojects.select_related("child").order_by("child__slug")
 
         if not subprojects.exists():
             return subprojects_and_urls
