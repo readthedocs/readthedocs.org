@@ -8,7 +8,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import HasBuildScopedBuildAPIKey
+from readthedocs.api.v2.permissions import HasProjectScopedBuildAPIKey
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.templatetags.core_tags import make_document_url
 from readthedocs.projects.models import Project
@@ -23,7 +24,7 @@ class RevokeBuildAPIKeyView(APIView):
     """
 
     http_method_names = ["post"]
-    permission_classes = [HasBuildAPIKey]
+    permission_classes = [HasProjectScopedBuildAPIKey | HasBuildScopedBuildAPIKey]
     renderer_classes = [JSONRenderer]
 
     def post(self, request, *args, **kwargs):
