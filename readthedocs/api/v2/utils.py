@@ -15,8 +15,9 @@ from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.builds.constants import TAG
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
+from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.projects.models import AutomationRule
 
 
 log = structlog.get_logger(__name__)
@@ -201,7 +202,14 @@ def delete_versions_from_db(project, tags_data, branches_data):
         tags_data=tags_data,
         branches_data=branches_data,
     ).exclude(active=True)
-    _, deleted = to_delete_qs.delete()
+
+    # NOTE: we delete in batches to avoid expensive queries when we
+    # have lots of versions to delete (which shouldn't be often).
+    # The PageView table can sometimes timeout when querying
+    # several versions like PageView.objects.filter(version_id__in=[....]).
+    # When querying more than ~67 versions, postgres will ignore the index,
+    # and do a sequential scan, which is expensive on this table.
+    _, deleted = delete_in_batches(to_delete_qs, 50)
     versions_count = deleted.get("builds.Version", 0)
     log.info(
         "Re-syncing versions: versions deleted.",
@@ -220,7 +228,7 @@ def get_deleted_active_versions(project, tags_data, branches_data):
     return set(to_delete_qs.values_list("slug", flat=True))
 
 
-def run_automation_rules(project, added_versions, deleted_active_versions):
+def run_version_automation_rules(project, added_versions, deleted_active_versions):
     """
     Runs the automation rules on each version.
 
@@ -234,16 +242,34 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    class_ = RegexAutomationRule
     actions = [
-        (added_versions, class_.allowed_actions_on_create),
-        (deleted_active_versions, class_.allowed_actions_on_delete),
+        (added_versions, AutomationRule.VERSION_ADDED_ACTIONS),
+        (deleted_active_versions, AutomationRule.VERSION_DELETED_ACTIONS),
     ]
-    for versions_slug, allowed_actions in actions:
-        versions = project.versions.filter(slug__in=versions_slug)
-        rules = project.automation_rules.filter(action__in=allowed_actions)
+    for version_slugs, allowed_actions in actions:
+        if not version_slugs:
+            continue
+
+        versions = project.versions.filter(slug__in=version_slugs)
+        rules = project.automation_rules.filter(
+            enabled=True,
+            action__in=allowed_actions,
+        ).order_by("priority")
+        log.info(
+            "Running version automation rules.",
+            project_slug=project.slug,
+            version_slugs=version_slugs,
+        )
         for version, rule in itertools.product(versions, rules):
-            rule.run(version)
+            if rule.match_version(version):
+                log.info(
+                    "Automation rule matched.",
+                    project_slug=project.slug,
+                    rule_id=rule.pk,
+                    rule_version_types=rule.version_types,
+                    version_type=version.type,
+                )
+                rule.run(version)
 
 
 def normalize_build_command(command, project_slug, version_slug):

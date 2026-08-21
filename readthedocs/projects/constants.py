@@ -344,6 +344,11 @@ PROGRAMMING_LANGUAGES = (
 
 PROJECT_PK_REGEX = r"(?:[-\w]+)"
 PROJECT_SLUG_REGEX = r"(?:[-\w]+)"
+# A subproject alias may be a single slug or several slug-like segments
+# separated by ``/`` (e.g. ``api`` or ``api/python``). Keep this regex
+# unanchored so it composes into both URL routing patterns and a model
+# validator (the model wraps it with ``^...$``).
+SUBPROJECT_ALIAS_REGEX = r"[-\w]+(?:/[-\w]+)*"
 
 GITHUB_REGEXS = [
     re.compile(r"github.com/(.+)/(.+)(?:\.git){1}$"),

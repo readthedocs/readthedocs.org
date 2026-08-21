@@ -37,7 +37,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -82,7 +81,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -127,7 +125,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -172,7 +169,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -217,7 +213,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -262,7 +257,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -307,7 +301,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -352,7 +345,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -397,7 +389,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -442,7 +433,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -487,7 +477,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -532,7 +521,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -577,7 +565,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": [
             1
@@ -622,7 +609,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -665,7 +651,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -708,7 +693,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }
@@ -751,7 +735,6 @@
         "programming_language": "words",
         "main_language_project": null,
         "has_valid_webhook": false,
-        "has_valid_clone": false,
         "remote_repository": null,
         "users": []
     }

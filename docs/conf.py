@@ -32,7 +32,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
-    "sphinxcontrib.video",
     "sphinxemoji.sphinxemoji",
     "sphinxext.opengraph",
 ]
@@ -70,7 +69,7 @@ ogp_custom_meta_tags = (
 ogp_enable_meta_description = True
 ogp_description_length = 300
 
-templates_path = ["_templates"]
+templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 
 # This may be elevated as a general issue for documentation and behavioral
 # change to the Sphinx build:
@@ -81,9 +80,12 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "15.4.0"
+version = "2026.08.18"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
+# Exclude design docs from dev documentation
+if docset == "dev":
+    exclude_patterns.append("design")
 default_role = "obj"
 intersphinx_cache_limit = 14  # cache for 2 weeks
 intersphinx_timeout = 3  # 3 seconds timeout
@@ -98,7 +100,6 @@ intersphinx_mapping = {
     "nbsphinx": ("https://nbsphinx.readthedocs.io/en/latest/", None),
     "myst-nb": ("https://myst-nb.readthedocs.io/en/stable/", None),
     "ipywidgets": ("https://ipywidgets.readthedocs.io/en/stable/", None),
-    "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
@@ -106,11 +107,17 @@ intersphinx_mapping = {
     "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
     "executablebook": ("https://executablebooks.org/en/latest/", None),
     "rst-to-myst": ("https://rst-to-myst.readthedocs.io/en/stable/", None),
-    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
-    "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
     "rtd-blog": ("https://blog.readthedocs.com/", None),
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
+
+# Cross-reference the required docset only
+# to avoid Sphinx falling back to old references that won't exist after a PR is merged.
+# The dev docs link to the user docs (rtd), and the user docs link to the dev docs (rtd-dev).
+if docset == "dev":
+    intersphinx_mapping["rtd"] = ("https://docs.readthedocs.io/en/stable/", None)
+else:
+    intersphinx_mapping["rtd-dev"] = ("https://dev.readthedocs.io/en/latest/", None)
 
 # Intersphinx: Do not try to resolve unresolved labels that aren't explicitly prefixed.
 # The default setting for intersphinx_disabled_reftypes can cause some pretty bad
@@ -176,7 +183,7 @@ html_context = {
 # See dev/style_guide.rst for documentation
 rst_epilog = """
 .. |org_brand| replace:: Read the Docs Community
-.. |com_brand| replace:: Read the Docs for Business
+.. |com_brand| replace:: Read the Docs Business
 .. |git_providers_and| replace:: GitHub, Bitbucket, and GitLab
 .. |git_providers_or| replace:: GitHub, Bitbucket, or GitLab
 """

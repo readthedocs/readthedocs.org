@@ -10,17 +10,17 @@ web
   where is the Django application running.
 
   It also proxies assets files under ``/static/`` to the ``storage`` container
-  on port ``9000`` which is running MinIO (S3 emulator).
+  on port ``9000`` which is running RustFS (S3 emulator).
 
 proxito
   Its main goal is to serve documentation pages and handle 404s.
   It proxies all the requests to ``proxito`` container on port ``8000``,
   where the "El Proxito" Django application is running.
   This application returns a small response with ``X-Accel-Redirect`` special HTTP header
-  pointing to a MinIO (S3 emulator) path which is used by NGINX to proxy to it.
+  pointing to a RustFS (S3 emulator) path which is used by NGINX to proxy to it.
 
   Besides, the response from El Proxito contains a bunch of HTTP headers
-  that are added by NGINX to the MinIO response to end up in the resulting
+  that are added by NGINX to the RustFS response to end up in the resulting
   response arriving to the user.
 
   It also configures a 404 fallback that hits an internal URL on the
@@ -74,7 +74,7 @@ Documentation page on ``$NGINX_PROXITO_SERVER_NAME``
            │   ▲                     │              │        │                │
            │   │                     │              │    9000│                │
            │   └──────────────────── │              ├───────►│                │
-           │                         │    NGINX     │        │    MinIO (S3)  │
+           │                         │    NGINX     │        │   RustFS (S3)  │
            └───────────────────────► │              │◄───────┤                │
                                 8080 │              │        │                │
                                      │              │        │                │
@@ -112,7 +112,7 @@ Documentation page on ``$NGINX_WEB_SERVER_NAME``
         │              │        │                │
         │              │    9000│                │
         │              ├───────►│                │
-        │    NGINX     │        │    MinIO (S3)  │
+        │    NGINX     │        │   RustFS (S3)  │
         │              │◄───────┤                │
         │              │        │                │
         │              │        │                │

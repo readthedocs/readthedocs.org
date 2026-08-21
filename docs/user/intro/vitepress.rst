@@ -1,5 +1,6 @@
-VitePress
-=========
+
+Deploying VitePress on Read the Docs
+====================================
 
 .. meta::
    :description lang=en: Learn how to host VitePress documentation on Read the Docs.

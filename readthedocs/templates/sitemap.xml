@@ -23,8 +23,6 @@ You can learn more about sitemaps, including how to customize them, in our docum
     {% if version.lastmod %}
     <lastmod>{{ version.lastmod }}</lastmod>
     {% endif %}
-    <changefreq>{{ version.changefreq }}</changefreq>
-    <priority>{{ version.priority }}</priority>
   </url>
   {% endfor %}
 </urlset>

@@ -1,3 +1,4 @@
+from django.test import override_settings
 import django_dynamic_fixture as fixture
 import pytest
 
@@ -79,6 +80,7 @@ class TestBuildQuerySet:
         assert (True, 4, 4) == Build.objects.concurrent(translation)
         assert (True, 4, 4) == Build.objects.concurrent(project)
 
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_concurrent_builds_organization(self):
         organization = fixture.get(
             Organization,
@@ -111,6 +113,7 @@ class TestBuildQuerySet:
             )
         assert (True, 6, 4) == Build.objects.concurrent(project)
 
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_concurrent_builds_organization_limited(self):
         organization = fixture.get(
             Organization,
@@ -138,6 +141,7 @@ class TestBuildQuerySet:
         # from ``project_with_builds`` as well
         assert (False, 2, 10) == Build.objects.concurrent(project_without_builds)
 
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_concurrent_builds_organization_and_project_limited(self):
         organization = fixture.get(
             Organization,

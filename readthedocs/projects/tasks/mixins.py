@@ -44,10 +44,17 @@ class SyncRepositoryMixin:
         # check this here and do not depend on ``vcs_repository``.
         sync_tags = not self.data.project.has_feature(Feature.SKIP_SYNC_TAGS)
         sync_branches = not self.data.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        branches, tags = vcs_repository.lsremote(
-            include_tags=sync_tags,
-            include_branches=sync_branches,
-        )
+        try:
+            branches, tags = vcs_repository.lsremote(
+                include_tags=sync_tags,
+                include_branches=sync_branches,
+            )
+        except RepositoryError:
+            log.warning(
+                "Error running lsremote to get versions from the repository.",
+                exc_info=True,
+            )
+            return
 
         tags_data = [
             {

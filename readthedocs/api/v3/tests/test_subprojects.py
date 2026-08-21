@@ -2,7 +2,8 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
+from django_dynamic_fixture import get
 
 from .mixins import APIEndpointMixin
 
@@ -155,7 +156,6 @@ class SubprojectsEndpointTests(APIEndpointMixin):
 
     def test_projects_subprojects_list_post(self):
         newproject = self._create_new_project()
-        self.organization.projects.add(newproject)
 
         self.assertEqual(self.project.subprojects.count(), 1)
         url = reverse(
@@ -187,6 +187,109 @@ class SubprojectsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict("projects-subprojects-list_POST"),
         )
+
+    def test_projects_subprojects_list_post_without_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+
+        assert response.status_code == 201
+        assert self.project.subprojects.count() == 2
+        # The alias defaults to the child's slug when not given.
+        assert response.json()["alias"] == newproject.slug
+
+    def test_projects_subprojects_list_post_with_null_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+            "alias": None,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data, format="json")
+
+        assert response.status_code == 201
+        assert self.project.subprojects.count() == 2
+        # The alias defaults to the child's slug when explicitly set to null.
+        assert response.json()["alias"] == newproject.slug
+
+    def test_projects_subprojects_list_post_with_invalid_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+            "alias": "subproject/alias",
+        }
+        invalid_alias = [
+            "alias with spaces",
+            "alias!with@special-char$",
+            "alias.with.periods",
+            "alias:with;some.punctuation",
+        ]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        for alias in invalid_alias:
+            data["alias"] = alias
+            response = self.client.post(url, data)
+            assert response.status_code == 400, f"Alias '{alias}' should be invalid"
+            assert self.project.subprojects.count() == 1
+
+    def test_projects_subprojects_list_post_with_slash_in_alias(self):
+        newproject = self._create_new_project()
+
+        assert self.project.subprojects.count() == 1
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        data = {
+            "child": newproject.slug,
+            "alias": "subproject/alias",
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+
+        assert response.status_code == 400
+        assert self.project.subprojects.count() == 1
+
+        get(
+            Feature,
+            feature_id=Feature.ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            projects=[self.project],
+        )
+
+        response = self.client.post(url, data)
+        assert response.status_code == 201
+        assert self.project.subprojects.count() == 2
+        assert response.json()["alias"] == "subproject/alias"
 
     def test_projects_subprojects_list_post_with_others_as_child(self):
         self.assertEqual(self.project.subprojects.count(), 1)
@@ -382,3 +485,33 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 403)
         self.assertEqual(self.project.subprojects.count(), 1)
+
+    def test_projects_subprojects_detail_with_slash_alias(self):
+        """Aliases containing slashes resolve through the detail endpoint."""
+        self.project_relationship.alias = "api/python"
+        self.project_relationship.save()
+        url = reverse(
+            "projects-subprojects-detail",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+                "alias_slug": "api/python",
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["alias"], "api/python")
+
+    def test_projects_subprojects_detail_delete_with_slash_alias(self):
+        self.project_relationship.alias = "api/python"
+        self.project_relationship.save()
+        url = reverse(
+            "projects-subprojects-detail",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+                "alias_slug": "api/python",
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.project.subprojects.count(), 0)

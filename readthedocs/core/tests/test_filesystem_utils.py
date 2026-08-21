@@ -5,7 +5,12 @@ import pytest
 from django.core.exceptions import SuspiciousFileOperation
 from django.test import TestCase, override_settings
 
-from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
+from readthedocs.core.utils.filesystem import (
+    assert_path_is_inside_docroot,
+    safe_copytree,
+    safe_open,
+    safe_rmtree,
+)
 from readthedocs.doc_builder.exceptions import (
     BuildUserError,
     SymlinkOutsideBasePath,
@@ -199,3 +204,16 @@ class TestFileSystemUtils(TestCase):
         with override_settings(DOCROOT=docroot_path):
             safe_rmtree(symlink_a)
             self.assertTrue(symlink_a.exists())
+
+    def test_assert_path_is_inside_docroot_with_symlink_to_outside(self):
+        """A path that looks inside docroot but resolves outside must be rejected."""
+        docroot = Path(mkdtemp())
+        outside = Path(mkdtemp())
+
+        # Symlink inside docroot pointing to a directory outside docroot.
+        symlink = docroot / "escape"
+        symlink.symlink_to(outside)
+
+        with pytest.raises(SuspiciousFileOperation):
+            with override_settings(DOCROOT=docroot):
+                assert_path_is_inside_docroot(symlink)

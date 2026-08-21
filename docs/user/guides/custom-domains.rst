@@ -32,10 +32,12 @@ To setup your :doc:`custom domain </custom-domains>`, follow these steps:
    If you delete a domain, make sure to also remove the DNS records for that domain.
    Otherwise, another user may add the same domain to their project and serve that content from your domain (domain hijacking).
 
-We provide a validated SSL certificate for the domain,
-managed by `Cloudflare <https://www.cloudflare.com/>`_.
-The SSL certificate issuance should happen within a few minutes,
-but might take up to one hour.
+SSL certificates are automatically provisioned for your domain
+once the DNS record (CNAME or ANAME/ALIAS) is pointed to Read the Docs,
+no extra action or certificate request is needed.
+Certificates are managed by `Cloudflare <https://www.cloudflare.com/>`_
+and are typically issued within a few minutes,
+but may take up to one hour.
 See `SSL certificate issue delays`_ for more troubleshooting options.
 
 To see if your DNS change has propagated, you can use a tool like ``dig`` to inspect your domain from your command line.

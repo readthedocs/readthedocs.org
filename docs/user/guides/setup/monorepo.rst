@@ -28,6 +28,21 @@ Implementation considerations
 This feature is currently *project-wide*.
 A custom build configuration file path is applied to all versions of your documentation.
 
+.. note::
+
+   All paths in the ``.readthedocs.yaml`` file are always relative to the **repository root**,
+   regardless of where the configuration file is located.
+
+   For example, if your config file is at ``docs/.readthedocs.yaml``
+   and your requirements file is at ``docs/requirements.txt``,
+   you should still use ``docs/requirements.txt`` as the path in the config file,
+   not ``requirements.txt``.
+
+   The one exception is the Sphinx build command itself,
+   which is executed from the directory containing your ``conf.py`` file.
+   This only affects paths that Sphinx resolves internally (for example, inside your ``conf.py``),
+   and does not change how paths in ``.readthedocs.yaml`` are interpreted.
+
 .. warning::
 
    Changing the configuration path will apply to all versions.
@@ -90,6 +105,6 @@ For a monorepo,
 it's not desirable to have changes in unrelated sub-folders trigger new builds.
 
 Therefore,
-you should consider setting up :ref:`conditional build cancellation rules <build-customization:Cancel build based on a condition>`.
+you should consider setting up :doc:`conditional build cancellation rules </guides/build/skip-build>`.
 The configuration is added in each ``.readthedocs.yaml``,
 making it possible to write one conditional build rules per documentation project in the Monorepo 💯️

@@ -38,6 +38,15 @@ from .exceptions import BuildUserError
 log = structlog.get_logger(__name__)
 
 
+def _truncate_output(output):
+    if output is None:
+        return ""
+    output_lines = output.split("\n")
+    if len(output_lines) <= 20:
+        return output
+    return "\n".join(output_lines[:10] + [" ..Output Truncated.. "] + output_lines[-10:])
+
+
 class BuildCommand(BuildCommandResultMixin):
     """
     Wrap command execution for execution in build environments.
@@ -184,7 +193,7 @@ class BuildCommand(BuildCommandResultMixin):
         decoded = ""
         try:
             decoded = output.decode("utf-8", "replace")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
         return decoded
 
@@ -210,7 +219,7 @@ class BuildCommand(BuildCommandResultMixin):
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
             sanitized = output.replace("\x00", "")
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
@@ -403,13 +412,19 @@ class DockerBuildCommand(BuildCommand):
         command = " ".join(
             self._escape_command(part) if self.escape_command else part for part in self.command
         )
+
+        # Run user command with `nice` to give it a lower priority
+        # and avoid it to consume all the resources of the container.
+        # We need to have some capacity to execute our own processes.
+        nice = "nice -n 10"
+
         if prefix:
             # Using `;` or `\n` to separate the `prefix` where we define the
             # variables with the `command` itself, have the same effect.
             # However, using `;` is more explicit.
             # See https://github.com/readthedocs/readthedocs.org/pull/10334
-            return f"/bin/sh -c '{prefix}; {command}'"
-        return f"/bin/sh -c '{command}'"
+            return f"{nice} /bin/sh -c '{prefix}; {command}'"
+        return f"{nice} /bin/sh -c '{command}'"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
@@ -548,15 +563,11 @@ class BaseBuildEnvironment:
         if build_cmd.failed:
             if warn_only:
                 msg = "Command failed"
-                build_output = ""
-                if build_cmd.output:
-                    build_output += "\n".join(build_cmd.output.split("\n")[:10])
-                    build_output += "\n ..Output Truncated.. \n"
-                    build_output += "\n".join(build_cmd.output.split("\n")[-10:])
                 log.warning(
                     msg,
                     command=build_cmd.get_command(),
-                    output=build_output,
+                    output=_truncate_output(build_cmd.output),
+                    stderr=_truncate_output(build_cmd.error),
                     exit_code=build_cmd.exit_code,
                     project_slug=self.project.slug if self.project else "",
                     version_slug=self.version.slug if self.version else "",
@@ -594,6 +605,21 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
 
+    @staticmethod
+    def _get_docker_exception_message(exc):
+        """Return a human readable message from a Docker exception."""
+
+        # ``docker.errors.DockerException`` usually exposes ``explanation`` but
+        # some subclasses created when wrapping other libraries (``requests``,
+        # ``urllib3``) do not. Accessing it blindly raises ``AttributeError``.
+        # Fallback to ``str(exc)`` so we always have a useful message.
+        message = getattr(exc, "explanation", None)
+        if not message:
+            message = str(exc)
+        if not message:
+            message = repr(exc)
+        return message
+
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
         super().__init__(*args, **kwargs)
@@ -612,9 +638,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # Override the ``container_image`` if we pass it via argument.
         #
         # FIXME: This is a temporal fix while we explore how to make
-        # ``ubuntu-20.04`` the default build image without breaking lot of
+        # ``ubuntu-22.04`` the default build image without breaking lot of
         # builds. For now, we are passing
-        # ``container_image='readthedocs/build:ubuntu-20.04'`` for the setup
+        # ``container_image='readthedocs/build:ubuntu-22.04'`` for the setup
         # VCS step.
         if container_image:
             self.container_image = container_image
@@ -658,7 +684,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
@@ -705,7 +732,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             )
         # Catch direct failures from Docker API or with an HTTP request.
         # These errors should not surface to the user.
-        except (DockerAPIError, ConnectionError, ReadTimeout):
+        except DockerAPIError, ConnectionError, ReadTimeout:
             log.exception("Couldn't remove container")
 
         self.raise_container_error(state)
@@ -734,7 +761,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             return self.client
         except DockerException as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_message=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
     def _get_binds(self):
@@ -775,9 +803,13 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         The object returned is passed to Docker function
         ``client.create_container``.
         """
+        runtime = None
+        if self.project.has_feature(Feature.USE_GVISOR_RUNTIME):
+            runtime = "runsc"
         return self.get_client().create_host_config(
             binds=self._get_binds(),
             mem_limit=self.container_mem_limit,
+            runtime=runtime,
         )
 
     @property
@@ -857,7 +889,11 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
-                runtime="runsc",  # gVisor runtime
+                # No-op: docker-py serializes this kwarg to a top-level
+                # `Runtime` field, which the Engine ignores. The runtime is
+                # actually applied via `HostConfig.Runtime` set in
+                # `get_container_host_config` (gated on USE_GVISOR_RUNTIME).
+                runtime="runsc",
                 networking_config=networking_config,
             )
             client.start(container=self.container_id)
@@ -869,7 +905,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
         except (DockerAPIError, ConnectionError) as exc:
             raise BuildAppError(
-                BuildAppError.GENERIC_WITH_BUILD_ID, exception_messag=exc.explanation
+                BuildAppError.GENERIC_WITH_BUILD_ID,
+                exception_message=self._get_docker_exception_message(exc),
             ) from exc
 
     def _run_background_healthcheck(self):

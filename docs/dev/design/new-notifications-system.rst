@@ -63,7 +63,7 @@ Small notes and other considerations
 * How do we handle translations?
   We should use ``_("This is the message shown to the user")`` in Python code and return the proper translation when they are read.
 * Reduce complexity on ``Build`` object (remove ``Build.status`` and ``Build.error`` fields among others).
-* Since the ``Build`` object could have more than 1 notification, when showing them, we will sort them by importane: errors, warnings, note, tip.
+* Since the ``Build`` object could have more than 1 notification, when showing them, we will sort them by importance: errors, warnings, note, tip.
 * In case we need a pretty specific order, we can add an extra field for that, but it adds unnecessary complexity at this point.
 * For those notifications that are attached to the ``Project`` or ``Organization``, should it be shown to all the members even if they don't have admin permissions?
   If yes, this is good because all of them will be notified but only some of them will be able to take an action.
@@ -452,7 +452,7 @@ Notification update
 Backward compatibility
 ----------------------
 
-It's not strickly required, but if we want, we could extract the current notification logic from:
+It's not strictly required, but if we want, we could extract the current notification logic from:
 
 * Django templates
 

@@ -41,7 +41,7 @@ class OrganizationFilterSet(ModelFilterSet):
         return Team.objects.member(
             self.request.user,
             organization=self.organization,
-        ).prefetch_related("organization")
+        ).select_related("organization")
 
 
 class OrganizationSortOrderingFilter(OrderingFilter):

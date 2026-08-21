@@ -1,6 +1,5 @@
 """Git-related utilities."""
 
-import os
 import re
 from typing import Iterable
 from urllib.parse import urlparse
@@ -52,14 +51,6 @@ class Backend(BaseVCS):
                     # able to expand environment variables.
                     code, stdout, stderr = self.run(*cmd.split(), escape_command=False)
                 return
-
-        # Check for existing checkout and skip clone if it exists.
-        from readthedocs.projects.models import Feature
-
-        if self.project.has_feature(Feature.DONT_CLEAN_BUILD) and os.path.exists(
-            os.path.join(self.working_dir, ".git")
-        ):
-            return self.fetch()
 
         self.clone()
         # TODO: We are still using return values in this function that are legacy.
@@ -201,7 +192,11 @@ class Backend(BaseVCS):
             cmd = ["git", "remote", "add", remote_name, ssh_url]
             self.run(*cmd, record=False)
 
-            cmd = ["git", "push", "--dry-run", remote_name]
+            # NOTE: We use timeout to avoid hanging the build.
+            # Azure DevOps is known to not fail immediately when trying to push
+            # with an SSH key without write access, but instead it hangs until
+            # it times out (this happens randomly).
+            cmd = ["timeout", "10s", "git", "push", "--dry-run", remote_name]
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
@@ -241,6 +236,8 @@ class Backend(BaseVCS):
                 "remote: This deploy key does not have write access to this project.",
                 # Bitbucket:
                 "fatal: Could not read from remote repository.",
+                # Azure:
+                "You need the Git 'GenericContribute' permission to perform this action.",
             ]
             for pattern in errors_read_access_only:
                 if pattern in stderr:
@@ -291,27 +288,32 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
+        # Fetch from HEAD (symlink to the default branch) if we are building "latest",
+        # and the user hasn't defined a default branch (which means we need to use the default branch from the repo).
+        use_default_branch = self.version.is_machine_latest and not self.project.default_branch
+        if use_default_branch:
+            cmd.append("HEAD")
+        else:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.append(remote_reference)
 
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
-
-        # Log a warning, except for machine versions since it's a known bug that
-        # we haven't stored a remote refspec in Version for those "stable" versions.
-        # This could be the case for an unknown default branch.
-        elif not self.version.machine:
-            # We are doing a fetch without knowing the remote reference.
-            # This is expensive, so log the event.
-            log.warning(
-                "Git fetch: Could not decide a remote reference for version. "
-                "Is it an empty default branch?",
-                project_slug=self.project.slug,
-                verbose_name=self.version.verbose_name,
-                version_type=self.version.type,
-                version_identifier=self.version.identifier,
-            )
+            # Log a warning, except for machine versions since it's a known bug that
+            # we haven't stored a remote refspec in Version for those "stable" versions.
+            # This could be the case for an unknown default branch.
+            elif not self.version.machine:
+                # We are doing a fetch without knowing the remote reference.
+                # This is expensive, so log the event.
+                log.warning(
+                    "Git fetch: Could not decide a remote reference for version. "
+                    "Is it an empty default branch?",
+                    project_slug=self.project.slug,
+                    verbose_name=self.version.verbose_name,
+                    version_type=self.version.type,
+                    version_identifier=self.version.identifier,
+                )
 
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
@@ -388,6 +390,25 @@ class Backend(BaseVCS):
                 },
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
@@ -406,7 +427,10 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        exit_code, stdout, _ = self.run(*cmd, demux=True, record=False)
+
+        if exit_code != 0:
+            raise RepositoryError(message_id=RepositoryError.FAILED_TO_GET_VERSIONS)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.

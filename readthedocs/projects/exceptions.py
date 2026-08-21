@@ -24,6 +24,7 @@ class RepositoryError(BuildUserError):
     FAILED_TO_CHECKOUT = "project:repository:checkout-failed"
     GENERIC = "project:repository:generic-error"
     UNSUPPORTED_VCS = "project:repository:unsupported-vcs"
+    FAILED_TO_GET_VERSIONS = "project:repository:failed-to-get-versions"
 
 
 class SyncRepositoryLocked(BuildAppError):

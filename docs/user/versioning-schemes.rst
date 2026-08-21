@@ -15,6 +15,9 @@ Read the Docs supports three different versioning schemes:
    :doc:`/versions`
      General explanation of how versioning works on Read the Docs.
 
+   :doc:`/url-path-prefixes`
+     Customize the URL structure of your documentation with custom path prefixes.
+
 Multiple versions with translations
 -----------------------------------
 

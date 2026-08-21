@@ -37,6 +37,11 @@ account_urls = [
         name="profiles_security_log",
     ),
     path(
+        "preferences/",
+        views.UserProfileDashboardPreferencesEdit.as_view(),
+        name="profiles_dashboard_preferences_edit",
+    ),
+    path(
         "advertising/",
         views.AccountAdvertisingEdit.as_view(),
         name="account_advertising",

@@ -5,8 +5,139 @@ from django_dynamic_fixture import get
 
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Feature, ImportedFile, Project
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.models import Feature, ImportedFile, Project, ProjectRelationship
 from readthedocs.search.models import SearchQuery
+
+
+class TestProjectModel(TestCase):
+
+    def test_repository_html_url_with_remote_repository(self):
+        """Test repository_html_url when project has a remote_repository."""
+        remote_repo = get(
+            RemoteRepository,
+            html_url="https://github.com/readthedocs/readthedocs.org",
+            full_name="readthedocs/readthedocs.org",
+        )
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=remote_repo,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org"
+
+    def test_repository_html_url_with_ssh_url(self):
+        """Test repository_html_url converts SSH URL to HTTPS."""
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
+
+    def test_repository_html_url_with_https_url(self):
+        """Test repository_html_url with HTTPS URL."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "https://github.com/readthedocs/readthedocs.org.git"
+
+    def test_repository_html_url_with_http_url(self):
+        """Test repository_html_url with HTTP URL."""
+        project = get(
+            Project,
+            repo="http://example.com/user/repo.git",
+            remote_repository=None,
+        )
+        assert project.repository_html_url == "http://example.com/user/repo.git"
+
+    def test_repository_full_name_with_remote_repository(self):
+        """Test repository_full_name when project has a remote_repository."""
+        remote_repo = get(
+            RemoteRepository,
+            html_url="https://github.com/readthedocs/readthedocs.org",
+            full_name="readthedocs/readthedocs.org",
+        )
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=remote_repo,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_with_ssh_url(self):
+        """Test repository_full_name extracts from SSH URL."""
+        project = get(
+            Project,
+            repo="git@github.com:readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_with_https_url(self):
+        """Test repository_full_name extracts from HTTPS URL."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org.git",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+    def test_repository_full_name_without_git_suffix(self):
+        """Test repository_full_name with URL without .git suffix."""
+        project = get(
+            Project,
+            repo="https://github.com/readthedocs/readthedocs.org",
+            remote_repository=None,
+        )
+        assert project.repository_full_name == "readthedocs/readthedocs.org"
+
+
+class TestProjectRelationshipAlias(TestCase):
+    def setUp(self):
+        self.parent = get(Project, slug="parent")
+        self.child = get(Project, slug="child")
+
+    def _build_relationship(self, alias):
+        return ProjectRelationship(
+            parent=self.parent, child=self.child, alias=alias
+        )
+
+    def test_alias_accepts_simple_slug(self):
+        relation = self._build_relationship("api")
+        relation.full_clean()
+        relation.save()
+        assert relation.alias == "api"
+
+    def test_alias_doesnt_accept_slashes(self):
+        relation = self._build_relationship("api/python")
+        with pytest.raises(ValidationError):
+            relation.full_clean()
+
+    def test_alias_accepts_slashes(self):
+        get(
+            Feature,
+            feature_id=Feature.ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            projects=[self.parent]
+        )
+        relation = self._build_relationship("api/python")
+        relation.full_clean()
+        relation.save()
+        assert relation.alias == "api/python"
+
+    def test_alias_rejects_invalid_paths(self):
+        invalid = ["/api", "api/", "api//python", "api/../etc"]
+        for alias in invalid:
+            with self.subTest(alias=alias):
+                relation = self._build_relationship(alias)
+                with pytest.raises(ValidationError):
+                    relation.full_clean()
+
+    def test_subproject_prefix_with_slash_alias(self):
+        relation = self.parent.add_subproject(self.child, alias="api/python")
+        assert relation.subproject_prefix == "/projects/api/python/"
 
 
 class TestURLPatternsUtils(TestCase):
@@ -150,5 +281,5 @@ class TestURLPatternsUtils(TestCase):
                 get(SearchQuery, project=self.project, version=version)
                 get(Build, project=self.project, version=version)
 
-        with self.assertNumQueries(48):
+        with self.assertNumQueries(51):
             self.project.delete()

@@ -4,8 +4,8 @@ from .docker_compose import DockerBaseSettings
 class CeleryDevSettings(DockerBaseSettings):
     DONT_HIT_DB = False
 
-    # TODO: review this since it may not be needed with MinIO (S3). For now,
-    # this is still required, but the CORS issue may have disappeared in MinIO.
+    # TODO: review this since it may not be needed with RustFS (S3). For now,
+    # this is still required, but the CORS issue may have disappeared in RustFS.
 
     # Since we can't properly set CORS on storage container
     # trying to fetch ``objects.inv`` from celery container fails because the

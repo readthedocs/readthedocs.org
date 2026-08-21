@@ -54,12 +54,21 @@ class AdminPermissionBase:
             projects_from_sso = cls._get_projects_for_sso_user(user, admin=admin, member=member)
 
             # Projects from teams that don't have VCS SSO enabled.
-            filter = Q()
-            if admin:
-                filter |= Q(teams__access=ADMIN_ACCESS)
-            if member:
-                filter |= Q(teams__access=READ_ONLY_ACCESS)
-            projects_from_teams = Project.objects.filter(filter, teams__members=user).exclude(
+            team_filters = Q(teams__members=user)
+            if admin and not member:
+                team_filters &= Q(teams__access=ADMIN_ACCESS)
+            elif member and not admin:
+                team_filters &= Q(teams__access=READ_ONLY_ACCESS)
+            else:
+                # If both admin and member are True, we don't need to filter the queryset.
+                pass
+
+            # SECURITY: don't chain filters when filtering by related models
+            # (query.filter(teams__members=user).filter(teams__access='admin')),
+            # that produces two seprate joins and will return projects where the user is a member,
+            # as long as the project belongs to a team with admin access, even if the user is not
+            # a member of that team.
+            projects_from_teams = Project.objects.filter(team_filters).exclude(
                 organizations__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
             )
 
@@ -118,12 +127,14 @@ class AdminPermissionBase:
 
         if isinstance(obj, Project):
             if settings.RTD_ALLOW_ORGANIZATIONS:
-                obj = obj.organizations.first()
+                obj = obj.organization
             else:
                 return obj.users.all()
 
         if isinstance(obj, Organization):
             return obj.owners.all()
+
+        raise ValueError("obj must be an instance of Project or Organization")
 
     @classmethod
     def admins(cls, obj):
@@ -135,6 +146,8 @@ class AdminPermissionBase:
 
         if isinstance(obj, Organization):
             return obj.owners.all()
+
+        raise ValueError("obj must be an instance of Project or Organization")
 
     @classmethod
     def members(cls, obj, user=None):
@@ -166,6 +179,8 @@ class AdminPermissionBase:
             return User.objects.filter(
                 Q(teams__organization=obj) | Q(owner_organizations=obj),
             ).distinct()
+
+        raise ValueError("obj must be an instance of Project or Organization")
 
     @classmethod
     def is_admin(cls, user, obj):

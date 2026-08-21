@@ -40,6 +40,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import SUBPROJECT_ALIAS_REGEX
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
@@ -281,6 +282,9 @@ class SubprojectRelationshipViewSet(
     model = ProjectRelationship
     lookup_field = "alias"
     lookup_url_kwarg = "alias_slug"
+    # Aliases may contain slashes (e.g. ``api/python``). DRF's default lookup
+    # regex stops at the first ``/``, so widen it to match the model validator.
+    lookup_value_regex = SUBPROJECT_ALIAS_REGEX
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
     def get_serializer_class(self):
@@ -433,7 +437,7 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         data = {
             "build": BuildSerializer(build).data,
             "project": ProjectSerializer(project).data,
-            "version": VersionSerializer(build.version).data,
+            "version": VersionSerializer(version).data,
         }
 
         if build:
@@ -681,7 +685,7 @@ class OrganizationsViewSetBase(
     # /api/v3/organizations/<slug>/notifications/
     # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
     # We can implement these endpoints when we need them, tho.
-    # Also note that Read the Docs for Business expose this endpoint already.
+    # Also note that Read the Docs Business exposes this endpoint already.
 
     model = Organization
     serializer_class = OrganizationSerializer

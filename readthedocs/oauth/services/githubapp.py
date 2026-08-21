@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Github
 from github import GithubException
+from github import RateLimitExceededException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -20,7 +21,6 @@ from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAccountType
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteOrganization
-from readthedocs.oauth.models import RemoteOrganizationRelation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.oauth.services.base import Service
@@ -171,29 +171,6 @@ class GitHubAppService(Service):
                 [int(remote_repo.remote_id) for remote_repo in remote_repos]
             )
 
-        # Update access to each organization the user has access to.
-        queryset = RemoteOrganization.objects.filter(
-            remote_organization_relations__user=user,
-            vcs_provider=cls.vcs_provider_slug,
-        )
-        for remote_organization in queryset:
-            remote_repo = remote_organization.repositories.select_related(
-                "github_app_installation"
-            ).first()
-            # NOTE: this should never happen, unless our data is out of sync
-            # (we delete orphaned organizations when deleting projects).
-            if not remote_repo:
-                log.info(
-                    "Remote organization without repositories detected, deleting.",
-                    organization_login=remote_organization.slug,
-                    remote_id=remote_organization.remote_id,
-                )
-                remote_organization.delete()
-                continue
-
-            service = cls(remote_repo.github_app_installation)
-            service.update_or_create_organization(remote_organization.slug)
-
         if has_error:
             raise SyncServiceError()
 
@@ -271,6 +248,15 @@ class GitHubAppService(Service):
                 # status code if the app is not installed on the repository.
                 if not repo.private:
                     self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
+            except RateLimitExceededException:
+                # Being rate limited doesn't mean we lost access to the repository.
+                # Abort the operation, all remaining requests will fail as well.
+                log.info(
+                    "Rate limit exceeded while fetching repositories from GitHub",
+                    installation_id=self.installation.installation_id,
+                    exc_info=True,
+                )
+                raise
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
@@ -380,7 +366,6 @@ class GitHubAppService(Service):
         remote_org.avatar_url = gh_org.avatar_url or self.default_org_avatar_url
         remote_org.url = gh_org.html_url
         remote_org.save()
-        self._resync_organization_members(gh_org, remote_org)
         return remote_org
 
     def _resync_collaborators(self, gh_repo: GHRepository, remote_repo: RemoteRepository):
@@ -418,29 +403,6 @@ class GitHubAppService(Service):
             uid__in=ids,
             provider=self.allauth_provider.id,
         ).select_related("user")
-
-    def _resync_organization_members(self, gh_org: GHOrganization, remote_org: RemoteOrganization):
-        """
-        Sync members of an organization with the database.
-
-        This method will remove members that are no longer in the list.
-        """
-        members = {member.id: member for member in gh_org.get_members()}
-        remote_org_relations_ids = []
-        for account in self._get_social_accounts(members.keys()):
-            remote_org_relation, _ = RemoteOrganizationRelation.objects.get_or_create(
-                remote_organization=remote_org,
-                user=account.user,
-                account=account,
-            )
-            remote_org_relations_ids.append(remote_org_relation.pk)
-
-        # Remove members that are no longer in the list.
-        RemoteOrganizationRelation.objects.filter(
-            remote_organization=remote_org,
-        ).exclude(
-            pk__in=remote_org_relations_ids,
-        ).delete()
 
     def send_build_status(self, *, build, commit, status):
         """
@@ -543,10 +505,20 @@ class GitHubAppService(Service):
         # NOTE: we use the lazy option to avoid fetching the repository object,
         # since we only need the object to interact with the commit status API.
         gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
-        gh_issue = gh_repo.get_issue(int(version.verbose_name))
+        gh_pull = gh_repo.get_pull(int(version.verbose_name))
+
+        if gh_pull.state != "open":
+            log.info(
+                "Pull request is closed or merged, skipping comment.",
+                project=project.slug,
+                build=build.pk,
+                pr_state=gh_pull.state,
+            )
+            return
+
         existing_gh_comment = None
         comment_marker = f"<!-- readthedocs-{project.pk} -->"
-        for gh_comment in gh_issue.get_comments():
+        for gh_comment in gh_pull.get_issue_comments():
             # Get the comment where the author is us, and the comment belongs to the project.
             # The login of the author is the name of the GitHub App, with the "[bot]" suffix.
             if (
@@ -560,7 +532,7 @@ class GitHubAppService(Service):
         if existing_gh_comment:
             existing_gh_comment.edit(body=comment)
         elif create_new:
-            gh_issue.create_comment(body=comment)
+            gh_pull.create_issue_comment(body=comment)
         else:
             log.debug(
                 "No comment to update, skipping commenting",

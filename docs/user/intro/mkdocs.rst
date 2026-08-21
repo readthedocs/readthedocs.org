@@ -1,5 +1,6 @@
-MkDocs
-======
+
+Deploying MkDocs on Read the Docs
+=================================
 
 .. meta::
    :description lang=en: Hosting MkDocs sites on Read the Docs.

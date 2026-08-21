@@ -31,7 +31,7 @@ class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
         return (
             djstripe.Subscription.readthedocs.trial_ending()
             .created_days_ago(24)
-            .prefetch_related("customer__rtd_organization")
+            .select_related("customer__rtd_organization")
         )
 
 

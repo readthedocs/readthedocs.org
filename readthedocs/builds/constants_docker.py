@@ -23,9 +23,9 @@ DOCKER_DEFAULT_IMAGE = "readthedocs/build"
 RTD_DOCKER_BUILD_SETTINGS = {
     # Mapping of build.os options to docker image.
     "os": {
-        "ubuntu-20.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04",
         "ubuntu-22.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04",
         "ubuntu-24.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-24.04",
+        "ubuntu-26.04": f"{DOCKER_DEFAULT_IMAGE}:ubuntu-26.04",
     },
     # Mapping of build.tools options to specific versions.
     "tools": {
@@ -34,30 +34,37 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.6": "3.6.15",
             "3.7": "3.7.17",
             "3.8": "3.8.20",
-            "3.9": "3.9.22",
-            "3.10": "3.10.17",
-            "3.11": "3.11.12",
-            "3.12": "3.12.10",
-            "3.13": "3.13.3",
+            "3.9": "3.9.25",
+            "3.10": "3.10.20",
+            "3.11": "3.11.15",
+            "3.12": "3.12.13",
+            "3.13": "3.13.14",
+            "3.14": "3.14.6",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "miniconda3-3.12-24.1": "miniconda3-3.12-24.1.2-0",
             "miniconda3-3.12-24.9": "miniconda3-3.12-24.9.2-0",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
             "mambaforge-22.9": "mambaforge-22.9.0-3",
             "mambaforge-23.11": "mambaforge-23.11.0-0",
+            "miniforge3-25.11": "miniforge3-25.11.0-1",
+            "miniforge3-26.3": "miniforge3-26.3.2-3",
         },
         "nodejs": {
             "14": "14.21.3",
             "16": "16.20.2",
             "18": "18.20.8",
             "19": "19.9.0",
-            "20": "20.19.1",
-            "22": "22.15.0",  # LTS
-            "23": "23.11.0",
+            "20": "20.20.2",
+            "22": "22.23.1",
+            "23": "23.11.1",
+            "24": "24.18.0",  # LTS
+            "25": "25.9.0",
+            "26": "26.4.0",
         },
         "ruby": {
-            "3.3": "3.3.5",
-            "3.4": "3.4.3",
+            "3.3": "3.3.11",
+            "3.4": "3.4.9",
+            "4.0": "4.0.3",
         },
         "rust": {
             "1.55": "1.55.0",
@@ -68,6 +75,8 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "1.78": "1.78.0",
             "1.82": "1.82.0",
             "1.86": "1.86.0",
+            "1.91": "1.91.1",
+            "1.96": "1.96.0",
         },
         "golang": {
             "1.17": "1.17.13",
@@ -76,8 +85,10 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "1.20": "1.20.14",
             "1.21": "1.21.13",
             "1.22": "1.22.12",
-            "1.23": "1.23.8",
-            "1.24": "1.24.2",
+            "1.23": "1.23.12",
+            "1.24": "1.24.13",
+            "1.25": "1.25.11",
+            "1.26": "1.26.4",
         },
     },
 }
@@ -86,15 +97,14 @@ RTD_DOCKER_BUILD_SETTINGS = {
 _OS = RTD_DOCKER_BUILD_SETTINGS["os"]
 _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
 
-# TODO: point ``ubuntu-lts-latest`` to Ubuntu 24.04 LTS once we have tested it
-# in production after some weeks
-_OS["ubuntu-lts-latest"] = _OS["ubuntu-22.04"]
+_OS["ubuntu-lts-latest"] = _OS["ubuntu-26.04"]
 
-_TOOLS["python"]["3"] = _TOOLS["python"]["3.13"]
+_TOOLS["python"]["3"] = _TOOLS["python"]["3.14"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
 _TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-3.12-24.9"]
 _TOOLS["python"]["mambaforge-latest"] = _TOOLS["python"]["mambaforge-23.11"]
-_TOOLS["nodejs"]["latest"] = _TOOLS["nodejs"]["23"]
-_TOOLS["ruby"]["latest"] = _TOOLS["ruby"]["3.4"]
-_TOOLS["rust"]["latest"] = _TOOLS["rust"]["1.86"]
-_TOOLS["golang"]["latest"] = _TOOLS["golang"]["1.24"]
+_TOOLS["python"]["miniforge3-latest"] = _TOOLS["python"]["miniforge3-26.3"]
+_TOOLS["nodejs"]["latest"] = _TOOLS["nodejs"]["26"]
+_TOOLS["ruby"]["latest"] = _TOOLS["ruby"]["4.0"]
+_TOOLS["rust"]["latest"] = _TOOLS["rust"]["1.96"]
+_TOOLS["golang"]["latest"] = _TOOLS["golang"]["1.26"]

@@ -47,7 +47,7 @@ INTERNAL = "internal"
 # Manager name for External Versions or Builds.
 # ie: Only pull request/merge request Versions and Builds.
 EXTERNAL = "external"
-EXTERNAL_TEXT = _("External")
+EXTERNAL_TEXT = _("Pull request")
 
 BRANCH = "branch"
 BRANCH_TEXT = _("Branch")
@@ -88,6 +88,10 @@ NON_REPOSITORY_VERSIONS = (
 BUILD_STATUS_FAILURE = "failed"
 BUILD_STATUS_PENDING = "pending"
 BUILD_STATUS_SUCCESS = "success"
+# Reported as success to the Git provider (so the pull request can merge),
+# but communicates in the description that the build was intentionally
+# skipped via exit code 183.
+BUILD_STATUS_SKIPPED = "skipped"
 
 # GitHub Build Statuses
 GITHUB_BUILD_STATUS_FAILURE = "failure"
@@ -116,6 +120,11 @@ SELECT_BUILD_STATUS = {
         "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
         "description": "Read the Docs build succeeded!",
     },
+    BUILD_STATUS_SKIPPED: {
+        "github": GITHUB_BUILD_STATUS_SUCCESS,
+        "gitlab": GITLAB_BUILD_STATUS_SUCCESS,
+        "description": "Read the Docs build skipped.",
+    },
 }
 
 GITHUB_EXTERNAL_VERSION_NAME = "Pull Request"
@@ -128,6 +137,7 @@ GENERIC_EXTERNAL_VERSION_NAME = "External Version"
 ALL_VERSIONS = "all-versions"
 ALL_VERSIONS_REGEX = r".*"
 SEMVER_VERSIONS = "semver-versions"
+CUSTOM_MATCH = "custom-match"
 
 # Pattern referred from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -135,14 +145,19 @@ SEMVER_VERSIONS = "semver-versions"
 # allowing an optional "v" prefix.
 SEMVER_VERSIONS_REGEX = r"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"  # noqa
 
-
-PREDEFINED_MATCH_ARGS = (
+OLD_VERSION_PREDEFINED_MATCH_PATTERNS = (
     (ALL_VERSIONS, _("Any version")),
     (SEMVER_VERSIONS, _("SemVer versions")),
     (None, _("Custom match")),
 )
 
-PREDEFINED_MATCH_ARGS_VALUES = {
+VERSION_PREDEFINED_MATCH_PATTERNS = (
+    (ALL_VERSIONS, _("Any version")),
+    (SEMVER_VERSIONS, _("SemVer versions")),
+    (CUSTOM_MATCH, _("Custom match")),
+)
+
+VERSION_PREDEFINED_MATCH_PATTERN_VALUES = {
     ALL_VERSIONS: ALL_VERSIONS_REGEX,
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }

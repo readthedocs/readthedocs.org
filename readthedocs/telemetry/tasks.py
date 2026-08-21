@@ -1,7 +1,6 @@
 """Tasks related to telemetry."""
 
 from django.conf import settings
-from django.db import connections
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
@@ -30,19 +29,14 @@ def delete_old_build_data():
     This is intended to run from a periodic task daily.
 
     NOTE: the logic of this task could be improved to keep longer data we care
-          more (eg. active projects )and remove data we don't (eg. builds from spam projects)
+          more (eg. active projects) and remove data we don't (eg. builds from spam projects)
     """
     retention_days = settings.RTD_TELEMETRY_DATA_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    # NOTE: we are using raw SQL here to avoid Django doing a SELECT first to
-    # send `pre_` and `post_` delete signals
-    # See https://docs.djangoproject.com/en/4.2/ref/models/querysets/#delete
-    with connections["telemetry"].cursor() as cursor:
-        cursor.execute(
-            # "SELECT COUNT(*) FROM telemetry_builddata WHERE created BETWEEN %s AND %s",
-            "DELETE FROM telemetry_builddata WHERE created BETWEEN %s AND %s",
-            [
-                days_ago - timezone.timedelta(days=90),
-                days_ago,
-            ],
-        )
+
+    # NOTE: We use _raw_delete to avoid Django fetching all objects
+    # before the deletion. `pre_delete` and `post_delete` signals
+    # won't be sent, this is fine as we don't have any special logic
+    # for the BuildData model, and doesn't have related objects.
+    query = BuildData.objects.filter(created__lt=days_ago)
+    query._raw_delete(query.db)

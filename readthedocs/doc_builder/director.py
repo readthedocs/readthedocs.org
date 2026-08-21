@@ -8,6 +8,7 @@ It "directs" all of the high-level build jobs:
 * fetching instructions etc.
 """
 
+import datetime
 import os
 import tarfile
 
@@ -24,12 +25,12 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda
+from readthedocs.doc_builder.python_environments import UvEnv
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS
-from readthedocs.projects.signals import after_build
 from readthedocs.projects.signals import before_build
 from readthedocs.projects.signals import before_vcs
 from readthedocs.projects.tasks.storage import StorageType
@@ -83,6 +84,7 @@ class BuildDirector:
         if not self.data.project.vcs_class():
             raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
+        # This signal is used to setup the SSH key on .com.
         before_vcs.send(
             sender=self.data.version,
             environment=self.vcs_environment,
@@ -144,6 +146,8 @@ class BuildDirector:
         language_environment_cls = Virtualenv
         if self.data.config.is_using_conda:
             language_environment_cls = Conda
+        elif self.data.config.is_using_uv:
+            language_environment_cls = UvEnv
 
         self.language_environment = language_environment_cls(
             version=self.data.version,
@@ -151,10 +155,7 @@ class BuildDirector:
             config=self.data.config,
         )
 
-        # TODO: check if `before_build` and `after_build` are still useful
-        # (maybe in commercial?)
-        #
-        # I didn't find they are used anywhere, we should probably remove them
+        # This signal is used to setup the SSH key on .com.
         before_build.send(
             sender=self.data.version,
             environment=self.build_environment,
@@ -195,10 +196,6 @@ class BuildDirector:
         self.run_build_job("post_build")
         self.store_readthedocs_build_yaml()
 
-        after_build.send(
-            sender=self.data.version,
-        )
-
     # VCS checkout
     def checkout(self):
         """Checkout Git repo and load build config file."""
@@ -216,16 +213,41 @@ class BuildDirector:
                 self.data.api_client.project(self.data.project.pk).patch(
                     {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
                 )
-            if has_ssh_key_with_write_access:
-                self.attach_notification(
-                    attached_to=f"project/{self.data.project.pk}",
-                    message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
-                    dismissable=True,
-                )
 
-        identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Checking out.", identifier=identifier)
-        self.vcs_repository.checkout(identifier)
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            hard_failure = now >= datetime.datetime(
+                2025, 12, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+            )
+            if has_ssh_key_with_write_access:
+                if hard_failure and settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS:
+                    raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
+                else:
+                    self.attach_notification(
+                        attached_to=f"project/{self.data.project.pk}",
+                        message_id=MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS,
+                        dismissable=True,
+                    )
+
+        # Get the default branch of the repository if the project doesn't
+        # have an explicit default branch set and we are building latest.
+        # The identifier from latest will be updated with this value
+        # if the build succeeds.
+        is_latest_without_default_branch = (
+            self.data.version.is_machine_latest and not self.data.project.default_branch
+        )
+        if is_latest_without_default_branch:
+            self.data.default_branch = self.data.build_director.vcs_repository.get_default_branch()
+            log.info(
+                "Default branch for the repository detected.",
+                default_branch=self.data.default_branch,
+            )
+
+        # We can skip the checkout step since we just cloned the repository,
+        # and the default branch is already checked out.
+        if not is_latest_without_default_branch:
+            identifier = self.data.build_commit or self.data.version.identifier
+            log.info("Checking out.", identifier=identifier)
+            self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
@@ -329,9 +351,9 @@ class BuildDirector:
             self.run_build_job("create_environment")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.setup_base()
@@ -342,9 +364,9 @@ class BuildDirector:
             self.run_build_job("install")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.install_core_requirements()
@@ -545,7 +567,6 @@ class BuildDirector:
             )
 
         build_tools_storage = get_storage(
-            project=self.data.project,
             build_id=self.data.build["id"],
             api_client=self.data.api_client,
             storage_type=StorageType.build_tools,
@@ -571,7 +592,11 @@ class BuildDirector:
                 with tarfile.open(fileobj=remote_fd) as tar:
                     # Extract it on the shared path between host and Docker container
                     extract_path = os.path.join(self.data.project.doc_path, "tools")
-                    tar.extractall(extract_path)
+
+                    # NOTE: we are using `filter="fully_trusted"` to avoid the following error:
+                    # AbsoluteLink: 'miniforge3-25.11.0-1/_conda' is a link to an absolute path
+                    # We should find a better solution.
+                    tar.extractall(extract_path, filter="fully_trusted")
 
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
@@ -634,6 +659,24 @@ class BuildDirector:
                 *cmd,
                 record=False,
             )
+
+            # Install UV if the tool is Python and the user has selected to use UV
+            if tool == "python" and self.data.config.is_using_uv:
+                cmd = ["asdf", "plugin", "add", "uv"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "install", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
+                cmd = ["asdf", "global", "uv", "latest"]
+                self.build_environment.run(
+                    *cmd,
+                    record=True,
+                )
 
             if all(
                 [
@@ -699,12 +742,25 @@ class BuildDirector:
         success = builder.build()
         return success
 
+    def _add_git_ssh_command_env_var(self, env):
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set GIT_SSH_COMMAND to use ssh with options that disable host key checking
+            # -o StrictHostKeyChecking=no: Don't prompt for host verification
+            # -o UserKnownHostsFile=/dev/null: Don't save host keys
+            git_ssh_command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            env.update(
+                {
+                    "GIT_SSH_COMMAND": git_ssh_command,
+                }
+            )
+
     def get_vcs_env_vars(self):
         """Get environment variables to be included in the VCS setup step."""
         env = self.get_rtd_env_vars()
         # Don't prompt for username, this requires Git 2.3+
         env["GIT_TERMINAL_PROMPT"] = "0"
         env["READTHEDOCS_GIT_CLONE_TOKEN"] = self.data.project.clone_token
+        self._add_git_ssh_command_env_var(env)
         return env
 
     def get_rtd_env_vars(self):
@@ -751,6 +807,7 @@ class BuildDirector:
                     ),
                 }
             )
+
         else:
             env.update(
                 {
@@ -760,17 +817,42 @@ class BuildDirector:
                         self.data.version.slug,
                         "bin",
                     ),
-                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
-                        self.data.project.doc_path, "envs", self.data.version.slug
-                    ),
+                }
+            )
+
+        # UV_PROJECT_ENVIRONMENT and READTHEDOCS_VIRTUALENV_PATH are the same
+        venv_path = os.path.join(
+            self.data.project.doc_path,
+            "envs",
+            self.data.version.slug,
+        )
+        if self.data.config.is_using_uv:
+            checkout_path = self.data.project.checkout_path(self.data.version.slug)
+            try:
+                # UV_PROJECT has to be an absolute path because we run `uv venv` and `uv run`
+                # from different `cwd` directories.
+                UV_PROJECT = os.path.join(checkout_path, self.data.config.python.install[0].path)
+            except AttributeError, IndexError, TypeError:
+                UV_PROJECT = checkout_path
+
+            env.update(
+                {
+                    # Point UV_PYTHON to the Python binary inside the virtualenv created by UV.
+                    # This is used by `uv run/sync` but also by `uv pip install` to find the correct Python binary to use.
+                    "UV_PYTHON": os.path.join(venv_path, "bin", "python"),
+                    "UV_PROJECT": UV_PROJECT,
+                    "UV_PROJECT_ENVIRONMENT": venv_path,
                 }
             )
 
         env.update(
             {
                 "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
+                "READTHEDOCS_VIRTUALENV_PATH": venv_path,
             }
         )
+
+        self._add_git_ssh_command_env_var(env)
 
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables

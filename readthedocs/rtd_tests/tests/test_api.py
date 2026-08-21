@@ -75,6 +75,7 @@ from readthedocs.projects.models import (
     Project,
 )
 from readthedocs.aws.security_token_service import AWSS3TemporaryCredentials
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEPRECATED_WEBHOOK
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 from readthedocs.vcs_support.backends.git import parse_version_from_ref
@@ -151,9 +152,6 @@ class APIBuildTests(TestCase):
             version=self.version,
             state=BUILD_STATE_CLONING,
             success=False,
-            output="Output",
-            error="Error",
-            exit_code=9,
             builder="Builder",
             cold_storage=True,
         )
@@ -184,9 +182,6 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.state, BUILD_STATE_TRIGGERED)
         self.assertEqual(build.status, "")
         self.assertTrue(build.success)
-        self.assertEqual(build.output, "")
-        self.assertEqual(build.error, "")
-        self.assertIsNone(build.exit_code)
         self.assertEqual(build.builder, "")
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
@@ -201,9 +196,6 @@ class APIBuildTests(TestCase):
             version=self.version,
             state=BUILD_STATE_UPLOADING,
             success=False,
-            output="Output",
-            error="Error",
-            exit_code=0,
             builder="Builder",
             cold_storage=True,
         )
@@ -268,6 +260,7 @@ class APIBuildTests(TestCase):
 
         resp = client.get("/api/v2/build/{}/".format(build.pk))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # TODO: update these tests to check for `readthedocs_yaml_config` instead of `_config`
         self.assertIn("config", resp.data)
         self.assertNotIn("_config", resp.data)
 
@@ -314,12 +307,12 @@ class APIBuildTests(TestCase):
         # Checking the values from the db, just to be sure the
         # api isn't lying.
         self.assertEqual(
-            Build.objects.get(pk=build_one.pk)._config,
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config.data,
             {"one": "two"},
         )
         self.assertEqual(
-            Build.objects.get(pk=build_two.pk)._config,
-            {Build.CONFIG_KEY: build_one.pk},
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config.pk,
+            Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
     def test_response_building(self):
@@ -342,7 +335,6 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state="cloning",
-            exit_code=0,
         )
         resp = client.get("/api/v2/build/{build}/".format(build=build.pk))
         self.assertEqual(resp.status_code, 200)
@@ -357,8 +349,6 @@ class APIBuildTests(TestCase):
 
         build = resp.data
         self.assertEqual(build["state"], "cloning")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 0)
         self.assertEqual(build["success"], True)
         self.assertTrue(build["docs_url"].endswith(dashboard_url))
         self.assertTrue(build["docs_url"].startswith("https://"))
@@ -386,7 +376,6 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state="finished",
-            exit_code=0,
         )
         buildcommandresult = get(
             BuildCommandResult,
@@ -399,8 +388,6 @@ class APIBuildTests(TestCase):
         build = resp.data
         docs_url = f"http://{project.slug}.readthedocs.io/en/{version.slug}/"
         self.assertEqual(build["state"], "finished")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 0)
         self.assertEqual(build["success"], True)
         self.assertEqual(build["docs_url"], docs_url)
         # Verify the path is trimmed
@@ -430,7 +417,6 @@ class APIBuildTests(TestCase):
             version=version,
             state="finished",
             success=False,
-            exit_code=1,
         )
 
         resp = client.get("/api/v2/build/{build}/".format(build=build.pk))
@@ -445,8 +431,6 @@ class APIBuildTests(TestCase):
         )
         build = resp.data
         self.assertEqual(build["state"], "finished")
-        self.assertEqual(build["error"], "")
-        self.assertEqual(build["exit_code"], 1)
         self.assertEqual(build["success"], False)
         self.assertTrue(build["docs_url"].endswith(dashboard_url))
         self.assertTrue(build["docs_url"].startswith("https://"))
@@ -462,8 +446,6 @@ class APIBuildTests(TestCase):
                     "project": 1,
                     "version": 1,
                     "success": True,
-                    "output": "Test Output",
-                    "error": "Test Error",
                 },
                 format="json",
             )
@@ -631,7 +613,6 @@ class APIBuildTests(TestCase):
             version=version,
             builder="foo",
             success=False,
-            exit_code=1,
             state="building",
         )
         get(
@@ -681,7 +662,6 @@ class APIBuildTests(TestCase):
             version=version,
             builder="foo",
             success=False,
-            exit_code=1,
             state=BUILD_STATE_FINISHED,
         )
         get(
@@ -756,7 +736,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=None,
             state=BUILD_STATE_FINISHED,
-            exit_code=0,
         )
         command = "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0"
         get(
@@ -2032,7 +2011,7 @@ class IntegrationsTests(TestCase):
         self, sync_repository_task, trigger_build
     ):
         """
-        Check that the custom queue isn't used for sync_repository_task.
+        Check that the custom queue is used for sync_repository_task.
         """
         client = APIClient()
         self.project.build_queue = "specific-build-queue"
@@ -2064,7 +2043,7 @@ class IntegrationsTests(TestCase):
             kwargs={
                 "build_api_key": mock.ANY,
             },
-            # No queue
+            queue="specific-build-queue",
         )
 
     def test_github_webhook_for_branches(self, trigger_build):
@@ -2081,7 +2060,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/non-existent"}
@@ -2094,7 +2073,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/master"}
@@ -2107,7 +2086,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, from_webhook=True)],
         )
 
     def test_github_webhook_for_tags(self, trigger_build):
@@ -2124,7 +2103,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/heads/non-existent"}
@@ -2137,7 +2116,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         data = {"ref": "refs/tags/v1.0"}
@@ -2150,7 +2129,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project, from_webhook=True)],
         )
 
     @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
@@ -2227,7 +2206,7 @@ class IntegrationsTests(TestCase):
             args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
         )
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2250,12 +2229,15 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=self.commit,
+            from_webhook=True,
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_reopened_event(
         self, trigger_build, core_trigger_build
     ):
@@ -2286,12 +2268,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_synchronize_event(
         self, trigger_build, core_trigger_build
     ):
@@ -2335,13 +2317,13 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2385,7 +2367,7 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["closed"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [version.verbose_name])
-        core_trigger_build.assert_not_called()
+        trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
         client = APIClient()
@@ -2628,6 +2610,50 @@ class IntegrationsTests(TestCase):
         self.assertEqual(version_data.source_branch, "source_branch")
         self.assertEqual(version_data.base_branch, "master")
 
+    def test_github_skip_githubapp_projects(self, trigger_build):
+        installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=1111,
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            remote_id="1234",
+            name="repo",
+            full_name="user/repo",
+            vcs_provider=GitHubAppProvider.id,
+            github_app_installation=installation,
+        )
+        self.project.remote_repository = remote_repository
+        self.project.save()
+
+        assert self.project.is_github_app_project
+        assert self.project.notifications.count() == 0
+
+        client = APIClient()
+        payload = '{"ref":"refs/heads/master"}'
+        signature = get_signature(
+            self.github_integration,
+            payload,
+        )
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: signature,
+        }
+        resp = client.post(
+            reverse("api_webhook_github", kwargs={"project_slug": self.project.slug}),
+            json.loads(payload),
+            format="json",
+            headers=headers,
+        )
+        assert resp.status_code == 400
+        assert "This project is connected to our GitHub App" in resp.data["detail"]
+
+        notification = self.project.notifications.first()
+        assert notification is not None
+        assert notification.message_id == MESSAGE_PROJECT_DEPRECATED_WEBHOOK
+
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
@@ -2643,6 +2669,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=mock.ANY,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -2674,6 +2701,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=self.version_tag,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -2689,6 +2717,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_called_with(
             version=self.version_tag,
             project=self.project,
+            from_webhook=True,
         )
 
         trigger_build.reset_mock()
@@ -2878,7 +2907,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.data["detail"], GitLabWebhookView.invalid_payload_msg)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_open_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2897,12 +2926,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_reopen_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2929,12 +2958,12 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         self.assertTrue(external_version)
 
-    @mock.patch("readthedocs.core.utils.trigger_build")
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
     def test_gitlab_merge_request_update_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
@@ -2974,8 +3003,8 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
         self.assertEqual(resp.data["versions"], [external_version.verbose_name])
-        core_trigger_build.assert_called_once_with(
-            project=self.project, version=external_version, commit=self.commit
+        trigger_build.assert_called_once_with(
+            project=self.project, version=external_version, commit=self.commit, from_webhook=True,
         )
         # `update` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
@@ -3144,7 +3173,7 @@ class IntegrationsTests(TestCase):
             },
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
         client.post(
             "/api/v2/webhook/bitbucket/{}/".format(self.project.slug),
@@ -3161,7 +3190,7 @@ class IntegrationsTests(TestCase):
             format="json",
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, from_webhook=True)],
         )
 
         trigger_build_call_count = trigger_build.call_count
@@ -3457,6 +3486,35 @@ class IntegrationsTests(TestCase):
         # and return a 400 if it doesn't.
         self.assertEqual(resp.status_code, 404)
 
+    def test_multiple_integrations_error(self, trigger_build):
+        """Test that multiple integrations with same type returns a 400 error."""
+        client = APIClient()
+
+        # Create a second GitHub integration for the same project with the same secret
+        secret = self.github_integration.secret
+        Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            secret=secret,
+        )
+
+        # Now there are two integrations, so the webhook should return a 400 error
+        payload = {"ref": "refs/heads/master"}
+        signature = get_signature(self.github_integration, payload)
+
+        resp = client.post(
+            f"/api/v2/webhook/github/{self.project.slug}/",
+            payload,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
+        )
+
+        # Should return 400 Bad Request
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Multiple integrations found", resp.data["detail"])
+
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIVersionTests(TestCase):
@@ -3506,7 +3564,6 @@ class APIVersionTests(TestCase):
                 "environment_variables": {},
                 "features": [],
                 "git_checkout_command": None,
-                "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,
                 "language": "en",

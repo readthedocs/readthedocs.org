@@ -14,15 +14,6 @@ Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
       build #{{ build.pk }} -&nbsp; <span style="color: #ff7040;">failed</span>
     </a>
   </p>
-  {% if build.error %}
-    <p>
-      <strong>Error:</strong> <em>{{ build.error }}</em>
-    </p>
-  {% else %}
-    <p>
-      <strong>Error:</strong> <em>Unknown error</em>
-    </p>
-  {% endif %}
 
   <p>
     You can find out more about this failure in the build log:

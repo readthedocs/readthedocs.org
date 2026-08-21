@@ -10,8 +10,8 @@ This allows you to understand how your documentation is being used,
 so you can focus on expanding and updating parts people are reading most.
 
 To see a list of the top pages from the last month,
-go to the :guilabel:`Admin` tab of your project,
-and then click on :guilabel:`Traffic analytics`.
+go to the :guilabel:`Settings` tab of your project,
+and then click on :guilabel:`Traffic analytics` under :guilabel:`Maintaining`.
 
 .. figure:: /_static/images/addons-analytics.png
    :width: 50%

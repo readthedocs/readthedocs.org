@@ -212,7 +212,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.get(url, data)
         self.assertEqual(response.status_code, 404)
 
-    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @override_settings(
+        ALLOW_PRIVATE_REPOS=True,
+        RTD_ALLOW_ORGANIZATIONS=True,
+    )
     def test_own_projects_detail_privacy_levels_enabled(self):
         url = reverse(
             "projects-detail",
@@ -227,10 +230,12 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(url, query_params)
         self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict("projects-detail"),
-        )
+
+        expected = self._get_response_dict("projects-detail")
+        # No users when organzations are enabled
+        expected.pop("users")
+
+        self.assertDictEqual(response.json(), expected)
 
         self.project.privacy_level = "private"
         self.project.external_builds_privacy_level = "private"
@@ -245,6 +250,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         # We don't care about the modified date.
         expected.pop("modified")
         response.pop("modified")
+
+        # No users when organzations are enabled
+        expected.pop("users")
+
         self.assertDictEqual(response, expected)
 
     def test_projects_superproject_anonymous_user(self):
@@ -471,6 +480,28 @@ class ProjectsEndpointTests(APIEndpointMixin):
             status_code=400,
         )
 
+    def test_import_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
+            data = {
+                "name": "Test Project",
+                "repository": {
+                    "url": invalid_url,
+                    "type": "git",
+                },
+            }
+            r = self.client.post(reverse("projects-list"), data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+
     def test_import_project_with_extra_fields(self):
         data = {
             "name": "Test Project",
@@ -573,6 +604,29 @@ class ProjectsEndpointTests(APIEndpointMixin):
         project = Project.objects.get(slug=response.data["slug"])
         self.assertIsNone(project.remote_repository)
 
+    def test_import_project_with_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set during project creation."""
+        data = {
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/readthedocs/template",
+                "type": "git",
+            },
+            "programming_language": "py",
+            "readthedocs_yaml_path": "docs/.readthedocs.yaml",
+        }
+        url = reverse("projects-list")
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug="test-project")
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertEqual(project.readthedocs_yaml_path, "docs/.readthedocs.yaml")
+
     def test_update_project(self):
         data = {
             "name": "Updated name",
@@ -661,6 +715,38 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
+    def test_partial_update_project_readthedocs_yaml_path(self):
+        """Test that readthedocs_yaml_path can be set via PATCH and is returned in GET."""
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # Verify the initial value is None
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["readthedocs_yaml_path"])
+
+        # Set the readthedocs_yaml_path field
+        yaml_path = "   docs/.readthedocs.yaml   "
+        yaml_path_expected = "docs/.readthedocs.yaml"
+        data = {"readthedocs_yaml_path": yaml_path}
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 204)
+
+        # Verify it was saved to the database
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.readthedocs_yaml_path, yaml_path_expected)
+
+        # Verify it's returned in the GET response
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["readthedocs_yaml_path"], yaml_path_expected)
+
     def test_partial_update_others_project(self):
         data = {
             "name": "Updated name",
@@ -741,6 +827,63 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.project.refresh_from_db()
         self.assertEqual(self.project.privacy_level, "public")
         self.assertEqual(self.project.external_builds_privacy_level, "public")
+
+    def test_update_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        for invalid_url in ["not-a-url", "ssh://github.com/user/repo"]:
+            data = {
+                "name": "Updated name",
+                "repository": {
+                    "url": invalid_url,
+                    "type": "git",
+                },
+                "language": "en",
+                "programming_language": "py",
+            }
+            response = self.client.put(url, data)
+            self.assertEqual(response.status_code, 400, invalid_url)
+
+        self.project.refresh_from_db()
+        self.assertNotEqual(self.project.repo, "not-a-url")
+        self.assertNotEqual(self.project.repo, "ssh://github.com/user/repo")
+        self.assertEqual(self.project.repo, "https://github.com/rtfd/project")
+
+    def test_partial_update_project_with_invalid_repo_url(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
+        )
+
+        invalid_urls = [
+            "not-a-url",
+            "random string",
+            "javascript:alert(1)",
+            "ftp://github.com/user/repo",
+            "file:///etc/passwd",
+            "//github.com/user/repo",
+        ]
+        for invalid_url in invalid_urls:
+            data = {
+                "repository": {
+                    "url": invalid_url,
+                },
+            }
+            r = self.client.patch(url, data)
+            assert r.status_code == 400, invalid_url
+            assert r.json()["repository"]["url"] == ["Invalid scheme for URL"], invalid_url
+
+        self.project.refresh_from_db()
+        assert self.project.repo == "https://github.com/rtfd/project"
 
     def test_projects_notifications_list(self):
         url = reverse(

@@ -34,7 +34,7 @@ readthedocs.org ("Read the Docs Community")
     writing and distributing technical documentation.
     This Privacy Policy applies to this site in full without reservation.
 
-readthedocs.com ("Read the Docs for Business")
+readthedocs.com ("Read the Docs Business")
     This website is a commercial hosted offering for hosting private
     documentation for corporate clients.
     This Privacy Policy applies to this site in full without reservation.
@@ -117,7 +117,7 @@ anyone (including us) may view their contents.
 If you have included private or sensitive information in your Documentation Site,
 such as email addresses, that information may be indexed by search engines or used by third parties.
 
-Read the Docs for Business may host `private projects <https://about.readthedocs.com/terms-of-service/#private-projects>`_ which we treat as confidential
+Read the Docs Business may host `private projects <https://about.readthedocs.com/terms-of-service/#private-projects>`_ which we treat as confidential
 and we only access them for support reasons, with your consent, or if required to for security reasons
 
 If you're a **child under the age of 13**, you may not have an account on Read the Docs.
@@ -241,7 +241,7 @@ For Read the Docs, this means:
 * Our full DNT policy is `available here`_.
 
 Our DNT policy applies without reservation
-to Read the Docs Community and Read the Docs for Business.
+to Read the Docs Community and Read the Docs Business.
 A best effort is made to apply this to Documentation Sites,
 but we do not have complete control over the contents of these sites.
 
@@ -384,7 +384,7 @@ our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.
 
 Our web server logs for Read the Docs Community,
-Read the Docs for Business, and Documentation Sites
+Read the Docs Business, and Documentation Sites
 are deleted after 10 days barring legal obligations.
 
 

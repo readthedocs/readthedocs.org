@@ -1,5 +1,8 @@
 """Build and Version class model Managers."""
 
+import hashlib
+import json
+
 import structlog
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -128,16 +131,18 @@ class ExternalBuildManager(models.Manager):
         return super().get_queryset().filter(version__type=EXTERNAL)
 
 
-class AutomationRuleMatchManager(models.Manager):
-    def register_match(self, rule, version, max_registers=15):
-        created = self.create(
-            rule=rule,
-            match_arg=rule.get_match_arg(),
-            action=rule.action,
-            version_name=version.verbose_name,
-            version_type=version.type,
-        )
+class BuildConfigManager(models.Manager):
+    """Manager for BuildConfig model."""
 
-        for match in self.filter(rule__project=rule.project)[max_registers:]:
-            match.delete()
-        return created
+    def get_or_create(self, **kwargs):
+        data = kwargs.pop("data", None)
+        if isinstance(data, dict):
+            dump = json.dumps(data)
+            data_hash = hashlib.sha256(dump.encode("utf-8")).hexdigest()
+            kwargs.setdefault("defaults", {})["data"] = data
+
+            return super().get_or_create(
+                data_hash=data_hash,
+                **kwargs,
+            )
+        return super().get_or_create(**kwargs)

@@ -52,6 +52,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Host $host;
 
+        # Don't pass the Cookie header to the storage backend.
+        # Real S3 rejects requests whose header section exceeds 8192 bytes with a
+        # `RequestHeaderSectionTooLarge` error, and a large enough cookie triggers
+        # it. The storage backend doesn't need the cookie anyway. This mirrors the
+        # production config in the readthedocs-ops repo.
+        proxy_set_header Cookie "";
+
         proxy_intercept_errors on;
         error_page 404 = @notfoundfallback;
 
@@ -91,7 +98,7 @@ server {
         add_header Feature-Policy $feature_policy always;
 
         # CORS headers.
-        # Minio sets these headers, and we don't want to copy
+        # RustFS sets these headers, and we don't want to copy
         # them to the response, since our application sets them.
         proxy_hide_header Access-Control-Allow-Credentials;
         proxy_hide_header Access-Control-Expose-Headers;
@@ -117,7 +124,7 @@ server {
         set $cross_origin_opener_policy $upstream_http_cross_origin_opener_policy;
         add_header Cross-Origin-Opener-Policy $cross_origin_opener_policy always;
 
-        # Minio sets this header on the response, and we don't want to copy it to the response
+        # RustFS sets this header on the response, and we don't want to copy it to the response
         proxy_hide_header Content-Security-Policy;
         set $content_security_policy $upstream_http_content_security_policy;
         add_header Content-Security-Policy $content_security_policy always;

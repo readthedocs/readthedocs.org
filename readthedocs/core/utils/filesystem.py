@@ -37,7 +37,7 @@ def assert_path_is_inside_docroot(path):
     """
     resolved_path = path.absolute().resolve()
     docroot = Path(settings.DOCROOT).absolute()
-    if not path.is_relative_to(docroot):
+    if not resolved_path.is_relative_to(docroot):
         log.error(
             "Suspicious operation outside the docroot directory.",
             path_resolved=str(resolved_path),

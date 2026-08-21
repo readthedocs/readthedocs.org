@@ -9,6 +9,9 @@ from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import (
+    MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
+)
 from readthedocs.projects.notifications import MESSAGE_PROJECT_SKIP_BUILDS
 from readthedocs.subscriptions.notifications import MESSAGE_ORGANIZATION_DISABLED
 
@@ -28,6 +31,16 @@ def project_skip_builds(instance, *args, **kwargs):
     else:
         Notification.objects.cancel(
             message_id=MESSAGE_PROJECT_SKIP_BUILDS,
+            attached_to=instance,
+        )
+
+
+@receiver(post_save, sender=Project)
+def project_n_consecutive_failed_builds(instance, *args, **kwargs):
+    """Check if the project has not N+ consecutive failed builds anymore and cancel the notification."""
+    if not instance.n_consecutive_failed_builds:
+        Notification.objects.cancel(
+            message_id=MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES,
             attached_to=instance,
         )
 

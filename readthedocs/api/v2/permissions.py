@@ -38,7 +38,8 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
         project = view._get_project()
         version = view._get_version()
         has_access = (
-            project.versions.public(
+            version.is_public
+            or project.versions.public(
                 user=request.user,
                 only_active=False,
             )
