@@ -360,7 +360,7 @@ class CommunityBaseSettings(Settings):
             "django.middleware.csrf.CsrfViewMiddleware",
             "django.middleware.clickjacking.XFrameOptionsMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
-            "readthedocs.core.middleware.FirstTouchAttributionMiddleware",
+            "readthedocs.core.middleware.AttributionMiddleware",
             "django.contrib.messages.middleware.MessageMiddleware",
             "allauth.account.middleware.AccountMiddleware",
             "dj_pagination.middleware.PaginationMiddleware",

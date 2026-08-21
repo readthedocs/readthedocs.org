@@ -1,10 +1,7 @@
-from urllib.parse import urlparse
-
 import structlog
 from django.conf import settings
 from django.core.exceptions import TooManyFieldsSent
 from django.http import HttpResponse
-from django.utils import timezone
 
 
 log = structlog.get_logger(__name__)
@@ -52,99 +49,46 @@ class NullCharactersMiddleware:
         return self.get_response(request)
 
 
-class FirstTouchAttributionMiddleware:
+class AttributionMiddleware:
     """
-    Capture first-touch marketing attribution for anonymous visitors.
+    Stash signup attribution from the URL into the session.
 
-    On the first request of a session that carries an attribution signal
-    (any ``utm_*`` query parameter, a ``ref`` query parameter, or an external
-    referrer), store the signal in the session. If the visitor later signs up,
-    the ``user_signed_up`` receiver copies it onto their profile
-    (see :py:func:`readthedocs.core.signals.store_first_touch_attribution`).
+    Our marketing site adds these parameters to its signup links, carrying
+    over where the visitor originally came from. We keep them in the session
+    so they survive the trip through an OAuth provider, and store them on the
+    user at signup (see
+    :py:func:`readthedocs.core.signals.store_signup_attribution`).
 
-    First touch wins: once captured, the session data is never overwritten.
-    Nothing is stored for visitors without a signal, so plain direct traffic
-    doesn't create sessions.
+    First touch wins, and requests without any of these parameters are
+    ignored, so normal traffic doesn't create sessions.
     """
 
     SESSION_KEY = "attribution"
-    UTM_PARAMS = [
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_content",
-        "utm_term",
-    ]
-    MAX_LENGTH = 512
+    # Keep in sync with the parameters our website adds to signup links,
+    # see ``src/js/attribution.js`` in the website repository.
+    PARAMS = ["utm_source", "utm_medium", "utm_campaign", "ref"]
+    MAX_LENGTH = 255
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        try:
-            self._capture(request)
-        except Exception:
-            # Attribution is best effort, never break the request over it.
-            log.exception("Error capturing first-touch attribution.")
+        if request.method == "GET":
+            data = {
+                param: request.GET[param].strip()[: self.MAX_LENGTH]
+                for param in self.PARAMS
+                if request.GET.get(param, "").strip()
+            }
+            # Checked in this order so that requests without these parameters
+            # -- almost all of them -- don't load the session at all.
+            if (
+                data
+                and not request.user.is_authenticated
+                and self.SESSION_KEY not in request.session
+            ):
+                request.session[self.SESSION_KEY] = data
+
         return self.get_response(request)
-
-    def _capture(self, request):
-        if request.method != "GET" or request.user.is_authenticated:
-            return
-
-        # Skip requests that aren't browser navigation (API calls from docs
-        # pages carry a Referer header, and their clients don't send cookies,
-        # so capturing there would create one session per request).
-        if request.path.startswith("/api/"):
-            return
-
-        if self.SESSION_KEY in request.session:
-            return
-
-        data = {}
-        for param in self.UTM_PARAMS:
-            value = request.GET.get(param, "").strip()
-            if value:
-                data[param] = value[: self.MAX_LENGTH]
-
-        referrer = self._get_external_referrer(request)
-        if referrer:
-            data["referrer"] = referrer[: self.MAX_LENGTH]
-
-        # Only store when there is an actual signal.
-        if not data:
-            return
-
-        data["landing_page"] = request.path[: self.MAX_LENGTH]
-        data["first_touch_date"] = timezone.now().isoformat()
-        request.session[self.SESSION_KEY] = data
-
-    def _get_external_referrer(self, request):
-        """
-        Get the referrer of the request, only if it's external.
-
-        The ``ref`` query parameter takes precedence over the ``Referer``
-        header, since our websites use it to forward the original referrer
-        across domains (about.readthedocs.com can't share cookies with the
-        dashboard).
-        """
-        ref = request.GET.get("ref", "").strip()
-        if ref:
-            return ref
-
-        referrer = request.headers.get("Referer", "").strip()
-        if not referrer:
-            return None
-
-        # Ignore internal navigation, only the traffic source is interesting.
-        try:
-            referrer_host = urlparse(referrer).netloc
-        except ValueError:
-            return None
-        if not referrer_host or referrer_host == request.get_host():
-            return None
-
-        return referrer
 
 
 class UpdateCSPMiddleware:

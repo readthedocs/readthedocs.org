@@ -9,12 +9,11 @@ from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal
 from django.dispatch import receiver
-from django.utils.dateparse import parse_datetime
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
 
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.core.middleware import FirstTouchAttributionMiddleware
+from readthedocs.core.middleware import AttributionMiddleware
 from readthedocs.core.models import UserProfile
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -84,45 +83,14 @@ def process_email_confirmed(request, email_address, **kwargs):
 
 # pylint: disable=unused-argument
 @receiver(user_signed_up)
-def store_first_touch_attribution(sender, request, user, **kwargs):
-    """
-    Store first-touch attribution on the profile of a new user.
-
-    The data comes from the visitor's session, where
-    :py:class:`readthedocs.core.middleware.FirstTouchAttributionMiddleware`
-    captured it on their first request with a UTM parameter or an
-    external referrer.
-    """
-    data = request.session.pop(FirstTouchAttributionMiddleware.SESSION_KEY, None)
-    if not data or not isinstance(data, dict):
+def store_signup_attribution(sender, request, user, **kwargs):
+    """Store where a new user came from, stashed by AttributionMiddleware."""
+    data = request.session.pop(AttributionMiddleware.SESSION_KEY, None)
+    if not data:
         return
 
-    profile = UserProfile.objects.filter(user=user).first()
-    if not profile:
-        return
-
-    def _get(key, max_length):
-        value = data.get(key)
-        if not isinstance(value, str):
-            return ""
-        return value[:max_length]
-
-    profile.attribution_utm_source = _get("utm_source", 255)
-    profile.attribution_utm_medium = _get("utm_medium", 255)
-    profile.attribution_utm_campaign = _get("utm_campaign", 255)
-    profile.attribution_utm_content = _get("utm_content", 255)
-    profile.attribution_utm_term = _get("utm_term", 255)
-    profile.attribution_referrer = _get("referrer", 512)
-    profile.attribution_landing_page = _get("landing_page", 512)
-    profile.attribution_first_touch_date = parse_datetime(data.get("first_touch_date") or "")
-    profile.save()
-
-    log.info(
-        "Stored first-touch attribution at signup.",
-        username=user.username,
-        utm_source=profile.attribution_utm_source,
-        referrer=profile.attribution_referrer,
-    )
+    UserProfile.objects.filter(user=user).update(attribution=data)
+    log.info("Stored signup attribution.", username=user.username, attribution=data)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

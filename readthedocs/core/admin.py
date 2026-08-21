@@ -122,15 +122,8 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdminImpersonateMixin, UserAdm
 
 @admin.register(UserProfile)
 class UserProfileAdmin(ExtraSimpleHistoryAdmin):
-    list_display = ("user", "homepage", "attribution_utm_source", "attribution_referrer")
-    list_filter = ("attribution_utm_source", "attribution_utm_medium")
-    search_fields = (
-        "user__username",
-        "homepage",
-        "attribution_utm_source",
-        "attribution_utm_campaign",
-        "attribution_referrer",
-    )
+    list_display = ("user", "homepage", "attribution_source")
+    search_fields = ("user__username", "homepage")
     raw_id_fields = ("user",)
 
 

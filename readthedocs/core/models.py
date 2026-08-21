@@ -49,34 +49,15 @@ class UserProfile(TimeStampedModel):
     whitelisted = models.BooleanField(_("Whitelisted"), default=False)
     banned = models.BooleanField(_("Banned"), default=False)
 
-    # First-touch attribution.
-    # Captured in the session by FirstTouchAttributionMiddleware on the
-    # visitor's first request carrying a UTM parameter or external referrer,
-    # and stored here at signup. Empty for users who signed up before this
-    # existed or arrived with no attribution signal (direct traffic).
-    attribution_utm_source = models.CharField(
-        _("Signup UTM source"), max_length=255, blank=True, default=""
-    )
-    attribution_utm_medium = models.CharField(
-        _("Signup UTM medium"), max_length=255, blank=True, default=""
-    )
-    attribution_utm_campaign = models.CharField(
-        _("Signup UTM campaign"), max_length=255, blank=True, default=""
-    )
-    attribution_utm_content = models.CharField(
-        _("Signup UTM content"), max_length=255, blank=True, default=""
-    )
-    attribution_utm_term = models.CharField(
-        _("Signup UTM term"), max_length=255, blank=True, default=""
-    )
-    attribution_referrer = models.CharField(
-        _("Signup referrer"), max_length=512, blank=True, default=""
-    )
-    attribution_landing_page = models.CharField(
-        _("Signup landing page"), max_length=512, blank=True, default=""
-    )
-    attribution_first_touch_date = models.DateTimeField(
-        _("Signup first touch date"), null=True, blank=True
+    attribution = models.JSONField(
+        _("Signup attribution"),
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Where this user came from when they signed up, as UTM parameters "
+            "and referrer. Empty for direct traffic, and for users who signed "
+            "up before we started tracking this."
+        ),
     )
 
     # Display settings
@@ -94,6 +75,16 @@ class UserProfile(TimeStampedModel):
             "profiles_profile_detail",
             kwargs={"username": self.user.username},
         )
+
+    @property
+    def attribution_source(self):
+        """
+        Single traffic source for this user, or an empty string if direct.
+
+        This collapses attribution the same way Plausible does, so numbers
+        here can be compared against our website analytics.
+        """
+        return self.attribution.get("utm_source") or self.attribution.get("ref") or ""
 
     def use_dark_theme(self):
         return self.theme == self.THEME_DARK
