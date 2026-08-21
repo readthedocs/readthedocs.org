@@ -65,9 +65,8 @@ class TestDisabledOrganizationServing(PaymentMixin, TestCase):
         assert "errors/proxito/organization_disabled.html" in [
             template.name for template in resp.templates
         ]
-        # Don't cache the response on the CDN,
-        # so re-enabling the organization takes effect immediately.
-        assert resp.headers["CDN-Cache-Control"] == "private"
+        # The response is purged from the CDN when the project is built again.
+        assert resp.headers["CDN-Cache-Control"] == "public"
 
     def test_serving_recently_disabled_organization_docs(self):
         self._create_organization(subscription_ended_days_ago=35, disabled=True)
@@ -79,6 +78,15 @@ class TestDisabledOrganizationServing(PaymentMixin, TestCase):
 
     def test_serving_enabled_organization_docs(self):
         self._create_organization(subscription_ended_days_ago=100, disabled=False)
+
+        resp = self.client.get("/en/latest/index.html", headers={"host": self.host})
+
+        assert resp.status_code == 200
+        assert resp["x-accel-redirect"] == "/proxito/media/html/project/latest/index.html"
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+    def test_serving_disabled_organization_docs_without_organizations(self):
+        self._create_organization(subscription_ended_days_ago=100, disabled=True)
 
         resp = self.client.get("/en/latest/index.html", headers={"host": self.host})
 

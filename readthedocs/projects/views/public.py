@@ -387,9 +387,6 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
             request, version.project
         )
         if disabled_organization_response:
-            # Don't cache this response on the CDN,
-            # so re-enabling the organization takes effect immediately.
-            self.cache_response = False
             return disabled_organization_response
 
         return self._serve_dowload(

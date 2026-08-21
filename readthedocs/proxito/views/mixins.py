@@ -257,25 +257,11 @@ class ServeDocsMixin:
                 return render(request, template_name="errors/proxito/spam.html", status=410)
 
     def _disabled_organization_response(self, request, project):
-        """
-        Return an error response if the project's organization is disabled.
-
-        Organizations keep serving their docs for a grace window after being
-        disabled (see ``OrganizationQuerySet.disable_serving``), so a billing
-        mistake doesn't take customer docs down immediately.
-        """
-        organization = project.organization
-        if not organization or not organization.disabled:
+        """Return an error response if the docs of this project shouldn't be served anymore."""
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
             return None
 
-        serving_disabled = (
-            Organization.objects.disable_serving()
-            .filter(
-                pk=organization.pk,
-            )
-            .exists()
-        )
-        if serving_disabled:
+        if Organization.objects.disable_serving().filter(projects=project).exists():
             return render(
                 request,
                 template_name="errors/proxito/organization_disabled.html",
