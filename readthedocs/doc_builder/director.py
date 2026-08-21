@@ -832,7 +832,7 @@ class BuildDirector:
                 # UV_PROJECT has to be an absolute path because we run `uv venv` and `uv run`
                 # from different `cwd` directories.
                 UV_PROJECT = os.path.join(checkout_path, self.data.config.python.install[0].path)
-            except AttributeError, IndexError, TypeError:
+            except (AttributeError, IndexError, TypeError):
                 UV_PROJECT = checkout_path
 
             env.update(
