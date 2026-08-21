@@ -26,9 +26,9 @@
 #     both "search" and "proxito" (e.g. test_proxied_api.py). These need
 #     the ES sidecar AND proxito Django settings, so they run in
 #     tests-search with --ds=readthedocs.settings.proxito.test.
-#   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
-#     tox 4), so it can't use tox-uv. It installs uv directly instead and
-#     calls it from the install_command in tox.embedapi.ini.
+#   - tests-embedapi runs the Sphinx version matrix from tox.embedapi.ini,
+#     which has its own install_command so that Sphinx comes from deps=
+#     rather than from requirements/testing.txt.
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
@@ -178,7 +178,6 @@ jobs:
 
   tests-embedapi:
     # Embed API tests — tests against 6 Sphinx versions.
-    # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
       - image: 'cimg/python:3.14'
     steps:
@@ -187,9 +186,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
-      # tox-uv needs tox 4, so uv is installed on its own here and called
-      # directly from the install_command in tox.embedapi.ini.
-      - run: pip install --user 'tox<4' uv
+      - run: pip install --user tox tox-uv
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
