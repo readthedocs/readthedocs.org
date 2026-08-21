@@ -39,6 +39,9 @@ class CommunityProxitoSettingsMixin:
             "corsheaders.middleware.CorsMiddleware",
             "csp.middleware.CSPMiddleware",
             "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            # Signup attribution is dashboard-only, capturing it on documentation
+            # traffic would create a session for every referred visitor.
+            "readthedocs.core.middleware.FirstTouchAttributionMiddleware",
         )
         for mw in middleware_to_remove:
             if mw in classes:
