@@ -208,7 +208,7 @@ class BuildCommand(BuildCommandResultMixin):
             2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
-            3. Obfuscate private environment variables.
+            3. Obfuscate private environment variables and the Git clone token.
 
         :param output: stdout/stderr to be sanitized
 
@@ -252,6 +252,18 @@ class BuildCommand(BuildCommandResultMixin):
                     value = spec["value"]
                     obfuscated_value = f"{value[:4]}****"
                     sanitized = sanitized.replace(value, obfuscated_value)
+
+            # Obfuscate the Git clone token. The token is exposed via the
+            # ``READTHEDOCS_GIT_CLONE_TOKEN`` environment variable, and Git
+            # stores it in ``.git/config`` as part of the remote URL, so any
+            # command echoing either would expose it in the build output.
+            clone_token = self.build_env.project.clone_token
+            if clone_token:
+                # The clone token has the ``<username>:<secret>`` format.
+                secret = clone_token.split(":", 1)[-1]
+                for value in (clone_token, secret):
+                    if value:
+                        sanitized = sanitized.replace(value, "****")
 
         return sanitized
 
