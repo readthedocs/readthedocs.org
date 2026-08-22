@@ -1339,19 +1339,6 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             }
         )
         request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
-            },
-        )
-        request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
-                "issue_url": f"https://api.github.com/repos/{self.remote_repository.full_name}/issues/1",
-            },
-        )
-        request.get(
             f"{api_url}/repositories/{self.remote_repository.remote_id}/commits/1234abcd",
             json={
                 "commit": {
@@ -1361,25 +1348,10 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         )
 
         request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
-            },
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1/files",
             json=[
                 {
                     "filename": "docs/index.rst",
-                }
-            ],
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/issues/1/labels",
-            json=[
-                {
-                    "name": "bug",
-                    "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/labels/bug",
                 }
             ],
         )
@@ -1454,19 +1426,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             }
         )
         request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
-            },
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
-            },
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1/files",
             json=[{"filename": "src/code.py"}],
         )
 
@@ -1526,26 +1486,7 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             },
         )
         request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}",
-            },
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
-            },
-        )
-        request.get(
-            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1",
-            json={
-                "url": f"https://api.github.com/repos/{self.remote_repository.full_name}/pulls/1",
-                "issue_url": f"https://api.github.com/repos/{self.remote_repository.full_name}/issues/1",
-            },
-        )
-        request.get(
-            f"{api_url}/repos/{self.remote_repository.full_name}/pulls/1/files",
+            f"{api_url}/repositories/{self.remote_repository.remote_id}/pulls/1/files",
             json=[
                 {
                     "filename": "src/code.py",

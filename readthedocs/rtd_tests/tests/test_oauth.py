@@ -946,12 +946,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -982,12 +978,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1022,12 +1014,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1057,12 +1045,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1092,12 +1076,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 

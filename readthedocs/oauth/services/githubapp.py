@@ -423,9 +423,7 @@ class GitHubAppService(Service):
         context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
         try:
-            # NOTE: we use the lazy option to avoid fetching the repository object,
-            # since we only need the object to interact with the commit status API.
-            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
             gh_repo.get_commit(commit).create_status(
                 state=state,
                 target_url=target_url,
@@ -502,9 +500,7 @@ class GitHubAppService(Service):
             raise ValueError("Only versions from pull requests can have comments posted.")
 
         remote_repo = project.remote_repository
-        # NOTE: we use the lazy option to avoid fetching the repository object,
-        # since we only need the object to interact with the commit status API.
-        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
         gh_pull = gh_repo.get_pull(int(version.verbose_name))
 
         if gh_pull.state != "open":
