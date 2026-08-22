@@ -16,6 +16,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.version_slug import validate_version_slug
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -398,8 +399,14 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It allows to change the version states and privacy level only.
+    It allows to change the version states, slug and privacy level only.
     """
+
+    # ``validate_version_slug`` is stricter than the model's ``version_slug_validator``
+    # (it normalizes the slug and compares, rather than matching a regex), and its error
+    # suggests a valid slug. We drop the model validator so it doesn't run first and
+    # mask that suggestion, which is also what the dashboard form ends up doing.
+    slug = serializers.CharField(max_length=255, validators=[])
 
     class Meta:
         model = Version
@@ -407,6 +414,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
             "active",
             "hidden",
             "privacy_level",
+            "slug",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -416,6 +424,10 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         # everything is public, we don't allow changing it.
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("privacy_level")
+
+    def validate_slug(self, slug):
+        validate_version_slug(slug, self.instance)
+        return slug
 
 
 class LanguageSerializer(serializers.Serializer):
