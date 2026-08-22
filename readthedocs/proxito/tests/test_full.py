@@ -868,6 +868,21 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertContains(response, expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_delisted_robots_txt_allows_crawling(self, storage_exists):
+        """Delisted projects stay crawlable so the noindex header is seen."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        self.project.delisted = True
+        self.project.save()
+
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Disallow: # Allow everything")
+        self.assertNotContains(response, "Disallow: /")
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
         storage_exists.return_value = False
         self.project.versions.update(active=True, built=True)
