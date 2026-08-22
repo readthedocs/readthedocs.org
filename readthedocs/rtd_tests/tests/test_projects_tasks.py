@@ -13,6 +13,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
 )
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
@@ -105,3 +106,36 @@ class TestFinishInactiveBuildsTask(TestCase):
         self.assertEqual(build_3.state, BUILD_STATE_CANCELLED)
         self.assertEqual(build_3.success, False)
         self.assertEqual(build_3.notifications.count(), 1)
+
+    @patch("readthedocs.projects.tasks.utils.app")
+    def test_finish_unhealthy_builds_revokes_build_api_key(self, mocked_app):
+        """This path bypasses the API, so it has to revoke the key itself."""
+        project = get(Project)
+        feature = get(Feature, feature_id=Feature.BUILD_HEALTHCHECK)
+        feature.projects.add(project)
+
+        healthy = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_CLONING,
+            healthcheck=timezone.now(),
+        )
+        unhealthy = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_TRIGGERED,
+            date=timezone.now() - datetime.timedelta(hours=2),
+            healthcheck=timezone.now() - datetime.timedelta(minutes=15),
+        )
+
+        healthy_key, _ = BuildAPIKey.objects.create_key_for_build(build=healthy)
+        unhealthy_key, _ = BuildAPIKey.objects.create_key_for_build(build=unhealthy)
+
+        finish_unhealthy_builds()
+
+        healthy_key.refresh_from_db()
+        unhealthy_key.refresh_from_db()
+        assert unhealthy_key.revoked is True
+        assert healthy_key.revoked is False

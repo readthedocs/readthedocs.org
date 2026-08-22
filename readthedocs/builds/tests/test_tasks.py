@@ -19,6 +19,7 @@ from readthedocs.builds.constants import (
     TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, BuildConfig, Version
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.tasks import (
     archive_builds_task,
     check_and_disable_project_for_consecutive_failed_builds,
@@ -26,6 +27,7 @@ from readthedocs.builds.tasks import (
     delete_old_build_objects,
     post_build_overview,
     remove_orphan_build_config,
+    run_post_build_tasks,
 )
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
 from readthedocs.notifications.models import Notification
@@ -688,3 +690,55 @@ class TestPostBuildOverview(TestCase):
         assert self.current_version.is_external
         post_build_overview(build_pk=self.current_version_build.pk)
         post_comment.assert_not_called()
+
+
+class TestRunPostBuildTasks(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = self.project.versions.get(slug=LATEST)
+
+    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+    @mock.patch("readthedocs.projects.tasks.search.index_build")
+    def test_build_api_key_is_revoked(self, index_build, send_build_notifications):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            commit=None,
+        )
+        api_key, _ = BuildAPIKey.objects.create_key_for_build(build=build)
+        assert api_key.revoked is False
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        api_key.refresh_from_db()
+        assert api_key.revoked is True
+
+    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+    @mock.patch("readthedocs.projects.tasks.search.index_build")
+    def test_other_builds_api_keys_are_untouched(self, index_build, send_build_notifications):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            commit=None,
+        )
+        other_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+        )
+        api_key, _ = BuildAPIKey.objects.create_key_for_build(build=build)
+        other_api_key, _ = BuildAPIKey.objects.create_key_for_build(build=other_build)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        api_key.refresh_from_db()
+        other_api_key.refresh_from_db()
+        assert api_key.revoked is True
+        assert other_api_key.revoked is False

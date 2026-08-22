@@ -129,6 +129,9 @@ def finish_unhealthy_builds():
     These inactive builds will be marked as ``success=False`` and
     ``state=CANCELLED`` with an ``error`` to be communicated to the user.
     """
+    # Avoid circular import.
+    from readthedocs.api.v2.models import BuildAPIKey
+
     log.debug("Running task to finish inactive builds (no healtcheck received).")
     delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
     query = (
@@ -145,6 +148,8 @@ def finish_unhealthy_builds():
         build.success = False
         build.state = BUILD_STATE_CANCELLED
         build.save()
+
+        BuildAPIKey.objects.revoke_keys_for_build(build)
 
         # Tell Celery to cancel this task in case it's in a zombie state.
         app.control.revoke(build.task_id, signal="SIGINT", terminate=True)

@@ -714,6 +714,7 @@ def run_post_build_tasks(build_pk):
     It PATCHes them itself before finishing.
     """
     # Avoid circular imports: readthedocs.projects.tasks imports from this module.
+    from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.doc_builder.exceptions import BuildCancelled
     from readthedocs.projects.tasks.search import index_build
     from readthedocs.projects.tasks.utils import send_external_build_status
@@ -728,6 +729,8 @@ def run_post_build_tasks(build_pk):
         project_slug=build.project.slug,
         version_slug=build.version.slug if build.version else None,
     )
+
+    BuildAPIKey.objects.revoke_keys_for_build(build)
 
     if build.success:
         index_build.delay(build_id=build.pk)
