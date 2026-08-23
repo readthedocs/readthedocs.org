@@ -76,7 +76,7 @@ The configuration file probably needs some adjustments to accommodate exactly yo
    you may have to activate a :doc:`version </versions>` for that branch.
 
    If you have added the file in a pull request,
-   you should enable :doc:`pull request builds </guides/pull-requests>`.
+   make sure :doc:`pull request builds </guides/pull-requests>` are enabled.
 
 Skip: file header and comments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
