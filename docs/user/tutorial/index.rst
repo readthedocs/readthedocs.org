@@ -193,8 +193,7 @@ Read the Docs can :doc:`trigger builds from GitHub pull requests </pull-requests
 and show you a preview of the documentation with those changes.
 
 This is enabled by default on new projects.
-You can check it under the :guilabel:`⚙ Admin` menu,
-in :guilabel:`Settings`, then :guilabel:`Pull request builds`.
+You can check it from your project under :guilabel:`Settings` → :guilabel:`Pull request builds`.
 
 To see it in action:
 
