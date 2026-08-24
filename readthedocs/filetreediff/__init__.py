@@ -101,7 +101,17 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     for file_path in current_version_file_paths & base_version_file_paths:
         file_a = current_version_manifest.files[file_path]
         file_b = base_version_manifest.files[file_path]
-        if file_a.main_content_hash != file_b.main_content_hash:
+        if file_a.text_hash and file_b.text_hash:
+            modified = file_a.text_hash != file_b.text_hash
+        else:
+            # One of the manifests was written before we hashed the text of
+            # the page, so ``main_content_hash`` is all both sides have. It
+            # reports pages as modified when only their attributes changed.
+            # TODO: remove this branch and ``main_content_hash`` itself once
+            # no manifest in storage is missing a text hash. ``markup_hash``
+            # replaces it, see https://github.com/readthedocs/readthedocs.org/issues/13258
+            modified = file_a.main_content_hash != file_b.main_content_hash
+        if modified:
             files.append((file_path, FileTreeDiffFileStatus.modified))
 
     return FileTreeDiff(
