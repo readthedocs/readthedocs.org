@@ -386,8 +386,7 @@ def admit_project_builds(project):
         # Only look at recently-triggered builds. A build sitting in
         # ``triggered`` for over a day is stuck, not queued, and the ``date``
         # index keeps this query fast.
-        queued = Build.objects.filter(
-            project=project,
+        queued = project.builds.filter(
             state=BUILD_STATE_TRIGGERED,
             task_id__isnull=True,
             date__gt=timezone.now() - datetime.timedelta(days=1),
