@@ -246,10 +246,7 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
 
     # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
     if project.has_feature(Feature.USE_ISOLATED_BUILDER):
-        # The build stays in ``triggered``; we call `admit_project_builds` to dispatch immediately
-        # if there is a slot free. Otherwise, it waits for a later pass of the periodic ``admit_queued_builds``
-        # task that enforces concurrency and dispatches it to the isolated-builders
-        # fleet when a slot is free.
+        # Call `admit_project_builds` to dispatch immediately if there is a slot free
         admit_project_builds(project)
         return None, build
 

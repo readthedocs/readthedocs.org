@@ -805,6 +805,7 @@ def admit_queued_builds(self):
     with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             # A previous sweep is still running; skip this tick.
+            log.warning("Admit queued builds task still locked")
             return
 
         # Only projects with recently-triggered builds; the ``date`` index keeps
