@@ -279,6 +279,23 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
             limit_reached = True
         return (limit_reached, concurrent, max_concurrent)
 
+    def pending_upload(self):
+        """
+        Get all builds that are pending upload (when using the upload API).
+
+        When a build is created using the upload API,
+        it is created in the triggered state,
+        and when it's queued for processing, the task_id is set.
+
+        We filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
+        and we don't want to count those builds as pending uploads.
+        """
+        return self.filter(
+            is_uploaded=True,
+            state=BUILD_STATE_TRIGGERED,
+            task_id=None,
+        )
+
 
 class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):
     """

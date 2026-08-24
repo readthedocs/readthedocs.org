@@ -691,6 +691,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute="*"),
             "options": {"queue": "web"},
         },
+        "every-minute-finish-inactive-uploaded-builds": {
+            "task": "readthedocs.builds.tasks.finish_inactive_uploaded_builds",
+            "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
         "every-5s-admit-queued-builds": {
             "task": "readthedocs.builds.tasks.admit_queued_builds",
             "schedule": timedelta(seconds=5),
@@ -1216,6 +1221,26 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+    RTD_SPAM_NOINDEX_CACHE_TIMEOUT = 60 * 60
+
+    # Max number of builds that can be waiting to be uploaded by the user using the upload API.
+    # This is to prevent users from requesting too many builds to be uploaded at once,
+    # which could be because of a bug in their code or abuse of the API.
+    # This limit isn't the same as the concurrency limit, as we don't want to put the responsibility
+    # of retrying the upload on the user unless they are doing something wrong.
+    # Post-processing of the uploaded artifacts is done in a separate task,
+    # which is limited by the concurrency limit, but has automatic retries,
+    # so the user doesn't have to worry about it.
+    RTD_UPLOAD_API_MAX_PENDING_UPLOADS = 50
+
+    # Time the upload URL is valid for after it is generated.
+    # Should be enough time for users to upload the artifacts with an slow connection.
+    # 30 minutes in seconds.
+    RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME = 30 * 60
+
+    # The maximum size of the generated zip file to be uploaded using the upload API.
+    # 1GB in bytes.
+    RTD_UPLOAD_API_MAX_UPLOAD_SIZE = 1024 * 1024 * 1024
 
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.
@@ -1250,6 +1275,9 @@ class CommunityBaseSettings(Settings):
                     "location": Path(self.MEDIA_ROOT) / "usercontent",
                     "allow_overwrite": True,
                 },
+            },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
             },
         }
 

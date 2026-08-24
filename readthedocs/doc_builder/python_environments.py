@@ -238,6 +238,9 @@ class UvEnv(Virtualenv):
 
     def setup_base(self):
         """Create the base environment using ``uv venv``."""
+        # Temporarily remove UV_PYTHON from the environment to avoid interference with `uv venv`.
+        # We can't use the UV_PYTHON from inside the environment because it doesn't exist yet.
+        UV_PYTHON = self.build_env._environment.pop("UV_PYTHON", None)
         self.build_env.run(
             "uv",
             "venv",
@@ -247,6 +250,7 @@ class UvEnv(Virtualenv):
             # Don't use the project's root, some config files can interfere
             cwd=None,
         )
+        self.build_env._environment["UV_PYTHON"] = UV_PYTHON
 
     def install_core_requirements(self):
         """Skip RTD core pip/sphinx bootstrap for uv-managed environments."""

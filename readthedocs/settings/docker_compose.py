@@ -276,6 +276,14 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
                 },
             },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET", "build-uploads"),
+                    # Explicit default ACL required to generate presigned URLs.
+                    "default_acl": "private",
+                },
+            },
         }
 
 

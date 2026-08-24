@@ -2,9 +2,11 @@ import copy
 import json
 from unittest import mock
 
+import pytest
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 import requests_mock
+from github import RateLimitExceededException
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
@@ -595,6 +597,33 @@ class GitHubAppTests(TestCase):
         assert not RemoteRepository.objects.filter(
             id=self.remote_repository.id
         ).exists()
+
+    @requests_mock.Mocker(kw="request")
+    def test_update_repository_rate_limited(self, request):
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            status_code=403,
+            json={
+                "message": f"API rate limit exceeded for installation ID {self.installation.installation_id}.",
+                "documentation_url": "https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api#rate-limiting",
+            },
+        )
+
+        service = self.installation.service
+        # The second repository isn't mocked, requesting it would fail the test,
+        # the operation should be aborted after the first rate limited response.
+        with pytest.raises(RateLimitExceededException):
+            service.update_or_create_repositories(
+                [int(self.remote_repository.remote_id), 5555]
+            )
+
+        # Being rate limited doesn't mean we lost access to the repository,
+        # it shouldn't be deleted.
+        assert RemoteRepository.objects.filter(id=self.remote_repository.id).exists()
 
     @requests_mock.Mocker(kw="request")
     def test_sync(self, request):

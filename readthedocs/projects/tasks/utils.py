@@ -13,14 +13,12 @@ from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
+from readthedocs.builds.tasks import finish_inactive_build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
-from readthedocs.doc_builder.exceptions import BuildAppError
-from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -144,24 +142,16 @@ def finish_unhealthy_builds():
         healthcheck__lt=timezone.now() - healthcheck_delta
     )
     lost = Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
-    query = recent & (inactive | lost)
+    # NOTE: Builds created using the upload API are omitted from this query since they don't have healthchecks.
+    # They are terminated in a different task (finish_inactive_uploaded_builds).
+    not_upload = ~Q(is_uploaded=True)
+    query = recent & not_upload & (inactive | lost)
 
     projects_finished = set()
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        # Tell Celery to cancel this task in case it's in a zombie state.
-        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
+        finish_inactive_build(build)
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 

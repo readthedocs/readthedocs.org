@@ -445,7 +445,7 @@ class Project(models.Model):
     # External versions
     external_builds_enabled = models.BooleanField(
         _("Build pull requests for this project"),
-        default=False,
+        default=True,
         help_text=_(
             'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
         ),
@@ -645,10 +645,6 @@ class Project(models.Model):
     has_valid_webhook = models.BooleanField(
         default=False,
         help_text=_("This project has been built with a webhook"),
-    )
-    has_valid_clone = models.BooleanField(
-        default=False,
-        help_text=_("This project has been successfully cloned"),
     )
 
     tags = TaggableManager(blank=True, ordering=["name"])
@@ -2114,6 +2110,7 @@ class Feature(models.Model):
     TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
     USE_ISOLATED_BUILDER = "use_isolated_builder"
     KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
+    ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
         (
@@ -2201,6 +2198,10 @@ class Feature(models.Model):
                 "running after the build completes (instead of having the worker "
                 "self-terminate it via the AWS API)."
             ),
+        ),
+        (
+            ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            _("Build: Allow using the direct artifacts upload API."),
         ),
     )
 

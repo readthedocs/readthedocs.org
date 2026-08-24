@@ -708,12 +708,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "identifier": mock.ANY,
             "type": "branch",
         }
-        # Set project has valid clone
-        assert self.requests_mock.request_history[11]._request.method == "PATCH"
-        assert self.requests_mock.request_history[11].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[11].json() == {"has_valid_clone": True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[12].json() == {
+        assert self.requests_mock.request_history[11].json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -725,8 +721,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "success": True,
         }
 
-        assert self.requests_mock.request_history[13]._request.method == "POST"
-        assert self.requests_mock.request_history[13].path == "/api/v2/revoke/"
+        assert self.requests_mock.request_history[12]._request.method == "POST"
+        assert self.requests_mock.request_history[12].path == "/api/v2/revoke/"
 
         assert BuildData.objects.all().exists()
 
@@ -1968,6 +1964,77 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call(
                     "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_without_sphinx_using_uv(self, load_yaml_config):
+        """The uv environment is created and synced even when the builder is generic."""
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["uv run zensical build --clean"],
+                        },
+                    },
+                },
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs"],
+                        },
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call("asdf", "plugin", "add", "uv", record=True),
+                mock.call("asdf", "install", "uv", "latest", record=True),
+                mock.call("asdf", "global", "uv", "latest", record=True),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "uv",
+                    "venv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    "uv",
+                    "sync",
+                    "--group",
+                    "docs",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "uv run zensical build --clean",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),

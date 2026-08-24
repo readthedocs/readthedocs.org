@@ -351,9 +351,9 @@ class BuildDirector:
             self.run_build_job("create_environment")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.setup_base()
@@ -364,9 +364,9 @@ class BuildDirector:
             self.run_build_job("install")
             return
 
-        # If the builder is generic, we have nothing to do here,
-        # as the commnads are provided by the user.
-        if self.data.config.doctype == GENERIC:
+        # If the builder is generic, we don't have to install Sphinx/MkDocs dependencies by default.
+        # However, if the user is using UV, we need to call `uv sync` or `uv pip install`
+        if self.data.config.doctype == GENERIC and not self.data.config.is_using_uv:
             return
 
         self.language_environment.install_core_requirements()
@@ -677,19 +677,6 @@ class BuildDirector:
                     *cmd,
                     record=True,
                 )
-                # Save the Python path under UV_PYTHON to define it as an environment variable
-                cmd = ["asdf", "which", "python"]
-                command = self.build_environment.run(
-                    *cmd,
-                    record=True,
-                )
-                # Add UV_PYTHON to build environment variables now we have Python installed.
-                # NOTE: we can't do this at `get_build_env_vars` because we need to have Python installed to get the path of it.
-                self.build_environment._environment.update(
-                    {
-                        "UV_PYTHON": command.output.strip(),
-                    },
-                )
 
             if all(
                 [
@@ -840,16 +827,19 @@ class BuildDirector:
             self.data.version.slug,
         )
         if self.data.config.is_using_uv:
+            checkout_path = self.data.project.checkout_path(self.data.version.slug)
             try:
-                UV_PROJECT = self.data.config.python.install[0].path
-            except AttributeError, IndexError:
-                UV_PROJECT = self.data.project.checkout_path(self.data.version.slug)
+                # UV_PROJECT has to be an absolute path because we run `uv venv` and `uv run`
+                # from different `cwd` directories.
+                UV_PROJECT = os.path.join(checkout_path, self.data.config.python.install[0].path)
+            except AttributeError, IndexError, TypeError:
+                UV_PROJECT = checkout_path
 
             env.update(
                 {
-                    # UV_PYTHON is set in `install_build_tools` once we have Python installed,
-                    # here I'm setting just an empty string.
-                    "UV_PYTHON": "",
+                    # Point UV_PYTHON to the Python binary inside the virtualenv created by UV.
+                    # This is used by `uv run/sync` but also by `uv pip install` to find the correct Python binary to use.
+                    "UV_PYTHON": os.path.join(venv_path, "bin", "python"),
                     "UV_PROJECT": UV_PROJECT,
                     "UV_PROJECT_ENVIRONMENT": venv_path,
                 }

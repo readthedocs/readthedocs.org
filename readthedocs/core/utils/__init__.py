@@ -32,6 +32,7 @@ def prepare_build(
     project,
     version=None,
     commit=None,
+    is_uploaded=False,
     immutable=True,
 ):
     """
@@ -44,6 +45,7 @@ def prepare_build(
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
     :param immutable: whether or not create an immutable Celery signature
+    :param is_uploaded: whether or not the build is using the upload API.
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
     """
@@ -69,6 +71,13 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
+    if version.is_uploaded and not is_uploaded:
+        log.info(
+            "Build not triggered because version is uploaded.",
+            version_slug=version.slug,
+        )
+        return (None, None)
+
     build = Build.objects.create(
         project=project,
         version=version,
@@ -76,6 +85,7 @@ def prepare_build(
         state=BUILD_STATE_TRIGGERED,
         success=True,
         commit=commit,
+        is_uploaded=is_uploaded,
     )
 
     structlog.contextvars.bind_contextvars(
@@ -115,18 +125,7 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = (
-        Build.objects.filter(
-            project=project,
-            version=version,
-        )
-        .exclude(
-            state__in=BUILD_FINAL_STATES,
-        )
-        .exclude(
-            pk=build.pk,
-        )
-    )
+    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
     if running_builds.count() > 0:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
@@ -291,18 +290,16 @@ def submit_to_isolated_builders(*, project, build):
         "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
         "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
         "RTD_HEALTHCHECK_API_HOST": settings.SLUMBER_API_HOST,
+        "RTD_ALLOW_PRIVATE_REPOS": str(settings.ALLOW_PRIVATE_REPOS),
     }
     if settings.RTD_DOCKER_COMPOSE:
-        # Local dev: rustfs endpoint for storage boto3 calls, root user
-        # inside the container (the bind-mounted docroot doesn't match
-        # the container's ``docs`` uid), API-via-nginx override so the
-        # build container can reach us on the compose network.
+        # Local dev: rustfs endpoint for storage boto3 calls, and an
+        # API-via-nginx override so the build container can reach us on the
+        # compose network. The build user defaults to ``docs`` (like
+        # production) — the isolated builder has no bind-mounted docroot, so
+        # there's no host-uid mismatch to work around.
         environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
-        environment["RTD_DOCKER_USER"] = "root"
-        # Tells the builder it's running under docker-compose so it symlinks
-        # ``/root/.asdf`` -> ``docs``' asdf install. Required because we run as
-        # ``root`` here (above): ``asdf`` resolves plugins from ``$HOME/.asdf``,
-        # which is ``/root/.asdf`` for root.
+        # Tells the builder it's running under docker-compose
         environment["RTD_DOCKER_COMPOSE"] = "1"
         # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
         # are fully migrated and remove this override here.
@@ -452,15 +449,16 @@ def cancel_build(build):
         # itself to be executed in the `on_failure` handler.
         terminate = True
 
-    log.warning(
-        "Canceling build.",
-        project_slug=build.project.slug,
-        version_slug=build.version.slug,
-        build_id=build.pk,
-        build_task_id=build.task_id,
-        terminate=terminate,
-    )
-    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+    if build.task_id:
+        log.warning(
+            "Canceling build.",
+            project_slug=build.project.slug,
+            version_slug=build.version.slug,
+            build_id=build.pk,
+            build_task_id=build.task_id,
+            terminate=terminate,
+        )
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):

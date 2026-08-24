@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Github
 from github import GithubException
+from github import RateLimitExceededException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -247,6 +248,15 @@ class GitHubAppService(Service):
                 # status code if the app is not installed on the repository.
                 if not repo.private:
                     self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
+            except RateLimitExceededException:
+                # Being rate limited doesn't mean we lost access to the repository.
+                # Abort the operation, all remaining requests will fail as well.
+                log.info(
+                    "Rate limit exceeded while fetching repositories from GitHub",
+                    installation_id=self.installation.installation_id,
+                    exc_info=True,
+                )
+                raise
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
