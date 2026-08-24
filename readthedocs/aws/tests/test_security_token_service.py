@@ -333,7 +333,7 @@ class TestSecurityTokenService(TestCase):
                     ],
                     "Resource": [
                         "arn:aws:s3:::build-uploads",
-                        f"arn:aws:s3:::build-uploads/{self.project.id}/{self.build.id}/artifacts.zip",
+                        f"arn:aws:s3:::build-uploads/{self.project.slug}/{self.build.id}/artifacts.zip",
                     ],
                 },
             ],

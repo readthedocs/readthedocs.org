@@ -77,7 +77,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         storage_mock = storages_mock.__getitem__.return_value
         storage_mock.generate_presigned_post.return_value = {
             "url": "https://storage.example.com/build-uploads",
-            "fields": {"key": "1/1/artifacts.zip"},
+            "fields": {"key": "project/1/artifacts.zip"},
         }
         return storage_mock
 
@@ -282,7 +282,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         storage_mock = self._mock_storage(storages_mock)
         storage_mock.generate_presigned_post.return_value = {
             "url": "http://storage/build-uploads",
-            "fields": {"key": "1/1/artifacts.zip"},
+            "fields": {"key": "project/1/artifacts.zip"},
         }
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED

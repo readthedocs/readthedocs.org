@@ -987,11 +987,11 @@ class Build(models.Model):
         """
         Storage path where the uploaded zip with the build artifacts are stored.
 
-        The path is in the format: <project_id>/<build_id>/artifacts.zip
+        The path is in the format: <project_slug>/<build_id>/artifacts.zip
 
-        Example: 1234/1111/artifacts.zip
+        Example: pip/1111/artifacts.zip
         """
-        return f"{self.project.id}/{self.id}/artifacts.zip"
+        return f"{self.project.slug}/{self.id}/artifacts.zip"
 
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
