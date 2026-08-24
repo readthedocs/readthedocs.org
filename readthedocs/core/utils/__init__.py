@@ -424,14 +424,9 @@ def cancel_build(build):
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
     """
-    # NOTE: `terminate=True` is required for the child to attend our call
-    # immediately when it's running the build. Otherwise, it finishes the
-    # task. However, to revoke a task that has not started yet, we don't
-    # need it.
     if build.state == BUILD_STATE_TRIGGERED:
         # Since the task won't be executed at all, we need to update the
         # Build object here.
-        terminate = False
         build.state = BUILD_STATE_CANCELLED
         build.success = False
 
@@ -444,10 +439,6 @@ def cancel_build(build):
 
         build.length = 0
         build.save()
-    else:
-        # In this case, we left the update of the Build object to the task
-        # itself to be executed in the `on_failure` handler.
-        terminate = True
 
     if build.task_id:
         log.warning(
@@ -456,9 +447,12 @@ def cancel_build(build):
             version_slug=build.version.slug,
             build_id=build.pk,
             build_task_id=build.task_id,
-            terminate=terminate,
         )
-        app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+
+        # `terminate=True` is required for the child to attend our call
+        # immediately when it's running the build. Otherwise, it finishes the
+        # task.
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):
