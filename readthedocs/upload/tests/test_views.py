@@ -23,6 +23,7 @@ from readthedocs.builds.models import Version
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Feature
@@ -42,6 +43,11 @@ class UploadAPIEndpointMixin(TestCase):
             Project,
             slug="project",
             users=[self.user],
+        )
+        self.organization = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project],
         )
         self.feature = get(
             Feature,
