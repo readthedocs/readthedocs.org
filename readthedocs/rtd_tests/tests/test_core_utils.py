@@ -265,8 +265,8 @@ class CoreUtilTests(TestCase):
         [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
     ),
 )
-class IsolatedBuilderConcurrencyTests(TestCase):
-    """Concurrency admission for the isolated-builders path."""
+class BuildIsolatedConcurrencyTests(TestCase):
+    """Concurrency admission for the build-isolated path."""
 
     def setUp(self):
         self.project = get(
@@ -275,7 +275,7 @@ class IsolatedBuilderConcurrencyTests(TestCase):
             main_language_project=None,
             max_concurrent_builds=3,
         )
-        feature = get(Feature, feature_id=Feature.USE_ISOLATED_BUILDER)
+        feature = get(Feature, feature_id=Feature.USE_BUILD_ISOLATED)
         feature.projects.add(self.project)
         self.version = get(Version, project=self.project)
 

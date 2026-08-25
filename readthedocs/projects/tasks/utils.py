@@ -128,7 +128,7 @@ def finish_unhealthy_builds():
     - **Inactive:** a running build whose last healthcheck was more than
       ``RTD_BUILD_HEALTHCHECK_TIMEOUT`` seconds ago (its builder went silent).
 
-    - **Lost:** an isolated-builders build that was dispatched to the fleet more
+    - **Lost:** an build-isolated build that was dispatched to the fleet more
       than ``RTD_BUILD_DISPATCH_TIMEOUT`` seconds ago but no builder ever picked
       it up (still ``triggered``). ``dispatched_date`` is only set on the
       isolated path, so this never touches legacy builds.

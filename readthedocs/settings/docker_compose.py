@@ -17,7 +17,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
-    # Personal access token used by the isolated-builder dev container's
+    # Personal access token used by the build-isolated dev container's
     # entrypoint to clone the readthedocs-builder repo when it's
     # private. Not strictly needed when the host's checkout is
     # bind-mounted into the dev container (the entrypoint skips the

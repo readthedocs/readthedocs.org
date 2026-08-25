@@ -273,7 +273,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         if (
             not was_finished
             and build.finished
-            and build.project.has_feature(Feature.USE_ISOLATED_BUILDER)
+            and build.project.has_feature(Feature.USE_BUILD_ISOLATED)
         ):
             run_post_build_tasks.delay(build_pk=build.pk)
 

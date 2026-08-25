@@ -2108,8 +2108,8 @@ class Feature(models.Model):
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
     TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
-    USE_ISOLATED_BUILDER = "use_isolated_builder"
-    KEEP_ISOLATED_BUILDER_INSTANCE = "keep_isolated_builder_instance"
+    USE_BUILD_ISOLATED = "use_build_isolated"
+    KEEP_BUILD_ISOLATED_INSTANCE = "keep_build_isolated_instance"
     ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
@@ -2185,16 +2185,16 @@ class Feature(models.Model):
             _("Build: Terminate instance on build finish."),
         ),
         (
-            USE_ISOLATED_BUILDER,
+            USE_BUILD_ISOLATED,
             _(
-                "Build: Dispatch this project's builds to the `isolated-builders` ASG "
+                "Build: Dispatch this project's builds to the `build-isolated` ASG "
                 "instead of the `build-default` ASG."
             ),
         ),
         (
-            KEEP_ISOLATED_BUILDER_INSTANCE,
+            KEEP_BUILD_ISOLATED_INSTANCE,
             _(
-                "Build: Debug mode for `isolated-builders` — keep the EC2 instance "
+                "Build: Debug mode for `build-isolated` — keep the EC2 instance "
                 "running after the build completes (instead of having the worker "
                 "self-terminate it via the AWS API)."
             ),

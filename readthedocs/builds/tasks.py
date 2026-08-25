@@ -774,7 +774,7 @@ def remove_build_commands_storage_paths(paths):
 @app.task(queue="web")
 def run_post_build_tasks(build_pk):
     """
-    Run the post-build work for a build from the isolated-builders fleet.
+    Run the post-build work for a build from the build-isolated fleet.
 
     Triggered from ``BuildViewSet`` when a build reaches a final state —
     see ``perform_update`` there for the gating.

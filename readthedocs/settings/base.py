@@ -174,7 +174,7 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
     RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
-    # How long a build may sit dispatched to the isolated-builders fleet before
+    # How long a build may sit dispatched to the build-isolated fleet before
     # we consider it "lost" (no builder ever picked it up) and cancel it.
     RTD_BUILD_DISPATCH_TIMEOUT = 5 * 60  # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
@@ -628,14 +628,14 @@ class CommunityBaseSettings(Settings):
 
     BUILD_TIME_LIMIT = 900  # seconds
 
-    # Celery task name + queue for the isolated-builders worker.
+    # Celery task name + queue for the build-isolated worker.
     # Must match what the worker registers in
     # ``readthedocs-builder/worker/tasks.py`` (``@app.task(name=...)``)
     # and ``worker/celery.py`` (``task_default_queue``). We dispatch by
     # name (rather than importing the function) so this codebase doesn't
     # need the ``worker`` package installed.
-    RTD_ISOLATED_BUILDER_TASK_NAME = "worker.tasks.run_build"
-    RTD_ISOLATED_BUILDER_QUEUE = "isolated-builds"
+    RTD_BUILD_ISOLATED_TASK_NAME = "worker.tasks.run_build"
+    RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
     @property
     def BUILD_MEMORY_LIMIT(self):
