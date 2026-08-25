@@ -17,7 +17,7 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import prepare_build
-from readthedocs.core.utils import submit_to_isolated_builders
+from readthedocs.core.utils import submit_to_build_isolated
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
@@ -223,7 +223,7 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        submit_to_isolated_builders(project=project, build=build)
+        submit_to_build_isolated(project=project, build=build)
 
         return Response(
             {"build": BuildSerializer(build).data},

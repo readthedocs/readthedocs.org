@@ -138,10 +138,10 @@ def prepare_build(
         cancel_build(running_build)
 
     # Start the build in X minutes and mark it as limited.
-    # The isolated-builders path enforces concurrency on the web side instead
+    # The build-isolated path enforces concurrency on the web side instead
     # (see :func:`admit_project_builds`), so this only applies to the legacy path.
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-    if limit_reached and not project.has_feature(Feature.USE_ISOLATED_BUILDER):
+    if limit_reached and not project.has_feature(Feature.USE_BUILD_ISOLATED):
         log.warning(
             "Delaying tasks at trigger step due to concurrency limit.",
         )
@@ -203,9 +203,9 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
-    When the project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
-    the build is sent directly to the ``isolated-builds`` Celery queue
-    (via :func:`submit_to_isolated_builders` below). A worker on a
+    When the project has ``Feature.USE_BUILD_ISOLATED`` enabled,
+    the build is sent directly to the ``build:isolated`` Celery queue
+    (via :func:`submit_to_build_isolated` below). A worker on a
     dedicated EC2 instance picks it up, fetches build/project data from
     the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
     runs the build inside a ``readthedocs/build:<os>`` container. See
@@ -243,8 +243,8 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         # Build was skipped
         return (None, None)
 
-    # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
-    if project.has_feature(Feature.USE_ISOLATED_BUILDER):
+    # Feature-flag dispatch: build-isolated path vs legacy Celery path.
+    if project.has_feature(Feature.USE_BUILD_ISOLATED):
         # Call `admit_project_builds` to dispatch immediately if there is a slot free
         admit_project_builds(project)
         return None, build
@@ -263,13 +263,13 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     return task, build
 
 
-def submit_to_isolated_builders(*, project, build):
+def submit_to_build_isolated(*, project, build):
     """
-    Dispatch a build directly to the ``isolated-builds`` Celery queue.
+    Dispatch a build directly to the ``build:isolated`` Celery queue.
 
     Called from :func:`trigger_build` when the project has
-    ``USE_ISOLATED_BUILDER`` set. The dispatched task runs on the
-    isolated-builders EC2 fleet (worker code lives in the
+    ``USE_BUILD_ISOLATED`` set. The dispatched task runs on the
+    build-isolated EC2 fleet (worker code lives in the
     ``readthedocs-builder`` repository under ``worker/``).
 
     What this function does *not* do — deliberately — is any Git
@@ -305,21 +305,21 @@ def submit_to_isolated_builders(*, project, build):
         # are fully migrated and remove this override here.
         environment["RTD_API_URL"] = "http://nginx"
 
-    # Debug knob: ``KEEP_ISOLATED_BUILDER_INSTANCE`` feature flag asks
+    # Debug knob: ``KEEP_BUILD_ISOLATED_INSTANCE`` feature flag asks
     # the worker to skip its post-build self-terminate so the EC2 host
     # stays alive for inspection. Ignored in dev (no instance to keep).
-    no_self_terminate = project.has_feature(Feature.KEEP_ISOLATED_BUILDER_INSTANCE)
+    no_self_terminate = project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE)
 
-    log.info("Dispatching build to isolated-builders queue.")
+    log.info("Dispatching build to build-isolated queue.")
     result = app.send_task(
-        settings.RTD_ISOLATED_BUILDER_TASK_NAME,
+        settings.RTD_BUILD_ISOLATED_TASK_NAME,
         kwargs={
             "build_pk": build.pk,
             "build_api_key": build_api_key,
             "environment": environment,
             "no_self_terminate": no_self_terminate,
         },
-        queue=settings.RTD_ISOLATED_BUILDER_QUEUE,
+        queue=settings.RTD_BUILD_ISOLATED_QUEUE,
     )
 
     # Save the worker task id so ``cancel_build`` can revoke it, and record the
@@ -351,7 +351,7 @@ def admit_project_builds(project):
     """
     Admit queued isolated builds for ``project`` up to the free-slot count.
 
-    Concurrency for the isolated-builders path is enforced here, on the ``web``
+    Concurrency for the build-isolated path is enforced here, on the ``web``
     side, rather than inside the build task. Builds sit in ``triggered`` until a
     slot frees; this dispatches the oldest ones to the fleet, FIFO.
 
@@ -363,7 +363,7 @@ def admit_project_builds(project):
     from readthedocs.projects.models import Feature
 
     # The legacy path enforces concurrency inside the build task itself.
-    if not project.has_feature(Feature.USE_ISOLATED_BUILDER):
+    if not project.has_feature(Feature.USE_BUILD_ISOLATED):
         return
 
     # Serialize admission across the whole concurrency scope so two passes can't
@@ -398,7 +398,7 @@ def admit_project_builds(project):
                         attached_to=build,
                     )
                     log.info("Admitting queued build.")
-                    submit_to_isolated_builders(project=project, build=build)
+                    submit_to_build_isolated(project=project, build=build)
                 else:
                     # Blocked by the concurrency limit: surface the wait in the UI.
                     # A later finish hook or the beat sweep will admit it.

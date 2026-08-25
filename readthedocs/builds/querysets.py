@@ -227,7 +227,7 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
-        A build counts as soon as it's been dispatched to the isolated-builders
+        A build counts as soon as it's been dispatched to the build-isolated
         fleet (``dispatched_date`` set) — it occupies a slot even while it waits
         in the broker for a builder to pick it up. A build still genuinely
         queued (``triggered`` but not yet dispatched) does not count.

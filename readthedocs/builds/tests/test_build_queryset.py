@@ -44,7 +44,7 @@ class TestBuildQuerySet:
         A dispatched isolated build counts even while still ``triggered``.
 
         Once ``admit_project_builds`` dispatches a build to the
-        isolated-builders fleet (``dispatched_date`` set), it occupies a slot
+        build-isolated fleet (``dispatched_date`` set), it occupies a slot
         even while it waits in ``triggered`` for a builder to pick it up. A
         build still genuinely queued (no ``dispatched_date``) does not count.
         """
