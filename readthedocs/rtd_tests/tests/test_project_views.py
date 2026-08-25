@@ -410,8 +410,10 @@ class TestPrivateViews(TestCase):
         announcement = "projects/partials/announcements/pull-request-previews.html"
         # NOTE: create at least 3 projects, as the example projects
         # announcement takes precedence for users with fewer than that.
-        for i in range(3):
-            get(Project, slug=f"project-{i}", users=[self.user])
+        projects = [
+            get(Project, slug=f"project-{index}", users=[self.user]) for index in range(0, 3)
+        ]
+        organization = get(Organization, projects=projects, owners=[self.user])
 
         # Projects only have internal versions, so the announcement is shown.
         r = self.client.get(reverse("projects_dashboard"))
