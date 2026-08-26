@@ -32,6 +32,7 @@ from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_uploads_scoped_credentials
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
@@ -272,7 +273,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         if (
             not was_finished
             and build.finished
-            and build.project.has_feature(Feature.USE_ISOLATED_BUILDER)
+            and build.project.has_feature(Feature.USE_BUILD_ISOLATED)
         ):
             run_post_build_tasks.delay(build_pk=build.pk)
 
@@ -420,6 +421,10 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         elif credentials_type == "build_tools":
             method = get_s3_build_tools_scoped_credentials
             # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        elif credentials_type == "build_uploads":
+            method = get_s3_build_uploads_scoped_credentials
+            # 30 minutes should be enough for downloading the zip with the build artifacts.
             duration = 30 * 60
         else:
             return Response(

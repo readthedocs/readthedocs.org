@@ -5,6 +5,14 @@ and is copied to each production repo.
 Agents don't work with symlinks or submodules,
 so this is best for now.
 
+## Team interaction
+
+We want all interaction in public to be between real people.
+
+* **Never** comment on pull requests, commits, or other things as the user.
+* Make all public-facing copy like commit messages and pull request descriptions for the reader, and not the author.
+* Ensure everything is optimized for clarify, conciseness, and effective communication.
+
 ## Project Overview
 
 Read the Docs is a documentation hosting platform that builds and hosts documentation for open source projects.

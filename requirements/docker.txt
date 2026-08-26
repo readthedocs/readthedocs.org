@@ -29,18 +29,18 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.56
+boto3==1.43.67
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.56
+botocore==1.43.67
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 bumpver==2026.1132
     # via -r requirements/pip.txt
-cachetools==7.1.6
+cachetools==7.1.7
     # via tox
 celery==5.6.3
     # via
@@ -52,7 +52,7 @@ certifi==2026.7.22
     #   -r requirements/pip.txt
     #   elastic-transport
     #   requests
-cffi==2.1.0
+cffi==2.1.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
@@ -90,21 +90,19 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==49.0.0
+cryptography==50.0.0
     # via
     #   -r requirements/pip.txt
     #   fido2
     #   pyjwt
-cssselect==1.4.0
+cssselect==1.5.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
 datadiff==2.2.0
     # via -r requirements/docker.in
 decorator==5.3.1
-    # via
-    #   ipdb
-    #   ipython
+    # via ipdb
 distlib==0.4.3
     # via
     #   -r requirements/pip.txt
@@ -113,7 +111,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.16
+django==5.2.17
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -180,7 +178,7 @@ django-timezone-field==7.2.2
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.17.1
+djangorestframework==3.18.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -215,7 +213,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.32.0
+filelock==3.32.2
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -230,7 +228,7 @@ idna==3.18
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==9.15.0
+ipython==9.16.1
     # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -261,7 +259,7 @@ lxml==6.0.1
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.10.2
+markdown==3.10.3
     # via -r requirements/pip.txt
 markdown-it-py==4.2.0
     # via rich
@@ -276,7 +274,7 @@ oauthlib==3.3.1
     #   requests-oauthlib
 orjson==3.11.9
     # via -r requirements/pip.txt
-packaging==26.2
+packaging==26.3
     # via
     #   -r requirements/pip.txt
     #   djangorestframework-api-key
@@ -295,10 +293,9 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.11.0
+platformdirs==4.11.1
     # via
     #   -r requirements/pip.txt
-    #   python-discovery
     #   tox
     #   virtualenv
 pluggy==1.6.0
@@ -334,7 +331,7 @@ pydantic-core==2.46.4
     # via
     #   -r requirements/pip.txt
     #   pydantic
-pygithub==2.8.1
+pygithub==2.9.1
     # via -r requirements/pip.txt
 pygments==2.20.0
     # via
@@ -354,7 +351,7 @@ pynacl==1.6.2
     #   pygithub
 pyproject-api==1.11.0
     # via tox
-pyquery==2.0.1
+pyquery==2.1.0
     # via -r requirements/pip.txt
 python-crontab==3.3.0
     # via
@@ -366,7 +363,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.5.0
+python-discovery==1.5.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -387,7 +384,7 @@ qrcode==8.2
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-redis==8.0.1
+redis==8.1.0
     # via -r requirements/pip.txt
 regex==2026.7.19
     # via -r requirements/pip.txt
@@ -457,7 +454,7 @@ tox-uv==1.36.0
     # via -r requirements/docker.in
 tox-uv-bare==1.36.0
     # via tox-uv
-traitlets==5.15.1
+traitlets==5.16.1
     # via
     #   ipython
     #   matplotlib-inline
@@ -508,7 +505,7 @@ urllib3==2.7.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.11.32
+uv==0.12.3
     # via tox-uv
 vine==5.1.0
     # via
@@ -516,7 +513,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.7.0
+virtualenv==21.7.3
     # via
     #   -r requirements/pip.txt
     #   tox
