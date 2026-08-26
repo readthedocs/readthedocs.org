@@ -176,7 +176,12 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
+        # `uploaded` is the legacy flag for versions uploaded manually by the
+        # core team, `is_uploaded` marks versions created via the upload API.
+        # Neither exists in the repository, so they should never be
+        # considered deleted from it.
         .exclude(uploaded=True)
+        .exclude(is_uploaded=True)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )
 
