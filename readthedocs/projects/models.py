@@ -1209,7 +1209,7 @@ class Project(models.Model):
     def active_versions(self):
         versions = self.versions(manager=INTERNAL).public(only_active=True)
         return versions.filter(built=True, active=True) | versions.filter(
-            active=True, uploaded=True
+            active=True, is_uploaded=True
         )
 
     def all_active_versions(self):
