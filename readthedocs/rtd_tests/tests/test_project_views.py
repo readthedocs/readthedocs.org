@@ -420,7 +420,7 @@ class TestPrivateViews(TestCase):
         assert r.context["announcement"] == announcement
 
         # Once there is a pull request preview, the announcement is gone.
-        get(Version, project=self.project, type=EXTERNAL)
+        get(Version, project=projects[0], type=EXTERNAL)
 
         r = self.client.get(reverse("projects_dashboard"))
         assert r.context["announcement"] != announcement
