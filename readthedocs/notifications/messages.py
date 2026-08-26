@@ -444,6 +444,32 @@ BUILD_MESSAGES = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_UPLOAD_FAILED,
+        header=_("There was a problem while uploading your artifacts"),
+        body=_(
+            textwrap.dedent(
+                """
+                Artifacts for this build could not be uploaded to Read the Docs.
+                Check your CI job for more information, or try again later.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_INVALID,
+        header=_("Artifacts zip file is invalid"),
+        body=_(
+            textwrap.dedent(
+                """
+                Read the Docs could not process the artifacts zip file uploaded.
+                Make sure the zip file is valid and contains the expected files.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [

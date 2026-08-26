@@ -406,6 +406,23 @@ class TestPrivateViews(TestCase):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
+    def test_dashboard_pull_request_previews_announcement(self):
+        announcement = "projects/partials/announcements/pull-request-previews.html"
+        # NOTE: create at least 3 projects, as the example projects
+        # announcement takes precedence for users with fewer than that.
+        for i in range(3):
+            get(Project, slug=f"project-{i}", users=[self.user])
+
+        # Projects only have internal versions, so the announcement is shown.
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] == announcement
+
+        # Once there is a pull request preview, the announcement is gone.
+        get(Version, project=self.project, type=EXTERNAL)
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] != announcement
+
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
 

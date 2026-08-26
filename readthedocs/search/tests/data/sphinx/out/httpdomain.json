@@ -2,6 +2,8 @@
   "path": "httpdomain.html",
   "title": "Here is a nice reference",
   "main_content_hash": "b0d8f8cbfe35ca79213ac9122704706f",
+  "text_hash": "521694a2556096f0ee72a1efff07d04e",
+  "markup_hash": "67597cd5a052d5f959bc9030071eb917",
   "sections": [
     {
       "id": "get--api-v3-projects-",
