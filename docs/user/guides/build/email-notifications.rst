@@ -2,7 +2,7 @@ How to setup email notifications
 ================================
 
 In this brief guide,
-you can learn how to setup a simple build notification via email.
+you can learn how to set up a simple build notification via email.
 
 Read the Docs allows you to configure emails that will be notified on failing builds.
 This makes sure that you are aware of failures happening in an otherwise automated process.

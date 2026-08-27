@@ -2,6 +2,8 @@
   "path": "autodoc.html",
   "title": "sphinx.ext.autodoc – Include documentation from docstrings",
   "main_content_hash": "1761ca2f532958a9dda6967544cde167",
+  "text_hash": "d38b5aaf31a5f364ac32573e8b19a44f",
+  "markup_hash": "bd793d889845ec1c2c9f8fe9b1164862",
   "sections": [
     {
       "id": "directive-automodule",

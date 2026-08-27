@@ -1,5 +1,6 @@
 """Common utility functions."""
 
+import datetime
 import re
 
 import structlog
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText
 from django.utils.safestring import mark_safe
@@ -30,6 +32,7 @@ def prepare_build(
     project,
     version=None,
     commit=None,
+    is_uploaded=False,
     immutable=True,
 ):
     """
@@ -42,6 +45,7 @@ def prepare_build(
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
     :param immutable: whether or not create an immutable Celery signature
+    :param is_uploaded: whether or not the build is using the upload API.
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
     """
@@ -67,6 +71,13 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
+    if version.is_uploaded and not is_uploaded:
+        log.info(
+            "Build not triggered because version is uploaded.",
+            version_slug=version.slug,
+        )
+        return (None, None)
+
     build = Build.objects.create(
         project=project,
         version=version,
@@ -74,6 +85,7 @@ def prepare_build(
         state=BUILD_STATE_TRIGGERED,
         success=True,
         commit=commit,
+        is_uploaded=is_uploaded,
     )
 
     structlog.contextvars.bind_contextvars(
@@ -113,18 +125,7 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = (
-        Build.objects.filter(
-            project=project,
-            version=version,
-        )
-        .exclude(
-            state__in=BUILD_FINAL_STATES,
-        )
-        .exclude(
-            pk=build.pk,
-        )
-    )
+    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
     if running_builds.count() > 0:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
@@ -136,9 +137,11 @@ def prepare_build(
     for running_build in running_builds:
         cancel_build(running_build)
 
-    # Start the build in X minutes and mark it as limited
+    # Start the build in X minutes and mark it as limited.
+    # The build-isolated path enforces concurrency on the web side instead
+    # (see :func:`admit_project_builds`), so this only applies to the legacy path.
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-    if limit_reached:
+    if limit_reached and not project.has_feature(Feature.USE_BUILD_ISOLATED):
         log.warning(
             "Delaying tasks at trigger step due to concurrency limit.",
         )
@@ -200,9 +203,9 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     Helper that calls ``prepare_build`` and just effectively trigger the Celery
     task to be executed by a worker.
 
-    When the project has ``Feature.USE_ISOLATED_BUILDER`` enabled,
-    the build is sent directly to the ``isolated-builds`` Celery queue
-    (via :func:`submit_to_isolated_builders` below). A worker on a
+    When the project has ``Feature.USE_BUILD_ISOLATED`` enabled,
+    the build is sent directly to the ``build:isolated`` Celery queue
+    (via :func:`submit_to_build_isolated` below). A worker on a
     dedicated EC2 instance picks it up, fetches build/project data from
     the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
     runs the build inside a ``readthedocs/build:<os>`` container. See
@@ -240,9 +243,11 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
         # Build was skipped
         return (None, None)
 
-    # Feature-flag dispatch: isolated-builders path vs legacy Celery path.
-    if project.has_feature(Feature.USE_ISOLATED_BUILDER):
-        return submit_to_isolated_builders(project=project, build=build)
+    # Feature-flag dispatch: build-isolated path vs legacy Celery path.
+    if project.has_feature(Feature.USE_BUILD_ISOLATED):
+        # Call `admit_project_builds` to dispatch immediately if there is a slot free
+        admit_project_builds(project)
+        return None, build
 
     task = update_docs_task.apply_async()
 
@@ -258,13 +263,13 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     return task, build
 
 
-def submit_to_isolated_builders(*, project, build):
+def submit_to_build_isolated(*, project, build):
     """
-    Dispatch a build directly to the ``isolated-builds`` Celery queue.
+    Dispatch a build directly to the ``build:isolated`` Celery queue.
 
     Called from :func:`trigger_build` when the project has
-    ``USE_ISOLATED_BUILDER`` set. The dispatched task runs on the
-    isolated-builders EC2 fleet (worker code lives in the
+    ``USE_BUILD_ISOLATED`` set. The dispatched task runs on the
+    build-isolated EC2 fleet (worker code lives in the
     ``readthedocs-builder`` repository under ``worker/``).
 
     What this function does *not* do — deliberately — is any Git
@@ -300,28 +305,110 @@ def submit_to_isolated_builders(*, project, build):
         # are fully migrated and remove this override here.
         environment["RTD_API_URL"] = "http://nginx"
 
-    # Debug knob: ``KEEP_ISOLATED_BUILDER_INSTANCE`` feature flag asks
+    # Debug knob: ``KEEP_BUILD_ISOLATED_INSTANCE`` feature flag asks
     # the worker to skip its post-build self-terminate so the EC2 host
     # stays alive for inspection. Ignored in dev (no instance to keep).
-    no_self_terminate = project.has_feature(Feature.KEEP_ISOLATED_BUILDER_INSTANCE)
+    no_self_terminate = project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE)
 
-    log.info("Dispatching build to isolated-builders queue.")
+    log.info("Dispatching build to build-isolated queue.")
     result = app.send_task(
-        settings.RTD_ISOLATED_BUILDER_TASK_NAME,
+        settings.RTD_BUILD_ISOLATED_TASK_NAME,
         kwargs={
             "build_pk": build.pk,
             "build_api_key": build_api_key,
             "environment": environment,
             "no_self_terminate": no_self_terminate,
         },
-        queue=settings.RTD_ISOLATED_BUILDER_QUEUE,
+        queue=settings.RTD_BUILD_ISOLATED_QUEUE,
     )
 
-    # Save the worker task id so ``cancel_build`` can revoke it.
+    # Save the worker task id so ``cancel_build`` can revoke it, and record the
+    # dispatch time so the reaper can spot builds no builder ever picked up.
     build.task_id = result.id
+    build.dispatched_date = timezone.now()
     build.save()
 
     return result, build
+
+
+def _concurrency_lock_id(project):
+    """
+    Lock scope for build admission.
+
+    The concurrency limit is shared across an organization (and across a
+    project's translations), so admission must serialize over that whole scope,
+    not just the single project — otherwise two projects in the same
+    organization could both read the same free-slot count and over-admit.
+    """
+    organization = project.organization
+    if organization:
+        return f"admit-org-{organization.pk}"
+    root = project.main_language_project or project
+    return f"admit-project-{root.pk}"
+
+
+def admit_project_builds(project):
+    """
+    Admit queued isolated builds for ``project`` up to the free-slot count.
+
+    Concurrency for the build-isolated path is enforced here, on the ``web``
+    side, rather than inside the build task. Builds sit in ``triggered`` until a
+    slot frees; this dispatches the oldest ones to the fleet, FIFO.
+
+    Called from the periodic ``admit_queued_builds`` beat task.
+    """
+    # Avoid circular import
+    from readthedocs.builds.models import Build
+    from readthedocs.builds.utils import memcache_lock
+    from readthedocs.projects.models import Feature
+
+    # The legacy path enforces concurrency inside the build task itself.
+    if not project.has_feature(Feature.USE_BUILD_ISOLATED):
+        return
+
+    # Serialize admission across the whole concurrency scope so two passes can't
+    # both read the same free-slot count and over-admit. Whoever holds the lock
+    # drains the queue; concurrent passes are no-ops (they'd see the updated
+    # count anyway once they acquire it).
+    lock_expire = 60
+    with memcache_lock(_concurrency_lock_id(project), lock_expire, app.oid) as acquired:
+        if not acquired:
+            return
+
+        _, in_flight, max_concurrent = Build.objects.concurrent(project)
+        free = max_concurrent - in_flight
+
+        structlog.contextvars.bind_contextvars(project_slug=project.slug)
+
+        # Only look at recently-triggered builds. A build sitting in
+        # ``triggered`` for over a day is stuck, not queued, and the ``date``
+        # index keeps this query fast.
+        queued = project.builds.filter(
+            state=BUILD_STATE_TRIGGERED,
+            task_id__isnull=True,
+            date__gt=timezone.now() - datetime.timedelta(days=1),
+        ).order_by("date")
+
+        for position, build in enumerate(queued):
+            with structlog.contextvars.bound_contextvars(build_id=build.pk):
+                if position < free:
+                    # Admit: clear the "waiting" notification and dispatch.
+                    Notification.objects.cancel(
+                        message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                        attached_to=build,
+                    )
+                    log.info("Admitting queued build.")
+                    submit_to_build_isolated(project=project, build=build)
+                else:
+                    # Blocked by the concurrency limit: surface the wait in the UI.
+                    # A later finish hook or the beat sweep will admit it.
+                    log.info("Build queued due to concurrency limit.")
+                    Notification.objects.add(
+                        message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+                        attached_to=build,
+                        dismissable=False,
+                        format_values={"limit": max_concurrent},
+                    )
 
 
 def cancel_build(build):
@@ -337,14 +424,9 @@ def cancel_build(build):
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
     """
-    # NOTE: `terminate=True` is required for the child to attend our call
-    # immediately when it's running the build. Otherwise, it finishes the
-    # task. However, to revoke a task that has not started yet, we don't
-    # need it.
     if build.state == BUILD_STATE_TRIGGERED:
         # Since the task won't be executed at all, we need to update the
         # Build object here.
-        terminate = False
         build.state = BUILD_STATE_CANCELLED
         build.success = False
 
@@ -357,20 +439,20 @@ def cancel_build(build):
 
         build.length = 0
         build.save()
-    else:
-        # In this case, we left the update of the Build object to the task
-        # itself to be executed in the `on_failure` handler.
-        terminate = True
 
-    log.warning(
-        "Canceling build.",
-        project_slug=build.project.slug,
-        version_slug=build.version.slug,
-        build_id=build.pk,
-        build_task_id=build.task_id,
-        terminate=terminate,
-    )
-    app.control.revoke(build.task_id, signal="SIGINT", terminate=terminate)
+    if build.task_id:
+        log.warning(
+            "Canceling build.",
+            project_slug=build.project.slug,
+            version_slug=build.version.slug,
+            build_id=build.pk,
+            build_task_id=build.task_id,
+        )
+
+        # `terminate=True` is required for the child to attend our call
+        # immediately when it's running the build. Otherwise, it finishes the
+        # task.
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
 
 def send_email_from_object(email: EmailMultiAlternatives | EmailMessage):

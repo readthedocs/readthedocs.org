@@ -194,7 +194,7 @@ Build your documentation with ease:
   Understand how documentation builds happen.
 
 :doc:`/pull-requests`
-  Setup pull request builds and enjoy previews of each commit.
+  Preview your documentation on every pull request.
 
 Hosting documentation
 ---------------------
@@ -250,7 +250,7 @@ How-to guides
 Step-by-step guides for common tasks:
 
 :doc:`/guides/pull-requests`
-  Setup pull request builds and enjoy previews of each commit.
+  Configure pull request builds for your project.
 
 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.

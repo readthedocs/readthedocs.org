@@ -13,13 +13,12 @@ from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
+from readthedocs.builds.tasks import finish_inactive_build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
-from readthedocs.doc_builder.exceptions import BuildAppError
-from readthedocs.notifications.models import Notification
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -121,44 +120,38 @@ def clean_project_resources(project, version=None, version_slug=None):
 @app.task()
 def finish_unhealthy_builds():
     """
-    Finish inactive builds.
+    Finish builds that will never complete on their own.
 
-    A build is consider inactive if the last healthcheck reported was more than
-    RTD_BUILD_HEALTHCHECK_TIMEOUT seconds ago.
+    Two cases, both marked ``success=False`` and ``state=CANCELLED`` with an
+    ``error`` communicated to the user:
 
-    These inactive builds will be marked as ``success=False`` and
-    ``state=CANCELLED`` with an ``error`` to be communicated to the user.
+    - **Inactive:** a running build whose last healthcheck was more than
+      ``RTD_BUILD_HEALTHCHECK_TIMEOUT`` seconds ago (its builder went silent).
+
+    - **Lost:** an build-isolated build that was dispatched to the fleet more
+      than ``RTD_BUILD_DISPATCH_TIMEOUT`` seconds ago but no builder ever picked
+      it up (still ``triggered``). ``dispatched_date`` is only set on the
+      isolated path, so this never touches legacy builds.
     """
-    # Avoid circular import.
-    from readthedocs.api.v2.models import BuildAPIKey
-
-    log.debug("Running task to finish inactive builds (no healtcheck received).")
-    delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
-    query = (
-        # Grab 3 days old at most to use a fast DB index
-        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
-        & ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(healthcheck__lt=timezone.now() - delta)
+    log.debug("Running task to finish unhealthy builds.")
+    healthcheck_delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
+    dispatch_delta = datetime.timedelta(seconds=settings.RTD_BUILD_DISPATCH_TIMEOUT)
+    # Grab 3 days old at most to use a fast DB index
+    recent = Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+    inactive = ~Q(state__in=BUILD_FINAL_STATES) & Q(
+        healthcheck__lt=timezone.now() - healthcheck_delta
     )
+    lost = Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
+    # NOTE: Builds created using the upload API are omitted from this query since they don't have healthchecks.
+    # They are terminated in a different task (finish_inactive_uploaded_builds).
+    not_upload = ~Q(is_uploaded=True)
+    query = recent & not_upload & (inactive | lost)
 
     projects_finished = set()
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        BuildAPIKey.objects.revoke_keys_for_build(build)
-
-        # Tell Celery to cancel this task in case it's in a zombie state.
-        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
+        finish_inactive_build(build)
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 

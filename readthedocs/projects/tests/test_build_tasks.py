@@ -708,12 +708,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "identifier": mock.ANY,
             "type": "branch",
         }
-        # Set project has valid clone
-        assert self.requests_mock.request_history[11]._request.method == "PATCH"
-        assert self.requests_mock.request_history[11].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[11].json() == {"has_valid_clone": True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[12].json() == {
+        assert self.requests_mock.request_history[11].json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -725,8 +721,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "success": True,
         }
 
-        assert self.requests_mock.request_history[13]._request.method == "POST"
-        assert self.requests_mock.request_history[13].path == "/api/v2/revoke/"
+        assert self.requests_mock.request_history[12]._request.method == "POST"
+        assert self.requests_mock.request_history[12].path == "/api/v2/revoke/"
 
         assert BuildData.objects.all().exists()
 

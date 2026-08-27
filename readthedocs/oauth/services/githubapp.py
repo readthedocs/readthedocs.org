@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Github
 from github import GithubException
+from github import RateLimitExceededException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -247,6 +248,15 @@ class GitHubAppService(Service):
                 # status code if the app is not installed on the repository.
                 if not repo.private:
                     self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
+            except RateLimitExceededException:
+                # Being rate limited doesn't mean we lost access to the repository.
+                # Abort the operation, all remaining requests will fail as well.
+                log.info(
+                    "Rate limit exceeded while fetching repositories from GitHub",
+                    installation_id=self.installation.installation_id,
+                    exc_info=True,
+                )
+                raise
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
@@ -413,9 +423,7 @@ class GitHubAppService(Service):
         context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
         try:
-            # NOTE: we use the lazy option to avoid fetching the repository object,
-            # since we only need the object to interact with the commit status API.
-            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
             gh_repo.get_commit(commit).create_status(
                 state=state,
                 target_url=target_url,
@@ -492,9 +500,7 @@ class GitHubAppService(Service):
             raise ValueError("Only versions from pull requests can have comments posted.")
 
         remote_repo = project.remote_repository
-        # NOTE: we use the lazy option to avoid fetching the repository object,
-        # since we only need the object to interact with the commit status API.
-        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
         gh_pull = gh_repo.get_pull(int(version.verbose_name))
 
         if gh_pull.state != "open":

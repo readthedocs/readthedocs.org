@@ -2,6 +2,8 @@
   "path": "page.html",
   "title": "I Need Secrets (or Environment Variables) in my Build",
   "main_content_hash": "95daf5cde2bee38d4bb23edaa1d5c0f3",
+  "text_hash": "9689bf5ac3d523f2c525de38c6d05659",
+  "markup_hash": "66932ad36e8d0a3d412807b3f54ff1fb",
   "sections": [
     {
       "id": "test_py_module.test.Foo",

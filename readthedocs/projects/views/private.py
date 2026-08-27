@@ -28,6 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -121,7 +122,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects and not projects.filter(external_builds_enabled=True).exists():
+        elif n_projects and not projects.filter(versions__type=EXTERNAL).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
             template_name = "traffic-analytics.html"

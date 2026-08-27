@@ -44,6 +44,18 @@ class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
         query_filter[field + "__day"] = when.day
         return self.filter(**query_filter)
 
+    def on_trial(self):
+        """
+        Organizations that are on a trial of the default plan.
+
+        These are organizations subscribed to the Trial Plan
+        that are still within their trial period.
+        """
+        return self.filter(
+            stripe_subscription__status=SubscriptionStatus.trialing,
+            stripe_subscription__items__price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
+        ).distinct()
+
     def subscription_trial_plan_ended(self):
         """
         Organizations with subscriptions to Trial Plan ended.

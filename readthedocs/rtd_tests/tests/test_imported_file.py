@@ -364,18 +364,26 @@ class ImportedFileTests(TestCase):
                 FileTreeDiffManifestFile(
                     path="index.html",
                     main_content_hash=mock.ANY,
+                    text_hash=mock.ANY,
+                    markup_hash=mock.ANY,
                 ),
                 FileTreeDiffManifestFile(
                     path="404.html",
                     main_content_hash=mock.ANY,
+                    text_hash=mock.ANY,
+                    markup_hash=mock.ANY,
                 ),
                 FileTreeDiffManifestFile(
                     path="test.html",
                     main_content_hash=mock.ANY,
+                    text_hash=mock.ANY,
+                    markup_hash=mock.ANY,
                 ),
                 FileTreeDiffManifestFile(
                     path="api/index.html",
                     main_content_hash=mock.ANY,
+                    text_hash=mock.ANY,
+                    markup_hash=mock.ANY,
                 ),
             ],
         )

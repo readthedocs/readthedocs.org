@@ -34,6 +34,66 @@ class TestOrganizationQuerysets(PaymentMixin, TestCase):
             {org_three}, set(Organization.objects.single_owner(another_user))
         )
 
+    def test_on_trial(self):
+        trial_price = get(djstripe.Price, id="trialing")
+        paid_price = get(djstripe.Price, id="advanced")
+
+        # Organization on the trial plan, still within its trial period.
+        trialing_subscription = get(
+            djstripe.Subscription,
+            status=SubscriptionStatus.trialing,
+            customer=get(djstripe.Customer),
+        )
+        get(
+            djstripe.SubscriptionItem,
+            price=trial_price,
+            quantity=1,
+            subscription=trialing_subscription,
+        )
+        org_on_trial = get(
+            Organization,
+            stripe_subscription=trialing_subscription,
+            stripe_customer=trialing_subscription.customer,
+        )
+
+        # Organization with a trial plan subscription that was canceled.
+        canceled_subscription = get(
+            djstripe.Subscription,
+            status=SubscriptionStatus.canceled,
+            customer=get(djstripe.Customer),
+        )
+        get(
+            djstripe.SubscriptionItem,
+            price=trial_price,
+            quantity=1,
+            subscription=canceled_subscription,
+        )
+        org_trial_ended = get(
+            Organization,
+            stripe_subscription=canceled_subscription,
+            stripe_customer=canceled_subscription.customer,
+        )
+
+        # Organization with a paid plan subscription within its trial period.
+        paid_trialing_subscription = get(
+            djstripe.Subscription,
+            status=SubscriptionStatus.trialing,
+            customer=get(djstripe.Customer),
+        )
+        get(
+            djstripe.SubscriptionItem,
+            price=paid_price,
+            quantity=1,
+            subscription=paid_trialing_subscription,
+        )
+        org_paid_trialing = get(
+            Organization,
+            stripe_subscription=paid_trialing_subscription,
+            stripe_customer=paid_trialing_subscription.customer,
+        )
+
+        assert list(Organization.objects.on_trial()) == [org_on_trial]
+
     def test_organizations_with_trial_subscription_plan_ended(self):
         price = get(djstripe.Price, id="trialing")
 

@@ -1,9 +1,11 @@
 Pull request previews
 =====================
 
-Your project can be configured to build and preview documentation for every new
-pull request. Previewing changes during review makes it
-easier to catch formatting and display issues before they go live.
+Read the Docs builds your documentation for every new pull request.
+Previewing changes during review makes it easier to catch formatting and display issues before they go live.
+
+Pull request previews are enabled by default on new projects.
+You can configure them from a project under :guilabel:`Settings` → :guilabel:`Pull request builds`.
 
 Features
 --------
@@ -34,7 +36,7 @@ Build overview with changed files
 
 Pull request notifications
     A pull request notification can be shown at the top of preview pages,
-    which let readers know they aren't viewing an active version of the project.
+    which lets readers know they aren't viewing an active version of the project.
     New projects have this notification disabled by default;
     enable it from :guilabel:`Settings` → :guilabel:`Addons` → :guilabel:`Notifications`.
 
@@ -56,11 +58,11 @@ anyone who can open a pull request on your repository will be able to trigger a 
 For this reason, pull request previews are served from a different domain than your main documentation
 (``org.readthedocs.build`` and ``com.readthedocs.build``).
 
-Builds from pull requests have access to environment variables that are marked as *Public* only,
-if you have environment variables with private information, make sure they aren't marked as *Public*.
+Builds from pull requests have access to environment variables that are marked as *Public* only.
+If you have environment variables with private information, make sure they aren't marked as *Public*.
 See :ref:`environment-variables:Environment variables and build process` for more information.
 
-On |com_brand| you can set pull request previews to be private or public,
+On |com_brand| you can set pull request previews to be private or public.
 If you didn't import your project manually and your repository is public,
 the privacy level of pull request previews will be set to *Public*.
 Public pull request previews are available to anyone with the link to the preview,
