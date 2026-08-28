@@ -689,9 +689,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'Files are synced in the storage, but "Version" object is not updated',
                 )
 
-        # Purge the CDN now that the new files are in storage, without
-        # waiting for ``index_build``, which may lag behind on the
-        # ``reindex`` queue.
+        # Purge the CDN now that the new files are in storage.
         purge_docs_cdn.delay(version_id=self.data.version.pk)
 
         # Index search data

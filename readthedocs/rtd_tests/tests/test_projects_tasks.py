@@ -60,6 +60,7 @@ class SendBuildStatusTests(TestCase):
 
         send_build_status.delay.assert_not_called()
 
+
 class PurgeDocsCDNTests(TestCase):
     def setUp(self):
         self.project = get(Project)

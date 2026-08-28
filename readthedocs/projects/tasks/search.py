@@ -16,7 +16,6 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
-from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
@@ -304,16 +303,6 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 version_slug=version.slug,
             )
 
-    # This signal is used for purging the CDN.
-    # The CDN is also purged as soon as a build finishes (``purge_docs_cdn``);
-    # this second purge flushes any response cached while the DB records
-    # created above were still out of date (e.g. custom 404 pages and
-    # directory index redirects).
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        version=version,
-    )
     return sync_id
 
 

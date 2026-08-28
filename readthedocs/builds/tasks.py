@@ -806,9 +806,7 @@ def run_post_build_tasks(build_pk):
             version.is_uploaded = True
             version.save(update_fields=["is_uploaded"])
 
-        # Purge the CDN now that the new files are in storage, without
-        # waiting for ``index_build``, which may lag behind on the
-        # ``reindex`` queue.
+        # Purge the CDN now that the new files are in storage.
         if build.version:
             purge_docs_cdn.delay(version_id=build.version_id)
 

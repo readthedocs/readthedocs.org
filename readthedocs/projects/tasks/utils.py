@@ -173,9 +173,9 @@ def purge_docs_cdn(version_id):
     Purge the docs of the given version from the CDN.
 
     Triggered as soon as a build finishes uploading its artifacts, so users
-    see the new docs right away. ``index_build`` purges the CDN again after
-    indexing, but it runs on the ``reindex`` queue, where a backlog can
-    delay the purge long after the build has finished.
+    see the new docs right away, without waiting for search indexing
+    (``index_build``), which runs on the ``reindex`` queue,
+    where a backlog can delay it long after the build has finished.
     """
     version = Version.objects.filter(pk=version_id).select_related("project").first()
     if not version:
