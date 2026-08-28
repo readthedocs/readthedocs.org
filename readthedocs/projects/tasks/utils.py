@@ -16,9 +16,12 @@ from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import finish_inactive_build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.projects.models import Project
+from readthedocs.projects.signals import files_changed
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -162,6 +165,28 @@ def finish_unhealthy_builds():
             project_slugs=projects_finished,
             build_pks=builds_finished,
         )
+
+
+@app.task(queue="web")
+def purge_docs_cdn(version_id):
+    """
+    Purge the docs of the given version from the CDN.
+
+    Triggered as soon as a build finishes uploading its artifacts, so users
+    see the new docs right away. ``index_build`` purges the CDN again after
+    indexing, but it runs on the ``reindex`` queue, where a backlog can
+    delay the purge long after the build has finished.
+    """
+    version = Version.objects.filter(pk=version_id).select_related("project").first()
+    if not version:
+        log.debug("Skipping CDN purge. Version doesn't exist.", version_id=version_id)
+        return
+
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        version=version,
+    )
 
 
 def send_external_build_status(version_type, build_pk, commit, status):

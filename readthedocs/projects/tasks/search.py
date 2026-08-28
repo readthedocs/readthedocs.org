@@ -305,6 +305,10 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
             )
 
     # This signal is used for purging the CDN.
+    # The CDN is also purged as soon as a build finishes (``purge_docs_cdn``);
+    # this second purge flushes any response cached while the DB records
+    # created above were still out of date (e.g. custom 404 pages and
+    # directory index redirects).
     files_changed.send(
         sender=Project,
         project=version.project,

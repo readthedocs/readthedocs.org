@@ -26,6 +26,7 @@ from readthedocs.builds.tasks import (
     delete_old_build_objects,
     post_build_overview,
     remove_orphan_build_config,
+    run_post_build_tasks,
 )
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
 from readthedocs.notifications.models import Notification
@@ -688,3 +689,33 @@ class TestPostBuildOverview(TestCase):
         assert self.current_version.is_external
         post_build_overview(build_pk=self.current_version_build.pk)
         post_comment.assert_not_called()
+
+
+class TestRunPostBuildTasks(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+    @mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
+    @mock.patch("readthedocs.projects.tasks.search.index_build")
+    def test_successful_build_purges_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+        build = get(Build, project=self.project, version=self.version, success=True)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        # The CDN is purged as soon as the build finishes,
+        # without waiting for search indexing.
+        purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
+        index_build.delay.assert_called_once_with(build_id=build.pk)
+
+    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+    @mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
+    @mock.patch("readthedocs.projects.tasks.search.index_build")
+    def test_failed_build_does_not_purge_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+        build = get(Build, project=self.project, version=self.version, success=False)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        purge_docs_cdn.delay.assert_not_called()
+        index_build.delay.assert_not_called()
