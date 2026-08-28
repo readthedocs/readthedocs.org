@@ -574,8 +574,6 @@ class TestBuildTask(BuildEnvironmentBase):
 
         index_build.delay.assert_called_once_with(build_id=self.build.pk)
 
-        # The CDN is purged as soon as the build finishes,
-        # without waiting for search indexing.
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
 
         # TODO: assert the verb and the path for each API call as well

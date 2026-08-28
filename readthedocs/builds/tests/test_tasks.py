@@ -704,8 +704,6 @@ class TestRunPostBuildTasks(TestCase):
 
         run_post_build_tasks(build_pk=build.pk)
 
-        # The CDN is purged as soon as the build finishes,
-        # without waiting for search indexing.
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
         index_build.delay.assert_called_once_with(build_id=build.pk)
 

@@ -176,6 +176,9 @@ def purge_docs_cdn(version_id):
     see the new docs right away, without waiting for search indexing
     (``index_build``), which runs on the ``reindex`` queue,
     where a backlog can delay it long after the build has finished.
+
+    Not to be confused with ``Version.purge_cdn``,
+    which signals version *metadata* changes (``version_changed``).
     """
     version = Version.objects.filter(pk=version_id).select_related("project").first()
     if not version:
