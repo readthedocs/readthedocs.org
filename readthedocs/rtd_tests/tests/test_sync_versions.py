@@ -218,15 +218,42 @@ class TestSyncVersions(TestCase):
             Version.objects.filter(slug="external").exists(),
         )
 
-    def test_uploaded_versions_are_not_deleted(self):
+    def test_active_uploaded_versions_are_not_reported_as_deleted(self):
         Version.objects.create(
             project=self.pip,
-            identifier="upload-active",
-            verbose_name="upload-active",
+            identifier="upload-test",
+            verbose_name="upload-test",
             type=BRANCH,
             active=True,
             is_uploaded=True,
         )
+
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        # The version survives the sync.
+        self.assertTrue(Version.objects.filter(slug="upload-test").exists())
+
+        # Uploaded versions may not exist in the repository on purpose,
+        # so they aren't reported as deleted to "version deleted" automation rules.
+        deleted_active_versions = get_deleted_active_versions(
+            self.pip,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+        assert "upload-test" not in deleted_active_versions
+
+    def test_inactive_uploaded_versions_are_deleted(self):
         Version.objects.create(
             project=self.pip,
             identifier="upload-inactive",
@@ -249,20 +276,8 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # Uploaded versions don't exist in the repository,
-        # so they must survive a versions sync.
-        self.assertTrue(Version.objects.filter(slug="upload-active").exists())
-        self.assertTrue(Version.objects.filter(slug="upload-inactive").exists())
-
-        # They aren't reported as deleted either,
-        # so "version deleted" automation rules don't delete them.
-        deleted_active_versions = get_deleted_active_versions(
-            self.pip,
-            branches_data=branches_data,
-            tags_data=[],
-        )
-        assert "upload-active" not in deleted_active_versions
-        assert "upload-inactive" not in deleted_active_versions
+        # Inactive uploaded versions are cleaned up like any other version.
+        self.assertFalse(Version.objects.filter(slug="upload-inactive").exists())
 
     def test_update_stable_version_type(self):
         self.pip.update_stable_version()
