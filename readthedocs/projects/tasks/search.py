@@ -17,6 +17,7 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
@@ -101,6 +102,16 @@ class SearchIndexer(Indexer):
             sync_id=sync_id,
             index_name=self.search_index_name,
         )
+
+        # When indexing into an index that isn't the default (e.g. while
+        # re-creating the index from scratch), live search results haven't
+        # changed, so there is nothing to purge from the CDN.
+        if not self.search_index_name:
+            search_index_updated.send(
+                sender=Project,
+                project=self.project,
+                version=self.version,
+            )
 
 
 class IndexFileIndexer(Indexer):
