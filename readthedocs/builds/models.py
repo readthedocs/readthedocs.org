@@ -358,7 +358,7 @@ class Version(TimeStampedModel):
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
-        if not self.built and not self.is_uploaded:
+        if not self.built:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:
