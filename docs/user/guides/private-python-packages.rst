@@ -26,6 +26,13 @@ To install a private package from a Git repositories, add the URI to your :ref:`
 
 `Pip automatically  expands <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
 
+.. note::
+
+   Environment variable expansion is only supported in ``requirements.txt`` files.
+   If your project uses ``pyproject.toml``,
+   pip does not support expanding environment variables in that format.
+   Use a ``requirements.txt`` file for installing private dependencies instead.
+
 See :doc:`using environment variables in Read the Docs </environment-variables>` for more information.
 
 .. contents:: How to get a personal access token from our supported providers
