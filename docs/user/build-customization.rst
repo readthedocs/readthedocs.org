@@ -376,7 +376,7 @@ Install Node.js dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It's possible to install Node.js together with the required dependencies by using :term:`user-defined build jobs`.
-To setup it, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
+To set it up, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
