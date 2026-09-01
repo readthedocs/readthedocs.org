@@ -5,6 +5,10 @@ Deploying Starlight on Read the Docs
 .. meta::
    :description lang=en: Learn how to host Starlight documentation on Read the Docs.
 
+.. "Astro" isn't in our shared Vale dictionary (common/vale/RTD/CustomSpelling.yml);
+   disable spelling for this page until it's added there.
+.. vale RTD.CustomSpelling = NO
+
 `Starlight`_ is a documentation framework built on top of the `Astro`_ web framework.
 
 Minimal configuration is required to build an existing Starlight project on Read the Docs.
