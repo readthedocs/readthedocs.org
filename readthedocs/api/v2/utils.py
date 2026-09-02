@@ -220,11 +220,17 @@ def delete_versions_from_db(project, tags_data, branches_data):
 
 def get_deleted_active_versions(project, tags_data, branches_data):
     """Return the slug of active versions that were deleted from the repository."""
-    to_delete_qs = _get_deleted_versions_qs(
-        project=project,
-        tags_data=tags_data,
-        branches_data=branches_data,
-    ).filter(active=True)
+    to_delete_qs = (
+        _get_deleted_versions_qs(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
+        # Uploaded versions may not exist in the repository on purpose,
+        # so their absence isn't a signal for "version deleted" automation rules.
+        .exclude(is_uploaded=True)
+        .filter(active=True)
+    )
     return set(to_delete_qs.values_list("slug", flat=True))
 
 
