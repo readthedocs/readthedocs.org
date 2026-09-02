@@ -158,7 +158,7 @@ def prepare_build(
             format_values={"limit": max_concurrent_builds},
         )
 
-    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+    _, build_api_key = BuildAPIKey.objects.create_key_for_project(project=project)
 
     # Disable ``ACKS_LATE`` for this particular build task to try out running builders longer than 1h.
     # At 1h exactly, the task is grabbed by another worker and re-executed,
@@ -282,9 +282,7 @@ def submit_to_build_isolated(*, project, build):
     from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.projects.models import Feature
 
-    # TODO: create a build API key that's scoped to the build itself,
-    # not the project.
-    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+    _, build_api_key = BuildAPIKey.objects.create_key_for_build(build=build)
 
     environment = {
         "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),

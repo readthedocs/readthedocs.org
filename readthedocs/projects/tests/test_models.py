@@ -281,5 +281,5 @@ class TestURLPatternsUtils(TestCase):
                 get(SearchQuery, project=self.project, version=version)
                 get(Build, project=self.project, version=version)
 
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(53):
             self.project.delete()
