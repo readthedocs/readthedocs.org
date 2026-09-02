@@ -1,6 +1,7 @@
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
@@ -8,8 +9,10 @@ from django.urls import reverse
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 
+from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.constants import GITHUB, GITHUB_APP
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
@@ -63,6 +66,69 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
         resp = ImportWizardView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["location"], "/")
+
+
+class TestImportViewContext(TestCase):
+    """The import page context explains why the repository list is empty."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.client.force_login(self.user)
+        self.url = reverse("projects_import")
+
+    def test_no_connected_accounts(self):
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        assert resp.context["has_connected_vcs_account"] is False
+        assert resp.context["has_remote_repositories"] is False
+        assert resp.context["has_github_app_repositories"] is False
+
+    def test_non_vcs_account_is_not_a_vcs_connection(self):
+        get(SocialAccount, user=self.user, provider="google")
+        resp = self.client.get(self.url)
+        assert resp.context["has_connected_vcs_account"] is False
+
+    def test_vcs_account_without_repositories(self):
+        get(SocialAccount, user=self.user, provider=GitHubProvider.id)
+        resp = self.client.get(self.url)
+        assert resp.context["has_connected_vcs_account"] is True
+        assert resp.context["has_remote_repositories"] is False
+        assert resp.context["has_github_app_repositories"] is False
+
+    def test_github_app_account_without_repositories(self):
+        get(SocialAccount, user=self.user, provider=GitHubAppProvider.id)
+        resp = self.client.get(self.url)
+        assert resp.context["has_connected_vcs_account"] is True
+        assert resp.context["has_remote_repositories"] is False
+        assert resp.context["has_github_app_repositories"] is False
+
+    def test_github_app_account_with_repositories(self):
+        account = get(SocialAccount, user=self.user, provider=GitHubAppProvider.id)
+        remote_repository = get(RemoteRepository, vcs_provider=GITHUB_APP)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.user,
+            account=account,
+        )
+        resp = self.client.get(self.url)
+        assert resp.context["has_connected_vcs_account"] is True
+        assert resp.context["has_remote_repositories"] is True
+        assert resp.context["has_github_app_repositories"] is True
+
+    def test_legacy_github_account_with_repositories(self):
+        account = get(SocialAccount, user=self.user, provider=GitHubProvider.id)
+        remote_repository = get(RemoteRepository, vcs_provider=GITHUB)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.user,
+            account=account,
+        )
+        resp = self.client.get(self.url)
+        assert resp.context["has_connected_vcs_account"] is True
+        assert resp.context["has_remote_repositories"] is True
+        assert resp.context["has_github_app_repositories"] is False
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
