@@ -385,15 +385,7 @@ class VersionsViewSet(
         # NOTE: we can't use ``self.get_object()`` here, since versions are
         # looked up by slug, and the slug may have just changed.
         version.refresh_from_db()
-
-        # If the slug of an active version was changed, all its resources are
-        # still stored under the previous slug, so we clean them up and let
-        # ``post_save`` trigger a new build under the new slug.
-        if version.slug != previous_slug and was_active:
-            version.clean_resources(version_slug=previous_slug)
-            was_active = False
-
-        version.post_save(was_active=was_active)
+        version.post_save(was_active=was_active, previous_slug=previous_slug)
         return result
 
     def get_queryset(self):

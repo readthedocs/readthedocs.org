@@ -47,7 +47,7 @@ from readthedocs.builds.utils import get_github_username_repo
 from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.builds.utils import get_vcs_url
 from readthedocs.builds.version_slug import generate_unique_version_slug
-from readthedocs.builds.version_slug import version_slug_validator
+from readthedocs.builds.version_slug import validate_version_slug
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
@@ -115,7 +115,6 @@ class Version(TimeStampedModel):
     slug = models.CharField(
         _("Slug"),
         max_length=255,
-        validators=[version_slug_validator],
         db_index=True,
         help_text=_(
             "A unique identifier used in the URL and links for this version. It can contain lowercase letters, numbers, dots, dashes or underscores. It must start with a lowercase letter or a number."
@@ -437,12 +436,32 @@ class Version(TimeStampedModel):
         self.save()
         self.purge_cdn(version_slug=version_slug)
 
+    def clean(self):
+        """
+        Validate the slug when it changes.
+
+        This runs as part of ``full_clean``, so the dashboard form and the
+        admin share the same rules as the API serializer.
+        """
+        if not self.pk:
+            # Slugs are generated from the verbose name on save.
+            return
+        original_slug = Version.objects.filter(pk=self.pk).values_list("slug", flat=True).first()
+        if self.slug == original_slug:
+            return
+        validate_version_slug(
+            project=self.project,
+            pk=self.pk,
+            slug=self.slug,
+            machine=self.machine,
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
-    def post_save(self, was_active=False):
+    def post_save(self, was_active=False, previous_slug=None):
         """
         Run extra steps after updating a version.
 
@@ -452,6 +471,9 @@ class Version(TimeStampedModel):
         Useful to run after the version has been saved/updated
         by the user, like from a form or API.
 
+        - When the slug of an active version is changed, we need to clean up
+          the resources stored under the previous slug, and trigger a build
+          under the new one.
         - When a version is deactivated, we need to clean up its
           files from storage, and search index.
         - When a version is activated, we need to trigger a build.
@@ -459,6 +481,10 @@ class Version(TimeStampedModel):
           since the version could have been activated/deactivated,
           or its privacy level could have changed.
         """
+        if previous_slug and previous_slug != self.slug and was_active:
+            self.clean_resources(version_slug=previous_slug)
+            # Trigger a build below, to populate the new slug.
+            was_active = False
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
             self.clean_resources()
