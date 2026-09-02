@@ -81,6 +81,11 @@ class VersionSortOrderingFilter(OrderingFilter):
             else:
                 order_bys.append(field_ordered)
 
+        # Deterministic tiebreaker: all never-built versions tie on a null
+        # build date, and pagination over an ambiguous order can duplicate
+        # or skip rows across pages.
+        order_bys.append("-pk")
+
         return qs.annotate(**annotations).order_by(*order_bys)
 
 
@@ -138,6 +143,11 @@ class ProjectSortOrderingFilter(OrderingFilter):
                 order_bys.append(F(field).asc(nulls_first=True))
             else:
                 order_bys.append(field_ordered)
+
+        # Deterministic tiebreaker: all never-built projects tie on a null
+        # build date, and pagination over an ambiguous order can duplicate
+        # or skip rows across pages.
+        order_bys.append("-pk")
 
         # annotate_has_successful_build does some extra optimizations to avoid additional queries.
         return qs.annotate_has_successful_build().annotate(**annotations).order_by(*order_bys)

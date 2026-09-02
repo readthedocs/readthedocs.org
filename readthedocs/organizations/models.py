@@ -303,6 +303,12 @@ class OrganizationOwner(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        # The organization owners dashboard lists this model paginated; an
+        # unordered queryset returns rows in a database-dependent order
+        # across pages.
+        ordering = ("pk",)
+
 
 class Team(models.Model):
     """Team model."""
@@ -357,6 +363,9 @@ class Team(models.Model):
     class Meta:
         base_manager_name = "objects"
         verbose_name = _("team")
+        # ``name`` is only unique per organization, so tie-break by ``pk``
+        # to keep paginated lists (dashboard and APIv3 teams) deterministic.
+        ordering = ["name", "pk"]
         unique_together = (
             ("slug", "organization"),
             ("name", "organization"),
