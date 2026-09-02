@@ -1,9 +1,12 @@
 import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import BooleanField
 from django.db.models import Exists
+from django.db.models import ExpressionWrapper
 from django.db.models import OuterRef
 from django.db.models import Prefetch
+from django.db.models import Q
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -621,14 +624,31 @@ class RemoteRepositoryViewSet(
                         user=self.request.user,
                         admin=True,
                     )
-                )
+                ),
+                # Ordering signals: repositories the user can import come
+                # first, repositories that already have a project sink to the
+                # bottom of their group, and documentation-looking names get
+                # a boost, so the first page is the most likely import target.
+                _has_project=Exists(
+                    Project.objects.filter(remote_repository=OuterRef("pk"))
+                ),
+                _looks_like_docs=ExpressionWrapper(
+                    Q(full_name__icontains="doc"),
+                    output_field=BooleanField(),
+                ),
             )
         )
 
         if is_expanded(self.request, "remote_organization"):
             queryset = queryset.select_related("organization")
 
-        return queryset.order_by("organization__name", "full_name").distinct()
+        return queryset.order_by(
+            "-_admin",
+            "_has_project",
+            "-_looks_like_docs",
+            "organization__name",
+            "full_name",
+        ).distinct()
 
 
 class RemoteOrganizationViewSet(APIv3Settings, RemoteQuerySetMixin, ListModelMixin, GenericViewSet):
