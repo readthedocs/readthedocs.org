@@ -406,7 +406,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     # (it normalizes the slug and compares, rather than matching a regex), and its error
     # suggests a valid slug. We drop the model validator so it doesn't run first and
     # mask that suggestion, which is also what the dashboard form ends up doing.
-    slug = serializers.CharField(max_length=255, validators=[])
+    slug = serializers.CharField(max_length=255, required=False, validators=[])
 
     class Meta:
         model = Version

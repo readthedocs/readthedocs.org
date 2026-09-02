@@ -609,6 +609,25 @@ class VersionsEndpointTests(APIEndpointMixin):
             "build_calls": 1,
         }
 
+    def test_projects_versions_update_without_slug(self):
+        """PUT without a slug keeps the current one, instead of requiring it."""
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.put(
+            reverse(
+                "projects-versions-detail",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                    "version_slug": self.version.slug,
+                },
+            ),
+            {"active": True, "hidden": True},
+        )
+        assert response.status_code == 204
+
+        self.version.refresh_from_db()
+        assert self.version.slug == "v1.0"
+        assert self.version.hidden
+
     def test_projects_version_external(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         self.version.type = EXTERNAL
