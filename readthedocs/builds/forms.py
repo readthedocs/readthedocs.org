@@ -10,7 +10,6 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.builds.version_slug import validate_version_slug
 
 
 class VersionForm(forms.ModelForm):
@@ -85,25 +84,10 @@ class VersionForm(forms.ModelForm):
         project = self.instance.project
         return project.default_version == self.instance.slug
 
-    def clean_slug(self):
-        slug = self.cleaned_data["slug"]
-        validate_version_slug(slug, self.instance)
-        return slug
-
     def clean_project(self):
         return self.project
 
     def save(self, commit=True):
-        # If the slug was changed, and the version was active,
-        # we need to delete all the resources, since the old slug is used in several places.
-        # NOTE: we call clean_resources with the previous slug,
-        # as all resources are associated with that slug.
-        if "slug" in self.changed_data and self._was_active:
-            self.instance.clean_resources(version_slug=self._previous_slug)
-            # We need to set the flag to False,
-            # so the post_save method triggers a new build.
-            self._was_active = False
-
         obj = super().save(commit=commit)
-        obj.post_save(was_active=self._was_active)
+        obj.post_save(was_active=self._was_active, previous_slug=self._previous_slug)
         return obj

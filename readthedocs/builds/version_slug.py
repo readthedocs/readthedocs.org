@@ -23,7 +23,6 @@ import string
 from operator import truediv
 
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify as unicode_slugify
@@ -41,52 +40,43 @@ class VersionSlugField(models.CharField):
 #                regexes.
 VERSION_SLUG_REGEX = "(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)"
 
-version_slug_validator = RegexValidator(
-    # NOTE: we use the lower case version of the regex here,
-    # since slugs are always lower case,
-    # maybe we can change the VERSION_SLUG_REGEX itself,
-    # but that may be a breaking change somewhere else...
-    regex=f"^{VERSION_SLUG_REGEX.lower()}$",
-    message=_(
-        "Enter a valid slug consisting of lowercase letters, numbers, dots, dashes or underscores. It must start with a letter or a number."
-    ),
-)
 
-
-def validate_version_slug(slug, version):
+def validate_version_slug(*, project, pk, slug, machine, error_class=ValidationError):
     """
-    Validate a new slug for a given version.
+    Validations for a new slug of a version of the given project.
 
-    These checks are shared by the dashboard form and the API,
-    so changing a slug behaves the same way everywhere.
+    This is in a separate function so we can use it in the clean method of the model
+    (used in forms and the admin), and in the Django Rest Framework serializer (used in the API).
+    Since DRF doesn't call the clean method of the model.
 
-    :param slug: The new slug for the version.
-    :param version: The version the slug is being assigned to.
-    :raises django.core.exceptions.ValidationError: If the slug isn't valid.
+    Callers are expected to run it only when the slug is set or changed;
+    slugs that are already in the database are never re-validated.
     """
     # We rely on the slug to identify versions managed by Read the Docs
     # (``latest`` and ``stable``), so it can't be changed.
-    if version.machine and slug != version.slug:
-        raise ValidationError(
-            _("The slug of versions managed by Read the Docs can't be changed."),
+    if machine:
+        raise error_class(
+            {"slug": _("The slug of versions managed by Read the Docs can't be changed.")}
         )
 
     normalized_slug = generate_version_slug(slug)
     if slug != normalized_slug:
-        raise ValidationError(
-            _(
-                "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
-                "and it must start with a lowercase letter or a number. "
-                "Consider using '%(slug)s'."
-            ),
-            params={"slug": normalized_slug},
+        raise error_class(
+            {
+                "slug": _(
+                    "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
+                    "and it must start with a lowercase letter or a number. "
+                    "Consider using '%(slug)s'."
+                )
+                % {"slug": normalized_slug}
+            }
         )
 
-    # NOTE: Django already checks for unique slugs and raises a ValidationError,
-    # but that message is attached to the whole form instead of the slug field.
+    # NOTE: Django already checks the unique constraint,
+    # but that message isn't attached to the slug field.
     # So we do the check here to provide a better error message.
-    if version.project.versions.filter(slug=slug).exclude(pk=version.pk).exists():
-        raise ValidationError(_("A version with that slug already exists."))
+    if project.versions.filter(slug=slug).exclude(pk=pk).exists():
+        raise error_class({"slug": _("A version with that slug already exists.")})
 
 
 def generate_unique_version_slug(source, version):

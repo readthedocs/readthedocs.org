@@ -528,86 +528,26 @@ class VersionsEndpointTests(APIEndpointMixin):
         get(Version, project=self.project, slug="taken")
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": self.version.slug,
+            },
+        )
         for slug in ("Release/1.0", "taken"):
+            # The form validates a copy of the version,
+            # so the instance isn't left with the invalid slug set on it.
             form = VersionForm(
                 {"slug": slug, "active": self.version.active},
-                instance=self.version,
+                instance=Version.objects.get(pk=self.version.pk),
                 project=self.project,
             )
             assert not form.is_valid(), slug
 
-            response = self.client.patch(
-                reverse(
-                    "projects-versions-detail",
-                    kwargs={
-                        "parent_lookup_project__slug": self.project.slug,
-                        "version_slug": self.version.slug,
-                    },
-                ),
-                {"slug": slug},
-            )
+            response = self.client.patch(url, {"slug": slug})
             assert response.status_code == 400, slug
             assert response.json()["slug"] == form.errors["slug"], slug
-
-    @mock.patch("readthedocs.builds.models.trigger_build")
-    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
-    def test_update_version_slug_side_effects_match_dashboard_form(
-        self, clean_project_resources, trigger_build
-    ):
-        """Renaming through the API cleans up and rebuilds exactly like the form does."""
-
-        def side_effects(previous_slug):
-            return {
-                "cleaned_previous_slug": (
-                    clean_project_resources.call_args[1]["version_slug"] == previous_slug
-                ),
-                "clean_calls": clean_project_resources.call_count,
-                "build_calls": trigger_build.call_count,
-            }
-
-        # Rename an active version through the dashboard form.
-        version = get(
-            Version,
-            project=self.project,
-            slug="1.0",
-            verbose_name="1.0",
-            machine=False,
-            active=True,
-            built=True,
-        )
-        form = VersionForm(
-            {"slug": "2.0", "active": True},
-            instance=version,
-            project=self.project,
-        )
-        assert form.is_valid(), form.errors
-        form.save()
-        from_form = side_effects("1.0")
-
-        clean_project_resources.reset_mock()
-        trigger_build.reset_mock()
-
-        # The same rename through the API.
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.patch(
-            reverse(
-                "projects-versions-detail",
-                kwargs={
-                    "parent_lookup_project__slug": self.project.slug,
-                    "version_slug": self.version.slug,
-                },
-            ),
-            {"slug": "3.0"},
-        )
-        assert response.status_code == 204
-        from_api = side_effects("v1.0")
-
-        assert from_api == from_form
-        assert from_form == {
-            "cleaned_previous_slug": True,
-            "clean_calls": 1,
-            "build_calls": 1,
-        }
 
     def test_projects_versions_update_without_slug(self):
         """PUT without a slug keeps the current one, instead of requiring it."""

@@ -402,12 +402,6 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     It allows to change the version states, slug and privacy level only.
     """
 
-    # ``validate_version_slug`` is stricter than the model's ``version_slug_validator``
-    # (it normalizes the slug and compares, rather than matching a regex), and its error
-    # suggests a valid slug. We drop the model validator so it doesn't run first and
-    # mask that suggestion, which is also what the dashboard form ends up doing.
-    slug = serializers.CharField(max_length=255, required=False, validators=[])
-
     class Meta:
         model = Version
         fields = [
@@ -416,6 +410,11 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
             "privacy_level",
             "slug",
         ]
+        extra_kwargs = {
+            # The slug has no model default, so DRF would make it required,
+            # breaking clients that update versions without sending it.
+            "slug": {"required": False},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -425,9 +424,19 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("privacy_level")
 
-    def validate_slug(self, slug):
-        validate_version_slug(slug, self.instance)
-        return slug
+    def validate(self, attrs):
+        slug = attrs.get("slug")
+        if slug is not None and slug != self.instance.slug:
+            # Shared with ``Version.clean``, so changing the slug behaves
+            # the same way here as in the dashboard form and the admin.
+            validate_version_slug(
+                project=self.instance.project,
+                pk=self.instance.pk,
+                slug=slug,
+                machine=self.instance.machine,
+                error_class=serializers.ValidationError,
+            )
+        return attrs
 
 
 class LanguageSerializer(serializers.Serializer):
