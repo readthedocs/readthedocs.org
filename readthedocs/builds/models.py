@@ -138,11 +138,6 @@ class Version(TimeStampedModel):
     )
     built = models.BooleanField(_("Built"), default=False)
 
-    # TODO: this field (`uploaded`) could be removed. It was used to mark a
-    # version as "Manually uploaded" by the core team, but this is not required
-    # anymore. Users can use `build.commands` for these cases now.
-    uploaded = models.BooleanField(_("Uploaded"), default=False)
-
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
@@ -170,8 +165,6 @@ class Version(TimeStampedModel):
         help_text=_("Type of documentation the version was built with."),
     )
 
-    # NOTE: should we re-purpose the uploaded field instead of creating a new one?
-    # We have some versions with this attribute, but that attribute isn't relevant anymore.
     # NOTE: we can also do a normalization, and have a build attribute
     # that links to the latest successful build of the version.
     is_uploaded = models.BooleanField(
@@ -365,7 +358,7 @@ class Version(TimeStampedModel):
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
-        if not self.built and not self.uploaded:
+        if not self.built:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:

@@ -176,7 +176,9 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
 
     to_delete_qs = (
         project.versions(manager=INTERNAL)
-        .exclude(uploaded=True)
+        # Uploaded versions don't exist in the repository,
+        # so they should never be considered deleted from it.
+        .exclude(is_uploaded=True)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )
 
