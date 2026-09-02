@@ -15,7 +15,12 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
+from readthedocs.projects.tasks.search import SearchIndexer
+from readthedocs.projects.tasks.utils import (
+    finish_unhealthy_builds,
+    purge_docs_cdn,
+    send_external_build_status,
+)
 
 
 class SendBuildStatusTests(TestCase):
@@ -55,6 +60,66 @@ class SendBuildStatusTests(TestCase):
         )
 
         send_build_status.delay.assert_not_called()
+
+
+class PurgeDocsCDNTests(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    @patch("readthedocs.projects.tasks.utils.files_changed")
+    def test_purge_docs_cdn_sends_files_changed(self, files_changed):
+        purge_docs_cdn(self.version.pk)
+
+        files_changed.send.assert_called_once_with(
+            sender=Project,
+            project=self.project,
+            version=self.version,
+        )
+
+    @patch("readthedocs.projects.tasks.utils.files_changed")
+    def test_purge_docs_cdn_version_does_not_exist(self, files_changed):
+        purge_docs_cdn(self.version.pk + 999)
+
+        files_changed.send.assert_not_called()
+
+
+class SearchIndexUpdatedSignalTests(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    def _get_indexer(self, **kwargs):
+        return SearchIndexer(
+            project=self.project,
+            version=self.version,
+            search_ranking={},
+            search_ignore=[],
+            **kwargs,
+        )
+
+    @patch("readthedocs.projects.tasks.search.search_index_updated")
+    @patch("readthedocs.projects.tasks.search.remove_indexed_files")
+    def test_collect_sends_search_index_updated(
+        self, remove_indexed_files, search_index_updated
+    ):
+        self._get_indexer().collect(sync_id=1)
+
+        search_index_updated.send.assert_called_once_with(
+            sender=Project,
+            project=self.project,
+            version=self.version,
+        )
+
+    @patch("readthedocs.projects.tasks.search.search_index_updated")
+    @patch("readthedocs.projects.tasks.search.remove_indexed_files")
+    def test_collect_into_custom_index_does_not_send_signal(
+        self, remove_indexed_files, search_index_updated
+    ):
+        self._get_indexer(search_index_name="new-index").collect(sync_id=1)
+
+        search_index_updated.send.assert_not_called()
+
 
 class TestFinishInactiveBuildsTask(TestCase):
 

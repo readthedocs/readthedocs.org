@@ -71,6 +71,7 @@ from .mixins import SyncRepositoryMixin
 from .search import index_build
 from .utils import BuildRequest
 from .utils import clean_build
+from .utils import purge_docs_cdn
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
 from .utils import stop_consuming_tasks_and_terminate
@@ -687,6 +688,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     "Updating version db object failed. "
                     'Files are synced in the storage, but "Version" object is not updated',
                 )
+
+        # Purge the CDN now that the new files are in storage.
+        purge_docs_cdn.delay(version_id=self.data.version.pk)
 
         # Index search data
         index_build.delay(build_id=self.data.build_pk)

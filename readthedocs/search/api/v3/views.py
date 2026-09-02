@@ -10,7 +10,9 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.throttling import UserRateThrottle
 
 from readthedocs.api.v3.views import APIv3Settings
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.proxito.cache import add_cache_tags
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v3.executor import SearchExecutor
@@ -116,7 +118,27 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         self._validate_query_params()
         result = self.list()
         self._record_query(result)
+        self._add_cache_tags(result)
         return result
+
+    def _add_cache_tags(self, response):
+        """
+        Tag the response with all the projects involved in the search.
+
+        Responses are cached by the CDN when served from a public domain.
+        These tags allow purging them when the docs of any of those
+        projects change, or when their search index is updated
+        (``rtd-search`` tag, see ``search_index_updated``).
+        """
+        cache_tags = []
+        for project, version in self._get_projects_to_search():
+            cache_tags.append(project.slug)
+            cache_tags.append(get_cache_tag(project.slug, version.slug))
+            cache_tags.append(get_cache_tag(project.slug, "rtd-search"))
+        # The same project can appear more than once with different versions.
+        cache_tags = list(dict.fromkeys(cache_tags))
+        if cache_tags:
+            add_cache_tags(response, cache_tags)
 
     def _record_query(self, response):
         total_results = response.data.get("count", 0)
