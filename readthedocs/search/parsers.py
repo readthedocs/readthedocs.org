@@ -63,16 +63,24 @@ class GenericParser:
         "video",
     ]
 
-    def __init__(self, version):
+    def __init__(self, version, storage=None):
         self.version = version
         self.project = self.version.project
-        self.storage = build_media_storage
+        # A custom storage can be given to read pages from an alternative
+        # location (e.g. a local copy of the version's HTML files). Page
+        # paths are then resolved relative to that storage's root instead
+        # of the version's path in the build media storage.
+        self._custom_storage = storage is not None
+        self.storage = storage or build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""
         content = None
         try:
-            file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
+            if self._custom_storage:
+                file_path = page
+            else:
+                file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
             with self.storage.open(file_path, mode="r") as f:
                 content = f.read()
         except Exception:
