@@ -635,6 +635,7 @@ class CommunityBaseSettings(Settings):
     # name (rather than importing the function) so this codebase doesn't
     # need the ``worker`` package installed.
     RTD_BUILD_ISOLATED_TASK_NAME = "worker.tasks.run_build"
+    RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
     @property
