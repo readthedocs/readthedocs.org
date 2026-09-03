@@ -882,6 +882,71 @@ class TestBuildConfigV2:
             == f"build.apt_packages.{error_index}"
         )
 
+    @pytest.mark.parametrize(
+        "value",
+        [
+            {},
+            {"MY_VAR": "value"},
+            {"MY_VAR": "value", "ANOTHER_VAR": "another value with spaces"},
+            {"NOTE": 42},
+            {"FLAG": True},
+            {"_private": "ok"},
+        ],
+    )
+    def test_build_environment_check_valid(self, value):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {"python": "3"},
+                    "environment": value,
+                }
+            }
+        )
+        build.validate()
+        expected = {k: str(v) for k, v in value.items()}
+        assert build.build.environment == expected
+
+    @pytest.mark.parametrize("value", [3, [], "invalid"])
+    def test_build_environment_invalid_type(self, value):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {"python": "3"},
+                    "environment": value,
+                }
+            }
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigValidationError.INVALID_DICT
+        assert excinfo.value.format_values.get("key") == "build.environment"
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "1INVALID",
+            "INVALID-NAME",
+            "INVALID NAME",
+            "INVALID.NAME",
+            "",
+        ],
+    )
+    def test_build_environment_invalid_variable_name(self, name):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {"python": "3"},
+                    "environment": {name: "value"},
+                }
+            }
+        )
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.BUILD_ENVIRONMENT_VARIABLE_INVALID_NAME
+
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_python_check_invalid_types(self, value):
         build = get_build_config({"python": value})
@@ -2067,6 +2132,7 @@ class TestBuildConfigV2:
                     "post_build": [],
                 },
                 "apt_packages": [],
+                "environment": {},
             },
             "conda": None,
             "sphinx": {
