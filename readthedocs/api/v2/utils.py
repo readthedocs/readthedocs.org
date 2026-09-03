@@ -255,7 +255,7 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
             enabled=True,
             action__in=allowed_actions,
         ).order_by("priority")
-        log.info(
+        log.debug(
             "Running version automation rules.",
             project_slug=project.slug,
             version_slugs=version_slugs,
