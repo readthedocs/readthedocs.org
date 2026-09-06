@@ -18,9 +18,9 @@ asgiref==3.12.1
     #   django-structlog
 billiard==4.2.4
     # via celery
-boto3==1.43.72
+boto3==1.43.78
     # via django-storages
-botocore==1.43.72
+botocore==1.43.78
     # via
     #   boto3
     #   s3transfer
@@ -164,9 +164,9 @@ filelock==3.32.3
     # via
     #   python-discovery
     #   virtualenv
-gunicorn==26.0.0
+gunicorn==26.1.0
     # via -r requirements/pip.in
-idna==3.18
+idna==3.19
     # via
     #   anyio
     #   requests
@@ -202,7 +202,6 @@ packaging==26.3
     #   djangorestframework-api-key
     #   dparse
     #   drf-extensions
-    #   gunicorn
     #   kombu
 pillow==12.3.0
     # via -r requirements/pip.in
@@ -222,9 +221,9 @@ pydantic==2.13.4
     # via -r requirements/pip.in
 pydantic-core==2.46.4
     # via pydantic
-pygithub==2.9.1
+pygithub==2.10.0
     # via -r requirements/pip.in
-pygments==2.20.0
+pygments==2.21.0
     # via -r requirements/pip.in
 pyjwt[crypto]==2.13.0
     # via
