@@ -26,7 +26,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page
-        fields = ["first_name", "last_name", "homepage"]
+        fields = ["first_name", "last_name"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

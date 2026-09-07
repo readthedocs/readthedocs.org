@@ -33,7 +33,6 @@ class ProfileViewsTest(TestCase):
             data={
                 "first_name": "Read",
                 "last_name": "Docs",
-                "homepage": "readthedocs.org",
             },
         )
         self.assertTrue(resp.status_code, 200)
@@ -43,7 +42,6 @@ class ProfileViewsTest(TestCase):
         self.user.profile.refresh_from_db()
         self.assertEqual(self.user.first_name, "Read")
         self.assertEqual(self.user.last_name, "Docs")
-        self.assertEqual(self.user.profile.homepage, "readthedocs.org")
 
     def test_edit_profile_with_invalid_values(self):
         resp = self.client.get(
@@ -56,7 +54,6 @@ class ProfileViewsTest(TestCase):
             data={
                 "first_name": "a" * 31,
                 "last_name": "b" * 31,
-                "homepage": "c" * 101,
             },
         )
 
@@ -71,11 +68,6 @@ class ProfileViewsTest(TestCase):
             resp.context.get('form'),
             field="last_name",
             errors=FORM_ERROR_FORMAT.format(30, 31),
-        )
-        self.assertFormError(
-            resp.context.get('form'),
-            field="homepage",
-            errors=FORM_ERROR_FORMAT.format(100, 101),
         )
 
     def test_delete_account(self):

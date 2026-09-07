@@ -122,8 +122,8 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdminImpersonateMixin, UserAdm
 
 @admin.register(UserProfile)
 class UserProfileAdmin(ExtraSimpleHistoryAdmin):
-    list_display = ("user", "homepage")
-    search_fields = ("user__username", "homepage")
+    list_display = ("user",)
+    search_fields = ("user__username",)
     raw_id_fields = ("user",)
 
 
