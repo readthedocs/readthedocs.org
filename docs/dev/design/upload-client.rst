@@ -363,7 +363,8 @@ This constraint is what makes the rest of the proposal work, and it buys more th
 - A single file distribution stays possible as an escape hatch.
 
 The cost is real: no ``requests``, no rich output formatting, and hand-written multipart encoding.
-We should decide deliberately whether to hold this constraint, because it is easy to lose by accident later.
+This is a constraint we hold deliberately, not a permanent rule.
+The next section describes what we do if we ever need to spend it.
 
 We should also declare and test a minimum supported Python version.
 
@@ -581,7 +582,17 @@ and the token model should not be finalized without considering it.
 Risks and open questions
 ------------------------
 
-- Do we hold the zero dependency constraint, and what is the minimum Python version we support?
+- We hold the zero dependency constraint until something concrete forces us off it,
+  rather than treating it as permanent.
+  The way out is described in "If we ever need a third-party dependency" above.
+  The risk worth watching is losing the constraint by accident,
+  in a pull request that adds one convenient import,
+  instead of spending it deliberately.
+  Keeping the package's dependency list empty and failing CI if it stops being empty
+  is enough to catch that.
+- What is the minimum Python version we support, and how do we test it?
+  This is bounded by the interpreters available on the GitHub-hosted runner images,
+  and it needs to be declared rather than discovered by a user.
 - ``--project`` becomes optional once project-scoped tokens land.
   The argument parsing should anticipate this so it is not a breaking change.
 
