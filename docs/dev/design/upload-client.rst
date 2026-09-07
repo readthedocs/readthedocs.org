@@ -367,6 +367,50 @@ We should decide deliberately whether to hold this constraint, because it is eas
 
 We should also declare and test a minimum supported Python version.
 
+If we ever need a third-party dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The constraint above is what makes the zero install step possible,
+but it is not what makes the architecture work.
+If we ever take a dependency, the only thing that breaks is the line in the action
+that runs the client directly from ``$GITHUB_ACTION_PATH``.
+One implementation, one repository, one release,
+and the workflow YAML that users write all stay exactly the same.
+
+The fallback in that case is :program:`uv`:
+
+.. code-block:: yaml
+
+   runs:
+     using: composite
+     steps:
+       - uses: astral-sh/setup-uv@v10
+         with:
+           enable-cache: true
+       - shell: bash
+         run: uv tool run readthedocs-upload==<version> upload --path "$INPUT_PATH"
+         env:
+           RTD_TOKEN: ${{ inputs.token }}
+           INPUT_PATH: ${{ inputs.path }}
+
+If we still want to keep a single file client,
+:program:`uv` can also run a script that declares its own dependencies inline using
+`PEP 723 <https://peps.python.org/pep-0723/>`__ metadata.
+
+We prefer this over creating a virtual environment and installing into it ourselves,
+because :program:`uv` gives us the isolation for free.
+That matters more than it first appears.
+On a runner, ``python`` may resolve to the user's own documentation environment,
+the one holding their Sphinx or MkDocs pins.
+Borrowing that interpreter is only safe while we need nothing but the standard library.
+As soon as we install anything, it has to go somewhere we own.
+
+The cost of this fallback is a few seconds per run, a network fetch,
+and one more thing that has to be available on the runner.
+None of that changes what users write.
+It is also the same tool we recommend for CI providers that aren't GitHub,
+so it is not a new pattern for us to maintain.
+
 Action interface
 ~~~~~~~~~~~~~~~~
 
