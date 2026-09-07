@@ -1116,16 +1116,6 @@ class CommunityBaseSettings(Settings):
                 # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
                 "foreign_pre_chain": shared_processors,
             },
-            "colored_console": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processors": [
-                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                    structlog.dev.ConsoleRenderer(colors=True),
-                ],
-                # Allows to add extra data to log entries generated via ``logging`` module
-                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
-                "foreign_pre_chain": shared_processors,
-            },
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
