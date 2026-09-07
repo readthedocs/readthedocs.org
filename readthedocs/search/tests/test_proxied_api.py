@@ -27,3 +27,21 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
         )
         assert resp["Cache-Tag"] == cache_tags
         assert ACCESS_CONTROL_ALLOW_ORIGIN not in resp.headers
+
+    def test_headers_subproject(self, api_client, all_projects):
+        project = all_projects[0]
+        subproject = all_projects[1]
+        project.add_subproject(subproject)
+        version = project.versions.all().first()
+        search_params = {
+            "project": project.slug,
+            "version": version.slug,
+            "q": "test",
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        cache_tags = (
+            f"{project.slug},{project.slug}:{version.slug},{project.slug}:rtd-search,"
+            f"{subproject.slug},{subproject.slug}:{version.slug},{subproject.slug}:rtd-search"
+        )
+        assert resp["Cache-Tag"] == cache_tags

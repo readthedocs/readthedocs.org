@@ -107,6 +107,14 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
         return projects_to_search
 
+    def _get_projects_and_versions(self):
+        """Tag the response with the subprojects too (``CDNCacheTagsMixin``)."""
+        # Always include the main project, even if the user has no permission over it.
+        return [
+            (self._get_project(), self._get_version()),
+            *self._get_projects_to_search(),
+        ]
+
     def _get_project_version(self, project, version_slug, include_hidden=True):
         """
         Get a version from a given project.

@@ -24,6 +24,10 @@ class CDNCacheTagsMixin:
     only the project level tags are added.
 
     You can add an extra per-project tag by overriding the `project_cache_tag` attribute.
+
+    Views whose response involves several projects (like search)
+    should override `self._get_projects_and_versions` instead,
+    every pair gets the same set of tags.
     """
 
     project_cache_tag = None
@@ -45,8 +49,7 @@ class CDNCacheTagsMixin:
            so any exceptions like 404 should be caught.
         """
         try:
-            project = self._get_project()
-            version = self._get_version()
+            projects_and_versions = self._get_projects_and_versions()
         except Exception:
             log.warning(
                 "Error while retrieving project or version for this view.",
@@ -55,13 +58,20 @@ class CDNCacheTagsMixin:
             return []
 
         tags = []
-        if project:
+        for project, version in projects_and_versions:
+            if not project:
+                continue
             tags.append(project.slug)
-        if project and version:
-            tags.append(get_cache_tag(project.slug, version.slug))
-        if project and self.project_cache_tag:
-            tags.append(get_cache_tag(project.slug, self.project_cache_tag))
-        return tags
+            if version:
+                tags.append(get_cache_tag(project.slug, version.slug))
+            if self.project_cache_tag:
+                tags.append(get_cache_tag(project.slug, self.project_cache_tag))
+        # The same project can appear more than once with different versions.
+        return list(dict.fromkeys(tags))
+
+    def _get_projects_and_versions(self):
+        """Return the list of ``(project, version)`` pairs to tag the response with."""
+        return [(self._get_project(), self._get_version())]
 
 
 class EmbedAPIMixin:
