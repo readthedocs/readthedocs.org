@@ -16,19 +16,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="historicalproject",
             name="max_build_media_size",
-            field=models.PositiveBigIntegerField(
+            field=models.PositiveIntegerField(
                 blank=True,
                 null=True,
-                verbose_name="Maximum size (in bytes) allowed per media type when uploading build artifacts",
+                verbose_name="Maximum size (in MB) allowed per media type when uploading build artifacts",
             ),
         ),
         migrations.AddField(
             model_name="project",
             name="max_build_media_size",
-            field=models.PositiveBigIntegerField(
+            field=models.PositiveIntegerField(
                 blank=True,
                 null=True,
-                verbose_name="Maximum size (in bytes) allowed per media type when uploading build artifacts",
+                verbose_name="Maximum size (in MB) allowed per media type when uploading build artifacts",
             ),
         ),
     ]

@@ -186,14 +186,14 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_upload_url_max_size_project_override(self, storages_mock, send_build_status):
         storage_mock = self._mock_storage(storages_mock)
-        self.project.max_build_media_size = 5 * 1024 * 1024 * 1024
+        self.project.max_build_media_size = 5120  # MB
         self.project.save()
 
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
 
         max_size = storage_mock.generate_presigned_post.call_args.kwargs["max_size"]
-        assert max_size == 5 * 1024 * 1024 * 1024
+        assert max_size == 5120 * 1024 * 1024
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")

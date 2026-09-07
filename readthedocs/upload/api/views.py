@@ -146,7 +146,11 @@ class UploadInitiateView(APIv3Settings, APIView):
             key=build.uploaded_artifacts_storage_path,
             expires_in=settings.RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME,
             content_type="application/zip",
-            max_size=build.project.max_build_media_size or settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE,
+            max_size=(
+                build.project.max_build_media_size * 1024 * 1024
+                if build.project.max_build_media_size
+                else settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE
+            ),
         )
         if settings.RTD_DOCKER_COMPOSE and not settings.USING_AWS:
             # Overriden so we return the public URL for uploading artifacts,
