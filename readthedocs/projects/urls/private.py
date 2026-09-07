@@ -29,6 +29,9 @@ from readthedocs.projects.views.private import IntegrationExchangeDetail
 from readthedocs.projects.views.private import IntegrationList
 from readthedocs.projects.views.private import IntegrationWebhookSync
 from readthedocs.projects.views.private import ProjectAdvertisingUpdate
+from readthedocs.projects.views.private import ProjectAPIKeyCreate
+from readthedocs.projects.views.private import ProjectAPIKeyList
+from readthedocs.projects.views.private import ProjectAPIKeyRevoke
 from readthedocs.projects.views.private import ProjectDashboard
 from readthedocs.projects.views.private import ProjectDelete
 from readthedocs.projects.views.private import ProjectEmailNotificationsCreate
@@ -345,6 +348,26 @@ environmentvariable_urls = [
 ]
 
 urlpatterns += environmentvariable_urls
+
+projectapikey_urls = [
+    path(
+        "<slug:project_slug>/apikeys/",
+        ProjectAPIKeyList.as_view(),
+        name="projects_apikeys",
+    ),
+    path(
+        "<slug:project_slug>/apikeys/create/",
+        ProjectAPIKeyCreate.as_view(),
+        name="projects_apikeys_create",
+    ),
+    path(
+        "<slug:project_slug>/apikeys/<str:apikey_pk>/revoke/",
+        ProjectAPIKeyRevoke.as_view(),
+        name="projects_apikeys_revoke",
+    ),
+]
+
+urlpatterns += projectapikey_urls
 
 automation_rule_urls = [
     path(
