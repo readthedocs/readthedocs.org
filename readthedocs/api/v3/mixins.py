@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
+from readthedocs.api.v3.authentication import get_project_api_key
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.history import safe_update_change_reason
@@ -103,8 +104,15 @@ class NestedParentObjectMixin:
         """
         project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
         build_pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+
+        api_key = get_project_api_key(self.request)
+        if api_key:
+            queryset = Build.objects.filter(project=api_key.project)
+        else:
+            queryset = Build.objects.api(user=self.request.user)
+
         return get_object_or_404(
-            Build.objects.api(user=self.request.user),
+            queryset,
             pk=build_pk,
             project__slug=project_slug,
         )
@@ -155,6 +163,9 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
        So it can properly filter the queryset based on the parent object.
     """
 
+    # Field used to filter this ViewSet's model down to the API key's project.
+    api_key_project_lookup = "project"
+
     def has_admin_permission(self, user, project):
         # Use .only for small optimization
         admin_projects = self.admin_projects(user).only("id")
@@ -167,8 +178,15 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
     def admin_projects(self, user):
         return Project.objects.for_admin_user(user=user)
 
+    def get_queryset_for_api_key(self, api_key):
+        """Queryset used when a project API key is used in the request."""
+        return self.model.objects.filter(**{self.api_key_project_lookup: api_key.project})
+
     def get_queryset(self):
         """Filter projects or related resources based on the permissions of the current user."""
+        api_key = get_project_api_key(self.request)
+        if api_key:
+            return self.get_queryset_for_api_key(api_key)
         return self.model.objects.api(user=self.request.user)
 
 

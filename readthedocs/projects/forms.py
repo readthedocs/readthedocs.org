@@ -2,6 +2,7 @@
 
 import json
 import re
+from datetime import timedelta
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -16,9 +17,11 @@ from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
@@ -1418,6 +1421,67 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class ProjectAPIKeyForm(forms.Form):
+    """
+    Form to create a BuildAPIKey for a Project.
+
+    The key itself is only available at creation time, so ``save`` returns it
+    together with the object for the view to show it once.
+    """
+
+    NEVER = "never"
+    EXPIRATION_CHOICES = (
+        ("30", _("30 days")),
+        ("90", _("90 days")),
+        ("180", _("180 days")),
+        ("365", _("1 year")),
+        (NEVER, _("No expiration")),
+    )
+
+    name = forms.CharField(
+        label=_("Name"),
+        max_length=BuildAPIKey._meta.get_field("name").max_length,
+        help_text=_("A name to identify this token"),
+    )
+    expires_in = forms.ChoiceField(
+        label=_("Expiration"),
+        choices=EXPIRATION_CHOICES,
+        initial="90",
+    )
+    permission_level = forms.ChoiceField(
+        label=_("Permission level"),
+        choices=BuildAPIKey.PermissionLevel.choices,
+        initial=BuildAPIKey.PermissionLevel.READ_ONLY,
+        help_text=_("Read and write tokens can modify and delete this project"),
+    )
+    description = forms.CharField(
+        label=_("Description"),
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text=_("Optional. What is this token used for?"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_expires_in(self):
+        expires_in = self.cleaned_data["expires_in"]
+        if expires_in == self.NEVER:
+            return None
+        return timezone.now() + timedelta(days=int(expires_in))
+
+    def save(self):
+        """Return the new ``(BuildAPIKey, key)`` tuple."""
+        return BuildAPIKey.objects.create_project_key(
+            project=self.project,
+            name=self.cleaned_data["name"],
+            expiry_date=self.cleaned_data["expires_in"],
+            description=self.cleaned_data["description"],
+            permission_level=self.cleaned_data["permission_level"],
+        )
 
 
 # TODO if you are extending this form or reusing this pattern for any similar views,

@@ -10,10 +10,9 @@ from readthedocs.projects.models import Project
 
 
 class BuildAPIKeyManager(BaseAPIKeyManager):
-    # pylint: disable=arguments-differ
-    def create_key(self, project):
+    def create_internal_key(self, project):
         """
-        Create a new API key for a project.
+        Create a new internal API key for a project, to be used by our builders.
 
         Build API keys are valid for
 
@@ -36,21 +35,52 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         delta = 60 * 60 * 24  # 24h
         expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
-        return super().create_key(
+        return self.create_key(
             # Name is required, so we use the project slug for it.
             name=project.slug[:name_max_length],
             expiry_date=expiry_date,
             project=project,
+            internal=True,
+            permission_level=self.model.PermissionLevel.READ_WRITE,
+        )
+
+    def create_project_key(
+        self,
+        project,
+        name,
+        expiry_date=None,
+        permission_level=None,
+        description="",
+    ):
+        """
+        Create a new API key for a project, to be exposed to its admins.
+
+        ``expiry_date`` set to ``None`` means the key never expires.
+        """
+        permission_level = permission_level or self.model.PermissionLevel.READ_ONLY
+        name_max_length = self.model._meta.get_field("name").max_length
+        return self.create_key(
+            name=name[:name_max_length],
+            expiry_date=expiry_date,
+            project=project,
+            internal=False,
+            permission_level=permission_level,
+            description=description,
         )
 
 
 class BuildAPIKey(AbstractAPIKey):
     """
-    API key for securely interacting with the API from the builders.
+    API key attached to a single project.
 
-    The key is attached to a single project,
-    it can be used to have write access to the API V2.
+    Internal keys are created for each build and used by the builders to
+    interact with the API V2. Non-internal keys are created by project admins
+    from the dashboard, and can only interact with the API V3.
     """
+
+    class PermissionLevel(models.TextChoices):
+        READ_ONLY = "read_only", _("Read only")
+        READ_WRITE = "read_write", _("Read and write")
 
     project = models.ForeignKey(
         Project,
@@ -58,9 +88,41 @@ class BuildAPIKey(AbstractAPIKey):
         related_name="build_api_keys",
         help_text=_("Project that this API key grants access to"),
     )
+    # NOTE: ``db_default`` differs from ``default`` on purpose. All keys that
+    # existed before these fields were added (or are created by old code while
+    # deploying) are builder keys, so the database fills them as internal and
+    # read/write. New code has to opt in explicitly, so a forgotten value ends
+    # up as the least privileged key.
+    internal = models.BooleanField(
+        _("Internal"),
+        default=False,
+        db_default=True,
+        help_text=_(
+            "Internal keys are used by our builders and grant access to internal endpoints"
+        ),
+    )
+    permission_level = models.CharField(
+        _("Permission level"),
+        max_length=16,
+        choices=PermissionLevel.choices,
+        default=PermissionLevel.READ_ONLY,
+        db_default=PermissionLevel.READ_WRITE,
+        help_text=_("Read only keys can't modify the project in any way"),
+    )
+    description = models.TextField(
+        _("Description"),
+        blank=True,
+        default="",
+        db_default="",
+        help_text=_("Optional description to remember what this key is used for"),
+    )
 
     objects = BuildAPIKeyManager()
 
     class Meta(AbstractAPIKey.Meta):
         verbose_name = _("Build API key")
         verbose_name_plural = _("Build API keys")
+
+    @property
+    def is_read_only(self):
+        return self.permission_level == self.PermissionLevel.READ_ONLY

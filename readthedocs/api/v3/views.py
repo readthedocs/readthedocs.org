@@ -8,7 +8,6 @@ from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import CreateModelMixin
@@ -20,8 +19,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
-from rest_framework.throttling import UserRateThrottle
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -48,6 +45,10 @@ from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
+from .authentication import ProjectAPIKeyAnonRateThrottle
+from .authentication import ProjectAPIKeyUserRateThrottle
+from .authentication import UserTokenAuthentication
+from .authentication import get_project_api_key
 from .filters import BuildFilter
 from .filters import NotificationFilter
 from .filters import ProjectFilter
@@ -60,10 +61,13 @@ from .mixins import RemoteQuerySetMixin
 from .mixins import UpdateChangeReasonMixin
 from .mixins import UpdateMixin
 from .mixins import UserQuerySetMixin
+from .permissions import HasProjectAPIKey
+from .permissions import HasProjectAPIKeyForProject
 from .permissions import IsCurrentUser
 from .permissions import IsOrganizationAdmin
 from .permissions import IsOrganizationAdminMember
 from .permissions import IsProjectAdmin
+from .permissions import NoProjectAPIKey
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import BuildCreateSerializer
 from .serializers import BuildSerializer
@@ -99,13 +103,13 @@ class APIv3Settings:
         ``DEFAULT_THROTTLE_RATES`` since it's not possible to define here.
     """
 
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    authentication_classes = (UserTokenAuthentication, SessionAuthentication)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10
 
     renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
-    throttle_classes = (UserRateThrottle, AnonRateThrottle)
+    throttle_classes = (ProjectAPIKeyUserRateThrottle, ProjectAPIKeyAnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
     metadata_class = SimpleMetadata
 
@@ -134,15 +138,18 @@ class ProjectsViewSetBase(
     ]
 
     def get_permissions(self):
-        # Create and list are actions that act on the current user.
-        if self.action in ("create", "list"):
+        # Creating a project acts on the current user, an API key can't do it.
+        if self.action == "create":
             permission_classes = [IsAuthenticated]
+        # Listing acts on the current user, or on the API key's project.
+        elif self.action == "list":
+            permission_classes = [HasProjectAPIKey | IsAuthenticated]
         # Actions that change the state of the project require admin permissions on the project.
         elif self.action in ("update", "partial_update", "destroy", "sync_versions"):
-            permission_classes = [IsAuthenticated & IsProjectAdmin]
+            permission_classes = [HasProjectAPIKeyForProject | (IsAuthenticated & IsProjectAdmin)]
         # Any other action is read-only.
         else:
-            permission_classes = [ReadOnlyPermission]
+            permission_classes = [HasProjectAPIKey | (NoProjectAPIKey & ReadOnlyPermission)]
         return [permission() for permission in permission_classes]
 
     def get_view_name(self):
@@ -170,8 +177,14 @@ class ProjectsViewSetBase(
         # Default serializer so that sync_versions works with the BrowseableAPI
         return ProjectSerializer
 
+    def get_queryset_for_api_key(self, api_key):
+        return self.model.objects.filter(pk=api_key.project_id)
+
     def get_queryset(self):
-        if self.action == "list":
+        api_key = get_project_api_key(self.request)
+        if api_key:
+            queryset = self.get_queryset_for_api_key(api_key)
+        elif self.action == "list":
             # When listing, return all the projects where the user is admin.
             queryset = self.admin_projects(self.request.user)
         else:
@@ -282,10 +295,15 @@ class SubprojectRelationshipViewSet(
     model = ProjectRelationship
     lookup_field = "alias"
     lookup_url_kwarg = "alias_slug"
+    api_key_project_lookup = "parent"
     # Aliases may contain slashes (e.g. ``api/python``). DRF's default lookup
     # regex stops at the first ``/``, so widen it to match the model validator.
     lookup_value_regex = SUBPROJECT_ALIAS_REGEX
-    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    permission_classes = [
+        HasProjectAPIKeyForProject
+        | (NoProjectAPIKey & ReadOnlyPermission)
+        | (IsAuthenticated & IsProjectAdmin)
+    ]
 
     def get_serializer_class(self):
         """
@@ -336,7 +354,12 @@ class TranslationRelationshipViewSet(
     lookup_field = "slug"
     lookup_url_kwarg = "project_slug"
     serializer_class = ProjectSerializer
-    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    api_key_project_lookup = "main_language_project"
+    permission_classes = [
+        HasProjectAPIKeyForProject
+        | (NoProjectAPIKey & ReadOnlyPermission)
+        | (IsAuthenticated & IsProjectAdmin)
+    ]
 
 
 # Inherit order is important here. ``NestedViewSetMixin`` has to be on the left
@@ -359,7 +382,11 @@ class VersionsViewSet(
     lookup_value_regex = r"[^/]+"
 
     filterset_class = VersionFilter
-    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    permission_classes = [
+        HasProjectAPIKeyForProject
+        | (NoProjectAPIKey & ReadOnlyPermission)
+        | (IsAuthenticated & IsProjectAdmin)
+    ]
 
     def get_serializer_class(self):
         """
@@ -400,7 +427,11 @@ class BuildsViewSet(
     lookup_url_kwarg = "build_pk"
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
-    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    permission_classes = [
+        HasProjectAPIKeyForProject
+        | (NoProjectAPIKey & ReadOnlyPermission)
+        | (IsAuthenticated & IsProjectAdmin)
+    ]
     permit_list_expands = [
         "config",
     ]
@@ -507,7 +538,7 @@ class NotificationsProjectViewSet(
     serializer_class = NotificationSerializer
     filterset_class = NotificationFilter
     # We don't want to show notifications to users that don't have admin access to the project.
-    permission_classes = [IsAuthenticated & IsProjectAdmin]
+    permission_classes = [HasProjectAPIKeyForProject | (IsAuthenticated & IsProjectAdmin)]
 
     def get_queryset(self):
         project = self._get_parent_project()
@@ -533,7 +564,11 @@ class NotificationsBuildViewSet(
     # We need to show build notifications to anonymous users
     # on public builds (the queryset will filter them out).
     # We allow project admins to edit notifications.
-    permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    permission_classes = [
+        HasProjectAPIKeyForProject
+        | (NoProjectAPIKey & ReadOnlyPermission)
+        | (IsAuthenticated & IsProjectAdmin)
+    ]
 
     def get_queryset(self):
         build = self._get_parent_build()
@@ -550,7 +585,7 @@ class RedirectsViewSet(
     model = Redirect
     lookup_field = "pk"
     lookup_url_kwarg = "redirect_pk"
-    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+    permission_classes = (HasProjectAPIKeyForProject | (IsAuthenticated & IsProjectAdmin),)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -584,7 +619,7 @@ class EnvironmentVariablesViewSet(
     lookup_field = "pk"
     lookup_url_kwarg = "environmentvariable_pk"
     serializer_class = EnvironmentVariableSerializer
-    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+    permission_classes = (HasProjectAPIKeyForProject | (IsAuthenticated & IsProjectAdmin),)
 
     def get_queryset(self):
         queryset = super().get_queryset()

@@ -25,7 +25,7 @@ from rest_framework.renderers import BaseRenderer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import HasBuildAPIKey
+from readthedocs.api.v2.permissions import HasInternalAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
@@ -187,7 +187,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     """List, filter, etc, Projects."""
 
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [HasInternalAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -239,7 +239,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [HasInternalAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
@@ -257,7 +257,7 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [HasInternalAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
     filterset_fields = ("project__slug", "commit")
@@ -295,7 +295,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=False,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasInternalAPIKey],
         methods=["get"],
     )
     def concurrent(self, request, **kwargs):
@@ -387,7 +387,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasInternalAPIKey],
         methods=["post"],
     )
     def reset(self, request, **kwargs):
@@ -401,7 +401,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey],
+        permission_classes=[HasInternalAPIKey],
         methods=["post"],
         url_path="credentials/storage",
     )
@@ -446,7 +446,7 @@ class BuildCommandViewSet(
     DisableListEndpoint, CreateModelMixin, UpdateModelMixin, UserSelectViewSet
 ):
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [HasInternalAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
@@ -481,7 +481,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
     """
 
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey]
+    permission_classes = [HasInternalAPIKey]
     renderer_classes = (JSONRenderer,)
     serializer_class = NotificationSerializer
     model = Notification

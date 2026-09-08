@@ -28,6 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
@@ -57,6 +58,7 @@ from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
 from readthedocs.projects.forms import IntegrationForm
 from readthedocs.projects.forms import ProjectAdvertisingForm
+from readthedocs.projects.forms import ProjectAPIKeyForm
 from readthedocs.projects.forms import ProjectAutomaticForm
 from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.forms import ProjectConfigForm
@@ -1084,6 +1086,67 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage):
     success_message = _("Environment variable deleted")
     http_method_names = ["post"]
+
+
+class ProjectAPIKeyMixin(PrivateViewMixin, ProjectAdminMixin):
+    """API keys scoped to a single project."""
+
+    model = BuildAPIKey
+    form_class = ProjectAPIKeyForm
+    # Look up by prefix: the pk embeds the hashed key, which doesn't belong in
+    # URLs and breaks the ``[data-modal-id=...]`` selector of the remove button.
+    lookup_field = "prefix"
+    lookup_url_kwarg = "apikey_prefix"
+
+    # The generated key is only available at creation time, so it's passed to
+    # the list view via the session to be shown exactly once.
+    session_key = "project_api_key"
+
+    def get_queryset(self):
+        # Never list (or allow revoking) the keys used by our builders.
+        return super().get_queryset().filter(internal=False, revoked=False)
+
+    def get_success_url(self):
+        return reverse(
+            "projects_apikeys",
+            args=[self.get_project().slug],
+        )
+
+
+class ProjectAPIKeyList(ProjectAPIKeyMixin, ListView):
+    # The model lives in the ``v3`` app, so the default template name doesn't
+    # match where the rest of the project settings templates live.
+    template_name = "projects/projectapikey_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_api_key"] = self.request.session.pop(self.session_key, None)
+        return context
+
+
+class ProjectAPIKeyCreate(ProjectAPIKeyMixin, CreateView):
+    template_name = "projects/projectapikey_form.html"
+    success_message = _("API token created")
+
+    def form_valid(self, form):
+        _, key = form.save()
+        self.request.session[self.session_key] = key
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectAPIKeyRevoke(ProjectAPIKeyMixin, GenericModelView):
+    """Revoke a key instead of deleting it, so we keep an audit trail."""
+
+    success_message = _("API token revoked")
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        api_key = self.get_object()
+        api_key.revoked = True
+        api_key.save()
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class AutomationRuleMixin(PrivateViewMixin, ProjectAdminMixin):

@@ -59,16 +59,18 @@ class TokenKeyParser(KeyParser):
     keyword = "Token"
 
 
-class HasBuildAPIKey(BaseHasAPIKey):
+class HasInternalAPIKey(BaseHasAPIKey):
     """
-    Custom permission to inject the build API key into the request.
+    Custom permission to inject the internal API key into the request.
 
     We completely override the ``has_permission`` method
     to avoid having to parse and validate the key again on each view.
     The key is injected in the ``request.build_api_key`` attribute
     only if it's valid, otherwise it's set to ``None``.
 
-    This grants read and write access to the API.
+    This grants read and write access to the API, so only internal keys
+    (the ones used by our builders) are accepted. Keys exposed to users
+    are handled by ``readthedocs.api.v3.permissions.HasProjectAPIKey``.
     """
 
     model = BuildAPIKey
@@ -85,7 +87,7 @@ class HasBuildAPIKey(BaseHasAPIKey):
         except self.model.DoesNotExist:
             return False
 
-        if build_api_key.has_expired:
+        if build_api_key.has_expired or not build_api_key.internal:
             return False
 
         request.build_api_key = build_api_key

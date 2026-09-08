@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
     Build,
@@ -221,6 +222,10 @@ class ProjectMixin(URLAccessMixin):
             project=self.pip,
             redirect_type="sphinx_html",
         )
+        self.api_key, _ = BuildAPIKey.objects.create_project_key(
+            project=self.pip,
+            name="api key",
+        )
         self.default_kwargs = {
             "project_slug": self.pip.slug,
             "subproject_slug": self.subproject.slug,
@@ -235,6 +240,7 @@ class ProjectMixin(URLAccessMixin):
             "integration_pk": self.integration.pk,
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
+            "apikey_prefix": self.api_key.prefix,
             "automation_rule_pk": self.automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
@@ -327,6 +333,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
             "status_code": 405
         },
+        "/dashboard/pip/apikeys/{apikey_id}/revoke/": {"status_code": 405},
         "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
         "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
         "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
@@ -341,6 +348,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
+            "apikey_id": self.api_key.prefix,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
@@ -375,6 +383,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
+            "apikey_id": self.api_key.prefix,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
