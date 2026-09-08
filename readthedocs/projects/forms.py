@@ -1443,7 +1443,7 @@ class ProjectAPIKeyForm(forms.Form):
     name = forms.CharField(
         label=_("Name"),
         max_length=BuildAPIKey._meta.get_field("name").max_length,
-        help_text=_("A name to identify this key"),
+        help_text=_("A name to identify this token"),
     )
     expires_in = forms.ChoiceField(
         label=_("Expiration"),
@@ -1454,13 +1454,13 @@ class ProjectAPIKeyForm(forms.Form):
         label=_("Permission level"),
         choices=BuildAPIKey.PermissionLevel.choices,
         initial=BuildAPIKey.PermissionLevel.READ_ONLY,
-        help_text=_("Read and write keys can modify and delete this project"),
+        help_text=_("Read and write tokens can modify and delete this project"),
     )
     description = forms.CharField(
         label=_("Description"),
         required=False,
         widget=forms.Textarea(attrs={"rows": 3}),
-        help_text=_("Optional. What is this key used for?"),
+        help_text=_("Optional. What is this token used for?"),
     )
 
     def __init__(self, *args, **kwargs):

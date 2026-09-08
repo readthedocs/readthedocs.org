@@ -1093,7 +1093,10 @@ class ProjectAPIKeyMixin(PrivateViewMixin, ProjectAdminMixin):
 
     model = BuildAPIKey
     form_class = ProjectAPIKeyForm
-    lookup_url_kwarg = "apikey_pk"
+    # Look up by prefix: the pk embeds the hashed key, which doesn't belong in
+    # URLs and breaks the ``[data-modal-id=...]`` selector of the remove button.
+    lookup_field = "prefix"
+    lookup_url_kwarg = "apikey_prefix"
 
     # The generated key is only available at creation time, so it's passed to
     # the list view via the session to be shown exactly once.
@@ -1123,7 +1126,7 @@ class ProjectAPIKeyList(ProjectAPIKeyMixin, ListView):
 
 class ProjectAPIKeyCreate(ProjectAPIKeyMixin, CreateView):
     template_name = "projects/projectapikey_form.html"
-    success_message = _("API key created")
+    success_message = _("API token created")
 
     def form_valid(self, form):
         _, key = form.save()
@@ -1135,7 +1138,7 @@ class ProjectAPIKeyCreate(ProjectAPIKeyMixin, CreateView):
 class ProjectAPIKeyRevoke(ProjectAPIKeyMixin, GenericModelView):
     """Revoke a key instead of deleting it, so we keep an audit trail."""
 
-    success_message = _("API key revoked")
+    success_message = _("API token revoked")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):

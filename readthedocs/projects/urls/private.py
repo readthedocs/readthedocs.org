@@ -361,7 +361,7 @@ projectapikey_urls = [
         name="projects_apikeys_create",
     ),
     path(
-        "<slug:project_slug>/apikeys/<str:apikey_pk>/revoke/",
+        "<slug:project_slug>/apikeys/<slug:apikey_prefix>/revoke/",
         ProjectAPIKeyRevoke.as_view(),
         name="projects_apikeys_revoke",
     ),

@@ -49,7 +49,7 @@ A project token grants access to a single project,
 instead of to everything the user who created it can access.
 Use one when a script or CI job only needs to work with one project.
 
-Project tokens are created from the :guilabel:`API keys` section of your project's settings,
+Project tokens are created from the :guilabel:`API tokens` section of your project's settings,
 and are used with the same ``Authorization`` header as a user token:
 
 .. code-block:: bash
