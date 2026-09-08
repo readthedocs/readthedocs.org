@@ -18,10 +18,10 @@ Requests to the Read the Docs public API are for public and private information.
 Endpoints that return public information do not require authentication.
 
 
-Token
-~~~~~
+User token
+~~~~~~~~~~
 
-The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
+The ``Authorization`` HTTP header can be specified with ``Token <your-user-token>``
 to authenticate as a user and have the same permissions that the user itself.
 
 
@@ -41,6 +41,20 @@ to authenticate as a user and have the same permissions that the user itself.
         On |com_brand|, you will find your access Token under
         `your profile settings <https://app.readthedocs.com/accounts/tokens/>`__.
 
+
+Project token
+~~~~~~~~~~~~~
+
+A project token grants access to a single project,
+instead of to everything the user who created it can access.
+Use one when a script or CI job only needs to work with one project.
+
+Project tokens are created from the :guilabel:`API keys` section of your project's settings,
+and are used with the same ``Authorization`` header as a user token:
+
+.. code-block:: bash
+
+   curl -H "Authorization: Token <your-project-token>" https://app.readthedocs.org/api/v3/projects/
 
 Session
 ~~~~~~~
