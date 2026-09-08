@@ -4,7 +4,7 @@ from rest_framework import permissions
 from rest_framework_api_key.permissions import BaseHasAPIKey
 from rest_framework_api_key.permissions import KeyParser
 
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 
 
 class IsOwner(permissions.BasePermission):
@@ -73,7 +73,7 @@ class HasInternalAPIKey(BaseHasAPIKey):
     are handled by ``readthedocs.api.v3.permissions.HasProjectAPIKey``.
     """
 
-    model = BuildAPIKey
+    model = ProjectAPIKey
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):

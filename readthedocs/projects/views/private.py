@@ -28,7 +28,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
@@ -1091,7 +1091,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 class ProjectAPIKeyMixin(PrivateViewMixin, ProjectAdminMixin):
     """API keys scoped to a single project."""
 
-    model = BuildAPIKey
+    model = ProjectAPIKey
     form_class = ProjectAPIKeyForm
     # Look up by prefix: the pk embeds the hashed key, which doesn't belong in
     # URLs and breaks the ``[data-modal-id=...]`` selector of the remove button.

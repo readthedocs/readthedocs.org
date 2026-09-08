@@ -8,7 +8,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
     Build,
@@ -222,7 +222,7 @@ class ProjectMixin(URLAccessMixin):
             project=self.pip,
             redirect_type="sphinx_html",
         )
-        self.api_key, _ = BuildAPIKey.objects.create_project_key(
+        self.api_key, _ = ProjectAPIKey.objects.create_project_key(
             project=self.pip,
             name="api key",
         )

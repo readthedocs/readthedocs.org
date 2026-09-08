@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
@@ -1425,7 +1425,7 @@ class EnvironmentVariableForm(forms.ModelForm):
 
 class ProjectAPIKeyForm(forms.Form):
     """
-    Form to create a BuildAPIKey for a Project.
+    Form to create a ProjectAPIKey for a Project.
 
     The key itself is only available at creation time, so ``save`` returns it
     together with the object for the view to show it once.
@@ -1442,7 +1442,7 @@ class ProjectAPIKeyForm(forms.Form):
 
     name = forms.CharField(
         label=_("Name"),
-        max_length=BuildAPIKey._meta.get_field("name").max_length,
+        max_length=ProjectAPIKey._meta.get_field("name").max_length,
         help_text=_("A name to identify this token"),
     )
     expires_in = forms.ChoiceField(
@@ -1452,8 +1452,8 @@ class ProjectAPIKeyForm(forms.Form):
     )
     permission_level = forms.ChoiceField(
         label=_("Permission level"),
-        choices=BuildAPIKey.PermissionLevel.choices,
-        initial=BuildAPIKey.PermissionLevel.READ_ONLY,
+        choices=ProjectAPIKey.PermissionLevel.choices,
+        initial=ProjectAPIKey.PermissionLevel.READ_ONLY,
         help_text=_("Read and write tokens can modify and delete this project"),
     )
     description = forms.CharField(
@@ -1474,8 +1474,8 @@ class ProjectAPIKeyForm(forms.Form):
         return timezone.now() + timedelta(days=int(expires_in))
 
     def save(self):
-        """Return the new ``(BuildAPIKey, key)`` tuple."""
-        return BuildAPIKey.objects.create_project_key(
+        """Return the new ``(ProjectAPIKey, key)`` tuple."""
+        return ProjectAPIKey.objects.create_project_key(
             project=self.project,
             name=self.cleaned_data["name"],
             expiry_date=self.cleaned_data["expires_in"],

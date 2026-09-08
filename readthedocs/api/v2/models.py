@@ -9,7 +9,7 @@ from rest_framework_api_key.models import BaseAPIKeyManager
 from readthedocs.projects.models import Project
 
 
-class BuildAPIKeyManager(BaseAPIKeyManager):
+class ProjectAPIKeyManager(BaseAPIKeyManager):
     def create_internal_key(self, project):
         """
         Create a new internal API key for a project, to be used by our builders.
@@ -69,7 +69,7 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         )
 
 
-class BuildAPIKey(AbstractAPIKey):
+class ProjectAPIKey(AbstractAPIKey):
     """
     API key attached to a single project.
 
@@ -85,7 +85,7 @@ class BuildAPIKey(AbstractAPIKey):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        related_name="build_api_keys",
+        related_name="api_keys",
         help_text=_("Project that this API key grants access to"),
     )
     # NOTE: ``db_default`` differs from ``default`` on purpose. All keys that
@@ -117,11 +117,13 @@ class BuildAPIKey(AbstractAPIKey):
         help_text=_("Optional description to remember what this key is used for"),
     )
 
-    objects = BuildAPIKeyManager()
+    objects = ProjectAPIKeyManager()
 
     class Meta(AbstractAPIKey.Meta):
-        verbose_name = _("Build API key")
-        verbose_name_plural = _("Build API keys")
+        # Renamed from ``BuildAPIKey``; the table keeps its original name.
+        db_table = "v2_buildapikey"
+        verbose_name = _("Project API key")
+        verbose_name_plural = _("Project API keys")
 
     @property
     def is_read_only(self):

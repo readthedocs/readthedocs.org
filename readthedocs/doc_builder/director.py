@@ -916,7 +916,7 @@ class BuildDirector:
         """
 
         format_values = format_values or {}
-        # NOTE: we are using APIv2 here because it uses BuildAPIKey authentication,
+        # NOTE: we are using APIv2 here because it uses ProjectAPIKey authentication,
         # which is not currently supported by APIv3.
         self.data.api_client.notifications.post(
             {
