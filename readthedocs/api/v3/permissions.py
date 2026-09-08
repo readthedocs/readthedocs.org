@@ -2,7 +2,7 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.permissions import BasePermission
 from rest_framework_api_key.permissions import BaseHasAPIKey
 
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.api.v2.permissions import TokenKeyParser
 from readthedocs.api.v3.authentication import has_project_api_key_header
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
@@ -80,7 +80,7 @@ class HasProjectAPIKey(BaseHasAPIKey):
        permissions, like ``HasProjectAPIKey | ReadOnlyPermission``.
     """
 
-    model = BuildAPIKey
+    model = ProjectAPIKey
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):

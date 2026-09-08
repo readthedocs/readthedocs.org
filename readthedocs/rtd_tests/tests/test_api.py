@@ -13,7 +13,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -170,7 +170,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.notifications.count(), 1)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(self.project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(self.project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         r = client.post(reverse("build-reset", args=(build.pk,)))
@@ -201,7 +201,7 @@ class APIBuildTests(TestCase):
         )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(self.project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(self.project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
         get_s3_build_media_scoped_credentials.return_value = AWSS3TemporaryCredentials(
             access_key_id="access_key_id",
@@ -281,7 +281,7 @@ class APIBuildTests(TestCase):
         build_one = Build.objects.create(project=project, version=version)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.patch(
@@ -494,7 +494,7 @@ class APIBuildTests(TestCase):
         resp = client.get("/api/v2/build/{}/".format(build.pk), format="json")
         self.assertEqual(resp.status_code, 200)
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
         resp = client.get("/api/v2/build/{}/".format(build.pk), format="json")
         self.assertEqual(resp.status_code, 200)
@@ -502,7 +502,7 @@ class APIBuildTests(TestCase):
 
     def test_make_build_commands(self):
         """Create build commands."""
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(self.project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(self.project)
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
@@ -759,46 +759,46 @@ class APITests(TestCase):
     def test_create_key_for_project_with_long_slug(self):
         user = get(User)
         project = get(Project, users=[user], slug="a" * 60)
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_internal_key(project)
-        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        build_api_key_obj, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
+        self.assertTrue(ProjectAPIKey.objects.is_valid(build_api_key))
         self.assertEqual(build_api_key_obj.name, "a" * 50)
 
     def test_revoke_build_api_key(self):
         user = get(User)
         project = get(Project, users=[user])
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client = APIClient()
         revoke_url = "/api/v2/revoke/"
-        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertTrue(ProjectAPIKey.objects.is_valid(build_api_key))
 
         # Anonymous request.
         client.logout()
         resp = client.post(revoke_url)
         self.assertEqual(resp.status_code, 403)
-        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertTrue(ProjectAPIKey.objects.is_valid(build_api_key))
 
         # Using user/password.
         client.force_login(user)
         resp = client.post(revoke_url)
         self.assertEqual(resp.status_code, 403)
-        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertTrue(ProjectAPIKey.objects.is_valid(build_api_key))
 
         client.logout()
         resp = client.post(revoke_url, HTTP_AUTHORIZATION=f"Token {build_api_key}")
         self.assertEqual(resp.status_code, 204)
-        self.assertFalse(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertFalse(ProjectAPIKey.objects.is_valid(build_api_key))
 
     @override_settings(BUILD_TIME_LIMIT=600)
     def test_expiricy_key(self):
         project = get(Project)
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        build_api_key_obj, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
         # Project with a custom containe time limit
         project.container_time_limit = 1200
         project.save()
-        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        build_api_key_obj, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         expected = (build_api_key_obj.expiry_date - timezone.now()).seconds
         self.assertAlmostEqual(expected, 86400, delta=5)
 
@@ -818,7 +818,7 @@ class APITests(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertNotIn("readthedocs_yaml_path", resp.data)
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -905,7 +905,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project_a)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1027,7 +1027,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project_a)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1079,7 +1079,7 @@ class APITests(TestCase):
         self.assertEqual(BuildCommandResult.objects.count(), 0)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         now = timezone.now()
@@ -1208,7 +1208,7 @@ class APITests(TestCase):
         project_c = get(Project, privacy_level=PUBLIC)
         client = APIClient()
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project_a)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1392,7 +1392,7 @@ class APITests(TestCase):
         Version.objects.all().update(privacy_level=PUBLIC)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project_a)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1520,7 +1520,7 @@ class APITests(TestCase):
         Version.objects.all().update(privacy_level=PUBLIC)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project_a)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project_a)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # List operations without a filter aren't allowed.
@@ -1556,7 +1556,7 @@ class APITests(TestCase):
         get(Feature, projects=[], default_true=False)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -1572,7 +1572,7 @@ class APITests(TestCase):
         project2 = get(Project, main_language_project=None)
         feature = get(Feature, projects=[project1, project2], default_true=True)
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project1)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project1)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project1.pk))
@@ -1587,7 +1587,7 @@ class APITests(TestCase):
         project = get(Project)
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         # No remote repository, no token.
@@ -1669,7 +1669,7 @@ class APITests(TestCase):
         )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get("/api/v2/project/%s/" % (project.pk))
@@ -1761,7 +1761,7 @@ class APITests(TestCase):
             )
 
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get(
@@ -1788,7 +1788,7 @@ class APITests(TestCase):
 
         self.assertEqual(Notification.objects.count(), 0)
         client = APIClient()
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project)
         client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         response = client.post(url, data=data)
@@ -3530,7 +3530,7 @@ class APIVersionTests(TestCase):
         """
         pip = Project.objects.get(slug="pip")
         version = pip.versions.get(slug="0.8")
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(pip)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(pip)
 
         data = {
             "pk": version.pk,
@@ -3657,7 +3657,7 @@ class APIVersionTests(TestCase):
     def test_modify_version(self):
         pip = Project.objects.get(slug="pip")
         version = pip.versions.get(slug="0.8")
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(pip)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(pip)
 
         data = {
             "pk": version.pk,

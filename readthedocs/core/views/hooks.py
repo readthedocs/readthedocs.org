@@ -5,7 +5,7 @@ from typing import Literal
 
 import structlog
 
-from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.models import ProjectAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
@@ -88,7 +88,7 @@ def trigger_sync_versions(project):
             log.info("Skipping sync versions for project.", project_slug=project.slug)
             return None
 
-        _, build_api_key = BuildAPIKey.objects.create_internal_key(project=project)
+        _, build_api_key = ProjectAPIKey.objects.create_internal_key(project=project)
 
         log.debug(
             "Triggering sync repository.",
