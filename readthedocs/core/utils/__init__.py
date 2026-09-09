@@ -263,6 +263,29 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     return task, build
 
 
+def build_isolated_environment():
+    """Environment passed to every task we dispatch to the build-isolated fleet."""
+    environment = {
+        "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
+        "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
+        "RTD_HEALTHCHECK_API_HOST": settings.SLUMBER_API_HOST,
+        "RTD_ALLOW_PRIVATE_REPOS": str(settings.ALLOW_PRIVATE_REPOS),
+    }
+    if settings.RTD_DOCKER_COMPOSE:
+        # Local dev: rustfs endpoint for storage boto3 calls, and an
+        # API-via-nginx override so the build container can reach us on the
+        # compose network. The build user defaults to ``docs`` (like
+        # production) — the isolated builder has no bind-mounted docroot, so
+        # there's no host-uid mismatch to work around.
+        environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
+        # Tells the builder it's running under docker-compose
+        environment["RTD_DOCKER_COMPOSE"] = "1"
+        # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
+        # are fully migrated and remove this override here.
+        environment["RTD_API_URL"] = "http://nginx"
+    return environment
+
+
 def submit_to_build_isolated(*, project, build):
     """
     Dispatch a build directly to the ``build:isolated`` Celery queue.
@@ -286,24 +309,7 @@ def submit_to_build_isolated(*, project, build):
     # not the project.
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
-    environment = {
-        "RTD_API_URL": getattr(settings, "RTD_API_URL", settings.PUBLIC_API_URL),
-        "RTD_PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
-        "RTD_HEALTHCHECK_API_HOST": settings.SLUMBER_API_HOST,
-        "RTD_ALLOW_PRIVATE_REPOS": str(settings.ALLOW_PRIVATE_REPOS),
-    }
-    if settings.RTD_DOCKER_COMPOSE:
-        # Local dev: rustfs endpoint for storage boto3 calls, and an
-        # API-via-nginx override so the build container can reach us on the
-        # compose network. The build user defaults to ``docs`` (like
-        # production) — the isolated builder has no bind-mounted docroot, so
-        # there's no host-uid mismatch to work around.
-        environment["AWS_S3_ENDPOINT_URL"] = settings.AWS_S3_ENDPOINT_URL or ""
-        # Tells the builder it's running under docker-compose
-        environment["RTD_DOCKER_COMPOSE"] = "1"
-        # TODO: update ``RTD_API_URL`` in ``docker_compose.py`` once we
-        # are fully migrated and remove this override here.
-        environment["RTD_API_URL"] = "http://nginx"
+    environment = build_isolated_environment()
 
     # Debug knob: ``KEEP_BUILD_ISOLATED_INSTANCE`` feature flag asks
     # the worker to skip its post-build self-terminate so the EC2 host
