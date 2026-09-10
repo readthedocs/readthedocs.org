@@ -66,12 +66,29 @@ The same resolution has to exist for GitLab CI, Circle CI, and other providers,
 and fall back to :program:`git` when run locally.
 This logic must live in one place.
 
+Choosing the platform
+~~~~~~~~~~~~~~~~~~~~~
+
+The client talks to |org_brand| or |com_brand|,
+and it has to know which one before it sends anything.
+
+The client resolves the API base URL in this order:
+
+#. An explicit ``--api-url`` argument, or the ``RTD_API_URL`` environment variable.
+#. The token itself, if we eventually give tokens a prefix that identifies their platform.
+#. |org_brand|, as the default.
+
 Packaging
 ~~~~~~~~~
 
 The client builds the zip in the structure the API expects
 (``html/``, ``pdf/``, ``epub/``, ``htmlzip/``), excluding things like ``.git``,
 and producing a deterministic archive.
+
+Users should not have to arrange their build output into that structure themselves.
+They point at what they already produced, a directory for HTML and a file for each other format,
+and the client assembles the archive.
+The layout is our requirement, so it should be our problem.
 
 Pre-flight validation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -91,12 +108,6 @@ If the upload to S3 fails, the client must still call ``complete/`` with ``statu
 Otherwise the build stays in its triggered state and consumes the project's pending upload quota.
 There is a server side task that expires abandoned uploads,
 but that is a backstop and not a substitute for the client reporting what happened.
-
-Outputs
-~~~~~~~
-
-The client should report the build ID, the build URL, and the resulting documentation URL,
-so they can be used by later steps in a workflow.
 
 Decision axes
 -------------
@@ -389,10 +400,10 @@ The fallback in that case is :program:`uv`:
          with:
            enable-cache: true
        - shell: bash
-         run: uv tool run readthedocs-upload==<version> upload --path "$INPUT_PATH"
+         run: uv tool run readthedocs-upload==<version> upload --html-dir "$INPUT_HTML_DIR"
          env:
            RTD_TOKEN: ${{ inputs.token }}
-           INPUT_PATH: ${{ inputs.path }}
+           INPUT_HTML_DIR: ${{ inputs.html-dir }}
 
 If we still want to keep a single file client,
 :program:`uv` can also run a script that declares its own dependencies inline using
@@ -423,12 +434,27 @@ Action interface
      token:
        description: 'Read the Docs API token. Use a secret.'
        required: true
-     project:
-       description: 'Project slug. Optional once project-scoped tokens are available.'
+     project-slug:
+       description: 'Project slug. Only optional when using a project-scoped token.'
        required: false
-     path:
+     api-url:
+       description: 'API base URL. Defaults to Read the Docs Community.'
+       required: false
+     html-dir:
        description: 'Directory containing the built HTML.'
        required: true
+     pdf:
+       description: 'Path to the PDF file to upload.'
+       required: false
+     epub:
+       description: 'Path to the ePub file to upload.'
+       required: false
+     htmlzip:
+       description: 'Path to the HTML zip file to upload.'
+       required: false
+     privacy-level:
+       description: 'Privacy level for the version. Read the Docs for Business only.'
+       required: false
      version-name:
        description: 'Override the inferred branch/tag name or pull request number.'
        required: false
@@ -438,15 +464,6 @@ Action interface
      commit:
        description: 'Override the inferred commit hash.'
        required: false
-   outputs:
-     build-id:
-       description: 'Build ID returned by the upload API.'
-     build-url:
-       description: 'URL of the build detail page.'
-     docs-url:
-       description: 'URL where the uploaded documentation is served.'
-     version-slug:
-       description: 'Slug of the version that was created or updated.'
 
    runs:
      using: composite
@@ -454,13 +471,22 @@ Action interface
        - shell: bash
          run: >
            python "$GITHUB_ACTION_PATH/src/rtd_upload/__main__.py" upload
-           --path "$INPUT_PATH"
+           --html-dir "$INPUT_HTML_DIR"
          env:
            RTD_TOKEN: ${{ inputs.token }}
-           INPUT_PATH: ${{ inputs.path }}
+           INPUT_HTML_DIR: ${{ inputs.html-dir }}
 
 The token is passed through the environment and never as a command line argument,
 so it does not appear in process listings or in the command echo that composite actions print.
+
+Users should not have to reproduce the directory layout the API expects.
+They tell us where each artifact is, and the client assembles the zip.
+Only ``html-dir`` is a directory; ``pdf``, ``epub``, and ``htmlzip`` each point at a single file.
+
+Whether ``project-slug`` is required depends on the token being used.
+A project-scoped token identifies the project on its own, so the input can be omitted.
+A user-level token, or an organization-level token if we add one,
+still needs the project to be named, since one token can reach many projects.
 
 Every inferred value has an explicit override.
 Inference that cannot be overridden becomes a trap for monorepos and manually dispatched workflows.
@@ -494,8 +520,21 @@ The common case, where the action resolves all the Git metadata:
          - uses: readthedocs/upload-action@v1
            with:
              token: ${{ secrets.RTD_TOKEN }}
-             project: my-project
-             path: _build/html
+             project-slug: my-project
+             html-dir: _build/html
+
+A project that also publishes downloadable formats points at each file,
+instead of arranging them into a directory layout itself:
+
+.. code-block:: yaml
+
+         - uses: readthedocs/upload-action@v1
+           with:
+             token: ${{ secrets.RTD_TOKEN }}
+             project-slug: my-project
+             html-dir: _build/html
+             pdf: _build/latex/my-project.pdf
+             epub: _build/epub/my-project.epub
 
 The same workflow for a project that does not use Python to build its documentation.
 Note that there is still no interpreter setup for the upload step itself:
@@ -510,8 +549,8 @@ Note that there is still no interpreter setup for the upload step itself:
          - uses: readthedocs/upload-action@v1
            with:
              token: ${{ secrets.RTD_TOKEN }}
-             project: my-project
-             path: dist
+             project-slug: my-project
+             html-dir: dist
 
 What the action resolves from the event:
 
@@ -542,7 +581,7 @@ or from :program:`git` when run locally:
 .. code-block:: bash
 
    export RTD_TOKEN=...
-   uvx readthedocs-upload upload --project my-project --path _build/html
+   uvx readthedocs-upload upload --project-slug my-project --html-dir _build/html
 
 Distribution and upgrades
 -------------------------
@@ -570,8 +609,6 @@ None of the available answers are good:
 - ``pull_request_target`` exposes the secret, and is dangerous if the workflow checks out the pull request head.
 - Accepting that fork pull requests get no preview is a real regression against our current build system,
   which handles this case today.
-- A short-lived credential obtained through OIDC, with no stored secret,
-  is the correct long-term answer and is already noted as a future direction in the API design document.
 
 At minimum, the client should detect a missing token in this situation
 and fail with an explanation and a link, rather than surfacing a bare authentication error.
@@ -593,8 +630,13 @@ Risks and open questions
 - What is the minimum Python version we support, and how do we test it?
   This is bounded by the interpreters available on the GitHub-hosted runner images,
   and it needs to be declared rather than discovered by a user.
-- ``--project`` becomes optional once project-scoped tokens land.
-  The argument parsing should anticipate this so it is not a breaking change.
+- ``--project-slug`` is optional only for project-scoped tokens,
+  and stays required for user-level tokens and for organization-level tokens if we add them.
+  The client cannot know which kind it was given unless the token says so,
+  so it either asks the API or reads it from the token itself.
+- Should tokens carry a prefix that identifies their scope and the platform they belong to?
+  That would let the client tell |org_brand| from |com_brand| without another argument,
+  and decide whether ``--project-slug`` is required without a round trip.
 
 First iteration
 ---------------
@@ -603,7 +645,7 @@ First iteration
 #. Build the CLI first, and the action as a wrapper around it.
    Building the action first would push metadata resolution into YAML,
    where it cannot be reused or tested.
-#. Release both from a single tag.
+#. Ship a single set of artifact inputs, no outputs, and no configuration file support.
 
 References
 ----------
