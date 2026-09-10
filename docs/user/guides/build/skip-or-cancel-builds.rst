@@ -1,35 +1,69 @@
-Skip builds based on conditions
-================================
+Skip or cancel builds based on conditions
+=========================================
 
-Read the Docs provides a special build cancellation mechanism that allows you to programmatically skip builds
-based on custom conditions. This is useful when you want to avoid unnecessary documentation builds,
-saving build time and resources.
+Read the Docs provides two mechanisms to avoid running unnecessary documentation builds,
+saving build time and resources:
 
-.. tip:: Recommended: use Automation Rules with webhook filters
+Skip a build
+   The build is **never triggered**.
+   Use :doc:`automation rules </automation-rules>` with webhook filters to decide,
+   before anything runs, whether a push or pull request should build at all.
+   This is the recommended approach whenever it's available for your project.
 
-   For most cases, the recommended way to skip builds is to use
-   :doc:`automation rules </automation-rules>` with **webhook filters**.
-   This lets you filter which changes can trigger builds,
-   such as **only building when files matching a pattern are changed**
-   (for example, files under ``docs/`` or ``.readthedocs.yaml``),
-   or building when a commit message or pull request labels match a pattern.
-
-   Webhook filters are available for projects connected through the
-   :doc:`GitHub App integration </reference/git-integration>`.
-   For other Git providers, or for conditions that require shell logic at build time,
-   keep using the exit code ``183`` mechanism documented below.
+Cancel a build
+   The build is **triggered as usual**,
+   and one of your commands exits with the special exit code ``183`` to cancel it.
+   Use this when your Git provider doesn't support webhook filters,
+   or when your condition requires shell logic at build time.
 
 .. contents:: Table of contents
    :local:
    :backlinks: none
    :depth: 2
 
+Skip builds with automation rules
+---------------------------------
+
+Automation rules with a ``Trigger build for version`` action let you filter which webhook events trigger a build.
+You can match on the changed files, the commit message, or the pull request labels.
+When no build rule matches, the build is skipped:
+it doesn't appear in your build history and doesn't consume any build time.
+
+For example, to only build when documentation files change:
+
+- Match: ``Any version``
+- Version types: ``Tag``, ``Branch``, ``Pull request``
+- Changed files:
+
+  .. code-block:: text
+
+     docs/*
+     .readthedocs.yaml
+
+- Action: ``Trigger build for version``
+
+.. note::
+
+   Webhook filters are only available for projects connected through the
+   :doc:`GitHub App integration </reference/git-integration>`.
+
+.. seealso::
+
+   :ref:`automation-rules:Webhook filters`
+     All the available filters and how they are combined.
+
+   :ref:`automation-rules:Examples`
+     More rules, like skipping builds for commits with ``[skip ci]`` in the message.
+
+Cancel builds with exit code 183
+--------------------------------
+
 How it works
-------------
+~~~~~~~~~~~~
 
 When any command in your build process exits with the special exit code ``183``,
 Read the Docs will immediately cancel the build.
-The build will be marked as cancelled and will not consume build time or resources beyond that point.
+The build will be marked as *cancelled* and will not consume build time or resources beyond that point.
 
 .. note:: Why exit code 183?
 
@@ -45,17 +79,17 @@ The build will be marked as cancelled and will not consume build time or resourc
    The 256 modulo operation is necessary because `Unix exit codes are limited to 0-255 <https://tldp.org/LDP/abs/html/exitcodes.html>`_,
    and any value larger than 255 is automatically reduced by taking the modulo 256.
 
-When to skip builds
--------------------
+When to cancel builds
+~~~~~~~~~~~~~~~~~~~~~
 
-There are several scenarios where you might want to skip documentation builds:
+There are several scenarios where you might want to cancel documentation builds:
 
 **Save resources on irrelevant changes**
-   Skip builds when changes don't affect documentation,
+   Cancel builds when changes don't affect documentation,
    such as changes only to source code, tests, or CI configuration files.
 
 **Avoid redundant builds**
-   Skip builds for draft pull requests, work-in-progress branches,
+   Cancel builds for draft pull requests, work-in-progress branches,
    or commits with specific markers like ``[skip ci]`` in the commit message.
 
 **Conditional documentation updates**
@@ -63,28 +97,27 @@ There are several scenarios where you might want to skip documentation builds:
    such as the ``docs/`` folder or configuration files.
 
 **Branch-specific logic**
-   Skip builds on certain branches that don't require documentation updates,
+   Cancel builds on certain branches that don't require documentation updates,
    such as experimental or development branches.
 
 Examples
---------
+~~~~~~~~
 
-The following examples demonstrate common use cases for skipping builds.
+The following examples demonstrate common use cases for cancelling builds.
 All examples use the :ref:`config-file/v2:build.jobs` configuration key
 in your ``.readthedocs.yaml`` file.
 
-Skip builds when documentation files haven't changed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cancel builds when documentation files haven't changed
+``````````````````````````````````````````````````````
 
 .. tip::
 
    If your project is connected through the GitHub App,
-   using an :doc:`automation rule </automation-rules>` with a *Changed files* webhook filter
-   is the recommended approach for skipping builds.
-   Automation rules allow for builds to be skipped entirely,
-   whereas the approach below can only *cancel* a running build.
+   :ref:`skipping the build with an automation rule <guides/build/skip-or-cancel-builds:Skip builds with automation rules>` is the recommended approach.
+   Automation rules avoid triggering the build at all,
+   whereas the approach below cancels a build that is already running.
 
-This example skips pull request builds when there are no changes to documentation-related files
+This example cancels pull request builds when there are no changes to documentation-related files
 compared to the ``main`` branch:
 
 .. code-block:: yaml
@@ -112,10 +145,10 @@ You can customize this example by:
 * Checking against a different branch: ``origin/develop`` instead of ``origin/main``
 * Using different comparison operators to check for specific file patterns
 
-Skip builds based on commit message
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cancel builds based on commit message
+`````````````````````````````````````
 
-This example skips builds when the commit message contains ``[skip ci]`` or ``[ci skip]``:
+This example cancels builds when the commit message contains ``[skip ci]`` or ``[ci skip]``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -134,10 +167,10 @@ This example skips builds when the commit message contains ``[skip ci]`` or ``[c
 This pattern is commonly used in CI/CD systems to skip builds for administrative commits,
 such as version bumps or documentation typos.
 
-Skip builds for specific branch patterns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cancel builds for specific branch patterns
+``````````````````````````````````````````
 
-This example skips builds for branches that match certain patterns,
+This example cancels builds for branches that match certain patterns,
 such as personal development branches:
 
 .. code-block:: yaml
@@ -150,16 +183,16 @@ such as personal development branches:
        python: "3.12"
      jobs:
        post_checkout:
-         # Skip builds for branches starting with "dev/" or "experiment/"
+         # Cancel builds for branches starting with "dev/" or "experiment/"
          - |
            if echo "$READTHEDOCS_GIT_IDENTIFIER" | grep -qE "^(dev|experiment)/"; then
              exit 183;
            fi
 
-Skip builds based on file types
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cancel builds based on file types
+`````````````````````````````````
 
-This example skips builds when all changes are to non-documentation files,
+This example cancels builds when all changes are to non-documentation files,
 such as only images or data files:
 
 .. code-block:: yaml
@@ -172,38 +205,38 @@ such as only images or data files:
        python: "3.12"
      jobs:
        post_checkout:
-         # Skip if only non-documentation files changed (e.g., only images or data files)
+         # Cancel if only non-documentation files changed (e.g., only images or data files)
          - |
            if [ "$READTHEDOCS_VERSION_TYPE" = "external" ]; then
              # Get list of changed files
              CHANGED_FILES=$(git diff --name-only origin/main)
              # Check if any changed files are documentation-related.
              # If ALL files are non-documentation (grep finds no documentation files),
-             # then we skip the build by exiting with 183.
+             # then we cancel the build by exiting with 183.
              if ! echo "$CHANGED_FILES" | grep -qE "\.(rst|md|py|yaml|yml|txt|toml)$"; then
                exit 183;
              fi
            fi
 
 Best practices
---------------
+~~~~~~~~~~~~~~
 
-When implementing skip build logic, consider these best practices:
+When implementing build cancellation logic, consider these best practices:
 
 **Test your conditions locally**
-   Before deploying skip build logic, test your bash conditions locally
+   Before deploying cancellation logic, test your bash conditions locally
    to ensure they work as expected. Remember that the condition failing will cancel your build.
 
 **Be specific with your conditions**
-   Write clear and specific conditions to avoid accidentally skipping builds
+   Write clear and specific conditions to avoid accidentally cancelling builds
    that should run. Overly broad conditions might prevent important documentation updates.
 
-**Document your skip logic**
-   Add comments in your ``.readthedocs.yaml`` file explaining why builds are skipped
+**Document your cancellation logic**
+   Add comments in your ``.readthedocs.yaml`` file explaining why builds are cancelled
    and under what conditions. This helps future maintainers understand the configuration.
 
 **Consider the impact on pull requests**
-   If you skip builds on pull requests, reviewers won't have preview documentation.
+   If you cancel builds on pull requests, reviewers won't have preview documentation.
    Make sure this aligns with your team's review process.
 
 **Use environment variables**
@@ -211,26 +244,26 @@ When implementing skip build logic, consider these best practices:
    like ``READTHEDOCS_VERSION_TYPE`` to make your conditions more precise.
 
 Limitations
------------
+~~~~~~~~~~~
 
-Be aware of these limitations when using the skip build feature:
+Be aware of these limitations when cancelling builds with exit code ``183``:
 
 **No partial cancellation**
    Once a build is cancelled with exit code 183, the entire build stops immediately.
    You cannot selectively skip only certain parts of the build process.
 
 **Not available in configuration file**
-   You cannot skip builds using conditions in the ``.readthedocs.yaml`` configuration syntax itself.
+   You cannot cancel builds using conditions in the ``.readthedocs.yaml`` configuration syntax itself.
    All logic must be implemented in bash commands.
 
 **Build is counted as cancelled**
-   Cancelled builds appear in your build history as cancelled, not as skipped or successful.
-   This is different from builds that never start due to branch/version filters.
+   Cancelled builds appear in your build history as *cancelled*, not as successful.
+   This is different from builds skipped by automation rules, which never appear in the build history.
 
 **No failure notifications are sent**
-   When a build is skipped via exit code ``183``, Read the Docs does not send
+   When a build is cancelled via exit code ``183``, Read the Docs does not send
    ``build:failed`` webhook notifications or failure emails for it. The build
-   is treated as an intentional skip rather than a failure. Note that a
+   is treated as intentionally cancelled rather than failed. Note that a
    ``build:triggered`` webhook may still have been delivered earlier, before
    the build command had a chance to exit with ``183``.
 
@@ -240,15 +273,15 @@ Be aware of these limitations when using the skip build feature:
    merging.
 
 Troubleshooting
----------------
+~~~~~~~~~~~~~~~
 
-**Build is not being skipped**
+**Build is not being cancelled**
    * Verify your condition logic is correct by testing it locally
    * Check that the command is returning exit code 183 specifically
    * Ensure you're using the correct :doc:`environment variables </reference/environment-variables>`
    * Review the build logs to see if your condition is being evaluated
 
-**Builds are being skipped unexpectedly**
+**Builds are being cancelled unexpectedly**
    * Review your condition logic to ensure it's not too broad
    * Check for syntax errors in your bash commands
    * Verify that file paths and branch names are correct
@@ -257,4 +290,4 @@ Troubleshooting
 **Cannot access Git information**
    * Some Git operations require a full clone. If you need Git history,
      you might need to `unshallow the clone <https://docs.readthedocs.io/en/stable/build-customization.html#unshallow-git-clone>`_
-   * Ensure you're running your skip logic in ``post_checkout`` to have access to the repository
+   * Ensure you're running your cancellation logic in ``post_checkout`` to have access to the repository

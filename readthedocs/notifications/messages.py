@@ -168,12 +168,12 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildCancelled.SKIPPED_EXIT_CODE_183,
-        header=_("Build skipped."),
+        header=_("Build cancelled."),
         body=_(
             textwrap.dedent(
                 """
-            This build was skipped because
-            one of the commands exited with code 183
+            This build was cancelled because one of the commands exited with code 183.
+            Read more about <a href="https://docs.readthedocs.io/en/stable/guides/build/skip-or-cancel-builds.html">cancelling builds based on a condition</a>.
             """
             ).strip(),
         ),
