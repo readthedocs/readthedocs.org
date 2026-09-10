@@ -289,5 +289,5 @@ Troubleshooting
 
 **Cannot access Git information**
    * Some Git operations require a full clone. If you need Git history,
-     you might need to `unshallow the clone <https://docs.readthedocs.io/en/stable/build-customization.html#unshallow-git-clone>`_
+     you might need to :ref:`unshallow the clone <build-customization:Unshallow git clone>`
    * Ensure you're running your cancellation logic in ``post_checkout`` to have access to the repository
