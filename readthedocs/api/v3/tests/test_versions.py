@@ -424,12 +424,12 @@ class VersionsEndpointTests(APIEndpointMixin):
                     "version_slug": self.version.slug,
                 },
             ),
-            {"slug": "1.0"},
+            {"slug": "updated-slug"},
         )
         assert response.status_code == 204
 
         self.version.refresh_from_db()
-        assert self.version.slug == "1.0"
+        assert self.version.slug == "updated-slug"
         # The verbose name isn't affected by a slug change.
         assert self.version.verbose_name == "v1.0"
 
@@ -453,12 +453,12 @@ class VersionsEndpointTests(APIEndpointMixin):
                     "version_slug": self.version.slug,
                 },
             ),
-            {"slug": "1.0"},
+            {"slug": "updated-slug"},
         )
         assert response.status_code == 204
 
         self.version.refresh_from_db()
-        assert self.version.slug == "1.0"
+        assert self.version.slug == "updated-slug"
 
         # An inactive version has no resources to clean up,
         # and renaming it shouldn't trigger a build.
@@ -484,7 +484,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         assert self.version.slug == "v1.0"
 
     def test_update_version_slug_already_taken(self):
-        get(Version, project=self.project, slug="1.0")
+        get(Version, project=self.project, slug="updated-slug")
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(
@@ -495,7 +495,7 @@ class VersionsEndpointTests(APIEndpointMixin):
                     "version_slug": self.version.slug,
                 },
             ),
-            {"slug": "1.0"},
+            {"slug": "updated-slug"},
         )
         assert response.status_code == 400
         assert response.json()["slug"] == ["A version with that slug already exists."]
@@ -516,7 +516,7 @@ class VersionsEndpointTests(APIEndpointMixin):
                     "version_slug": latest.slug,
                 },
             ),
-            {"slug": "1.0"},
+            {"slug": "updated-slug"},
         )
         assert response.status_code == 400
 
@@ -569,20 +569,20 @@ class VersionsEndpointTests(APIEndpointMixin):
         version = get(
             Version,
             project=self.project,
-            slug="1.0",
-            verbose_name="1.0",
+            slug="form-original-slug",
+            verbose_name="form-original-slug",
             machine=False,
             active=True,
             built=True,
         )
         form = VersionForm(
-            {"slug": "2.0", "active": True},
+            {"slug": "form-updated-slug", "active": True},
             instance=version,
             project=self.project,
         )
         assert form.is_valid(), form.errors
         form.save()
-        from_form = side_effects("1.0")
+        from_form = side_effects("form-original-slug")
 
         clean_project_resources.reset_mock()
         trigger_build.reset_mock()
@@ -597,7 +597,7 @@ class VersionsEndpointTests(APIEndpointMixin):
                     "version_slug": self.version.slug,
                 },
             ),
-            {"slug": "3.0"},
+            {"slug": "api-updated-slug"},
         )
         assert response.status_code == 204
         from_api = side_effects("v1.0")
