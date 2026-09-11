@@ -2434,6 +2434,54 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_reshim_rust_build_jobs(self, load_yaml_config):
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "rust": "latest",
+                    },
+                    "jobs": {
+                        "pre_build": [
+                            "cargo install mdbook",
+                            "mdbook build",
+                        ],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call(
+                    "cargo install mdbook",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "asdf",
+                    "reshim",
+                    "rust",
+                    escape_command=False,
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "mdbook build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_requirements_from_config_file_installed(self, load_yaml_config):
         load_yaml_config.return_value = get_build_config(
             {
