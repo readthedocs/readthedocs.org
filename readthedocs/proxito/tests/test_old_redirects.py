@@ -1049,6 +1049,46 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
         )
 
+    def test_exact_redirect_with_wildcard_on_superproject(self):
+        # This is just a control, it can be removed with bug resolved
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/2.2/*",
+            to_url="/en/2.0/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/2.2/", headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertTrue(
+            r["Location"].startswith("http://project.dev.readthedocs.io/en/2.0")
+        )
+
+    def test_exact_redirect_with_wildcard_on_subproject_with_projects_prefix(self):
+        # This is just a control, it can be removed with bug resolved. Users
+        # shouldn't have to prefix the full path in a subproject.
+        fixture.get(
+            Redirect,
+            project=self.subproject,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/projects/subproject/en/2.2/*",
+            to_url="/projects/subproject/en/2.0/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/projects/subproject/en/2.2/",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertTrue(
+            r["Location"].startswith(
+                "http://project.dev.readthedocs.io/projects/subproject/en/2.0"
+            )
+        )
+
 
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
 class UserForcedRedirectTests(BaseDocServing):
