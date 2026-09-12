@@ -332,6 +332,7 @@ class ServeRedirectMixin:
             version_slug=version_slug,
             filename=filename,
             path=path,
+            original_path=original_path,
             forced_only=forced_only,
         )
         if not redirect or not redirect_path:
