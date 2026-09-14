@@ -60,7 +60,7 @@ def remove_indexed_files(project_slug, version_slug=None, sync_id=None, index_na
         document._index._name = index_name
 
     try:
-        log.info("Deleting old files from search index.")
+        log.debug("Deleting old files from search index.")
         documents = document().search().filter("term", project=project_slug)
         if version_slug:
             documents = documents.filter("term", version=version_slug)

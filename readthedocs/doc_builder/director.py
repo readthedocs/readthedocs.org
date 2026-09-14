@@ -246,7 +246,7 @@ class BuildDirector:
         # and the default branch is already checked out.
         if not is_latest_without_default_branch:
             identifier = self.data.build_commit or self.data.version.identifier
-            log.info("Checking out.", identifier=identifier)
+            log.debug("Checking out.", identifier=identifier)
             self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
