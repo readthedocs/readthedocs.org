@@ -48,7 +48,7 @@ class HomepageView(View):
         return redirect(reverse("account_login"))
 
 
-class WelcomeView(View):
+class WelcomeView(CDNCacheControlMixin, View):
     """
     Conditionally redirect to website home page or to dashboard.
 
@@ -62,6 +62,9 @@ class WelcomeView(View):
       1. when user is logged in, redirect to dashboard
       2. when user is logged off, redirect to login page
     """
+
+    def can_be_cached(self, request):
+        return not request.user.is_authenticated
 
     def get(self, request, *args, **kwargs):
         # Redirect to user dashboard for logged in users
