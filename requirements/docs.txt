@@ -41,7 +41,7 @@ fonttools==4.63.0
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.18
+idna==3.19
     # via
     #   anyio
     #   requests
@@ -79,7 +79,7 @@ packaging==26.3
     #   sphinx
 pillow==12.3.0
     # via matplotlib
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   sphinx
     #   sphinx-prompt
@@ -162,7 +162,7 @@ urllib3==2.7.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.52.3
+uvicorn==0.52.4
     # via sphinx-autobuild
 watchfiles==1.2.0
     # via sphinx-autobuild

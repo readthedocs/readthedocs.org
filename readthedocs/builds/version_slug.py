@@ -22,6 +22,7 @@ import re
 import string
 from operator import truediv
 
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -50,6 +51,42 @@ version_slug_validator = RegexValidator(
         "Enter a valid slug consisting of lowercase letters, numbers, dots, dashes or underscores. It must start with a letter or a number."
     ),
 )
+
+
+def validate_version_slug(slug, version):
+    """
+    Validate a new slug for a given version.
+
+    These checks are shared by the dashboard form and the API,
+    so changing a slug behaves the same way everywhere.
+
+    :param slug: The new slug for the version.
+    :param version: The version the slug is being assigned to.
+    :raises django.core.exceptions.ValidationError: If the slug isn't valid.
+    """
+    # We rely on the slug to identify versions managed by Read the Docs
+    # (``latest`` and ``stable``), so it can't be changed.
+    if version.machine and slug != version.slug:
+        raise ValidationError(
+            _("The slug of versions managed by Read the Docs can't be changed."),
+        )
+
+    normalized_slug = generate_version_slug(slug)
+    if slug != normalized_slug:
+        raise ValidationError(
+            _(
+                "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
+                "and it must start with a lowercase letter or a number. "
+                "Consider using '%(slug)s'."
+            ),
+            params={"slug": normalized_slug},
+        )
+
+    # NOTE: Django already checks for unique slugs and raises a ValidationError,
+    # but that message is attached to the whole form instead of the slug field.
+    # So we do the check here to provide a better error message.
+    if version.project.versions.filter(slug=slug).exclude(pk=version.pk).exists():
+        raise ValidationError(_("A version with that slug already exists."))
 
 
 def generate_unique_version_slug(source, version):
