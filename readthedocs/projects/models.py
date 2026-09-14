@@ -133,6 +133,17 @@ class ProjectRelationship(models.Model):
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
+    # NOTE: this model intentionally has no default ordering. A ``Meta.ordering``
+    # on a related field would add a JOIN + ORDER BY to every query over this
+    # model, including the unresolver's subproject lookups on the hot
+    # document-serving path. The ordering below is instead applied explicitly on
+    # each place that lists these relationships (dashboard views and the APIv3
+    # subprojects endpoint), since paginating an unordered queryset returns rows
+    # in a database-dependent order that changes between page queries.
+    #
+    # class Meta:
+    #     ordering = ("child__slug",)
+
     def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug

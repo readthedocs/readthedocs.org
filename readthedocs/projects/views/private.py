@@ -487,7 +487,11 @@ class ProjectRelationshipMixin(PrivateViewMixin, ProjectAdminMixin):
 
     def get_queryset(self):
         self.project = self.get_project()
-        return self.model.objects.filter(parent=self.project)
+        # ``ProjectRelationship`` has no default ordering. The list view is
+        # paginated, and paginating an unordered queryset returns rows in a
+        # database-dependent order for each page, so entries can show up
+        # duplicated or missing across pages.
+        return self.model.objects.filter(parent=self.project).order_by("child__slug")
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs["user"] = self.request.user

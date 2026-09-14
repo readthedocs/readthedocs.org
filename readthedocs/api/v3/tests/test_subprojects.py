@@ -62,6 +62,27 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), expected_response)
 
+    def test_projects_subprojects_list_is_ordered_by_child_slug(self):
+        # Create subprojects in non-alphabetical order to make sure the list
+        # is ordered by slug, and not by creation order.
+        for slug in ["delta", "alpha", "charlie"]:
+            self._create_subproject(slug=slug)
+
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert [result["child"]["slug"] for result in response.json()["results"]] == [
+            "alpha",
+            "charlie",
+            "delta",
+            "subproject",
+        ]
+
     def test_projects_subprojects_list_other_user(self):
         url = reverse(
             "projects-subprojects-list",
