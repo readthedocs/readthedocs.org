@@ -174,13 +174,7 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
     versions_tags = [version["verbose_name"] for version in tags_data]
     versions_branches = [version["identifier"] for version in branches_data]
 
-    to_delete_qs = (
-        project.versions(manager=INTERNAL)
-        # Uploaded versions don't exist in the repository,
-        # so they should never be considered deleted from it.
-        .exclude(is_uploaded=True)
-        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
-    )
+    to_delete_qs = project.versions(manager=INTERNAL).exclude(slug__in=NON_REPOSITORY_VERSIONS)
 
     to_delete_qs = to_delete_qs.exclude(
         type=TAG,
@@ -222,11 +216,17 @@ def delete_versions_from_db(project, tags_data, branches_data):
 
 def get_deleted_active_versions(project, tags_data, branches_data):
     """Return the slug of active versions that were deleted from the repository."""
-    to_delete_qs = _get_deleted_versions_qs(
-        project=project,
-        tags_data=tags_data,
-        branches_data=branches_data,
-    ).filter(active=True)
+    to_delete_qs = (
+        _get_deleted_versions_qs(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
+        # Uploaded versions may not exist in the repository on purpose,
+        # so their absence isn't a signal for "version deleted" automation rules.
+        .exclude(is_uploaded=True)
+        .filter(active=True)
+    )
     return set(to_delete_qs.values_list("slug", flat=True))
 
 
