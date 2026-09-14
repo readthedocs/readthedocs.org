@@ -243,6 +243,29 @@ class TestAutomationRuleVersionMatching:
         assert rule.run(version) is True
         assert self.project.versions.filter(slug=slug).exists()
 
+    @pytest.mark.parametrize("version_type", [BRANCH, TAG])
+    def test_action_delete_version_on_uploaded_version(self, trigger_build, version_type):
+        slug = "delete-me"
+        version = get(
+            Version,
+            slug=slug,
+            verbose_name=slug,
+            project=self.project,
+            active=True,
+            type=version_type,
+            is_uploaded=True,
+        )
+        rule = get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[version_type],
+        )
+        assert rule.run(version) is True
+        assert self.project.versions.filter(slug=slug).exists()
+
     def test_action_set_default_version(self, trigger_build):
         version = get(
             Version,
