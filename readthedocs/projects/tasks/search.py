@@ -1,3 +1,6 @@
+import os
+import subprocess
+import tempfile
 from fnmatch import fnmatch
 
 import structlog
@@ -18,9 +21,11 @@ from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.parsers import GenericParser
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
+from readthedocs.storage.filesystem import RTDFileSystemStorage
 from readthedocs.worker import app
 
 
@@ -262,47 +267,65 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
         sync_id=sync_id,
     )
 
-    for root, __, filenames in build_media_storage.walk(storage_path):
-        for filename in filenames:
-            # We don't care about non-HTML files (for now?).
-            if not filename.endswith(".html"):
-                continue
-
-            full_path = build_media_storage.join(root, filename)
-            # Generate a relative path for storage similar to os.path.relpath
-            relpath = full_path.removeprefix(storage_path).lstrip("/")
-
-            html_file = HTMLFile(
-                project=version.project,
-                version=version,
-                path=relpath,
-                name=filename,
-                # TODO: We are setting the commit field since it's required,
-                # but it isn't used, and will be removed in the future
-                # together with other fields.
-                commit="unknown",
-                build=sync_id,
-            )
-            for indexer in indexers:
-                try:
-                    indexer.process(html_file, sync_id)
-                except Exception:
-                    log.exception(
-                        "Failed to process HTML file",
-                        html_file=html_file.path,
-                        indexer=indexer.__class__.__name__,
-                        version_slug=version.slug,
-                    )
-
-    for indexer in indexers:
+    # Download the whole version with rclone and parse the files from the
+    # local copy. This is much faster than reading each file from storage
+    # individually, since that results in one or more requests per file.
+    with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
         try:
-            indexer.collect(sync_id)
-        except Exception:
-            log.exception(
-                "Failed to collect indexer results",
-                indexer=indexer.__class__.__name__,
-                version_slug=version.slug,
-            )
+            build_media_storage.rclone_download_directory(storage_path, tmp_dir)
+        except subprocess.CalledProcessError as exc:
+            # Exit code 3 is "directory not found". Continue with the empty
+            # local copy — same as walking a missing path in storage — so
+            # indexers can still clean up previously indexed files. Any other
+            # error is fatal, so a transient storage failure never wipes the
+            # search index for the version.
+            if exc.returncode != 3:
+                raise
+
+        parser = GenericParser(version, storage=RTDFileSystemStorage(location=tmp_dir))
+        for root, __, filenames in os.walk(tmp_dir):
+            for filename in filenames:
+                # We don't care about non-HTML files (for now?).
+                if not filename.endswith(".html"):
+                    continue
+
+                relpath = os.path.relpath(os.path.join(root, filename), tmp_dir)
+
+                html_file = HTMLFile(
+                    project=version.project,
+                    version=version,
+                    path=relpath,
+                    name=filename,
+                    # TODO: We are setting the commit field since it's required,
+                    # but it isn't used, and will be removed in the future
+                    # together with other fields.
+                    commit="unknown",
+                    build=sync_id,
+                )
+                html_file.parser = parser
+                for indexer in indexers:
+                    try:
+                        indexer.process(html_file, sync_id)
+                    except Exception:
+                        log.exception(
+                            "Failed to process HTML file",
+                            html_file=html_file.path,
+                            indexer=indexer.__class__.__name__,
+                            version_slug=version.slug,
+                        )
+
+        # Indexers read the page contents lazily through
+        # ``HTMLFile.processed_json``, so they must be collected while the
+        # local copy still exists.
+        for indexer in indexers:
+            try:
+                indexer.collect(sync_id)
+            except Exception:
+                log.exception(
+                    "Failed to collect indexer results",
+                    indexer=indexer.__class__.__name__,
+                    version_slug=version.slug,
+                )
 
     # This signal is used for purging the CDN.
     files_changed.send(

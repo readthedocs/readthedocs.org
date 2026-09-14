@@ -1735,8 +1735,12 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
+    # Optional parser instance to generate the processed JSON with. When not
+    # set, pages are read from the version's path in the build media storage.
+    parser = None
+
     def get_processed_json(self):
-        parser = GenericParser(self.version)
+        parser = self.parser or GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
