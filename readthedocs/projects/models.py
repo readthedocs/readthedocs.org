@@ -2103,7 +2103,6 @@ class Feature(models.Model):
 
     # Build related features
     BUILD_FULL_CLEAN = "build_full_clean"
-    BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
@@ -2163,10 +2162,6 @@ class Feature(models.Model):
         (
             BUILD_FULL_CLEAN,
             _("Build: Clean all build directories to avoid leftovers from other projects."),
-        ),
-        (
-            BUILD_HEALTHCHECK,
-            _("Build: Use background cURL healthcheck."),
         ),
         (
             BUILD_NO_ACKS_LATE,

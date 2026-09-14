@@ -900,7 +900,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
             # NOTE: as this environment is used for `sync_repository_task` it may
             # not have a build associated. We skip running a healthcheck on those cases.
-            if self.project.has_feature(Feature.BUILD_HEALTHCHECK) and self.build:
+            if self.build:
                 self._run_background_healthcheck()
 
         except (DockerAPIError, ConnectionError) as exc:
