@@ -129,15 +129,19 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         These tags allow purging them when the docs of any of those
         projects change, or when their search index is updated
         (``rtd-search`` tag, see ``search_index_updated``).
+
+        The search executor caps the number of projects (``max_projects``),
+        which keeps this header well below the 16 KB limit of Cloudflare.
         """
         cache_tags = []
         for project, version in self._get_projects_to_search():
             cache_tags.append(project.slug)
             cache_tags.append(get_cache_tag(project.slug, version.slug))
             cache_tags.append(get_cache_tag(project.slug, "rtd-search"))
-        # The same project can appear more than once with different versions.
-        cache_tags = list(dict.fromkeys(cache_tags))
         if cache_tags:
+            # Global tag, so we can purge all cached search results
+            # with one single call, after the whole search index is re-created.
+            cache_tags.append("rtd-search")
             add_cache_tags(response, cache_tags)
 
     def _record_query(self, response):

@@ -16,6 +16,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.search import reindex_version
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.documents import ProjectDocument
+from readthedocs.search.signals import search_index_updated
 from readthedocs.search.tasks import create_new_es_index
 from readthedocs.search.tasks import index_objects_to_es
 from readthedocs.search.tasks import switch_es_index
@@ -81,6 +82,11 @@ class Command(BaseCommand):
                 new_index_name=new_index_name,
                 index_name=index_name,
             )
+
+        # Live search results changed for all projects at once,
+        # purge all cached search results from the CDN.
+        if HTMLFile in models:
+            search_index_updated.send(sender=Project, project=None, version=None)
 
     def _reindex_from(self, days_ago, models, queue):
         functions = {

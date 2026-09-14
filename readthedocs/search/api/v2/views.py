@@ -41,6 +41,18 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
     serializer_class = PageSearchSerializer
     project_cache_tag = "rtd-search"
 
+    def _get_cache_tags(self):
+        """
+        Add an additional *global* tag.
+
+        This is so we can purge all cached search results with one single call,
+        after the whole search index is re-created.
+        """
+        tags = super()._get_cache_tags()
+        if tags:
+            tags.append(self.project_cache_tag)
+        return tags
+
     @lru_cache(maxsize=1)
     def _get_project(self):
         project_slug = self.request.GET.get("project", None)

@@ -16,6 +16,8 @@ log = structlog.get_logger(__name__)
 
 # Sent after the search index of a version is updated.
 # Used to purge cached search results from the CDN (``rtd-search`` cache tag).
+# ``project`` and ``version`` are ``None`` when the index of *all* projects
+# changed at once (after switching to a re-created index).
 search_index_updated = django.dispatch.Signal()
 
 
