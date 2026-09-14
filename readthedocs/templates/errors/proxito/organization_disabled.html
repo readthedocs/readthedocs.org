@@ -1,0 +1,40 @@
+{% extends "errors/proxito/base.html" %}
+
+{% load blocktrans trans from i18n %}
+
+{% block title %}
+  {% trans "Documentation unavailable" %}
+{% endblock title %}
+
+{% block error_status %}
+  404
+{% endblock error_status %}
+{% block error_title %}
+  {{ block.super }}
+  {% trans "Documentation unavailable" %}
+{% endblock error_title %}
+
+{% block error_content %}
+  <p>
+    {% blocktrans trimmed %}
+      This documentation is not available because the organization that owns it is disabled.
+    {% endblocktrans %}
+  </p>
+{% endblock error_content %}
+
+{% block error_content_help %}
+  <p>
+    {% blocktrans trimmed %}
+      If you are an owner of this organization, renew your subscription to restore your documentation.
+    {% endblocktrans %}
+  </p>
+  <p>
+    {% url 'support' as url_support %}
+    {% blocktrans trimmed with url_support=url_support %}
+      Please <a href="{{ url_support }}">contact us</a> if you think this is a mistake.
+    {% endblocktrans %}
+  </p>
+{% endblock error_content_help %}
+
+{% block content_extra_link %}
+{% endblock content_extra_link %}
