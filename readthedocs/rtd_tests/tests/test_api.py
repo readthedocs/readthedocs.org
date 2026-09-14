@@ -1,4 +1,5 @@
 import datetime
+import io
 import json
 from unittest import mock
 
@@ -751,6 +752,64 @@ class APIBuildTests(TestCase):
         assert r.status_code == 200
         assert r.data["version"] is None
         assert r.data["commands"][0]["command"] == command
+
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    def test_build_detail_reads_commands_from_storage(self, build_commands_storage):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            cold_storage=True,
+        )
+        storage_commands = [
+            {
+                "id": 10,
+                "build": build.pk,
+                "command": "storage command",
+                "description": "Build docs",
+                "output": "Storage output",
+                "exit_code": 0,
+                "start_time": None,
+                "end_time": None,
+                "run_time": 0,
+            },
+        ]
+        build_commands_storage.exists.return_value = True
+        build_commands_storage.open.return_value = io.StringIO(json.dumps(storage_commands))
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        r = client.get(reverse("build-detail", args=(build.pk,)))
+        assert r.status_code == 200
+        assert r.data["commands"][0]["command"] == "storage command"
+        assert r.data["commands"][0]["output"] == "Storage output"
+        build_commands_storage.exists.assert_called_once_with(build.storage_path)
+
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    def test_build_list_does_not_read_commands_from_cold_storage(
+        self,
+        build_commands_storage,
+    ):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            cold_storage=True,
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        r = client.get(
+            reverse("build-list"),
+            {"project__slug": self.project.slug},
+        )
+        assert r.status_code == 200
+        assert len(r.data["results"]) == 1
+        assert r.data["results"][0]["id"] == build.pk
+        assert r.data["results"][0]["commands"] == []
+        build_commands_storage.exists.assert_not_called()
 
 
 class APITests(TestCase):
