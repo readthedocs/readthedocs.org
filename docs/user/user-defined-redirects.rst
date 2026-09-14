@@ -132,6 +132,10 @@ Limitations and observations
   and |com_brand| users have a number of redirects limited by their plan.
 - By default, redirects only apply on pages that don't exist.
   **Forced redirects** allow you to apply redirects on existing pages.
+- Forced exact redirects are checked before :ref:`built-in redirects <root_url_redirect>`.
+  This means a forced exact redirect on ``/`` or ``/*``
+  will take priority over the built-in root URL redirect (``/`` → ``/en/latest/``).
+  This is especially useful for :ref:`migrating your documentation to another domain <migrating-to-another-domain>`.
 - Redirects aren't applied on :doc:`previews of pull requests </pull-requests>`.
   You should treat these domains as ephemeral and not rely on them for user-facing content.
 - You can redirect to URLs outside Read the Docs,
@@ -320,6 +324,8 @@ Users will now be redirected:
 - From ``https://docs.example.com/dev/install.html``
   to ``https://docs.example.com/en/latest/install.html``.
 
+.. _migrating-to-another-domain:
+
 Migrating your documentation to another domain
 ``````````````````````````````````````````````
 
@@ -333,8 +339,14 @@ for example::
 
 Users will now be redirected:
 
+- From ``https://docs.example.com/`` (root URL)
+  to ``https://newdocs.example.com/``.
 - From ``https://docs.example.com/en/latest/install.html``
   to ``https://newdocs.example.com/en/latest/install.html``.
+
+Since forced exact redirects are checked before :ref:`built-in redirects <root_url_redirect>`,
+this single rule is enough to redirect all traffic,
+including the root URL, all versions, translations, and subprojects.
 
 Changing your Sphinx builder from ``html`` to ``dirhtml``
 `````````````````````````````````````````````````````````
