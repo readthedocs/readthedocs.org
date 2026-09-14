@@ -2,6 +2,7 @@
 
 import os
 import re
+import shlex
 import subprocess
 import sys
 import uuid
@@ -403,6 +404,12 @@ class DockerBuildCommand(BuildCommand):
         escaping, such as: ``pip install requests<0.8``. When passing
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
+
+        The string returned here is handed to ``docker-py`` as ``cmd``, and
+        ``docker-py`` runs ``shlex.split()`` over it to build the container's
+        argv. The shell script we pass to ``/bin/sh -c`` therefore has to be
+        quoted so that ``shlex.split()`` gives it back byte for byte, which is
+        what ``shlex.quote()`` guarantees.
         """
         prefix = ""
         if self.bin_path:
@@ -423,8 +430,14 @@ class DockerBuildCommand(BuildCommand):
             # variables with the `command` itself, have the same effect.
             # However, using `;` is more explicit.
             # See https://github.com/readthedocs/readthedocs.org/pull/10334
-            return f"{nice} /bin/sh -c '{prefix}; {command}'"
-        return f"{nice} /bin/sh -c '{command}'"
+            command = f"{prefix}; {command}"
+
+        # NOTE: do not hand-wrap this in `'...'`. A single quote cannot be
+        # backslash-escaped inside a single-quoted string, so any command
+        # carrying one (an image named `Gino's.png`, a `sed 's/a/b/'` in
+        # `build.jobs`) either fails `shlex.split()` with "No closing
+        # quotation" or is silently re-tokenized before the shell sees it.
+        return f"{nice} /bin/sh -c {shlex.quote(command)}"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
