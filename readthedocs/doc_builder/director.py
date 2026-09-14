@@ -39,6 +39,19 @@ from readthedocs.projects.tasks.storage import get_storage
 
 log = structlog.get_logger(__name__)
 
+# Commands that install an executable, after which ``asdf`` needs to be
+# reshimmed so the newly installed executable is found in ``PATH``.
+# See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
+PYTHON_RESHIM_COMMANDS = (
+    {"pip", "install"},
+    {"conda", "create"},
+    {"conda", "install"},
+    {"mamba", "create"},
+    {"mamba", "install"},
+    {"poetry", "install"},
+)
+RUST_RESHIM_COMMANDS = ({"cargo", "install"},)
+
 
 class BuildDirector:
     """
@@ -458,11 +471,16 @@ class BuildDirector:
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
+        reshim = False
         if job not in ("pre_checkout", "post_checkout"):
             environment = self.build_environment
+            reshim = True
 
         for command in commands:
-            environment.run(command, escape_command=False, cwd=cwd)
+            if reshim:
+                self.run_command_and_reshim(environment, command, cwd)
+            else:
+                environment.run(command, escape_command=False, cwd=cwd)
 
     def check_old_output_directory(self):
         """
@@ -486,48 +504,39 @@ class BuildDirector:
             log.warning("Directory '_build/html' exists. This may lead to unexpected behavior.")
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
-    def run_build_commands(self):
-        """Runs each build command in the build environment."""
+    def run_command_and_reshim(self, environment, command, cwd):
+        """
+        Run a user command, reshimming ``asdf`` if the command installed an executable.
 
-        python_reshim_commands = (
-            {"pip", "install"},
-            {"conda", "create"},
-            {"conda", "install"},
-            {"mamba", "create"},
-            {"mamba", "install"},
-            {"poetry", "install"},
-        )
-        rust_reshim_commands = ({"cargo", "install"},)
+        A package installed by the user may ship an executable, and that
+        executable is only reachable from ``PATH`` once ``asdf`` has been
+        reshimmed. Without this, a command installed by one user command is not
+        found by the next one.
+        """
+        environment.run(command, escape_command=False, cwd=cwd)
 
-        cwd = self.data.project.checkout_path(self.data.version.slug)
-        environment = self.build_environment
-        for command in self.data.config.build.commands:
-            environment.run(command, escape_command=False, cwd=cwd)
-
-            # Execute ``asdf reshim python`` if the user is installing a
-            # package since the package may contain an executable
-            # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for python_reshim_command in python_reshim_commands:
+        for tool, reshim_commands in (
+            ("python", PYTHON_RESHIM_COMMANDS),
+            ("rust", RUST_RESHIM_COMMANDS),
+        ):
+            for reshim_command in reshim_commands:
                 # Convert tuple/list into set to check reshim command is a
                 # subset of the command itself. This is to find ``pip install``
                 # but also ``pip -v install`` and ``python -m pip install``
-                if python_reshim_command.issubset(command.split()):
+                if reshim_command.issubset(command.split()):
                     environment.run(
-                        *["asdf", "reshim", "python"],
+                        *["asdf", "reshim", tool],
                         escape_command=False,
                         cwd=cwd,
                         record=False,
                     )
 
-            # Do same for Rust
-            for rust_reshim_command in rust_reshim_commands:
-                if rust_reshim_command.issubset(command.split()):
-                    environment.run(
-                        *["asdf", "reshim", "rust"],
-                        escape_command=False,
-                        cwd=cwd,
-                        record=False,
-                    )
+    def run_build_commands(self):
+        """Runs each build command in the build environment."""
+        cwd = self.data.project.checkout_path(self.data.version.slug)
+        environment = self.build_environment
+        for command in self.data.config.build.commands:
+            self.run_command_and_reshim(environment, command, cwd)
 
         html_output_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
         if not os.path.exists(html_output_path):
