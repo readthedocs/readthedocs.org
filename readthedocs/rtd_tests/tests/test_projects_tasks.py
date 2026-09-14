@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
 
 
@@ -61,8 +61,6 @@ class TestFinishInactiveBuildsTask(TestCase):
     @patch("readthedocs.projects.tasks.utils.app")
     def test_finish_unhealthy_builds_task(self, mocked_app):
         project = get(Project)
-        feature = get(Feature, feature_id=Feature.BUILD_HEALTHCHECK)
-        feature.projects.add(project)
 
         # Build just started with the default time and healthcheck now
         build_1 = get(
@@ -185,11 +183,11 @@ class TestFinishInactiveBuildsTask(TestCase):
             return build
 
         # Picked up by a builder long ago, never pinged -> dead.
-        dead = build(BUILD_STATE_CLONING, datetime.timedelta(minutes=20))
-        # Picked up by a builder just now, container still starting -> keep waiting.
-        starting = build(BUILD_STATE_CLONING, datetime.timedelta(minutes=1))
+        dead = build(BUILD_STATE_CLONING, datetime.timedelta(hours=2))
+        # Picked up by a builder recently, container still starting -> keep waiting.
+        starting = build(BUILD_STATE_CLONING, datetime.timedelta(minutes=10))
         # Still queued, old but never picked up -> not this task's call.
-        queued = build(BUILD_STATE_TRIGGERED, datetime.timedelta(minutes=20))
+        queued = build(BUILD_STATE_TRIGGERED, datetime.timedelta(hours=2))
 
         finish_unhealthy_builds()
 
