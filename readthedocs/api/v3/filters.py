@@ -30,6 +30,9 @@ class ProjectFilter(filters.FilterSet):
 class VersionFilter(filters.FilterSet):
     slug = filters.CharFilter(lookup_expr="icontains")
     verbose_name = filters.CharFilter(lookup_expr="icontains")
+    # The `uploaded` field was replaced by `is_uploaded`,
+    # keep accepting the old name for backwards compatibility.
+    uploaded = filters.BooleanFilter(field_name="is_uploaded")
 
     class Meta:
         model = Version
@@ -38,6 +41,7 @@ class VersionFilter(filters.FilterSet):
             "privacy_level",
             "active",
             "built",
+            "uploaded",
             "slug",
             "type",
         ]
