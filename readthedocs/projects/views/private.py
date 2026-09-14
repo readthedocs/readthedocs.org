@@ -519,7 +519,9 @@ class ProjectUsersMixin(PrivateViewMixin, ProjectAdminMixin):
 
     def get_queryset(self):
         project = self.get_project()
-        return project.users.all()
+        # ``User`` has no default ordering, and this list is paginated;
+        # ``username`` is unique, making the order deterministic.
+        return project.users.order_by("username")
 
     def get_success_url(self):
         return reverse("projects_users", args=[self.get_project().slug])

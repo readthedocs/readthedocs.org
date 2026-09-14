@@ -378,6 +378,22 @@ class TestPrivateViews(TestCase):
         self.client.login(username="eric", password="test")
         self.project = get(Project, slug="pip", users=[self.user])
 
+    def test_project_users_is_ordered_by_username(self):
+        # Add maintainers in non-alphabetical order to make sure the list
+        # is ordered by username, and not by creation order.
+        for username in ["zoe", "alice", "mike"]:
+            self.project.users.add(get(User, username=username))
+
+        response = self.client.get("/dashboard/pip/users/")
+
+        assert response.status_code == 200
+        assert [user.username for user in response.context["users"]] == [
+            "alice",
+            "eric",
+            "mike",
+            "zoe",
+        ]
+
     def test_dashboard_number_of_queries(self):
         # NOTE: create more than 15 projects, as we paginate by 15.
         for i in range(30):

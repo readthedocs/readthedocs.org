@@ -588,4 +588,6 @@ class SocialAccountViewSet(viewsets.ReadOnlyModelViewSet):
     model = SocialAccount
 
     def get_queryset(self):
-        return self.model.objects.filter(user=self.request.user.pk)
+        # ``SocialAccount`` has no default ordering, and this list is
+        # paginated with limit/offset.
+        return self.model.objects.filter(user=self.request.user.pk).order_by("pk")
