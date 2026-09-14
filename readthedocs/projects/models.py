@@ -522,6 +522,11 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    max_build_media_size = models.PositiveIntegerField(
+        _("Maximum size (in MB) allowed per media type when uploading build artifacts"),
+        null=True,
+        blank=True,
+    )
     allow_promos = models.BooleanField(
         _("Allow paid advertising"),
         default=True,
