@@ -29,11 +29,11 @@ billiard==4.2.4
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.78
+boto3==1.43.83
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.78
+botocore==1.43.83
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -60,7 +60,7 @@ charset-normalizer==3.5.1
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.4.2
+click==8.5.0
     # via
     #   -r requirements/pip.txt
     #   bumpver
@@ -88,7 +88,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==50.0.0
+cryptography==50.0.1
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -205,19 +205,19 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.32.3
+filelock==3.32.4
     # via
     #   -r requirements/pip.txt
     #   python-discovery
     #   virtualenv
-gunicorn==26.1.0
+gunicorn==26.2.0
     # via -r requirements/pip.txt
 idna==3.19
     # via
     #   -r requirements/pip.txt
     #   anyio
     #   requests
-ipython==9.16.1
+ipython==9.17.0
     # via -r requirements/deploy.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -274,7 +274,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.11.3
+platformdirs==4.11.5
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -303,9 +303,9 @@ pycparser==3.0
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.13.4
+pydantic==2.13.5
     # via -r requirements/pip.txt
-pydantic-core==2.46.4
+pydantic-core==2.46.5
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -327,7 +327,7 @@ pynacl==1.6.2
     #   pygithub
 pyquery==2.1.0
     # via -r requirements/pip.txt
-python-crontab==3.3.0
+python-crontab==3.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -337,7 +337,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.5.2
+python-discovery==1.6.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -383,7 +383,7 @@ s3transfer==0.19.2
     #   boto3
 selectolax==0.4.11
     # via -r requirements/pip.txt
-sentry-sdk==2.68.0
+sentry-sdk==2.68.1
     # via structlog-sentry
 six==1.17.0
     # via
@@ -478,9 +478,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.7.4
+virtualenv==21.7.7
     # via -r requirements/pip.txt
-wcwidth==0.8.2
+wcwidth==0.8.3
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
