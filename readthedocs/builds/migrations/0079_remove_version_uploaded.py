@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy()
 
     dependencies = [
-        ("builds", "0077_build_dispatched_date"),
+        ("builds", "0078_make_version_uploaded_nullable"),
     ]
 
     operations = [

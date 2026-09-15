@@ -169,14 +169,13 @@ class VersionFilterTests(APIEndpointMixin):
         self.assertGreater(len(results), 0)
         self.assertTrue(all(r["built"] for r in results))
 
-    def test_filter_by_uploaded(self):
-        """The uploaded filter is an alias for the is_uploaded field."""
+    def test_filter_by_is_uploaded(self):
         self.version.is_uploaded = True
         self.version.save()
 
         response = self.client.get(
             self._versions_list_url(),
-            data={"uploaded": "true"},
+            data={"is_uploaded": "true"},
         )
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
