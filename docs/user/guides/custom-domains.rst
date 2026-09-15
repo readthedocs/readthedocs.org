@@ -9,12 +9,12 @@ This guide describes how to host your documentation using your own domain name, 
 Adding a custom domain
 ----------------------
 
-To setup your :doc:`custom domain </custom-domains>`, follow these steps:
+To set up your :doc:`custom domain </custom-domains>`, follow these steps:
 
-#. Go the :guilabel:`Admin` tab of your project.
+#. Go to the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Domains`.
 #. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
-#. Mark the :guilabel:`Canonical` option if you want use this domain
+#. Mark the :guilabel:`Canonical` option if you want to use this domain
    as your :doc:`canonical domain </canonical-urls>`.
 #. Click on :guilabel:`Add`.
 #. At the top of the next page you'll find the value of the DNS record that you need to point your domain to.
@@ -59,7 +59,7 @@ Removing a custom domain
 
 To remove a custom domain:
 
-#. Go the :guilabel:`Admin` tab of your project.
+#. Go to the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Domains`.
 #. Click the :guilabel:`Remove` button next to the domain.
 #. Click :guilabel:`Confirm` on the confirmation page.

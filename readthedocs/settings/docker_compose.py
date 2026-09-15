@@ -61,6 +61,10 @@ class DockerBaseSettings(CommunityBaseSettings):
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    # OpenAI-backed spam rules (readthedocsext.spamfighting) read the key
+    # from settings only; docker-compose passes this variable through.
+    RTD_OPENAI_API_KEY = os.environ.get("RTD_OPENAI_API_KEY")
+
     @property
     def DOCROOT(self):
         # Add an extra directory level using the container's hostname.

@@ -102,6 +102,7 @@ some special characters like spaces and ``/`` are replaced with a dash (``-``), 
 If the resulting slug collides with another one, a suffix is added (``_a``, ``_b``, etc.).
 
 You can change the slug of a version in :ref:`the versions tab of your project <versions:Managing your versions>`,
+or with the :ref:`API <api/v3:Version update>`,
 but you should take the following into account:
 
 - Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.

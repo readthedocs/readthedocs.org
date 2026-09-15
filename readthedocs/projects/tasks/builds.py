@@ -379,6 +379,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.warning("Project build skipped.")
             raise BuildAppError(BuildAppError.BUILDS_DISABLED)
 
+    def _check_build_cancelled(self):
+        # Cancelled while queued. Workers run without mingle, so one started
+        # after the revoke was broadcast doesn't know about it.
+        if self.data.build.get("state") == BUILD_STATE_CANCELLED:
+            log.info("Build already cancelled. Skipping.")
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER)
+
     def before_start(self, task_id, args, kwargs):
         # Create the object to store all the task-related data
         self.data = TaskData()
@@ -453,6 +460,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # can probably remove it
         self._setup_sigterm()
 
+        self._check_build_cancelled()
         self._check_project_disabled()
         self._check_concurrency_limit()
         self._reset_build()
