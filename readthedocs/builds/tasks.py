@@ -13,6 +13,7 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
@@ -143,6 +144,8 @@ def finish_inactive_build(build):
     build.success = False
     build.state = BUILD_STATE_CANCELLED
     build.save()
+
+    BuildAPIKey.objects.revoke_keys_for_build(build)
 
     # Tell Celery to cancel this task in case it's in a zombie state.
     if build.task_id:
@@ -784,6 +787,7 @@ def run_post_build_tasks(build_pk):
     It PATCHes them itself before finishing.
     """
     # Avoid circular imports: readthedocs.projects.tasks imports from this module.
+    from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.doc_builder.exceptions import BuildCancelled
     from readthedocs.projects.tasks.search import index_build
     from readthedocs.projects.tasks.utils import send_external_build_status
@@ -798,6 +802,8 @@ def run_post_build_tasks(build_pk):
         project_slug=build.project.slug,
         version_slug=build.version.slug if build.version else None,
     )
+
+    BuildAPIKey.objects.revoke_keys_for_build(build)
 
     if build.success:
         if build.is_uploaded and build.version:

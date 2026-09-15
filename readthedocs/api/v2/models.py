@@ -43,6 +43,10 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
             project=project,
         )
 
+    def revoke_keys_for_build(self, build):
+        """Revoke every key minted for ``build``."""
+        return self.filter(build=build).update(revoked=True)
+
 
 class BuildAPIKey(AbstractAPIKey):
     """
