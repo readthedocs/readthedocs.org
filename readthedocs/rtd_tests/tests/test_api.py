@@ -328,7 +328,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -369,7 +368,6 @@ class APIBuildTests(TestCase):
             slug="myversion",
             project=project,
             built=True,
-            uploaded=True,
         )
         build = get(
             Build,
@@ -409,7 +407,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -2287,7 +2284,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=prev_identifier,
@@ -2335,7 +2331,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=identifier,
@@ -2975,7 +2970,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=prev_identifier,
@@ -3021,7 +3015,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
@@ -3065,7 +3058,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
