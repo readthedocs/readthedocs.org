@@ -7,7 +7,7 @@ Goals
 - Give users a supported way to upload documentation artifacts that isn't "call our API by hand".
 - Work on GitHub Actions, on other CI providers, and on a laptop.
 - Maintain a single implementation of the upload logic, not one per environment.
-- Keep the cost of running it on GitHub Actions close to zero, with nothing for the user to install.
+- Keep the cost of running it on GitHub Actions low, with nothing for the user to install by hand.
 - Be maintainable by a small team over several years.
 
 Non-goals
@@ -201,33 +201,33 @@ Cons:
   so their environment already has Python and may not have Node.
   ``npx`` is the less convenient fallback for those users.
 - More of the team is comfortable in Python than in the Node packaging ecosystem.
-- There is no zip file handling in Node stdlib, a dependency is required.
 
 Python CLI plus composite action
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One implementation in Python, published to PyPI,
-with a composite action in the same repository that runs it.
+with a composite action that installs a pinned version of it at run time.
 
-The composite action does not install anything.
-GitHub checks out the action's own repository onto the runner before running it,
-and exposes that location as ``$GITHUB_ACTION_PATH``,
-so the action can run the client directly out of its own checkout
-using the Python interpreter that is preinstalled on GitHub-hosted runners.
+The composite action uses :program:`uv` to install and run the client.
+:program:`uv` fetches a Python interpreter if the runner does not have one,
+and runs the client in its own isolated environment,
+so nothing on the runner is assumed and nothing the user installed is touched.
+This is the same pattern Cloudflare uses for Wrangler:
+one CLI implementation, and a GitHub Action that installs it.
 
 Pros:
 
 - One implementation, in the language the team knows best.
-- Near-zero cold cost on GitHub Actions, with no ``pip``, ``pipx``, ``uv``, or network access in the step.
 - The best fallback story off GitHub for a documentation audience that already has Python.
-- No committed build artifacts.
-- The action and the PyPI package are the same code from the same tag.
+- No runtime assumption: :program:`uv` brings its own interpreter.
+- The client can use third-party dependencies like any other Python package.
+- The action pins an explicit CLI version, so the two can be released independently.
 
 Cons:
 
-- Assumes a usable Python interpreter is present.
-  This holds on all GitHub-hosted runner images, but not necessarily on self-hosted runners.
-- It works best under a zero dependency constraint, discussed below, which costs some developer convenience.
+- A few seconds of cold cost per run, and a network fetch from PyPI.
+- Uploads depend on PyPI and GitHub releases being reachable from the runner.
+  The upload itself already needs the network, so this adds little in practice.
 - Slightly more indirection than a JavaScript action: the action is a wrapper around a CLI,
   rather than being the implementation.
 
@@ -315,8 +315,8 @@ Comparison
      - one
      - fair
    * - Python CLI plus composite action
-     - Python
-     - very low
+     - uv, installed by the action
+     - low
      - yes
      - one
      - good
@@ -342,52 +342,29 @@ Comparison
 Proposed solution
 -----------------
 
-Build one Python client in one repository,
-and ship a composite action from the root of that same repository.
+Build one Python client, published to PyPI,
+and ship a composite action that installs a pinned version of it at run time.
 
 Repository layout
 ~~~~~~~~~~~~~~~~~
 
-A single repository, published two ways from a single tag:
+Two things are published:
 
-- As a package on PyPI, for other CI providers and for laptops.
-- As a GitHub Action, referenced as ``readthedocs/upload-action@v1``.
+- A package on PyPI, ``readthedocs-cli``, for other CI providers and for laptops.
+- A GitHub Action, referenced as ``readthedocs/upload-action@v1``.
 
-Releasing means tagging, publishing to PyPI, and moving the floating major version tag.
-There is one version number and one changelog.
+The action pins an exact version of the package,
+so the two are decoupled whether they live in one repository or two.
+Releasing the client means publishing to PyPI.
+Releasing the action means bumping the pinned version and moving the floating major version tag.
 
-The zero dependency constraint
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Starting with a single repository keeps releases simple and avoids a second changelog.
+Splitting later costs nothing, because nothing in the action depends on sharing a checkout with the client.
 
-The client should use only the Python standard library:
-``urllib.request``, ``zipfile``, ``json``, and ``argparse``.
-Building the multipart request by hand instead of using ``requests`` is roughly forty lines.
+Installation at run time
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-This constraint is what makes the rest of the proposal work, and it buys more than it costs:
-
-- The action can run the client straight from its checkout, with no installation step.
-- ``pip install`` into a user's existing documentation environment can never conflict with their pins.
-  This matters, because many users will install it next to Sphinx or MkDocs.
-- There is no dependency upgrade or vulnerability churn to absorb.
-- A single file distribution stays possible as an escape hatch.
-
-The cost is real: no ``requests``, no rich output formatting, and hand-written multipart encoding.
-This is a constraint we hold deliberately, not a permanent rule.
-The next section describes what we do if we ever need to spend it.
-
-We should also declare and test a minimum supported Python version.
-
-If we ever need a third-party dependency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The constraint above is what makes the zero install step possible,
-but it is not what makes the architecture work.
-If we ever take a dependency, the only thing that breaks is the line in the action
-that runs the client directly from ``$GITHUB_ACTION_PATH``.
-One implementation, one repository, one release,
-and the workflow YAML that users write all stay exactly the same.
-
-The fallback in that case is :program:`uv`:
+The action installs the client with :program:`uv` on every run:
 
 .. code-block:: yaml
 
@@ -398,28 +375,36 @@ The fallback in that case is :program:`uv`:
          with:
            enable-cache: true
        - shell: bash
-         run: uv tool run readthedocs-upload==<version> upload --html-dir "$INPUT_HTML_DIR"
+         run: uv tool run readthedocs-cli==<version> upload --html-dir "$INPUT_HTML_DIR"
          env:
            RTD_TOKEN: ${{ inputs.token }}
            INPUT_HTML_DIR: ${{ inputs.html-dir }}
-
-If we still want to keep a single file client,
-:program:`uv` can also run a script that declares its own dependencies inline using
-`PEP 723 <https://peps.python.org/pep-0723/>`__ metadata.
 
 We prefer this over creating a virtual environment and installing into it ourselves,
 because :program:`uv` gives us the isolation for free.
 That matters more than it first appears.
 On a runner, ``python`` may resolve to the user's own documentation environment,
 the one holding their Sphinx or MkDocs pins.
-Borrowing that interpreter is only safe while we need nothing but the standard library.
-As soon as we install anything, it has to go somewhere we own.
+Running from there would mean installing our dependencies next to theirs.
+With :program:`uv`, the client runs somewhere we own,
+and works even on runners that have no Python at all.
 
-The cost of this fallback is a few seconds per run, a network fetch,
-and one more thing that has to be available on the runner.
+The cost is a few seconds per run and a network fetch, both reduced by the :program:`uv` cache.
 None of that changes what users write.
 It is also the same tool we recommend for CI providers that aren't GitHub,
 so it is not a new pattern for us to maintain.
+
+Dependencies
+~~~~~~~~~~~~
+
+The client is a normal Python package and can use third-party dependencies.
+``requests`` for the HTTP calls is the obvious one.
+
+The list should still stay short, with loose version constraints.
+Many users will ``pip install`` the client next to Sphinx or MkDocs,
+and a tight pin on a common library is the most likely way for the install to fail on their side.
+
+We should also declare and test a minimum supported Python version.
 
 Action interface
 ~~~~~~~~~~~~~~~~
@@ -466,9 +451,12 @@ Action interface
    runs:
      using: composite
      steps:
+       - uses: astral-sh/setup-uv@v10
+         with:
+           enable-cache: true
        - shell: bash
          run: >
-           python "$GITHUB_ACTION_PATH/src/rtd_upload/__main__.py" upload
+           uv tool run readthedocs-cli==<version> upload
            --html-dir "$INPUT_HTML_DIR"
          env:
            RTD_TOKEN: ${{ inputs.token }}
@@ -535,7 +523,7 @@ instead of arranging them into a directory layout itself:
              epub: _build/epub/my-project.epub
 
 The same workflow for a project that does not use Python to build its documentation.
-Note that there is still no interpreter setup for the upload step itself:
+The action brings its own tooling, so the upload step needs no Python setup:
 
 .. code-block:: yaml
 
@@ -579,7 +567,7 @@ or from :program:`git` when run locally:
 .. code-block:: bash
 
    export RTD_TOKEN=...
-   uvx readthedocs-upload upload --project-slug my-project --html-dir _build/html
+   uvx readthedocs-cli upload --project-slug my-project --html-dir _build/html
 
 Distribution and upgrades
 -------------------------
@@ -589,6 +577,9 @@ A concern raised in review was that a client we distribute will not stay up to d
 - The floating major version tag on the action means users pinned to ``@v1``
   get fixes without doing anything, and Dependabot handles major upgrades,
   which is a workflow users already have for actions.
+  Because the action pins the client version, moving ``@v1`` also moves the client,
+  so a fix in the CLI reaches action users without them touching their workflow.
+- Users installing from PyPI directly upgrade the way they upgrade any other package.
 - The client should send a version in its ``User-Agent`` header.
   This tells us what version spread is actually deployed, instead of guessing.
 - The API should be able to return an optional warning field that the client prints.
@@ -617,17 +608,19 @@ and the token model should not be finalized without considering it.
 Risks and open questions
 ------------------------
 
-- We hold the zero dependency constraint until something concrete forces us off it,
-  rather than treating it as permanent.
-  The way out is described in "If we ever need a third-party dependency" above.
-  The risk worth watching is losing the constraint by accident,
-  in a pull request that adds one convenient import,
-  instead of spending it deliberately.
-  Keeping the package's dependency list empty and failing CI if it stops being empty
-  is enough to catch that.
+- Every run of the action fetches from PyPI and from GitHub releases for :program:`uv`.
+  An outage in either breaks uploads for the duration.
+  The upload itself already needs the network,
+  and the :program:`uv` cache covers repeated runs on the same runner,
+  so we accept this rather than committing artifacts to work around it.
 - What is the minimum Python version we support, and how do we test it?
-  This is bounded by the interpreters available on the GitHub-hosted runner images,
+  :program:`uv` can fetch an interpreter on the action, so runner images do not bound this.
+  It is bounded by what users have where they ``pip install`` the client,
   and it needs to be declared rather than discovered by a user.
+- Should the client and the action live in one repository or two?
+  The action pins the client version either way, so this is a release process question,
+  not an architectural one.
+  Start with one and split if the release cadences diverge.
 - ``--project-slug`` is optional only for project-scoped tokens,
   and stays required for user-level tokens and for organization-level tokens if we add them.
   The client cannot know which kind it was given unless the token says so,
