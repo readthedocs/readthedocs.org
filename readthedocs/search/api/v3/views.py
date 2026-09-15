@@ -125,10 +125,8 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         """
         Tag the response with all the projects involved in the search.
 
-        Responses are cached by the CDN when served from a public domain.
-        These tags allow purging them when the docs of any of those
-        projects change, or when their search index is updated
-        (``rtd-search`` tag, see ``search_index_updated``).
+        This allows purging cached responses when the docs of any of those
+        projects change, or when their search index is updated (``rtd-search``).
         """
         cache_tags = []
         for project, version in self._get_projects_to_search():

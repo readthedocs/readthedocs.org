@@ -691,14 +691,14 @@ class TestPostBuildOverview(TestCase):
         post_comment.assert_not_called()
 
 
+@mock.patch("readthedocs.builds.tasks.send_build_notifications")
+@mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
+@mock.patch("readthedocs.projects.tasks.search.index_build")
 class TestRunPostBuildTasks(TestCase):
     def setUp(self):
         self.project = get(Project)
         self.version = get(Version, project=self.project)
 
-    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
-    @mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
-    @mock.patch("readthedocs.projects.tasks.search.index_build")
     def test_successful_build_purges_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
         build = get(Build, project=self.project, version=self.version, success=True)
 
@@ -707,9 +707,6 @@ class TestRunPostBuildTasks(TestCase):
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
         index_build.delay.assert_called_once_with(build_id=build.pk)
 
-    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
-    @mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
-    @mock.patch("readthedocs.projects.tasks.search.index_build")
     def test_failed_build_does_not_purge_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
         build = get(Build, project=self.project, version=self.version, success=False)
 
