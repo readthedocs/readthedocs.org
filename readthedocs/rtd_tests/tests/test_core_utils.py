@@ -368,6 +368,30 @@ class BuildIsolatedConcurrencyTests(TestCase):
         assert send_task.call_count == 3
 
     @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_skips_builds_pending_upload(self, send_task):
+        """
+        Upload API builds wait for the user's zip, not for a slot.
+
+        They sit in ``triggered`` with no task until ``complete/`` dispatches
+        them. Admitting one early runs the builder before the artifacts exist.
+        """
+        send_task.return_value.id = "task-id"
+        pending_upload = self._queued_build(minutes_ago=10)
+        Build.objects.filter(pk=pending_upload.pk).update(is_uploaded=True)
+        queued = self._queued_build(minutes_ago=1)
+
+        admit_project_builds(self.project)
+
+        pending_upload.refresh_from_db()
+        assert pending_upload.task_id is None
+        assert pending_upload.dispatched_date is None
+        assert pending_upload.notifications.count() == 0
+
+        queued.refresh_from_db()
+        assert queued.task_id == "task-id"
+        assert send_task.call_count == 1
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
     def test_admit_does_not_overadmit_dispatched_builds(self, send_task):
         """
         Dispatched-but-not-started builds keep occupying their slot.
