@@ -324,7 +324,7 @@ class ServeRedirectMixin:
         # which must be stripped to allow subprojects to support exact redirect
         # relative to the subproject root.
         original_path = path
-        if project.is_subproject and project.subproject_prefix:
+        if project.is_subproject:
             path = path.removeprefix(project.subproject_prefix)
 
         redirect, redirect_path = project.redirects.get_matching_redirect_with_path(
