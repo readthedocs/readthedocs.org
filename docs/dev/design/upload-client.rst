@@ -204,6 +204,7 @@ Cons:
   so their environment already has Python and may not have Node.
   ``npx`` is the less convenient fallback for those users.
 - More of the team is comfortable in Python than in the Node packaging ecosystem.
+- There is no zip file handling in Node stdlib, a dependency is required.
 
 Python CLI plus composite action
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
