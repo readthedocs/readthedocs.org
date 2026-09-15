@@ -196,9 +196,6 @@ Pros:
 
 Cons:
 
-- The action has to ship a bundled build artifact (typically via ``ncc``) committed to the repository,
-  or a release workflow that produces it.
-  Committed build output is a recurring maintenance annoyance.
 - The non-GitHub story is weaker for our actual audience.
   Most projects uploading documentation are building it with Sphinx, MkDocs, or Zensical,
   so their environment already has Python and may not have Node.
