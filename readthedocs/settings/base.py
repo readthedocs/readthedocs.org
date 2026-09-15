@@ -635,6 +635,7 @@ class CommunityBaseSettings(Settings):
     # name (rather than importing the function) so this codebase doesn't
     # need the ``worker`` package installed.
     RTD_BUILD_ISOLATED_TASK_NAME = "worker.tasks.run_build"
+    RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
     @property
@@ -676,6 +677,9 @@ class CommunityBaseSettings(Settings):
     # Don't queue a bunch of tasks in the workers
     CELERY_WORKER_PREFETCH_MULTIPLIER = 1
     CELERY_TASK_CREATE_MISSING_QUEUES = True
+    # On broker connection loss, kombu re-queues the unacked task this worker
+    # is running. Cancel it here so it doesn't also keep running (Celery 6 default).
+    CELERY_WORKER_CANCEL_LONG_RUNNING_TASKS_ON_CONNECTION_LOSS = True
 
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
