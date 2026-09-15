@@ -12,7 +12,7 @@ the version (flyout) menu of your docs can be easily overwhelmed and hard to nav
 You can deactivate the version to remove its docs,
 but removing its docs isn't always an option.
 To not list a version in the flyout menu while keeping its docs online, you can mark it as hidden.
-Go to the :guilabel:`Versions` tab of your project, click on :guilabel:`Edit` and mark the ``Hidden`` option.
+Go to the :guilabel:`Versions` tab of your project, open the dot menu for the version, select :guilabel:`Configure version`, and toggle the :guilabel:`Hidden` option.
 
 Users that have a link to your old version will still be able to see your docs.
 And new users can see all your versions (including hidden versions) in the versions tab of your project at ``https://app.readthedocs.org/projects/<your-project>/versions/``

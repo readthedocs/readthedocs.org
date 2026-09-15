@@ -38,7 +38,7 @@ class VersionFilter(filters.FilterSet):
             "privacy_level",
             "active",
             "built",
-            "uploaded",
+            "is_uploaded",
             "slug",
             "type",
         ]

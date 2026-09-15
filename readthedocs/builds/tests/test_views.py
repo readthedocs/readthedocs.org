@@ -18,7 +18,6 @@ from readthedocs.projects.models import Project
 
 
 @mock.patch("readthedocs.core.utils.app")
-@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class CancelBuildViewTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
@@ -111,12 +110,10 @@ class CancelBuildViewTests(TestCase):
         )
 
     def _get_project(self, owners, **kwargs):
-        if settings.RTD_ALLOW_ORGANIZATIONS:
-            # TODO: don't set `users=owners` when using orgs, it's redundant.
-            project = get(Project, users=owners, **kwargs)
-            get(Organization, projects=[project], owners=owners)
-            return project
-        return get(Project, users=owners, **kwargs)
+        # TODO: don't set `users=owners` when using orgs, it's redundant.
+        project = get(Project, users=owners, **kwargs)
+        get(Organization, projects=[project], owners=owners)
+        return project
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

@@ -174,11 +174,7 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
     versions_tags = [version["verbose_name"] for version in tags_data]
     versions_branches = [version["identifier"] for version in branches_data]
 
-    to_delete_qs = (
-        project.versions(manager=INTERNAL)
-        .exclude(uploaded=True)
-        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
-    )
+    to_delete_qs = project.versions(manager=INTERNAL).exclude(slug__in=NON_REPOSITORY_VERSIONS)
 
     to_delete_qs = to_delete_qs.exclude(
         type=TAG,

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from github import Auth
 from github import GithubIntegration
+from github import GithubRetry
 from requests_oauthlib import OAuth2Session
 
 
@@ -92,4 +93,13 @@ def get_gh_app_client() -> GithubIntegration:
         # Interacting with a nested resource doesn't make an extra
         # request to fetch the parent resource, which saves API calls.
         lazy=True,
+        # PyGitHub's retry will respect the GitHub API rate limit headers and retry after the specified time.
+        # We set a maximum wait time in case GitHub returns a very long wait time.
+        retry=GithubRetry(
+            # PyGithub arguments
+            secondary_rate_wait=15,
+            max_rate_limit_wait=15,
+            # urllib3 Retry arguments.
+            total=5,
+        ),
     )

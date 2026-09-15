@@ -20,7 +20,7 @@ certifi==2026.7.22
     #   sphinx-prompt
 charset-normalizer==3.5.1
     # via requests
-click==8.4.2
+click==8.5.0
     # via
     #   sphinx-intl
     #   uvicorn
@@ -41,19 +41,19 @@ fonttools==4.63.0
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.18
+idna==3.19
     # via
     #   anyio
     #   requests
     #   sphinx-prompt
-imagesize==2.0.0
+imagesize==2.0.1
     # via sphinx
 jinja2==3.1.6
     # via
     #   myst-parser
     #   sphinx
     #   sphinx-prompt
-kiwisolver==1.5.0
+kiwisolver==1.5.1
     # via matplotlib
 markdown-it-py==4.2.0
     # via
@@ -79,7 +79,7 @@ packaging==26.3
     #   sphinx
 pillow==12.3.0
     # via matplotlib
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   sphinx
     #   sphinx-prompt
@@ -162,9 +162,9 @@ urllib3==2.7.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.52.3
+uvicorn==0.52.4
     # via sphinx-autobuild
 watchfiles==1.2.0
     # via sphinx-autobuild
-websockets==17.0.1
+websockets==17.1
     # via sphinx-autobuild
