@@ -877,6 +877,11 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Show the OAuth app under a collapsed "More options"
+                        # section, so the GitHub App is the default choice.
+                        # Use ``collapsed_on_login``/``collapsed_on_connect`` to
+                        # collapse only on one of the processes.
+                        "collapsed": True,
                         "priority": 20,
                     },
                 },
@@ -899,6 +904,7 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        "collapsed": False,
                         "priority": 10,
                     },
                 },
