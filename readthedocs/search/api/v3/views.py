@@ -135,8 +135,6 @@ class SearchAPI(APIv3Settings, GenericAPIView):
             cache_tags.append(project.slug)
             cache_tags.append(get_cache_tag(project.slug, version.slug))
             cache_tags.append(get_cache_tag(project.slug, "rtd-search"))
-        # The same project can appear more than once with different versions.
-        cache_tags = list(dict.fromkeys(cache_tags))
         if cache_tags:
             add_cache_tags(response, cache_tags)
 

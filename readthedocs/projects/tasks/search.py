@@ -103,9 +103,11 @@ class SearchIndexer(Indexer):
             index_name=self.search_index_name,
         )
 
-        # When indexing into an index that isn't the default (e.g. while
-        # re-creating the index from scratch), live search results haven't
-        # changed, so there is nothing to purge from the CDN.
+        # When indexing into an index that isn't the default one (while
+        # re-creating the whole index from scratch), live search results
+        # haven't changed yet. After switching to the new index
+        # (``reindex_elasticsearch --change-index``), cached search results
+        # have to be purged manually from the CDN.
         if not self.search_index_name:
             search_index_updated.send(
                 sender=Project,
