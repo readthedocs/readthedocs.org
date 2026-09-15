@@ -122,11 +122,18 @@ def finish_unhealthy_builds():
     """
     Finish builds that will never complete on their own.
 
-    Two cases, both marked ``success=False`` and ``state=CANCELLED`` with an
+    Three cases, all marked ``success=False`` and ``state=CANCELLED`` with an
     ``error`` communicated to the user:
 
     - **Inactive:** a running build whose last healthcheck was more than
       ``RTD_BUILD_HEALTHCHECK_TIMEOUT`` seconds ago (its builder went silent).
+
+    - **Never started:** a build triggered more than ``RTD_BUILD_START_TIMEOUT``
+      seconds ago that a builder picked up (past ``triggered``) but that never
+      sent a single healthcheck (the builder died before starting the
+      container). Without a healthcheck the *inactive* case can't see it, and
+      cancelling it from the UI only revokes a Celery task nobody is running
+      anymore.
 
     - **Lost:** an build-isolated build that was dispatched to the fleet more
       than ``RTD_BUILD_DISPATCH_TIMEOUT`` seconds ago but no builder ever picked
@@ -135,17 +142,25 @@ def finish_unhealthy_builds():
     """
     log.debug("Running task to finish unhealthy builds.")
     healthcheck_delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
+    start_delta = datetime.timedelta(seconds=settings.RTD_BUILD_START_TIMEOUT)
     dispatch_delta = datetime.timedelta(seconds=settings.RTD_BUILD_DISPATCH_TIMEOUT)
     # Grab 3 days old at most to use a fast DB index
     recent = Q(date__gt=timezone.now() - datetime.timedelta(days=3))
-    inactive = ~Q(state__in=BUILD_FINAL_STATES) & Q(
-        healthcheck__lt=timezone.now() - healthcheck_delta
+    running = ~Q(state__in=BUILD_FINAL_STATES)
+    inactive = running & Q(healthcheck__lt=timezone.now() - healthcheck_delta)
+    # NOTE: ``triggered`` builds are excluded because they may legitimately wait
+    # in the queue (e.g. concurrency limit retries) for a long time.
+    never_started = (
+        running
+        & ~Q(state=BUILD_STATE_TRIGGERED)
+        & Q(healthcheck__isnull=True)
+        & Q(date__lt=timezone.now() - start_delta)
     )
     lost = Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
     # NOTE: Builds created using the upload API are omitted from this query since they don't have healthchecks.
     # They are terminated in a different task (finish_inactive_uploaded_builds).
     not_upload = ~Q(is_uploaded=True)
-    query = recent & not_upload & (inactive | lost)
+    query = recent & not_upload & (inactive | never_started | lost)
 
     projects_finished = set()
     builds_finished = []

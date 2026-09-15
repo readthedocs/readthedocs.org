@@ -177,6 +177,12 @@ class CommunityBaseSettings(Settings):
     # How long a build may sit dispatched to the build-isolated fleet before
     # we consider it "lost" (no builder ever picked it up) and cancel it.
     RTD_BUILD_DISPATCH_TIMEOUT = 5 * 60  # seconds
+    # How long after being triggered a build picked up by a builder (past
+    # ``triggered``) may go without sending its first healthcheck before we
+    # consider the builder dead and cancel it. The builder pings as soon as the
+    # container starts, so this only needs to cover queueing plus container
+    # startup, with a generous buffer since a false positive kills a real build.
+    RTD_BUILD_START_TIMEOUT = 60 * 60  # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds

@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
 
 
@@ -61,8 +61,6 @@ class TestFinishInactiveBuildsTask(TestCase):
     @patch("readthedocs.projects.tasks.utils.app")
     def test_finish_unhealthy_builds_task(self, mocked_app):
         project = get(Project)
-        feature = get(Feature, feature_id=Feature.BUILD_HEALTHCHECK)
-        feature.projects.add(project)
 
         # Build just started with the default time and healthcheck now
         build_1 = get(
@@ -156,6 +154,50 @@ class TestFinishInactiveBuildsTask(TestCase):
 
         recent.refresh_from_db()
         assert recent.state == BUILD_STATE_TRIGGERED
+
+        queued.refresh_from_db()
+        assert queued.state == BUILD_STATE_TRIGGERED
+
+    @patch("readthedocs.projects.tasks.utils.app")
+    def test_finish_unhealthy_builds_reaps_builds_that_never_healthchecked(self, mocked_app):
+        """
+        A build a builder picked up but that never sent a healthcheck is dead.
+
+        It's cancelled once it's past ``triggered`` with no ``healthcheck`` and
+        older than ``RTD_BUILD_START_TIMEOUT``. Builds that just started, and
+        ``triggered`` builds still waiting in the queue, are left alone.
+        """
+        project = get(Project)
+
+        def build(state, age):
+            build = get(
+                Build,
+                project=project,
+                version=project.get_stable_version(),
+                state=state,
+                healthcheck=None,
+                dispatched_date=None,
+            )
+            # ``date`` is ``auto_now_add``, so it has to be updated after creation.
+            Build.objects.filter(pk=build.pk).update(date=timezone.now() - age)
+            return build
+
+        # Picked up by a builder long ago, never pinged -> dead.
+        dead = build(BUILD_STATE_CLONING, datetime.timedelta(hours=2))
+        # Picked up by a builder recently, container still starting -> keep waiting.
+        starting = build(BUILD_STATE_CLONING, datetime.timedelta(minutes=10))
+        # Still queued, old but never picked up -> not this task's call.
+        queued = build(BUILD_STATE_TRIGGERED, datetime.timedelta(hours=2))
+
+        finish_unhealthy_builds()
+
+        dead.refresh_from_db()
+        assert dead.state == BUILD_STATE_CANCELLED
+        assert dead.success is False
+        assert dead.notifications.count() == 1
+
+        starting.refresh_from_db()
+        assert starting.state == BUILD_STATE_CLONING
 
         queued.refresh_from_db()
         assert queued.state == BUILD_STATE_TRIGGERED
