@@ -62,7 +62,7 @@ For keys that belong to Read the Docs Community, we will use the prefix ``rtdorg
 and for keys that belong to Read the Docs Business, we will use the prefix ``rtdcom_``
 (another option is to use ``rtd_``/``rtdb_`` or ``rtd_``/``rtdcom_``).
 In addition, we will add another prefix to identify the type of API key, e.g. ``proj_``, ``org_``, ``user_``.
-We can achieve this by by extending the ``KeyGenerator`` and ``BaseAPIKeyManager`` classes.
+We can achieve this by extending the ``KeyGenerator`` and ``BaseAPIKeyManager`` classes.
 
 For example:
 
