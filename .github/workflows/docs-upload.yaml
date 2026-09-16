@@ -1,4 +1,4 @@
-name: Docs upload
+name: Upload documentation to Read the Docs
 
 on:
   push:
