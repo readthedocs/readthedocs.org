@@ -893,6 +893,7 @@ def admit_queued_builds(self):
             Build.objects.filter(
                 state=BUILD_STATE_TRIGGERED,
                 task_id__isnull=True,
+                is_uploaded=False,
                 date__gt=timezone.now() - timezone.timedelta(days=1),
             )
             .values_list("project_id", flat=True)
