@@ -72,8 +72,11 @@ The build process includes the following jobs:
 
 .. seealso::
 
-    If you require additional build steps or customization,
-    it's possible to run user-defined commands and :doc:`customize the build process </build-customization>`.
+    :doc:`/build-customization`
+        Run user-defined commands if you require additional build steps or customization.
+
+    :doc:`/guides/build/upload-documentation`
+        Build the documentation yourself in your own continuous integration pipeline and upload the result to Read the Docs.
 
 Cancelling builds
 -----------------

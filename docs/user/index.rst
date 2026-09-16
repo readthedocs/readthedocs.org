@@ -30,6 +30,7 @@ Read the Docs: documentation simplified
 
    /builds
    /build-customization
+   /guides/build/upload-documentation
    /reference/git-integration
    /pull-requests
    /build-notifications
@@ -252,8 +253,8 @@ Step-by-step guides for common tasks:
 :doc:`/guides/pull-requests`
   Configure pull request builds for your project.
 
-:doc:`/guides/cross-referencing-with-sphinx`
-  Learn how to use cross-references in a Sphinx project.
+:doc:`/guides/build/upload-documentation`
+  Build your documentation in your own CI and upload it to Read the Docs.
 
 :doc:`All how-to guides </guides/index>`
   Browse all our how-to guides.

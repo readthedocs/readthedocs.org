@@ -62,3 +62,5 @@ and can be integrated in your documentation with :doc:`/addons`.
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
     :doc:`/flyout-menu`
         Discover the functionality of the Flyout menu and the ways that it can be customized.
+    :doc:`/guides/build/upload-documentation`
+        Build the documentation in your own continuous integration pipeline and upload the result to Read the Docs.
