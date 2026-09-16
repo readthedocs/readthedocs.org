@@ -31,9 +31,17 @@ jobs:
           PROJECT: user
         run: sphinx-build -W --keep-going -b html . _build/html
 
-      - name: Upload documentation to Read the Docs
+      - name: Upload documentation to Read the Docs Community
         uses: readthedocs/upload-action@main
         with:
           token: ${{ secrets.READTHEDOCS_TOKEN }}
           project-slug: docs-upload
+          html-dir: docs/_build/html
+
+      - name: Upload documentation to Read the Docs Business
+        uses: readthedocs/upload-action@main
+        with:
+          token: ${{ secrets.READTHEDOCS_BUSINESS_TOKEN }}
+          api-url: https://app.readthedocs.com
+          project-slug: read-the-docs-qa-docs-upload
           html-dir: docs/_build/html
