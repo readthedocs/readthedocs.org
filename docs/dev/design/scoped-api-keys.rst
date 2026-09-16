@@ -24,6 +24,13 @@ Backend
 Everything will be based on the rest-framework-api-key package,
 since it provides a lot of the functionality we need, and it's already used in the build API keys.
 
+The rest-framework-api-key package also provides us with:
+
+- Modeling
+- Keys that are shown only once, and are stored hashed in the database.
+- Expiration of keys.
+- Parsing of keys from the request headers.
+
 Modeling
 --------
 
@@ -33,10 +40,12 @@ We'll have a new model that will serve as the model for all future API keys.
 
    from rest_framework_api_key.models import AbstractAPIKey
 
+
    class ProjectPermission(StrEnum):
        READ = "project:read"
        WRITE = "project:write"
        UPLOAD = "project:upload"
+
 
    class RTDAPIKey(AbstractAPIKey):
        project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -80,7 +89,7 @@ Permissions
 The following permissions will be available for project scoped API keys:
 
 - ``project:read`` - Read-only access to the project and its versions.
-- ``project:write`` - Read the write access to the project and its versions.
+- ``project:write`` - Read and write access to the project and its versions.
 - ``project:upload`` - Access to the upload API only, no access to project or version endpoints (no even read-only access).
 
 We'll use the ``permissions`` field in the model to store the permissions for each API key, and we can use a JSONField to store a list of permissions.
@@ -91,6 +100,12 @@ Extra metadata
 
 We can add extra metadata to the API key like the last time it was used,
 and integrate it with our audit models, so we can expose this information to users.
+
+Alerting
+--------
+
+Email alerts can be sent to the owners of the project/organization/user when a key is about to expire.
+We could also consider sending an alert when a key is created or regenerated.
 
 Build API keys
 --------------
