@@ -17,6 +17,7 @@ from django.utils.text import slugify as slugify_base
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.doc_builder.exceptions import BuildCancelled
@@ -82,7 +83,10 @@ def prepare_build(
         project=project,
         version=version,
         type="html",
-        state=BUILD_STATE_TRIGGERED,
+        # An upload API build is waiting for the user to send us the artifacts,
+        # it isn't queued for a slot yet. ``upload/complete/`` moves it to
+        # ``triggered`` once the zip is in storage.
+        state=BUILD_STATE_UPLOADING if is_uploaded else BUILD_STATE_TRIGGERED,
         success=True,
         commit=commit,
         is_uploaded=is_uploaded,
@@ -140,8 +144,10 @@ def prepare_build(
     # Start the build in X minutes and mark it as limited.
     # The build-isolated path enforces concurrency on the web side instead
     # (see :func:`admit_project_builds`), so this only applies to the legacy path.
+    # Uploaded builds aren't dispatched from here at all: they wait in
+    # ``uploading`` until ``upload/complete/`` queues them for admission.
     limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-    if limit_reached and not project.has_feature(Feature.USE_BUILD_ISOLATED):
+    if limit_reached and not is_uploaded and not project.has_feature(Feature.USE_BUILD_ISOLATED):
         log.warning(
             "Delaying tasks at trigger step due to concurrency limit.",
         )
@@ -361,15 +367,31 @@ def admit_project_builds(project):
     side, rather than inside the build task. Builds sit in ``triggered`` until a
     slot frees; this dispatches the oldest ones to the fleet, FIFO.
 
-    Called from the periodic ``admit_queued_builds`` beat task.
+    Called from the periodic ``admit_queued_builds`` beat task, from
+    ``trigger_build`` and from the upload API once the artifacts are uploaded.
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
     from readthedocs.builds.utils import memcache_lock
     from readthedocs.projects.models import Feature
 
-    # The legacy path enforces concurrency inside the build task itself.
+    # Only look at recently-triggered builds. A build sitting in ``triggered``
+    # for over a day is stuck, not queued, and the ``date`` index keeps this
+    # query fast.
+    queued = project.builds.filter(
+        state=BUILD_STATE_TRIGGERED,
+        task_id__isnull=True,
+        date__gt=timezone.now() - datetime.timedelta(days=1),
+    ).order_by("date")
+
     if not project.has_feature(Feature.USE_BUILD_ISOLATED):
+        # The legacy path enforces concurrency inside the build task itself.
+        # Uploaded builds always run on the build-isolated fleet, though, so
+        # they are admitted from here whatever the project has enabled.
+        queued = queued.filter(is_uploaded=True)
+
+    if not queued.exists():
+        # Nothing to admit: don't take the organization-wide lock.
         return
 
     # Serialize admission across the whole concurrency scope so two passes can't
@@ -385,18 +407,6 @@ def admit_project_builds(project):
         free = max_concurrent - in_flight
 
         structlog.contextvars.bind_contextvars(project_slug=project.slug)
-
-        # Only look at recently-triggered builds. A build sitting in
-        # ``triggered`` for over a day is stuck, not queued, and the ``date``
-        # index keeps this query fast.
-        # Upload API builds wait in ``triggered`` for the user's zip, not for a
-        # slot; ``complete/`` dispatches them explicitly.
-        queued = project.builds.filter(
-            state=BUILD_STATE_TRIGGERED,
-            task_id__isnull=True,
-            is_uploaded=False,
-            date__gt=timezone.now() - datetime.timedelta(days=1),
-        ).order_by("date")
 
         for position, build in enumerate(queued):
             with structlog.contextvars.bound_contextvars(build_id=build.pk):
@@ -432,8 +442,13 @@ def cancel_build(build):
     - Running:
         Communicate Celery to force the termination of the current build
         and rely on the worker to update the build's status.
+
+    An upload API build waiting for its artifacts (``uploading`` with no task)
+    is cancelled the same way as a triggered one: there is no task to revoke,
+    the user simply never finished the upload.
     """
-    if build.state == BUILD_STATE_TRIGGERED:
+    waiting_for_upload = build.state == BUILD_STATE_UPLOADING and not build.task_id
+    if build.state == BUILD_STATE_TRIGGERED or waiting_for_upload:
         # Since the task won't be executed at all, we need to update the
         # Build object here.
         build.state = BUILD_STATE_CANCELLED

@@ -11,6 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_UPLOADING,
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
@@ -279,7 +280,7 @@ class BuildIsolatedConcurrencyTests(TestCase):
         feature.projects.add(self.project)
         self.version = get(Version, project=self.project)
 
-    def _queued_build(self, minutes_ago):
+    def _queued_build(self, minutes_ago, is_uploaded=False):
         """A build waiting in ``triggered``, never dispatched."""
         build = get(
             Build,
@@ -288,6 +289,7 @@ class BuildIsolatedConcurrencyTests(TestCase):
             state=BUILD_STATE_TRIGGERED,
             task_id=None,
             dispatched_date=None,
+            is_uploaded=is_uploaded,
         )
         # ``date`` is ``auto_now_add``, so set it after creation to get a
         # deterministic FIFO order for admission.
@@ -370,14 +372,22 @@ class BuildIsolatedConcurrencyTests(TestCase):
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_admit_skips_builds_pending_upload(self, send_task):
         """
-        Upload API builds wait for the user's zip, not for a slot.
+        Upload API builds wait for the user's zip in ``uploading``, not for a slot.
 
-        They sit in ``triggered`` with no task until ``complete/`` dispatches
-        them. Admitting one early runs the builder before the artifacts exist.
+        They only reach ``triggered`` once ``complete/`` confirms the artifacts
+        are in storage. Admitting one early runs the builder before the
+        artifacts exist.
         """
         send_task.return_value.id = "task-id"
-        pending_upload = self._queued_build(minutes_ago=10)
-        Build.objects.filter(pk=pending_upload.pk).update(is_uploaded=True)
+        pending_upload = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_UPLOADING,
+            task_id=None,
+            dispatched_date=None,
+            is_uploaded=True,
+        )
         queued = self._queued_build(minutes_ago=1)
 
         admit_project_builds(self.project)
@@ -389,6 +399,95 @@ class BuildIsolatedConcurrencyTests(TestCase):
 
         queued.refresh_from_db()
         assert queued.task_id == "task-id"
+        assert send_task.call_count == 1
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_builds_pending_upload_do_not_occupy_a_slot(self, send_task):
+        """A build waiting for its zip doesn't count against the limit."""
+        send_task.return_value.id = "task-id"
+        for _ in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=get(Version, project=self.project),
+                state=BUILD_STATE_UPLOADING,
+                task_id=None,
+                dispatched_date=None,
+                is_uploaded=True,
+            )
+        queued = self._queued_build(minutes_ago=1)
+
+        admit_project_builds(self.project)
+
+        queued.refresh_from_db()
+        assert queued.task_id == "task-id"
+        assert queued.notifications.count() == 0
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_dispatches_uploaded_builds(self, send_task):
+        """An uploaded build queued in ``triggered`` is admitted like any other."""
+        send_task.return_value.id = "task-id"
+        uploaded = self._queued_build(minutes_ago=10, is_uploaded=True)
+
+        admit_project_builds(self.project)
+
+        uploaded.refresh_from_db()
+        assert uploaded.task_id == "task-id"
+        assert uploaded.dispatched_date is not None
+        assert uploaded.notifications.count() == 0
+        assert send_task.call_count == 1
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_queues_uploaded_builds_over_the_limit(self, send_task):
+        """Uploaded builds queue behind the concurrency limit, they don't bypass it."""
+        send_task.return_value.id = "task-id"
+        # 3 builds already dispatched: no free slots left.
+        for i in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=get(Version, project=self.project),
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+        uploaded = self._queued_build(minutes_ago=1, is_uploaded=True)
+
+        admit_project_builds(self.project)
+
+        uploaded.refresh_from_db()
+        assert uploaded.task_id is None
+        assert uploaded.dispatched_date is None
+        assert (
+            uploaded.notifications.get().message_id
+            == BuildMaxConcurrencyError.LIMIT_REACHED
+        )
+        send_task.assert_not_called()
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_uploaded_builds_without_build_isolated_feature(self, send_task):
+        """
+        Uploaded builds always run on the isolated fleet.
+
+        They are admitted from here even for projects on the legacy path, which
+        enforces concurrency inside the build task instead.
+        """
+        send_task.return_value.id = "task-id"
+        self.project.feature_set.clear()
+        assert not self.project.has_feature(Feature.USE_BUILD_ISOLATED)
+        uploaded = self._queued_build(minutes_ago=10, is_uploaded=True)
+        # A legacy build in ``triggered`` is dispatched by its own task, not here.
+        legacy = self._queued_build(minutes_ago=5)
+
+        admit_project_builds(self.project)
+
+        uploaded.refresh_from_db()
+        assert uploaded.task_id == "task-id"
+        assert uploaded.dispatched_date is not None
+
+        legacy.refresh_from_db()
+        assert legacy.task_id is None
+        assert legacy.dispatched_date is None
         assert send_task.call_count == 1
 
     @mock.patch("readthedocs.core.utils.app.send_task")

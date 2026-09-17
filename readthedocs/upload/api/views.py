@@ -12,12 +12,13 @@ from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import prepare_build
-from readthedocs.core.utils import submit_to_build_isolated
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
@@ -193,7 +194,7 @@ class UploadCompleteView(APIv3Settings, APIView):
             )
 
         # Check build hasn't already been queued for processing.
-        if build.task_id or build.state != BUILD_STATE_TRIGGERED:
+        if build.task_id or build.state != BUILD_STATE_UPLOADING:
             return Response(
                 {"detail": "Build is already in process."},
                 status=status.HTTP_409_CONFLICT,
@@ -223,7 +224,16 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        submit_to_build_isolated(project=project, build=build)
+        # The artifacts are in storage, so the build is now queued like any
+        # other: waiting for a concurrency slot rather than for the user.
+        build.state = BUILD_STATE_TRIGGERED
+        build.save(update_fields=["state"])
+
+        # Dispatch the build if the project has a free slot. Otherwise it waits
+        # in ``triggered`` with a notification explaining the wait, and the
+        # periodic admission task picks it up as soon as a slot frees.
+        admit_project_builds(project)
+        build.refresh_from_db()
 
         return Response(
             {"build": BuildSerializer(build).data},

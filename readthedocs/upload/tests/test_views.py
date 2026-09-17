@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -14,12 +15,15 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import admit_queued_builds
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
@@ -150,7 +154,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         build = Build.objects.get(pk=response.data["build"]["id"])
         assert build.project == self.project
         assert build.commit == "a" * 40
-        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.state == BUILD_STATE_UPLOADING
         assert build.is_uploaded
 
         version = self.project.versions.get(verbose_name="main", type=BRANCH)
@@ -212,7 +216,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         build = Build.objects.get(pk=response.data["build"]["id"])
         assert build.project == self.project
         assert build.commit == "b" * 40
-        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.state == BUILD_STATE_UPLOADING
         assert build.is_uploaded
 
         version = self.project.versions.get(verbose_name="123", type=EXTERNAL)
@@ -309,7 +313,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
             Build,
             project=self.project,
             version=self.version,
-            state=BUILD_STATE_TRIGGERED,
+            state=BUILD_STATE_UPLOADING,
             is_uploaded=True,
             task_id=None,
         )
@@ -346,7 +350,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
             Build,
             project=other_project,
             version=other_version,
-            state=BUILD_STATE_TRIGGERED,
+            state=BUILD_STATE_UPLOADING,
             is_uploaded=True,
             task_id=None,
         )
@@ -365,6 +369,34 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         self.build.save()
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_409_CONFLICT
+
+    def test_build_already_completed_and_waiting_for_a_slot(self):
+        self.build.state = BUILD_STATE_TRIGGERED
+        self.build.save()
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_409_CONFLICT
+
+    @mock.patch("readthedocs.core.utils.app")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_initiating_a_new_upload_cancels_the_pending_one(self, storages_mock, app_mock):
+        """A build still waiting for its zip is cancelled, not left hanging."""
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.generate_presigned_post.return_value = {
+            "url": "https://storage.example.com/build-uploads",
+            "fields": {"key": "project/1/artifacts.zip"},
+        }
+        response = self.client.post(
+            reverse("upload-api-initiate"),
+            {
+                "project": self.project.slug,
+                "version": {"name": "main", "type": BRANCH, "commit": "a" * 40},
+            },
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+        self.build.refresh_from_db()
+        assert self.build.state == BUILD_STATE_CANCELLED
+        assert not self.build.success
 
     def test_upload_failed(self):
         self.data["status"] = UploadStatus.failed.value
@@ -390,19 +422,83 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         storage_mock.exists.assert_called_once_with(self.build.uploaded_artifacts_storage_path)
 
-    @mock.patch("readthedocs.core.utils.app")
+    @mock.patch("readthedocs.core.utils.app.send_task")
     @mock.patch("readthedocs.upload.api.views.storages")
-    def test_success_triggers_processing_task(self, storages_mock, app_mock):
+    def test_success_triggers_processing_task(self, storages_mock, send_task):
         storage_mock = storages_mock.__getitem__.return_value
         storage_mock.exists.return_value = True
-        app_mock.send_task.return_value = mock.Mock(id="task-id-123")
+        send_task.return_value = mock.Mock(id="task-id-123")
 
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_202_ACCEPTED
 
         self.build.refresh_from_db()
         assert self.build.task_id == "task-id-123"
+        assert self.build.state == BUILD_STATE_TRIGGERED
+        assert self.build.dispatched_date is not None
 
-        app_mock.send_task.assert_called_once()
-        call_kwargs = app_mock.send_task.call_args.kwargs
+        send_task.assert_called_once()
+        call_kwargs = send_task.call_args.kwargs
         assert call_kwargs["kwargs"]["build_pk"] == self.build.id
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_success_queues_build_when_limit_reached(self, storages_mock, send_task):
+        """Uploaded builds wait for a free concurrency slot like any other build."""
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.exists.return_value = True
+        self.project.max_concurrent_builds = 1
+        self.project.save()
+        get(
+            Build,
+            project=self.project,
+            version=get(Version, project=self.project),
+            state=BUILD_STATE_TRIGGERED,
+            task_id="running-build",
+            dispatched_date=timezone.now(),
+        )
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_202_ACCEPTED
+
+        self.build.refresh_from_db()
+        assert self.build.state == BUILD_STATE_TRIGGERED
+        assert self.build.task_id is None
+        assert self.build.dispatched_date is None
+        send_task.assert_not_called()
+
+        notification = Notification.objects.get(
+            attached_to_content_type__model="build",
+            attached_to_id=self.build.pk,
+        )
+        assert notification.message_id == BuildMaxConcurrencyError.LIMIT_REACHED
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_queued_build_is_admitted_when_a_slot_frees(self, storages_mock, send_task):
+        """The periodic admission task dispatches builds that had to wait."""
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.exists.return_value = True
+        send_task.return_value = mock.Mock(id="task-id-123")
+        self.project.max_concurrent_builds = 1
+        self.project.save()
+        running_build = get(
+            Build,
+            project=self.project,
+            version=get(Version, project=self.project),
+            state=BUILD_STATE_TRIGGERED,
+            task_id="running-build",
+            dispatched_date=timezone.now(),
+        )
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        send_task.assert_not_called()
+
+        running_build.state = BUILD_STATE_FINISHED
+        running_build.save()
+        admit_queued_builds()
+
+        self.build.refresh_from_db()
+        assert self.build.task_id == "task-id-123"
+        assert self.build.dispatched_date is not None

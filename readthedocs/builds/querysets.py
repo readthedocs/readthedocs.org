@@ -10,6 +10,7 @@ from django.utils import timezone
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
@@ -230,7 +231,9 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         A build counts as soon as it's been dispatched to the build-isolated
         fleet (``dispatched_date`` set) — it occupies a slot even while it waits
         in the broker for a builder to pick it up. A build still genuinely
-        queued (``triggered`` but not yet dispatched) does not count.
+        queued (``triggered`` but not yet dispatched) does not count, and
+        neither does an upload API build still waiting for its artifacts
+        (``uploading`` but not yet dispatched).
 
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
@@ -263,7 +266,10 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
             .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED])
             # Legacy builds never set ``dispatched_date``,
             # so they stay excluded exactly as before.
-            .exclude(Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__isnull=True))
+            .exclude(
+                Q(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_UPLOADING])
+                & Q(dispatched_date__isnull=True)
+            )
             .distinct()
             .count()
         )
@@ -281,18 +287,20 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
 
     def pending_upload(self):
         """
-        Get all builds that are pending upload (when using the upload API).
+        Get all builds that are waiting for their artifacts to be uploaded.
 
         When a build is created using the upload API,
-        it is created in the triggered state,
-        and when it's queued for processing, the task_id is set.
+        it is created in the uploading state,
+        and ``upload/complete/`` moves it to triggered once the zip is in storage,
+        where it queues for a concurrency slot like any other build.
 
-        We filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
-        and we don't want to count those builds as pending uploads.
+        We filter by task_id=None, so a build being processed by a worker
+        (which passes through ``uploading`` when it stores the artifacts)
+        isn't counted as a pending upload.
         """
         return self.filter(
             is_uploaded=True,
-            state=BUILD_STATE_TRIGGERED,
+            state=BUILD_STATE_UPLOADING,
             task_id=None,
         )
 
