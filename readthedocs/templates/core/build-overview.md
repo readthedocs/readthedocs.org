@@ -6,7 +6,12 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-{% if diff.files %}📖 **{{ diff.files|length }} page{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
+{% if not build.success %}❌ **Documentation build failed** — [see the build log](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug build.pk %})
+
+No preview for this commit.
+
+---
+last updated {{ last_updated|date:"j M Y, H:i T" }}{% else %}{% if diff.files %}📖 **{{ diff.files|length }} page{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
 {% if diff.should_auto_expand %}
 <details open>
 <summary>{{ diff.summary }}</summary>
@@ -38,4 +43,4 @@ Markdown inside <details> requires a blank line after </summary>.
 Your changes didn't affect any published page.
 {% endif %}
 ---
-[Build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
+[Build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}{% endif %}
