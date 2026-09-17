@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_diff
@@ -36,15 +37,17 @@ def get_build_overview(build: Build) -> BuildOverview | None:
     if not diff:
         return None
 
+    preview_url = diff.current_version.get_absolute_url()
     content = render_to_string(
         "core/build-overview.md",
         {
             "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
             "project": project,
-            "current_version": diff.current_version,
+            "preview_url": preview_url,
             "current_version_build": diff.current_version_build,
-            "base_version": diff.base_version,
-            "base_version_build": diff.base_version_build,
+            # The comment is re-rendered and edited on every build,
+            # so render time is when its contents were last refreshed.
+            "last_updated": timezone.now(),
             "diff": diff,
         },
     )

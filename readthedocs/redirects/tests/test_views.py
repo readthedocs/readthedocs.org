@@ -1,10 +1,11 @@
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.projects.views.private import ProjectRedirectsCreate
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
@@ -43,6 +44,32 @@ class TestViews(TestCase):
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.project.redirects.all().count(), 2)
+
+    def test_create_redirect_form_prefilled_from_query_string(self):
+        """The build overview comment links here with the deleted page pre-filled."""
+        view = ProjectRedirectsCreate()
+        view.request = RequestFactory().get(
+            "/",
+            {"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
+        )
+        # ``to_url`` is left out: only the author knows where the page went.
+        assert view.get_initial() == {
+            "redirect_type": PAGE_REDIRECT,
+            "from_url": "/legacy/timing-deprecated.html",
+        }
+
+    def test_create_redirect_form_ignores_unknown_redirect_type(self):
+        view = ProjectRedirectsCreate()
+        view.request = RequestFactory().get(
+            "/",
+            {"redirect_type": "not-a-type", "from_url": "/config.html"},
+        )
+        assert view.get_initial() == {"from_url": "/config.html"}
+
+    def test_create_redirect_form_without_query_string(self):
+        view = ProjectRedirectsCreate()
+        view.request = RequestFactory().get("/")
+        assert view.get_initial() == {}
 
     def test_update_redirect(self):
         self.assertEqual(self.project.redirects.all().count(), 1)

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from textwrap import dedent
 from unittest import mock
 
@@ -540,7 +540,9 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview(self, get_diff, post_comment):
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview(self, now, get_diff, post_comment):
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -556,21 +558,18 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
-
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
-
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
+            📖 **3 pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
             <details open>
-            <summary>3 files changed</summary>
+            <summary>1 added · 1 modified · 1 deleted</summary>
             <br>
             <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
             <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
-            <code>-</code> <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
+            <code>-</code> <code>deleteme.html</code> (<a href="https://readthedocs.org/projects/my-project/redirects/create/?redirect_type=page&amp;from_url=/deleteme.html">add redirect</a>)<br>
             </details>
 
+            ---
+            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -581,7 +580,9 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_more_than_5_files(self, get_diff, post_comment):
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview_more_than_5_files(self, now, get_diff, post_comment):
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -600,15 +601,10 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
-
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
-
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
+            📖 **6 pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
             <details>
-            <summary>6 files changed · <code>+</code> 1 added · <code>±</code> 4 modified · <code>-</code> 1 deleted</summary>
+            <summary>1 added · 4 modified · 1 deleted</summary>
             <br>
 
             `+` **Added**
@@ -621,10 +617,12 @@ class TestPostBuildOverview(TestCase):
             - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
 
             `-` **Deleted**
-            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
+            - `deleteme.html` ([add redirect](https://readthedocs.org/projects/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html))
 
             </details>
 
+            ---
+            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
 
@@ -636,7 +634,9 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_no_files_changed(self, get_diff, post_comment):
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview_no_files_changed(self, now, get_diff, post_comment):
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -648,15 +648,12 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
+            📖 **No pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            Your changes didn't affect any published page.
 
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
-
-            No files changed.
-
+            ---
+            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
 
