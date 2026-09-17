@@ -664,6 +664,37 @@ class TestPostBuildOverview(TestCase):
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview_build_failed(self, now, post_comment):
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+        failed_build = get(
+            Build,
+            project=self.project,
+            version=self.current_version,
+            commit="5678abcd",
+            state=BUILD_STATE_FINISHED,
+            success=False,
+        )
+        post_build_overview(build_pk=failed_build.pk)
+        expected_comment = dedent(
+            f"""
+            ❌ **Documentation build failed** — [see the build log](https://readthedocs.org/projects/my-project/builds/{failed_build.id}/)
+
+            No preview for this commit.
+
+            ---
+            last updated 17 Sep 2026, 08:53 UTC
+            """
+        )
+        # A failed build always gets a comment: leaving the previous one up would
+        # claim a preview is ready for a commit that never built.
+        post_comment.assert_called_once_with(
+            build=failed_build,
+            comment=expected_comment,
+            create_new=True,
+        )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
     def test_post_build_overview_no_external_version(self, post_comment):
         assert not self.base_version.is_external
         post_build_overview(build_pk=self.base_version_build.pk)
@@ -711,3 +742,26 @@ class TestRunPostBuildTasks(TestCase):
 
         purge_docs_cdn.delay.assert_not_called()
         index_build.delay.assert_not_called()
+
+    @mock.patch("readthedocs.builds.tasks.post_build_overview")
+    def test_failed_build_posts_build_overview(
+        self, post_build_overview, index_build, purge_docs_cdn, send_build_notifications
+    ):
+        """The success path runs through the search indexer, which a failed build never reaches."""
+        build = get(Build, project=self.project, version=self.version, success=False)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        post_build_overview.delay.assert_called_once_with(build.pk)
+
+    @mock.patch("readthedocs.builds.tasks.post_build_overview")
+    def test_failed_build_does_not_post_overview_when_disabled(
+        self, post_build_overview, index_build, purge_docs_cdn, send_build_notifications
+    ):
+        self.project.show_build_overview_in_comment = False
+        self.project.save()
+        build = get(Build, project=self.project, version=self.version, success=False)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        post_build_overview.delay.assert_not_called()
