@@ -1,17 +1,18 @@
-Uploading pre-built documentation
-=================================
+Direct upload
+=============
 
-Read the Docs can host documentation that you build somewhere else,
-for example in GitHub Actions or in any other continuous integration service.
-This guide shows how to build your documentation in your own pipeline and upload the resulting files to Read the Docs.
+Direct upload lets you build your documentation anywhere,
+for example in GitHub Actions or in any other continuous integration service,
+and upload the resulting files to Read the Docs for hosting.
+This guide shows how to build your documentation in your own pipeline and upload it.
 
-Uploaded documentation keeps all the hosting features you already know:
+Documentation uploaded this way keeps all the hosting features you already know:
 :doc:`versions </versions>`, :doc:`pull request previews </pull-requests>`,
 :doc:`server side search </server-side-search/index>`, :doc:`Addons </addons>`,
 :doc:`custom domains </custom-domains>` and :doc:`downloadable formats </downloadable-documentation>`,
 among others.
 
-Uploading is useful when:
+Direct upload is useful when:
 
 * Your documentation tool is not supported by the Read the Docs build process.
 * Your build needs tools, secrets or resources that are only available in your own environment.
@@ -19,13 +20,13 @@ Uploading is useful when:
 
 .. note::
 
-   Uploading pre-built documentation is enabled project by project for now.
+   Direct upload is enabled project by project for now.
    :doc:`Contact support </support>` to enable it on your project.
 
 Prerequisites
 -------------
 
-* A project on Read the Docs, with uploading enabled by our support team.
+* A project on Read the Docs, with direct upload enabled by our support team.
 * An :ref:`API token <api/v3:Token>` belonging to a user with admin access to the project.
   Store it as a secret in your continuous integration service.
 
@@ -38,7 +39,7 @@ Prerequisites
 Uploading from GitHub Actions
 -----------------------------
 
-Use the `Read the Docs upload action <https://github.com/readthedocs/upload-action>`__
+Use the `upload action <https://github.com/readthedocs/upload-action>`__
 after the step that builds your documentation:
 
 .. code-block:: yaml
@@ -68,7 +69,7 @@ after the step that builds your documentation:
          # - run: pip install -r docs/requirements.txt
          # - run: sphinx-build -b html docs/ _build/html
 
-         - uses: readthedocs/upload-action@main
+         - uses: readthedocs/upload-action@v1
            with:
              token: ${{ secrets.READTHEDOCS_TOKEN }}
              project-slug: <your-project-slug>
@@ -80,7 +81,7 @@ after the step that builds your documentation:
    Add it to your repository under :menuselection:`Settings --> Secrets and variables --> Actions`,
    or follow `GitHub's guide on using secrets <https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions>`__.
 
-The action detects the branch, tag or pull request from the workflow event,
+The upload action detects the branch, tag or pull request from the workflow event,
 so a push to ``main`` updates the ``main`` version,
 a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
@@ -97,16 +98,19 @@ and a pull request creates a :doc:`pull request preview </pull-requests>`.
 Uploading from any other environment
 ------------------------------------
 
-The action is a thin wrapper around the `Read the Docs command line client <https://github.com/readthedocs/readthedocs-cli>`__,
-which you can run from any continuous integration service or from your own computer.
+The upload action is a thin wrapper around the `readthedocs-upload <https://pypi.org/project/readthedocs-upload/>`__ package,
+a command line client that you can run from any continuous integration service or from your own computer.
 It requires Python 3.10 or newer and reads the token from the ``READTHEDOCS_TOKEN`` environment variable:
 
 .. code-block:: console
 
    $ export READTHEDOCS_TOKEN=<token>
-   $ uvx --from git+https://github.com/readthedocs/readthedocs-cli readthedocs upload \
+   $ uvx --from readthedocs-upload readthedocs upload \
        --project-slug <your-project-slug> \
        --html _build/html
+
+You can also install it with ``pip install readthedocs-upload``,
+which makes the ``readthedocs`` command available.
 
 Outside GitHub Actions, the client infers the version from the local Git checkout.
 On other continuous integration services, pass the version explicitly:
@@ -132,7 +136,7 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
 
    .. code-tab:: yaml GitHub Actions
 
-      - uses: readthedocs/upload-action@main
+      - uses: readthedocs/upload-action@v1
         with:
           token: ${{ secrets.READTHEDOCS_TOKEN }}
           project-slug: <your-project-slug>
@@ -158,4 +162,4 @@ Limits
 .. seealso::
 
    :doc:`/builds`
-      How Read the Docs builds documentation when you don't upload it yourself.
+      How Read the Docs builds documentation when you don't use direct upload.
