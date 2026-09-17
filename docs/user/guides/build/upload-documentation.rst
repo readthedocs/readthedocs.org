@@ -72,7 +72,7 @@ after the step that builds your documentation:
            with:
              token: ${{ secrets.READTHEDOCS_TOKEN }}
              project-slug: <your-project-slug>
-             html-dir: _build/html
+             html: _build/html
 
 .. note::
 
@@ -106,7 +106,7 @@ It requires Python 3.10 or newer and reads the token from the ``READTHEDOCS_TOKE
    $ export READTHEDOCS_TOKEN=<token>
    $ uvx --from git+https://github.com/readthedocs/readthedocs-cli readthedocs upload \
        --project-slug <your-project-slug> \
-       --html-dir _build/html
+       --html _build/html
 
 Outside GitHub Actions, the client infers the version from the local Git checkout.
 On other continuous integration services, pass the version explicitly:
@@ -115,7 +115,7 @@ On other continuous integration services, pass the version explicitly:
 
    $ readthedocs upload \
        --project-slug <your-project-slug> \
-       --html-dir _build/html \
+       --html _build/html \
        --version-name <branch, tag or pull request number> \
        --version-type <branch, tag or external> \
        --commit <full commit hash>
@@ -136,7 +136,7 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
         with:
           token: ${{ secrets.READTHEDOCS_TOKEN }}
           project-slug: <your-project-slug>
-          html-dir: _build/html
+          html: _build/html
           pdf: _build/latex/documentation.pdf
           epub: _build/epub/documentation.epub
 
@@ -144,7 +144,7 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
 
       $ readthedocs upload \
           --project-slug <your-project-slug> \
-          --html-dir _build/html \
+          --html _build/html \
           --pdf _build/latex/documentation.pdf \
           --epub _build/epub/documentation.epub
 
