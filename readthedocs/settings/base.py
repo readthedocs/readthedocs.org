@@ -877,6 +877,9 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Attached to the GitHub App button as a dropdown,
+                        # so the GitHub App is the default choice.
+                        "alternative_to": "githubapp",
                         "priority": 20,
                     },
                 },
