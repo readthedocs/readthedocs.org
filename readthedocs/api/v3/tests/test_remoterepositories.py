@@ -111,3 +111,44 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             response_data,
             self._get_response_dict("remoterepositories-list"),
         )
+
+    def test_remote_repository_list_smart_ordering(self):
+        social_account = SocialAccount.objects.get(user=self.me, provider=GITHUB)
+
+        def make_repo(full_name, admin):
+            remote_repository = fixture.get(
+                RemoteRepository,
+                organization=self.remote_organization,
+                full_name=full_name,
+                name=full_name.split("/")[-1],
+                vcs=REPO_TYPE_GIT,
+                vcs_provider=GITHUB,
+                private=False,
+            )
+            fixture.get(
+                RemoteRepositoryRelation,
+                remote_repository=remote_repository,
+                user=self.me,
+                account=social_account,
+                admin=admin,
+            )
+            return remote_repository
+
+        # Alphabetically first, but the user has no admin access.
+        make_repo("aaa/locked", admin=False)
+        # Alphabetically last, but importable and documentation-looking.
+        make_repo("zzz/team-docs", admin=True)
+        # Importable, without a documentation-looking name.
+        make_repo("rtd/other", admin=True)
+        # setUp's "rtd/project" is importable but already has a project
+        # attached, so it sinks within the importable group.
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(reverse("remoterepositories-list"))
+        assert response.status_code == 200
+        assert [repo["full_name"] for repo in response.json()["results"]] == [
+            "zzz/team-docs",
+            "rtd/other",
+            "rtd/project",
+            "aaa/locked",
+        ]
