@@ -895,6 +895,191 @@ Build triggering
     :statuscode 202: the build was triggered
 
 
+Uploads
+~~~~~~~
+
+These endpoints let you host documentation that was built outside Read the Docs.
+They are used by the `GitHub upload action <https://github.com/readthedocs/upload-action>`__
+and the `command line client <https://github.com/readthedocs/readthedocs-cli>`__,
+which is the recommended way to use them.
+
+Uploading is done in three steps:
+
+#. Initiate the upload to create the build and get a pre-signed URL for the storage.
+#. Upload a zip file with the documentation to that URL.
+#. Complete the upload to start processing the build.
+
+The zip file contains the HTML at ``html/``,
+and optionally a single file under ``pdf/``, ``epub/`` and ``htmlzip/``.
+
+.. note::
+
+   Uploading is enabled project by project.
+   :doc:`Contact support </support>` to enable it on your project.
+   See :doc:`/guides/build/upload-documentation` for the full guide.
+
+Upload initiate
++++++++++++++++
+
+.. http:post:: /api/v3/upload/initiate/
+
+    Create a build in the ``triggered`` state for the given version,
+    creating the version if it does not exist,
+    and return a pre-signed URL to upload the documentation.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/upload/initiate/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://app.readthedocs.org/api/v3/upload/initiate/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            data = {
+                'project': 'pip',
+                'version': {
+                    'name': 'main',
+                    'type': 'branch',
+                    'commit': 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0',
+                },
+            }
+            response = requests.post(URL, json=data, headers=HEADERS)
+            print(response.json())
+
+    The content of ``body.json`` is like:
+
+    .. sourcecode:: json
+
+        {
+            "project": "pip",
+            "version": {
+                "name": "main",
+                "type": "branch",
+                "commit": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+            }
+        }
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "build": "{BUILD}",
+            "version": "{VERSION}",
+            "upload_url": {
+                "url": "https://<storage>/",
+                "fields": {
+                    "key": "...",
+                    "policy": "...",
+                    "x-amz-signature": "..."
+                }
+            }
+        }
+
+    :>json string project: slug of the project.
+    :>json object version: ``name`` (branch name, tag name or pull request number),
+        ``type`` (``branch``, ``tag`` or ``external``),
+        ``commit`` (full commit hash) and
+        ``privacy_level`` (``public`` or ``private``, |com_brand| only).
+    :statuscode 201: the build was created
+    :statuscode 403: the user is not an admin of the project, uploading is not enabled, or the project is not active
+    :statuscode 404: the project was not found
+    :statuscode 429: the project has too many pending uploads
+
+    Upload the zip file to ``upload_url.url`` with a ``multipart/form-data`` POST request,
+    sending every entry of ``upload_url.fields`` as a form field,
+    plus the zip file in the ``file`` field.
+    The URL is valid for 30 minutes and accepts files up to 1 GB.
+    Do not send the ``Authorization`` header to the storage.
+
+    **Example upload**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -F "key=..." \
+              -F "policy=..." \
+              -F "x-amz-signature=..." \
+              -F "file=@artifacts.zip;type=application/zip" \
+              https://<storage>/
+
+        .. code-tab:: python
+
+            import requests
+            upload_url = response.json()['upload_url']
+            with open('artifacts.zip', 'rb') as fh:
+                response = requests.post(
+                    upload_url['url'],
+                    data=upload_url['fields'],
+                    files={'file': ('artifacts.zip', fh, 'application/zip')},
+                )
+            response.raise_for_status()
+
+    The form fields have to be sent exactly as returned by the initiate endpoint,
+    and before the ``file`` field.
+
+Upload complete
++++++++++++++++
+
+.. http:post:: /api/v3/upload/complete/
+
+    Notify Read the Docs that the upload finished.
+    On success, the build starts processing the uploaded files.
+    On failure, the build is marked as failed.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/upload/complete/ \
+              -H "Content-Type: application/json" \
+              -d '{"build": 12345, "status": "success"}'
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://app.readthedocs.org/api/v3/upload/complete/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            data = {'build': 12345, 'status': 'success'}
+            response = requests.post(URL, json=data, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "build": "{BUILD}"
+        }
+
+    :>json integer build: ID of the build returned by the initiate endpoint.
+    :>json string status: ``success`` or ``failed``.
+    :statuscode 202: the build was queued for processing
+    :statuscode 200: the upload was reported as failed and the build was marked as failed
+    :statuscode 400: the zip file was not found in the storage
+    :statuscode 403: the user is not an admin of the project
+    :statuscode 404: the build was not found, or it was not created by the initiate endpoint
+    :statuscode 409: the build is already being processed
+
+
 Subprojects
 ~~~~~~~~~~~
 
