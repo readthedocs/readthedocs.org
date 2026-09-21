@@ -565,7 +565,7 @@ class TestPostBuildOverview(TestCase):
             <br>
             <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
             <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
-            <code>-</code> <code>deleteme.html</code> (<a href="https://readthedocs.org/projects/my-project/redirects/create/?redirect_type=page&amp;from_url=/deleteme.html">add redirect</a>)<br>
+            <code>-</code> <code>deleteme.html</code> (<a href="https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&amp;from_url=/deleteme.html">add redirect</a>)<br>
             </details>
 
             ---
@@ -617,7 +617,7 @@ class TestPostBuildOverview(TestCase):
             - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
 
             `-` **Deleted**
-            - `deleteme.html` ([add redirect](https://readthedocs.org/projects/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html))
+            - `deleteme.html` ([add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html))
 
             </details>
 

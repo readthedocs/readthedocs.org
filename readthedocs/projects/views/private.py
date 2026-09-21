@@ -799,7 +799,7 @@ class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
     success_message = _("Redirect created")
 
-    def get_initial(self):
+    def get_form(self, data=None, files=None, **kwargs):
         """
         Pre-fill the form from the query string.
 
@@ -807,14 +807,16 @@ class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
         so the author can create the redirect without retyping the path.
         ``to_url`` is left empty, since only the author knows where the page went.
         """
-        initial = super().get_initial()
+        initial = {}
         redirect_type = self.request.GET.get("redirect_type")
         if redirect_type in dict(TYPE_CHOICES):
             initial["redirect_type"] = redirect_type
         from_url = self.request.GET.get("from_url")
         if from_url:
             initial["from_url"] = from_url
-        return initial
+        if initial:
+            kwargs.setdefault("initial", initial)
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):

@@ -1,11 +1,10 @@
 from django.contrib.auth.models import User
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
-from readthedocs.projects.views.private import ProjectRedirectsCreate
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
@@ -47,29 +46,29 @@ class TestViews(TestCase):
 
     def test_create_redirect_form_prefilled_from_query_string(self):
         """The build overview comment links here with the deleted page pre-filled."""
-        view = ProjectRedirectsCreate()
-        view.request = RequestFactory().get(
-            "/",
-            {"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
+        resp = self.client.get(
+            reverse("projects_redirects_create", args=[self.project.slug]),
+            data={"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
         )
-        # ``to_url`` is left out: only the author knows where the page went.
-        assert view.get_initial() == {
-            "redirect_type": PAGE_REDIRECT,
-            "from_url": "/legacy/timing-deprecated.html",
-        }
+        form = resp.context["form"]
+        assert form.initial["redirect_type"] == PAGE_REDIRECT
+        assert form.initial["from_url"] == "/legacy/timing-deprecated.html"
+        # Only the author knows where the page went.
+        assert not form.initial.get("to_url")
 
     def test_create_redirect_form_ignores_unknown_redirect_type(self):
-        view = ProjectRedirectsCreate()
-        view.request = RequestFactory().get(
-            "/",
-            {"redirect_type": "not-a-type", "from_url": "/config.html"},
+        resp = self.client.get(
+            reverse("projects_redirects_create", args=[self.project.slug]),
+            data={"redirect_type": "not-a-type", "from_url": "/config.html"},
         )
-        assert view.get_initial() == {"from_url": "/config.html"}
+        form = resp.context["form"]
+        assert form.initial["from_url"] == "/config.html"
+        assert form.initial.get("redirect_type") != "not-a-type"
 
     def test_create_redirect_form_without_query_string(self):
-        view = ProjectRedirectsCreate()
-        view.request = RequestFactory().get("/")
-        assert view.get_initial() == {}
+        resp = self.client.get(reverse("projects_redirects_create", args=[self.project.slug]))
+        form = resp.context["form"]
+        assert not form.initial.get("from_url")
 
     def test_update_redirect(self):
         self.assertEqual(self.project.redirects.all().count(), 1)
