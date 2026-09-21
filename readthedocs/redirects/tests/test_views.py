@@ -45,7 +45,7 @@ class TestViews(TestCase):
         self.assertEqual(self.project.redirects.all().count(), 2)
 
     def test_create_redirect_form_prefilled_from_query_string(self):
-        """The build overview comment links here with the deleted page pre-filled."""
+        """The build overview comment links here with the deleted file pre-filled."""
         resp = self.client.get(
             reverse("projects_redirects_create", args=[self.project.slug]),
             data={"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
@@ -53,7 +53,7 @@ class TestViews(TestCase):
         form = resp.context["form"]
         assert form.initial["redirect_type"] == PAGE_REDIRECT
         assert form.initial["from_url"] == "/legacy/timing-deprecated.html"
-        # Only the author knows where the page went.
+        # Only the author knows where the file went.
         assert not form.initial.get("to_url")
 
     def test_create_redirect_form_ignores_unknown_redirect_type(self):

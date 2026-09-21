@@ -803,9 +803,9 @@ class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
         """
         Pre-fill the form from the query string.
 
-        The build overview comment links here for each page deleted by a build,
+        The build overview comment links here for each file deleted by a build,
         so the author can create the redirect without retyping the path.
-        ``to_url`` is left empty, since only the author knows where the page went.
+        ``to_url`` is left empty, since only the author knows where the file went.
         """
         initial = {}
         redirect_type = self.request.GET.get("redirect_type")

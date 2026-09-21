@@ -558,7 +558,7 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **3 pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
+            📖 **3 files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
             <details open>
             <summary>1 added · 1 modified · 1 deleted</summary>
@@ -601,7 +601,7 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **6 pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
+            📖 **6 files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
             <details>
             <summary>1 added · 4 modified · 1 deleted</summary>
@@ -648,9 +648,9 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **No pages changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
+            📖 **No files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
 
-            Your changes didn't affect any published page.
+            Your changes didn't affect any published file.
 
             ---
             [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC

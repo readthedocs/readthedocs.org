@@ -6,7 +6,7 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-{% if diff.files %}📖 **{{ diff.files|length }} page{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
+{% if diff.files %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
 {% if diff.should_auto_expand %}
 <details open>
 <summary>{{ diff.summary }}</summary>
@@ -33,9 +33,9 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more...*
 {% endif %}{% endif %}
 </details>
-{% endif %}{% else %}📖 **No pages changed** — [preview the docs]({{ preview_url }})
+{% endif %}{% else %}📖 **No files changed** — [preview the docs]({{ preview_url }})
 
-Your changes didn't affect any published page.
+Your changes didn't affect any published file.
 {% endif %}
 ---
 [Build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
