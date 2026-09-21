@@ -96,10 +96,10 @@ class RedeemInvitation(DetailView):
         else:
             log.info(
                 "Invitation declined",
-                invitation_pk=invitation.pk,
+                invitation_id=invitation.pk,
                 object_type=invitation.object_type,
                 object_name=invitation.object_name,
-                object_pk=invitation.object.pk,
+                object_id=invitation.object.pk,
             )
             invitation.create_audit_log(
                 action=AuditLog.INVITATION_DECLINED,
