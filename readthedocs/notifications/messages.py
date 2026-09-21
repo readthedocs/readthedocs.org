@@ -173,7 +173,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             This build was cancelled because one of the commands exited with code 183.
-            Read more about <a href="https://docs.readthedocs.com/platform/stable/guides/build/skip-or-cancel-builds.html">cancelling builds based on a condition</a>.
+            Read more about <a href="https://docs.readthedocs.com/platform/stable/guides/build/skip-or-cancel-builds.html" target="_blank">cancelling builds based on a condition</a>.
             """
             ).strip(),
         ),
