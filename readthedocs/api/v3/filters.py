@@ -1,4 +1,9 @@
 import django_filters.rest_framework as filters
+from django.db.models import BooleanField
+from django.db.models import Exists
+from django.db.models import ExpressionWrapper
+from django.db.models import OuterRef
+from django.db.models import Q
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
@@ -73,6 +78,11 @@ class RemoteRepositoryFilter(filters.FilterSet):
     name = filters.CharFilter(field_name="name", lookup_expr="icontains")
     full_name = filters.CharFilter(field_name="full_name", lookup_expr="icontains")
     organization = filters.CharFilter(field_name="organization__slug")
+    ordering = filters.ChoiceFilter(
+        label="Ordering",
+        choices=[("import", "Repositories most likely to be imported first")],
+        method="order_repositories",
+    )
 
     class Meta:
         model = RemoteRepository
@@ -82,6 +92,31 @@ class RemoteRepositoryFilter(filters.FilterSet):
             "vcs_provider",
             "organization",
         ]
+
+    def order_repositories(self, queryset, name, value):
+        """
+        Order repositories by how likely they are to be imported next.
+
+        Used by the dashboard's add project page: repositories the user can
+        import come first, repositories that already have a project sink to
+        the bottom of their group, and documentation-looking names get a
+        boost, keeping the default alphabetical order as the tiebreak.
+        """
+        if value != "import":
+            return queryset
+        return queryset.annotate(
+            _has_project=Exists(Project.objects.filter(remote_repository=OuterRef("pk"))),
+            _looks_like_docs=ExpressionWrapper(
+                Q(full_name__icontains="doc"),
+                output_field=BooleanField(),
+            ),
+        ).order_by(
+            "-_admin",
+            "_has_project",
+            "-_looks_like_docs",
+            "organization__name",
+            "full_name",
+        )
 
 
 class RemoteOrganizationFilter(filters.FilterSet):

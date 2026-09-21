@@ -144,7 +144,21 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
         # attached, so it sinks within the importable group.
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # The default ordering stays alphabetical.
         response = self.client.get(reverse("remoterepositories-list"))
+        assert response.status_code == 200
+        assert [repo["full_name"] for repo in response.json()["results"]] == [
+            "aaa/locked",
+            "rtd/other",
+            "rtd/project",
+            "zzz/team-docs",
+        ]
+
+        response = self.client.get(
+            reverse("remoterepositories-list"),
+            {"ordering": "import"},
+        )
         assert response.status_code == 200
         assert [repo["full_name"] for repo in response.json()["results"]] == [
             "zzz/team-docs",
