@@ -24,6 +24,10 @@ How-to guides: build process
     Use the special exit code 183 to programmatically cancel builds based on custom conditions.
     This helps save resources by avoiding unnecessary documentation builds.
 
+⏩️ :doc:`Direct upload </guides/build/direct-upload>`
+    Build your documentation in GitHub Actions or any other continuous integration service,
+    and upload the result to Read the Docs for hosting.
+
 
 .. seealso:
 
@@ -40,3 +44,4 @@ How-to guides: build process
    Using custom environment variables </guides/environment-variables>
    Managing versions automatically </guides/automation-rules>
    Skip builds based on conditions </guides/build/skip-build>
+   Direct upload </guides/build/direct-upload>
