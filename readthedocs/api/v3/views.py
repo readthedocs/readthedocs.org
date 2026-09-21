@@ -621,9 +621,7 @@ class RemoteRepositoryViewSet(
                 # first, repositories that already have a project sink to the
                 # bottom of their group, and documentation-looking names get
                 # a boost, so the first page is the most likely import target.
-                _has_project=Exists(
-                    Project.objects.filter(remote_repository=OuterRef("pk"))
-                ),
+                _has_project=Exists(Project.objects.filter(remote_repository=OuterRef("pk"))),
                 _looks_like_docs=ExpressionWrapper(
                     Q(full_name__icontains="doc"),
                     output_field=BooleanField(),
