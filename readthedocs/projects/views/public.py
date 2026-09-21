@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
@@ -106,9 +107,11 @@ class ProjectDetailViewBase(
     filterset_class = ProjectVersionListFilterSet
 
     def _get_versions(self, project):
-        return project.versions(manager=INTERNAL).public(
+        versions = project.versions(manager=INTERNAL).public(
             user=self.request.user,
         )
+        # Uploaded versions have nothing to show until their first upload.
+        return versions.exclude(is_uploaded=True, built=False)
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
@@ -129,6 +132,12 @@ class ProjectDetailViewBase(
         )
         versions = self.get_filtered_queryset()
         context["versions"] = versions
+
+        # Direct upload projects show upload instructions until something is built.
+        context["direct_upload_waiting"] = (
+            project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD)
+            and not project.versions.filter(built=True).exists()
+        )
 
         protocol = "http"
         if self.request.is_secure():

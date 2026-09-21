@@ -467,12 +467,28 @@ class ProjectBasicsForm(ProjectForm):
 
 
 class ProjectConfigForm(forms.Form):
-    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+    """Intermediate step to choose how the documentation is built."""
+
+    BUILD_METHOD_READTHEDOCS = "readthedocs"
+    BUILD_METHOD_DIRECT_UPLOAD = "direct_upload"
+
+    build_method = forms.ChoiceField(
+        choices=[
+            (BUILD_METHOD_READTHEDOCS, _("Build on Read the Docs")),
+            (BUILD_METHOD_DIRECT_UPLOAD, _("Build externally and upload")),
+        ],
+        initial=BUILD_METHOD_READTHEDOCS,
+        required=False,
+        widget=forms.HiddenInput(),
+    )
 
     def __init__(self, *args, **kwargs):
         # Remove 'user' field since it's not expected by BaseForm.
         kwargs.pop("user")
         super().__init__(*args, **kwargs)
+
+    def clean_build_method(self):
+        return self.cleaned_data.get("build_method") or self.BUILD_METHOD_READTHEDOCS
 
 
 class UpdateProjectForm(

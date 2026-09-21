@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
@@ -118,6 +119,15 @@ class UploadInitiateView(APIv3Settings, APIView):
 
         If the version already exists, it will be updated with the new privacy level and set to active.
         """
+        # Uploads for the default branch go to "latest", like webhook builds do.
+        if version_type == BRANCH and name == project.get_default_branch(fallback_to_vcs=False):
+            latest = project.get_latest_version()
+            if latest and latest.machine:
+                latest.privacy_level = privacy_level
+                latest.active = True
+                latest.save()
+                return latest
+
         version = project.versions.filter(verbose_name=name, type=version_type).first()
         if version:
             version.identifier = name
