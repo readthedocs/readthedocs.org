@@ -9,7 +9,7 @@ This guide shows how to build your documentation in your own pipeline and upload
 Documentation uploaded this way keeps all the hosting features you already know:
 :doc:`versions </versions>`, :doc:`pull request previews </pull-requests>`,
 :doc:`server side search </server-side-search/index>`, :doc:`Addons </addons>`,
-:doc:`custom domains </custom-domains>` and :doc:`downloadable formats </downloadable-documentation>`,
+:doc:`custom domains </custom-domains>` and :doc:`downloadable formats </offline-formats>`,
 among others.
 
 Direct upload is useful when:
@@ -122,7 +122,7 @@ Uploading offline formats
 -------------------------
 
 PDF, ePub and zipped HTML files are optional, and each one points to a single file.
-They are shown in the :term:`flyout menu` like any other :doc:`downloadable format </downloadable-documentation>`:
+They are shown in the :term:`flyout menu` like any other :doc:`downloadable format </offline-formats>`:
 
 .. tabs::
 

@@ -100,7 +100,7 @@ The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted a
 
 We store the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
-Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
+Supported :ref:`formats <offline-formats:accessing offline formats>` are published if they exist in the following directories:
 
 * ``$READTHEDOCS_OUTPUT/html/`` (required)
 * ``$READTHEDOCS_OUTPUT/htmlzip/``
