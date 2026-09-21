@@ -112,34 +112,32 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             self._get_response_dict("remoterepositories-list"),
         )
 
+    def _make_remote_repository(self, full_name, admin):
+        remote_repository = fixture.get(
+            RemoteRepository,
+            organization=self.remote_organization,
+            full_name=full_name,
+            name=full_name.split("/")[-1],
+            vcs=REPO_TYPE_GIT,
+            vcs_provider=GITHUB,
+            private=False,
+        )
+        fixture.get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repository,
+            user=self.me,
+            account=SocialAccount.objects.get(user=self.me, provider=GITHUB),
+            admin=admin,
+        )
+        return remote_repository
+
     def test_remote_repository_list_smart_ordering(self):
-        social_account = SocialAccount.objects.get(user=self.me, provider=GITHUB)
-
-        def make_repo(full_name, admin):
-            remote_repository = fixture.get(
-                RemoteRepository,
-                organization=self.remote_organization,
-                full_name=full_name,
-                name=full_name.split("/")[-1],
-                vcs=REPO_TYPE_GIT,
-                vcs_provider=GITHUB,
-                private=False,
-            )
-            fixture.get(
-                RemoteRepositoryRelation,
-                remote_repository=remote_repository,
-                user=self.me,
-                account=social_account,
-                admin=admin,
-            )
-            return remote_repository
-
         # Alphabetically first, but the user has no admin access.
-        make_repo("aaa/locked", admin=False)
+        self._make_remote_repository("aaa/locked", admin=False)
         # Alphabetically last, but importable and documentation-looking.
-        make_repo("zzz/team-docs", admin=True)
+        self._make_remote_repository("zzz/team-docs", admin=True)
         # Importable, without a documentation-looking name.
-        make_repo("rtd/other", admin=True)
+        self._make_remote_repository("rtd/other", admin=True)
         # setUp's "rtd/project" is importable but already has a project
         # attached, so it sinks within the importable group.
 
@@ -165,4 +163,20 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             "rtd/other",
             "rtd/project",
             "aaa/locked",
+        ]
+
+    def test_remote_repository_list_import_ordering_ignores_doc_in_owner_name(self):
+        self._make_remote_repository("aaa/tool", admin=True)
+        self._make_remote_repository("readthedocs/tool", admin=True)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse("remoterepositories-list"),
+            {"ordering": "import"},
+        )
+        assert response.status_code == 200
+        assert [repo["full_name"] for repo in response.json()["results"]] == [
+            "aaa/tool",
+            "readthedocs/tool",
+            "rtd/project",
         ]

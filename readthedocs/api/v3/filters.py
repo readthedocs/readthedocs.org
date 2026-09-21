@@ -107,7 +107,7 @@ class RemoteRepositoryFilter(filters.FilterSet):
         return queryset.annotate(
             _has_project=Exists(Project.objects.filter(remote_repository=OuterRef("pk"))),
             _looks_like_docs=ExpressionWrapper(
-                Q(full_name__icontains="doc"),
+                Q(name__icontains="doc"),
                 output_field=BooleanField(),
             ),
         ).order_by(
