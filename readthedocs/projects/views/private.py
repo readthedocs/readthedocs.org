@@ -40,6 +40,7 @@ from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import slugify
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -429,7 +430,20 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         context["direct_upload_available"] = bool(self.initial_dict.get("direct_upload"))
+        if self.steps.current == "config":
+            context["project_slug"] = self._get_project_slug_preview()
         return context
+
+    def _get_project_slug_preview(self):
+        """Slug the project will get, derived from the "basics" step, for the upload examples."""
+        data = self.storage.get_step_data("basics")
+        if not data:
+            return ""
+        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
+        if not form.is_valid():
+            return ""
+        # .com sets the slug on the instance while cleaning (organization prefix).
+        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
 
     def _uses_direct_upload(self, form_list):
         """Whether the user chose direct upload in the config step."""
