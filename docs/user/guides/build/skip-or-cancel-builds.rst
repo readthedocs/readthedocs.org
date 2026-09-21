@@ -21,6 +21,27 @@ Cancel a build
    :backlinks: none
    :depth: 2
 
+When to avoid building
+----------------------
+
+There are several scenarios where you might want to avoid documentation builds:
+
+**Save resources on irrelevant changes**
+   Avoid builds when changes don't affect documentation,
+   such as changes only to source code, tests, or CI configuration files.
+
+**Avoid redundant builds**
+   Avoid builds for draft pull requests, work-in-progress branches,
+   or commits with specific markers like ``[skip ci]`` in the commit message.
+
+**Conditional documentation updates**
+   Only build documentation when specific files or directories are modified,
+   such as the ``docs/`` folder or configuration files.
+
+**Branch-specific logic**
+   Avoid builds on certain branches that don't require documentation updates,
+   such as experimental or development branches.
+
 Skip builds with automation rules
 ---------------------------------
 
@@ -78,27 +99,6 @@ The build will be marked as *cancelled* and will not consume build time or resou
 
    The 256 modulo operation is necessary because `Unix exit codes are limited to 0-255 <https://tldp.org/LDP/abs/html/exitcodes.html>`_,
    and any value larger than 255 is automatically reduced by taking the modulo 256.
-
-When to cancel builds
-~~~~~~~~~~~~~~~~~~~~~
-
-There are several scenarios where you might want to cancel documentation builds:
-
-**Save resources on irrelevant changes**
-   Cancel builds when changes don't affect documentation,
-   such as changes only to source code, tests, or CI configuration files.
-
-**Avoid redundant builds**
-   Cancel builds for draft pull requests, work-in-progress branches,
-   or commits with specific markers like ``[skip ci]`` in the commit message.
-
-**Conditional documentation updates**
-   Only build documentation when specific files or directories are modified,
-   such as the ``docs/`` folder or configuration files.
-
-**Branch-specific logic**
-   Cancel builds on certain branches that don't require documentation updates,
-   such as experimental or development branches.
 
 Examples
 ~~~~~~~~
