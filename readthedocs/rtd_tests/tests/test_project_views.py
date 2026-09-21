@@ -81,7 +81,6 @@ class TestImportViewContext(TestCase):
         assert resp.status_code == 200
         assert resp.context["has_connected_vcs_account"] is False
         assert resp.context["has_remote_repositories"] is False
-        assert resp.context["has_github_app_repositories"] is False
 
     def test_non_vcs_account_is_not_a_vcs_connection(self):
         get(SocialAccount, user=self.user, provider="google")
@@ -93,14 +92,12 @@ class TestImportViewContext(TestCase):
         resp = self.client.get(self.url)
         assert resp.context["has_connected_vcs_account"] is True
         assert resp.context["has_remote_repositories"] is False
-        assert resp.context["has_github_app_repositories"] is False
 
     def test_github_app_account_without_repositories(self):
         get(SocialAccount, user=self.user, provider=GitHubAppProvider.id)
         resp = self.client.get(self.url)
         assert resp.context["has_connected_vcs_account"] is True
         assert resp.context["has_remote_repositories"] is False
-        assert resp.context["has_github_app_repositories"] is False
 
     def test_github_app_account_with_repositories(self):
         account = get(SocialAccount, user=self.user, provider=GitHubAppProvider.id)
@@ -114,7 +111,6 @@ class TestImportViewContext(TestCase):
         resp = self.client.get(self.url)
         assert resp.context["has_connected_vcs_account"] is True
         assert resp.context["has_remote_repositories"] is True
-        assert resp.context["has_github_app_repositories"] is True
 
     def test_legacy_github_account_with_repositories(self):
         account = get(SocialAccount, user=self.user, provider=GitHubProvider.id)
@@ -128,7 +124,6 @@ class TestImportViewContext(TestCase):
         resp = self.client.get(self.url)
         assert resp.context["has_connected_vcs_account"] is True
         assert resp.context["has_remote_repositories"] is True
-        assert resp.context["has_github_app_repositories"] is False
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())

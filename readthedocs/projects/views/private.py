@@ -44,7 +44,6 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
-from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.services import registry
@@ -479,19 +478,14 @@ class ImportView(PrivateViewMixin, TemplateView):
         )
 
         # Repository list state, so the automatic import UI can explain an
-        # empty repository list (no Git provider connected, or a GitHub App
-        # account with no repositories granted yet) instead of showing a
-        # search box that can never have results.
+        # empty repository list instead of showing a search box that can
+        # never have results.
         vcs_providers = [service_cls.allauth_provider.id for service_cls in registry]
         context["has_connected_vcs_account"] = self.request.user.socialaccount_set.filter(
             provider__in=vcs_providers,
         ).exists()
         context["has_remote_repositories"] = RemoteRepository.objects.api(
             self.request.user,
-        ).exists()
-        context["has_github_app_repositories"] = RemoteRepository.objects.filter(
-            users=self.request.user,
-            vcs_provider=GITHUB_APP,
         ).exists()
 
         return context
