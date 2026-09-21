@@ -99,7 +99,9 @@ It requires Python 3.10 or newer and reads the token from the ``READTHEDOCS_TOKE
 .. code-block:: console
 
    $ export READTHEDOCS_TOKEN=<token>
-   $ uvx --from readthedocs-upload readthedocs upload --project-slug <your-project-slug> --html _build/html
+   $ uvx --from readthedocs-upload readthedocs upload \
+       --project-slug <your-project-slug> \
+       --html _build/html
 
 You can also install it with ``pip install readthedocs-upload``,
 which makes the ``readthedocs`` command available.
