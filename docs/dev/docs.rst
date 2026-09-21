@@ -32,14 +32,14 @@ you may want to verify those changes locally before pushing upstream.
 
       $ git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-#. Create a virtual environment with Python 3.8
+#. Create a virtual environment with Python 3.14
    (preferably the latest release),
    activate it, and upgrade pip:
 
    .. code-block:: console
 
       $ cd readthedocs.org
-      $ python3.8 -m venv .venv
+      $ python3.14 -m venv .venv
       $ source .venv/bin/activate
       (.venv) $ python -m pip install -U pip
 

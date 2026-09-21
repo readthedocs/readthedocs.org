@@ -1115,7 +1115,7 @@ class GitHubAppTests(TestCase):
             json=self._get_commit_json(commit=commit),
         )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             status_code=404,
             json={"message": "Not Found"},
         )
@@ -1146,7 +1146,7 @@ class GitHubAppTests(TestCase):
             json=self._get_commit_json(commit=commit),
         )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             status_code=403,
             json={"message": "Resource not accessible by integration"},
         )
@@ -1177,7 +1177,7 @@ class GitHubAppTests(TestCase):
             json=self._get_commit_json(commit=commit),
         )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             status_code=403,
             json={"message": "API rate limit exceeded for installation ID 1111."},
         )
@@ -1208,7 +1208,7 @@ class GitHubAppTests(TestCase):
             json=self._get_commit_json(commit=commit),
         )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             status_code=500,
             json={"message": "Internal Server Error"},
         )

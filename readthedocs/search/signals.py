@@ -1,5 +1,6 @@
 """We define custom Django signals to trigger before executing searches."""
 
+import django.dispatch
 import structlog
 from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
@@ -12,6 +13,10 @@ from readthedocs.search.tasks import index_objects_to_es
 
 
 log = structlog.get_logger(__name__)
+
+# Sent after the search index of a version is updated.
+# Used to purge cached search results from the CDN (``rtd-search`` cache tag).
+search_index_updated = django.dispatch.Signal()
 
 
 @receiver(post_save, sender=Project)

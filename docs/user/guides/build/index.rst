@@ -25,6 +25,10 @@ How-to guides: build process
     or cancel a running build from your own commands using the special exit code 183.
     This helps save resources by avoiding unnecessary documentation builds.
 
+⏩️ :doc:`Direct upload </guides/build/direct-upload>`
+    Build your documentation in GitHub Actions or any other continuous integration service,
+    and upload the result to Read the Docs for hosting.
+
 
 .. seealso:
 
@@ -41,3 +45,4 @@ How-to guides: build process
    Using custom environment variables </guides/environment-variables>
    Managing versions automatically </guides/automation-rules>
    Skip or cancel builds based on conditions </guides/build/skip-or-cancel-builds>
+   Direct upload </guides/build/direct-upload>
