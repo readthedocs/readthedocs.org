@@ -20,7 +20,7 @@ Direct upload is useful when:
 
 .. note::
 
-   Direct upload is enabled project by project for now.
+   **Direct upload is currently a beta testing feature.** It has to be enabled on your project, and we ask that you give us feedback on it.
    :doc:`Contact support </support>` to enable it on your project.
 
 Prerequisites
@@ -56,6 +56,10 @@ after the step that builds your documentation:
    jobs:
      docs:
        runs-on: ubuntu-latest
+       # Pull requests from forks don't have access to secrets.
+       # Do not use ``pull_request_target`` to work around this because it would run
+       # the pull request's code with access to your token.
+       if: github.event.pull_request.head.repo.full_name == github.repository
        steps:
          - uses: actions/checkout@v5
 
@@ -75,25 +79,15 @@ after the step that builds your documentation:
              project-slug: <your-project-slug>
              html: _build/html
 
-.. note::
-
-   The workflow reads the API token from a secret named ``READTHEDOCS_TOKEN``.
-   Add it to your repository under :menuselection:`Settings --> Secrets and variables --> Actions`,
-   or follow `GitHub's guide on using secrets <https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions>`__.
+The workflow reads the API token from a secret named ``READTHEDOCS_TOKEN``.
+Add it to your repository under :menuselection:`Settings --> Secrets and variables --> Actions`,
+or follow `GitHub's guide on using secrets <https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions>`__.
 
 The upload action detects the branch, tag or pull request from the workflow event,
 so a push to ``main`` updates the ``main`` version,
 a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
 
-.. warning::
-
-   GitHub does not expose secrets to workflows triggered by pull requests from forks,
-   so the upload fails on those.
-   Skip the upload step on forks with a condition like
-   ``if: github.event.pull_request.head.repo.full_name == github.repository``.
-   Do not use ``pull_request_target`` to work around this,
-   because it would run the pull request's code with access to your token.
 
 Uploading from any other environment
 ------------------------------------
@@ -105,9 +99,7 @@ It requires Python 3.10 or newer and reads the token from the ``READTHEDOCS_TOKE
 .. code-block:: console
 
    $ export READTHEDOCS_TOKEN=<token>
-   $ uvx --from readthedocs-upload readthedocs upload \
-       --project-slug <your-project-slug> \
-       --html _build/html
+   $ uvx --from readthedocs-upload readthedocs upload --project-slug <your-project-slug> --html _build/html
 
 You can also install it with ``pip install readthedocs-upload``,
 which makes the ``readthedocs`` command available.
@@ -126,8 +118,8 @@ On other continuous integration services, pass the version explicitly:
 
 Run ``readthedocs upload --help`` to see all the options.
 
-Uploading downloadable formats
-------------------------------
+Uploading offline formats
+-------------------------
 
 PDF, ePub and zipped HTML files are optional, and each one points to a single file.
 They are shown in the :term:`flyout menu` like any other :doc:`downloadable format </downloadable-documentation>`:
