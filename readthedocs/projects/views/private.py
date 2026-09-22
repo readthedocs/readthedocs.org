@@ -385,7 +385,6 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
     """
 
     initial_dict_key = "initial-data"
-    project_slug_preview_key = "project-slug-preview"
     condition_dict = {"config": show_config_step}
     form_list = [
         ("basics", ProjectBasicsForm),
@@ -435,16 +434,16 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
             context["project_slug"] = self._get_project_slug_preview()
         return context
 
-    def process_step(self, form):
-        if self.steps.current == "basics":
-            self.storage.extra_data[self.project_slug_preview_key] = (
-                form.instance.slug or slugify(form.cleaned_data.get("name", ""))
-            )
-        return super().process_step(form)
-
     def _get_project_slug_preview(self):
         """Slug the project will get, derived from the "basics" step, for the upload examples."""
-        return self.storage.extra_data.get(self.project_slug_preview_key, "")
+        data = self.storage.get_step_data("basics")
+        if not data:
+            return ""
+        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
+        if not form.is_valid():
+            return ""
+        # .com sets the slug on the instance while cleaning (organization prefix).
+        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
 
     def _uses_direct_upload(self, form_list):
         """Whether the user chose direct upload in the config step."""
