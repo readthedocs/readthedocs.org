@@ -1766,7 +1766,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -1818,7 +1818,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.7"},
                     "jobs": {
                         "post_checkout": ["git fetch --unshallow"],
@@ -1851,7 +1851,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf", "epub", "htmlzip"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "create_environment": ["echo create_environment"],
@@ -1931,7 +1931,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf", "epub", "htmlzip"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -1981,7 +1981,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2054,7 +2054,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "configuration": "docs/conf.py",
                 },
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2137,7 +2137,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "configuration": "mkdocs.yml",
                 },
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2217,7 +2217,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "create_environment": [],
@@ -2262,7 +2262,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -2575,7 +2575,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "mambaforge-4.10",
                     },

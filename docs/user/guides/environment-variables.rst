@@ -70,7 +70,7 @@ You can also use any of these variables from :term:`user-defined build jobs` in 
 
    version: 2
    build:
-     os: ubuntu-22.04
+     os: ubuntu-26.04
      tools:
        python: 3.10
      jobs:
