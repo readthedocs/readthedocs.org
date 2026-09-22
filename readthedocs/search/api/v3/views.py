@@ -127,12 +127,32 @@ class SearchAPI(APIv3Settings, GenericAPIView):
 
         This allows purging cached responses when the docs of any of those
         projects change, or when their search index is updated (``rtd-search``).
+
+        .. note::
+
+           The limit of the Cache-Tag header is 16KB https://developers.cloudflare.com/cache/how-to/purge-cache/purge-by-tags/#a-few-things-to-remember,
+           and the limit of all headers in nxing is 4KB, but during testing, we found that the max numbers of chars the header can have is ~2.5K.
+           Until we implement a better solution, we will limit the number of cache characters injected into the cache header to 2K.
         """
+        cache_tag_limit = 2_000
         cache_tags = []
         for project, version in self._get_projects_to_search():
-            cache_tags.append(project.slug)
-            cache_tags.append(get_cache_tag(project.slug, version.slug))
-            cache_tags.append(get_cache_tag(project.slug, "rtd-search"))
+            project_tags = [
+                project.slug,
+                get_cache_tag(project.slug, version.slug),
+                get_cache_tag(project.slug, "rtd-search"),
+            ]
+            tags_size = sum(len(tag) for tag in project_tags)
+            # We also take into account the commas that will be added between tags.
+            cache_tag_limit -= tags_size + len(project_tags)
+            if cache_tag_limit < 0:
+                log.info(
+                    "Cache tag limit reached, not adding more tags.",
+                    project=project.slug,
+                    version=version.slug,
+                )
+                break
+            cache_tags.extend(project_tags)
         if cache_tags:
             add_cache_tags(response, cache_tags)
 
