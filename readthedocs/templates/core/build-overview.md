@@ -6,17 +6,17 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-{% if diff.files %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
-{% if diff.should_auto_expand %}
-<details open>
+{% if not build.success %}❌ **Documentation build failed** — no preview for this commit.
+{% else %}{% if diff.files %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
+
+{% if diff.should_auto_expand %}<details open>
 <summary>{{ diff.summary }}</summary>
 <br>
 {% for file in diff.added %}<code>+</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
 {% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
 {% endfor %}{% for file in diff.deleted %}<code>-</code> <code>{{ file.path }}</code> (<a href="https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&amp;from_url=/{{ file.path|urlencode }}">add redirect</a>)<br>
 {% endfor %}</details>
-{% else %}
-<details>
+{% else %}<details>
 <summary>{{ diff.summary }}</summary>
 <br>
 {% if diff.added %}
@@ -36,6 +36,6 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endif %}{% else %}📖 **No files changed** — [preview the docs]({{ preview_url }})
 
 Your changes didn't affect any published file.
-{% endif %}
+{% endif %}{% endif %}
 ---
 [{{ project.name }} build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}

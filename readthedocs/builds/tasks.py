@@ -394,7 +394,7 @@ def post_build_overview(build_pk):
         service.post_comment(
             build=build,
             comment=build_overview.content,
-            create_new=bool(build_overview.diff.files),
+            create_new=build_overview.should_create_comment,
         )
         log.debug("PR comment posted successfully.")
         return
@@ -848,6 +848,8 @@ def run_post_build_tasks(build_pk):
                 build_pk=build.pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
+            if build.project.show_build_overview_in_comment:
+                post_build_overview.delay(build.pk)
 
         if build.commit and build.version:
             status = BUILD_STATUS_FAILURE
