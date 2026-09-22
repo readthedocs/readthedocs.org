@@ -3584,6 +3584,7 @@ class APIVersionTests(TestCase):
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

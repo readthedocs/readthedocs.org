@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
@@ -170,6 +171,29 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             max_size=mock.ANY,
         )
         send_build_status.delay.assert_not_called()
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_url_max_size(self, storages_mock, send_build_status):
+        storage_mock = self._mock_storage(storages_mock)
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        max_size = storage_mock.generate_presigned_post.call_args.kwargs["max_size"]
+        assert max_size == settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_url_max_size_project_override(self, storages_mock, send_build_status):
+        storage_mock = self._mock_storage(storages_mock)
+        self.project.max_build_media_size = 5120  # MB
+        self.project.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        max_size = storage_mock.generate_presigned_post.call_args.kwargs["max_size"]
+        assert max_size == 5120 * 1024 * 1024
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
