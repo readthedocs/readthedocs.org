@@ -47,6 +47,6 @@ Continue learning
    and might be a useful next step.
 
 
-   * :doc:`/downloadable-documentation` - Overview of this feature.
+   * :doc:`/offline-formats` - Overview of this feature.
    * :ref:`config-file/v2:formats` - Configuration file options for offline formats.
    * :ref:`build-customization:where to put files` - Where to put offline format output when using custom build commands.

@@ -315,6 +315,30 @@ class APIBuildTests(TestCase):
             Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
+    @mock.patch("readthedocs.api.v2.views.model_views.run_post_build_tasks")
+    def test_finishing_uploaded_build_runs_post_build_tasks(self, run_post_build_tasks):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+        )
+        assert not project.has_feature(Feature.USE_BUILD_ISOLATED)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build.pk),
+            {"state": BUILD_STATE_FINISHED},
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_200_OK
+        run_post_build_tasks.delay.assert_called_once_with(build_pk=build.pk)
+
     def test_response_building(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()

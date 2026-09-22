@@ -786,6 +786,7 @@ def run_post_build_tasks(build_pk):
     # Avoid circular imports: readthedocs.projects.tasks imports from this module.
     from readthedocs.doc_builder.exceptions import BuildCancelled
     from readthedocs.projects.tasks.search import index_build
+    from readthedocs.projects.tasks.utils import purge_docs_cdn
     from readthedocs.projects.tasks.utils import send_external_build_status
 
     build = Build.objects.filter(pk=build_pk).select_related("project", "version").first()
@@ -805,6 +806,7 @@ def run_post_build_tasks(build_pk):
             version.is_uploaded = True
             version.save(update_fields=["is_uploaded"])
 
+        purge_docs_cdn.delay(version_id=build.version_id)
         index_build.delay(build_id=build.pk)
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
