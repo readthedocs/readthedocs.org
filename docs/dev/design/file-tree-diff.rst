@@ -339,8 +339,9 @@ and later diffs compare against that snapshot instead of the live base manifest.
 To handle the second case, the snapshot is refreshed once the pull request has merged the base branch in.
 Only the build has the git clone needed to know that, so the work is split:
 
-- The API sends the builder the commit of the base version's latest successful build (``version.base_commit``).
-- After checkout, the builder runs ``git merge-base --is-ancestor <base_commit> HEAD``
+- The API sends the build the commit of the base version's latest successful build (``version.base_commit``).
+- After checkout, the build (the isolated builder or the legacy build task)
+  runs ``git merge-base --is-ancestor <base_commit> HEAD``
   and reports the commit back as ``build.base_commit`` when it is an ancestor.
   No extra fetch is needed: the shallow clone only holds that commit when the pull request merged it in.
 - When the build is indexed, ``FileManifestIndexer`` rewrites the snapshot from the base version's current manifest

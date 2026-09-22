@@ -651,6 +651,7 @@ class APIVersion(Version):
         self.project = APIProject(**kwargs.pop("project", {}))
         self.canonical_url = kwargs.pop("canonical_url", None)
         self.git_identifier = kwargs.pop("git_identifier", None)
+        self.base_commit = kwargs.pop("base_commit", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ["resource_uri", "absolute_url", "downloads"]:
