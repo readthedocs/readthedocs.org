@@ -374,6 +374,7 @@ class TestDirectUploadImport(TestCase):
             resp.context_data["direct_upload_available"],
             bool(direct_upload_query),
         )
+        self.assertEqual(resp.context_data["project_slug"], "foobar")
 
         resp = self.client.post(
             reverse("projects_import_manual"),

@@ -436,14 +436,8 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
 
     def _get_project_slug_preview(self):
         """Slug the project will get, derived from the "basics" step, for the upload examples."""
-        data = self.storage.get_step_data("basics")
-        if not data:
-            return ""
-        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
-        if not form.is_valid():
-            return ""
-        # .com sets the slug on the instance while cleaning (organization prefix).
-        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
+        cleaned_data = self.get_cleaned_data_for_step("basics") or {}
+        return slugify(cleaned_data.get("name", ""))
 
     def _uses_direct_upload(self, form_list):
         """Whether the user chose direct upload in the config step."""
