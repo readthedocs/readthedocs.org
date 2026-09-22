@@ -1,5 +1,10 @@
 import os
 import socket
+import sysconfig
+
+import structlog
+
+from readthedocs.core.logs import shared_processors
 
 from .base import CommunityBaseSettings
 
@@ -112,9 +117,30 @@ class DockerBaseSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
 
+        logging["formatters"]["colored_console"] = {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processors": [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.dev.ConsoleRenderer(
+                    colors=True,
+                    # Shorter tracebacks: third-party frames collapsed to one line
+                    exception_formatter=structlog.dev.RichTracebackFormatter(
+                        show_locals=True,
+                        extra_lines=3,
+                        suppress=[sysconfig.get_path("purelib")],
+                    ),
+                ),
+            ],
+            "foreign_pre_chain": shared_processors,
+        }
         logging["handlers"]["console"]["formatter"] = "colored_console"
         logging["loggers"].update(
             {
+                # Drop Django's default stderr handler, otherwise tracebacks are printed twice
+                "django": {
+                    "handlers": [],
+                    "propagate": True,
+                },
                 # Disable Django access requests logging (e.g. GET /path/to/url)
                 # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
                 "django.server": {
