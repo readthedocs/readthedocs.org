@@ -89,7 +89,7 @@ meaning that your subprojects should be free to follow their own release cycle.
 
 This is solved by having an individual :term:`flyout menu` active for the project that's viewed.
 When the user navigates to a subproject,
-they are presented with a flyout menu matching the subproject's versions and :doc:`/downloadable-documentation`.
+they are presented with a flyout menu matching the subproject's versions and :doc:`/offline-formats`.
 
 Search
 ------

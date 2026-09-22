@@ -98,7 +98,6 @@ class TestBasicsForm(WizardTestCase):
             "repo": "https://github.com/fail/sauce",
             "repo_type": "git",
             "remote_repository": "1234",
-            "default_branch": "main",
         }
         resp = self.client.post(
             "/dashboard/import/",
@@ -288,7 +287,6 @@ class TestAdvancedForm(TestBasicsForm):
             "name": "foobar",
             "repo": "https://github.com/foo/bar",
             "repo_type": "git",
-            "default_branch": "main",
             "remote_repository": "",
         }
         initial = dict(**config_initial, **basic_initial)

@@ -210,6 +210,26 @@ class SearchAPITest(SearchTestBase):
         self.assertEqual(len(results), 2)
         self.assertEqual(resp.data["query"], "test")
 
+    def test_cache_tags(self):
+        resp = self.get(self.url, data={"q": "project:project test"})
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["Cache-Tag"], "project,project:latest,project:rtd-search"
+        )
+
+    def test_cache_tags_multiple_projects(self):
+        resp = self.get(
+            self.url, data={"q": "project:project project:another-project test"}
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["Cache-Tag"],
+            "project,project:latest,project:rtd-search,"
+            "another-project,another-project:latest,another-project:rtd-search",
+        )
+
     def test_search_user_me_anonymous_user(self):
         self.client.logout()
         resp = self.get(self.url, data={"q": "user:@me test"})
