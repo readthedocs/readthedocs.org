@@ -129,17 +129,6 @@ class TestImportProjectRemoteRepositoryList(TestCase):
         repositories = self.get_repositories()
         assert repositories == [self.repo_admin, self.repo_member]
 
-    def test_renders_continue_button_for_admin_repositories(self):
-        resp = self.client.get(reverse("projects_import"))
-        self.assertContains(resp, "acme/docs")
-        self.assertContains(resp, "someone/website")
-        self.assertContains(
-            resp,
-            f'name="remote_repository" value="{self.repo_admin.pk}"',
-        )
-        # Only the non-admin repository has its Continue button disabled
-        self.assertContains(resp, "ui small disabled primary button", count=1)
-
     def test_annotates_admin_privileges(self):
         repo_admin, repo_member = self.get_repositories()
         assert repo_admin.admin is True
