@@ -180,13 +180,18 @@ class FileManifestIndexer(Indexer):
         # that snapshotted base-version state instead of the base version's
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
+        #
+        # The snapshot is refreshed when the builder reports that the PR has
+        # merged in the base branch (``Build.base_commit``), so the base's own
+        # changes don't show up as made by the PR.
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = self.version.get_base_version_for_diff()
             if base_version:
-                snapshot_base_manifest(self.version, base_version)
+                snapshot_base_manifest(
+                    self.version,
+                    base_version,
+                    force_refresh=bool(self.build.base_commit),
+                )
 
         if (
             self.post_build_overview

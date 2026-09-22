@@ -322,6 +322,35 @@ Other features that are not mentioned here, like exposing the number of lines th
 or a public API, will not be implemented in the initial version,
 and may be considered in the future (and their implementation is subject to change).
 
+Base snapshot for pull requests
+-------------------------------
+
+Comparing a pull request against whatever the base version currently contains breaks in two opposite ways:
+
+- If the base branch moves forward after the pull request was built,
+  the base's new files show up as *deleted* by the pull request.
+- If the pull request then merges the base branch in,
+  the base's own changes show up as *added* by the pull request.
+
+To handle the first case, the first successful build of a pull request stores a copy of the base version's manifest
+(``base_manifest_snapshot.json`` next to the pull request's own manifest),
+and later diffs compare against that snapshot instead of the live base manifest.
+
+To handle the second case, the snapshot is refreshed once the pull request has merged the base branch in.
+Only the build has the git clone needed to know that, so the work is split:
+
+- The API sends the builder the commit of the base version's latest successful build (``version.base_commit``).
+- After checkout, the builder runs ``git merge-base --is-ancestor <base_commit> HEAD``
+  and reports the commit back as ``build.base_commit`` when it is an ancestor.
+  No extra fetch is needed: the shallow clone only holds that commit when the pull request merged it in.
+- When the build is indexed, ``FileManifestIndexer`` rewrites the snapshot from the base version's current manifest
+  if ``Build.base_commit`` is set, and creates it as usual otherwise.
+
+The indexer is the only writer of the snapshot, and the snapshot only changes on successful builds.
+If the base branch moved further than the commits merged into the pull request,
+the refreshed snapshot can be a few commits too new, so a few base-only files may still show up as changed.
+Closing that gap needs a manifest per build rather than one per version.
+
 Possible issues
 ---------------
 

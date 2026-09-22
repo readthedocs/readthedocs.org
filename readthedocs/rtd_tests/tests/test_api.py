@@ -68,6 +68,7 @@ from readthedocs.oauth.models import (
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
+    AddonsConfig,
     APIProject,
     Domain,
     EnvironmentVariable,
@@ -3607,12 +3608,42 @@ class APIVersionTests(TestCase):
             "has_pdf": False,
             "documentation_type": "sphinx",
             "machine": False,
+            "base_commit": None,
         }
 
         self.assertDictEqual(
             resp.data,
             version_data,
         )
+
+    def test_get_version_base_commit(self):
+        """External versions carry the commit of the base version's latest successful build."""
+        pip = Project.objects.get(slug="pip")
+        # Fixture projects skip ``Project.save``, which creates the addons config.
+        AddonsConfig.objects.get_or_create(project=pip)
+        latest = get(Version, project=pip, slug=LATEST, type=BRANCH, active=True)
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=True, commit="old")
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=True, commit="new")
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=False, commit="bad")
+        external_version = get(Version, project=pip, slug="42", type=EXTERNAL, active=True)
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+
+        resp = self.client.get(
+            reverse("version-detail", kwargs={"pk": external_version.pk}),
+            content_type="application/json",
+            headers={"authorization": f"Token {build_api_key}"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["base_commit"], "new")
+
+        # Internal versions aren't diffed against a base.
+        resp = self.client.get(
+            reverse("version-detail", kwargs={"pk": latest.pk}),
+            content_type="application/json",
+            headers={"authorization": f"Token {build_api_key}"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIsNone(resp.data["base_commit"])
 
     def test_get_active_versions(self):
         """Test the full response of

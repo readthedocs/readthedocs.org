@@ -612,6 +612,16 @@ class Version(TimeStampedModel):
         filename = f"{self.project.slug}.{extension}"
         return self.get_storage_path(media_type=media_type, filename=filename)
 
+    def get_base_version_for_diff(self):
+        """
+        Resolve the base version this version is compared against in file tree diffs.
+
+        Uses the project's configured override
+        (``addons.options_base_version``) if set, otherwise the project's
+        "latest" version. Intended for external (PR) versions.
+        """
+        return self.project.addons.options_base_version or self.project.get_latest_version()
+
 
 class APIVersion(Version):
     """
@@ -757,6 +767,15 @@ class Build(models.Model):
     # This is also used after the version is deleted.
     commit = models.CharField(
         _("Commit"),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    # Pull request builds only: the base version's commit this build contains,
+    # reported by the builder once the base branch has been merged into the PR.
+    # The file tree diff uses it to refresh the base snapshot it compares against.
+    base_commit = models.CharField(
+        _("Base commit"),
         max_length=255,
         null=True,
         blank=True,
