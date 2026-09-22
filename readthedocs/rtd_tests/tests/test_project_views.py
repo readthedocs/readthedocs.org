@@ -19,6 +19,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import Feature
@@ -415,6 +416,28 @@ class TestDirectUploadImport(TestCase):
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         self.assertTrue(project.external_builds_enabled)
         self.assertFalse(project.get_latest_version().is_uploaded)
+
+    def test_direct_upload_project_slug_preview_uses_cleaned_form_instance(self):
+        original_clean = ProjectBasicsForm.clean
+
+        def clean_with_prefixed_slug(form):
+            cleaned_data = original_clean(form)
+            form.instance.slug = "org-foobar"
+            return cleaned_data
+
+        with mock.patch.object(ProjectBasicsForm, "clean", clean_with_prefixed_slug):
+            seed = {
+                "name": "foobar",
+                "repo": "http://example.com/foobar",
+                "repo_type": "git",
+                "direct_upload": "1",
+            }
+            resp = self.client.post(reverse("projects_import"), seed)
+            self.assertEqual(resp.status_code, 200)
+
+            resp = self.client.post(reverse("projects_import_manual"), self.step_data)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.context_data["project_slug"], "org-foobar")
 
 
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
