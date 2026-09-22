@@ -11,7 +11,13 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
@@ -63,6 +69,99 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
         resp = ImportWizardView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["location"], "/")
+
+
+class TestImportProjectRemoteRepositoryList(TestCase):
+    """The import view lists the user's remote repositories."""
+
+    def setUp(self):
+        self.user = get(User)
+        self.account = get(SocialAccount, provider="github", user=self.user)
+        self.client.force_login(self.user)
+
+        self.organization = get(
+            RemoteOrganization,
+            slug="acme",
+            name="Acme",
+            vcs_provider=GITHUB,
+        )
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=self.organization,
+            user=self.user,
+            account=self.account,
+        )
+        self.repo_admin = get(
+            RemoteRepository,
+            full_name="acme/docs",
+            organization=self.organization,
+            vcs_provider=GITHUB,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.repo_admin,
+            user=self.user,
+            account=self.account,
+            admin=True,
+        )
+        self.repo_member = get(
+            RemoteRepository,
+            full_name="someone/website",
+            organization=None,
+            vcs_provider=GITHUB,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=self.repo_member,
+            user=self.user,
+            account=self.account,
+            admin=False,
+        )
+        # A repository the user has no relation to
+        get(RemoteRepository, full_name="acme/private", vcs_provider=GITHUB)
+
+    def get_repositories(self, **params):
+        resp = self.client.get(reverse("projects_import"), params)
+        assert resp.status_code == 200
+        return list(resp.context["remote_repositories"])
+
+    def test_lists_only_user_repositories(self):
+        repositories = self.get_repositories()
+        assert repositories == [self.repo_admin, self.repo_member]
+
+    def test_renders_continue_button_for_admin_repositories(self):
+        resp = self.client.get(reverse("projects_import"))
+        self.assertContains(resp, "acme/docs")
+        self.assertContains(resp, "someone/website")
+        self.assertContains(
+            resp,
+            f'name="remote_repository" value="{self.repo_admin.pk}"',
+        )
+        # Only the non-admin repository has its Continue button disabled
+        self.assertContains(resp, "ui small disabled primary button", count=1)
+
+    def test_annotates_admin_privileges(self):
+        repo_admin, repo_member = self.get_repositories()
+        assert repo_admin.admin is True
+        assert repo_member.admin is False
+
+    def test_filter_by_name(self):
+        assert self.get_repositories(name="site") == [self.repo_member]
+
+    def test_filter_by_organization(self):
+        assert self.get_repositories(organization=self.organization.pk) == [
+            self.repo_admin
+        ]
+
+    def test_linked_projects(self):
+        project = get(
+            Project,
+            privacy_level=PUBLIC,
+            remote_repository=self.repo_admin,
+        )
+        repo_admin, repo_member = self.get_repositories()
+        assert repo_admin.linked_projects == [project]
+        assert repo_member.linked_projects == []
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
