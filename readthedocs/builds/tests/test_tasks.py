@@ -569,7 +569,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -622,7 +622,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
 
@@ -653,7 +653,7 @@ class TestPostBuildOverview(TestCase):
             Your changes didn't affect any published file.
 
             ---
-            [Build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
             """
         )
 

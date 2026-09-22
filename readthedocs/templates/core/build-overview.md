@@ -38,4 +38,4 @@ Markdown inside <details> requires a blank line after </summary>.
 Your changes didn't affect any published file.
 {% endif %}
 ---
-[Build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
+[{{ project.name }} build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
