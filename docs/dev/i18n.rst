@@ -15,6 +15,18 @@ Crowd-sourced localization is optionally available at `Transifex
 For more information about the general ideas,
 look at this document: http://www.gnu.org/software/gettext/manual/html_node/Concepts.html
 
+.. note::
+
+   **Are you looking to contribute translations?**
+
+   If you want to help translate Read the Docs into your language, please use
+   `Transifex <https://explore.transifex.com/readthedocs/>`_ — **not** GitHub
+   pull requests. All translations are managed and synchronized through
+   Transifex. Direct edits to ``.po`` files in the repository are not accepted.
+
+   See :ref:`contributing-to-translations` for step-by-step instructions on
+   how to get started as a translator or reviewer.
+
 
 Making strings localizable
 --------------------------
