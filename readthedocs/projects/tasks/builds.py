@@ -852,7 +852,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be
             # inside the `with` statement
-            self.sync_versions(self.data.build_director.vcs_repository)
+            # SECURITY: never sync versions from external versions (PRs),
+            # since they are not trusted and could fake the output of the commands
+            # to create/delete versions in our database.
+            if not self.data.version.is_external:
+                self.sync_versions(self.data.build_director.vcs_repository)
+
+            # SECURITY: don't run user code before sycing versions, so users can't manipulate
+            # the output of the command to create/delete versions in our database.
+            self.data.build_director.run_build_job("post_checkout")
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with

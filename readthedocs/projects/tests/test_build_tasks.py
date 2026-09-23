@@ -13,6 +13,7 @@ from django.test.utils import override_settings
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -248,6 +249,44 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
+
+    @pytest.mark.parametrize("external", [True, False])
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_not_called_for_external_versions(
+        self, load_yaml_config, sync_versions, external
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = EXTERNAL if external else BRANCH
+        self.version.save()
+
+        self._trigger_update_docs_task()
+
+        if external:
+            sync_versions.assert_not_called()
+        else:
+            sync_versions.assert_called_once()
+
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.run_build_job")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_post_checkout_runs_after_sync_versions(
+        self, load_yaml_config, sync_versions, run_build_job
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        # Attach both mocks to a single parent to record the order of the calls.
+        manager = mock.Mock()
+        manager.attach_mock(sync_versions, "sync_versions")
+        manager.attach_mock(run_build_job, "run_build_job")
+
+        self._trigger_update_docs_task()
+
+        calls = manager.mock_calls
+        sync_versions_index = calls.index(mock.call.sync_versions(mock.ANY))
+        post_checkout_index = calls.index(mock.call.run_build_job("post_checkout"))
+        assert sync_versions_index < post_checkout_index
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
