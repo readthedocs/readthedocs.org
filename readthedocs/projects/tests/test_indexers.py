@@ -99,11 +99,11 @@ class TestFileManifestIndexer(TestCase):
         version = get(Version, project=project, slug="v2", active=True, built=True)
         assert not self._has_manifest_indexer(version)
 
-    def test_manifest_created_for_default_version_when_latest_is_not_built(self):
-        """Uploaded projects publish their default version, not ``latest``."""
-        project = get(Project, default_version="main")
+    def test_manifest_created_for_default_branch_when_latest_is_not_built(self):
+        """Uploaded projects publish the branch itself, not ``latest``."""
+        project = get(Project, default_branch="main")
         project.versions.filter(slug=LATEST).update(built=False)
-        main = get(Version, project=project, slug="main", active=True, built=True)
+        main = get(Version, project=project, slug="main", verbose_name="main", active=True, built=True)
         assert self._has_manifest_indexer(main)
 
     def test_manifest_created_for_configured_base_version(self):
