@@ -29,7 +29,12 @@ The best way to think about this relationship is:
    :ref:`sso_git_provider`.
 
 Team types
-~~~~~~~~~~
+~~~~~~~~~~.
+
+.. seealso::
+
+   :doc:`/guides/manage-read-the-docs-teams`
+     A step-by-step guide to managing organization owners and teams.
 
 You can create two types of teams:
 
