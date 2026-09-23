@@ -11,9 +11,7 @@
 coverage.xml
 .idea
 .vagrant
-.vscode
 .tox
-.env
 .rope_project/
 .ropeproject/
 _build
@@ -41,6 +39,7 @@ media/static
 media/usercontent
 /static
 node_modules
+temp_auto_push.bat
 nodeenv
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
@@ -69,7 +68,6 @@ media/*.prof
 /docs/user/img/screenshots/auth*.json
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -84,3 +82,6 @@ dev.db-journal
 /readthedocs/settings/celery_docker.py
 /readthedocs/settings/proxito_docker.py
 /readthedocs/settings/web_docker.py
+.gitignore
+branch_structure.json
+config.bat
