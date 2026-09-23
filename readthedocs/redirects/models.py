@@ -8,6 +8,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.resolver import Resolver
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.projects.models import Project
 from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
@@ -306,7 +307,15 @@ class Redirect(models.Model):
 
     def redirect_exact(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
-        return self._redirect_with_wildcard(current_path=path)
+        to_url = self._redirect_with_wildcard(current_path=path)
+        if to_url and not self.redirects_to_external_domain:
+            # For subprojects, the to_url is relative to the subproject docs
+            # root, so we need to add the subproject prefix to the final URL.
+            if self.project.subproject_prefix and not to_url.startswith(
+                self.project.subproject_prefix
+            ):
+                to_url = unsafe_join_url_path(self.project.subproject_prefix, to_url)
+        return to_url
 
     def redirect_clean_url_to_html(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
