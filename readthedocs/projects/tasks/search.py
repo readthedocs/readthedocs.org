@@ -5,7 +5,6 @@ from django.conf import settings
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
@@ -226,15 +225,13 @@ def _get_indexers(
         )
         indexers.append(search_indexer)
 
-    # We compare PR previews against the latest version,
-    # unless the project has a specific options_base_version set.
-    base_version = (
-        version.project.addons.options_base_version.slug
-        if version.project.addons.options_base_version
-        else LATEST
-    )
+    # Pull request previews are compared against the base version,
+    # so that version needs a manifest too.
+    base_version = get_base_version(version.project)
     create_manifest = (
-        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
+        version.is_external
+        or (base_version and version.slug == base_version.slug)
+        or settings.RTD_FILETREEDIFF_ALL
     )
     if create_manifest:
         file_manifest_indexer = FileManifestIndexer(

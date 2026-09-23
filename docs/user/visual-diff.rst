@@ -76,7 +76,10 @@ Base version
 
 The base version is the version of the documentation that is used to compare against the pull request.
 By default, this is the ``latest`` version of the documentation.
-This is useful if your ``latest`` version doesn't point to the default branch of your repository.
+If ``latest`` isn't active and built,
+for example when you upload your documentation and only publish a version like ``main``,
+the version of your default branch is used instead.
+Setting a base version explicitly is useful if your ``latest`` version doesn't point to the default branch of your repository.
 
 .. note::
 

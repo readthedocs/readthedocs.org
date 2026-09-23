@@ -327,13 +327,45 @@ class TestsGetBaseVersion(TestCase):
         self.latest.save()
         assert get_base_version(self.project) is None
 
-    def test_configured_base_version_not_built(self):
+    def test_latest_deleted(self):
+        self.latest.delete()
+        assert get_base_version(self.project) is None
+
+    def test_fallback_to_default_branch(self):
+        """Uploaded projects usually never publish ``latest``, only the branch itself."""
+        self.latest.built = False
+        self.latest.save()
+        main = get(Version, project=self.project, slug="main", verbose_name="main", active=True, built=True)
+        # Saving the project points ``latest`` at the default branch.
+        self.project.default_branch = "main"
+        self.project.save()
+        assert get_base_version(self.project) == main
+
+    def test_latest_preferred_over_default_branch(self):
+        get(Version, project=self.project, slug="main", verbose_name="main", active=True, built=True)
+        self.project.default_branch = "main"
+        self.project.save()
+        assert get_base_version(self.project) == self.latest
+
+    def test_default_branch_not_built(self):
+        self.latest.built = False
+        self.latest.save()
+        get(Version, project=self.project, slug="main", verbose_name="main", active=True, built=False)
+        self.project.default_branch = "main"
+        self.project.save()
+        assert get_base_version(self.project) is None
+
+    def test_no_fallback_to_default_version(self):
+        """The default version is usually ``stable``, diffing against it would be noise."""
+        self.latest.built = False
+        self.latest.save()
+        get(Version, project=self.project, slug="stable", verbose_name="stable", active=True, built=True)
+        self.project.default_version = "stable"
+        self.project.save()
+        assert get_base_version(self.project) is None
+
+    def test_configured_base_version_does_not_fall_back(self):
         version = get(Version, project=self.project, slug="v2", active=True, built=False)
         self.project.addons.options_base_version = version
         self.project.addons.save()
-        # We don't fall back to latest when the configured version is unusable.
-        assert get_base_version(self.project) is None
-
-    def test_latest_deleted(self):
-        self.latest.delete()
         assert get_base_version(self.project) is None
