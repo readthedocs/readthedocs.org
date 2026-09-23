@@ -3,10 +3,10 @@ from unittest import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import FileManifestIndexer, SearchIndexer, _get_indexers
 
 
 class TestSearchIndexing(TestCase):
@@ -72,6 +72,46 @@ class TestSearchIndexing(TestCase):
             indexer for indexer in indexers if isinstance(indexer, SearchIndexer)
         ]
         assert len(search_indexers) == 0
+
+
+class TestFileManifestIndexer(TestCase):
+    """The base version of the project needs a manifest to diff against."""
+
+    def _has_manifest_indexer(self, version):
+        build = get(Build, version=version, state=BUILD_STATE_FINISHED, success=True)
+        indexers = _get_indexers(version=version, build=build)
+        return any(isinstance(indexer, FileManifestIndexer) for indexer in indexers)
+
+    def test_manifest_created_for_latest(self):
+        project = get(Project)
+        latest = project.versions.get(slug=LATEST)
+        latest.active = True
+        latest.built = True
+        latest.save()
+        assert self._has_manifest_indexer(latest)
+
+    def test_manifest_not_created_for_other_versions(self):
+        project = get(Project)
+        latest = project.versions.get(slug=LATEST)
+        latest.active = True
+        latest.built = True
+        latest.save()
+        version = get(Version, project=project, slug="v2", active=True, built=True)
+        assert not self._has_manifest_indexer(version)
+
+    def test_manifest_created_for_default_version_when_latest_is_not_built(self):
+        """Uploaded projects publish their default version, not ``latest``."""
+        project = get(Project, default_version="main")
+        project.versions.filter(slug=LATEST).update(built=False)
+        main = get(Version, project=project, slug="main", active=True, built=True)
+        assert self._has_manifest_indexer(main)
+
+    def test_manifest_created_for_configured_base_version(self):
+        project = get(Project)
+        version = get(Version, project=project, slug="v2", active=True, built=True)
+        project.addons.options_base_version = version
+        project.addons.save()
+        assert self._has_manifest_indexer(version)
 
 
 @mock.patch("readthedocs.projects.tasks.search.search_index_updated")

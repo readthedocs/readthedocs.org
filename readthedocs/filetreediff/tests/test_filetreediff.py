@@ -327,13 +327,35 @@ class TestsGetBaseVersion(TestCase):
         self.latest.save()
         assert get_base_version(self.project) is None
 
-    def test_configured_base_version_not_built(self):
+    def test_latest_deleted(self):
+        self.latest.delete()
+        assert get_base_version(self.project) is None
+
+    def test_fallback_to_default_version(self):
+        """Uploaded projects usually never publish ``latest``, only their default version."""
+        self.latest.built = False
+        self.latest.save()
+        main = get(Version, project=self.project, slug="main", active=True, built=True)
+        self.project.default_version = "main"
+        self.project.save()
+        assert get_base_version(self.project) == main
+
+    def test_latest_preferred_over_default_version(self):
+        get(Version, project=self.project, slug="main", active=True, built=True)
+        self.project.default_version = "main"
+        self.project.save()
+        assert get_base_version(self.project) == self.latest
+
+    def test_default_version_not_built(self):
+        self.latest.built = False
+        self.latest.save()
+        get(Version, project=self.project, slug="main", active=True, built=False)
+        self.project.default_version = "main"
+        self.project.save()
+        assert get_base_version(self.project) is None
+
+    def test_configured_base_version_does_not_fall_back(self):
         version = get(Version, project=self.project, slug="v2", active=True, built=False)
         self.project.addons.options_base_version = version
         self.project.addons.save()
-        # We don't fall back to latest when the configured version is unusable.
-        assert get_base_version(self.project) is None
-
-    def test_latest_deleted(self):
-        self.latest.delete()
         assert get_base_version(self.project) is None

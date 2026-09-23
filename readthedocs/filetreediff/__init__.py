@@ -20,6 +20,7 @@ import json
 
 import structlog
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiff
@@ -40,17 +41,32 @@ def get_base_version(project: Project) -> Version | None:
     """
     Get the version to diff against for a project.
 
-    This is the version configured in the addons settings,
-    or ``latest`` if none is configured.
+    This is the version configured in the addons settings if there is one.
+    Otherwise it's ``latest``, falling back to the project's default version
+    when ``latest`` isn't usable. Projects that upload their documentation
+    usually never publish ``latest``, only the version they set as default.
 
-    Return ``None`` if the version doesn't exist,
-    or if it isn't active and built, since there is nothing usable
-    to compare against in that case.
+    A version is usable when it exists and is active and built,
+    otherwise there is nothing to compare against.
+    Return ``None`` if no usable version is found.
     """
-    base_version = project.addons.options_base_version or project.get_latest_version()
-    if not _is_usable_base_version(base_version):
+    base_version = project.addons.options_base_version
+    if base_version:
+        # The base version was chosen explicitly, don't silently diff against another one.
+        return base_version if _is_usable_base_version(base_version) else None
+
+    latest = project.get_latest_version()
+    if _is_usable_base_version(latest):
+        return latest
+
+    default_version_slug = project.get_default_version()
+    if default_version_slug == LATEST:
         return None
-    return base_version
+
+    default_version = project.versions.filter(slug=default_version_slug).first()
+    if _is_usable_base_version(default_version):
+        return default_version
+    return None
 
 
 def _is_usable_base_version(version: Version | None) -> bool:
