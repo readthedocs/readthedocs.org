@@ -59,7 +59,7 @@ after the step that builds your documentation:
        # Pull requests from forks don't have access to secrets.
        # Do not use ``pull_request_target`` to work around this because it would run
        # the pull request's code with access to your token.
-       if: github.event.pull_request.head.repo.full_name == github.repository
+       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
        steps:
          - uses: actions/checkout@v5
 
