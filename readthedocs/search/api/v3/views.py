@@ -131,7 +131,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         .. note::
 
            The limit of the Cache-Tag header is 16KB https://developers.cloudflare.com/cache/how-to/purge-cache/purge-by-tags/#a-few-things-to-remember,
-           and the limit of all headers in nxing is 4KB, but during testing, we found that the max numbers of chars the header can have is ~2.5K.
+           and the limit of all headers in nginx is 4KB, but during testing, we found that the max numbers of chars the header can have is ~2.5K.
            Until we implement a better solution, we will limit the number of cache characters injected into the cache header to 2K.
         """
         cache_tag_limit = 2_000
