@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -406,3 +407,70 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         app_mock.send_task.assert_called_once()
         call_kwargs = app_mock.send_task.call_args.kwargs
         assert call_kwargs["kwargs"]["build_pk"] == self.build.id
+
+    def _enable_build_isolated(self):
+        feature = get(Feature, feature_id=Feature.USE_BUILD_ISOLATED)
+        feature.projects.add(self.project)
+        return feature
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_complete_admits_when_slot_free(
+        self, storages_mock, send_task
+    ):
+        """With USE_BUILD_ISOLATED, a completed upload is admitted via the routine."""
+        self._enable_build_isolated()
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.exists.return_value = True
+        send_task.return_value = mock.Mock(id="task-id-123")
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_202_ACCEPTED
+
+        self.build.refresh_from_db()
+        # The upload completion marker was set...
+        assert self.build.upload_completed_at is not None
+        # ...and the build was admitted (dispatched) because a slot was free.
+        assert self.build.task_id == "task-id-123"
+        assert self.build.dispatched_date is not None
+        send_task.assert_called_once()
+        assert send_task.call_args.kwargs["kwargs"]["build_pk"] == self.build.id
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_complete_blocked_when_limit_reached(
+        self, storages_mock, send_task
+    ):
+        """A completed upload with no free slot stays queued, not dispatched."""
+        self._enable_build_isolated()
+        # Fill the project's concurrency limit with a dispatched build.
+        self.project.max_concurrent_builds = 1
+        self.project.save()
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            task_id="0",
+            dispatched_date=timezone.now(),
+        )
+
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.exists.return_value = True
+        send_task.return_value = mock.Mock(id="task-id-123")
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_202_ACCEPTED
+
+        self.build.refresh_from_db()
+        # Marked as upload-completed so a later sweep can admit it...
+        assert self.build.upload_completed_at is not None
+        # ...but not dispatched now: the slot is taken, no task, just a
+        # concurrency notification.
+        assert self.build.task_id is None
+        assert self.build.dispatched_date is None
+        assert (
+            self.build.notifications.get().message_id
+            == BuildMaxConcurrencyError.LIMIT_REACHED
+        )
+        send_task.assert_not_called()

@@ -425,3 +425,91 @@ class BuildIsolatedConcurrencyTests(TestCase):
             == BuildMaxConcurrencyError.LIMIT_REACHED
         )
         send_task.assert_not_called()
+
+    def _completed_upload_build(self, minutes_ago):
+        """An upload build whose artifacts finished uploading (``/complete`` hit)."""
+        build = self._queued_build(minutes_ago=minutes_ago)
+        Build.objects.filter(pk=build.pk).update(
+            is_uploaded=True,
+            upload_completed_at=timezone.now(),
+        )
+        return build
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_dispatches_completed_uploads(self, send_task):
+        """Upload builds that finished uploading are admitted like queued builds."""
+        send_task.return_value.id = "task-id"
+        # One occupies a slot (dispatched), 2 completed uploads wait.
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            task_id="0",
+            dispatched_date=timezone.now(),
+        )
+        uploads = [self._completed_upload_build(minutes_ago=5 - i) for i in range(2)]
+
+        admit_project_builds(self.project)
+
+        for build in uploads:
+            build.refresh_from_db()
+        # 2 free slots out of 3 -> both admitted FIFO.
+        assert uploads[0].task_id == "task-id"
+        assert uploads[1].task_id == "task-id"
+        assert send_task.call_count == 2
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_blocks_completed_uploads_when_limit_reached(self, send_task):
+        """A completed upload with no free slot stays queued with a notification."""
+        send_task.return_value.id = "task-id"
+        # All 3 slots in use.
+        for i in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+        blocked = self._completed_upload_build(minutes_ago=1)
+
+        admit_project_builds(self.project)
+
+        blocked.refresh_from_db()
+        assert blocked.task_id is None
+        assert blocked.dispatched_date is None
+        assert (
+            blocked.notifications.get().message_id
+            == BuildMaxConcurrencyError.LIMIT_REACHED
+        )
+        send_task.assert_not_called()
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_mixes_uploads_and_regular_builds_fifo(self, send_task):
+        """A completed upload queues fairly alongside regular builds, oldest first."""
+        send_task.return_value.id = "task-id"
+        # Oldest: a regular build waiting for a slot.
+        regular = self._queued_build(minutes_ago=10)
+        # Newest: an upload that just finished.
+        upload = self._completed_upload_build(minutes_ago=1)
+        # Two slots in use, leaving exactly one free.
+        for i in range(2):
+            get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+
+        admit_project_builds(self.project)
+
+        regular.refresh_from_db()
+        upload.refresh_from_db()
+        # Oldest first: the regular build gets the only free slot, the upload waits.
+        assert regular.task_id == "task-id"
+        assert upload.task_id is None
+        assert send_task.call_count == 1
