@@ -18,7 +18,7 @@ Minimal configuration is required to build an existing MkDocs project on Read th
     version: 2
 
     build:
-      os: "ubuntu-24.04"
+      os: "ubuntu-26.04"
       tools:
         python: "3"
       # We recommend using a requirements file for reproducible builds.
