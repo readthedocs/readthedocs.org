@@ -12,6 +12,7 @@ from django.conf import settings
 from django.test.utils import override_settings
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
+from readthedocs.api.v2.serializers import VersionAdminSerializer
 from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
@@ -248,6 +249,53 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
+
+    def _mock_external_version_with_base_commit(self, base_commit="base123"):
+        self.version.type = EXTERNAL
+        self.version.save()
+        self.requests_mock.get(
+            f"{settings.SLUMBER_API_HOST}/api/v2/version/{self.version.pk}/",
+            json={**VersionAdminSerializer(self.version).data, "base_commit": base_commit},
+            headers={"Content-Type": "application/json"},
+        )
+
+    def _build_patch_payloads(self):
+        return [
+            request.json()
+            for request in self.requests_mock.request_history
+            if request._request.method == "PATCH"
+            and request.path == f"/api/v2/build/{self.build.pk}/"
+        ]
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
+    def test_build_reports_the_base_commit_when_the_pr_merged_it_in(
+        self, build_docs_class, load_yaml_config
+    ):
+        load_yaml_config.return_value = get_build_config({"version": 2}, validate=True)
+        build_docs_class.return_value = True
+        self._mock_external_version_with_base_commit()
+        # ``git merge-base --is-ancestor`` exits 0: the base commit is in the PR's history.
+        self.mocker.mocks["git.Backend.run"].return_value = (0, "", "")
+
+        self._trigger_update_docs_task()
+
+        assert self._build_patch_payloads()[-1]["base_commit"] == "base123"
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
+    def test_build_skips_the_base_commit_when_the_pr_did_not_merge_it_in(
+        self, build_docs_class, load_yaml_config
+    ):
+        load_yaml_config.return_value = get_build_config({"version": 2}, validate=True)
+        build_docs_class.return_value = True
+        self._mock_external_version_with_base_commit()
+        # Exit 1: not an ancestor. Stay pinned.
+        self.mocker.mocks["git.Backend.run"].return_value = (1, "", "")
+
+        self._trigger_update_docs_task()
+
+        assert all("base_commit" not in payload for payload in self._build_patch_payloads())
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")

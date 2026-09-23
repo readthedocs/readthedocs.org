@@ -170,7 +170,24 @@ class VersionAdminSerializer(VersionSerializer):
 
     project_serializer_class = ProjectAdminSerializer
     canonical_url = serializers.SerializerMethodField()
+    base_commit = serializers.SerializerMethodField()
     build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+
+    def get_base_commit(self, obj):
+        """
+        The commit the file tree diff compares a pull request against.
+
+        The builder checks whether the PR has merged it in and reports it back
+        on the build (``Build.base_commit``). ``None`` for internal versions
+        and for PRs whose base version has never built successfully.
+        """
+        if not obj.is_external:
+            return None
+        base_version = obj.get_base_version_for_diff()
+        if not base_version:
+            return None
+        base_build = base_version.latest_successful_build
+        return base_build.commit if base_build else None
 
     def get_canonical_url(self, obj):
         # Use the cached object, since it has some
@@ -184,6 +201,7 @@ class VersionAdminSerializer(VersionSerializer):
 
     class Meta(VersionSerializer.Meta):
         fields = VersionSerializer.Meta.fields + [
+            "base_commit",
             "build_data",
             "canonical_url",
             "machine",
