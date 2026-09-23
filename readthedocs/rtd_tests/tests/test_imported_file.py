@@ -33,6 +33,9 @@ class ImportedFileTests(TestCase):
         self.project.addons.save()
 
         self.version = self.project.versions.get(slug=LATEST)
+        # The version is indexed after a successful build, so it's built by then.
+        self.version.built = True
+        self.version.save()
         self.build = get(
             Build,
             project=self.project,
