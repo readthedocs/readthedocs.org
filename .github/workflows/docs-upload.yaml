@@ -6,7 +6,13 @@ on:
       - main
     tags:
       - "*"
+    paths:
+      - "docs/**"
+      - "requirements/docs.txt"
   pull_request:
+    paths:
+      - "docs/**"
+      - "requirements/docs.txt"
 
 permissions: {}
 

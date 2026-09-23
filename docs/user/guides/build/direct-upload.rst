@@ -51,7 +51,11 @@ after the step that builds your documentation:
      push:
        branches: [main]
        tags: ["v*"]
+       paths:
+         - "docs/**"
      pull_request:
+       paths:
+         - "docs/**"
 
    jobs:
      docs:
@@ -87,6 +91,10 @@ The upload action detects the branch, tag or pull request from the workflow even
 so a push to ``main`` updates the ``main`` version,
 a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
+
+The ``paths`` filters make the workflow run only when the documentation or its dependencies change.
+Adjust them to match your repository layout,
+or remove them to upload on every push and pull request.
 
 
 Uploading from any other environment
