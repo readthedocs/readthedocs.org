@@ -358,6 +358,35 @@ class TestBuildCommand(TestCase):
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
 
+    def test_obfuscate_output_extra_env(self):
+        cmd = BuildCommand(
+            ["/bin/bash", "-c", "echo"],
+            environment={"PUBLIC": "public-value"},
+            extra_env={"TOKEN": "secret-token", "EMPTY": ""},
+        )
+        assert cmd._environment == {
+            "PUBLIC": "public-value",
+            "TOKEN": "secret-token",
+            "EMPTY": "",
+        }
+        assert cmd.sanitize_output("public-value secret-token") == "public-value secr****"
+
+    @mock.patch("readthedocs.doc_builder.environments.log")
+    def test_failed_command_log_obfuscates_extra_env(self, log):
+        build_env = LocalBuildEnvironment(api_client=mock.MagicMock())
+        with build_env:
+            build_env.run(
+                "/bin/sh",
+                "-c",
+                "echo $TOKEN; exit 1",
+                record=False,
+                extra_env={"TOKEN": "secret-token"},
+                cwd="/tmp",
+            )
+        log.warning.assert_called_once()
+        assert log.warning.call_args.kwargs["output"] == "secr****\n"
+        assert "secret-token" not in str(log.mock_calls)
+
     @patch("subprocess.Popen")
     def test_unicode_output(self, mock_subprocess):
         """Unicode output from command."""
