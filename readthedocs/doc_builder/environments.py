@@ -159,7 +159,8 @@ class BuildCommand(BuildCommandResultMixin):
             "Running build command.",
             command=self.get_command(),
             cwd=self.cwd,
-            environment=environment,
+            # Only log the names, values may contain secrets.
+            environment=sorted(environment.keys()),
         )
 
         try:
