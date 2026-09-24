@@ -95,18 +95,20 @@ class ProjectRelationListMixin:
 class ProjectImportMixin:
     """Helpers to import a Project."""
 
-    def finish_import_project(self, request, project):
+    def finish_import_project(self, request, project, trigger_build=True):
         """
         Perform last steps to import a project into Read the Docs.
 
         - Add the user from request as maintainer
         - Run extra tasks that are needed before building the project
-        - Trigger the initial build
+        - Trigger the initial build, unless ``trigger_build`` is ``False``
+          (direct upload projects are never built by Read the Docs)
 
         It requires the Project was already saved into the DB.
 
         :param request: Django Request object
         :param project: Project instance just imported (already saved)
+        :param trigger_build: whether to trigger the initial build
         """
         project.users.add(request.user)
         log.info(
@@ -115,12 +117,17 @@ class ProjectImportMixin:
             user_username=request.user.username,
         )
 
-        update_docs, build = prepare_build(project)
-        if (update_docs, build) == (None, None):
+        tasks = self._get_post_import_tasks(project, request.user)
+
+        if trigger_build:
+            update_docs, build = prepare_build(project)
+            if (update_docs, build) == (None, None):
+                return None
+            tasks.append(update_docs)
+
+        if not tasks:
             return None
 
-        tasks = self._get_post_import_tasks(project, request.user)
-        tasks.append(update_docs)
         task_promise = chain(*tasks)
         task_promise.apply_async()
 

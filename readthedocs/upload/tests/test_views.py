@@ -11,16 +11,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
@@ -255,7 +253,9 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
-    def test_cancels_running_builds_for_same_version(self, storages_mock, send_build_status, app_mock):
+    def test_cancels_running_builds_for_same_version(
+        self, storages_mock, send_build_status, app_mock
+    ):
         self._mock_storage(storages_mock)
         version = get(
             Version,
@@ -293,6 +293,46 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["upload_url"]["url"] == "http://127.0.0.1/build-uploads"
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_goes_to_latest(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        self.project.default_branch = "main"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        latest.active = False
+        latest.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        assert response.data["version"]["id"] == latest.pk
+        assert not self.project.versions.filter(verbose_name="main", type=BRANCH).exists()
+
+        latest.refresh_from_db()
+        assert latest.active
+        assert latest.machine
+        assert latest.privacy_level == PUBLIC
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_keeps_user_managed_latest(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        self.project.default_branch = "main"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        latest.machine = False
+        latest.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        version = self.project.versions.get(verbose_name="main", type=BRANCH)
+        assert response.data["version"]["id"] == version.pk
+        assert version.pk != latest.pk
 
 
 class UploadCompleteViewTests(UploadAPIEndpointMixin):
