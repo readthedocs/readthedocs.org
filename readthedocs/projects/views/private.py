@@ -7,6 +7,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
+from django.db.models import Exists
+from django.db.models import OuterRef
+from django.db.models import Prefetch
 from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponse
@@ -45,10 +48,13 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
+from readthedocs.projects.filters import RemoteRepositoryListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import AutomationRuleForm
@@ -439,9 +445,13 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         )
 
 
-class ImportView(PrivateViewMixin, TemplateView):
+class ImportView(PrivateViewMixin, FilterContextMixin, TemplateView):
     """
     On GET, show the source an import view, on POST, mock out a wizard.
+
+    The GET view lists the user's remote repositories, filtered by
+    :py:class:`RemoteRepositoryListFilterSet`, so the user can pick one to
+    import.
 
     If we are accepting POST data, use the fields to seed the initial data in
     :py:class:`ImportWizardView`.  The import templates will redirect the form to
@@ -450,6 +460,39 @@ class ImportView(PrivateViewMixin, TemplateView):
 
     template_name = "projects/project_import.html"
     wizard_class = ImportWizardView
+    filterset_class = RemoteRepositoryListFilterSet
+
+    def get_queryset(self):
+        """
+        Remote repositories the user can see, with the data the list needs.
+
+        Each repository is annotated with ``admin``, whether the user has admin
+        privileges on it, and ``linked_projects``, the projects already using
+        this repository that the user can see.
+        """
+        user = self.request.user
+        return (
+            RemoteRepository.objects.api(user)
+            .annotate(
+                admin=Exists(
+                    RemoteRepositoryRelation.objects.filter(
+                        remote_repository=OuterRef("pk"),
+                        user=user,
+                        admin=True,
+                    )
+                )
+            )
+            .select_related("organization")
+            .prefetch_related(
+                Prefetch(
+                    "projects",
+                    queryset=Project.objects.public(user=user),
+                    to_attr="linked_projects",
+                )
+            )
+            .order_by("full_name")
+            .distinct()
+        )
 
     def post(self, request, *args, **kwargs):
         initial_data = {}
@@ -469,6 +512,9 @@ class ImportView(PrivateViewMixin, TemplateView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
+
+        context["filter"] = self.get_filterset()
+        context["remote_repositories"] = self.get_filtered_queryset()
 
         # Provider list for simple lookup of connected services, used for
         # conditional content
