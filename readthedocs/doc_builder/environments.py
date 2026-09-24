@@ -506,7 +506,14 @@ class BaseBuildEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-        self, cls, cmd, warn_only=False, record=True, record_as_success=False, **kwargs
+        self,
+        cls,
+        cmd,
+        warn_only=False,
+        record=True,
+        record_as_success=False,
+        extra_env=None,
+        **kwargs,
     ):
         """
         Run command from this environment.
@@ -518,6 +525,8 @@ class BaseBuildEnvironment:
         :param warn_only: don't raise an exception on command failure
         :param record_as_success: force command ``exit_code`` to be saved as
             ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
+        :param extra_env: additional environment variables used only for this
+            command. They are not persisted in the build environment.
         """
         if not record:
             warn_only = True
@@ -538,6 +547,8 @@ class BaseBuildEnvironment:
                 BuildAppError.GENERIC_WITH_BUILD_ID,
                 exception_message="environment can't be passed in via commands.",
             )
+        if extra_env:
+            environment.update(extra_env)
         kwargs["environment"] = environment
         kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)

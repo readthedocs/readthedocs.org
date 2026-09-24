@@ -37,6 +37,25 @@ class TestLocalBuildEnvironment(TestCase):
         self.assertEqual(len(build_env.commands), 0)
         api_client.command.post.assert_not_called()
 
+    def test_command_extra_env(self):
+        build_env = LocalBuildEnvironment(
+            api_client=mock.MagicMock(),
+            environment={"FOO": "foo"},
+        )
+
+        with build_env:
+            cmd = build_env.run(
+                "true",
+                record=False,
+                extra_env={"BAR": "bar"},
+                cwd="/tmp",
+            )
+            second_cmd = build_env.run("true", record=False, cwd="/tmp")
+
+        assert cmd._environment == {"FOO": "foo", "BAR": "bar"}
+        assert second_cmd._environment == {"FOO": "foo"}
+        assert build_env._environment == {"FOO": "foo"}
+
     def test_record_command_as_success(self):
         api_client = mock.MagicMock()
         api_client.command().patch.return_value = {
