@@ -6,7 +6,13 @@ on:
       - main
     tags:
       - "*"
+    paths:
+      - "docs/**"
+      - "requirements/docs.txt"
   pull_request:
+    paths:
+      - "docs/**"
+      - "requirements/docs.txt"
 
 permissions: {}
 
@@ -14,7 +20,7 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     # Pull requests from forks don't have access to secrets.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - uses: actions/checkout@v5
