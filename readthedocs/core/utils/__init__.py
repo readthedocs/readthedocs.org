@@ -7,6 +7,7 @@ import structlog
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.functional import keep_lazy
@@ -386,17 +387,18 @@ def admit_project_builds(project):
 
         structlog.contextvars.bind_contextvars(project_slug=project.slug)
 
-        # Only look at recently-triggered builds. A build sitting in
-        # ``triggered`` for over a day is stuck, not queued, and the ``date``
-        # index keeps this query fast.
-        # Upload API builds wait in ``triggered`` for the user's zip, not for a
-        # slot; ``complete/`` dispatches them explicitly.
-        queued = project.builds.filter(
-            state=BUILD_STATE_TRIGGERED,
-            task_id__isnull=True,
-            is_uploaded=False,
-            date__gt=timezone.now() - datetime.timedelta(days=1),
-        ).order_by("date")
+        # Upload builds that have finished uploading (upload_completed_at set)
+        # are eligible for admission. Builds still waiting for the user's zip
+        # (is_uploaded=True, upload_completed_at=None) are skipped.
+        queued = (
+            project.builds.filter(
+                state=BUILD_STATE_TRIGGERED,
+                task_id__isnull=True,
+                date__gt=timezone.now() - datetime.timedelta(days=1),
+            )
+            .filter(Q(is_uploaded=False) | Q(is_uploaded=True, upload_completed_at__isnull=False))
+            .order_by("date")
+        )
 
         for position, build in enumerate(queued):
             with structlog.contextvars.bound_contextvars(build_id=build.pk):
