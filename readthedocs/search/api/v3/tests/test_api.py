@@ -12,6 +12,7 @@ from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.documents import PageDocument
 
 
@@ -600,6 +601,82 @@ class ProxiedSearchAPITest(SearchAPITest):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
+
+
+@override_settings(ALLOW_PRIVATE_REPOS=False)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+@mock.patch.object(SearchExecutor, "search", new=mock.MagicMock(return_value=None))
+class SearchAPICacheTagsTest(TestCase):
+    """
+    Test the Cache-Tag header of the search API.
+
+    The search itself is mocked, so these tests don't need Elasticsearch.
+    """
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user], privacy_level=PUBLIC)
+        self.project.versions.update(privacy_level=PUBLIC, active=True, built=True)
+        self.url = reverse("search_api_v3")
+        self.client.force_login(self.user)
+
+    def add_subprojects(self, count):
+        subprojects = []
+        for i in range(count):
+            subproject = get(
+                Project,
+                slug=f"subproject-{i:03}",
+                users=[self.user],
+                privacy_level=PUBLIC,
+            )
+            subproject.versions.update(privacy_level=PUBLIC, active=True, built=True)
+            self.project.add_subproject(subproject)
+            subprojects.append(subproject)
+        return subprojects
+
+    def get_cache_tags_by_project(self, cache_tag):
+        tags = cache_tag.split(",")
+        # All tags of a project are added together.
+        assert len(tags) % 3 == 0
+        tags_by_project = {}
+        for i in range(0, len(tags), 3):
+            slug = tags[i]
+            assert tags[i : i + 3] == [slug, f"{slug}:latest", f"{slug}:rtd-search"]
+            tags_by_project[slug] = tags[i : i + 3]
+        return tags_by_project
+
+    def test_cache_tags_subprojects(self):
+        subprojects = self.add_subprojects(3)
+
+        resp = self.client.get(self.url, data={"q": "subprojects:project test"})
+
+        assert resp.status_code == 200
+        tags_by_project = self.get_cache_tags_by_project(resp["Cache-Tag"])
+        assert list(tags_by_project)[0] == "project"
+        assert set(tags_by_project) == {"project"} | {
+            subproject.slug for subproject in subprojects
+        }
+
+    def test_cache_tags_limit(self):
+        subprojects = self.add_subprojects(50)
+
+        resp = self.client.get(self.url, data={"q": "subprojects:project test"})
+
+        assert resp.status_code == 200
+        cache_tag = resp["Cache-Tag"]
+        assert len(cache_tag) <= 2_000
+        tags_by_project = self.get_cache_tags_by_project(cache_tag)
+        assert list(tags_by_project)[0] == "project"
+        # Only some of the subprojects fit in the header.
+        included = set(tags_by_project) - {"project"}
+        assert 0 < len(included) < len(subprojects)
+        assert included < {subproject.slug for subproject in subprojects}
+        # Adding the tags of another project would exceed the limit.
+        excluded = next(
+            subproject.slug for subproject in subprojects if subproject.slug not in included
+        )
+        next_project_tags = f"{excluded},{excluded}:latest,{excluded}:rtd-search"
+        assert len(cache_tag) + 1 + len(next_project_tags) > 2_000
 
 
 @override_settings(ALLOW_PRIVATE_REPOS=True)
