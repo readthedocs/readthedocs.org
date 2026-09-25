@@ -227,7 +227,7 @@ class BuildCommand(BuildCommandResultMixin):
         try:
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
-            sanitized = output.replace("\x00", "")
+            sanitized = sanitized.replace("\x00", "")
         except TypeError, AttributeError:
             pass
 
