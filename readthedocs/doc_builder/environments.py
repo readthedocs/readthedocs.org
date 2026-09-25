@@ -221,7 +221,9 @@ class BuildCommand(BuildCommandResultMixin):
 
         :returns: sanitized output as string
         """
-        sanitized = ""
+        # Obfuscate before chunking to avoid leaking secrets in the logs if the output is too big.
+        sanitized = self.obfuscate_output(output or "")
+
         try:
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
@@ -249,7 +251,7 @@ class BuildCommand(BuildCommandResultMixin):
                 f"{truncated_output}"
             )
 
-        return self.obfuscate_output(sanitized)
+        return sanitized
 
     def obfuscate_output(self, output: str) -> str:
         """Obfuscate private environment variables and ``extra_env`` values from ``output``."""
