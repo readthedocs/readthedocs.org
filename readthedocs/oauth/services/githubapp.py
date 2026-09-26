@@ -112,7 +112,7 @@ class GitHubAppService(Service):
             if resp.status_code != 200:
                 log.info(
                     "Failed to fetch installations from GitHub",
-                    user=user,
+                    user_username=user.username,
                     account_id=account.uid,
                     status_code=resp.status_code,
                     response=resp.json(),
@@ -438,8 +438,8 @@ class GitHubAppService(Service):
         except RateLimitExceededException:
             log.info(
                 "Rate limit exceeded while sending build status to GitHub",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 commit=commit,
                 status=status,
                 exc_info=True,
@@ -449,8 +449,8 @@ class GitHubAppService(Service):
         except GithubException as e:
             log.info(
                 "Failed to send build status to GitHub",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 commit=commit,
                 status=status,
                 exc_info=True,
@@ -493,7 +493,7 @@ class GitHubAppService(Service):
             log.info(
                 "Failed to get clone token for project",
                 installation_id=self.installation.installation_id,
-                project=project.slug,
+                project_slug=project.slug,
                 exc_info=True,
             )
             return None
@@ -526,8 +526,8 @@ class GitHubAppService(Service):
         if gh_pull.state != "open":
             log.info(
                 "Pull request is closed or merged, skipping comment.",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 pr_state=gh_pull.state,
             )
             return
@@ -552,6 +552,6 @@ class GitHubAppService(Service):
         else:
             log.debug(
                 "No comment to update, skipping commenting",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
             )
