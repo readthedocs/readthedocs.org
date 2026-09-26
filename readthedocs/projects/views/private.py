@@ -83,6 +83,7 @@ from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.base import ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
+from readthedocs.redirects.constants import TYPE_CHOICES
 from readthedocs.search.models import SearchQuery
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.constants import TYPE_PAGEVIEW_ANALYTICS
@@ -797,6 +798,25 @@ class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
 
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
     success_message = _("Redirect created")
+
+    def get_form(self, data=None, files=None, **kwargs):
+        """
+        Pre-fill the form from the query string.
+
+        The build overview comment links here for each file deleted by a build,
+        so the author can create the redirect without retyping the path.
+        ``to_url`` is left empty, since only the author knows where the file went.
+        """
+        initial = {}
+        redirect_type = self.request.GET.get("redirect_type")
+        if redirect_type in dict(TYPE_CHOICES):
+            initial["redirect_type"] = redirect_type
+        from_url = self.request.GET.get("from_url")
+        if from_url:
+            initial["from_url"] = from_url
+        if initial:
+            kwargs.setdefault("initial", initial)
+        return super().get_form(data, files, **kwargs)
 
 
 class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
