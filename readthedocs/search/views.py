@@ -16,6 +16,7 @@ from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch
+from readthedocs.search.faceted_search import is_advanced_query
 
 
 log = structlog.get_logger(__name__)
@@ -82,6 +83,7 @@ class GlobalSearchView(TemplateView):
         results, facets = [], {}
         search_query = ""
         total_count = 0
+        fuzzy_fallback = False
         query = self.request.GET.get("q")
         if query:
             search_executor = SearchExecutor(
@@ -95,8 +97,20 @@ class GlobalSearchView(TemplateView):
             search = search_executor.search(use_advanced_query=use_advanced_query)
             if search:
                 results = search[: self.max_search_results].execute()
-                facets = results.facets
                 total_count = results.hits.total["value"]
+                # The exact query didn't match anything,
+                # try again matching similar terms (typos, partial words).
+                if (
+                    total_count == 0
+                    and use_advanced_query
+                    and search_query
+                    and not is_advanced_query(search_query)
+                ):
+                    search = search_executor.search(use_advanced_query=False)
+                    results = search[: self.max_search_results].execute()
+                    total_count = results.hits.total["value"]
+                    fuzzy_fallback = True
+                facets = results.facets
                 results = PageSearchSerializer(
                     results,
                     projects=search_executor.projects,
@@ -109,6 +123,7 @@ class GlobalSearchView(TemplateView):
             "results": results,
             "facets": facets,
             "total_count": total_count,
+            "fuzzy_fallback": fuzzy_fallback,
             "type": "file",
         }
 
