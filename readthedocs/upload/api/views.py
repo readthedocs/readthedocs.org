@@ -1,6 +1,7 @@
 import structlog
 from django.conf import settings
 from django.core.files.storage import storages
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +17,7 @@ from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import prepare_build
 from readthedocs.core.utils import submit_to_build_isolated
 from readthedocs.doc_builder.exceptions import BuildUserError
@@ -223,7 +225,13 @@ class UploadCompleteView(APIv3Settings, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        submit_to_build_isolated(project=project, build=build)
+        build.upload_completed_at = timezone.now()
+        build.save(update_fields=["upload_completed_at"])
+
+        if project.has_feature(Feature.USE_BUILD_ISOLATED):
+            admit_project_builds(project)
+        else:
+            submit_to_build_isolated(project=project, build=build)
 
         return Response(
             {"build": BuildSerializer(build).data},

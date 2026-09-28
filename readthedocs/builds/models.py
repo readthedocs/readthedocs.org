@@ -751,6 +751,12 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
+    upload_completed_at = models.DateTimeField(
+        _("Upload completed at"),
+        null=True,
+        blank=True,
+        help_text="Set when the /complete endpoint is called for this upload build.",
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.

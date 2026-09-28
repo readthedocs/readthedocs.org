@@ -6,6 +6,7 @@ import structlog
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -869,6 +870,8 @@ def run_post_build_tasks(build_pk):
                 version_slug=build.version.slug,
             )
 
+    admit_project_builds(build.project)
+
 
 @app.task(queue="web", bind=True)
 def admit_queued_builds(self):
@@ -889,13 +892,18 @@ def admit_queued_builds(self):
 
         # Only projects with recently-triggered builds; the ``date`` index keeps
         # this query fast even though it runs every few seconds.
+        # Include upload builds that have completed uploading.
+        admitted_builds = Q(is_uploaded=False) | Q(
+            is_uploaded=True,
+            upload_completed_at__isnull=False,
+        )
         project_ids = (
             Build.objects.filter(
                 state=BUILD_STATE_TRIGGERED,
                 task_id__isnull=True,
-                is_uploaded=False,
                 date__gt=timezone.now() - timezone.timedelta(days=1),
             )
+            .filter(admitted_builds)
             .values_list("project_id", flat=True)
             .distinct()
         )
