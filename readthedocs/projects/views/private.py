@@ -48,6 +48,7 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
+from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
@@ -445,43 +446,21 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         # .com sets the slug on the instance while cleaning (organization prefix).
         return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
 
-    def _uses_direct_upload(self, form_list):
-        """Whether the user chose direct upload in the config step."""
+    def _get_build_method(self, form_list):
+        """Build method chosen in the config step, direct upload only when the beta gate allows it."""
         if not self.initial_dict.get("direct_upload"):
-            return False
+            return BUILD_METHOD_READTHEDOCS
         for form in form_list:
             if isinstance(form, self.form_list.get("config")):
-                return (
-                    form.cleaned_data.get("build_method")
-                    == ProjectConfigForm.BUILD_METHOD_DIRECT_UPLOAD
-                )
-        return False
+                return form.cleaned_data.get("build_method") or BUILD_METHOD_READTHEDOCS
+        return BUILD_METHOD_READTHEDOCS
 
     def _setup_direct_upload(self, project):
-        """
-        Configure a new project that will only receive uploaded documentation.
-
-        ``latest`` and ``stable`` are marked as uploaded so nothing triggers a
-        Read the Docs build for them (webhooks, version sync, rebuild button).
-        Versions activated later by automation rules are the user's call and
-        still build on Read the Docs.
-        """
+        """Enable the upload API on a new direct upload project (beta gate)."""
         feature, _ = Feature.objects.get_or_create(
             feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
         )
         feature.projects.add(project)
-
-        # Pull request previews are created by the upload API instead.
-        project.external_builds_enabled = False
-        project.save()
-
-        latest = project.get_latest_version()
-        if latest:
-            latest.is_uploaded = True
-            latest.save(update_fields=["is_uploaded"])
-        if not project.get_stable_version():
-            project.versions.create_stable(active=False, is_uploaded=True)
-
         log.info("Project configured for direct upload.", project_slug=project.slug)
 
     def done(self, form_list, **kwargs):
@@ -502,14 +481,16 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
                 break
 
         # Save the basics form to create the project instance, then alter
-        # attributes directly from other forms
+        # attributes directly from other forms.
+        # The build method has to be set before saving: `Project.save` creates `latest`
+        # for projects built by Read the Docs, and direct upload projects don't get one.
+        basics_form.instance.build_method = self._get_build_method(form_list)
         project = basics_form.save()
 
-        direct_upload = self._uses_direct_upload(form_list)
-        if direct_upload:
+        if project.is_direct_upload:
             self._setup_direct_upload(project)
 
-        self.finish_import_project(self.request, project, trigger_build=not direct_upload)
+        self.finish_import_project(self.request, project)
 
         return HttpResponseRedirect(
             reverse("projects_detail", args=[project.slug]),

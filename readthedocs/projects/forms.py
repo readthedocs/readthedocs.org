@@ -39,6 +39,8 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+from readthedocs.projects.constants import BUILD_METHOD_CHOICES
+from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
@@ -469,14 +471,8 @@ class ProjectBasicsForm(ProjectForm):
 class ProjectConfigForm(forms.Form):
     """Intermediate step to choose how the documentation is built."""
 
-    BUILD_METHOD_READTHEDOCS = "readthedocs"
-    BUILD_METHOD_DIRECT_UPLOAD = "direct_upload"
-
     build_method = forms.ChoiceField(
-        choices=[
-            (BUILD_METHOD_READTHEDOCS, _("Build on Read the Docs")),
-            (BUILD_METHOD_DIRECT_UPLOAD, _("Build externally and upload")),
-        ],
+        choices=BUILD_METHOD_CHOICES,
         initial=BUILD_METHOD_READTHEDOCS,
         required=False,
         widget=forms.HiddenInput(),
@@ -488,7 +484,7 @@ class ProjectConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_build_method(self):
-        return self.cleaned_data.get("build_method") or self.BUILD_METHOD_READTHEDOCS
+        return self.cleaned_data.get("build_method") or BUILD_METHOD_READTHEDOCS
 
 
 class UpdateProjectForm(

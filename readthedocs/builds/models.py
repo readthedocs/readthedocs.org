@@ -464,6 +464,16 @@ class Version(TimeStampedModel):
         """
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
+            # Uploaded versions have no inactive state: they are deleted,
+            # and a new upload recreates them.
+            if self.is_uploaded:
+                log.info(
+                    "Deleting deactivated uploaded version.",
+                    project_slug=self.project.slug,
+                    version_slug=self.slug,
+                )
+                self.delete()
+                return
             self.clean_resources()
             return
         # If the version is activated, we need to trigger a build.

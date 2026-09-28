@@ -17,11 +17,13 @@ from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Feature
@@ -333,6 +335,59 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         version = self.project.versions.get(verbose_name="main", type=BRANCH)
         assert response.data["version"]["id"] == version.pk
         assert version.pk != latest.pk
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_first_upload_is_default_version_on_direct_upload_project(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+        )
+        self.feature.projects.add(project)
+        # Direct upload projects don't get "latest" on creation.
+        assert not project.versions.exists()
+        self.data["project"] = project.slug
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        project.refresh_from_db()
+        assert project.default_version == "main"
+
+        # A second version doesn't change the default.
+        self.data["version"]["name"] = "v1"
+        self.data["version"]["type"] = TAG
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        project.refresh_from_db()
+        assert project.default_version == "main"
+
+    @mock.patch("readthedocs.upload.api.views.run_version_automation_rules")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_automation_rules_run_when_upload_creates_version(
+        self, storages_mock, send_build_status, run_version_automation_rules
+    ):
+        self._mock_storage(storages_mock)
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        run_version_automation_rules.assert_called_once_with(
+            self.project,
+            added_versions={"main"},
+            deleted_active_versions=set(),
+        )
+
+        # Uploading the same version again doesn't run them again.
+        run_version_automation_rules.reset_mock()
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        run_version_automation_rules.assert_not_called()
 
 
 class UploadCompleteViewTests(UploadAPIEndpointMixin):

@@ -24,6 +24,14 @@ DOCUMENTATION_CHOICES = (
     (SPHINX_HTMLDIR, _("Sphinx HtmlDir")),
     (SPHINX_SINGLEHTML, _("Sphinx Single Page HTML")),
 )
+# How the documentation gets built
+BUILD_METHOD_READTHEDOCS = "readthedocs"
+BUILD_METHOD_DIRECT_UPLOAD = "direct_upload"
+BUILD_METHOD_CHOICES = (
+    (BUILD_METHOD_READTHEDOCS, _("Build on Read the Docs")),
+    (BUILD_METHOD_DIRECT_UPLOAD, _("Build externally and upload")),
+)
+
 DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
     (MKDOCS_HTML, _("Mkdocs Html Pages")),
     (GENERIC, _("Generic")),

@@ -18,6 +18,8 @@ from readthedocs.integrations.models import GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
+from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
@@ -388,32 +390,28 @@ class TestDirectUploadImport(TestCase):
     def test_direct_upload_project(self):
         project = self._import_project({"direct_upload": "1"}, "direct_upload")
 
+        self.assertEqual(project.build_method, BUILD_METHOD_DIRECT_UPLOAD)
+        self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
-        self.assertFalse(project.external_builds_enabled)
+        # No build, and no versions: they all come from uploads.
         self.assertFalse(project.builds.exists())
-
-        latest = project.get_latest_version()
-        self.assertTrue(latest.is_uploaded)
-        self.assertTrue(latest.active)
-
-        stable = project.get_stable_version()
-        self.assertTrue(stable.is_uploaded)
-        self.assertFalse(stable.active)
+        self.assertFalse(project.versions.exists())
+        # Pull request builds are blocked by the build method, the setting is left alone.
+        self.assertTrue(project.external_builds_enabled)
 
     def test_direct_upload_ignored_when_not_available(self):
         project = self._import_project({}, "direct_upload")
 
+        self.assertEqual(project.build_method, BUILD_METHOD_READTHEDOCS)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
-        self.assertTrue(project.external_builds_enabled)
-        self.assertFalse(project.get_latest_version().is_uploaded)
-        self.assertIsNone(project.get_stable_version())
+        self.assertIsNotNone(project.get_latest_version())
 
     def test_build_on_readthedocs_when_available(self):
         project = self._import_project({"direct_upload": "1"}, "readthedocs")
 
+        self.assertEqual(project.build_method, BUILD_METHOD_READTHEDOCS)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
-        self.assertTrue(project.external_builds_enabled)
-        self.assertFalse(project.get_latest_version().is_uploaded)
+        self.assertIsNotNone(project.get_latest_version())
 
 
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())

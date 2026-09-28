@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
@@ -91,12 +92,14 @@ class UploadInitiateView(APIv3Settings, APIView):
         version_type = version_data["type"]
         version_commit = version_data["commit"]
         privacy_level = version_data["privacy_level"]
-        version = self._get_or_create_version(
+        version, created = self._get_or_create_version(
             project=project,
             name=version_name,
             version_type=version_type,
             privacy_level=privacy_level,
         )
+        if created:
+            self._on_version_created(project=project, version=version)
 
         _, build = prepare_build(
             project=project, version=version, commit=version_commit, is_uploaded=True
@@ -118,15 +121,18 @@ class UploadInitiateView(APIv3Settings, APIView):
         Get or create a version for the given project.
 
         If the version already exists, it will be updated with the new privacy level and set to active.
+
+        :returns: a tuple of the version and whether it was created.
         """
         # Uploads for the default branch go to "latest", like webhook builds do.
+        # Direct upload projects don't have "latest" unless they uploaded it by name.
         if version_type == BRANCH and name == project.get_default_branch(fallback_to_vcs=False):
             latest = project.get_latest_version()
             if latest and latest.machine:
                 latest.privacy_level = privacy_level
                 latest.active = True
                 latest.save()
-                return latest
+                return latest, False
 
         version = project.versions.filter(verbose_name=name, type=version_type).first()
         if version:
@@ -136,8 +142,10 @@ class UploadInitiateView(APIv3Settings, APIView):
             version.active = True
             version.machine = False
             version.save()
-            return version
+            return version, False
 
+        # A version that only exists because of an upload is uploaded from the start,
+        # so nothing (automation rules included) builds it on Read the Docs meanwhile.
         version = Version.objects.create(
             project=project,
             verbose_name=name,
@@ -146,8 +154,31 @@ class UploadInitiateView(APIv3Settings, APIView):
             privacy_level=privacy_level,
             state=EXTERNAL_VERSION_STATE_OPEN,
             active=True,
+            is_uploaded=True,
         )
-        return version
+        return version, True
+
+    def _on_version_created(self, *, project, version):
+        """
+        Extra steps for a version created by an upload.
+
+        Versions created by the repository sync run the automation rules from the sync task;
+        uploaded versions are created here, so the rules run here.
+        The first version of a direct upload project also becomes its default version,
+        since these projects don't get "latest" automatically.
+        """
+        if (
+            project.is_direct_upload
+            and not project.versions.filter(slug=project.default_version).exists()
+        ):
+            project.default_version = version.slug
+            project.save(update_fields=["default_version"])
+
+        run_version_automation_rules(
+            project,
+            added_versions={version.slug},
+            deleted_active_versions=set(),
+        )
 
     def _generate_upload_url(self, build):
         """Generate a presigned URL for uploading to S3."""

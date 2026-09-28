@@ -442,6 +442,18 @@ class Project(models.Model):
         ),
     )
 
+    build_method = models.CharField(
+        _("Build method"),
+        max_length=32,
+        choices=constants.BUILD_METHOD_CHOICES,
+        default=constants.BUILD_METHOD_READTHEDOCS,
+        db_default=constants.BUILD_METHOD_READTHEDOCS,
+        help_text=_(
+            "Whether Read the Docs builds the documentation, "
+            "or it is built externally and uploaded."
+        ),
+    )
+
     # External versions
     external_builds_enabled = models.BooleanField(
         _("Build pull requests for this project"),
@@ -1246,6 +1258,11 @@ class Project(models.Model):
         )
         return original_stable
 
+    @property
+    def is_direct_upload(self):
+        """Whether the documentation is built externally and uploaded, never by Read the Docs."""
+        return self.build_method == constants.BUILD_METHOD_DIRECT_UPLOAD
+
     def get_latest_version(self):
         return self.versions.filter(slug=LATEST).first()
 
@@ -1283,6 +1300,9 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
+            # Direct upload projects only get the versions they upload.
+            if self.is_direct_upload:
+                return
             latest = self.versions.create_latest()
         if not latest.machine:
             return

@@ -11,10 +11,19 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.builds.version_slug import validate_version_slug
+from readthedocs.core.utils import trigger_build
 
 
 class VersionForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    is_uploaded = forms.BooleanField(
+        label=_("Uploaded"),
+        required=False,
+        help_text=_(
+            "This version was uploaded and is not built by Read the Docs. "
+            "Uncheck it to build it on Read the Docs again; the next build replaces the uploaded files."
+        ),
+    )
 
     class Meta:
         model = Version
@@ -25,6 +34,7 @@ class VersionForm(forms.ModelForm):
             "slug",
             *states_fields,
             *privacy_fields,
+            "is_uploaded",
         )
 
     def __init__(self, *args, **kwargs):
@@ -48,6 +58,13 @@ class VersionForm(forms.ModelForm):
             )
         else:
             self.fields.pop("privacy_level")
+
+        # The way back to Read the Docs builds for a version that was uploaded.
+        # Direct upload projects never build, so there is nothing to go back to.
+        if self.project.is_direct_upload or not (self.instance and self.instance.is_uploaded):
+            self.fields.pop("is_uploaded")
+        else:
+            field_sets.append(Fieldset(_("Direct upload"), "is_uploaded"))
 
         field_sets.append(
             HTML(
@@ -106,4 +123,10 @@ class VersionForm(forms.ModelForm):
 
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
+
+        # Handing an uploaded version back to Read the Docs builds it again.
+        # A version being activated at the same time is already built by `post_save`.
+        reverted_upload = "is_uploaded" in self.changed_data and not obj.is_uploaded
+        if reverted_upload and obj.active and self._was_active:
+            trigger_build(project=obj.project, version=obj)
         return obj
