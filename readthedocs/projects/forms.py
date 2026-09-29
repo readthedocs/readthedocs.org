@@ -285,6 +285,10 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
     def clean_prevalidation(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        # Pull request previews on direct upload projects come from uploads, there is nothing to validate.
+        if self.instance.is_direct_upload:
+            return
+
         # If the project is attached to a GitHub app integration,
         # it will always be able to build external versions.
         if self.instance.is_github_app_project:
