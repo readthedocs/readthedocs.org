@@ -358,8 +358,7 @@ class TestDirectUploadImport(TestCase):
     }
 
     def setUp(self):
-        # Staff users always see direct upload, so make sure this one isn't.
-        self.user = get(User, is_staff=False)
+        self.user = get(User)
         self.client.force_login(self.user)
 
     def _import_project(self, direct_upload_query, build_method):

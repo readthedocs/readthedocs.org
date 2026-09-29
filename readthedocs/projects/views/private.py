@@ -294,12 +294,10 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
 def direct_upload_available(request):
     """
-    Whether the "Add project" wizard offers direct upload to this user.
+    Whether the "Add project" wizard offers direct upload.
 
-    Beta gate: staff users always see it, everybody else needs ``?direct_upload=1``.
+    Beta gate: the wizard has to be opened with ``?direct_upload=1``.
     """
-    if request.user.is_staff:
-        return True
     return request.GET.get("direct_upload") == "1" or request.POST.get("direct_upload") == "1"
 
 
