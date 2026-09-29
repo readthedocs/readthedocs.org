@@ -2,6 +2,7 @@ import json
 from unittest import mock
 
 from readthedocs.builds.constants import ALL_VERSIONS
+from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.models import AutomationRule
 import requests_mock
 from allauth.socialaccount.models import SocialAccount
@@ -565,6 +566,38 @@ class TestGitHubAppWebhook(TestCase):
         }
         r = self.post_webhook("pull_request", payload)
         assert r.status_code == 200
+        assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    def test_pull_request_opened_direct_upload_project(self, trigger_build):
+        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.save()
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+        # The preview is created by the upload API, not by the webhook.
         assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
         trigger_build.assert_not_called()
 
