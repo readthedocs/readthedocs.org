@@ -617,6 +617,19 @@ class UpdateProjectForm(
 
         self.setup_external_builds_option()
 
+        # Direct upload projects are never built by Read the Docs,
+        # so the build settings have nothing to configure.
+        if self.instance.is_direct_upload:
+            for field in [
+                "default_branch",
+                "readthedocs_yaml_path",
+                "git_checkout_command",
+                "n_consecutive_failed_builds",
+                "external_builds_enabled",
+                "external_builds_privacy_level",
+            ]:
+                self.fields.pop(field, None)
+
         # We use crispy layout here strictly for multifield and field ordering,
         # There's no HTML in Python, it's all in templates and web components.
         self.helper = FormHelper()
