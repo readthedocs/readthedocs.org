@@ -171,4 +171,4 @@ Read the Docs side.
    Including the build ID lets the support team look up the exact logs for
    your build, even if the failure is not visible in the UI.
 
-.. _Read the Docs status page: https://status.readthedocs.org/
+.. _Read the Docs status page: https://status.readthedocs.com/
