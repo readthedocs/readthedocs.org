@@ -21,7 +21,8 @@ class VersionForm(forms.ModelForm):
         required=False,
         help_text=_(
             "This version was uploaded and is not built by Read the Docs. "
-            "Uncheck it to build it on Read the Docs again; the next build replaces the uploaded files."
+            "Uncheck it to build it on Read the Docs again: the uploaded files are removed "
+            "and a new build is triggered, so the version is unavailable until that build succeeds."
         ),
     )
 
@@ -124,9 +125,11 @@ class VersionForm(forms.ModelForm):
         obj = super().save(commit=commit)
         obj.post_save(was_active=self._was_active)
 
-        # Handing an uploaded version back to Read the Docs builds it again.
-        # A version being activated at the same time is already built by `post_save`.
+        # Handing an uploaded version back to Read the Docs: the uploaded files go away
+        # and a build is triggered, so a failed build never leaves them being served.
+        # A version being activated at the same time has no files and is built by `post_save`.
         reverted_upload = "is_uploaded" in self.changed_data and not obj.is_uploaded
         if reverted_upload and obj.active and self._was_active:
+            obj.clean_resources()
             trigger_build(project=obj.project, version=obj)
         return obj

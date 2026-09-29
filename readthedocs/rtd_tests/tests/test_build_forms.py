@@ -408,11 +408,20 @@ class TestVersionForm(TestCase):
 
     @mock.patch("readthedocs.builds.forms.trigger_build")
     @mock.patch("readthedocs.builds.models.trigger_build")
-    def test_clearing_uploaded_triggers_a_build(self, models_trigger_build, forms_trigger_build):
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_clearing_uploaded_removes_files_and_triggers_a_build(
+        self,
+        remove_build_storage_paths,
+        remove_search_indexes,
+        models_trigger_build,
+        forms_trigger_build,
+    ):
         version = get(
             Version,
             project=self.project,
             active=True,
+            built=True,
             is_uploaded=True,
             slug="uploaded",
         )
@@ -426,6 +435,11 @@ class TestVersionForm(TestCase):
 
         version.refresh_from_db()
         assert not version.is_uploaded
+        assert version.active
+        # The uploaded files are gone, so a failed build never leaves them being served.
+        assert not version.built
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
         forms_trigger_build.assert_called_once_with(project=self.project, version=version)
         # The version was already active, so post_save doesn't build it a second time.
         models_trigger_build.assert_not_called()
