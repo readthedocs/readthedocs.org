@@ -1,5 +1,7 @@
 """Test core util functions."""
 import datetime
+import gc
+import weakref
 from unittest import mock
 
 import pytest
@@ -15,6 +17,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import admit_project_builds, slugify, trigger_build
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
@@ -425,3 +428,44 @@ class BuildIsolatedConcurrencyTests(TestCase):
             == BuildMaxConcurrencyError.LIMIT_REACHED
         )
         send_task.assert_not_called()
+
+
+class TestCachedMethod:
+    class Thing:
+        def __init__(self):
+            self.calls = 0
+
+        @cached_method
+        def compute(self, value, *, factor=1):
+            self.calls += 1
+            return value * factor
+
+    def test_caches_per_argument(self):
+        thing = self.Thing()
+        assert thing.compute(2) == 2
+        assert thing.compute(2) == 2
+        assert thing.compute(2, factor=3) == 6
+        assert thing.compute(3) == 3
+        assert thing.calls == 3
+
+    def test_cache_is_per_instance(self):
+        first = self.Thing()
+        second = self.Thing()
+        first.compute(2)
+        second.compute(2)
+        assert first.calls == 1
+        assert second.calls == 1
+
+    def test_entries_are_released_with_the_instance(self):
+        thing = self.Thing()
+        thing.compute(2)
+        ref = weakref.ref(thing)
+        del thing
+        gc.collect()
+        assert ref() is None
+
+    def test_class_attribute_holds_no_cache(self):
+        thing = self.Thing()
+        thing.compute(2)
+        assert not hasattr(self.Thing.compute, "cache_info")
+        assert "_cached_method_results" in vars(thing)
