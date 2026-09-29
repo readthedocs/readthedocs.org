@@ -41,6 +41,7 @@ class BuildListFilter(ModelFilterSet):
         empty_label=_("All versions"),
         to_field_name="slug",
         queryset_method="get_version_queryset",
+        choices_queryset_method="get_version_choices_queryset",
         method="get_version",
     )
     state = ChoiceFilter(
@@ -64,9 +65,15 @@ class BuildListFilter(ModelFilterSet):
         return queryset.filter(version__slug=version.slug)
 
     def get_version_queryset(self):
-        # Copied from the version listing view. We need this here as this is
-        # what allows the build version list to populate. Otherwise the
-        # ``all()`` queryset method is used.
+        # Used to validate the value. Accept any version the user can see,
+        # including external and inactive ones, so links from a PR build work.
+        return self.project.versions.public(
+            user=self.request.user,
+            only_active=False,
+        )
+
+    def get_version_choices_queryset(self):
+        # Used to populate the dropdown. Keep it to active internal versions.
         return self.project.versions(manager=INTERNAL).public(
             user=self.request.user,
         )
