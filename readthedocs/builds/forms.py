@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.builds.version_slug import generate_version_slug
+from readthedocs.builds.version_slug import validate_version_slug
 
 
 class VersionForm(forms.ModelForm):
@@ -87,19 +87,7 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        validated_slug = generate_version_slug(slug)
-        if slug != validated_slug:
-            msg = _(
-                "The slug can contain lowercase letters, numbers, dots, dashes or underscores, "
-                f"and it must start with a lowercase letter or a number. Consider using '{validated_slug}'."
-            )
-            raise forms.ValidationError(msg)
-
-        # NOTE: Django already checks for unique slugs and raises a ValidationError,
-        # but that message is attached to the whole form instead of the the slug field.
-        # So we do the check here to provide a better error message.
-        if self.project.versions.filter(slug=slug).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError(_("A version with that slug already exists."))
+        validate_version_slug(slug, self.instance)
         return slug
 
     def clean_project(self):

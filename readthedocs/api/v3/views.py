@@ -374,12 +374,25 @@ class VersionsViewSet(
 
     def update(self, request, *args, **kwargs):
         """Overridden to call ``post_save`` method on the updated version."""
-        # Get the current value before updating.
+        # Get the current values before updating.
         version = self.get_object()
         was_active = version.active
+        previous_slug = version.slug
+
         result = super().update(request, *args, **kwargs)
+
         # Get the updated version.
-        version = self.get_object()
+        # NOTE: we can't use ``self.get_object()`` here, since versions are
+        # looked up by slug, and the slug may have just changed.
+        version.refresh_from_db()
+
+        # If the slug of an active version was changed, all its resources are
+        # still stored under the previous slug, so we clean them up and let
+        # ``post_save`` trigger a new build under the new slug.
+        if version.slug != previous_slug and was_active:
+            version.clean_resources(version_slug=previous_slug)
+            was_active = False
+
         version.post_save(was_active=was_active)
         return result
 

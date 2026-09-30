@@ -304,9 +304,9 @@ def show_config_step(wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
-    default_branch = cleaned_data.get("default_branch")
+    default_branch = remote_repository.default_branch if remote_repository else None
 
-    if repo and default_branch and remote_repository and remote_repository.vcs_provider == GITHUB:
+    if repo and default_branch and remote_repository.vcs_provider == GITHUB:
         # I don't know why `show_config_step` is called multiple times (at least 4).
         # This is a problem for us because we perform external calls here and add messages to the request.
         # Due to that, we are adding this instance variable to prevent this function to run multiple times.
@@ -333,7 +333,7 @@ def show_config_step(wizard):
                 "readthedocs.yml",
             ]:
                 try:
-                    querystrings = f"?ref={default_branch}" if default_branch else ""
+                    querystrings = f"?ref={default_branch}"
                     response = session.head(
                         f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
                         timeout=1,
@@ -454,7 +454,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
-        for key in ["name", "repo", "repo_type", "remote_repository", "default_branch"]:
+        for key in ["name", "repo", "repo_type", "remote_repository"]:
             initial_data["basics"][key] = request.POST.get(key)
         initial_data["extra"] = {}
         for key in ["description", "project_url"]:

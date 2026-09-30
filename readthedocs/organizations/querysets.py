@@ -137,16 +137,26 @@ class BaseOrganizationQuerySet(NoReprQuerySet, models.QuerySet):
             .exclude(disabled=True)
         )
 
+    def disable_serving(self):
+        """
+        Filter organizations which docs shouldn't be served anymore.
+
+        These organizations are disabled, and at least 3*DISABLE_AFTER_DAYS
+        (~3 months) passed since their subscription ended.
+        """
+        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=False).filter(
+            disabled=True,
+        )
+
     def clean_artifacts(self):
         """
         Filter organizations which their artifacts can be cleaned up.
 
-        These organizations are at least 3*DISABLE_AFTER_DAYS (~3 months) that
-        are disabled and their artifacts weren't cleaned already. We should be
-        safe to cleanup all their artifacts at this point.
+        These organizations aren't serving their docs anymore, and their
+        artifacts weren't cleaned already. We should be safe to cleanup all
+        their artifacts at this point.
         """
-        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=False).filter(
-            disabled=True,
+        return self.disable_serving().filter(
             artifacts_cleaned=False,
         )
 

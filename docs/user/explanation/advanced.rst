@@ -12,7 +12,7 @@ we explain some of the more specific or advanced concepts of writing documentati
 ⏩️ :doc:`/localization`
     Learn more about multilingual documentation projects and how translation workflows are supported.
 
-⏩️ :doc:`/downloadable-documentation`
+⏩️ :doc:`/offline-formats`
     An introduction to adding downloadable files, like PDFs, that can be read offline.
 
 ⏩️ :doc:`/environment-variables`

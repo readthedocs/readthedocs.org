@@ -5,13 +5,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
+from readthedocs.builds.constants import ALL_VERSIONS, BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
     Version,
 )
 from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.organizations.models import Organization, OrganizationOwner
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import AutomationRule, Project
 
 
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
@@ -216,6 +216,67 @@ class TestSyncVersions(TestCase):
         self.assertTrue(
             Version.objects.filter(slug="external").exists(),
         )
+
+    def test_delete_version_automation_rule_skips_uploaded_versions(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier="upload-test",
+            verbose_name="upload-test",
+            type=BRANCH,
+            active=True,
+            is_uploaded=True,
+        )
+        get(
+            AutomationRule,
+            project=self.pip,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[BRANCH],
+        )
+
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        # The version doesn't exist in the repository, but the delete
+        # version automation rule skips uploaded versions.
+        self.assertTrue(Version.objects.filter(slug="upload-test").exists())
+
+    def test_inactive_uploaded_versions_are_deleted(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier="upload-inactive",
+            verbose_name="upload-inactive",
+            type=BRANCH,
+            active=False,
+            is_uploaded=True,
+        )
+
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        # Inactive uploaded versions are cleaned up like any other version.
+        self.assertFalse(Version.objects.filter(slug="upload-inactive").exists())
 
     def test_update_stable_version_type(self):
         self.pip.update_stable_version()

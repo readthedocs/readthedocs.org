@@ -71,6 +71,7 @@ from .mixins import SyncRepositoryMixin
 from .search import index_build
 from .utils import BuildRequest
 from .utils import clean_build
+from .utils import purge_docs_cdn
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
 from .utils import stop_consuming_tasks_and_terminate
@@ -379,6 +380,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.warning("Project build skipped.")
             raise BuildAppError(BuildAppError.BUILDS_DISABLED)
 
+    def _check_build_cancelled(self):
+        # Cancelled while queued. Workers run without mingle, so one started
+        # after the revoke was broadcast doesn't know about it.
+        if self.data.build.get("state") == BUILD_STATE_CANCELLED:
+            log.info("Build already cancelled. Skipping.")
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER)
+
     def before_start(self, task_id, args, kwargs):
         # Create the object to store all the task-related data
         self.data = TaskData()
@@ -453,6 +461,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # can probably remove it
         self._setup_sigterm()
 
+        self._check_build_cancelled()
         self._check_project_disabled()
         self._check_concurrency_limit()
         self._reset_build()
@@ -688,6 +697,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'Files are synced in the storage, but "Version" object is not updated',
                 )
 
+        # Purge the CDN now that the new files are in storage.
+        purge_docs_cdn.delay(version_id=self.data.version.pk)
+
         # Index search data
         index_build.delay(build_id=self.data.build_pk)
 
@@ -840,7 +852,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be
             # inside the `with` statement
-            self.sync_versions(self.data.build_director.vcs_repository)
+            # SECURITY: never sync versions from external versions (PRs),
+            # since they are not trusted and could fake the output of the commands
+            # to create/delete versions in our database.
+            if not self.data.version.is_external:
+                self.sync_versions(self.data.build_director.vcs_repository)
+
+            # SECURITY: don't run user code before sycing versions, so users can't manipulate
+            # the output of the command to create/delete versions in our database.
+            self.data.build_director.run_build_job("post_checkout")
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with
