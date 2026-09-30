@@ -68,6 +68,19 @@ class RTDBaseStorage:
     def join(self, directory, filepath):
         raise NotImplementedError
 
+    def read_file(self, path) -> bytes:
+        """
+        Return the full contents of a file.
+
+        Prefer this over ``open(path).read()`` when reading many small files:
+        backends can fetch the object in a single request instead of going
+        through the file object machinery.
+
+        :raises FileNotFoundError: if the file doesn't exist.
+        """
+        with self.open(path, "rb") as f:
+            return f.read()
+
     def walk(self, path) -> Iterator[tuple[str, list[str], list[str]]]:
         """
         Walk the directory tree under the given path.

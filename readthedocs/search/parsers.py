@@ -73,8 +73,7 @@ class GenericParser:
         content = None
         try:
             file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
-            with self.storage.open(file_path, mode="r") as f:
-                content = f.read()
+            content = self.storage.read_file(file_path)
         except Exception:
             log.warning(
                 "Failed to get page content.",
