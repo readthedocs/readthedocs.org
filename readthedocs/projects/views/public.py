@@ -132,7 +132,7 @@ class ProjectDetailViewBase(
 
         # Direct upload projects point to the upload docs until something is uploaded.
         context["direct_upload_waiting"] = (
-            project.is_direct_upload and not project.versions.filter(built=True).exists()
+            project.is_direct_upload and not project.versions.filter(active=True).exists()
         )
 
         protocol = "http"
