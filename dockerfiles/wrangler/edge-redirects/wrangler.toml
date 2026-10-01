@@ -1,0 +1,19 @@
+name = "rtd-edge-redirects"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# One route on the docs zone covers *.readthedocs.io and every
+# Cloudflare for SaaS custom hostname that falls back to it.
+routes = [
+  { pattern = "*/*", zone_name = "readthedocs.io" },
+]
+
+[vars]
+# "shadow": compute the decision, forward to the origin with it as a header.
+# "live": answer from the edge for records with `edge_redirects: true`.
+EDGE_REDIRECTS_MODE = "shadow"
+
+[[kv_namespaces]]
+binding = "REDIRECTS"
+id = "replace-with-the-production-namespace-id"
+preview_id = "replace-with-the-staging-namespace-id"

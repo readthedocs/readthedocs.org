@@ -1,0 +1,10 @@
+{
+  "name": "rtd-edge-redirects",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
+}
