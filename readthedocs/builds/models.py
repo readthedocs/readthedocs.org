@@ -284,8 +284,8 @@ class Version(TimeStampedModel):
 
     @cached_property
     def latest_build(self):
-        # Cached on the instance: templates and serializers read this several
-        # times per version, and each read was a query.
+        # Cached on the instance: the version list template reads this several
+        # times per row, and each read was a query.
         return self.builds.order_by("-date").first()
 
     @cached_property
