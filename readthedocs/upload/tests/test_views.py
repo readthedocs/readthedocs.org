@@ -342,6 +342,33 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_has_no_alias_on_direct_upload_project(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+            default_branch="main",
+        )
+        self.feature.projects.add(project)
+        # Even with a machine-managed "latest" around, the uploaded name is the version.
+        latest = project.versions.create_latest(identifier="main")
+        self.data["project"] = project.slug
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        version = project.versions.get(verbose_name="main", type=BRANCH)
+        assert response.data["version"]["id"] == version.pk
+        assert version.pk != latest.pk
+        latest.refresh_from_db()
+        assert latest.machine
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
     def test_first_upload_is_default_version_on_direct_upload_project(
         self, storages_mock, send_build_status
     ):
