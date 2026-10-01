@@ -15,6 +15,11 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
 
+    # Collapse third-party frames in tracebacks to one line
+    RTD_LOGGING_SUPPRESS_TRACEBACKS = bool(
+        os.environ.get("RTD_LOGGING_SUPPRESS_TRACEBACKS", False)
+    )
+
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_NETWORK = "community_readthedocs"
@@ -117,17 +122,20 @@ class DockerBaseSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
 
+        suppress = []
+        if self.RTD_LOGGING_SUPPRESS_TRACEBACKS:
+            suppress = [sysconfig.get_path("purelib")]
+
         logging["formatters"]["colored_console"] = {
             "()": structlog.stdlib.ProcessorFormatter,
             "processors": [
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 structlog.dev.ConsoleRenderer(
                     colors=True,
-                    # Shorter tracebacks: third-party frames collapsed to one line
                     exception_formatter=structlog.dev.RichTracebackFormatter(
                         show_locals=True,
                         extra_lines=3,
-                        suppress=[sysconfig.get_path("purelib")],
+                        suppress=suppress,
                     ),
                 ),
             ],
