@@ -270,10 +270,12 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         was_finished = serializer.instance.finished
         build = serializer.save()
 
+        # Uploaded builds always run on the build-isolated fleet,
+        # regardless of the feature flag.
         if (
             not was_finished
             and build.finished
-            and build.project.has_feature(Feature.USE_BUILD_ISOLATED)
+            and (build.is_uploaded or build.project.has_feature(Feature.USE_BUILD_ISOLATED))
         ):
             run_post_build_tasks.delay(build_pk=build.pk)
 

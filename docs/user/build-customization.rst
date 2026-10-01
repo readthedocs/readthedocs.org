@@ -84,7 +84,7 @@ Features and limitations
 * Environment variables are expanded for each individual command (see :doc:`/reference/environment-variables`).
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands.
 * Any command returning non-zero exit code will cause the build to fail immediately
-  (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_).
+  (note there is a special exit code to :doc:`cancel the build </guides/build/skip-or-cancel-builds>`).
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``.
 * If the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` configuration is defined,
   the ``create_environment``, ``install``, and ``build`` jobs will use the default commands for the selected tool.
@@ -100,7 +100,7 @@ The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted a
 
 We store the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
-Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
+Supported :ref:`formats <offline-formats:accessing offline formats>` are published if they exist in the following directories:
 
 * ``$READTHEDOCS_OUTPUT/html/`` (required)
 * ``$READTHEDOCS_OUTPUT/htmlzip/``

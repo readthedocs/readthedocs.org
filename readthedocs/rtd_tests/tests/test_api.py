@@ -14,6 +14,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -315,6 +316,30 @@ class APIBuildTests(TestCase):
             Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
+    @mock.patch("readthedocs.api.v2.views.model_views.run_post_build_tasks")
+    def test_finishing_uploaded_build_runs_post_build_tasks(self, run_post_build_tasks):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+        )
+        assert not project.has_feature(Feature.USE_BUILD_ISOLATED)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build.pk),
+            {"state": BUILD_STATE_FINISHED},
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_200_OK
+        run_post_build_tasks.delay.assert_called_once_with(build_pk=build.pk)
+
     def test_response_building(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
@@ -328,7 +353,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -369,7 +393,6 @@ class APIBuildTests(TestCase):
             slug="myversion",
             project=project,
             built=True,
-            uploaded=True,
         )
         build = get(
             Build,
@@ -396,6 +419,22 @@ class APIBuildTests(TestCase):
             "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
         )
 
+    def test_normalize_build_command_strips_leading_usr_bin(self):
+        command = normalize_build_command(
+            "/usr/bin/apt-get install --assume-yes -- vim",
+            "myproject",
+            "myversion",
+        )
+        assert command == "apt-get install --assume-yes -- vim"
+
+    def test_normalize_build_command_keeps_usr_bin_in_arguments(self):
+        command = normalize_build_command(
+            "cat /usr/bin/foo",
+            "myproject",
+            "myversion",
+        )
+        assert command == "cat /usr/bin/foo"
+
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
@@ -409,7 +448,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -2287,7 +2325,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=prev_identifier,
@@ -2335,7 +2372,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=identifier,
@@ -2975,7 +3011,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=prev_identifier,
@@ -3021,7 +3056,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
@@ -3065,7 +3099,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
@@ -3568,6 +3601,7 @@ class APIVersionTests(TestCase):
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

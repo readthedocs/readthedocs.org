@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -16,8 +17,8 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
-from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
@@ -103,6 +104,16 @@ class SearchIndexer(Indexer):
             index_name=self.search_index_name,
         )
 
+        # Only the live index affects cached search results. When re-creating
+        # the index under a new name, the CDN has to be purged manually after
+        # ``reindex_elasticsearch --change-index``.
+        if not self.search_index_name:
+            search_index_updated.send(
+                sender=Project,
+                project=self.project,
+                version=self.version,
+            )
+
 
 class IndexFileIndexer(Indexer):
     """
@@ -171,10 +182,7 @@ class FileManifestIndexer(Indexer):
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = get_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 
@@ -304,12 +312,6 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 version_slug=version.slug,
             )
 
-    # This signal is used for purging the CDN.
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        version=version,
-    )
     return sync_id
 
 

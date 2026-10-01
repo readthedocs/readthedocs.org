@@ -522,6 +522,11 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    max_build_media_size = models.PositiveBigIntegerField(
+        _("Maximum size (in bytes) allowed per media type when uploading build artifacts"),
+        null=True,
+        blank=True,
+    )
     allow_promos = models.BooleanField(
         _("Allow paid advertising"),
         default=True,
@@ -1208,9 +1213,7 @@ class Project(models.Model):
 
     def active_versions(self):
         versions = self.versions(manager=INTERNAL).public(only_active=True)
-        return versions.filter(built=True, active=True) | versions.filter(
-            active=True, uploaded=True
-        )
+        return versions.filter(built=True, active=True)
 
     def all_active_versions(self):
         """

@@ -105,6 +105,6 @@ For a monorepo,
 it's not desirable to have changes in unrelated sub-folders trigger new builds.
 
 Therefore,
-you should consider setting up :doc:`conditional build cancellation rules </guides/build/skip-build>`.
+you should consider setting up :doc:`conditional build cancellation rules </guides/build/skip-or-cancel-builds>`.
 The configuration is added in each ``.readthedocs.yaml``,
 making it possible to write one conditional build rules per documentation project in the Monorepo 💯️

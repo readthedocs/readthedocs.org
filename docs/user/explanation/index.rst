@@ -14,7 +14,7 @@ Explanation
 ⏩️ :doc:`/localization`
   Some high-level approaches to internationalizing and localizing your documentation.
 
-⏩️ :doc:`/downloadable-documentation`
+⏩️ :doc:`/offline-formats`
   An explanation of how Read the Docs builds documentation in different formats.
 
 ⏩️ :doc:`/environment-variables`

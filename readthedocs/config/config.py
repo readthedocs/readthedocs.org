@@ -5,7 +5,7 @@ import datetime
 import os
 import re
 from contextlib import contextmanager
-from functools import lru_cache
+from functools import cached_property
 
 import pytz
 from django.conf import settings
@@ -1001,8 +1001,7 @@ class BuildConfigV2(BuildConfigBase):
             return Conda(**self._config["conda"])
         return None
 
-    @property
-    @lru_cache(maxsize=1)
+    @cached_property
     def build(self):
         build = self._config["build"]
         tools = {

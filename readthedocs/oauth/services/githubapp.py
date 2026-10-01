@@ -1,5 +1,4 @@
 from functools import cached_property
-from functools import lru_cache
 from itertools import groupby
 
 import structlog
@@ -15,6 +14,7 @@ from github.Repository import Repository as GHRepository
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import SELECT_BUILD_STATUS
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
@@ -44,7 +44,7 @@ class GitHubAppService(Service):
     def gh_app_client(self):
         return get_gh_app_client()
 
-    @lru_cache
+    @cached_method
     def get_app_installation(self) -> GHInstallation:
         """
         Return the installation object from the GitHub API.
@@ -336,14 +336,12 @@ class GitHubAppService(Service):
         self._resync_collaborators(gh_repo, remote_repo)
         return remote_repo
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def _get_gh_organization(self, login: str) -> GHOrganization:
         """Get a GitHub organization object given its login identifier."""
         return self.installation_client.get_organization(login)
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def update_or_create_organization(self, login: str) -> RemoteOrganization:
         """
         Create or update a remote organization from its login identifier.

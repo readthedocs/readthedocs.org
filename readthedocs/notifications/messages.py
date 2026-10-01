@@ -168,12 +168,12 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildCancelled.SKIPPED_EXIT_CODE_183,
-        header=_("Build skipped."),
+        header=_("Build cancelled."),
         body=_(
             textwrap.dedent(
                 """
-            This build was skipped because
-            one of the commands exited with code 183
+            This build was cancelled because one of the commands exited with code 183.
+            Read more about <a href="https://docs.readthedocs.com/platform/stable/guides/build/skip-or-cancel-builds.html" target="_blank">cancelling builds based on a condition</a>.
             """
             ).strip(),
         ),
@@ -393,6 +393,20 @@ BUILD_MESSAGES = [
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_MEDIA_SIZE_EXCEEDED,
+        header=_("Build output exceeds the size limit"),
+        body=_(
+            textwrap.dedent(
+                """
+            The {{media_type}} output of this build is {{size}} MB, exceeding the {{limit}} MB limit per format.
+            Builds over this limit may fail in the future.
+            Reduce the size of your generated documentation, or contact support to increase the limit.
+            """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
     Message(
         id=BuildUserError.BUILD_OUTPUT_HAS_NO_PDF_FILES,

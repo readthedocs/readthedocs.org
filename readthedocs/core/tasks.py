@@ -51,30 +51,43 @@ def send_email_task(recipient, subject, content, content_html=None, from_email=N
 @app.task(queue="web")
 def cleanup_pidbox_keys():
     """
-    Remove "pidbox" objects from Redis.
+    Remove "pidbox" reply lists from Redis.
 
-    Celery creates some "pidbox" objects with TTL=-1,
-    producing a OOM on our Redis instance.
+    Workers reply to broadcast commands into a per-requester list with no TTL.
+    Replies arriving after the requester stops reading stay there forever.
 
-    This task is executed periodically to remove "pdibox" objects with an
-    idletime bigger than 5 minutes from Redis and free some RAM.
+    Delete lists idle for more than 15 minutes, and lists over
+    ``PIDBOX_KEY_MAX_MB`` regardless of idle time (a worker stuck reconnecting
+    keeps appending to the same list).
 
     https://github.com/celery/celery/issues/6089
     https://github.com/readthedocs/readthedocs-ops/issues/1260
-
     """
+    PIDBOX_KEY_IDLE_SECONDS = 60 * 15
+    PIDBOX_KEY_MAX_MB = 50
+
     client = redis.from_url(settings.CELERY_BROKER_URL)
     keys = client.keys("*reply.celery.pidbox*")
     total_memory = 0
+    deleted = 0
+    sizes = []
     for key in keys:
         idletime = client.object("idletime", key)  # seconds
-        memory = math.ceil(client.memory_usage(key) / 1024 / 1024)  # Mb
+        memory = math.ceil((client.memory_usage(key) or 0) / 1024 / 1024)  # MB
         total_memory += memory
+        sizes.append((memory, key.decode(errors="replace")))
 
-        if idletime > (60 * 15):  # 15 minutes
+        if idletime > PIDBOX_KEY_IDLE_SECONDS or memory > PIDBOX_KEY_MAX_MB:
             client.delete(key)
+            deleted += 1
 
-    log.info("Redis pidbox objects.", memory=total_memory, keys=len(keys))
+    log.info(
+        "Redis pidbox objects.",
+        memory=total_memory,
+        keys=len(keys),
+        deleted=deleted,
+        largest=[f"{key}={memory}MB" for memory, key in sorted(sizes, reverse=True)[:5]],
+    )
 
 
 @app.task(queue="web", bind=True)

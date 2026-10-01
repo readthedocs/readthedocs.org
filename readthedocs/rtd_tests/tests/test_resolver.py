@@ -550,7 +550,7 @@ class ResolverTests(ResolverBase):
         PRODUCTION_DOMAIN="readthedocs.org",
         PUBLIC_DOMAIN="readthedocs.io",
     )
-    def test_resolver_domain_https(self):
+    def test_resolver_public_domain_https(self):
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
             url = Resolver().resolve(project=self.pip)
             self.assertEqual(url, "https://pip.readthedocs.io/en/latest/")
