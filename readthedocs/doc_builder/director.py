@@ -85,6 +85,8 @@ class BuildDirector:
             raise RepositoryError(RepositoryError.UNSUPPORTED_VCS)
 
         # This signal is used to setup the SSH key on .com.
+        # SECURITY: don't run user code before setting up the SSH key,
+        # otherwise a malicious user could exfiltrate the private SSH key.
         before_vcs.send(
             sender=self.data.version,
             environment=self.vcs_environment,
@@ -107,8 +109,6 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
-
-        self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
         if commit:
@@ -156,6 +156,8 @@ class BuildDirector:
         )
 
         # This signal is used to setup the SSH key on .com.
+        # SECURITY: don't run user code before setting up the SSH key,
+        # otherwise a malicious user could exfiltrate the private SSH key.
         before_build.send(
             sender=self.data.version,
             environment=self.build_environment,

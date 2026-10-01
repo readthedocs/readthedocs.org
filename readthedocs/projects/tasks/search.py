@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -181,10 +182,7 @@ class FileManifestIndexer(Indexer):
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = get_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 

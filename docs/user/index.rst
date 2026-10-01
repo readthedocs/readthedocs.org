@@ -62,7 +62,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reading documentation
 
-   /downloadable-documentation
+   /offline-formats
    /visual-diff
    /link-previews
    /guides/embedding-content

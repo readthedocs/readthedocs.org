@@ -13,6 +13,7 @@ from django.test.utils import override_settings
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -26,7 +27,7 @@ from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.models import EnvironmentVariable, Feature, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
@@ -248,6 +249,48 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
+
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_called_for_internal_versions(self, load_yaml_config, sync_versions):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = BRANCH
+        self.version.save()
+
+        self._trigger_update_docs_task()
+        sync_versions.assert_called_once()
+
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_not_called_for_external_versions(self, load_yaml_config, sync_versions):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        self._trigger_update_docs_task()
+        sync_versions.assert_not_called()
+
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.run_build_job")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_post_checkout_runs_after_sync_versions(
+        self, load_yaml_config, sync_versions, run_build_job
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        # Attach both mocks to a single parent to record the order of the calls.
+        manager = mock.Mock()
+        manager.attach_mock(sync_versions, "sync_versions")
+        manager.attach_mock(run_build_job, "run_build_job")
+
+        self._trigger_update_docs_task()
+
+        calls = manager.mock_calls
+        sync_versions_index = calls.index(mock.call.sync_versions(mock.ANY))
+        post_checkout_index = calls.index(mock.call.run_build_job("post_checkout"))
+        assert sync_versions_index < post_checkout_index
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
@@ -472,7 +515,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_successful_build(
         self,
@@ -743,7 +786,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_failed_build(
         self,
         clean_build,
@@ -3078,22 +3121,118 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert revoke_key_request.path == "/api/v2/revoke/"
 
 
+class TestBuildTaskCleanBuild(BuildEnvironmentBase):
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.BuildDirector.setup_vcs")
+    def test_retire_builder_and_fail_build_if_files_cant_be_removed(
+        self, setup_vcs, clean_build, retire_builder
+    ):
+        clean_build.return_value = False
+        self._trigger_update_docs_task()
+
+        setup_vcs.assert_not_called()
+        # Only retired from ``after_return``, since the files are still there.
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_if_files_cant_be_removed_after_build(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        # Clean before the build, files left after the build.
+        clean_build.side_effect = [True, False]
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_once_if_files_cant_be_removed_and_terminate_on_finish(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        fixture.get(
+            Feature,
+            feature_id=Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            projects=[self.project],
+        )
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.side_effect = [True, False]
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_on_finish(self, load_yaml_config, clean_build, retire_builder):
+        fixture.get(
+            Feature,
+            feature_id=Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            projects=[self.project],
+        )
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.return_value = True
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_dont_retire_builder_if_files_are_removed(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.return_value = True
+        self._trigger_update_docs_task()
+        retire_builder.assert_not_called()
+
+
 class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
         sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
+    def test_retire_builder_and_fail_sync_if_files_cant_be_removed(
+        self, execute, clean_build, retire_builder
+    ):
+        clean_build.return_value = False
+        self._trigger_sync_repository_task()
+        execute.assert_not_called()
+        # Only retired from ``after_return``, since the files are still there.
+        retire_builder.assert_called_once_with()
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
+    def test_retire_builder_if_files_cant_be_removed_after_sync(
+        self, execute, clean_build, retire_builder
+    ):
+        clean_build.side_effect = [True, False]
+        self._trigger_sync_repository_task()
+        execute.assert_called_once()
+        retire_builder.assert_called_once_with()
+
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_clean_build_after_sync_repository(self, clean_build):
         self._trigger_sync_repository_task()
-        clean_build.assert_called_once()
+        # Called from ``before_start`` and ``after_return``.
+        assert clean_build.call_count == 2
 
     @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_clean_build_after_failure_in_sync_repository(self, clean_build, execute):
         execute.side_effect = Exception("Something weird happen")
 
         self._trigger_sync_repository_task()
-        clean_build.assert_called_once()
+        # Called from ``before_start`` and ``after_return``.
+        assert clean_build.call_count == 2
 
     @pytest.mark.parametrize(
         "verbose_name",

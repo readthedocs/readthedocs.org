@@ -9,7 +9,7 @@ This guide shows how to build your documentation in your own pipeline and upload
 Documentation uploaded this way keeps all the hosting features you already know:
 :doc:`versions </versions>`, :doc:`pull request previews </pull-requests>`,
 :doc:`server side search </server-side-search/index>`, :doc:`Addons </addons>`,
-:doc:`custom domains </custom-domains>` and :doc:`downloadable formats </downloadable-documentation>`,
+:doc:`custom domains </custom-domains>` and :doc:`downloadable formats </offline-formats>`,
 among others.
 
 Direct upload is useful when:
@@ -51,7 +51,11 @@ after the step that builds your documentation:
      push:
        branches: [main]
        tags: ["v*"]
+       paths:
+         - "docs/**"
      pull_request:
+       paths:
+         - "docs/**"
 
    jobs:
      docs:
@@ -59,7 +63,7 @@ after the step that builds your documentation:
        # Pull requests from forks don't have access to secrets.
        # Do not use ``pull_request_target`` to work around this because it would run
        # the pull request's code with access to your token.
-       if: github.event.pull_request.head.repo.full_name == github.repository
+       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
        steps:
          - uses: actions/checkout@v5
 
@@ -89,6 +93,10 @@ a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
 See :ref:`guides/build/direct-upload:Versions` for how uploaded versions behave.
 
+The ``paths`` filters make the workflow run only when the documentation or its dependencies change.
+Adjust them to match your repository layout,
+or remove them to upload on every push and pull request.
+
 
 Uploading from any other environment
 ------------------------------------
@@ -100,7 +108,9 @@ It requires Python 3.10 or newer and reads the token from the ``READTHEDOCS_TOKE
 .. code-block:: console
 
    $ export READTHEDOCS_TOKEN=<token>
-   $ uvx --from readthedocs-upload readthedocs upload --project-slug <your-project-slug> --html _build/html
+   $ uvx --from readthedocs-upload readthedocs upload \
+       --project-slug <your-project-slug> \
+       --html _build/html
 
 You can also install it with ``pip install readthedocs-upload``,
 which makes the ``readthedocs`` command available.
@@ -123,7 +133,7 @@ Uploading offline formats
 -------------------------
 
 PDF, ePub and zipped HTML files are optional, and each one points to a single file.
-They are shown in the :term:`flyout menu` like any other :doc:`downloadable format </downloadable-documentation>`:
+They are shown in the :term:`flyout menu` like any other :doc:`downloadable format </offline-formats>`:
 
 .. tabs::
 
