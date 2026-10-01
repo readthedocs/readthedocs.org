@@ -72,9 +72,8 @@ class RTDBaseStorage:
         """
         Return the full contents of a file.
 
-        Prefer this over ``open(path).read()`` when reading many small files:
-        backends can fetch the object in a single request instead of going
-        through the file object machinery.
+        Backends can override this to fetch the file in fewer requests
+        than ``open()`` needs, which matters when reading many small files.
 
         :raises FileNotFoundError: if the file doesn't exist.
         """

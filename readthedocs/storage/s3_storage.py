@@ -55,13 +55,13 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
         """
         Read a whole object with a single ``GetObject`` request.
 
-        ``open()`` goes through django-storages' ``S3File``, which issues a
-        ``HeadObject`` on open to fail early for missing files, and then
-        boto3's transfer manager issues another ``HeadObject`` before the
-        ``GetObject`` to plan the download. That's three round trips per
-        file, which adds up when reading every page of a version.
+        ``open()`` costs three requests per file: django-storages sends a
+        ``HeadObject`` when opening, and boto3's transfer manager sends another
+        one before the ``GetObject``.
         """
         name = self._normalize_name(clean_name(path))
+        # Same filtering django-storages applies to AWS_S3_OBJECT_PARAMETERS
+        # before a download (e.g. SSE-C keys yes, CacheControl no).
         params = {
             key: value
             for key, value in self.get_object_parameters(name).items()

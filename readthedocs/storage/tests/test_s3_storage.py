@@ -1,10 +1,16 @@
+import io
 from unittest import mock
 
 import pytest
+from botocore.exceptions import ClientError
 from django.core.exceptions import SuspiciousFileOperation, SuspiciousOperation
 from django.test import TestCase
 
 from readthedocs.storage.s3_storage import RTDS3Storage
+
+
+def client_error(status):
+    return ClientError({"ResponseMetadata": {"HTTPStatusCode": status}}, "GetObject")
 
 
 class TestRTDS3Storage(TestCase):
@@ -131,3 +137,39 @@ class TestRTDS3Storage(TestCase):
             ],
             ExpiresIn=60,
         )
+
+    def test_read_file(self):
+        mock_bucket = mock.MagicMock()
+        self.storage._bucket = mock_bucket
+        obj = mock_bucket.Object.return_value
+        obj.get.return_value = {"Body": io.BytesIO(b"<html>hi</html>")}
+
+        assert self.storage.read_file("projects/my-project/en/latest/index.html") == b"<html>hi</html>"
+
+        mock_bucket.Object.assert_called_once_with("projects/my-project/en/latest/index.html")
+        obj.get.assert_called_once_with()
+        # No HeadObject before the download.
+        obj.load.assert_not_called()
+        obj.download_fileobj.assert_not_called()
+
+    def test_read_file_passes_download_parameters(self):
+        self.storage._bucket = mock.MagicMock()
+        self.storage.object_parameters = {"SSECustomerKey": "secret", "CacheControl": "max-age=1"}
+        self.storage._bucket.Object.return_value.get.return_value = {"Body": io.BytesIO(b"")}
+
+        self.storage.read_file("projects/my-project/en/latest/index.html")
+
+        # Only parameters that GetObject accepts are passed through.
+        self.storage._bucket.Object.return_value.get.assert_called_once_with(SSECustomerKey="secret")
+
+    def test_read_file_missing(self):
+        self.storage._bucket = mock.MagicMock()
+        self.storage._bucket.Object.return_value.get.side_effect = client_error(404)
+        with pytest.raises(FileNotFoundError):
+            self.storage.read_file("projects/my-project/en/latest/missing.html")
+
+    def test_read_file_other_errors_propagate(self):
+        self.storage._bucket = mock.MagicMock()
+        self.storage._bucket.Object.return_value.get.side_effect = client_error(403)
+        with pytest.raises(ClientError):
+            self.storage.read_file("projects/my-project/en/latest/index.html")
