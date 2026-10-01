@@ -11,7 +11,6 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.builds.version_slug import validate_version_slug
-from readthedocs.core.utils import trigger_build
 
 
 class VersionForm(forms.ModelForm):
@@ -86,6 +85,7 @@ class VersionForm(forms.ModelForm):
         # We need to know if the version was active before the update.
         # We use this value in the save method.
         self._was_active = self.instance.active if self.instance else False
+        self._was_uploaded = self.instance.is_uploaded if self.instance else False
         self._previous_slug = self.instance.slug if self.instance else None
 
     def clean_active(self):
@@ -123,13 +123,5 @@ class VersionForm(forms.ModelForm):
             self._was_active = False
 
         obj = super().save(commit=commit)
-        obj.post_save(was_active=self._was_active)
-
-        # Handing an uploaded version back to Read the Docs: the uploaded files go away
-        # and a build is triggered, so a failed build never leaves them being served.
-        # A version being activated at the same time has no files and is built by `post_save`.
-        reverted_upload = "is_uploaded" in self.changed_data and not obj.is_uploaded
-        if reverted_upload and obj.active and self._was_active:
-            obj.clean_resources()
-            trigger_build(project=obj.project, version=obj)
+        obj.post_save(was_active=self._was_active, was_uploaded=self._was_uploaded)
         return obj

@@ -406,7 +406,6 @@ class TestVersionForm(TestCase):
         form = VersionForm(instance=version, project=self.project)
         assert "is_uploaded" not in form.fields
 
-    @mock.patch("readthedocs.builds.forms.trigger_build")
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
     @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
@@ -414,8 +413,7 @@ class TestVersionForm(TestCase):
         self,
         remove_build_storage_paths,
         remove_search_indexes,
-        models_trigger_build,
-        forms_trigger_build,
+        trigger_build,
     ):
         version = get(
             Version,
@@ -440,6 +438,5 @@ class TestVersionForm(TestCase):
         assert not version.built
         remove_build_storage_paths.delay.assert_called_once()
         remove_search_indexes.delay.assert_called_once()
-        forms_trigger_build.assert_called_once_with(project=self.project, version=version)
-        # The version was already active, so post_save doesn't build it a second time.
-        models_trigger_build.assert_not_called()
+        # Exactly one build: the version was already active, so activation doesn't add another.
+        trigger_build.assert_called_once_with(project=self.project, version=version)
