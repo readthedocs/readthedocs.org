@@ -1,5 +1,4 @@
 from functools import cached_property
-from functools import lru_cache
 from itertools import groupby
 
 import structlog
@@ -7,6 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from github import Github
 from github import GithubException
+from github import RateLimitExceededException
 from github.Installation import Installation as GHInstallation
 from github.Organization import Organization as GHOrganization
 from github.Repository import Repository as GHRepository
@@ -14,6 +14,7 @@ from github.Repository import Repository as GHRepository
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import SELECT_BUILD_STATUS
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
@@ -43,7 +44,7 @@ class GitHubAppService(Service):
     def gh_app_client(self):
         return get_gh_app_client()
 
-    @lru_cache
+    @cached_method
     def get_app_installation(self) -> GHInstallation:
         """
         Return the installation object from the GitHub API.
@@ -247,6 +248,15 @@ class GitHubAppService(Service):
                 # status code if the app is not installed on the repository.
                 if not repo.private:
                     self.gh_app_client.get_repo_installation(owner=repo.owner.login, repo=repo.name)
+            except RateLimitExceededException:
+                # Being rate limited doesn't mean we lost access to the repository.
+                # Abort the operation, all remaining requests will fail as well.
+                log.info(
+                    "Rate limit exceeded while fetching repositories from GitHub",
+                    installation_id=self.installation.installation_id,
+                    exc_info=True,
+                )
+                raise
             except GithubException as e:
                 log.info(
                     "Failed to fetch repository from GitHub",
@@ -326,14 +336,12 @@ class GitHubAppService(Service):
         self._resync_collaborators(gh_repo, remote_repo)
         return remote_repo
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def _get_gh_organization(self, login: str) -> GHOrganization:
         """Get a GitHub organization object given its login identifier."""
         return self.installation_client.get_organization(login)
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def update_or_create_organization(self, login: str) -> RemoteOrganization:
         """
         Create or update a remote organization from its login identifier.
@@ -398,6 +406,10 @@ class GitHubAppService(Service):
         """
         Create a commit status on GitHub for the given build.
 
+        Returns True if the status was sent successfully,
+        False if the repository is no longer accessible to the installation,
+        or raises an exception if there was a temporary error.
+
         See https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status.
         """
         project = build.project
@@ -413,9 +425,7 @@ class GitHubAppService(Service):
         context = f"{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}"
 
         try:
-            # NOTE: we use the lazy option to avoid fetching the repository object,
-            # since we only need the object to interact with the commit status API.
-            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+            gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
             gh_repo.get_commit(commit).create_status(
                 state=state,
                 target_url=target_url,
@@ -423,7 +433,18 @@ class GitHubAppService(Service):
                 context=context,
             )
             return True
-        except GithubException:
+        except RateLimitExceededException:
+            log.info(
+                "Rate limit exceeded while sending build status to GitHub",
+                project=project.slug,
+                build=build.pk,
+                commit=commit,
+                status=status,
+                exc_info=True,
+            )
+            # This is a temporary error.
+            raise
+        except GithubException as e:
             log.info(
                 "Failed to send build status to GitHub",
                 project=project.slug,
@@ -432,7 +453,12 @@ class GitHubAppService(Service):
                 status=status,
                 exc_info=True,
             )
-            return False
+            # if we lost access to the repository,
+            # return False, so the caller can handle it.
+            if e.status in [404, 403]:
+                return False
+            # Anythin else, we raise the exception, since it may be a temporary error.
+            raise
 
     def get_clone_token(self, project):
         """
@@ -492,9 +518,7 @@ class GitHubAppService(Service):
             raise ValueError("Only versions from pull requests can have comments posted.")
 
         remote_repo = project.remote_repository
-        # NOTE: we use the lazy option to avoid fetching the repository object,
-        # since we only need the object to interact with the commit status API.
-        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id), lazy=True)
+        gh_repo = self.installation_client.get_repo(int(remote_repo.remote_id))
         gh_pull = gh_repo.get_pull(int(version.verbose_name))
 
         if gh_pull.state != "open":

@@ -17,7 +17,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
 
-    # Personal access token used by the isolated-builder dev container's
+    # Personal access token used by the build-isolated dev container's
     # entrypoint to clone the readthedocs-builder repo when it's
     # private. Not strictly needed when the host's checkout is
     # bind-mounted into the dev container (the entrypoint skips the
@@ -60,6 +60,10 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
+
+    # OpenAI-backed spam rules (readthedocsext.spamfighting) read the key
+    # from settings only; docker-compose passes this variable through.
+    RTD_OPENAI_API_KEY = os.environ.get("RTD_OPENAI_API_KEY")
 
     @property
     def DOCROOT(self):
@@ -274,6 +278,14 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
                     "url_protocol": "http:",
                     "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+                },
+            },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET", "build-uploads"),
+                    # Explicit default ACL required to generate presigned URLs.
+                    "default_acl": "private",
                 },
             },
         }

@@ -26,6 +26,7 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiff
 from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
 
@@ -35,10 +36,43 @@ MANIFEST_FILE_NAME = "manifest.json"
 BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
 
 
+def get_base_version(project: Project) -> Version | None:
+    """
+    Get the version to diff against for a project.
+
+    This is the version configured in the addons settings,
+    or ``latest`` if none is configured.
+
+    Return ``None`` if the version doesn't exist,
+    or if it isn't active and built, since there is nothing usable
+    to compare against in that case.
+    """
+    base_version = project.addons.options_base_version or project.get_latest_version()
+    if not _is_usable_base_version(base_version):
+        return None
+    return base_version
+
+
+def _is_usable_base_version(version: Version | None) -> bool:
+    if not version:
+        return False
+    if not version.active or not version.built:
+        log.debug(
+            "Base version isn't active or built, skipping file tree diff.",
+            project_slug=version.project.slug,
+            base_version_slug=version.slug,
+            active=version.active,
+            built=version.built,
+        )
+        return False
+    return True
+
+
 def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | None:
     """
     Get the file tree diff between two versions.
 
+    If the base version isn't active and built, return None.
     If any of the versions don't have a manifest, return None.
     If the latest build of any of the versions is different from the manifest build,
     the diff is marked as outdated. The client is responsible for deciding
@@ -48,6 +82,9 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     To get the modified files, we compare the main content hash of each common file.
     If there are no changes between the versions, all lists will be empty.
     """
+    if not _is_usable_base_version(base_version):
+        return None
+
     current_version_manifest = get_manifest(current_version)
     if not current_version_manifest:
         return None
@@ -101,7 +138,17 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     for file_path in current_version_file_paths & base_version_file_paths:
         file_a = current_version_manifest.files[file_path]
         file_b = base_version_manifest.files[file_path]
-        if file_a.main_content_hash != file_b.main_content_hash:
+        if file_a.text_hash and file_b.text_hash:
+            modified = file_a.text_hash != file_b.text_hash
+        else:
+            # One of the manifests was written before we hashed the text of
+            # the page, so ``main_content_hash`` is all both sides have. It
+            # reports pages as modified when only their attributes changed.
+            # TODO: remove this branch and ``main_content_hash`` itself once
+            # no manifest in storage is missing a text hash. ``markup_hash``
+            # replaces it, see https://github.com/readthedocs/readthedocs.org/issues/13258
+            modified = file_a.main_content_hash != file_b.main_content_hash
+        if modified:
             files.append((file_path, FileTreeDiffFileStatus.modified))
 
     return FileTreeDiff(

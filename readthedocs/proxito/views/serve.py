@@ -309,6 +309,10 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             self.cache_response = True
             return spam_response
 
+        disabled_organization_response = self._disabled_organization_response(request, project)
+        if disabled_organization_response:
+            return disabled_organization_response
+
         # Trailing slash redirect.
         # We don't want to serve documentation at:
         # - `/en/latest`

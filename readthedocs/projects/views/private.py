@@ -1,7 +1,5 @@
 """Project views for authenticated users."""
 
-from functools import lru_cache
-
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -28,6 +26,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -39,6 +38,7 @@ from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -121,7 +121,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects and not projects.filter(external_builds_enabled=True).exists():
+        elif n_projects and not projects.filter(versions__type=EXTERNAL).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
             template_name = "traffic-analytics.html"
@@ -156,7 +156,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # NOTE: This method is called twice, on .org it doesn't matter,
     # as the queryset is straightforward, but on .com it
     # does some extra work that results in several queries.
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -303,9 +303,9 @@ def show_config_step(wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
-    default_branch = cleaned_data.get("default_branch")
+    default_branch = remote_repository.default_branch if remote_repository else None
 
-    if repo and default_branch and remote_repository and remote_repository.vcs_provider == GITHUB:
+    if repo and default_branch and remote_repository.vcs_provider == GITHUB:
         # I don't know why `show_config_step` is called multiple times (at least 4).
         # This is a problem for us because we perform external calls here and add messages to the request.
         # Due to that, we are adding this instance variable to prevent this function to run multiple times.
@@ -332,7 +332,7 @@ def show_config_step(wizard):
                 "readthedocs.yml",
             ]:
                 try:
-                    querystrings = f"?ref={default_branch}" if default_branch else ""
+                    querystrings = f"?ref={default_branch}"
                     response = session.head(
                         f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
                         timeout=1,
@@ -453,7 +453,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
-        for key in ["name", "repo", "repo_type", "remote_repository", "default_branch"]:
+        for key in ["name", "repo", "repo_type", "remote_repository"]:
             initial_data["basics"][key] = request.POST.get(key)
         initial_data["extra"] = {}
         for key in ["description", "project_url"]:

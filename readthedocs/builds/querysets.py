@@ -227,6 +227,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
+        A build counts as soon as it's been dispatched to the build-isolated
+        fleet (``dispatched_date`` set) — it occupies a slot even while it waits
+        in the broker for a builder to pick it up. A build still genuinely
+        queued (``triggered`` but not yet dispatched) does not count.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
@@ -254,15 +259,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
 
         concurrent = (
-            (
-                self.filter(query).exclude(
-                    state__in=[
-                        BUILD_STATE_TRIGGERED,
-                        BUILD_STATE_FINISHED,
-                        BUILD_STATE_CANCELLED,
-                    ]
-                )
-            )
+            self.filter(query)
+            .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED])
+            # Legacy builds never set ``dispatched_date``,
+            # so they stay excluded exactly as before.
+            .exclude(Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__isnull=True))
             .distinct()
             .count()
         )
@@ -277,6 +278,23 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         if concurrent >= max_concurrent:
             limit_reached = True
         return (limit_reached, concurrent, max_concurrent)
+
+    def pending_upload(self):
+        """
+        Get all builds that are pending upload (when using the upload API).
+
+        When a build is created using the upload API,
+        it is created in the triggered state,
+        and when it's queued for processing, the task_id is set.
+
+        We filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
+        and we don't want to count those builds as pending uploads.
+        """
+        return self.filter(
+            is_uploaded=True,
+            state=BUILD_STATE_TRIGGERED,
+            task_id=None,
+        )
 
 
 class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):

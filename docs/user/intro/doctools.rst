@@ -34,6 +34,17 @@ Below is a list of popular documentation tools that you can use to write your do
         Written in
              :bdg-info:`rust` :bdg-info:`python`
 
+    .. grid-item-card::  Starlight
+        :link: starlight.html
+
+        Starlight is a documentation framework built on top of the Astro web framework.
+
+        Supported formats
+             :bdg-success:`md` :bdg-success:`mdx`
+
+        Written in
+             :bdg-info:`typescript`
+
     .. grid-item-card::  Sphinx
         :link: sphinx.html
 
@@ -118,4 +129,5 @@ Below is a list of popular documentation tools that you can use to write your do
    /intro/vitepress
    /intro/antora
    /intro/zensical
+   /intro/starlight
    /intro/mystmd

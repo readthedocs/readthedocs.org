@@ -452,7 +452,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch", "language", "remote_repository")
+        fields = ("name", "repo", "language", "remote_repository")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -73,10 +73,19 @@ def set_private_privacy_level(version, *args, **kwargs):
 
 
 def delete_version(version, *args, **kwargs):
-    """Delete a version if isn't marked as the default version."""
+    """Delete a version if isn't marked as the default version or uploaded."""
     if version.project.default_version == version.slug:
         log.info(
             "Skipping deleting default version.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+        )
+        return
+    # Uploaded versions may not exist in the repository on purpose,
+    # so being deleted from it isn't a signal to delete them.
+    if version.is_uploaded:
+        log.info(
+            "Skipping deleting uploaded version.",
             project_slug=version.project.slug,
             version_slug=version.slug,
         )

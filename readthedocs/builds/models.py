@@ -138,11 +138,6 @@ class Version(TimeStampedModel):
     )
     built = models.BooleanField(_("Built"), default=False)
 
-    # TODO: this field (`uploaded`) could be removed. It was used to mark a
-    # version as "Manually uploaded" by the core team, but this is not required
-    # anymore. Users can use `build.commands` for these cases now.
-    uploaded = models.BooleanField(_("Uploaded"), default=False)
-
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
@@ -168,6 +163,14 @@ class Version(TimeStampedModel):
         choices=DOCTYPE_CHOICES,
         default=SPHINX,
         help_text=_("Type of documentation the version was built with."),
+    )
+
+    # NOTE: we can also do a normalization, and have a build attribute
+    # that links to the latest successful build of the version.
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
     )
 
     build_data = models.JSONField(
@@ -355,7 +358,7 @@ class Version(TimeStampedModel):
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
-        if not self.built and not self.uploaded:
+        if not self.built:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:
@@ -743,6 +746,11 @@ class Build(models.Model):
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
+    dispatched_date = models.DateTimeField(
+        _("Dispatched date"),
+        null=True,
+        blank=True,
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.
@@ -823,6 +831,12 @@ class Build(models.Model):
         related_query_name="build",
         content_type_field="attached_to_content_type",
         object_id_field="attached_to_id",
+    )
+
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
     )
 
     # Managers
@@ -966,6 +980,17 @@ class Build(models.Model):
         date = self.date.date()
         return f"{date}/{self.id}.json"
 
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_slug>/<build_id>/artifacts.zip
+
+        Example: pip/1111/artifacts.zip
+        """
+        return f"{self.project.slug}/{self.id}/artifacts.zip"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1085,6 +1110,7 @@ class Build(models.Model):
             type = self.version.type
         return type == EXTERNAL
 
+    # NOTE: this isn't used
     @property
     def can_rebuild(self):
         """

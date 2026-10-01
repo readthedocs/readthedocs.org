@@ -98,7 +98,6 @@ class TestBasicsForm(WizardTestCase):
             "repo": "https://github.com/fail/sauce",
             "repo_type": "git",
             "remote_repository": "1234",
-            "default_branch": "main",
         }
         resp = self.client.post(
             "/dashboard/import/",
@@ -288,7 +287,6 @@ class TestAdvancedForm(TestBasicsForm):
             "name": "foobar",
             "repo": "https://github.com/foo/bar",
             "repo_type": "git",
-            "default_branch": "main",
             "remote_repository": "",
         }
         initial = dict(**config_initial, **basic_initial)
@@ -405,6 +403,25 @@ class TestPrivateViews(TestCase):
         with self.assertNumQueries(28):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
+
+    def test_dashboard_pull_request_previews_announcement(self):
+        announcement = "projects/partials/announcements/pull-request-previews.html"
+        # NOTE: create at least 3 projects, as the example projects
+        # announcement takes precedence for users with fewer than that.
+        projects = [
+            get(Project, slug=f"project-{index}", users=[self.user]) for index in range(0, 3)
+        ]
+        organization = get(Organization, projects=projects, owners=[self.user])
+
+        # Projects only have internal versions, so the announcement is shown.
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] == announcement
+
+        # Once there is a pull request preview, the announcement is gone.
+        get(Version, project=projects[0], type=EXTERNAL)
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] != announcement
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")

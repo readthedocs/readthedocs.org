@@ -2,9 +2,12 @@ import copy
 import json
 from unittest import mock
 
+import pytest
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.gitlab.provider import GitLabProvider
 import requests_mock
+from github import GithubException
+from github import RateLimitExceededException
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
@@ -597,6 +600,33 @@ class GitHubAppTests(TestCase):
         ).exists()
 
     @requests_mock.Mocker(kw="request")
+    def test_update_repository_rate_limited(self, request):
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}",
+            status_code=403,
+            json={
+                "message": f"API rate limit exceeded for installation ID {self.installation.installation_id}.",
+                "documentation_url": "https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api#rate-limiting",
+            },
+        )
+
+        service = self.installation.service
+        # The second repository isn't mocked, requesting it would fail the test,
+        # the operation should be aborted after the first rate limited response.
+        with pytest.raises(RateLimitExceededException):
+            service.update_or_create_repositories(
+                [int(self.remote_repository.remote_id), 5555]
+            )
+
+        # Being rate limited doesn't mean we lost access to the repository,
+        # it shouldn't be deleted.
+        assert RemoteRepository.objects.filter(id=self.remote_repository.id).exists()
+
+    @requests_mock.Mocker(kw="request")
     def test_sync(self, request):
         assert self.installation.repositories.count() == 1
         request.get(
@@ -917,12 +947,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -953,12 +979,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -993,12 +1015,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1028,12 +1046,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1063,12 +1077,8 @@ class GitHubAppTests(TestCase):
             f"{self.api_url}/app/installations/1111/access_tokens",
             json=self._get_access_token_json(),
         )
-        request.get(
-            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
-            json=self._get_commit_json(commit=commit),
-        )
         status_api_request = request.post(
-            f"{self.api_url}/repos/user/repo/statuses/{commit}",
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
             json={},
         )
 
@@ -1085,6 +1095,130 @@ class GitHubAppTests(TestCase):
             # docs, since no new documentation was produced for this commit.
             "target_url": f"https://readthedocs.org/projects/{self.project.slug}/builds/{build.pk}/",
         }
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_repository_not_accessible(self, request):
+        """A 404 from GitHub means we lost access to the repository, so we return False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            status_code=404,
+            json={"message": "Not Found"},
+        )
+
+        service = self.installation.service
+        success = service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert success is False
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_forbidden(self, request):
+        """A non-rate-limit 403 also means we lost access, so we return False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            status_code=403,
+            json={"message": "Resource not accessible by integration"},
+        )
+
+        service = self.installation.service
+        success = service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+        )
+        assert success is False
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_rate_limit_exceeded(self, request):
+        """Rate limit errors are temporary, so we raise instead of returning False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            status_code=403,
+            json={"message": "API rate limit exceeded for installation ID 1111."},
+        )
+
+        service = self.installation.service
+        with pytest.raises(RateLimitExceededException):
+            service.send_build_status(
+                build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+            )
+        assert status_api_request.called
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_server_error(self, request):
+        """Non rate-limit, non 404/403 errors are temporary, so we raise instead of returning False."""
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_access_token_json(),
+        )
+        request.get(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/commits/{commit}",
+            json=self._get_commit_json(commit=commit),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            status_code=500,
+            json={"message": "Internal Server Error"},
+        )
+
+        service = self.installation.service
+        with pytest.raises(GithubException):
+            service.send_build_status(
+                build=build, commit=commit, status=BUILD_STATUS_SUCCESS
+            )
+        assert status_api_request.called
 
     @requests_mock.Mocker(kw="request")
     def test_get_clone_token(self, request):

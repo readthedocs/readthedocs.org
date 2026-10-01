@@ -10,7 +10,9 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.throttling import UserRateThrottle
 
 from readthedocs.api.v3.views import APIv3Settings
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.proxito.cache import add_cache_tags
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v3.executor import SearchExecutor
@@ -116,7 +118,43 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         self._validate_query_params()
         result = self.list()
         self._record_query(result)
+        self._add_cache_tags(result)
         return result
+
+    def _add_cache_tags(self, response):
+        """
+        Tag the response with all the projects involved in the search.
+
+        This allows purging cached responses when the docs of any of those
+        projects change, or when their search index is updated (``rtd-search``).
+
+        .. note::
+
+           The limit of the Cache-Tag header is 16KB https://developers.cloudflare.com/cache/how-to/purge-cache/purge-by-tags/#a-few-things-to-remember,
+           and the limit of all headers in nginx is 4KB, but during testing, we found that the max numbers of chars the header can have is ~2.5K.
+           Until we implement a better solution, we will limit the number of cache characters injected into the cache header to 2K.
+        """
+        cache_tag_limit = 2_000
+        cache_tags = []
+        for project, version in self._get_projects_to_search():
+            project_tags = [
+                project.slug,
+                get_cache_tag(project.slug, version.slug),
+                get_cache_tag(project.slug, "rtd-search"),
+            ]
+            tags_size = sum(len(tag) for tag in project_tags)
+            # We also take into account the commas that will be added between tags.
+            cache_tag_limit -= tags_size + len(project_tags)
+            if cache_tag_limit < 0:
+                log.info(
+                    "Cache tag limit reached, not adding more tags.",
+                    project=project.slug,
+                    version=version.slug,
+                )
+                break
+            cache_tags.extend(project_tags)
+        if cache_tags:
+            add_cache_tags(response, cache_tags)
 
     def _record_query(self, response):
         total_results = response.data.get("count", 0)

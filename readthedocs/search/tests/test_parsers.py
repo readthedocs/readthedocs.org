@@ -382,3 +382,40 @@ class TestParsers:
         assert len(section["content"]) <= GenericParser.max_content_length
         assert section["content"].startswith("A")
         assert not section["content"].endswith("B")
+
+    def test_text_hash_ignores_markup(self):
+        """
+        A change to the markup of a page doesn't change the hash of its text.
+
+        Intersphinx renders the version of the project a reference points to
+        into its title attribute, so it changes every time that project is
+        released, even if the page linking to it wasn't touched.
+        """
+        parser = GenericParser(self.version)
+        template = """
+            <html><body><div role="main">
+                <h1>Title of the page</h1>
+                <p>See the <a href="{href}" title="(in Example v{version})">API docs</a>.</p>
+                <img src="{src}"/>
+            </div></body></html>
+        """
+        original = template.format(href="api.html", version="1.0", src="diagram.png")
+        changed = template.format(href="other.html", version="2.0", src="other.png")
+        first = parser._process_content("index.html", original)
+        second = parser._process_content("index.html", changed)
+        assert first["text_hash"] == second["text_hash"]
+        assert first["markup_hash"] != second["markup_hash"]
+
+    def test_text_hash_detects_text_changes(self):
+        """A change to the text of a page changes both hashes."""
+        parser = GenericParser(self.version)
+        template = """
+            <html><body><div role="main">
+                <h1>Title of the page</h1>
+                <p>{text}</p>
+            </div></body></html>
+        """
+        first = parser._process_content("index.html", template.format(text="Some content"))
+        second = parser._process_content("index.html", template.format(text="Other content"))
+        assert first["text_hash"] != second["text_hash"]
+        assert first["markup_hash"] != second["markup_hash"]

@@ -168,12 +168,12 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildCancelled.SKIPPED_EXIT_CODE_183,
-        header=_("Build skipped."),
+        header=_("Build cancelled."),
         body=_(
             textwrap.dedent(
                 """
-            This build was skipped because
-            one of the commands exited with code 183
+            This build was cancelled because one of the commands exited with code 183.
+            Read more about <a href="https://docs.readthedocs.com/platform/stable/guides/build/skip-or-cancel-builds.html" target="_blank">cancelling builds based on a condition</a>.
             """
             ).strip(),
         ),
@@ -440,6 +440,32 @@ BUILD_MESSAGES = [
                 """
             Read the Docs could not find a PDF file to publish after running the PDF build step.
             """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_UPLOAD_FAILED,
+        header=_("There was a problem while uploading your artifacts"),
+        body=_(
+            textwrap.dedent(
+                """
+                Artifacts for this build could not be uploaded to Read the Docs.
+                Check your CI job for more information, or try again later.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_INVALID,
+        header=_("Artifacts zip file is invalid"),
+        body=_(
+            textwrap.dedent(
+                """
+                Read the Docs could not process the artifacts zip file uploaded.
+                Make sure the zip file is valid and contains the expected files.
+                """
             ).strip(),
         ),
         type=ERROR,
