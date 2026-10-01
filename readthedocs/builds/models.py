@@ -4,6 +4,7 @@ import datetime
 import json
 import os.path
 import re
+from functools import cached_property
 from functools import partial
 from io import BytesIO
 
@@ -281,11 +282,13 @@ class Version(TimeStampedModel):
         # the Project model
         return self.latest_build
 
-    @property
+    @cached_property
     def latest_build(self):
+        # Cached on the instance: templates and serializers read this several
+        # times per version, and each read was a query.
         return self.builds.order_by("-date").first()
 
-    @property
+    @cached_property
     def latest_successful_build(self):
         return (
             self.builds.filter(
