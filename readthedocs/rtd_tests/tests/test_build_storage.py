@@ -207,6 +207,18 @@ class TestBuildMediaStorage(TestCase):
         )
         self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
 
+    def test_rclone_download_directory_include_filter(self):
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "files")
+
+        download_dir = tempfile.mkdtemp()
+        self.storage.rclone_download_directory("files", download_dir, include="*.html")
+        self.assertCountEqual(
+            os.listdir(download_dir),
+            ["api", "404.html", "index.html", "test.html"],
+        )
+        self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
+
     def test_rclone_download_directory_not_found(self):
         # rclone exits with code 3 when the source directory doesn't exist.
         # ``_process_files`` relies on this to handle versions without files.

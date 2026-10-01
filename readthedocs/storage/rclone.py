@@ -123,7 +123,7 @@ class BaseRClone:
         """
         return self.execute("sync", args=[source, self.get_target(destination)])
 
-    def copy_to_local(self, source, destination):
+    def copy_to_local(self, source, destination, include=None):
         """
         Run the `rclone copy` command from the remote to a local directory.
 
@@ -131,8 +131,13 @@ class BaseRClone:
 
         :params source: Remote path to the source directory.
         :params destination: Local path to the destination directory.
+        :params include: Filter pattern; when given, only matching files
+         are transferred (``--include``, see https://rclone.org/filtering/).
         """
-        return self.execute("copy", args=[self.get_target(source), destination])
+        options = []
+        if include:
+            options.extend(["--include", include])
+        return self.execute("copy", args=[self.get_target(source), destination], options=options)
 
 
 class RCloneLocal(BaseRClone):

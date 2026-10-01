@@ -275,12 +275,13 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
         sync_id=sync_id,
     )
 
-    # Download the whole version with rclone and parse the files from the
-    # local copy. This is much faster than reading each file from storage
+    # Download the HTML files of the version with rclone and parse them from
+    # the local copy. This is much faster than reading each file from storage
     # individually, since that results in one or more requests per file.
+    # Only HTML files are transferred, since they are all the indexers consume.
     with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
         try:
-            build_media_storage.rclone_download_directory(storage_path, tmp_dir)
+            build_media_storage.rclone_download_directory(storage_path, tmp_dir, include="*.html")
         except subprocess.CalledProcessError as exc:
             # Exit code 3 is "directory not found". Continue with the empty
             # local copy — same as walking a missing path in storage — so

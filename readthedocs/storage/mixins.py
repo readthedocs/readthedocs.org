@@ -52,12 +52,12 @@ class RTDBaseStorage:
         self._check_suspicious_path(source)
         return self._rclone.sync(source, destination)
 
-    def rclone_download_directory(self, source, destination):
+    def rclone_download_directory(self, source, destination, include=None):
         """Download a directory recursively from storage using rclone copy."""
         if source in ("", "/"):
             raise SuspiciousFileOperation("Downloading all storage cannot be right")
 
-        return self._rclone.copy_to_local(source, destination)
+        return self._rclone.copy_to_local(source, destination, include=include)
 
     def delete_directory(self, path):
         raise NotImplementedError
