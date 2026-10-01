@@ -47,6 +47,7 @@ after the step that builds your documentation:
 
    name: Docs
 
+   # Adapt these triggers to the branches, tags and paths you want to publish.
    on:
      push:
        branches: [main]
