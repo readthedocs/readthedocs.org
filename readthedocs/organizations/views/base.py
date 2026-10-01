@@ -1,7 +1,5 @@
 """Base classes for organization views."""
 
-from functools import lru_cache
-
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
@@ -9,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.core.utils.spam import is_spam_organization
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.forms import OrganizationForm
@@ -90,7 +89,7 @@ class OrganizationMixin(SuccessMessageMixin, CheckOrganizationsEnabled):
             return Organization.objects.for_admin_user(user=self.request.user)
         return Organization.objects.for_user(user=self.request.user)
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_organization(self):
         """Return organization determined by url kwarg."""
         if self.org_url_field not in self.kwargs:
@@ -132,7 +131,7 @@ class OrganizationTeamMixin(OrganizationMixin):
             .order_by("name")
         )
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_team(self):
         """Return team determined by url kwarg."""
         return get_object_or_404(
