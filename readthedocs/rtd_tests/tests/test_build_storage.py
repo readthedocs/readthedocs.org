@@ -1,6 +1,5 @@
 import os
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -220,12 +219,10 @@ class TestBuildMediaStorage(TestCase):
         self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
 
     def test_rclone_download_directory_not_found(self):
-        # rclone exits with code 3 when the source directory doesn't exist.
-        # ``_process_files`` relies on this to handle versions without files.
+        # A missing source directory downloads as an empty local copy,
+        # like walking a missing storage path.
         download_dir = tempfile.mkdtemp()
-        with pytest.raises(subprocess.CalledProcessError) as exc:
-            self.storage.rclone_download_directory("does-not-exist", download_dir)
-        assert exc.value.returncode == 3
+        self.storage.rclone_download_directory("does-not-exist", download_dir)
         self.assertEqual(os.listdir(download_dir), [])
 
     def test_rclone_download_all_storage(self):

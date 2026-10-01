@@ -1,10 +1,10 @@
 import os
-import subprocess
 import tempfile
 from fnmatch import fnmatch
 
 import structlog
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import INTERNAL
@@ -26,7 +26,6 @@ from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
-from readthedocs.storage.filesystem import RTDFileSystemStorage
 from readthedocs.worker import app
 
 
@@ -276,25 +275,22 @@ def _process_files(*, version: Version, indexers: list[Indexer], local_path: str
     )
 
     # A single bulk download is much faster than one or more storage
-    # requests per file. HTML is all the indexers consume.
-    try:
-        build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
-    except subprocess.CalledProcessError as exc:
-        # Exit code 3 is "directory not found": continue so indexers can
-        # clean up previously indexed files. Anything else is fatal, so a
-        # transient storage error can't wipe the version's search index.
-        if exc.returncode != 3:
-            raise
+    # requests per file. HTML is all the indexers consume. The local copy
+    # mirrors the storage layout, so the parser resolves pages as usual.
+    local_storage_path = os.path.join(local_path, storage_path)
+    build_media_storage.rclone_download_directory(
+        storage_path, local_storage_path, include="*.html"
+    )
 
     # The injected parser makes ``processed_json`` read from the local copy.
-    parser = GenericParser(version, storage=RTDFileSystemStorage(location=local_path))
-    for root, __, filenames in os.walk(local_path):
+    parser = GenericParser(version, storage=FileSystemStorage(location=local_path))
+    for root, __, filenames in os.walk(local_storage_path):
         for filename in filenames:
             # We don't care about non-HTML files (for now?).
             if not filename.endswith(".html"):
                 continue
 
-            relpath = os.path.relpath(os.path.join(root, filename), local_path)
+            relpath = os.path.relpath(os.path.join(root, filename), local_storage_path)
 
             html_file = HTMLFile(
                 project=version.project,

@@ -66,19 +66,14 @@ class GenericParser:
     def __init__(self, version, storage=None):
         self.version = version
         self.project = self.version.project
-        # With a custom storage, page paths resolve relative to its root
-        # instead of the version's path in the build media storage.
-        self._custom_storage = storage is not None
+        # An injected storage must mirror the build media storage layout.
         self.storage = storage or build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""
         content = None
         try:
-            if self._custom_storage:
-                file_path = page
-            else:
-                file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
+            file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
             with self.storage.open(file_path, mode="r") as f:
                 content = f.read()
         except Exception:

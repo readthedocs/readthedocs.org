@@ -15,6 +15,9 @@ from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
+# https://rclone.org/docs/#exit-code
+RCLONE_EXIT_DIR_NOT_FOUND = 3
+
 
 class BaseRClone:
     """
@@ -133,7 +136,10 @@ class BaseRClone:
         :params destination: Local path to the destination directory.
         :params include: Only transfer files matching this ``--include`` pattern.
         """
-        options = []
+        options = [
+            # One recursive listing instead of one request per directory.
+            "--fast-list",
+        ]
         if include:
             options.extend(["--include", include])
         return self.execute("copy", args=[self.get_target(source), destination], options=options)

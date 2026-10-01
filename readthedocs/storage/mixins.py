@@ -1,5 +1,6 @@
 """Django storage mixin classes for different storage backends (Azure, S3)."""
 
+import subprocess
 from functools import cached_property
 from pathlib import Path
 from typing import Iterator
@@ -9,6 +10,8 @@ from urllib.parse import urlunsplit
 import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
+
+from readthedocs.storage.rclone import RCLONE_EXIT_DIR_NOT_FOUND
 
 
 log = structlog.get_logger(__name__)
@@ -53,11 +56,20 @@ class RTDBaseStorage:
         return self._rclone.sync(source, destination)
 
     def rclone_download_directory(self, source, destination, include=None):
-        """Download a directory recursively from storage using rclone copy."""
+        """
+        Download a directory recursively from storage using rclone copy.
+
+        A missing source directory results in an empty local copy,
+        mimicking what walking a missing storage path does.
+        """
         if source in ("", "/"):
             raise SuspiciousFileOperation("Downloading all storage cannot be right")
 
-        return self._rclone.copy_to_local(source, destination, include=include)
+        try:
+            return self._rclone.copy_to_local(source, destination, include=include)
+        except subprocess.CalledProcessError as exc:
+            if exc.returncode != RCLONE_EXIT_DIR_NOT_FOUND:
+                raise
 
     def delete_directory(self, path):
         raise NotImplementedError
