@@ -5,11 +5,13 @@ from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
 from django.utils.translation import gettext_lazy as _
+from django_filters import CharFilter
 from django_filters import ChoiceFilter
 from django_filters import OrderingFilter
 
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
+from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Project
 from readthedocs.redirects.constants import TYPE_CHOICES
 
@@ -170,6 +172,32 @@ class ProjectListFilterSet(ModelFilterSet):
 
     def get_project(self, queryset, field_name, project):
         return queryset.filter(slug=project.slug)
+
+
+class RemoteRepositoryListFilterSet(ModelFilterSet):
+    """
+    Remote repository list filter set for the project import view.
+
+    Provides a free text filter on the repository name and a choice filter
+    limited to the organizations the user has access to through their
+    connected accounts.
+    """
+
+    name = CharFilter(
+        field_name="full_name",
+        lookup_expr="icontains",
+        label=_("Repository name"),
+    )
+
+    organization = FilteredModelChoiceFilter(
+        label=_("Organization"),
+        empty_label=_("All organizations"),
+        queryset_method="get_organization_queryset",
+        label_attribute="name",
+    )
+
+    def get_organization_queryset(self):
+        return RemoteOrganization.objects.api(self.request.user)
 
 
 class ProjectVersionListFilterSet(ModelFilterSet):
