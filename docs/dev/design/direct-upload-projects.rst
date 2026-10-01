@@ -143,23 +143,30 @@ Project import
    ``latest`` is not created for direct upload projects,
    and ``stable`` only ever comes from the version sync, which does not run.
    Every version comes from an upload.
-   The first uploaded version becomes the default version when the project has none.
+   The first branch or tag uploaded becomes the default version, so the root of the documentation works right away.
+   Pull request previews never become the default.
+   A dismissable notification on the project page tells the user which version became the default
+   and links to the settings to change it.
 
 Pull request builds
    The "Build pull requests for this project" setting becomes irrelevant, since webhooks no longer start builds.
    The setting is hidden and its value left alone, instead of being changed at import.
 
 Automation rules
-   Kept.
-   Rules run when a version is created,
-   and on a direct upload project the upload API is the only thing creating versions,
-   so they run right after an upload creates a version.
-   Actions that hide a version, set it as default or change its privacy level work as expected.
-   The action that triggers a build is skipped like any other build.
+   Not run on direct upload projects for now, and the "Automation rules" page is hidden in their settings.
+   Versions are managed from the user's pipeline, and anything a rule would do can be done through the API.
+   On projects built by Read the Docs, an upload that creates a version runs the rules,
+   the same way the repository sync does when it creates one.
+   The action that triggers a build is skipped like any other build on an uploaded version.
+   We plan to extend automation rules support for direct upload projects in the future,
+   allowing users to define rules that react to uploads similarly to how they currently react to repository syncs.
 
 Uploads
-   Unchanged on direct upload projects: the uploaded name is the version, so a push to ``main`` publishes ``/en/main/``,
-   and a user who wants ``/en/latest/`` uploads a version named ``latest``.
+   On direct upload projects the uploaded name is the version, so a push to ``main`` publishes ``/en/main/``.
+   There are no ``latest`` and ``stable`` aliases and no default branch concept:
+   a user who wants them uploads versions with those names from the pipeline,
+   for example an extra upload step named ``stable`` that only runs on tags.
+   The user documentation shows how.
    On projects built by Read the Docs, an upload named after the default branch lands on ``latest``,
    the same way a push to that branch does.
 
@@ -222,8 +229,9 @@ Reverting a version to Read the Docs builds
 On projects built on Read the Docs,
 the version detail page shows an "Uploaded" checkbox,
 only for versions that were uploaded.
-Unchecking it and saving triggers a build,
-and the help text warns that the next Read the Docs build replaces the uploaded files.
+Unchecking it and saving removes the uploaded files and triggers a build,
+so the version is unavailable until that build succeeds and a failed build never leaves uploaded files being served.
+The help text says so.
 
 This is the way back for a user who uploaded a version manually and wants Read the Docs to build it again.
 It does not prevent a later upload from marking the version as uploaded again.
@@ -236,12 +244,13 @@ The configuration step offers two tabs:
 
 Build on Read the Docs
    The current page with the ``.readthedocs.yaml`` samples and the "This file exists" button.
+   The tab carries a "Recommended" label, so the Read the Docs builders stay the default path.
 
 Build externally and upload
    A short explanation that Read the Docs will not build the project,
    an "I need help" button opening a modal with the upload steps and snippets for GitHub Actions and the command line,
    and an "I will upload my documentation" button.
 
-During the beta the second tab is shown to staff, and to anyone opening the wizard with ``?direct_upload=1``.
+During the beta the second tab is shown to anyone opening the wizard with ``?direct_upload=1``.
 The beta email, the documentation and a blog post carry that link.
 The "Configure manually" flow does not offer direct upload for now.
