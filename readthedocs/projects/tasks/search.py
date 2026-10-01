@@ -257,7 +257,7 @@ def _get_indexers(
     return indexers
 
 
-def _process_files(*, version: Version, indexers: list[Indexer]):
+def _process_files(*, version: Version, indexers: list[Indexer], local_path: str):
     storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
@@ -276,65 +276,64 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
     )
 
     # Download the HTML files of the version with rclone and parse them from
-    # the local copy. This is much faster than reading each file from storage
-    # individually, since that results in one or more requests per file.
-    # Only HTML files are transferred, since they are all the indexers consume.
-    with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+    # the local copy in ``local_path``. This is much faster than reading each
+    # file from storage individually, since that results in one or more
+    # requests per file. Only HTML files are transferred, since they are all
+    # the indexers consume. The caller owns ``local_path`` and its cleanup.
+    try:
+        build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
+    except subprocess.CalledProcessError as exc:
+        # Exit code 3 is "directory not found". Continue with the empty
+        # local copy — same as walking a missing path in storage — so
+        # indexers can still clean up previously indexed files. Any other
+        # error is fatal, so a transient storage failure never wipes the
+        # search index for the version.
+        if exc.returncode != 3:
+            raise
+
+    # Indexers read page contents lazily through ``HTMLFile.processed_json``;
+    # this parser resolves those reads against the local copy.
+    parser = GenericParser(version, storage=RTDFileSystemStorage(location=local_path))
+    for root, __, filenames in os.walk(local_path):
+        for filename in filenames:
+            # We don't care about non-HTML files (for now?).
+            if not filename.endswith(".html"):
+                continue
+
+            relpath = os.path.relpath(os.path.join(root, filename), local_path)
+
+            html_file = HTMLFile(
+                project=version.project,
+                version=version,
+                path=relpath,
+                name=filename,
+                # TODO: We are setting the commit field since it's required,
+                # but it isn't used, and will be removed in the future
+                # together with other fields.
+                commit="unknown",
+                build=sync_id,
+            )
+            html_file.parser = parser
+            for indexer in indexers:
+                try:
+                    indexer.process(html_file, sync_id)
+                except Exception:
+                    log.exception(
+                        "Failed to process HTML file",
+                        html_file=html_file.path,
+                        indexer=indexer.__class__.__name__,
+                        version_slug=version.slug,
+                    )
+
+    for indexer in indexers:
         try:
-            build_media_storage.rclone_download_directory(storage_path, tmp_dir, include="*.html")
-        except subprocess.CalledProcessError as exc:
-            # Exit code 3 is "directory not found". Continue with the empty
-            # local copy — same as walking a missing path in storage — so
-            # indexers can still clean up previously indexed files. Any other
-            # error is fatal, so a transient storage failure never wipes the
-            # search index for the version.
-            if exc.returncode != 3:
-                raise
-
-        parser = GenericParser(version, storage=RTDFileSystemStorage(location=tmp_dir))
-        for root, __, filenames in os.walk(tmp_dir):
-            for filename in filenames:
-                # We don't care about non-HTML files (for now?).
-                if not filename.endswith(".html"):
-                    continue
-
-                relpath = os.path.relpath(os.path.join(root, filename), tmp_dir)
-
-                html_file = HTMLFile(
-                    project=version.project,
-                    version=version,
-                    path=relpath,
-                    name=filename,
-                    # TODO: We are setting the commit field since it's required,
-                    # but it isn't used, and will be removed in the future
-                    # together with other fields.
-                    commit="unknown",
-                    build=sync_id,
-                )
-                html_file.parser = parser
-                for indexer in indexers:
-                    try:
-                        indexer.process(html_file, sync_id)
-                    except Exception:
-                        log.exception(
-                            "Failed to process HTML file",
-                            html_file=html_file.path,
-                            indexer=indexer.__class__.__name__,
-                            version_slug=version.slug,
-                        )
-
-        # Indexers read the page contents lazily through
-        # ``HTMLFile.processed_json``, so they must be collected while the
-        # local copy still exists.
-        for indexer in indexers:
-            try:
-                indexer.collect(sync_id)
-            except Exception:
-                log.exception(
-                    "Failed to collect indexer results",
-                    indexer=indexer.__class__.__name__,
-                    version_slug=version.slug,
-                )
+            indexer.collect(sync_id)
+        except Exception:
+            log.exception(
+                "Failed to collect indexer results",
+                indexer=indexer.__class__.__name__,
+                version_slug=version.slug,
+            )
 
     return sync_id
 
@@ -367,7 +366,8 @@ def index_build(build_id):
             version=version,
             build=build,
         )
-        return _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            return _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to index build")
 
@@ -411,7 +411,8 @@ def reindex_version(version_id, search_index_name=None):
             search_index_name=search_index_name,
             post_build_overview=False,
         )
-        _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to re-index version")
 
