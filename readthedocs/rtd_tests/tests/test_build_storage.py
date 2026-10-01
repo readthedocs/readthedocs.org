@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 import pytest
 from django.core.exceptions import SuspiciousFileOperation
@@ -224,6 +225,16 @@ class TestBuildMediaStorage(TestCase):
         download_dir = tempfile.mkdtemp()
         self.storage.rclone_download_directory("does-not-exist", download_dir)
         self.assertEqual(os.listdir(download_dir), [])
+
+    def test_rclone_download_directory_storage_unreachable(self):
+        # Exit code 3 can also mean the bucket is unreachable or
+        # misconfigured; that must raise instead of emptying the version.
+        download_dir = tempfile.mkdtemp()
+        with mock.patch.object(
+            type(self.storage), "listdir", side_effect=OSError("unreachable")
+        ):
+            with pytest.raises(OSError):
+                self.storage.rclone_download_directory("does-not-exist", download_dir)
 
     def test_rclone_download_all_storage(self):
         with pytest.raises(SuspiciousFileOperation):

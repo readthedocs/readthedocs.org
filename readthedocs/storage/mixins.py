@@ -70,6 +70,10 @@ class RTDBaseStorage:
         except subprocess.CalledProcessError as exc:
             if exc.returncode != RCLONE_EXIT_DIR_NOT_FOUND:
                 raise
+            # Exit code 3 also covers an unreachable or misconfigured bucket.
+            # Only treat it as an empty source when the storage responds,
+            # so a misconfiguration fails instead of emptying the version.
+            self.listdir("")
 
     def delete_directory(self, path):
         raise NotImplementedError
