@@ -14,6 +14,7 @@ from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -24,6 +25,7 @@ from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
 from readthedocs.upload.api.serializers import UploadCompleteSerializer
 from readthedocs.upload.api.serializers import UploadInitiateSerializer
 from readthedocs.upload.api.serializers import UploadStatus
@@ -162,17 +164,29 @@ class UploadInitiateView(APIv3Settings, APIView):
         """
         Extra steps for a version created by an upload.
 
-        Versions created by the repository sync run the automation rules from the sync task;
-        uploaded versions are created here, so the rules run here.
-        The first version of a direct upload project also becomes its default version,
-        since these projects don't get "latest" automatically.
+        The first branch or tag uploaded to a direct upload project becomes its default version,
+        since these projects don't get "latest" automatically,
+        and the user is told so they can change it.
+        Pull request previews never become the default.
+
+        On projects built by Read the Docs, automation rules run for the new version
+        like they do when the repository sync creates one.
+        Direct upload projects don't run automation rules for now.
         """
-        if (
-            project.is_direct_upload
-            and not project.versions.filter(slug=project.default_version).exists()
-        ):
-            project.default_version = version.slug
-            project.save(update_fields=["default_version"])
+        if project.is_direct_upload:
+            if (
+                version.type != EXTERNAL
+                and not project.versions.filter(slug=project.default_version).exists()
+            ):
+                project.default_version = version.slug
+                project.save(update_fields=["default_version"])
+                Notification.objects.add(
+                    attached_to=project,
+                    message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD,
+                    dismissable=True,
+                    format_values={"version": version.verbose_name},
+                )
+            return
 
         run_version_automation_rules(
             project,

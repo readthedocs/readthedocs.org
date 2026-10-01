@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
@@ -17,6 +18,7 @@ from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -26,8 +28,10 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
 from readthedocs.upload.api.serializers import UploadStatus
 
 
@@ -353,41 +357,87 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         assert not project.versions.exists()
         self.data["project"] = project.slug
 
+        # A pull request preview uploaded first never becomes the default.
+        self.data["version"] = {"name": "123", "type": EXTERNAL, "commit": "b" * 40}
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
+        project.refresh_from_db()
+        assert project.default_version == LATEST
+        assert not project.notifications.filter(
+            message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+        ).exists()
 
+        # The first branch or tag does, and the user is told.
+        self.data["version"] = {"name": "main", "type": BRANCH, "commit": "a" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
         project.refresh_from_db()
         assert project.default_version == "main"
+        notification = project.notifications.get(
+            message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+        )
+        assert notification.format_values == {"version": "main"}
 
         # A second version doesn't change the default.
-        self.data["version"]["name"] = "v1"
-        self.data["version"]["type"] = TAG
+        self.data["version"] = {"name": "v1", "type": TAG, "commit": "c" * 40}
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         project.refresh_from_db()
         assert project.default_version == "main"
-
-    @mock.patch("readthedocs.upload.api.views.run_version_automation_rules")
-    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
-    @mock.patch("readthedocs.upload.api.views.storages")
-    def test_automation_rules_run_when_upload_creates_version(
-        self, storages_mock, send_build_status, run_version_automation_rules
-    ):
-        self._mock_storage(storages_mock)
-
-        response = self.client.post(self.url, self.data)
-        assert response.status_code == status.HTTP_201_CREATED
-        run_version_automation_rules.assert_called_once_with(
-            self.project,
-            added_versions={"main"},
-            deleted_active_versions=set(),
+        assert (
+            project.notifications.filter(
+                message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+            ).count()
+            == 1
         )
 
-        # Uploading the same version again doesn't run them again.
-        run_version_automation_rules.reset_mock()
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_automation_rules_run_on_projects_built_by_readthedocs(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.HIDE_VERSION_ACTION,
+            version_types=[BRANCH],
+        )
+
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
-        run_version_automation_rules.assert_not_called()
+        version = self.project.versions.get(verbose_name="main", type=BRANCH)
+        assert version.hidden
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_automation_rules_dont_run_on_direct_upload_projects(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+        )
+        self.feature.projects.add(project)
+        get(
+            AutomationRule,
+            project=project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.HIDE_VERSION_ACTION,
+            version_types=[BRANCH],
+        )
+        self.data["project"] = project.slug
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        version = project.versions.get(verbose_name="main", type=BRANCH)
+        assert not version.hidden
 
 
 class UploadCompleteViewTests(UploadAPIEndpointMixin):
