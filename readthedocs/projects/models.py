@@ -1733,8 +1733,7 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
-    # Optional parser instance to generate the processed JSON with. When not
-    # set, pages are read from the version's path in the build media storage.
+    # Optional parser override; the default reads from the build media storage.
     parser = None
 
     def get_processed_json(self):

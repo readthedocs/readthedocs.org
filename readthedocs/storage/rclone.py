@@ -131,8 +131,7 @@ class BaseRClone:
 
         :params source: Remote path to the source directory.
         :params destination: Local path to the destination directory.
-        :params include: Filter pattern; when given, only matching files
-         are transferred (``--include``, see https://rclone.org/filtering/).
+        :params include: Only transfer files matching this ``--include`` pattern.
         """
         options = []
         if include:

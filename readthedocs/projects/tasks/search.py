@@ -275,24 +275,18 @@ def _process_files(*, version: Version, indexers: list[Indexer], local_path: str
         sync_id=sync_id,
     )
 
-    # Download the HTML files of the version with rclone and parse them from
-    # the local copy in ``local_path``. This is much faster than reading each
-    # file from storage individually, since that results in one or more
-    # requests per file. Only HTML files are transferred, since they are all
-    # the indexers consume. The caller owns ``local_path`` and its cleanup.
+    # A single bulk download is much faster than one or more storage
+    # requests per file. HTML is all the indexers consume.
     try:
         build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
     except subprocess.CalledProcessError as exc:
-        # Exit code 3 is "directory not found". Continue with the empty
-        # local copy — same as walking a missing path in storage — so
-        # indexers can still clean up previously indexed files. Any other
-        # error is fatal, so a transient storage failure never wipes the
-        # search index for the version.
+        # Exit code 3 is "directory not found": continue so indexers can
+        # clean up previously indexed files. Anything else is fatal, so a
+        # transient storage error can't wipe the version's search index.
         if exc.returncode != 3:
             raise
 
-    # Indexers read page contents lazily through ``HTMLFile.processed_json``;
-    # this parser resolves those reads against the local copy.
+    # The injected parser makes ``processed_json`` read from the local copy.
     parser = GenericParser(version, storage=RTDFileSystemStorage(location=local_path))
     for root, __, filenames in os.walk(local_path):
         for filename in filenames:

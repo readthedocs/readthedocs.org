@@ -66,10 +66,8 @@ class GenericParser:
     def __init__(self, version, storage=None):
         self.version = version
         self.project = self.version.project
-        # A custom storage can be given to read pages from an alternative
-        # location (e.g. a local copy of the version's HTML files). Page
-        # paths are then resolved relative to that storage's root instead
-        # of the version's path in the build media storage.
+        # With a custom storage, page paths resolve relative to its root
+        # instead of the version's path in the build media storage.
         self._custom_storage = storage is not None
         self.storage = storage or build_media_storage
 
