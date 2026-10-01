@@ -126,9 +126,13 @@ class UploadInitiateView(APIv3Settings, APIView):
 
         :returns: a tuple of the version and whether it was created.
         """
-        # Uploads for the default branch go to "latest", like webhook builds do.
-        # Direct upload projects don't have "latest" unless they uploaded it by name.
-        if version_type == BRANCH and name == project.get_default_branch(fallback_to_vcs=False):
+        # On projects built by Read the Docs, uploads for the default branch go to "latest",
+        # like webhook builds do. Direct upload projects have no aliases: the uploaded name is the version.
+        if (
+            not project.is_direct_upload
+            and version_type == BRANCH
+            and name == project.get_default_branch(fallback_to_vcs=False)
+        ):
             latest = project.get_latest_version()
             if latest and latest.machine:
                 latest.privacy_level = privacy_level
