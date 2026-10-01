@@ -17,9 +17,7 @@ def cached_method(func):
 
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        # Keep the results on the instance itself (in ``self.__dict__``), so
-        # they are garbage collected together with it. The dict is created the
-        # first time any cached method is called on the instance.
+        # Per-instance dict, created on first use.
         cache = self.__dict__.setdefault("_cached_method_results", {})
         key = (func.__qualname__, args, frozenset(kwargs.items()))
         try:
