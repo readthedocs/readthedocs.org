@@ -14,6 +14,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -417,6 +418,22 @@ class APIBuildTests(TestCase):
             build["commands"][0]["command"],
             "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
         )
+
+    def test_normalize_build_command_strips_leading_usr_bin(self):
+        command = normalize_build_command(
+            "/usr/bin/apt-get install --assume-yes -- vim",
+            "myproject",
+            "myversion",
+        )
+        assert command == "apt-get install --assume-yes -- vim"
+
+    def test_normalize_build_command_keeps_usr_bin_in_arguments(self):
+        command = normalize_build_command(
+            "cat /usr/bin/foo",
+            "myproject",
+            "myversion",
+        )
+        assert command == "cat /usr/bin/foo"
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
@@ -3610,6 +3627,7 @@ class APIVersionTests(TestCase):
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

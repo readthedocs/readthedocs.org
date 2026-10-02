@@ -1,7 +1,5 @@
 """Project views for authenticated users."""
 
-from functools import lru_cache
-
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -41,6 +39,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -160,7 +159,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # NOTE: This method is called twice, on .org it doesn't matter,
     # as the queryset is straightforward, but on .com it
     # does some extra work that results in several queries.
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 

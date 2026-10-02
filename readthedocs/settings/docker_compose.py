@@ -1,5 +1,10 @@
 import os
 import socket
+import sysconfig
+
+import structlog
+
+from readthedocs.core.logs import shared_processors
 
 from .base import CommunityBaseSettings
 
@@ -9,6 +14,11 @@ class DockerBaseSettings(CommunityBaseSettings):
     """Settings for local development with Docker"""
 
     DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
+
+    # Collapse third-party frames in tracebacks to one line
+    RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS = bool(
+        os.environ.get("RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS", False)
+    )
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
@@ -112,9 +122,33 @@ class DockerBaseSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
 
+        suppress = []
+        if self.RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS:
+            suppress = [sysconfig.get_path("purelib")]
+
+        logging["formatters"]["colored_console"] = {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processors": [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.dev.ConsoleRenderer(
+                    colors=True,
+                    exception_formatter=structlog.dev.RichTracebackFormatter(
+                        show_locals=True,
+                        extra_lines=3,
+                        suppress=suppress,
+                    ),
+                ),
+            ],
+            "foreign_pre_chain": shared_processors,
+        }
         logging["handlers"]["console"]["formatter"] = "colored_console"
         logging["loggers"].update(
             {
+                # Drop Django's default stderr handler, otherwise tracebacks are printed twice
+                "django": {
+                    "handlers": [],
+                    "propagate": True,
+                },
                 # Disable Django access requests logging (e.g. GET /path/to/url)
                 # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
                 "django.server": {

@@ -1963,11 +1963,11 @@ class TestCDNCache(BaseDocServing):
         self.domain.save()
         self._test_cache_control_header_project(expected_value="public", host=self.domain.domain)
 
-        # HTTPS redirect respects the privacy level of the version.
+        # HTTPS redirects can always be cached.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
-        self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
@@ -1998,7 +1998,7 @@ class TestCDNCache(BaseDocServing):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self._test_cache_control_header_subproject(expected_value="public")
 
-    def test_cache_public_versions_custom_domain(self):
+    def test_cache_public_versions_custom_domain_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
