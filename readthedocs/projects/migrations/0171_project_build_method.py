@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy()
 
     dependencies = [
-        ("projects", "0169_external_builds_enabled_default_true"),
+        ("projects", "0170_project_max_build_media_size"),
     ]
 
     operations = [
