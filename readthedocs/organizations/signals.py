@@ -75,7 +75,7 @@ def mark_organization_assets_not_cleaned(sender, instance, created, **kwargs):
         if organization and organization.artifacts_cleaned:
             log.info(
                 "Marking organization as not cleaned.",
-                origanization_slug=organization.slug,
+                organization_slug=organization.slug,
             )
             organization.artifacts_cleaned = False
             organization.save()
