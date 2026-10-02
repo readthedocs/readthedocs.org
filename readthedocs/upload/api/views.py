@@ -11,7 +11,6 @@ from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
-from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
@@ -126,15 +125,17 @@ class UploadInitiateView(APIv3Settings, APIView):
 
         :returns: a tuple of the version and whether it was created.
         """
-        # On projects built by Read the Docs, uploads for the default branch go to "latest",
-        # like webhook builds do. Direct upload projects have no aliases: the uploaded name is the version.
-        if (
-            not project.is_direct_upload
-            and version_type == BRANCH
-            and name == project.get_default_branch(fallback_to_vcs=False)
-        ):
+        # On projects built by Read the Docs, an upload of the branch or tag that "latest" tracks
+        # lands on "latest", the version a push to it builds (see `Project.versions_from_name`).
+        # Direct upload projects have no aliases: the uploaded name is the version.
+        if not project.is_direct_upload:
             latest = project.get_latest_version()
-            if latest and latest.machine:
+            if (
+                latest
+                and latest.machine
+                and latest.identifier == name
+                and latest.type == version_type
+            ):
                 latest.privacy_level = privacy_level
                 latest.active = True
                 latest.save()

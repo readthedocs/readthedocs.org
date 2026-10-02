@@ -323,6 +323,29 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_tag_upload_goes_to_latest(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        # "latest" can track a tag: the default branch setting accepts tag names.
+        get(Version, project=self.project, verbose_name="v1.0", identifier="v1.0", type=TAG)
+        self.project.default_branch = "v1.0"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        assert latest.type == TAG
+
+        self.data["version"] = {"name": "v1.0", "type": TAG, "commit": "a" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["version"]["id"] == latest.pk
+
+        # A branch with the same name is a different version.
+        self.data["version"]["type"] = BRANCH
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["version"]["id"] != latest.pk
+        assert self.project.versions.filter(verbose_name="v1.0", type=BRANCH).exists()
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
     def test_default_branch_upload_keeps_user_managed_latest(
         self, storages_mock, send_build_status
     ):
