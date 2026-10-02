@@ -899,6 +899,9 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Log in with this provider directly, and keep the
+                        # other GitHub options behind the modal.
+                        "default": True,
                         "priority": 10,
                     },
                 },
