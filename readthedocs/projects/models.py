@@ -442,15 +442,12 @@ class Project(models.Model):
         ),
     )
 
-    build_method = models.CharField(
-        _("Build method"),
-        max_length=32,
-        choices=constants.BUILD_METHOD_CHOICES,
-        default=constants.BUILD_METHOD_READTHEDOCS,
-        db_default=constants.BUILD_METHOD_READTHEDOCS,
+    is_direct_upload = models.BooleanField(
+        _("Built externally and uploaded"),
+        default=False,
+        db_default=False,
         help_text=_(
-            "Whether Read the Docs builds the documentation, "
-            "or it is built externally and uploaded."
+            "Read the Docs never builds this project, every version comes from an upload. "
         ),
     )
 
@@ -1262,11 +1259,6 @@ class Project(models.Model):
             self.versions(manager=INTERNAL).filter(identifier=current_stable.identifier)
         )
         return original_stable
-
-    @property
-    def is_direct_upload(self):
-        """Whether the documentation is built externally and uploaded, never by Read the Docs."""
-        return self.build_method == constants.BUILD_METHOD_DIRECT_UPLOAD
 
     def get_latest_version(self):
         return self.versions.filter(slug=LATEST).first()

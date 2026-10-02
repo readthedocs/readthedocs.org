@@ -39,8 +39,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Team
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
-from readthedocs.projects.constants import BUILD_METHOD_CHOICES
-from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.models import AddonsConfig
 from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Domain
@@ -475,20 +473,13 @@ class ProjectBasicsForm(ProjectForm):
 class ProjectConfigForm(forms.Form):
     """Intermediate step to choose how the documentation is built."""
 
-    build_method = forms.ChoiceField(
-        choices=BUILD_METHOD_CHOICES,
-        initial=BUILD_METHOD_READTHEDOCS,
-        required=False,
-        widget=forms.HiddenInput(),
-    )
+    # Set by the submit button of the tab the user picked: "true" on the direct upload tab.
+    is_direct_upload = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         # Remove 'user' field since it's not expected by BaseForm.
         kwargs.pop("user")
         super().__init__(*args, **kwargs)
-
-    def clean_build_method(self):
-        return self.cleaned_data.get("build_method") or BUILD_METHOD_READTHEDOCS
 
 
 class UpdateProjectForm(

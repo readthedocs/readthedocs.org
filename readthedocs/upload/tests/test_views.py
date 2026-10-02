@@ -26,7 +26,6 @@ from readthedocs.builds.models import Version
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import AutomationRule
@@ -397,7 +396,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             Project,
             slug="direct-upload",
             users=[self.user],
-            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+            is_direct_upload=True,
             default_branch="main",
         )
         self.feature.projects.add(project)
@@ -424,7 +423,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             Project,
             slug="direct-upload",
             users=[self.user],
-            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+            is_direct_upload=True,
         )
         self.feature.projects.add(project)
         # Direct upload projects don't get "latest" on creation.
@@ -495,7 +494,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             Project,
             slug="direct-upload",
             users=[self.user],
-            build_method=BUILD_METHOD_DIRECT_UPLOAD,
+            is_direct_upload=True,
         )
         self.feature.projects.add(project)
         get(

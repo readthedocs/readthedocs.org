@@ -18,8 +18,6 @@ from readthedocs.integrations.models import GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
-from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
@@ -359,7 +357,7 @@ class TestDirectUploadImport(TestCase):
         self.user = get(User)
         self.client.force_login(self.user)
 
-    def _import_project(self, direct_upload_query, build_method):
+    def _import_project(self, direct_upload_query, direct_upload):
         # The "Configure automatically" tab posts here and seeds the wizard session.
         seed = {"name": "foobar", "repo": "http://example.com/foobar", "repo_type": "git"}
         seed.update(direct_upload_query)
@@ -377,7 +375,7 @@ class TestDirectUploadImport(TestCase):
         resp = self.client.post(
             reverse("projects_import_manual"),
             {
-                "config-build_method": build_method,
+                "config-is_direct_upload": "true" if direct_upload else "false",
                 "import_wizard_view-current_step": "config",
             },
         )
@@ -385,9 +383,9 @@ class TestDirectUploadImport(TestCase):
         return Project.objects.get(slug="foobar")
 
     def test_direct_upload_project(self):
-        project = self._import_project({"direct_upload": "1"}, "direct_upload")
+        project = self._import_project({"direct_upload": "1"}, True)
 
-        self.assertEqual(project.build_method, BUILD_METHOD_DIRECT_UPLOAD)
+        self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         # No build, and no versions: they all come from uploads.
@@ -397,16 +395,16 @@ class TestDirectUploadImport(TestCase):
         self.assertTrue(project.external_builds_enabled)
 
     def test_direct_upload_ignored_when_not_available(self):
-        project = self._import_project({}, "direct_upload")
+        project = self._import_project({}, True)
 
-        self.assertEqual(project.build_method, BUILD_METHOD_READTHEDOCS)
+        self.assertFalse(project.is_direct_upload)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         self.assertIsNotNone(project.get_latest_version())
 
     def test_build_on_readthedocs_when_available(self):
-        project = self._import_project({"direct_upload": "1"}, "readthedocs")
+        project = self._import_project({"direct_upload": "1"}, False)
 
-        self.assertEqual(project.build_method, BUILD_METHOD_READTHEDOCS)
+        self.assertFalse(project.is_direct_upload)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         self.assertIsNotNone(project.get_latest_version())
 

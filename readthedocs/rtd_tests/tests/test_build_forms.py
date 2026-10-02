@@ -8,7 +8,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile
@@ -400,7 +399,7 @@ class TestVersionForm(TestCase):
         assert "is_uploaded" in form.fields
 
     def test_uploaded_field_hidden_on_direct_upload_project(self):
-        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.is_direct_upload = True
         self.project.save()
         version = get(Version, project=self.project, active=True, is_uploaded=True)
         form = VersionForm(instance=version, project=self.project)

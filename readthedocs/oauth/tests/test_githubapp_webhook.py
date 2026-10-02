@@ -2,7 +2,6 @@ import json
 from unittest import mock
 
 from readthedocs.builds.constants import ALL_VERSIONS
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.models import AutomationRule
 import requests_mock
 from allauth.socialaccount.models import SocialAccount
@@ -571,7 +570,7 @@ class TestGitHubAppWebhook(TestCase):
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_direct_upload_project(self, trigger_build):
-        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.is_direct_upload = True
         self.project.save()
         payload = {
             "installation": {

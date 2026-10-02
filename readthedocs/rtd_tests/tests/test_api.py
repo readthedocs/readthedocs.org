@@ -67,7 +67,7 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 from readthedocs.oauth.services import GitHubAppService
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD, PUBLIC
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
     APIProject,
     Domain,
@@ -2279,7 +2279,7 @@ class IntegrationsTests(TestCase):
     def test_github_pull_request_opened_event_direct_upload_project(
         self, trigger_build, core_trigger_build
     ):
-        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.is_direct_upload = True
         self.project.save()
         client = APIClient()
 

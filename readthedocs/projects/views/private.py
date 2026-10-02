@@ -47,7 +47,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
-from readthedocs.projects.constants import BUILD_METHOD_READTHEDOCS
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
@@ -443,14 +442,14 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         # .com sets the slug on the instance while cleaning (organization prefix).
         return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
 
-    def _get_build_method(self, form_list):
-        """Build method chosen in the config step, direct upload only when the beta gate allows it."""
+    def _uses_direct_upload(self, form_list):
+        """Whether direct upload was chosen in the config step, only possible when the beta gate allows it."""
         if not self.initial_dict.get("direct_upload"):
-            return BUILD_METHOD_READTHEDOCS
+            return False
         for form in form_list:
             if isinstance(form, self.form_list.get("config")):
-                return form.cleaned_data.get("build_method") or BUILD_METHOD_READTHEDOCS
-        return BUILD_METHOD_READTHEDOCS
+                return bool(form.cleaned_data.get("is_direct_upload"))
+        return False
 
     def _setup_direct_upload(self, project):
         """Enable the upload API on a new direct upload project (beta gate)."""
@@ -479,9 +478,9 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
 
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms.
-        # The build method has to be set before saving: `Project.save` creates `latest`
+        # Has to be set before saving: `Project.save` creates `latest`
         # for projects built by Read the Docs, and direct upload projects don't get one.
-        basics_form.instance.build_method = self._get_build_method(form_list)
+        basics_form.instance.is_direct_upload = self._uses_direct_upload(form_list)
         project = basics_form.save()
 
         if project.is_direct_upload:

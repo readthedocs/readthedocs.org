@@ -34,7 +34,6 @@ from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
@@ -665,7 +664,7 @@ class GitHubAppWebhookHandler:
             projects = (
                 self._get_projects()
                 .filter(external_builds_enabled=True)
-                .exclude(build_method=BUILD_METHOD_DIRECT_UPLOAD)
+                .exclude(is_direct_upload=True)
             )
             for project in projects:
                 external_version = get_or_create_external_version(

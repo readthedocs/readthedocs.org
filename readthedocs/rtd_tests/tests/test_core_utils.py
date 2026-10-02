@@ -23,7 +23,6 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.core.utils.objects import cached_method
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-from readthedocs.projects.constants import BUILD_METHOD_DIRECT_UPLOAD
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
@@ -52,7 +51,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_skipped_direct_upload_project(self, update_docs_task):
-        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.is_direct_upload = True
         self.project.save()
         # With and without an explicit version: these projects may not have a default one.
         for version in (self.version, None):
@@ -62,7 +61,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
     def test_sync_versions_skipped_direct_upload_project(self, sync_repository_task):
-        self.project.build_method = BUILD_METHOD_DIRECT_UPLOAD
+        self.project.is_direct_upload = True
         self.project.save()
         assert trigger_sync_versions(self.project) is None
         assert not sync_repository_task.apply_async.called
