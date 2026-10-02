@@ -446,9 +446,7 @@ class Project(models.Model):
         _("Built externally and uploaded"),
         default=False,
         db_default=False,
-        help_text=_(
-            "Read the Docs never builds this project, every version comes from an upload. "
-        ),
+        help_text=_("Read the Docs never builds this project, every version comes from an upload."),
     )
 
     # External versions

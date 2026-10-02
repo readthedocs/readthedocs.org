@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 db_default=False,
                 default=False,
-                help_text="Read the Docs never builds this project, every version comes from an upload. See docs/dev/design/direct-upload-projects.rst.",
+                help_text="Read the Docs never builds this project, every version comes from an upload.",
                 verbose_name="Built externally and uploaded",
             ),
         ),
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 db_default=False,
                 default=False,
-                help_text="Read the Docs never builds this project, every version comes from an upload. See docs/dev/design/direct-upload-projects.rst.",
+                help_text="Read the Docs never builds this project, every version comes from an upload.",
                 verbose_name="Built externally and uploaded",
             ),
         ),
