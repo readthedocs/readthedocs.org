@@ -692,6 +692,7 @@ class TestPostBuildOverview(TestCase):
 
 
 @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+@mock.patch("readthedocs.projects.tasks.search.process_builder_manifest")
 @mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
 @mock.patch("readthedocs.projects.tasks.search.index_build")
 class TestRunPostBuildTasks(TestCase):
@@ -699,18 +700,37 @@ class TestRunPostBuildTasks(TestCase):
         self.project = get(Project)
         self.version = get(Version, project=self.project)
 
-    def test_successful_build_purges_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+    def test_successful_build_purges_cdn(
+        self, index_build, purge_docs_cdn, process_builder_manifest, send_build_notifications
+    ):
         build = get(Build, project=self.project, version=self.version, success=True)
 
         run_post_build_tasks(build_pk=build.pk)
 
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
+        process_builder_manifest.delay.assert_called_once_with(build_id=build.pk)
         index_build.delay.assert_called_once_with(build_id=build.pk)
 
-    def test_failed_build_does_not_purge_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+    def test_external_version_indexes_on_web_queue(
+        self, index_build, purge_docs_cdn, process_builder_manifest, send_build_notifications
+    ):
+        version = get(Version, project=self.project, type=EXTERNAL)
+        build = get(Build, project=self.project, version=version, success=True)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        index_build.apply_async.assert_called_once_with(
+            kwargs={"build_id": build.pk}, queue="web"
+        )
+        index_build.delay.assert_not_called()
+
+    def test_failed_build_does_not_purge_cdn(
+        self, index_build, purge_docs_cdn, process_builder_manifest, send_build_notifications
+    ):
         build = get(Build, project=self.project, version=self.version, success=False)
 
         run_post_build_tasks(build_pk=build.pk)
 
         purge_docs_cdn.delay.assert_not_called()
+        process_builder_manifest.delay.assert_not_called()
         index_build.delay.assert_not_called()

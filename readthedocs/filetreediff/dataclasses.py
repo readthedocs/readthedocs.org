@@ -11,6 +11,13 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 
 
+# Version of the hashing in ``readthedocs.search.parsers`` that fills the
+# manifest hashes. Bump it only when a change alters what the hashes mean:
+# manifests with different hasher versions aren't comparable, and ``get_diff``
+# marks their diff as outdated instead of reporting every file as modified.
+HASHER_VERSION = 1
+
+
 @dataclass(slots=True)
 class FileTreeDiffBuild:
     """The build associated with a file tree manifest."""
@@ -46,10 +53,17 @@ class FileTreeDiffManifest:
 
     files: dict[str, FileTreeDiffManifestFile]
     build: FileTreeDiffBuild
+    hasher_version: int
 
-    def __init__(self, build_id: int, files: list[FileTreeDiffManifestFile]):
+    def __init__(
+        self,
+        build_id: int,
+        files: list[FileTreeDiffManifestFile],
+        hasher_version: int = HASHER_VERSION,
+    ):
         self.build = FileTreeDiffBuild(id=build_id)
         self.files = {file.path: file for file in files}
+        self.hasher_version = hasher_version
 
     @classmethod
     def from_dict(cls, data: dict) -> "FileTreeDiffManifest":
@@ -60,6 +74,8 @@ class FileTreeDiffManifest:
         converting the object to a dictionary using the `as_dict` method.
         """
         build_id = data["build"]["id"]
+        # Manifests written before the field existed were all hashed by version 1.
+        hasher_version = data.get("hasher_version", 1)
         files = [
             FileTreeDiffManifestFile(
                 path=path,
@@ -69,7 +85,7 @@ class FileTreeDiffManifest:
             )
             for path, file in data["files"].items()
         ]
-        return cls(build_id, files)
+        return cls(build_id, files, hasher_version=hasher_version)
 
     def as_dict(self) -> dict:
         """Convert the object to a dictionary."""

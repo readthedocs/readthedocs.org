@@ -10,6 +10,7 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
 from readthedocs.filetreediff import get_base_version
+from readthedocs.filetreediff import get_manifest
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -174,24 +175,49 @@ class FileManifestIndexer(Indexer):
             ],
         )
         write_manifest(self.version, manifest)
+        _manifest_side_effects(self.version, self.build, self.post_build_overview)
 
-        # For PR previews, snapshot the base version's manifest on the first
-        # PR build where the snapshot can be created.
-        # This pins the diff baseline so that subsequent builds compare against
-        # that snapshotted base-version state instead of the base version's
-        # current state. This prevents false file changes when the base branch
-        # moves forward (the "stale branch" problem).
-        if self.version.is_external:
-            base_version = get_base_version(self.version.project)
-            if base_version:
-                snapshot_base_manifest(self.version, base_version)
 
-        if (
-            self.post_build_overview
-            and self.version.is_external
-            and self.version.project.show_build_overview_in_comment
-        ):
-            post_build_overview.delay(self.build.id)
+def _manifest_side_effects(
+    version: Version, build: Build, post_build_overview_enabled: bool = True
+):
+    """Steps that follow a new manifest for ``build``."""
+    # For PR previews, snapshot the base version's manifest on the first
+    # PR build where the snapshot can be created.
+    # This pins the diff baseline so that subsequent builds compare against
+    # that snapshotted base-version state instead of the base version's
+    # current state. This prevents false file changes when the base branch
+    # moves forward (the "stale branch" problem).
+    if version.is_external:
+        base_version = get_base_version(version.project)
+        if base_version:
+            snapshot_base_manifest(version, base_version)
+
+    if (
+        post_build_overview_enabled
+        and version.is_external
+        and version.project.show_build_overview_in_comment
+    ):
+        post_build_overview.delay(build.id)
+
+
+def _should_create_manifest(version: Version) -> bool:
+    """Check whether ``version`` needs a file tree diff manifest."""
+    project = version.project
+    # Neither feature backed by manifests is in use.
+    if not (
+        project.addons.filetreediff_enabled
+        or project.show_build_overview_in_comment
+        or settings.RTD_FILETREEDIFF_ALL
+    ):
+        return False
+
+    # We compare PR previews against the latest version,
+    # unless the project has a specific options_base_version set.
+    base_version_slug = (
+        project.addons.options_base_version.slug if project.addons.options_base_version else LATEST
+    )
+    return version.is_external or version.slug == base_version_slug or settings.RTD_FILETREEDIFF_ALL
 
 
 def _get_indexers(
@@ -228,21 +254,17 @@ def _get_indexers(
 
     # We compare PR previews against the latest version,
     # unless the project has a specific options_base_version set.
-    base_version = (
-        version.project.addons.options_base_version.slug
-        if version.project.addons.options_base_version
-        else LATEST
-    )
-    create_manifest = (
-        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
-    )
-    if create_manifest:
-        file_manifest_indexer = FileManifestIndexer(
-            version=version,
-            build=build,
-            post_build_overview=post_build_overview,
-        )
-        indexers.append(file_manifest_indexer)
+    if _should_create_manifest(version):
+        # A build that uploaded its own manifest makes regeneration
+        # unnecessary; ``process_builder_manifest`` runs the side effects.
+        manifest = get_manifest(version)
+        if not manifest or manifest.build.id != build.id:
+            file_manifest_indexer = FileManifestIndexer(
+                version=version,
+                build=build,
+                post_build_overview=post_build_overview,
+            )
+            indexers.append(file_manifest_indexer)
 
     index_file_indexer = IndexFileIndexer(
         project=version.project,
@@ -346,6 +368,35 @@ def index_build(build_id):
         return _process_files(version=version, indexers=indexers)
     except Exception:
         log.exception("Failed to index build")
+
+
+@app.task(queue="web")
+def process_builder_manifest(build_id):
+    """
+    Run the manifest side effects for a build that uploaded its own manifest.
+
+    Triggered at build success. No-op when storage doesn't hold this build's
+    manifest: legacy builds generate it later in ``index_build``, which runs
+    the side effects itself.
+    """
+    build = Build.objects.filter(pk=build_id).select_related("version", "version__project").first()
+    if not build or not build.version:
+        return
+
+    version = build.version
+    if not _should_create_manifest(version):
+        return
+
+    manifest = get_manifest(version)
+    if not manifest or manifest.build.id != build.id:
+        return
+
+    structlog.contextvars.bind_contextvars(
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+        build_id=build.id,
+    )
+    _manifest_side_effects(version, build)
 
 
 @app.task(queue="reindex")

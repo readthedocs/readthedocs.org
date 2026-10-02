@@ -786,6 +786,7 @@ def run_post_build_tasks(build_pk):
     # Avoid circular imports: readthedocs.projects.tasks imports from this module.
     from readthedocs.doc_builder.exceptions import BuildCancelled
     from readthedocs.projects.tasks.search import index_build
+    from readthedocs.projects.tasks.search import process_builder_manifest
     from readthedocs.projects.tasks.utils import purge_docs_cdn
     from readthedocs.projects.tasks.utils import send_external_build_status
 
@@ -807,7 +808,14 @@ def run_post_build_tasks(build_pk):
             version.save(update_fields=["is_uploaded"])
 
         purge_docs_cdn.delay(version_id=build.version_id)
-        index_build.delay(build_id=build.pk)
+        process_builder_manifest.delay(build_id=build.pk)
+
+        # External versions skip search indexing, so they don't need to wait
+        # behind the reindex queue.
+        if build.version and build.version.is_external:
+            index_build.apply_async(kwargs={"build_id": build.pk}, queue="web")
+        else:
+            index_build.delay(build_id=build.pk)
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.tasks import spam_check_after_build_complete  # noqa

@@ -69,6 +69,7 @@ from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
+from .search import process_builder_manifest
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import purge_docs_cdn
@@ -724,8 +725,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Purge the CDN now that the new files are in storage.
         purge_docs_cdn.delay(version_id=self.data.version.pk)
 
-        # Index search data
-        index_build.delay(build_id=self.data.build_pk)
+        # Run the file tree diff side effects when the build uploaded its own manifest.
+        process_builder_manifest.delay(build_id=self.data.build_pk)
+
+        # Index search data. External versions skip search indexing,
+        # so they don't need to wait behind the reindex queue.
+        if self.data.version.type == EXTERNAL:
+            index_build.apply_async(kwargs={"build_id": self.data.build_pk}, queue="web")
+        else:
+            index_build.delay(build_id=self.data.build_pk)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
