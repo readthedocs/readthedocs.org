@@ -242,7 +242,7 @@ messages = [
     ),
     Message(
         id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD,
-        header=_("Default version set to the first version you uploaded"),
+        header=_("Default version set"),
         body=_(
             textwrap.dedent(
                 """
