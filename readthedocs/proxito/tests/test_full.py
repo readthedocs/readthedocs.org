@@ -1052,6 +1052,25 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_robots_txt_without_default_version(self):
+        # A direct upload project has no versions until the first upload.
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_sitemap_xml_without_default_version(self):
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_custom_sitemap_xml(self):
         self.project.versions.update(active=True, built=True)
         response = self.client.get(

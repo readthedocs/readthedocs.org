@@ -645,16 +645,18 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
+        version = project.versions.filter(slug=version_slug).first()
 
         no_serve_robots_txt = any(
             [
-                # If the default version is private or,
-                version.privacy_level == PRIVATE,
+                # If the default version doesn't exist yet (direct upload project before its first upload) or,
+                version is None,
+                # the default version is private or,
+                version and version.privacy_level == PRIVATE,
                 # default version is not active or,
-                not version.active,
+                version and not version.active,
                 # default version is not built
-                not version.built,
+                version and not version.built,
             ]
         )
 
@@ -844,8 +846,9 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
         # Serve custom sitemap.xml from the default version when available.
         # If it doesn't exist, we fallback to the generated sitemap.
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
-        serve_custom_sitemap = all(
+        version = project.versions.filter(slug=version_slug).first()
+        # The default version may not exist yet (direct upload project before its first upload).
+        serve_custom_sitemap = version is not None and all(
             [
                 version.is_public,
                 version.active,
