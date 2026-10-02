@@ -636,6 +636,15 @@ class ResolverTests(ResolverBase):
         url = self.resolver.resolve_version(self.pip, version=version)
         self.assertEqual(url, "http://pip.readthedocs.org/en/v2/")
 
+    def test_resolve_version_without_default_version(self):
+        # A direct upload project has no versions until the first upload.
+        project = get(Project, slug="uploaded", language="en", is_direct_upload=True)
+        self.assertFalse(project.versions.exists())
+        url = self.resolver.resolve_version(project)
+        self.assertEqual(url, "http://uploaded.readthedocs.org/")
+        url = self.resolver.resolve_version(project, filename="/index.html")
+        self.assertEqual(url, "http://uploaded.readthedocs.org/index.html")
+
     def test_resolve_version_from_subproject(self):
         url = self.resolver.resolve_version(self.subproject)
         self.assertEqual(url, "http://pip.readthedocs.org/projects/sub/ja/latest/")
