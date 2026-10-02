@@ -151,7 +151,11 @@ class Resolver:
         """
         if not version:
             default_version_slug = project.get_default_version()
-            version = project.versions(manager=INTERNAL).get(slug=default_version_slug)
+            version = project.versions(manager=INTERNAL).filter(slug=default_version_slug).first()
+            # A project may not have its default version yet, like a direct upload
+            # project before its first upload. Its root is still the right place to link to.
+            if not version:
+                return self.resolve_project(project, filename=filename)
 
         domain, use_https = self._get_project_domain(
             project,

@@ -2276,9 +2276,35 @@ class IntegrationsTests(TestCase):
         self.assertTrue(external_version)
 
     @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
-    def test_github_pull_request_reopened_event(
+    def test_github_pull_request_opened_event_direct_upload_project(
         self, trigger_build, core_trigger_build
     ):
+        self.project.is_direct_upload = True
+        self.project.save()
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_pull_request_payload
+            ),
+        }
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_pull_request_payload,
+            format="json",
+            headers=headers,
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data["build_triggered"])
+        self.assertEqual(resp.data["versions"], [])
+        # The preview is created by the upload API, not by the webhook.
+        self.assertFalse(self.project.versions(manager=EXTERNAL).filter(verbose_name="2").exists())
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         # Update the payload for `reopened` webhook event

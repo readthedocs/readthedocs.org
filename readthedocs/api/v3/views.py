@@ -377,6 +377,7 @@ class VersionsViewSet(
         # Get the current values before updating.
         version = self.get_object()
         was_active = version.active
+        was_uploaded = version.is_uploaded
         previous_slug = version.slug
 
         result = super().update(request, *args, **kwargs)
@@ -393,7 +394,7 @@ class VersionsViewSet(
             version.clean_resources(version_slug=previous_slug)
             was_active = False
 
-        version.post_save(was_active=was_active)
+        version.post_save(was_active=was_active, was_uploaded=was_uploaded)
         return result
 
     def get_queryset(self):

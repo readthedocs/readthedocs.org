@@ -47,6 +47,7 @@ after the step that builds your documentation:
 
    name: Docs
 
+   # Adapt these triggers to the branches, tags and paths you want to publish.
    on:
      push:
        branches: [main]
@@ -91,6 +92,7 @@ The upload action detects the branch, tag or pull request from the workflow even
 so a push to ``main`` updates the ``main`` version,
 a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
+See :ref:`guides/build/direct-upload:Versions` for how uploaded versions behave.
 
 The ``paths`` filters make the workflow run only when the documentation or its dependencies change.
 Adjust them to match your repository layout,
@@ -153,6 +155,44 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
           --html _build/html \
           --pdf _build/latex/documentation.pdf \
           --epub _build/epub/documentation.epub
+
+Versions
+--------
+
+On a project that only uses direct upload, every version comes from an upload,
+and the name you upload is the version you get:
+uploading ``main`` publishes ``main``, uploading ``v1.0`` publishes ``v1.0``.
+Read the Docs does not create versions from your repository, and it does not create the ``latest`` and ``stable`` aliases.
+
+Default version
+   The first branch or tag you upload becomes the :term:`default version`,
+   so the root of your documentation works right away.
+   Pull request previews never become the default.
+
+``latest`` and ``stable``
+   If you want these names, upload them from your pipeline.
+   For example, to publish ``stable`` from every tag in addition to the tag itself,
+   add a second upload step that only runs on tags:
+
+   .. code-block:: yaml
+
+      - uses: readthedocs/upload-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          project-slug: <your-project-slug>
+          html: _build/html
+          version-name: stable
+
+Deactivating a version
+   Deactivating an uploaded version deletes it, together with its documentation.
+   Upload it again to publish it again.
+
+Automation rules
+   :doc:`Automation rules </automation-rules>` do not run on projects that only use direct upload.
+   Hide, activate or set the default version from the project settings,
+   or from your pipeline through the :doc:`API </api/v3>`.
+   On a project built by Read the Docs, uploading a version runs the automation rules as usual.
 
 Limits
 ------
