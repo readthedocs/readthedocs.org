@@ -16,8 +16,8 @@ class DockerBaseSettings(CommunityBaseSettings):
     DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
 
     # Collapse third-party frames in tracebacks to one line
-    RTD_LOGGING_SUPPRESS_TRACEBACKS = bool(
-        os.environ.get("RTD_LOGGING_SUPPRESS_TRACEBACKS", False)
+    RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS = bool(
+        os.environ.get("RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS", False)
     )
 
     DOCKER_ENABLE = True
@@ -123,7 +123,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         logging["disable_existing_loggers"] = False
 
         suppress = []
-        if self.RTD_LOGGING_SUPPRESS_TRACEBACKS:
+        if self.RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS:
             suppress = [sysconfig.get_path("purelib")]
 
         logging["formatters"]["colored_console"] = {
