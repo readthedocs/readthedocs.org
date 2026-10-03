@@ -247,7 +247,7 @@ class WebhookMixin:
         """
         to_build, not_building = build_versions_from_names(project, versions_info)
         if not_building:
-            log.info(
+            log.debug(
                 "Skipping project versions.",
                 versions=not_building,
             )
