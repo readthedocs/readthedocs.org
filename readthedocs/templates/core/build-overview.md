@@ -6,23 +6,18 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-### Documentation build overview
-
-> 📚 [{{ project.name }}](https://{{ PRODUCTION_DOMAIN }}{% url "projects_detail" project.slug %}) | 🛠️ Build [#{{ current_version_build.pk }}](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) | 📁 Comparing {{ current_version_build.commit }} against [{{ base_version.verbose_name }}]({{ base_version.get_absolute_url }}) ({{ base_version_build.commit }})
-
-[<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>]({{ current_version.get_absolute_url }})
-
-{% if diff.files %}{% if diff.should_auto_expand %}
+{% if diff.files %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
+{% if diff.should_auto_expand %}
 <details open>
-<summary>{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed</summary>
+<summary>{{ diff.summary }}</summary>
 <br>
 {% for file in diff.added %}<code>+</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
 {% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
-{% endfor %}{% for file in diff.deleted %}<code>-</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
+{% endfor %}{% for file in diff.deleted %}<code>-</code> <code>{{ file.path }}</code> (<a href="https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&amp;from_url=/{{ file.path|urlencode }}">add redirect</a>)<br>
 {% endfor %}</details>
 {% else %}
 <details>
-<summary>{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed{% if diff.added %} · <code>+</code> {{ diff.added|length }} added{% endif %}{% if diff.modified %} · <code>±</code> {{ diff.modified|length }} modified{% endif %}{% if diff.deleted %} · <code>-</code> {{ diff.deleted|length }} deleted{% endif %}</summary>
+<summary>{{ diff.summary }}</summary>
 <br>
 {% if diff.added %}
 `+` **Added**
@@ -34,10 +29,13 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more...*
 {% endif %}{% endif %}{% if diff.deleted %}
 `-` **Deleted**
-{% for file in diff.deleted|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
+{% for file in diff.deleted|slice:":10" %}- `{{ file.path }}` ([add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url=/{{ file.path|urlencode }}))
 {% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more...*
 {% endif %}{% endif %}
 </details>
-{% endif %}{% else %}
-No files changed.
+{% endif %}{% else %}📖 **No files changed** — [preview the docs]({{ preview_url }})
+
+Your changes didn't affect any published file.
 {% endif %}
+---
+[{{ project.name }} build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
