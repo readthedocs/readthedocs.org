@@ -63,10 +63,11 @@ class GenericParser:
         "video",
     ]
 
-    def __init__(self, version):
+    def __init__(self, version, storage=None):
         self.version = version
         self.project = self.version.project
-        self.storage = build_media_storage
+        # An injected storage must mirror the build media storage layout.
+        self.storage = storage or build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""

@@ -15,6 +15,9 @@ from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
+# https://rclone.org/docs/#exit-code
+RCLONE_EXIT_DIR_NOT_FOUND = 3
+
 
 class BaseRClone:
     """
@@ -122,6 +125,24 @@ class BaseRClone:
         :params destination: Remote path to the destination directory.
         """
         return self.execute("sync", args=[source, self.get_target(destination)])
+
+    def copy_to_local(self, source, destination, include=None):
+        """
+        Run the `rclone copy` command from the remote to a local directory.
+
+        See https://rclone.org/commands/rclone_copy/.
+
+        :params source: Remote path to the source directory.
+        :params destination: Local path to the destination directory.
+        :params include: Only transfer files matching this ``--include`` pattern.
+        """
+        options = [
+            # One recursive listing instead of one request per directory.
+            "--fast-list",
+        ]
+        if include:
+            options.extend(["--include", include])
+        return self.execute("copy", args=[self.get_target(source), destination], options=options)
 
 
 class RCloneLocal(BaseRClone):
