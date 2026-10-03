@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from django.core.exceptions import SuspiciousFileOperation
+from django.core.files.base import ContentFile
 from django.test import TestCase, override_settings
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
@@ -116,6 +117,14 @@ class TestBuildMediaStorage(TestCase):
         dirs, files = self.storage.listdir("files/api")
         self.assertEqual(dirs, [])
         self.assertEqual(files, [])
+
+    def test_read_file(self):
+        self.storage.save("dir/file.txt", ContentFile(b"hello"))
+        assert self.storage.read_file("dir/file.txt") == b"hello"
+
+    def test_read_file_missing(self):
+        with pytest.raises(FileNotFoundError):
+            self.storage.read_file("missing.txt")
 
     def test_walk(self):
         with override_settings(DOCROOT=files_dir):

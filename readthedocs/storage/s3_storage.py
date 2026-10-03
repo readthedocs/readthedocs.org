@@ -13,9 +13,11 @@ from functools import cached_property
 from itertools import batched
 
 import structlog
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import SuspiciousFileOperation
+from s3transfer.constants import ALLOWED_DOWNLOAD_ARGS
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.backends.s3boto3 import S3ManifestStaticStorage
 from storages.utils import clean_name
@@ -48,6 +50,30 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
 
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
+
+    def read_file(self, path) -> bytes:
+        """
+        Read a whole object with a single ``GetObject`` request.
+
+        ``open()`` costs three requests per file: django-storages sends a
+        ``HeadObject`` when opening, and boto3's transfer manager sends another
+        one before the ``GetObject``.
+        """
+        name = self._normalize_name(clean_name(path))
+        # Same filtering django-storages applies to AWS_S3_OBJECT_PARAMETERS
+        # before a download (e.g. SSE-C keys yes, CacheControl no).
+        params = {
+            key: value
+            for key, value in self.get_object_parameters(name).items()
+            if key in ALLOWED_DOWNLOAD_ARGS
+        }
+        try:
+            response = self.bucket.Object(name).get(**params)
+        except ClientError as err:
+            if err.response["ResponseMetadata"]["HTTPStatusCode"] == 404:
+                raise FileNotFoundError(f"File does not exist: {name}") from err
+            raise
+        return response["Body"].read()
 
     def delete_directory(self, path):
         """
