@@ -348,7 +348,7 @@ Python, Node.js, Rust, and Go.
    build:
      os: ubuntu-24.04
      tools:
-       python: "3.13"
+       python: "3.14"
        nodejs: "22"
        rust: "1.82"
        golang: "1.23"
@@ -548,7 +548,7 @@ See :doc:`/build-customization` for more details.
    build:
      os: ubuntu-24.04
      tools:
-       python: "3.13"
+       python: "3.14"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -593,7 +593,7 @@ When running builds from pull requests, only the ``html`` step will be executed.
    build:
      os: ubuntu-24.04
      tools:
-       python: "3.13"
+       python: "3.14"
      jobs:
        create_environment:
          - echo "Preparing environment"
@@ -640,7 +640,7 @@ When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will
    build:
      os: ubuntu-24.04
      tools:
-       python: "3.13"
+       python: "3.14"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
@@ -654,7 +654,7 @@ But we recommend using :ref:`config-file/v2:build.jobs` instead:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        install:
          - pip install pelican
