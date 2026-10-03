@@ -287,6 +287,12 @@ class SubprojectRelationshipViewSet(
     lookup_value_regex = SUBPROJECT_ALIAS_REGEX
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
+    def get_queryset(self):
+        # ``ProjectRelationship`` has no default ordering, and limit/offset
+        # pagination over an unordered queryset returns rows in a
+        # database-dependent order for each page.
+        return super().get_queryset().order_by("child__slug")
+
     def get_serializer_class(self):
         """
         Return correct serializer depending on the action.
