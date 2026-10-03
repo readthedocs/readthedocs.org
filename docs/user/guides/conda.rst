@@ -119,7 +119,7 @@ with these contents:
    version: 2
 
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
        python: "miniconda3-3.12-24.9"
 
