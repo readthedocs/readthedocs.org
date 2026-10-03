@@ -69,6 +69,7 @@ class CommunityBaseSettings(Settings):
                 "debug_toolbar.panels.profiling.ProfilingPanel",
                 "debug_toolbar.panels.redirects.RedirectsPanel",
                 # Panels that are slow
+                "debug_toolbar.panels.templates.TemplatesPanel",
                 "debug_toolbar.panels.sql.SQLPanel",
             },
             "TOOLBAR_STORE_CLASS": "debug_toolbar.store.CacheStore",
