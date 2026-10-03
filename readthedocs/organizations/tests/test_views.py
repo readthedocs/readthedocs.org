@@ -42,6 +42,22 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.team = get(Team, organization=self.organization)
         self.client.force_login(self.owner)
 
+    def test_members_list_is_ordered_by_username(self):
+        # Add members in non-alphabetical order to make sure the list is
+        # ordered by username, and not by creation order.
+        for username in ["zoe", "alice", "mike"]:
+            self.organization.owners.add(get(User, username=username))
+
+        resp = self.client.get(reverse("organization_members", args=[self.organization.slug]))
+
+        assert resp.status_code == 200
+        assert [user.username for user in resp.context["members"]] == [
+            "alice",
+            "mike",
+            "owner",
+            "zoe",
+        ]
+
     def test_update(self):
         org_slug = self.organization.slug
         resp = self.client.post(

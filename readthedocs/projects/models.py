@@ -1787,6 +1787,11 @@ class Notification(TimeStampedModel):
 class EmailHook(Notification):
     email = models.EmailField()
 
+    class Meta:
+        # The dashboard lists this model paginated; an unordered queryset
+        # returns rows in a database-dependent order across pages.
+        ordering = ("pk",)
+
     def __str__(self):
         return self.email
 
@@ -1843,6 +1848,11 @@ class WebHook(Notification):
         "integrations.HttpExchange",
         related_query_name="webhook",
     )
+
+    class Meta:
+        # The dashboard lists this model paginated; an unordered queryset
+        # returns rows in a database-dependent order across pages.
+        ordering = ("pk",)
 
     def save(self, *args, **kwargs):
         if not self.secret:
@@ -2283,6 +2293,12 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     )
 
     objects = RelatedProjectQuerySet.as_manager()
+
+    # Inherit the Meta to keep ``get_latest_by`` from ``TimeStampedModel``.
+    class Meta(TimeStampedModel.Meta):
+        # The dashboard and APIv3 list this model paginated; an unordered
+        # queryset returns rows in a database-dependent order across pages.
+        ordering = ("name", "pk")
 
     def __str__(self):
         return self.name

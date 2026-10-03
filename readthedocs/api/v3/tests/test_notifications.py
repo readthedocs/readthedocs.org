@@ -20,6 +20,23 @@ from .mixins import APIEndpointMixin
     ),
 )
 class NotificationsEndpointTests(APIEndpointMixin):
+    def test_notifications_list_is_ordered_newest_first(self):
+        url = reverse("notifications-list")
+        for _ in range(3):
+            fixture.get(
+                Notification,
+                attached_to_content_type=ContentType.objects.get_for_model(self.project),
+                attached_to_id=self.project.id,
+                message_id=MESSAGE_PROJECT_SKIP_BUILDS,
+            )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
+        assert response.status_code == 200
+        ids = [result["id"] for result in response.json()["results"]]
+        assert len(ids) == 6
+        assert ids == sorted(ids, reverse=True)
+
     def test_notifications_list(self):
         url = reverse("notifications-list")
 
