@@ -19,6 +19,26 @@ from readthedocs.search.documents import ProjectDocument
 log = structlog.get_logger(__name__)
 
 
+def is_advanced_query(query):
+    """
+    Check if query looks like to be using the syntax from a simple query string.
+
+    .. note::
+
+       We don't check if the syntax is valid.
+       The tokens used aren't very common in a normal query, so checking if
+       the query contains any of them should be enough to determinate if
+       it's an advanced query.
+
+    Simple query syntax:
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax
+    """
+    tokens = {"+", "|", "-", '"', "*", "(", ")", "~"}
+    query_tokens = set(query)
+    return not tokens.isdisjoint(query_tokens)
+
+
 class RTDFacetedSearch(FacetedSearch):
     """Custom wrapper around FacetedSearch."""
 
@@ -187,23 +207,7 @@ class RTDFacetedSearch(FacetedSearch):
         return is_single_term
 
     def _is_advanced_query(self, query):
-        """
-        Check if query looks like to be using the syntax from a simple query string.
-
-        .. note::
-
-           We don't check if the syntax is valid.
-           The tokens used aren't very common in a normal query, so checking if
-           the query contains any of them should be enough to determinate if
-           it's an advanced query.
-
-        Simple query syntax:
-
-        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax
-        """
-        tokens = {"+", "|", "-", '"', "*", "(", ")", "~"}
-        query_tokens = set(query)
-        return not tokens.isdisjoint(query_tokens)
+        return is_advanced_query(query)
 
     def aggregate(self, search):
         """Overridden to decide if we should aggregate or not."""
