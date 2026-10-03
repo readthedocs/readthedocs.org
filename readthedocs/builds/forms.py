@@ -19,9 +19,9 @@ class VersionForm(forms.ModelForm):
         label=_("Uploaded"),
         required=False,
         help_text=_(
-            "This version was uploaded and is not built by Read the Docs. "
-            "Uncheck it to build it on Read the Docs again: the uploaded files are removed "
-            "and a new build is triggered, so the version is unavailable until that build succeeds."
+            "Versions that are uploaded are not built by Read the Docs. "
+            "Uncheck this to build this version on Read the Docs instead. Any previously uploaded files will be removed, "
+            "a new build will be triggered, and the version will be available when that build succeeds."
         ),
     )
 
