@@ -157,7 +157,6 @@ class SphinxBuilderTest(TestCase):
             "uv",
             "run",
             "--no-sync",
-            "--no-dev",
             "sphinx-build",
         )
 
@@ -288,7 +287,7 @@ class MkDocsBuilderTest(TestCase):
             python_env=python_env,
         )
 
-        assert builder.get_mkdocs_cmd() == ("uv", "run", "--no-sync", "--no-dev", "mkdocs")
+        assert builder.get_mkdocs_cmd() == ("uv", "run", "--no-sync", "mkdocs")
 
     @patch("readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run")
     @patch("readthedocs.projects.models.Project.checkout_path")
