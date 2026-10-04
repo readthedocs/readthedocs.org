@@ -41,7 +41,7 @@ fonttools==4.65.0
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.19
+idna==3.20
     # via
     #   anyio
     #   requests
@@ -160,11 +160,11 @@ starlette==1.6.0
     # via sphinx-autobuild
 typing-extensions==4.16.0
     # via anyio
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.52.4
+uvicorn==0.53.0
     # via sphinx-autobuild
 watchfiles==1.2.0
     # via sphinx-autobuild
