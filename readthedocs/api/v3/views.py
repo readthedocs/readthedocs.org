@@ -399,7 +399,8 @@ class VersionsViewSet(
 
     def get_queryset(self):
         """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        # The serializer reads ``version.project`` for every URL it builds.
+        return super().get_queryset().exclude(type=EXTERNAL).select_related("project")
 
 
 class BuildsViewSet(
@@ -418,6 +419,11 @@ class BuildsViewSet(
     permit_list_expands = [
         "config",
     ]
+
+    def get_queryset(self):
+        # The serializer reads ``build.version`` and ``build.project``
+        # for every build in the list.
+        return super().get_queryset().select_related("version", "project")
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
