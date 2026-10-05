@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy()
 
     dependencies = [
-        ("builds", "0071_alter_versionautomationrule_fk"),
+        ("builds", "0072_delete_automation_rules"),
     ]
 
     operations = [

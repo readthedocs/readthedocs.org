@@ -174,11 +174,7 @@ def _get_deleted_versions_qs(project, tags_data, branches_data):
     versions_tags = [version["verbose_name"] for version in tags_data]
     versions_branches = [version["identifier"] for version in branches_data]
 
-    to_delete_qs = (
-        project.versions(manager=INTERNAL)
-        .exclude(uploaded=True)
-        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
-    )
+    to_delete_qs = project.versions(manager=INTERNAL).exclude(slug__in=NON_REPOSITORY_VERSIONS)
 
     to_delete_qs = to_delete_qs.exclude(
         type=TAG,
@@ -298,6 +294,10 @@ def normalize_build_command(command, project_slug, version_slug):
     command = re.sub(regex, "", command, count=1)
 
     regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
+    command = re.sub(regex, "", command, count=1)
+
+    # Builders run system binaries by absolute path (e.g. ``/usr/bin/apt-get``).
+    regex = r"^/usr/bin/"
     command = re.sub(regex, "", command, count=1)
     return command
 

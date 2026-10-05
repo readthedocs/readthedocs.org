@@ -181,6 +181,8 @@ class BaseSphinx(BaseBuilder):
             return (
                 "uv",
                 "run",
+                "--no-sync",
+                "--no-dev",
                 "sphinx-build",
             )
 

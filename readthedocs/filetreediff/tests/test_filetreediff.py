@@ -7,7 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_diff, snapshot_base_manifest
+from readthedocs.filetreediff import get_base_version, get_diff, snapshot_base_manifest
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -22,18 +22,26 @@ def _mock_open(content):
     return f
 
 
-def _mock_manifest(build_id: int, files: dict[str, str]):
-    return _mock_open(
-        json.dumps(
-            {
-                "build": {"id": build_id},
-                "files": {
-                    path: {"main_content_hash": content_hash}
-                    for path, content_hash in files.items()
-                },
-            }
-        )
-    )
+def _mock_manifest(
+    build_id: int,
+    files: dict[str, str],
+    text_hashes: dict[str, str] | None = None,
+):
+    """
+    Mock the manifest file of a version.
+
+    ``files`` maps each path to the hash of its HTML, ``text_hashes`` to the
+    hash of its content, defaulting to the same hash. Manifests written before
+    the content hash was introduced don't have it, pass an empty dict for those.
+    """
+    if text_hashes is None:
+        text_hashes = files
+    manifest_files = {}
+    for path, main_content_hash in files.items():
+        manifest_files[path] = {"main_content_hash": main_content_hash}
+        if path in text_hashes:
+            manifest_files[path]["text_hash"] = text_hashes[path]
+    return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
 
 
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
@@ -123,10 +131,57 @@ class TestsFileTreeDiff(TestCase):
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_manifests_without_content_hashes(self, storage_open):
+        """Manifests written before the content hash compare by their HTML hash."""
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "hash-changed"}, text_hashes={})(),
+            _mock_manifest(self.build_b.id, {"index.html": "hash1"}, text_hashes={})(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert [file.path for file in diff.modified] == ["index.html"]
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_one_manifest_without_content_hashes(self, storage_open):
+        """When one side has no content hash, both sides compare by their HTML hash."""
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, {"index.html": "content1"})(),
+            _mock_manifest(self.build_b.id, {"index.html": "html1"}, text_hashes={})(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.modified == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_prefers_content_hashes(self, storage_open):
+        """A page whose HTML changed but whose content didn't isn't modified."""
+        text_hashes = {"index.html": "same-content"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, text_hashes)(),
+            _mock_manifest(self.build_b.id, {"index.html": "html2"}, text_hashes)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.modified == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_missing_manifest(self, storage_open):
         storage_open.side_effect = FileNotFoundError
         diff = get_diff(self.version_a, self.version_b)
         assert diff is None
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_version_not_active(self, storage_open):
+        self.version_b.active = False
+        self.version_b.save()
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff is None
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_version_not_built(self, storage_open):
+        self.version_b.built = False
+        self.version_b.save()
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff is None
+        storage_open.assert_not_called()
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_outdated_diff(self, storage_open):
@@ -162,6 +217,9 @@ class TestsBaseManifestSnapshot(TestCase):
     def setUp(self):
         self.project = get(Project)
         self.base_version = self.project.versions.get(slug=LATEST)
+        self.base_version.active = True
+        self.base_version.built = True
+        self.base_version.save()
         self.base_build = get(
             Build,
             project=self.project,
@@ -240,3 +298,42 @@ class TestsBaseManifestSnapshot(TestCase):
         """snapshot_base_manifest is a no-op if a snapshot already exists."""
         snapshot_base_manifest(self.pr_version, self.base_version)
         storage_open.assert_not_called()
+
+
+class TestsGetBaseVersion(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.latest = self.project.versions.get(slug=LATEST)
+        self.latest.active = True
+        self.latest.built = True
+        self.latest.save()
+
+    def test_defaults_to_latest(self):
+        assert get_base_version(self.project) == self.latest
+
+    def test_configured_base_version(self):
+        version = get(Version, project=self.project, slug="v2", active=True, built=True)
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+        assert get_base_version(self.project) == version
+
+    def test_latest_not_active(self):
+        self.latest.active = False
+        self.latest.save()
+        assert get_base_version(self.project) is None
+
+    def test_latest_not_built(self):
+        self.latest.built = False
+        self.latest.save()
+        assert get_base_version(self.project) is None
+
+    def test_configured_base_version_not_built(self):
+        version = get(Version, project=self.project, slug="v2", active=True, built=False)
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+        # We don't fall back to latest when the configured version is unusable.
+        assert get_base_version(self.project) is None
+
+    def test_latest_deleted(self):
+        self.latest.delete()
+        assert get_base_version(self.project) is None

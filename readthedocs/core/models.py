@@ -1,6 +1,5 @@
 """Models for the core app."""
 
-from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -25,7 +24,7 @@ class UserProfile(TimeStampedModel):
         (THEME_SYSTEM, _("Use system theme")),
     )
 
-    user = AutoOneToOneField(
+    user = models.OneToOneField(
         User,
         verbose_name=_("User"),
         related_name="profile",

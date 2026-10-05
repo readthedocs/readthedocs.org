@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -13,6 +12,7 @@ from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.users import get_user_by_username_or_email
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.constants import ADMIN_ACCESS
 from readthedocs.organizations.constants import READ_ONLY_ACCESS
@@ -168,9 +168,7 @@ class OrganizationOwnerForm(forms.Form):
     def clean_username_or_email(self):
         """Lookup owner by username or email, detect collisions with existing owners."""
         username = self.cleaned_data["username_or_email"]
-        user = User.objects.filter(
-            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
-        ).first()
+        user = get_user_by_username_or_email(username)
         if user is None:
             raise forms.ValidationError(
                 _("User %(username)s does not exist"),
@@ -256,10 +254,7 @@ class OrganizationTeamMemberForm(forms.Form):
         in that case we send an invitation to that email.
         """
         username = self.cleaned_data["username_or_email"]
-        user = User.objects.filter(
-            Q(username=username) | Q(emailaddress__verified=True, emailaddress__email=username)
-        ).first()
-
+        user = get_user_by_username_or_email(username)
         if user:
             return self.validate_member_user(user)
 

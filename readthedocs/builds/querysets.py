@@ -4,13 +4,18 @@ import datetime
 
 import structlog
 from django.db import models
+from django.db.models import Case
 from django.db.models import Q
+from django.db.models import Value
+from django.db.models import When
 from django.utils import timezone
 
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -146,6 +151,24 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             .distinct()
         )
 
+    def sort_version_aware_naive(self):
+        """
+        Order versions with "latest" first, "stable" second, then alphabetically.
+
+        This is a naive SQL-level approximation of the full version-aware
+        sorting (which requires Python-level semantic version parsing).
+        It ensures special versions appear at the top, but does not handle
+        semantic version ordering (e.g. 1.9 vs 1.10).
+        """
+        return self.order_by(
+            Case(
+                When(verbose_name=LATEST_VERBOSE_NAME, then=Value(0)),
+                When(verbose_name=STABLE_VERBOSE_NAME, then=Value(1)),
+                default=Value(2),
+            ),
+            "verbose_name",
+        )
+
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
@@ -227,6 +250,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
           If the project/translation belongs to an organization, we count all concurrent
           builds for all the projects from the organization.
 
+        A build counts as soon as it's been dispatched to the build-isolated
+        fleet (``dispatched_date`` set) — it occupies a slot even while it waits
+        in the broker for a builder to pick it up. A build still genuinely
+        queued (``triggered`` but not yet dispatched) does not count.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
@@ -254,15 +282,11 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
 
         concurrent = (
-            (
-                self.filter(query).exclude(
-                    state__in=[
-                        BUILD_STATE_TRIGGERED,
-                        BUILD_STATE_FINISHED,
-                        BUILD_STATE_CANCELLED,
-                    ]
-                )
-            )
+            self.filter(query)
+            .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED])
+            # Legacy builds never set ``dispatched_date``,
+            # so they stay excluded exactly as before.
+            .exclude(Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__isnull=True))
             .distinct()
             .count()
         )
@@ -277,6 +301,23 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         if concurrent >= max_concurrent:
             limit_reached = True
         return (limit_reached, concurrent, max_concurrent)
+
+    def pending_upload(self):
+        """
+        Get all builds that are pending upload (when using the upload API).
+
+        When a build is created using the upload API,
+        it is created in the triggered state,
+        and when it's queued for processing, the task_id is set.
+
+        We filter by task_id=None, since when a task is re-tried, it goes back to the triggered state,
+        and we don't want to count those builds as pending uploads.
+        """
+        return self.filter(
+            is_uploaded=True,
+            state=BUILD_STATE_TRIGGERED,
+            task_id=None,
+        )
 
 
 class RelatedBuildQuerySet(NoReprQuerySet, models.QuerySet):

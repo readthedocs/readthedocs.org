@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 import structlog
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,6 +9,7 @@ from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.search import tasks
@@ -41,13 +40,13 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
     serializer_class = PageSearchSerializer
     project_cache_tag = "rtd-search"
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _get_project(self):
         project_slug = self.request.GET.get("project", None)
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _get_version(self):
         version_slug = self.request.GET.get("version", None)
         project = self._get_project()
@@ -76,7 +75,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         if errors:
             raise ValidationError(errors)
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _get_projects_to_search(self):
         """Get all projects to search."""
         main_version = self._get_version()

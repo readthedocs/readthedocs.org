@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -65,6 +66,7 @@ from readthedocs.projects.validators import validate_domain_name
 from readthedocs.projects.validators import validate_environment_variable_size
 from readthedocs.projects.validators import validate_no_ip
 from readthedocs.projects.validators import validate_repository_url
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import GenericParser
 from readthedocs.vcs_support.backends import backend_cls
@@ -108,12 +110,25 @@ class ProjectRelationship(models.Model):
         related_name="superprojects",
         on_delete=models.CASCADE,
     )
-    alias = models.SlugField(
+    # Aliases may be a single slug (``api``) or several slug-like segments
+    # joined by ``/`` (``api/python``). Multi-segment aliases let a parent
+    # project expose what looks like a nested set of subprojects under
+    # ``/projects/api/python/`` without modeling actual subprojects of
+    # subprojects.
+    # NOTE: slashes in aliases are allowed for projects with
+    # the ALLOW_SLASHES_IN_SUBPROJECT_ALIAS feature flag only.
+    alias = models.CharField(
         _("Alias"),
         max_length=255,
         null=True,
         blank=True,
         db_index=False,
+        validators=[
+            RegexValidator(
+                regex=rf"^{constants.SUBPROJECT_ALIAS_REGEX}$",
+                message=_("Aliases can contain letters, numbers, underscores, and hyphens."),
+            ),
+        ],
     )
 
     objects = ChildRelatedProjectQuerySet.as_manager()
@@ -138,6 +153,10 @@ class ProjectRelationship(models.Model):
         """
         prefix = self.parent.custom_subproject_prefix or "/projects/"
         return unsafe_join_url_path(prefix, self.alias, "/")
+
+    def clean(self):
+        if self.alias:
+            validate_subproject_alias(parent_project=self.parent, alias=self.alias)
 
 
 class AddonsConfig(TimeStampedModel):
@@ -423,10 +442,17 @@ class Project(models.Model):
         ),
     )
 
+    is_direct_upload = models.BooleanField(
+        _("Built externally and uploaded"),
+        default=False,
+        db_default=False,
+        help_text=_("Read the Docs never builds this project, every version comes from an upload."),
+    )
+
     # External versions
     external_builds_enabled = models.BooleanField(
         _("Build pull requests for this project"),
-        default=False,
+        default=True,
         help_text=_(
             'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
         ),
@@ -500,6 +526,11 @@ class Project(models.Model):
     )
     max_concurrent_builds = models.IntegerField(
         _("Maximum concurrent builds allowed for this project"),
+        null=True,
+        blank=True,
+    )
+    max_build_media_size = models.PositiveBigIntegerField(
+        _("Maximum size (in bytes) allowed per media type when uploading build artifacts"),
         null=True,
         blank=True,
     )
@@ -627,10 +658,6 @@ class Project(models.Model):
         default=False,
         help_text=_("This project has been built with a webhook"),
     )
-    has_valid_clone = models.BooleanField(
-        default=False,
-        help_text=_("This project has been successfully cloned"),
-    )
 
     tags = TaggableManager(blank=True, ordering=["name"])
     history = ExtraHistoricalRecords(
@@ -700,6 +727,8 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        new_project = self.pk is None
+
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -727,6 +756,10 @@ class Project(models.Model):
 
         super().save(*args, **kwargs)
         self.update_latest_version()
+
+        # Create the ``AddonsConfig`` on new projects.
+        if new_project:
+            AddonsConfig.objects.get_or_create(project=self)
 
     def delete(self, *args, **kwargs):
         from readthedocs.builds.tasks import remove_build_commands_storage_paths
@@ -1187,9 +1220,7 @@ class Project(models.Model):
 
     def active_versions(self):
         versions = self.versions(manager=INTERNAL).public(only_active=True)
-        return versions.filter(built=True, active=True) | versions.filter(
-            active=True, uploaded=True
-        )
+        return versions.filter(built=True, active=True)
 
     def all_active_versions(self):
         """
@@ -1264,6 +1295,9 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
+            # Direct upload projects only get the versions they upload.
+            if self.is_direct_upload:
+                return
             latest = self.versions.create_latest()
         if not latest.machine:
             return
@@ -2067,6 +2101,7 @@ class Feature(models.Model):
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
     DONT_SYNC_WITH_REMOTE_REPO = "dont_sync_with_remote_repo"
+    ALLOW_SLASHES_IN_SUBPROJECT_ALIAS = "allow_slashes_in_subproject_alias"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = "skip_sync_tags"
@@ -2080,12 +2115,15 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = "default_to_fuzzy_search"
 
     # Build related features
-    SCALE_IN_PROTECTION = "scale_in_prtection"
     BUILD_FULL_CLEAN = "build_full_clean"
     BUILD_HEALTHCHECK = "build_healthcheck"
     BUILD_NO_ACKS_LATE = "build_no_acks_late"
     BUILD_IN_PARALLEL = "build_in_parallel"
     USE_GVISOR_RUNTIME = "use_gvisor_runtime"
+    TERMINATE_INSTANCE_ON_BUILD_FINISH = "terminate_instance_on_build_finish"
+    USE_BUILD_ISOLATED = "use_build_isolated"
+    KEEP_BUILD_ISOLATED_INSTANCE = "keep_build_isolated_instance"
+    ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
         (
@@ -2110,6 +2148,10 @@ class Feature(models.Model):
             DONT_SYNC_WITH_REMOTE_REPO,
             _("Remote repository: Don't keep project in sync with remote repository."),
         ),
+        (
+            ALLOW_SLASHES_IN_SUBPROJECT_ALIAS,
+            _("Subprojects: Allow slashes in subproject alias"),
+        ),
         # Versions sync related features
         (
             SKIP_SYNC_BRANCHES,
@@ -2132,10 +2174,6 @@ class Feature(models.Model):
         ),
         # Build related features.
         (
-            SCALE_IN_PROTECTION,
-            _("Build: Set scale-in protection before/after building."),
-        ),
-        (
             BUILD_FULL_CLEAN,
             _("Build: Clean all build directories to avoid leftovers from other projects."),
         ),
@@ -2154,6 +2192,29 @@ class Feature(models.Model):
         (
             USE_GVISOR_RUNTIME,
             _("Build: Run build containers under the gVisor (runsc) runtime."),
+        ),
+        (
+            TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            _("Build: Terminate instance on build finish."),
+        ),
+        (
+            USE_BUILD_ISOLATED,
+            _(
+                "Build: Dispatch this project's builds to the `build-isolated` ASG "
+                "instead of the `build-default` ASG."
+            ),
+        ),
+        (
+            KEEP_BUILD_ISOLATED_INSTANCE,
+            _(
+                "Build: Debug mode for `build-isolated` — keep the EC2 instance "
+                "running after the build completes (instead of having the worker "
+                "self-terminate it via the AWS API)."
+            ),
+        ),
+        (
+            ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            _("Build: Allow using the direct artifacts upload API."),
         ),
     )
 
@@ -2600,11 +2661,13 @@ class AutomationRule(TimeStampedModel):
                 return False
         return True
 
-    def run(self, version):
+    def run(self, version, *args, **kwargs):
         """
         Run the rule.
 
         :param version: Version instance to check and act upon
+        :param args: Additional positional arguments to pass to the action function
+        :param kwargs: Additional keyword arguments to pass to the action function
         :return: True if the action was performed, False otherwise
         """
         # Avoid circular imports
@@ -2622,7 +2685,7 @@ class AutomationRule(TimeStampedModel):
 
         action_func = actions_map.get(self.action)
         if action_func:
-            action_func(version)
+            action_func(version, *args, **kwargs)
         else:
             raise NotImplementedError(f"Action {self.action} is not implemented")
 

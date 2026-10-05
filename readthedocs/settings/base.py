@@ -6,6 +6,7 @@ import socket
 import subprocess
 
 import structlog
+from datetime import timedelta
 from pathlib import Path
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
@@ -171,6 +172,9 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
     RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
+    # How long a build may sit dispatched to the build-isolated fleet before
+    # we consider it "lost" (no builder ever picked it up) and cancel it.
+    RTD_BUILD_DISPATCH_TIMEOUT = 5 * 60  # seconds
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILDS_MAX_RETRIES = 25
     RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
@@ -275,12 +279,10 @@ class CommunityBaseSettings(Settings):
             "rest_framework_api_key",
             "generic_relations",
             "corsheaders",
-            "annoying",
             "django_extensions",
             "crispy_forms",
             "django_elasticsearch_dsl",
             "django_filters",
-            "polymorphic",
             "simple_history",
             "djstripe",
             "django_celery_beat",
@@ -624,6 +626,16 @@ class CommunityBaseSettings(Settings):
 
     BUILD_TIME_LIMIT = 900  # seconds
 
+    # Celery task name + queue for the build-isolated worker.
+    # Must match what the worker registers in
+    # ``readthedocs-builder/worker/tasks.py`` (``@app.task(name=...)``)
+    # and ``worker/celery.py`` (``task_default_queue``). We dispatch by
+    # name (rather than importing the function) so this codebase doesn't
+    # need the ``worker`` package installed.
+    RTD_BUILD_ISOLATED_TASK_NAME = "worker.tasks.run_build"
+    RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
+    RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
+
     @property
     def BUILD_MEMORY_LIMIT(self):
         """
@@ -663,6 +675,9 @@ class CommunityBaseSettings(Settings):
     # Don't queue a bunch of tasks in the workers
     CELERY_WORKER_PREFETCH_MULTIPLIER = 1
     CELERY_TASK_CREATE_MISSING_QUEUES = True
+    # On broker connection loss, kombu re-queues the unacked task this worker
+    # is running. Cancel it here so it doesn't also keep running (Celery 6 default).
+    CELERY_WORKER_CANCEL_LONG_RUNNING_TASKS_ON_CONNECTION_LOSS = True
 
     # https://github.com/readthedocs/readthedocs.org/issues/12317#issuecomment-3070950434
     # https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html#visibility-timeout
@@ -676,6 +691,16 @@ class CommunityBaseSettings(Settings):
         "every-minute-finish-unhealthy-builds": {
             "task": "readthedocs.projects.tasks.utils.finish_unhealthy_builds",
             "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        "every-minute-finish-inactive-uploaded-builds": {
+            "task": "readthedocs.builds.tasks.finish_inactive_uploaded_builds",
+            "schedule": crontab(minute="*"),
+            "options": {"queue": "web"},
+        },
+        "every-5s-admit-queued-builds": {
+            "task": "readthedocs.builds.tasks.admit_queued_builds",
+            "schedule": timedelta(seconds=5),
             "options": {"queue": "web"},
         },
         "every-day-delete-old-search-queries": {
@@ -872,6 +897,9 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Log in with this provider directly, and keep the
+                        # other GitHub options behind the modal.
+                        "default": True,
                         "priority": 10,
                     },
                 },
@@ -958,6 +986,13 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = "public"
     DEFAULT_VERSION_PRIVACY_LEVEL = "public"
     ALLOW_ADMIN = True
+
+    # CDN ``max-age`` (in seconds) for redirect responses served by El Proxito.
+    # Redirects need an explicit freshness lifetime or they are bypassed by the
+    # CDN. Permanent redirects (301/308) are cached longer than temporary ones
+    # (302/303/307). This doesn't affect browser caching.
+    RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 1200   # 20 minutes
+    RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE = 86400  # 24 hours
 
     # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
@@ -1086,16 +1121,6 @@ class CommunityBaseSettings(Settings):
                 # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
                 "foreign_pre_chain": shared_processors,
             },
-            "colored_console": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processors": [
-                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                    structlog.dev.ConsoleRenderer(colors=True),
-                ],
-                # Allows to add extra data to log entries generated via ``logging`` module
-                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
-                "foreign_pre_chain": shared_processors,
-            },
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
@@ -1191,6 +1216,26 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_REMOVE_FROM_SEARCH_INDEX = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+    RTD_SPAM_NOINDEX_CACHE_TIMEOUT = 60 * 60
+
+    # Max number of builds that can be waiting to be uploaded by the user using the upload API.
+    # This is to prevent users from requesting too many builds to be uploaded at once,
+    # which could be because of a bug in their code or abuse of the API.
+    # This limit isn't the same as the concurrency limit, as we don't want to put the responsibility
+    # of retrying the upload on the user unless they are doing something wrong.
+    # Post-processing of the uploaded artifacts is done in a separate task,
+    # which is limited by the concurrency limit, but has automatic retries,
+    # so the user doesn't have to worry about it.
+    RTD_UPLOAD_API_MAX_PENDING_UPLOADS = 50
+
+    # Time the upload URL is valid for after it is generated.
+    # Should be enough time for users to upload the artifacts with an slow connection.
+    # 30 minutes in seconds.
+    RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME = 30 * 60
+
+    # The maximum size of the generated zip file to be uploaded using the upload API.
+    # 1GB in bytes.
+    RTD_UPLOAD_API_MAX_UPLOAD_SIZE = 1024 * 1024 * 1024
 
     S3_PROVIDER = "AWS"
     # Used by readthedocs.aws.security_token_service.
@@ -1225,6 +1270,9 @@ class CommunityBaseSettings(Settings):
                     "location": Path(self.MEDIA_ROOT) / "usercontent",
                     "allow_overwrite": True,
                 },
+            },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
             },
         }
 

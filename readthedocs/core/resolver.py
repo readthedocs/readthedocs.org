@@ -1,6 +1,5 @@
 """URL resolver for documentation."""
 
-from functools import cache
 from urllib.parse import urlunparse
 
 import structlog
@@ -8,6 +7,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
@@ -151,7 +151,11 @@ class Resolver:
         """
         if not version:
             default_version_slug = project.get_default_version()
-            version = project.versions(manager=INTERNAL).get(slug=default_version_slug)
+            version = project.versions(manager=INTERNAL).filter(slug=default_version_slug).first()
+            # A project may not have its default version yet, like a direct upload
+            # project before its first upload. Its root is still the right place to link to.
+            if not version:
+                return self.resolve_project(project, filename=filename)
 
         domain, use_https = self._get_project_domain(
             project,
@@ -179,7 +183,7 @@ class Resolver:
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, filename, "", "", ""))
 
-    @cache
+    @cached_method
     def _get_project_domain(self, project, external_version_slug=None, use_canonical_domain=True):
         """
         Get the domain from where the documentation of ``project`` is served from.
@@ -282,7 +286,7 @@ class Resolver:
         path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
-    @cache
+    @cached_method
     def _get_canonical_project(self, project):
         """
         Get the parent project and subproject relationship from the canonical project of `project`.
@@ -354,7 +358,7 @@ class Resolver:
         subdomain_slug = project.slug.replace("_", "-")
         return "{}.{}".format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
-    @cache
+    @cached_method
     def _is_external(self, project, version_slug):
         type_ = project.versions.values_list("type", flat=True).filter(slug=version_slug).first()
         return type_ == EXTERNAL
@@ -377,7 +381,7 @@ class Resolver:
 
         return bool(get_feature(project, feature_type=TYPE_CNAME))
 
-    @cache
+    @cached_method
     def _organization_allows_custom_domain(self, organization):
         """
         Test if the organization allows custom domains.

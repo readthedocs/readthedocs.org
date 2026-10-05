@@ -250,6 +250,36 @@ class TestProjectUsersViews(TestCase):
         self.assertIn("is already a maintainer", form.errors["username_or_email"][0])
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 
+    def test_invite_with_username_matching_other_user_email(self):
+        get(User, username="victim@example.com")
+        victim = get(User, username="victim")
+        get(EmailAddress, user=victim, email="victim@example.com", verified=True)
+
+        url = reverse("projects_users_create", args=[self.project.slug])
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 302
+
+        invitation = Invitation.objects.for_object(self.project).get()
+        assert invitation.to_user == victim
+        assert invitation.to_email is None
+
+    def test_invite_with_username_matching_unverified_email(self):
+        get(User, username="victim@example.com")
+
+        url = reverse("projects_users_create", args=[self.project.slug])
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        assert resp.status_code == 200
+        form = resp.context_data["form"]
+        assert not form.is_valid()
+        assert "does not exist" in form.errors["username_or_email"][0]
+        assert not Invitation.objects.for_object(self.project).exists()
+
     def test_invite_unknown_user(self):
         url = reverse("projects_users_create", args=[self.project.slug])
         self.client.force_login(self.user)
@@ -520,6 +550,7 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/index.html", paths)
         # filename should be for traffic analytics (200)
         content_disposition = resp["Content-Disposition"]
+        self.assertTrue(content_disposition.startswith("attachment; filename="))
         self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http200_", content_disposition)
 
     def test_download_traffic_404_csv(self):
@@ -542,6 +573,7 @@ class TestTrafficAnalyticsView(TestCase):
         self.assertIn("/en/latest/missing.html", paths)
         # filename should be for 404 analytics
         content_disposition = resp["Content-Disposition"]
+        self.assertTrue(content_disposition.startswith("attachment; filename="))
         self.assertIn(f"readthedocs_traffic_analytics_{self.project.slug}_http404_", content_disposition)
 
     def test_download_traffic_404_csv_excludes_200_pages(self):

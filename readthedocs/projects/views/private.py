@@ -1,7 +1,5 @@
 """Project views for authenticated users."""
 
-from functools import lru_cache
-
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -28,10 +26,9 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
@@ -41,6 +38,8 @@ from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import slugify
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -48,7 +47,6 @@ from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
-from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
@@ -75,6 +73,7 @@ from readthedocs.projects.models import AutomationRuleMatch
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
@@ -124,7 +123,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
             template_name = "example-projects.html"
-        elif n_projects and not projects.filter(external_builds_enabled=True).exists():
+        elif n_projects and not projects.filter(versions__type=EXTERNAL).exists():
             template_name = "pull-request-previews.html"
         elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
             template_name = "traffic-analytics.html"
@@ -159,7 +158,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # NOTE: This method is called twice, on .org it doesn't matter,
     # as the queryset is straightforward, but on .com it
     # does some extra work that results in several queries.
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -291,13 +290,25 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+def direct_upload_available(request):
+    """
+    Whether the "Add project" wizard offers direct upload.
+
+    Beta gate: the wizard has to be opened with ``?direct_upload=1``.
+    """
+    return request.GET.get("direct_upload") == "1" or request.POST.get("direct_upload") == "1"
+
+
 def show_config_step(wizard):
     """
     Decide whether or not show the config step on "Add project" wizard.
 
     If the `.readthedocs.yaml` file already exist in the default branch, we
-    don't show this step.
+    don't show this step, unless direct upload is available, since the user
+    still has to choose how the documentation will be built.
     """
+    if wizard.initial_dict.get("direct_upload"):
+        return True
 
     # Try to get the cleaned data from the "basics" step only if
     # we are in a step after it, otherwise, return True since we don't
@@ -306,9 +317,9 @@ def show_config_step(wizard):
     cleaned_data = wizard.get_cleaned_data_for_step(basics_step) or {}
     repo = cleaned_data.get("repo")
     remote_repository = cleaned_data.get("remote_repository")
-    default_branch = cleaned_data.get("default_branch")
+    default_branch = remote_repository.default_branch if remote_repository else None
 
-    if repo and default_branch and remote_repository and remote_repository.vcs_provider == GITHUB:
+    if repo and default_branch and remote_repository.vcs_provider == GITHUB:
         # I don't know why `show_config_step` is called multiple times (at least 4).
         # This is a problem for us because we perform external calls here and add messages to the request.
         # Due to that, we are adding this instance variable to prevent this function to run multiple times.
@@ -335,7 +346,7 @@ def show_config_step(wizard):
                 "readthedocs.yml",
             ]:
                 try:
-                    querystrings = f"?ref={default_branch}" if default_branch else ""
+                    querystrings = f"?ref={default_branch}"
                     response = session.head(
                         f"https://api.github.com/repos/{remote_repository.full_name}/contents/{yaml}{querystrings}",
                         timeout=1,
@@ -413,6 +424,41 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         """Return template names based on step name."""
         return f"projects/import_{self.steps.current}.html"
 
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        context["direct_upload_available"] = bool(self.initial_dict.get("direct_upload"))
+        if self.steps.current == "config":
+            context["project_slug"] = self._get_project_slug_preview()
+        return context
+
+    def _get_project_slug_preview(self):
+        """Slug the project will get, derived from the "basics" step, for the upload examples."""
+        data = self.storage.get_step_data("basics")
+        if not data:
+            return ""
+        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
+        if not form.is_valid():
+            return ""
+        # .com sets the slug on the instance while cleaning (organization prefix).
+        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
+
+    def _uses_direct_upload(self, form_list):
+        """Whether direct upload was chosen in the config step, only possible when the beta gate allows it."""
+        if not self.initial_dict.get("direct_upload"):
+            return False
+        for form in form_list:
+            if isinstance(form, self.form_list.get("config")):
+                return bool(form.cleaned_data.get("is_direct_upload"))
+        return False
+
+    def _setup_direct_upload(self, project):
+        """Enable the upload API on a new direct upload project (beta gate)."""
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+        )
+        feature.projects.add(project)
+        log.info("Project configured for direct upload.", project_slug=project.slug)
+
     def done(self, form_list, **kwargs):
         """
         Save form data as object instance.
@@ -431,8 +477,14 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
                 break
 
         # Save the basics form to create the project instance, then alter
-        # attributes directly from other forms
+        # attributes directly from other forms.
+        # Has to be set before saving: `Project.save` creates `latest`
+        # for projects built by Read the Docs, and direct upload projects don't get one.
+        basics_form.instance.is_direct_upload = self._uses_direct_upload(form_list)
         project = basics_form.save()
+
+        if project.is_direct_upload:
+            self._setup_direct_upload(project)
 
         self.finish_import_project(self.request, project)
 
@@ -456,17 +508,19 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data["basics"] = {}
-        for key in ["name", "repo", "repo_type", "remote_repository", "default_branch"]:
+        for key in ["name", "repo", "repo_type", "remote_repository"]:
             initial_data["basics"][key] = request.POST.get(key)
         initial_data["extra"] = {}
         for key in ["description", "project_url"]:
             initial_data["extra"][key] = request.POST.get(key)
+        initial_data["direct_upload"] = direct_upload_available(request)
         request.method = "GET"
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["view_csrf_token"] = get_token(self.request)
+        context["direct_upload_available"] = direct_upload_available(self.request)
 
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
@@ -961,6 +1015,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
+                user_pk=self.request.user.pk,
                 integration=self.object,
             )
         return HttpResponseRedirect(self.get_success_url())
@@ -1023,14 +1078,22 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
+        integration = None
         if "integration_pk" in kwargs:
             integration = self.get_integration()
-            update_webhook(self.get_project(), integration, request=request)
-        else:
-            # This is a brute force form of the webhook sync, if a project has a
-            # webhook or a remote repository object, the user should be using
-            # the per-integration sync instead.
-            attach_webhook(project_pk=self.get_project().pk)
+            # TODO: remove after integrations without a secret are removed.
+            if not integration.secret:
+                integration.save()
+
+        # If no integration is provided, we try to guess the integration, or create a new one.
+        success = attach_webhook(
+            project_pk=self.get_project().pk,
+            user_pk=request.user.pk,
+            integration=integration,
+        )
+        if success:
+            messages.success(request, _("Webhook activated"))
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -1118,30 +1181,15 @@ class AutomationRuleDelete(AutomationRuleMixin, DeleteViewWithMessage):
     http_method_names = ["post"]
 
 
-class RegexAutomationRuleMixin(AutomationRuleMixin):
-    model = RegexAutomationRule
-    form_class = RegexAutomationRuleForm
-
-
-class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
-    success_message = _("Automation rule created")
-
-
-class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
-    success_message = _("Automation rule updated")
-
-
-class AutomationRuleMixin(AutomationRuleMixin):
-    model = AutomationRule
+class AutomationRuleEditMixin(AutomationRuleMixin):
     form_class = AutomationRuleForm
-    lookup_url_kwarg = "automation_rule_pk"
 
 
-class AutomationRuleCreate(AutomationRuleMixin, CreateView):
+class AutomationRuleCreate(AutomationRuleEditMixin, CreateView):
     success_message = _("Automation rule created")
 
 
-class AutomationRuleUpdate(AutomationRuleMixin, UpdateView):
+class AutomationRuleUpdate(AutomationRuleEditMixin, UpdateView):
     success_message = _("Automation rule updated")
 
 

@@ -30,6 +30,7 @@ Read the Docs: documentation simplified
 
    /builds
    /build-customization
+   /guides/build/direct-upload
    /reference/git-integration
    /pull-requests
    /build-notifications
@@ -61,7 +62,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reading documentation
 
-   /downloadable-documentation
+   /offline-formats
    /visual-diff
    /link-previews
    /guides/embedding-content
@@ -194,7 +195,7 @@ Build your documentation with ease:
   Understand how documentation builds happen.
 
 :doc:`/pull-requests`
-  Setup pull request builds and enjoy previews of each commit.
+  Preview your documentation on every pull request.
 
 Hosting documentation
 ---------------------
@@ -250,10 +251,10 @@ How-to guides
 Step-by-step guides for common tasks:
 
 :doc:`/guides/pull-requests`
-  Setup pull request builds and enjoy previews of each commit.
+  Configure pull request builds for your project.
 
-:doc:`/guides/cross-referencing-with-sphinx`
-  Learn how to use cross-references in a Sphinx project.
+:doc:`/guides/build/direct-upload`
+  Build your documentation in your own CI and upload it to Read the Docs with direct upload.
 
 :doc:`All how-to guides </guides/index>`
   Browse all our how-to guides.

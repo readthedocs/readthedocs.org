@@ -1,4 +1,5 @@
 import structlog
+from django.conf import settings
 
 
 log = structlog.get_logger(__name__)
@@ -29,7 +30,8 @@ def cache_response(response, cache_tags=None, force=True):
     Cache the response at the CDN level.
 
     We add the ``Cache-Tag`` header to the response, to be able to purge
-    the cache by a given tag. And we set the ``CDN-Cache-Control: public`` header
+    the cache by a given tag. And we set the ``CDN-Cache-Control: public``
+    (plus optional ``max-age`` for redirects) header
     to cache the response at the CDN level only. This doesn't
     affect caching at the browser level (``Cache-Control``).
 
@@ -45,8 +47,16 @@ def cache_response(response, cache_tags=None, force=True):
     """
     if cache_tags:
         add_cache_tags(response, cache_tags)
+
     if force or CDN_CACHE_CONTROL_HEADER not in response.headers:
-        response.headers[CDN_CACHE_CONTROL_HEADER] = "public"
+        cache_control = "public"
+        if response.status_code in (301, 308):
+            max_age = settings.RTD_PERMANENT_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+            cache_control = f"public, max-age={max_age}"
+        elif response.status_code in (302, 303, 307):
+            max_age = settings.RTD_TEMPORARY_REDIRECT_CDN_CACHE_CONTROL_MAX_AGE
+            cache_control = f"public, max-age={max_age}"
+        response.headers[CDN_CACHE_CONTROL_HEADER] = cache_control
 
 
 def private_response(response, force=True):

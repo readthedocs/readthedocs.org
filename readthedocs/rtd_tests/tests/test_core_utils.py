@@ -1,30 +1,40 @@
 """Test core util functions."""
+
+import datetime
+import gc
+import weakref
 from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
+from django.utils import timezone
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
-from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.core.utils import admit_project_builds
+from readthedocs.core.utils import slugify
+from readthedocs.core.utils import trigger_build
+from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    RTD_DEFAULT_FEATURES=dict(
-        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
-    ),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]),
 )
 class CoreUtilTests(TestCase):
     def setUp(self):
-        self.project = get(
-            Project, container_time_limit=None, main_language_project=None
-        )
+        self.project = get(Project, container_time_limit=None, main_language_project=None)
         self.version = get(Version, project=self.project)
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
@@ -40,15 +50,40 @@ class CoreUtilTests(TestCase):
         self.assertFalse(update_docs_task.signature().apply_async.called)
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
-    def test_trigger_build_when_version_not_provided_default_version_exist(
-        self, update_docs_task
-    ):
+    def test_trigger_skipped_direct_upload_project(self, update_docs_task):
+        self.project.is_direct_upload = True
+        self.project.save()
+        # With and without an explicit version: these projects may not have a default one.
+        for version in (self.version, None):
+            result = trigger_build(project=self.project, version=version)
+            assert result == (None, None)
+        assert not update_docs_task.signature.called
+
+    @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
+    def test_sync_versions_skipped_direct_upload_project(self, sync_repository_task):
+        self.project.is_direct_upload = True
+        self.project.save()
+        assert trigger_sync_versions(self.project) is None
+        assert not sync_repository_task.apply_async.called
+
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_skipped_uploaded_version(self, update_docs_task):
+        self.version.is_uploaded = True
+        self.version.save()
+        result = trigger_build(
+            project=self.project,
+            version=self.version,
+        )
+        assert result == (None, None)
+        assert not update_docs_task.signature.called
+        assert not update_docs_task.signature().apply_async.called
+
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_build_when_version_not_provided_default_version_exist(self, update_docs_task):
         self.assertFalse(Version.objects.filter(slug="test-default-version").exists())
 
         project_1 = get(Project)
-        version_1 = get(
-            Version, project=project_1, slug="test-default-version", active=True
-        )
+        version_1 = get(Version, project=project_1, slug="test-default-version", active=True)
 
         project_1.default_version = "test-default-version"
         project_1.save()
@@ -240,3 +275,203 @@ class CoreUtilTests(TestCase):
             slugify("A title_-_with separated parts", dns_safe=False),
             "a-title_-_with-separated-parts",
         )
+
+
+@override_settings(
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]),
+)
+class BuildIsolatedConcurrencyTests(TestCase):
+    """Concurrency admission for the build-isolated path."""
+
+    def setUp(self):
+        self.project = get(
+            Project,
+            container_time_limit=None,
+            main_language_project=None,
+            max_concurrent_builds=3,
+        )
+        feature = get(Feature, feature_id=Feature.USE_BUILD_ISOLATED)
+        feature.projects.add(self.project)
+        self.version = get(Version, project=self.project)
+
+    def _queued_build(self, minutes_ago):
+        """A build waiting in ``triggered``, never dispatched."""
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            task_id=None,
+            dispatched_date=None,
+        )
+        # ``date`` is ``auto_now_add``, so set it after creation to get a
+        # deterministic FIFO order for admission.
+        Build.objects.filter(pk=build.pk).update(
+            date=timezone.now() - datetime.timedelta(minutes=minutes_ago)
+        )
+        return build
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_dispatches_when_slot_free(self, send_task):
+        """The isolated path admits the build immediately if there is a free slot."""
+        send_task.return_value.id = "task-id"
+
+        task, build = trigger_build(project=self.project, version=self.version)
+
+        # The isolated path never returns a Celery task; admission owns dispatch.
+        assert task is None
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.task_id == "task-id"
+        assert build.dispatched_date is not None
+        assert send_task.call_count == 1
+        assert build.notifications.count() == 0
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_queues_when_limit_reached(self, send_task):
+        """With no free slot the build stays queued for a later admission pass."""
+        # On other versions: a new build on the same version cancels the
+        # running ones instead of queueing behind them.
+        for i in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=get(Version, project=self.project),
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+
+        task, build = trigger_build(project=self.project, version=self.version)
+
+        assert task is None
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_TRIGGERED
+        assert build.task_id is None
+        assert build.dispatched_date is None
+        send_task.assert_not_called()
+        assert build.notifications.get().message_id == BuildMaxConcurrencyError.LIMIT_REACHED
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_dispatches_up_to_free_slots_fifo(self, send_task):
+        """Admit the oldest builds up to the free-slot count; block the rest."""
+        send_task.return_value.id = "task-id"
+        # 5 queued builds, ``builds[0]`` oldest.
+        builds = [self._queued_build(minutes_ago=10 - i) for i in range(5)]
+
+        admit_project_builds(self.project)
+
+        for build in builds:
+            build.refresh_from_db()
+
+        # The 3 oldest are dispatched, no notification.
+        for build in builds[:3]:
+            assert build.dispatched_date is not None
+            assert build.task_id == "task-id"
+            assert build.notifications.count() == 0
+
+        # The 2 newest are blocked with the concurrency notification, not sent.
+        for build in builds[3:]:
+            assert build.dispatched_date is None
+            assert build.task_id is None
+            notification = build.notifications.get()
+            assert notification.message_id == BuildMaxConcurrencyError.LIMIT_REACHED
+
+        assert send_task.call_count == 3
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_skips_builds_pending_upload(self, send_task):
+        """
+        Upload API builds wait for the user's zip, not for a slot.
+
+        They sit in ``triggered`` with no task until ``complete/`` dispatches
+        them. Admitting one early runs the builder before the artifacts exist.
+        """
+        send_task.return_value.id = "task-id"
+        pending_upload = self._queued_build(minutes_ago=10)
+        Build.objects.filter(pk=pending_upload.pk).update(is_uploaded=True)
+        queued = self._queued_build(minutes_ago=1)
+
+        admit_project_builds(self.project)
+
+        pending_upload.refresh_from_db()
+        assert pending_upload.task_id is None
+        assert pending_upload.dispatched_date is None
+        assert pending_upload.notifications.count() == 0
+
+        queued.refresh_from_db()
+        assert queued.task_id == "task-id"
+        assert send_task.call_count == 1
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_admit_does_not_overadmit_dispatched_builds(self, send_task):
+        """
+        Dispatched-but-not-started builds keep occupying their slot.
+
+        Regression: a build dispatched on a previous pass (``dispatched_date``
+        set) stays ``triggered`` until a builder picks it up. A later admission
+        pass must keep counting it, so it must not free the slot and over-admit
+        a still-queued build.
+        """
+        send_task.return_value.id = "task-id"
+        # 3 builds already dispatched, still waiting in the broker (triggered).
+        for i in range(3):
+            get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=BUILD_STATE_TRIGGERED,
+                task_id=str(i),
+                dispatched_date=timezone.now(),
+            )
+        # 1 build genuinely queued.
+        queued = self._queued_build(minutes_ago=1)
+
+        admit_project_builds(self.project)
+
+        queued.refresh_from_db()
+        assert queued.dispatched_date is None
+        assert queued.task_id is None
+        assert queued.notifications.get().message_id == BuildMaxConcurrencyError.LIMIT_REACHED
+        send_task.assert_not_called()
+
+
+class TestCachedMethod:
+    class Thing:
+        def __init__(self):
+            self.calls = 0
+
+        @cached_method
+        def compute(self, value, *, factor=1):
+            self.calls += 1
+            return value * factor
+
+    def test_caches_per_argument(self):
+        thing = self.Thing()
+        assert thing.compute(2) == 2
+        assert thing.compute(2) == 2
+        assert thing.compute(2, factor=3) == 6
+        assert thing.compute(3) == 3
+        assert thing.calls == 3
+
+    def test_cache_is_per_instance(self):
+        first = self.Thing()
+        second = self.Thing()
+        first.compute(2)
+        second.compute(2)
+        assert first.calls == 1
+        assert second.calls == 1
+
+    def test_entries_are_released_with_the_instance(self):
+        thing = self.Thing()
+        thing.compute(2)
+        ref = weakref.ref(thing)
+        del thing
+        gc.collect()
+        assert ref() is None
+
+    def test_class_attribute_holds_no_cache(self):
+        thing = self.Thing()
+        thing.compute(2)
+        assert not hasattr(self.Thing.compute, "cache_info")
+        assert "_cached_method_results" in vars(thing)

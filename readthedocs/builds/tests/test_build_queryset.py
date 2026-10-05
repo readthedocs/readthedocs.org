@@ -1,4 +1,5 @@
 from django.test import override_settings
+from django.utils import timezone
 import django_dynamic_fixture as fixture
 import pytest
 
@@ -37,6 +38,39 @@ class TestBuildQuerySet:
                 state=state,
             )
         assert (True, 4, 4) == Build.objects.concurrent(project)
+
+    def test_concurrent_builds_dispatched_triggered_counts(self):
+        """
+        A dispatched isolated build counts even while still ``triggered``.
+
+        Once ``admit_project_builds`` dispatches a build to the
+        build-isolated fleet (``dispatched_date`` set), it occupies a slot
+        even while it waits in ``triggered`` for a builder to pick it up. A
+        build still genuinely queued (no ``dispatched_date``) does not count.
+        """
+        project = fixture.get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        # Genuinely queued: triggered, not yet dispatched -> does not count.
+        fixture.get(
+            Build,
+            project=project,
+            state="triggered",
+            dispatched_date=None,
+        )
+        assert (False, 0, 4) == Build.objects.concurrent(project)
+
+        # Dispatched to the fleet but not yet picked up: still triggered,
+        # but it now occupies a slot.
+        fixture.get(
+            Build,
+            project=project,
+            state="triggered",
+            dispatched_date=timezone.now(),
+        )
+        assert (False, 1, 4) == Build.objects.concurrent(project)
 
     def test_concurrent_builds_project_limited(self):
         project = fixture.get(

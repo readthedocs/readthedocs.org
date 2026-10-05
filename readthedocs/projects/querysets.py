@@ -67,6 +67,27 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         queryset = self._add_user_projects(self.none(), user, admin=True, member=True)
         return queryset.distinct()
 
+    def with_feature(self, feature_id):
+        """
+        Projects for which ``Project.has_feature(feature_id)`` is true.
+
+        Reverse of ``FeatureQuerySet.for_project``: explicit M2M, or the
+        ``default_true``/``future_default_true`` defaults relative to ``add_date``.
+        """
+        # Avoid circular import
+        from readthedocs.projects.models import Feature
+
+        feature = Feature.objects.filter(feature_id=feature_id).first()
+        if feature is None:
+            return self.none()
+
+        query = Q(feature=feature)
+        if feature.default_true:
+            query |= Q(pub_date__lt=feature.add_date)
+        if feature.future_default_true:
+            query |= Q(pub_date__gte=feature.add_date)
+        return self.filter(query).distinct()
+
     def is_active(self, project):
         """
         Check if the project is active.

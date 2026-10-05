@@ -26,6 +26,7 @@ from readthedocs.builds.tasks import (
     delete_old_build_objects,
     post_build_overview,
     remove_orphan_build_config,
+    run_post_build_tasks,
 )
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
 from readthedocs.notifications.models import Notification
@@ -100,6 +101,35 @@ class TestTasks(TestCase):
         self.assertEqual(Version.objects.all().count(), 4)
         self.assertEqual(Version.external.all().count(), 2)
         self.assertFalse(Version.objects.filter(slug="external-inactive-old").exists())
+
+    def test_delete_closed_external_versions_build_without_commit(self):
+        """Closed external versions are deleted even if their last build has no commit."""
+        github_app_installation = get(
+            GitHubAppInstallation,
+            installation_id=1111,
+            target_id=1111,
+            target_type=GitHubAccountType.USER,
+        )
+        remote_repository = get(
+            RemoteRepository,
+            remote_id="1234",
+            vcs_provider=GITHUB_APP,
+            github_app_installation=github_app_installation,
+        )
+        project = get(Project, remote_repository=remote_repository)
+        version = get(
+            Version,
+            project=project,
+            slug="external-closed",
+            type=EXTERNAL,
+            state=EXTERNAL_VERSION_STATE_CLOSED,
+            modified=datetime.now() - timedelta(days=7),
+        )
+        get(Build, project=project, version=version, commit=None)
+
+        delete_closed_external_versions(days=6)
+
+        self.assertFalse(Version.objects.filter(slug="external-closed").exists())
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.builds.models.build_commands_storage")
@@ -209,7 +239,7 @@ class TestTasks(TestCase):
         version = project.versions.get(slug=LATEST)
 
         # Create BuildConfig objects
-        config_with_build = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
+        config_with_build = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
         orphan_config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
         orphan_config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
 
@@ -245,7 +275,7 @@ class TestTasks(TestCase):
         version = project.versions.get(slug=LATEST)
 
         # Create BuildConfig objects
-        config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-20.04"}})
+        config_1 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-24.04"}})
         config_2 = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
 
         # Create Builds and manually assign the BuildConfig objects
@@ -659,3 +689,28 @@ class TestPostBuildOverview(TestCase):
         assert self.current_version.is_external
         post_build_overview(build_pk=self.current_version_build.pk)
         post_comment.assert_not_called()
+
+
+@mock.patch("readthedocs.builds.tasks.send_build_notifications")
+@mock.patch("readthedocs.projects.tasks.utils.purge_docs_cdn")
+@mock.patch("readthedocs.projects.tasks.search.index_build")
+class TestRunPostBuildTasks(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    def test_successful_build_purges_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+        build = get(Build, project=self.project, version=self.version, success=True)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
+        index_build.delay.assert_called_once_with(build_id=build.pk)
+
+    def test_failed_build_does_not_purge_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
+        build = get(Build, project=self.project, version=self.version, success=False)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        purge_docs_cdn.delay.assert_not_called()
+        index_build.delay.assert_not_called()

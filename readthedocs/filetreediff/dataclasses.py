@@ -20,10 +20,24 @@ class FileTreeDiffBuild:
 
 @dataclass(slots=True)
 class FileTreeDiffManifestFile:
-    """A file in a file tree manifest."""
+    """
+    A file in a file tree manifest.
+
+    ``text_hash`` is a hash of the text of the file, ``markup_hash`` a hash of
+    its HTML, both taken once the irrelevant nodes are stripped from it (see
+    ``readthedocs.search.parsers``). Comparing both tells a page whose copy
+    changed from one that only moved its markup around, which isn't used yet:
+    see https://github.com/readthedocs/readthedocs.org/issues/13258
+
+    ``main_content_hash`` is a hash of the HTML before stripping anything. It
+    is all that manifests written before the other two have, and goes away with
+    them (see the ``TODO`` in ``get_diff()``).
+    """
 
     path: str
     main_content_hash: str
+    text_hash: str | None = None
+    markup_hash: str | None = None
 
 
 @dataclass(slots=True)
@@ -47,7 +61,12 @@ class FileTreeDiffManifest:
         """
         build_id = data["build"]["id"]
         files = [
-            FileTreeDiffManifestFile(path=path, main_content_hash=file["main_content_hash"])
+            FileTreeDiffManifestFile(
+                path=path,
+                main_content_hash=file["main_content_hash"],
+                text_hash=file.get("text_hash"),
+                markup_hash=file.get("markup_hash"),
+            )
             for path, file in data["files"].items()
         ]
         return cls(build_id, files)
