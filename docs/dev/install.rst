@@ -225,6 +225,78 @@ save some work while typing docker compose commands. This section explains these
     Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
     It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
+``inv docker.front``
+    Starts the proxy that runs the community and business environments side by side.
+    See :ref:`dev/install:Running community and business side by side`.
+
+    * ``--down`` stops and removes the proxy.
+
+Running community and business side by side
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Both environments publish the same ports on the host, so only one of them can run at a time by default.
+Every published port can be changed with an environment variable:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Variable
+     - Default
+     - Service
+   * - ``RTDDEV_PORT_NGINX``
+     - ``80``
+     - NGINX
+   * - ``RTDDEV_PORT_ADDONS``
+     - ``8000``
+     - Addons development server
+   * - ``RTDDEV_PORT_WEBPACK``
+     - ``10001``
+     - ext-theme assets development server
+   * - ``RTDDEV_PORT_STORAGE``
+     - ``9000``
+     - S3 storage
+   * - ``RTDDEV_PORT_STORAGE_CONSOLE``
+     - ``9001``
+     - S3 storage web console
+   * - ``RTDDEV_PORT_SEARCH``
+     - ``9200``
+     - Elasticsearch
+
+Both ``devthedocs.org`` and ``devthedocs.com`` resolve to ``127.0.0.1``,
+so the two NGINX containers can't both own port 80.
+Instead, a small proxy takes port 80 and forwards ``*.devthedocs.com`` to business and everything else to community,
+so all the URLs stay the same.
+
+Export the variables in the shell where you run ``inv`` (or with a tool like `direnv <https://direnv.net/>`__),
+because every ``inv docker.*`` command recreates the containers with them.
+In ``readthedocs.org``:
+
+.. code-block:: bash
+
+   export RTDDEV_PORT_NGINX=10080
+   inv docker.up
+
+In ``readthedocs-corporate``:
+
+.. code-block:: bash
+
+   export RTDDEV_PORT_NGINX=10081
+   export RTDDEV_PORT_ADDONS=8001
+   export RTDDEV_PORT_WEBPACK=10002
+   export RTDDEV_PORT_STORAGE=9010
+   export RTDDEV_PORT_STORAGE_CONSOLE=9011
+   export RTDDEV_PORT_SEARCH=9201
+   inv docker.up
+
+Then start the proxy from either repository:
+
+.. code-block:: bash
+
+   inv docker.front
+
+The proxy forwards to ports ``10080`` and ``10081`` by default.
+Set ``RTDDEV_FRONT_COMMUNITY_PORT`` and ``RTDDEV_FRONT_BUSINESS_PORT`` when running ``inv docker.front`` to use other ports.
+
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

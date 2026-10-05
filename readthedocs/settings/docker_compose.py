@@ -88,7 +88,8 @@ class DockerBaseSettings(CommunityBaseSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.devthedocs.org:10001"
+            port = os.environ.get("RTDDEV_PORT_WEBPACK", "10001")
+            return f"http://assets.devthedocs.org:{port}"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = "SEARCH" in os.environ
@@ -248,6 +249,9 @@ class DockerBaseSettings(CommunityBaseSettings):
         return None
 
     AWS_QUERYSTRING_AUTH = False
+
+    # Port where the host reaches the storage container (`RTDDEV_PORT_STORAGE` in common's docker-compose.yml).
+    RTD_DOCKER_COMPOSE_STORAGE_HOST_PORT = os.environ.get("RTDDEV_PORT_STORAGE", "9000")
 
     @property
     def SOCIALACCOUNT_PROVIDERS(self):

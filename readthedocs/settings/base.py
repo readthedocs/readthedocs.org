@@ -811,6 +811,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_WORKDIR = "/home/docs/"
 
     RTD_DOCKER_COMPOSE = False
+    RTD_DOCKER_COMPOSE_STORAGE_HOST_PORT = "9000"
 
     DOCKER_VERSION = "auto"
     DOCKER_DEFAULT_VERSION = "ubuntu-22.04"
