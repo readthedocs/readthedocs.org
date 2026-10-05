@@ -211,9 +211,10 @@ class UploadInitiateView(APIv3Settings, APIView):
         if settings.RTD_DOCKER_COMPOSE and not settings.USING_AWS:
             # Overriden so we return the public URL for uploading artifacts,
             # instead of the internal hostname (http://storage:9000), which is not accessible from the host machine.
+            # NGINX serves the storage container on this hostname.
             response["url"] = response["url"].replace(
                 "://storage:9000",
-                f"://127.0.0.1:{settings.RTD_DOCKER_COMPOSE_STORAGE_HOST_PORT}",
+                f"://storage.{settings.PRODUCTION_DOMAIN}",
                 1,
             )
         return response

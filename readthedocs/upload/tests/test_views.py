@@ -313,7 +313,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     @override_settings(
         RTD_DOCKER_COMPOSE=True,
         USING_AWS=False,
-        RTD_DOCKER_COMPOSE_STORAGE_HOST_PORT="10900",
+        PRODUCTION_DOMAIN="devthedocs.com",
     )
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
@@ -325,7 +325,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         }
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data["upload_url"]["url"] == "http://127.0.0.1:10900/build-uploads"
+        assert response.data["upload_url"]["url"] == "http://storage.devthedocs.com/build-uploads"
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")

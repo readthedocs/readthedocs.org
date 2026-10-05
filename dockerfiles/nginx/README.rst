@@ -1,7 +1,7 @@
 How NGINX proxy works
 =====================
 
-Read the Docs uses 3 different NGINX configurations;
+Read the Docs uses 5 different NGINX configurations;
 
 web
   This configuration is in charge of serving the dashboard application
@@ -41,6 +41,17 @@ wrangler
   This worker hits ``proxito`` NGINX server listening at ``nginx`` container
   on port ``8080``  to fetch the "original response" and manipulates it to
   inject extra HTTP tags required for Read the Docs Addons (``meta`` and ``script``).
+
+services
+  Serves the development services by hostname, so they don't need host ports:
+  ``assets.``, ``addons.``, ``storage.``, ``storage-console.`` and ``search.$NGINX_WEB_SERVER_NAME``.
+  Shared with business, from ``common/dockerfiles/nginx/``.
+
+side-by-side
+  Forwards the other environment's domains (``$NGINX_SIDE_BY_SIDE_SERVER_NAME``)
+  to its NGINX on host port ``$NGINX_SIDE_BY_SIDE_PORT``,
+  so community and business can run at the same time.
+  Shared with business, from ``common/dockerfiles/nginx/``.
 
 
 

@@ -469,7 +469,9 @@ class CommunityBaseSettings(Settings):
             # Plausible analytics
             "https://plausible.io/api/event",
         ]
-        CSP_CONNECT_SRC.append(f"ws://{self.PRODUCTION_DOMAIN}:10001/ws")
+        if self.RTD_EXT_THEME_DEV_SERVER:
+            # Live reload websocket of the webpack development server.
+            CSP_CONNECT_SRC.append(self.RTD_EXT_THEME_DEV_SERVER.replace("http", "ws", 1) + "/ws")
         return CSP_CONNECT_SRC
 
     @property
@@ -811,7 +813,6 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_WORKDIR = "/home/docs/"
 
     RTD_DOCKER_COMPOSE = False
-    RTD_DOCKER_COMPOSE_STORAGE_HOST_PORT = "9000"
 
     DOCKER_VERSION = "auto"
     DOCKER_DEFAULT_VERSION = "ubuntu-22.04"

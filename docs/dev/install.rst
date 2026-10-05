@@ -225,61 +225,49 @@ save some work while typing docker compose commands. This section explains these
     Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
     It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
-Running community and business side by side
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Development services
+~~~~~~~~~~~~~~~~~~~~
 
-Both environments publish the same ports on the host, so only one of them can run at a time by default.
-
-Every published port can be changed with an environment variable:
+Only NGINX is published on the host.
+It serves the other development services by hostname, on the same port as the dashboard
+(``devthedocs.org`` for community, ``devthedocs.com`` for business):
 
 .. list-table::
    :header-rows: 1
 
-   * - Variable
-     - Default
+   * - Hostname
      - Service
-   * - ``RTDDEV_PORT_NGINX``
-     - ``80``
-     - NGINX
-   * - ``RTDDEV_PORT_ADDONS``
-     - ``8000``
+   * - ``assets.devthedocs.org``
+     - ext-theme assets development server (webpack)
+   * - ``addons.devthedocs.org``
      - Addons development server
-   * - ``RTDDEV_PORT_WEBPACK``
-     - ``10001``
-     - ext-theme assets development server
-   * - ``RTDDEV_PORT_STORAGE``
-     - ``9000``
-     - S3 storage
-   * - ``RTDDEV_PORT_STORAGE_CONSOLE``
-     - ``9001``
+   * - ``storage.devthedocs.org``
+     - S3 storage API, used by the upload API's presigned URLs
+   * - ``storage-console.devthedocs.org``
      - S3 storage web console
-   * - ``RTDDEV_PORT_SEARCH``
-     - ``9200``
+   * - ``search.devthedocs.org``
      - Elasticsearch
+
+Running community and business side by side
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both ``devthedocs.org`` and ``devthedocs.com`` resolve to ``127.0.0.1``,
 so the two NGINX containers can't both own port 80.
 Instead, the environment that owns port 80 forwards the other one's domains to its NGINX,
 so all the URLs stay the same.
 
-Start the first environment as usual.
-Start the second one with these variables exported in the shell where you run ``inv``
-(or with a tool like `direnv <https://direnv.net/>`__),
-because every ``inv docker.*`` command that recreates containers needs them.
-For business, in ``readthedocs-corporate``:
+Start the first environment as usual,
+and the second one with ``RTDDEV_PORT_NGINX`` exported in the shell where you run ``inv``:
+``10080`` for community, or ``10081`` for business.
+Export it (or set it with a tool like `direnv <https://direnv.net/>`__) rather than prefixing a single command,
+because every ``inv docker.*`` command that recreates containers needs it.
 
 .. code-block:: bash
 
+   # In readthedocs-corporate, with community already running
    export RTDDEV_PORT_NGINX=10081
-   export RTDDEV_PORT_ADDONS=8001
-   export RTDDEV_PORT_WEBPACK=10002
-   export RTDDEV_PORT_STORAGE=9010
-   export RTDDEV_PORT_STORAGE_CONSOLE=9011
-   export RTDDEV_PORT_SEARCH=9201
    inv docker.up
 
-For community, use the same variables with ``RTDDEV_PORT_NGINX=10080``.
-Community forwards ``*.devthedocs.com`` to port ``10081`` and business forwards ``*.devthedocs.org`` to port ``10080``.
 Set ``NGINX_SIDE_BY_SIDE_PORT`` on the environment that owns port 80 to forward to another port.
 
 .. note::
