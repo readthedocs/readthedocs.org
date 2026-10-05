@@ -279,6 +279,26 @@ class TestPageSearch:
         for word in highlighted_words:
             assert word.lower() in query.lower()
 
+    def test_file_search_fuzzy_fallback(self, client):
+        """Retry with a fuzzy search when the exact query has no results."""
+        resp = client.get(self.url, {"q": "index", "type": "file"})
+        assert resp.status_code == 200
+        assert resp.context["fuzzy_fallback"] is False
+        assert len(resp.context["results"]) > 0
+
+        resp = client.get(self.url, {"q": "indx", "type": "file"})
+        assert resp.status_code == 200
+        assert resp.context["fuzzy_fallback"] is True
+        results = resp.context["results"]
+        assert len(results) > 0
+        assert "Index" in results[0]["title"]
+
+        # Queries using the special syntax are never retried.
+        resp = client.get(self.url, {"q": '"indx"', "type": "file"})
+        assert resp.status_code == 200
+        assert resp.context["fuzzy_fallback"] is False
+        assert resp.context["results"] == []
+
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 

@@ -18,6 +18,7 @@ from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
+from readthedocs.search.faceted_search import is_advanced_query
 
 
 log = structlog.get_logger(__name__)
@@ -94,6 +95,10 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     def _get_projects_to_search(self):
         return self._search_executor.projects
 
+    @cached_property
+    def _use_advanced_query(self):
+        return should_use_advanced_query(self._get_projects_to_search())
+
     def get_queryset(self):
         """
         Returns an Elasticsearch DSL search object or an iterator.
@@ -104,7 +109,9 @@ class SearchAPI(APIv3Settings, GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
-        use_advanced_query = should_use_advanced_query(self._get_projects_to_search())
+        return self._get_search(use_advanced_query=self._use_advanced_query)
+
+    def _get_search(self, use_advanced_query):
         search = self._search_executor.search(
             use_advanced_query=use_advanced_query,
             aggregate_results=False,
@@ -113,6 +120,23 @@ class SearchAPI(APIv3Settings, GenericAPIView):
             return []
 
         return search
+
+    def _should_fallback_to_fuzzy(self, queryset):
+        """
+        Check if the search should be retried using fuzzy matching.
+
+        We only retry when the original search was performed using the
+        strict query, it returned no results at all,
+        and the user isn't already making use of the special query syntax
+        (a quoted phrase, a prefix, or a fuzzy term), since in that case
+        the fuzzy search would just re-run the same query.
+        """
+        if not queryset or not self._use_advanced_query:
+            return False
+        if self.paginator.page.paginator.count > 0:
+            return False
+        query = self._get_search_query()
+        return bool(query) and not is_advanced_query(query)
 
     def get(self, request, *args, **kwargs):
         self._validate_query_params()
@@ -181,6 +205,17 @@ class SearchAPI(APIv3Settings, GenericAPIView):
             self.request,
             view=self,
         )
+        self._fuzzy_fallback = False
+        if self._should_fallback_to_fuzzy(queryset):
+            # The exact query didn't match anything,
+            # try again matching similar terms (typos, partial words).
+            queryset = self._get_search(use_advanced_query=False)
+            page = self.paginator.paginate_queryset(
+                queryset,
+                self.request,
+                view=self,
+            )
+            self._fuzzy_fallback = True
         serializer = self.get_serializer(page, many=True, projects=self._get_projects_to_search())
         response = self.paginator.get_paginated_response(serializer.data)
         self._add_extra_fields(response)
@@ -193,6 +228,9 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         These are fields that aren't part of the serializers,
         and are related to the whole list, rather than each element.
         """
+        # Tell the client the results come from a fuzzy search,
+        # since the exact query didn't return any results.
+        response.data["fuzzy_fallback"] = self._fuzzy_fallback
         # Add all projects that were used in the final search.
         response.data["projects"] = [
             {"slug": project.slug, "versions": [{"slug": version.slug}]}

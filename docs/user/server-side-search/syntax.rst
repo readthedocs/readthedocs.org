@@ -122,6 +122,13 @@ Fuzziness
 This type of query is helpful when the exact spelling of the keyword is unknown.
 It returns results that contain terms similar to the search term.
 
+.. note::
+
+   If your query doesn't match anything,
+   the search is retried automatically matching similar terms,
+   so you don't need to use this syntax to catch typos or partial words.
+   Use it when you want to control the fuzziness yourself.
+
 Examples:
 
 - ``doks~1``

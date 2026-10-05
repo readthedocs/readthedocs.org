@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.documents import PageDocument
 
@@ -373,6 +373,62 @@ class SearchAPITest(SearchTestBase):
         )
         self.assertEqual(len(results), 1)
         self.assertEqual(resp.data["query"], "test")
+
+    def test_search_fuzzy_fallback(self):
+        """Retry with a fuzzy search when the exact query has no results."""
+        # Exact query, no fallback needed.
+        resp = self.get(self.url, data={"q": "project:project paragraph"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is False
+        assert resp.data["count"] == 1
+
+        # Query with a typo falls back to the fuzzy search.
+        resp = self.get(self.url, data={"q": "project:project paragrph"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is True
+        assert resp.data["count"] == 1
+        assert resp.data["query"] == "paragrph"
+        assert resp.data["results"][0]["blocks"][0]["title"] == "First Paragraph"
+
+        # Partial word falls back to the fuzzy search.
+        resp = self.get(self.url, data={"q": "project:project interes"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is True
+        assert resp.data["count"] == 1
+
+        # Queries using the special syntax are never retried.
+        resp = self.get(self.url, data={"q": 'project:project "paragrph"'})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is False
+        assert resp.data["count"] == 0
+        assert resp.data["results"] == []
+
+    def test_search_fuzzy_fallback_no_results(self):
+        """The fuzzy search can still return no results."""
+        resp = self.get(self.url, data={"q": "project:project xyzzyqwerty"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is True
+        assert resp.data["count"] == 0
+        assert resp.data["results"] == []
+
+    def test_search_fuzzy_fallback_no_projects(self):
+        """Nothing to retry when there aren't projects to search on."""
+        resp = self.get(self.url, data={"q": "paragrph"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is False
+        assert resp.data["results"] == []
+
+    def test_search_fuzzy_fallback_not_used_with_fuzzy_search_by_default(self):
+        """Projects defaulting to fuzzy search don't need the fallback."""
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
+        )
+        self.project.feature_set.add(feature)
+
+        resp = self.get(self.url, data={"q": "project:project paragrph"})
+        assert resp.status_code == 200
+        assert resp.data["fuzzy_fallback"] is False
+        assert resp.data["count"] == 1
 
     def test_search_pagination_max_result_window(self):
         """Test that pagination respects the max_result_window limit."""

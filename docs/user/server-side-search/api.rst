@@ -23,6 +23,10 @@ API v3
 
    .. Response
 
+   :>json string query: The final query used in the search, this doesn't include :doc:`parameters </server-side-search/syntax>`.
+   :>json boolean fuzzy_fallback: Whether the results come from a fuzzy search.
+                                  When the query doesn't match anything,
+                                  the search is retried matching similar terms (typos and partial words).
    :>json string type: The type of the result, currently page is the only type.
    :>json string project: The project object
    :>json string version: The version object
@@ -78,6 +82,7 @@ API v3
              }
           ],
           "query": "server side search",
+          "fuzzy_fallback": false,
           "results": [
               {
                   "type": "page",
