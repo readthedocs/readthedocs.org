@@ -24,6 +24,8 @@ Goals
 - Eliminate the per-page S3 download-and-parse that follows every build today.
 - Keep all Elasticsearch and database access server-side: builders gain no new trust.
 - Make full Elasticsearch re-indexes replay stored payloads instead of re-parsing the corpus.
+- End with one parser implementation, on the builder —
+  the server-side parse path is transitional, not a second copy to maintain.
 
 Non-goals
 ---------
@@ -33,8 +35,8 @@ Non-goals
   it stays on today's path and ages out with the isolated-builds migration.
 - Changing what gets indexed or how pages are parsed —
   the same parser output, produced where the files already are.
-- Removing the server-side parse path entirely —
-  it stays as the rarely-run re-extract operation for versions that never rebuild.
+- Re-parsing already-built versions when the parser changes —
+  parser changes roll forward with new builds (`discussion on #13246`_).
 - Search indexing for pull request versions — external versions stay unindexed, as today.
 - Combining the manifest and payload into a single artifact —
   the manifest could later be derived from the payload server-side;
@@ -123,10 +125,15 @@ What changes
 Changing the parser
 -------------------
 
-A parser change ships in the builder image and reaches each version on its next build.
-Payload replay re-indexes stored extractions verbatim, so it never propagates a parser change;
-pushing one to versions that never rebuild is the explicit re-extract operation
-(today's parse-from-storage path, kept for exactly this).
+A parser change ships in the builder image and rolls forward:
+it reaches each version on its next build, and nothing re-parses what is already built
+(`discussion on #13246`_ — maintaining the parser server-side as well,
+just to re-extract old builds, is the duplication both reviewers flagged).
+A version that never rebuilds isn't changing its pages either,
+so its stored extraction stays an accurate index of them;
+it only misses extraction improvements until it builds again.
+Payload replay re-indexes stored extractions verbatim,
+so a full Elasticsearch re-index doesn't propagate a parser change either.
 
 The payload carries a small metadata header — build id, created date,
 and three version fields with different bump disciplines:
@@ -137,9 +144,16 @@ and three version fields with different bump disciplines:
 - **Parser version** — which extractor produced the content.
   It never gates search ingest,
   since extractions from different parser versions coexist harmlessly in Elasticsearch;
-  it exists for observability and for targeting re-extracts ("everything below version X").
+  with roll-forward it is pure observability:
+  how much of the corpus each extractor produced,
+  and whether an old extraction explains a search oddity.
 - **Hasher version** — bumped only when a change alters what the file tree diff hashes mean;
   ``get_diff`` treats a mismatch as "outdated."
+  Roll-forward is what makes this field earn its place:
+  after a bump, a pull request built with the new parser
+  diffs against a base version that may not have rebuilt yet,
+  and the mismatch marks that diff "outdated" instead of reporting every file as modified;
+  it heals on the base version's next build.
   Keeping this separate from the parser version matters:
   if every parser release bumped it, every release would invalidate every open pull request's diff.
 
@@ -183,6 +197,12 @@ Rollout
 
 The legacy fleet stays on today's path and ages out with the isolated-builds migration —
 no throwaway code written for it.
+The server-side parse path is equally transitional:
+it keeps covering builds that ship no payload
+(legacy-fleet builds, and versions whose last build predates the rollout),
+and once a one-time pass stores payloads for that long tail,
+the parser code is deleted from readthedocs.org and lives only on the builder —
+resolving the `discussion on #13246`_ about not keeping it in two codebases.
 
 Background: why it works this way today
 ---------------------------------------
@@ -225,6 +245,7 @@ The one that stands — builders run untrusted code
 and never hold DB or Elasticsearch credentials — is the one this proposal keeps.
 
 .. _#13276: https://github.com/readthedocs/readthedocs.org/pull/13276
+.. _discussion on #13246: https://github.com/readthedocs/readthedocs.org/pull/13246#issuecomment-5933896429
 .. _#10623: https://github.com/readthedocs/readthedocs.org/issues/10623
 .. _#5854: https://github.com/readthedocs/readthedocs.org/pull/5854
 .. _#7161: https://github.com/readthedocs/readthedocs.org/pull/7161
