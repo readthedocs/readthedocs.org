@@ -256,19 +256,10 @@ so the two NGINX containers can't both own port 80.
 Instead, the environment that owns port 80 forwards the other one's domains to its NGINX,
 so all the URLs stay the same.
 
-Start the first environment as usual,
-and the second one with ``RTDDEV_PORT_NGINX`` exported in the shell where you run ``inv``:
-``10080`` for community, or ``10081`` for business.
-Export it (or set it with a tool like `direnv <https://direnv.net/>`__) rather than prefixing a single command,
-because every ``inv docker.*`` command that recreates containers needs it.
-
-.. code-block:: bash
-
-   # In readthedocs-corporate, with community already running
-   export RTDDEV_PORT_NGINX=10081
-   inv docker.up
-
-Set ``NGINX_SIDE_BY_SIDE_PORT`` on the environment that owns port 80 to forward to another port.
+Start both with ``inv docker.up``, in any order.
+``inv docker.up`` publishes NGINX on port 80 unless another container already does,
+in which case it uses the side-by-side port: ``10080`` for community, ``10081`` for business.
+Set ``RTDDEV_PORT_NGINX`` to choose the port yourself.
 
 .. note::
 
