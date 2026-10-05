@@ -235,6 +235,12 @@ Running community and business side by side
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both environments publish the same ports on the host, so only one of them can run at a time by default.
+
+.. note::
+
+   Running both environments takes around 11 GB of memory.
+   Give Docker at least 16 GB, otherwise containers get killed when it runs out of memory.
+   The first one to go is usually a webpack container, which leaves the dashboard without styles.
 Every published port can be changed with an environment variable:
 
 .. list-table::
