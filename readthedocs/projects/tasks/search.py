@@ -54,7 +54,14 @@ class SearchIndexer(Indexer):
 
     If search_index_name is provided, it will be used as the search index name,
     otherwise the default one will be used.
+
+    Files are sent to Elasticsearch in batches of ``batch_size`` as they are
+    processed, so memory use is bounded by the batch size rather than by the
+    number of pages in the version. Each ``HTMLFile`` keeps its parsed content
+    (``processed_json``) alive until it is dropped here.
     """
+
+    batch_size = 500
 
     def __init__(
         self,
@@ -83,18 +90,25 @@ class SearchIndexer(Indexer):
                 break
 
         self._html_files_to_index.append(html_file)
+        if len(self._html_files_to_index) >= self.batch_size:
+            self._index_pending()
+
+    def _index_pending(self):
+        if not self._html_files_to_index:
+            return
+        index_objects(
+            document=PageDocument,
+            objects=self._html_files_to_index,
+            index_name=self.search_index_name,
+            # Pages are indexed in small chunks to avoid a
+            # large payload that will probably timeout ES.
+            chunk_size=100,
+        )
+        self._html_files_to_index = []
 
     def collect(self, sync_id: int):
-        # Index new files in ElasticSearch.
-        if self._html_files_to_index:
-            index_objects(
-                document=PageDocument,
-                objects=self._html_files_to_index,
-                index_name=self.search_index_name,
-                # Pages are indexed in small chunks to avoid a
-                # large payload that will probably timeout ES.
-                chunk_size=100,
-            )
+        # Index the files that haven't been sent yet.
+        self._index_pending()
 
         # Remove old HTMLFiles from ElasticSearch.
         remove_indexed_files(
