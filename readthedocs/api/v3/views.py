@@ -398,9 +398,19 @@ class VersionsViewSet(
         return result
 
     def get_queryset(self):
-        """Overridden to allow internal versions only."""
+        """Overridden to allow internal versions only.
+
+        Orders results with "latest" first, "stable" second,
+        then remaining versions in ascending alphabetical order.
+        """
         # The serializer reads ``version.project`` for every URL it builds.
-        return super().get_queryset().exclude(type=EXTERNAL).select_related("project")
+        return (
+            super()
+            .get_queryset()
+            .exclude(type=EXTERNAL)
+            .select_related("project")
+            .sort_version_aware_naive()
+        )
 
 
 class BuildsViewSet(
