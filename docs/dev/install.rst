@@ -225,22 +225,11 @@ save some work while typing docker compose commands. This section explains these
     Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
     It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
-``inv docker.front``
-    Starts the proxy that runs the community and business environments side by side.
-    See :ref:`dev/install:Running community and business side by side`.
-
-    * ``--down`` stops and removes the proxy.
-
 Running community and business side by side
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both environments publish the same ports on the host, so only one of them can run at a time by default.
 
-.. note::
-
-   Running both environments takes around 11 GB of memory.
-   Give Docker at least 16 GB, otherwise containers get killed when it runs out of memory.
-   The first one to go is usually a webpack container, which leaves the dashboard without styles.
 Every published port can be changed with an environment variable:
 
 .. list-table::
@@ -270,19 +259,14 @@ Every published port can be changed with an environment variable:
 
 Both ``devthedocs.org`` and ``devthedocs.com`` resolve to ``127.0.0.1``,
 so the two NGINX containers can't both own port 80.
-Instead, a small proxy takes port 80 and forwards ``*.devthedocs.com`` to business and everything else to community,
+Instead, the environment that owns port 80 forwards the other one's domains to its NGINX,
 so all the URLs stay the same.
 
-Export the variables in the shell where you run ``inv`` (or with a tool like `direnv <https://direnv.net/>`__),
-because every ``inv docker.*`` command recreates the containers with them.
-In ``readthedocs.org``:
-
-.. code-block:: bash
-
-   export RTDDEV_PORT_NGINX=10080
-   inv docker.up
-
-In ``readthedocs-corporate``:
+Start the first environment as usual.
+Start the second one with these variables exported in the shell where you run ``inv``
+(or with a tool like `direnv <https://direnv.net/>`__),
+because every ``inv docker.*`` command that recreates containers needs them.
+For business, in ``readthedocs-corporate``:
 
 .. code-block:: bash
 
@@ -294,14 +278,15 @@ In ``readthedocs-corporate``:
    export RTDDEV_PORT_SEARCH=9201
    inv docker.up
 
-Then start the proxy from either repository:
+For community, use the same variables with ``RTDDEV_PORT_NGINX=10080``.
+Community forwards ``*.devthedocs.com`` to port ``10081`` and business forwards ``*.devthedocs.org`` to port ``10080``.
+Set ``NGINX_SIDE_BY_SIDE_PORT`` on the environment that owns port 80 to forward to another port.
 
-.. code-block:: bash
+.. note::
 
-   inv docker.front
-
-The proxy forwards to ports ``10080`` and ``10081`` by default.
-Set ``RTDDEV_FRONT_COMMUNITY_PORT`` and ``RTDDEV_FRONT_BUSINESS_PORT`` when running ``inv docker.front`` to use other ports.
+   Running both environments takes around 11 GB of memory.
+   Give Docker at least 16 GB, otherwise containers get killed when it runs out of memory.
+   The first one to go is usually a webpack container, which leaves the dashboard without styles.
 
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
