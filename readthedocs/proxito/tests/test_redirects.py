@@ -5,6 +5,8 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC, SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.proxito.constants import RedirectType
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.models import Redirect
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
 
@@ -27,7 +29,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -40,9 +42,34 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
+
+    def test_permanent_redirect_cached_longer_at_cdn(self):
+        # Permanent redirects (301) are cached at the CDN level for 24 hours,
+        # longer than the temporary redirects above (302).
+        get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            http_status=301,
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=86400")
+        self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.user.name)
 
     def test_custom_domain_root_url(self):
         self.domain.canonical = True
@@ -54,7 +81,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -68,7 +95,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -91,7 +118,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -106,7 +133,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -123,7 +150,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject,subproject:latest")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -147,7 +174,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -161,7 +188,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -177,7 +204,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/en/latest/foo/bar",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -196,7 +223,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://docs1.example.com/projects/subproject/en/latest/foo/bar",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -214,7 +241,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -228,7 +255,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/projects/subproject/foo/bar/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -248,7 +275,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://docs1.example.com/projects/subproject/foo/bar",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
@@ -262,7 +289,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r["Location"], "https://project.dev.readthedocs.io/en/latest/?foo=bar"
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -276,7 +303,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
@@ -289,7 +316,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/en/latest/404after302",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
@@ -306,7 +333,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
 
@@ -321,7 +348,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://{self.domain.domain}/en/latest/404after302",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
 
@@ -334,7 +361,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://project.dev.readthedocs.io/es/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "translation")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -347,7 +374,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             f"https://project.dev.readthedocs.io/es/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "translation")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -363,7 +390,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "https://project.dev.readthedocs.io/en/latest/test.html",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -377,7 +404,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome.html",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = "/en/latest////awesome.html"
@@ -387,7 +414,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome.html",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = "/en/latest////awesome///index.html"
@@ -397,7 +424,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome/index.html",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = "/en/latest////awesome///index.html?foo=bar"
@@ -407,7 +434,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome/index.html?foo=bar",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = "/en/latest////awesome///"
@@ -417,7 +444,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Don't change the values of params
@@ -428,7 +455,7 @@ class RedirectTests(BaseDocServing):
             resp["Location"],
             "/en/latest/awesome/index.html?foo=bar//bas",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # WARNING
@@ -446,7 +473,7 @@ class RedirectTests(BaseDocServing):
                 r["Location"],
                 f"https://project.dev.readthedocs.io{path}",
             )
-            self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+            self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
             self.assertEqual(r.headers["Cache-Tag"], "project")
             self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
@@ -460,7 +487,7 @@ class RedirectTests(BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/",
         )
-        self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -478,7 +505,7 @@ class RedirectTests(BaseDocServing):
                 r["Location"],
                 "https://project.dev.readthedocs.io/en/latest/",
             )
-            self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+            self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
             self.assertEqual(r.headers["Cache-Tag"], "project")
             self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
@@ -502,6 +529,6 @@ class RedirectTests(BaseDocServing):
                 r["Location"],
                 "https://project--10.dev.readthedocs.build/en/10/",
             )
-            self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+            self.assertEqual(r.headers["CDN-Cache-Control"], "public, max-age=1200")
             self.assertEqual(r.headers["Cache-Tag"], "project")
             self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)

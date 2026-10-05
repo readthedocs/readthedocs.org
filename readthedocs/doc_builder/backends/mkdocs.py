@@ -90,6 +90,8 @@ class BaseMkdocs(BaseBuilder):
             return (
                 "uv",
                 "run",
+                "--no-sync",
+                "--no-dev",
                 "mkdocs",
             )
 

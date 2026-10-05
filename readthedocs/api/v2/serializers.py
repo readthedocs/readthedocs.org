@@ -87,11 +87,11 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_time_limit",
             "skip",
             "features",
-            "has_valid_clone",
             "has_valid_webhook",
             "show_advertising",
             "environment_variables",
             "max_concurrent_builds",
+            "max_build_media_size",
             "readthedocs_yaml_path",
             "clone_token",
             "has_ssh_key_with_write_access",
@@ -276,6 +276,7 @@ class BuildAdminSerializer(BuildSerializer):
     """
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    uploaded_artifacts_storage_path = serializers.ReadOnlyField()
 
     class Meta(BuildSerializer.Meta):
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
@@ -402,7 +403,7 @@ class NotificationAttachedToRelatedField(serializers.RelatedField):
 
         try:
             return self.queryset.get(pk=pk)
-        except (ObjectDoesNotExist, ValueError, TypeError):
+        except ObjectDoesNotExist, ValueError, TypeError:
             self.fail("does_not_exist")
 
 

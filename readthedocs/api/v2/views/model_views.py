@@ -32,16 +32,19 @@ from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
+from readthedocs.aws.security_token_service import get_s3_build_uploads_scoped_credentials
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import run_post_build_tasks
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_commands_storage
 
@@ -259,6 +262,23 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     model = Build
     filterset_fields = ("project__slug", "commit")
 
+    def perform_update(self, serializer):
+        """
+        Run the post-build tasks when an isolated build reaches a final state.
+        """
+        # Read before saving: this is still the state stored in the database.
+        was_finished = serializer.instance.finished
+        build = serializer.save()
+
+        # Uploaded builds always run on the build-isolated fleet,
+        # regardless of the feature flag.
+        if (
+            not was_finished
+            and build.finished
+            and (build.is_uploaded or build.project.has_feature(Feature.USE_BUILD_ISOLATED))
+        ):
+            run_post_build_tasks.delay(build_pk=build.pk)
+
     def get_serializer_class(self):
         """
         Return the proper serializer for UI and Admin.
@@ -403,6 +423,10 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         elif credentials_type == "build_tools":
             method = get_s3_build_tools_scoped_credentials
             # 30 minutes should be enough for downloading build tools.
+            duration = 30 * 60
+        elif credentials_type == "build_uploads":
+            method = get_s3_build_uploads_scoped_credentials
+            # 30 minutes should be enough for downloading the zip with the build artifacts.
             duration = 30 * 60
         else:
             return Response(

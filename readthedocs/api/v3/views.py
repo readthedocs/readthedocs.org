@@ -40,6 +40,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import SUBPROJECT_ALIAS_REGEX
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
@@ -281,6 +282,9 @@ class SubprojectRelationshipViewSet(
     model = ProjectRelationship
     lookup_field = "alias"
     lookup_url_kwarg = "alias_slug"
+    # Aliases may contain slashes (e.g. ``api/python``). DRF's default lookup
+    # regex stops at the first ``/``, so widen it to match the model validator.
+    lookup_value_regex = SUBPROJECT_ALIAS_REGEX
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
 
     def get_serializer_class(self):
@@ -370,13 +374,27 @@ class VersionsViewSet(
 
     def update(self, request, *args, **kwargs):
         """Overridden to call ``post_save`` method on the updated version."""
-        # Get the current value before updating.
+        # Get the current values before updating.
         version = self.get_object()
         was_active = version.active
+        was_uploaded = version.is_uploaded
+        previous_slug = version.slug
+
         result = super().update(request, *args, **kwargs)
+
         # Get the updated version.
-        version = self.get_object()
-        version.post_save(was_active=was_active)
+        # NOTE: we can't use ``self.get_object()`` here, since versions are
+        # looked up by slug, and the slug may have just changed.
+        version.refresh_from_db()
+
+        # If the slug of an active version was changed, all its resources are
+        # still stored under the previous slug, so we clean them up and let
+        # ``post_save`` trigger a new build under the new slug.
+        if version.slug != previous_slug and was_active:
+            version.clean_resources(version_slug=previous_slug)
+            was_active = False
+
+        version.post_save(was_active=was_active, was_uploaded=was_uploaded)
         return result
 
     def get_queryset(self):
@@ -385,7 +403,14 @@ class VersionsViewSet(
         Orders results with "latest" first, "stable" second,
         then remaining versions in ascending alphabetical order.
         """
-        return super().get_queryset().exclude(type=EXTERNAL).sort_version_aware_naive()
+        # The serializer reads ``version.project`` for every URL it builds.
+        return (
+            super()
+            .get_queryset()
+            .exclude(type=EXTERNAL)
+            .select_related("project")
+            .sort_version_aware_naive()
+        )
 
 
 class BuildsViewSet(
@@ -405,6 +430,11 @@ class BuildsViewSet(
         "config",
     ]
 
+    def get_queryset(self):
+        # The serializer reads ``build.version`` and ``build.project``
+        # for every build in the list.
+        return super().get_queryset().select_related("version", "project")
+
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
     def get_serializer_class(self):
@@ -418,6 +448,14 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         version = self._get_parent_version()
         build_retry = None
         commit = None
+
+        if version.is_uploaded:
+            return Response(
+                data={
+                    "error": "Cannot trigger a build for an uploaded version.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if version.is_external:
             # We use the last build for a version here as we want to update VCS
@@ -685,7 +723,7 @@ class OrganizationsViewSetBase(
     # /api/v3/organizations/<slug>/notifications/
     # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
     # We can implement these endpoints when we need them, tho.
-    # Also note that Read the Docs for Business expose this endpoint already.
+    # Also note that Read the Docs Business exposes this endpoint already.
 
     model = Organization
     serializer_class = OrganizationSerializer

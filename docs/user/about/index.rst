@@ -53,6 +53,9 @@ we've brought most of the most important ones below.
 ⏩ :doc:`/support`
    Read this before asking for help: How to get support and where.
 
+⏩ :doc:`/automated-access`
+   Policies for automated access, scraping, and agents.
+
 ⏩ :doc:`/glossary`
    A useful index of terms used in our docs
 
@@ -72,4 +75,5 @@ we've brought most of the most important ones below.
    /open-source-philosophy
    /team
    /support
+   /automated-access
    /glossary

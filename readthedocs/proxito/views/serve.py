@@ -309,6 +309,10 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             self.cache_response = True
             return spam_response
 
+        disabled_organization_response = self._disabled_organization_response(request, project)
+        if disabled_organization_response:
+            return disabled_organization_response
+
         # Trailing slash redirect.
         # We don't want to serve documentation at:
         # - `/en/latest`
@@ -641,16 +645,18 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
+        version = project.versions.filter(slug=version_slug).first()
 
         no_serve_robots_txt = any(
             [
-                # If the default version is private or,
-                version.privacy_level == PRIVATE,
+                # If the default version doesn't exist yet (direct upload project before its first upload) or,
+                version is None,
+                # the default version is private or,
+                version and version.privacy_level == PRIVATE,
                 # default version is not active or,
-                not version.active,
+                version and not version.active,
                 # default version is not built
-                not version.built,
+                version and not version.built,
             ]
         )
 
@@ -721,11 +727,9 @@ class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+class ServeLLMSTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
     """Serve llms.txt files from the domain's root."""
 
-    # Always cache this view, since it's the same for all users.
-    cache_response = True
     # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "llms.txt"
 
@@ -744,25 +748,23 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         version = get_object_or_404(project.versions, slug=version_slug)
         self._llms_version = version
 
-        no_serve_llms_txt = any(
-            [
-                # If the default version is private or,
-                version.is_private,
-                # default version is not active or,
-                not version.active,
-                # default version is not built
-                not version.built,
-            ]
-        )
-
-        if no_serve_llms_txt:
-            # ... we do return a 404
+        # Serve only for active and built versions.
+        serve_llms_txt = version.active and version.built
+        if not serve_llms_txt:
             raise Http404()
+
+        # Only public versions can be cached,
+        # since private versions check for authorization.
+        self.cache_response = version.is_public
 
         structlog.contextvars.bind_contextvars(
             project_slug=project.slug,
             version_slug=version.slug,
         )
+
+        # Check user permissions and return an unauthed response if needed.
+        if not self.allowed_user(request, version):
+            return self.get_unauthed_response(request, project)
 
         try:
             response = self._serve_docs(
@@ -791,6 +793,10 @@ class ServeLLMSTXT(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View
         project = self._get_project()
         version_slug = project.get_default_version()
         return project.versions.filter(slug=version_slug).first()
+
+
+class ServeLLMSTXT(SettingsOverrideObject):
+    _default_class = ServeLLMSTXTBase
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
@@ -840,8 +846,9 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
         # Serve custom sitemap.xml from the default version when available.
         # If it doesn't exist, we fallback to the generated sitemap.
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
-        serve_custom_sitemap = all(
+        version = project.versions.filter(slug=version_slug).first()
+        # The default version may not exist yet (direct upload project before its first upload).
+        serve_custom_sitemap = version is not None and all(
             [
                 version.is_public,
                 version.active,

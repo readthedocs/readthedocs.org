@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -70,3 +72,36 @@ class TestSearchIndexing(TestCase):
             indexer for indexer in indexers if isinstance(indexer, SearchIndexer)
         ]
         assert len(search_indexers) == 0
+
+
+@mock.patch("readthedocs.projects.tasks.search.search_index_updated")
+@mock.patch("readthedocs.projects.tasks.search.remove_indexed_files")
+class TestSearchIndexUpdatedSignal(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    def _get_indexer(self, **kwargs):
+        return SearchIndexer(
+            project=self.project,
+            version=self.version,
+            search_ranking={},
+            search_ignore=[],
+            **kwargs,
+        )
+
+    def test_collect_sends_search_index_updated(self, remove_indexed_files, search_index_updated):
+        self._get_indexer().collect(sync_id=1)
+
+        search_index_updated.send.assert_called_once_with(
+            sender=Project,
+            project=self.project,
+            version=self.version,
+        )
+
+    def test_collect_into_custom_index_does_not_send_signal(
+        self, remove_indexed_files, search_index_updated
+    ):
+        self._get_indexer(search_index_name="new-index").collect(sync_id=1)
+
+        search_index_updated.send.assert_not_called()

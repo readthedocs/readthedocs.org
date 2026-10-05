@@ -27,6 +27,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Domain, Feature, HTMLFile, Project
+from readthedocs.proxito.views.serve import ServeLLMSTXTBase
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import (
     BuildMediaFileSystemStorageTest,
@@ -554,6 +555,12 @@ class TestDocServingBackends(BaseDocServing):
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
+            self.assertTrue(
+                resp["Content-Disposition"].startswith("inline; filename=")
+            )
+            self.assertTrue(
+                resp["Content-Disposition"].endswith(f'.{extension}"')
+            )
 
             # Translation
             resp = self.client.get(
@@ -861,6 +868,21 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertContains(response, expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_delisted_robots_txt_allows_crawling(self, storage_exists):
+        """Delisted projects stay crawlable so the noindex header is seen."""
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        self.project.delisted = True
+        self.project.save()
+
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Disallow: # Allow everything")
+        self.assertNotContains(response, "Disallow: /")
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
         storage_exists.return_value = False
         self.project.versions.update(active=True, built=True)
@@ -1030,6 +1052,25 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_robots_txt_without_default_version(self):
+        # A direct upload project has no versions until the first upload.
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_sitemap_xml_without_default_version(self):
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_custom_sitemap_xml(self):
         self.project.versions.update(active=True, built=True)
         response = self.client.get(
@@ -1044,10 +1085,8 @@ class TestAdditionalDocViews(BaseDocServing):
         """Test serving a custom llms.txt file from the default version."""
         self.project.versions.update(active=True, built=True)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(
-            response["x-accel-redirect"],
-            "/proxito/media/html/project/latest/llms.txt",
-        )
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "public"
 
     def test_custom_llms_full_txt(self):
         """Test serving a custom llms-full.txt file from the default version."""
@@ -1078,11 +1117,24 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_llms_txt_private_version(self):
-        """Test that 404 is returned when default version is private."""
+        """Test that llms.txt from a private version is served, but not cached."""
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 200
+        assert response["x-accel-redirect"] == "/proxito/media/html/project/latest/llms.txt"
+        assert response["CDN-Cache-Control"] == "private"
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    @mock.patch.object(ServeLLMSTXTBase, "allowed_user")
+    def test_llms_txt_private_version_unauthorized_user(self, allowed_user):
+        """Test that users without access to the private version get an unauthorized response."""
+        allowed_user.return_value = False
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(reverse("llms_txt"), headers={"host": "project.readthedocs.io"})
+        assert response.status_code == 401
+        assert response["CDN-Cache-Control"] == "private"
 
     def test_llms_txt_inactive_version(self):
         """Test that 404 is returned when default version is inactive."""
@@ -1820,7 +1872,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
             self.assertEqual(resp.headers["Cache-Tag"], "project", url)
 
         # Proxied static files are always cached.
@@ -1834,7 +1886,7 @@ class TestCDNCache(BaseDocServing):
         url = "/en//latest//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/en/latest/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Forced redirects will be cached only if the version is public.
@@ -1849,7 +1901,13 @@ class TestCDNCache(BaseDocServing):
         url = "/en/latest/install.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+        # Forced redirects are cached (with a ``max-age``) only for public versions.
+        forced_redirect_cache_control = (
+            "public, max-age=1200" if expected_value == "public" else expected_value
+        )
+        self.assertEqual(
+            resp.headers["CDN-Cache-Control"], forced_redirect_cache_control, url
+        )
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
     def _test_cache_control_header_subproject(self, expected_value, host=None):
@@ -1881,7 +1939,7 @@ class TestCDNCache(BaseDocServing):
         for url, location in urls:
             resp = self.client.get(url, secure=True, headers={"host": host})
             self.assertEqual(resp["Location"], location, url)
-            self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+            self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
             self.assertEqual(resp.headers["Cache-Tag"], "subproject", url)
 
         # Proxied static files are always cached.
@@ -1895,7 +1953,7 @@ class TestCDNCache(BaseDocServing):
         url = "/projects//subproject//"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp["Location"], "/projects/subproject/", url)
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200", url)
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions(self):
@@ -1911,7 +1969,7 @@ class TestCDNCache(BaseDocServing):
         # HTTPS redirects can always be cached.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions(self):
@@ -1924,11 +1982,11 @@ class TestCDNCache(BaseDocServing):
         self.domain.save()
         self._test_cache_control_header_project(expected_value="public", host=self.domain.domain)
 
-        # HTTPS redirect respects the privacy level of the version.
+        # HTTPS redirects can always be cached.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
@@ -1952,14 +2010,14 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_public_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self._test_cache_control_header_subproject(expected_value="public")
 
-    def test_cache_public_versions_custom_domain(self):
+    def test_cache_public_versions_custom_domain_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()
@@ -1975,7 +2033,7 @@ class TestCDNCache(BaseDocServing):
             resp["Location"],
             f"https://{self.domain.domain}/projects/subproject/en/latest/",
         )
-        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_disable_on_rtd_header_resolved_project(self):

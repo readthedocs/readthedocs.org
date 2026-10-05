@@ -2,15 +2,11 @@
 
 from django.contrib import admin
 from django.contrib import messages
-from polymorphic.admin import PolymorphicChildModelAdmin
-from polymorphic.admin import PolymorphicParentModelAdmin
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import BuildConfig
-from readthedocs.builds.models import RegexAutomationRule
 from readthedocs.builds.models import Version
-from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.admin import pretty_json_field
 from readthedocs.projects.tasks.search import reindex_version
@@ -141,30 +137,3 @@ class VersionAdmin(admin.ModelAdmin):
             reindex_version.delay(version_id)
 
         self.message_user(request, "Task initiated successfully.", messages.SUCCESS)
-
-
-@admin.register(RegexAutomationRule)
-class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
-    raw_id_fields = ("project",)
-    readonly_fields = (
-        "created",
-        "modified",
-    )
-    base_model = RegexAutomationRule
-
-
-@admin.register(VersionAutomationRule)
-class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
-    base_model = VersionAutomationRule
-    list_display = (
-        "id",
-        "project",
-        "priority",
-        "predefined_match_arg",
-        "match_arg",
-        "action",
-        "version_type",
-    )
-    child_models = (RegexAutomationRule,)
-    search_fields = ("project__slug",)
-    list_filter = ("action", "version_type")

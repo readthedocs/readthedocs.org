@@ -1,14 +1,12 @@
 """Models for the builds app."""
 
 import datetime
-import fnmatch
 import json
 import os.path
 import re
 from functools import partial
 from io import BytesIO
 
-import regex
 import structlog
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
@@ -17,12 +15,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from polymorphic.models import PolymorphicModel
 
-import readthedocs.builds.automation_actions as actions
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_CHOICES
@@ -32,9 +29,7 @@ from readthedocs.builds.constants import EXTERNAL_VERSION_STATES
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
-from readthedocs.builds.constants import OLD_VERSION_PREDEFINED_MATCH_PATTERNS
 from readthedocs.builds.constants import STABLE
-from readthedocs.builds.constants import VERSION_PREDEFINED_MATCH_PATTERN_VALUES
 from readthedocs.builds.constants import VERSION_TYPES
 from readthedocs.builds.managers import BuildConfigManager
 from readthedocs.builds.managers import ExternalBuildManager
@@ -71,10 +66,8 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
-from readthedocs.projects.managers import AutomationRuleMatchManager
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
-from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.storage import build_commands_storage
@@ -145,11 +138,6 @@ class Version(TimeStampedModel):
     )
     built = models.BooleanField(_("Built"), default=False)
 
-    # TODO: this field (`uploaded`) could be removed. It was used to mark a
-    # version as "Manually uploaded" by the core team, but this is not required
-    # anymore. Users can use `build.commands` for these cases now.
-    uploaded = models.BooleanField(_("Uploaded"), default=False)
-
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
@@ -175,6 +163,14 @@ class Version(TimeStampedModel):
         choices=DOCTYPE_CHOICES,
         default=SPHINX,
         help_text=_("Type of documentation the version was built with."),
+    )
+
+    # NOTE: we can also do a normalization, and have a build attribute
+    # that links to the latest successful build of the version.
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
     )
 
     build_data = models.JSONField(
@@ -362,7 +358,7 @@ class Version(TimeStampedModel):
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
-        if not self.built and not self.uploaded:
+        if not self.built:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:
@@ -449,7 +445,7 @@ class Version(TimeStampedModel):
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
-    def post_save(self, was_active=False):
+    def post_save(self, was_active=False, was_uploaded=False):
         """
         Run extra steps after updating a version.
 
@@ -461,17 +457,39 @@ class Version(TimeStampedModel):
 
         - When a version is deactivated, we need to clean up its
           files from storage, and search index.
+          Uploaded versions are deleted instead, a new upload recreates them.
         - When a version is activated, we need to trigger a build.
+        - When an uploaded version is handed back to Read the Docs builds,
+          its uploaded files are removed and a build is triggered.
         - We also need to purge the cache from the CDN,
           since the version could have been activated/deactivated,
           or its privacy level could have changed.
+
+        :param was_active: whether the version was active before the save.
+        :param was_uploaded: whether the version was uploaded before the save.
         """
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
+            # Uploaded versions have no inactive state: they are deleted,
+            # and a new upload recreates them.
+            if self.is_uploaded:
+                log.info(
+                    "Deleting deactivated uploaded version.",
+                    project_slug=self.project.slug,
+                    version_slug=self.slug,
+                )
+                self.delete()
+                return
             self.clean_resources()
             return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Handing an uploaded version back to Read the Docs: the uploaded files go away
+        # and a build is triggered, so a failed build never leaves them being served.
+        # A version activated at the same time has no files and was built above.
+        elif was_uploaded and not self.is_uploaded and self.active:
+            self.clean_resources()
             trigger_build(project=self.project, version=self)
         # Purge the cache from the CDN for any other changes.
         self.purge_cdn()
@@ -750,6 +768,11 @@ class Build(models.Model):
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
+    dispatched_date = models.DateTimeField(
+        _("Dispatched date"),
+        null=True,
+        blank=True,
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.
@@ -830,6 +853,12 @@ class Build(models.Model):
         related_query_name="build",
         content_type_field="attached_to_content_type",
         object_id_field="attached_to_id",
+    )
+
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
     )
 
     # Managers
@@ -973,6 +1002,17 @@ class Build(models.Model):
         date = self.date.date()
         return f"{date}/{self.id}.json"
 
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_slug>/<build_id>/artifacts.zip
+
+        Example: pip/1111/artifacts.zip
+        """
+        return f"{self.project.slug}/{self.id}/artifacts.zip"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1064,6 +1104,16 @@ class Build(models.Model):
 
         return None
 
+    def get_result_display(self):
+        """Human-readable build result combining state and success."""
+        if self.state == BUILD_STATE_FINISHED:
+            if self.success:
+                return _("Build passed")
+            return _("Build failed")
+        if self.state == BUILD_STATE_CANCELLED:
+            return _("Build cancelled")
+        return _("Building")
+
     @property
     def finished(self):
         """Return if build has an end state."""
@@ -1082,6 +1132,7 @@ class Build(models.Model):
             type = self.version.type
         return type == EXTERNAL
 
+    # NOTE: this isn't used
     @property
     def can_rebuild(self):
         """
@@ -1185,322 +1236,3 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         if self.start_time is not None and self.end_time is not None:
             diff = self.end_time - self.start_time
             return diff.seconds
-
-
-# TODO: delete VersionAutomationRule model after we are fully migrated
-class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
-    """Versions automation rules for projects."""
-
-    ACTIVATE_VERSION_ACTION = "activate-version"
-    DELETE_VERSION_ACTION = "delete-version"
-    HIDE_VERSION_ACTION = "hide-version"
-    MAKE_VERSION_PUBLIC_ACTION = "make-version-public"
-    MAKE_VERSION_PRIVATE_ACTION = "make-version-private"
-    SET_DEFAULT_VERSION_ACTION = "set-default-version"
-    TRIGGER_BUILD_ACTION = "trigger-build"
-
-    ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _("Activate version")),
-        (HIDE_VERSION_ACTION, _("Hide version")),
-        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
-        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
-        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
-        (DELETE_VERSION_ACTION, _("Delete version")),
-        (TRIGGER_BUILD_ACTION, _("Trigger build for version")),
-    )
-
-    allowed_actions_on_create = {}
-    allowed_actions_on_delete = {}
-    allowed_actions_on_existing = {}
-
-    project = models.ForeignKey(
-        Project,
-        related_name="version_automation_rules",
-        on_delete=models.CASCADE,
-    )
-    priority = models.PositiveIntegerField(
-        _("Rule priority"),
-        help_text=_("A lower number (0) means a higher priority"),
-        default=0,
-    )
-    description = models.CharField(
-        _("Description"),
-        max_length=255,
-        null=True,
-        blank=True,
-    )
-    match_arg = models.CharField(
-        _("Match argument"),
-        help_text=_("Value used for the rule to match the version"),
-        max_length=255,
-    )
-    predefined_match_arg = models.CharField(
-        _("Predefined match argument"),
-        help_text=_(
-            "Match argument defined by us, it is used if is not None, "
-            "otherwise match_arg will be used."
-        ),
-        max_length=255,
-        choices=OLD_VERSION_PREDEFINED_MATCH_PATTERNS,
-        null=True,
-        blank=True,
-        default=None,
-    )
-    action = models.CharField(
-        _("Action"),
-        help_text=_("Action to apply to matching versions"),
-        max_length=32,
-        choices=ACTIONS,
-    )
-    action_arg = models.CharField(
-        _("Action argument"),
-        help_text=_("Value used for the action to perfom an operation"),
-        max_length=255,
-        null=True,
-        blank=True,
-    )
-    version_type = models.CharField(
-        _("Version type"),
-        help_text=_("Type of version the rule should be applied to"),
-        max_length=32,
-        choices=VERSION_TYPES,
-    )
-
-    _position_manager = ProjectItemPositionManager(position_field_name="priority")
-
-    class Meta:
-        unique_together = (("project", "priority"),)
-        ordering = ("priority", "-modified", "-created")
-
-    def get_match_arg(self):
-        """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = VERSION_PREDEFINED_MATCH_PATTERN_VALUES.get(
-            self.predefined_match_arg,
-        )
-        return match_arg or self.match_arg
-
-    def run(self, version, **kwargs):
-        """
-        Run an action if `version` matches the version type.
-
-        :type version: readthedocs.builds.models.Version
-        :returns: True if the action was performed
-        """
-        if version.type != self.version_type:
-            return False
-
-        self.apply_action(version)
-        AutomationRuleMatch.objects.register_match(
-            rule=self,
-            version=version,
-        )
-        return True
-
-    def match(self, version, match_arg=None):
-        """
-        Checks if the version matches the rule.
-
-        :type version: readthedocs.builds.models.Version
-        :param str match_arg: Additional argument to perform the match
-        :returns: True if the version matches the rule, False otherwise
-        """
-        return False
-
-    def apply_action(self, version):
-        """
-        Apply the action from allowed_actions_on_*.
-
-        :type version: readthedocs.builds.models.Version
-        :raises: NotImplementedError if the action
-                 isn't implemented or supported for this rule.
-        """
-        action = (
-            self.allowed_actions_on_create.get(self.action)
-            or self.allowed_actions_on_delete.get(self.action)
-            or self.allowed_actions_on_existing.get(self.action)
-        )
-        if action is None:
-            raise NotImplementedError
-        action(version, self.action_arg)
-
-    def move(self, steps):
-        """
-        Change the priority of this Automation Rule.
-
-        This is done by moving it ``n`` steps,
-        relative to the other priority rules.
-        The priority from the other rules are updated too.
-
-        :param steps: Number of steps to be moved
-                      (it can be negative)
-        """
-        total = self.project.automation_rules.count()
-        current_priority = self.priority
-        new_priority = (current_priority + steps) % total
-        self.priority = new_priority
-        self.save()
-
-    def save(self, *args, **kwargs):
-        """Override method to update the other priorities before save."""
-
-        # TODO: update the position manager to be able to handle the WebhookAutomationRule case
-        if self._meta.model != WebhookAutomationRule:
-            self._position_manager.change_position_before_save(self)
-
-        if not self.description:
-            self.description = self.get_description()
-        super().save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        """Override method to update the other priorities after delete."""
-        super().delete(*args, **kwargs)
-        self._position_manager.change_position_after_delete(self)
-
-    def get_description(self):
-        if self.description:
-            return self.description
-        return f"{self.get_action_display()}"
-
-    def get_edit_url(self):
-        raise NotImplementedError
-
-    def __str__(self):
-        class_name = self.__class__.__name__
-        return f"({self.priority}) {class_name}/{self.get_action_display()}"
-
-
-# TODO: delete RegexAutomationRule model after we are fully migrated
-class RegexAutomationRule(VersionAutomationRule):
-    TIMEOUT = 1  # timeout in seconds
-
-    allowed_actions_on_create = {
-        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
-        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
-        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
-        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
-        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
-    }
-
-    allowed_actions_on_delete = {
-        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
-    }
-
-    class Meta:
-        proxy = True
-
-    def match(self, version, match_arg=None):
-        """
-        Find a match using regex.search.
-
-        .. note::
-
-           We use the regex module with the timeout
-           arg to avoid ReDoS.
-
-           We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writing this code.
-        """
-        if match_arg is None:
-            match_arg = self.get_match_arg()
-
-        try:
-            match = regex.search(
-                match_arg,
-                version.verbose_name,
-                # Compatible with the re module
-                flags=regex.VERSION0,
-                timeout=self.TIMEOUT,
-            )
-            return bool(match)
-        except TimeoutError:
-            log.warning(
-                "Timeout while parsing regex.",
-                pattern=match_arg,
-                version_slug=version.slug,
-            )
-        except Exception:
-            log.exception("Error parsing regex.", exc_info=True)
-        return False
-
-    def get_edit_url(self):
-        return reverse(
-            "projects_automation_rule_regex_edit",
-            args=[self.project.slug, self.pk],
-        )
-
-
-# TODO: delete WebhookAutomationRule model after we are fully migrated
-class WebhookAutomationRule(VersionAutomationRule):
-    """
-    Automation rule for filtering builds based on files changed in webhook events.
-
-    This rule is executed when a webhook push event is received, and checks if the
-    files modified/added/deleted in the push match the rule patterns. If they do,
-    the build is triggered for the affected version.
-    """
-
-    allowed_actions_on_existing = {
-        VersionAutomationRule.TRIGGER_BUILD_ACTION: actions.trigger_build_for_version,
-    }
-
-    class Meta:
-        proxy = True
-
-    def match(self, changed_files):
-        """
-        Check if any file in the list matches the rule pattern using ``fnmatch``.
-
-        :param changed_files: List of file paths that were modified/added/deleted
-        :return: True if any file matches the rule pattern, False otherwise
-        """
-        match_arg = self.get_match_arg()
-        for file_path in changed_files:
-            if fnmatch.fnmatch(file_path, match_arg):
-                return True
-        return False
-
-    def get_edit_url(self):
-        return reverse(
-            "projects_automation_rule_webhook_edit",
-            args=[self.project.slug, self.pk],
-        )
-
-
-# TODO: delete AutomationRuleMatch model after we are fully migrated
-class AutomationRuleMatch(TimeStampedModel):
-    ACTIONS_PAST_TENSE = {
-        VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
-        VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
-        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _("Version set to public privacy"),
-        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _("Version set to private privacy"),
-        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
-        VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
-        VersionAutomationRule.TRIGGER_BUILD_ACTION: _("Build triggered for version"),
-    }
-
-    rule = models.ForeignKey(
-        VersionAutomationRule,
-        verbose_name=_("Matched rule"),
-        related_name="matches",
-        on_delete=models.CASCADE,
-    )
-
-    # Metadata from when the match happened.
-    version_name = models.CharField(max_length=255)
-    match_arg = models.CharField(max_length=255)
-    action = models.CharField(
-        max_length=255,
-        choices=VersionAutomationRule.ACTIONS,
-    )
-    version_type = models.CharField(
-        max_length=32,
-        choices=VERSION_TYPES,
-    )
-
-    objects = AutomationRuleMatchManager()
-
-    class Meta:
-        ordering = ("-modified", "-created")
-
-    def get_action_past_tense(self):
-        return self.ACTIONS_PAST_TENSE.get(self.action)

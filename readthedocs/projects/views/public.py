@@ -130,6 +130,11 @@ class ProjectDetailViewBase(
         versions = self.get_filtered_queryset()
         context["versions"] = versions
 
+        # Direct upload projects point to the upload docs until something is uploaded.
+        context["direct_upload_waiting"] = (
+            project.is_direct_upload and not project.versions.filter(active=True).exists()
+        )
+
         protocol = "http"
         if self.request.is_secure():
             protocol = "https"
@@ -251,7 +256,7 @@ class ProjectBadgeView(View):
                     fd.read(),
                     content_type="image/svg+xml",
                 )
-        except (IOError, OSError):
+        except IOError, OSError:
             log.exception(
                 "Failed to read local filesystem while serving a docs badge",
             )
@@ -382,6 +387,12 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDoc
         # See: https://github.com/readthedocs/readthedocs.org/pull/12495
         self.project = version.project
         self.version = version
+
+        disabled_organization_response = self._disabled_organization_response(
+            request, version.project
+        )
+        if disabled_organization_response:
+            return disabled_organization_response
 
         return self._serve_dowload(
             request=request,

@@ -13,6 +13,7 @@ from django.test.utils import override_settings
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -249,6 +250,48 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
 
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_called_for_internal_versions(self, load_yaml_config, sync_versions):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = BRANCH
+        self.version.save()
+
+        self._trigger_update_docs_task()
+        sync_versions.assert_called_once()
+
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_not_called_for_external_versions(self, load_yaml_config, sync_versions):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        self._trigger_update_docs_task()
+        sync_versions.assert_not_called()
+
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.run_build_job")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_post_checkout_runs_after_sync_versions(
+        self, load_yaml_config, sync_versions, run_build_job
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        # Attach both mocks to a single parent to record the order of the calls.
+        manager = mock.Mock()
+        manager.attach_mock(sync_versions, "sync_versions")
+        manager.attach_mock(run_build_job, "run_build_job")
+
+        self._trigger_update_docs_task()
+
+        calls = manager.mock_calls
+        sync_versions_index = calls.index(mock.call.sync_versions(mock.ANY))
+        post_checkout_index = calls.index(mock.call.run_build_job("post_checkout"))
+        assert sync_versions_index < post_checkout_index
+
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
     def test_build_respects_formats_mkdocs(self, build_docs_class, load_yaml_config):
@@ -426,17 +469,53 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_get_env_vars_using_uv(self, load_yaml_config, build_environment):
+        config = {
+            "version": 2,
+            "build": {
+                "os": "ubuntu-22.04",
+                "tools": {
+                    "python": "3.10",
+                },
+            },
+            "python": {
+                "install": [
+                    {
+                        "method": "uv",
+                        "command": "sync",
+                    },
+                ],
+            },
+        }
+        load_yaml_config.return_value = get_build_config(config, validate=True)
+
+        self._trigger_update_docs_task()
+
+        build_env_vars = build_environment.call_args_list[1][1]["environment"]
+
+        venv_path = os.path.join(
+            self.project.doc_path,
+            "envs",
+            self.version.slug,
+        )
+        # `READTHEDOCS_VIRTUALENV_PATH` must be defined even when building with `uv`,
+        # and it must match `UV_PROJECT_ENVIRONMENT`.
+        assert build_env_vars["READTHEDOCS_VIRTUALENV_PATH"] == venv_path
+        assert build_env_vars["UV_PROJECT_ENVIRONMENT"] == venv_path
+
     @override_settings(
         DOCROOT="/tmp/readthedocs-tests/git-repository/",
         RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
         S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
+    @mock.patch("readthedocs.projects.tasks.builds.purge_docs_cdn")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_successful_build(
         self,
@@ -444,8 +523,8 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         send_external_build_status,
-        build_complete,
         index_build,
+        purge_docs_cdn,
         shutilmock,
     ):
         load_yaml_config.return_value = get_build_config(
@@ -524,8 +603,8 @@ class TestBuildTask(BuildEnvironmentBase):
         # TODO: mock `build_tasks.send_build_notifications` instead and add
         # another tests to check that they are not sent for EXTERNAL versions
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
@@ -536,12 +615,9 @@ class TestBuildTask(BuildEnvironmentBase):
             status=BUILD_STATUS_SUCCESS,
         )
 
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
-        )
-
         index_build.delay.assert_called_once_with(build_id=self.build.pk)
+
+        purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
 
         # TODO: assert the verb and the path for each API call as well
 
@@ -600,7 +676,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.14.0",
+                            "full_version": "3.14.6",
                             "version": "3",
                         }
                     },
@@ -679,12 +755,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "identifier": mock.ANY,
             "type": "branch",
         }
-        # Set project has valid clone
-        assert self.requests_mock.request_history[11]._request.method == "PATCH"
-        assert self.requests_mock.request_history[11].path == "/api/v2/project/1/"
-        assert self.requests_mock.request_history[11].json() == {"has_valid_clone": True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[12].json() == {
+        assert self.requests_mock.request_history[11].json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -696,8 +768,8 @@ class TestBuildTask(BuildEnvironmentBase):
             "success": True,
         }
 
-        assert self.requests_mock.request_history[13]._request.method == "POST"
-        assert self.requests_mock.request_history[13].path == "/api/v2/revoke/"
+        assert self.requests_mock.request_history[12]._request.method == "POST"
+        assert self.requests_mock.request_history[12].path == "/api/v2/revoke/"
 
         assert BuildData.objects.all().exists()
 
@@ -711,18 +783,16 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_failed_build(
         self,
         clean_build,
         send_notifications,
         execute,
         send_external_build_status,
-        build_complete,
     ):
         assert not BuildData.objects.all().exists()
 
@@ -738,8 +808,8 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         send_notifications.assert_called_once_with(
-            self.version.pk,
-            self.build.pk,
+            version_pk=self.version.pk,
+            build_pk=self.build.pk,
             event=WebHookEvent.BUILD_FAILED,
         )
 
@@ -748,11 +818,6 @@ class TestBuildTask(BuildEnvironmentBase):
             build_pk=self.build.pk,
             commit=self.build.commit,
             status=BUILD_STATUS_FAILURE,
-        )
-
-        build_complete.send.assert_called_once_with(
-            sender=Build,
-            build=mock.ANY,
         )
 
         # The build data is None (we are failing the build before the environment is created)
@@ -765,9 +830,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildUserError.GENERIC,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -819,9 +881,6 @@ class TestBuildTask(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": BuildCancelled.CANCELLED_BY_USER,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -1750,7 +1809,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -1802,7 +1861,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {"python": "3.7"},
                     "jobs": {
                         "post_checkout": ["git fetch --unshallow"],
@@ -1952,6 +2011,77 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call(
                     "echo end of build",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs_partial_build_override_without_sphinx_using_uv(self, load_yaml_config):
+        """The uv environment is created and synced even when the builder is generic."""
+        config = BuildConfigV2(
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-24.04",
+                    "tools": {"python": "3.12"},
+                    "jobs": {
+                        "build": {
+                            "html": ["uv run zensical build --clean"],
+                        },
+                    },
+                },
+                "python": {
+                    "install": [
+                        {
+                            "method": "uv",
+                            "command": "sync",
+                            "groups": ["docs"],
+                        },
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call("asdf", "plugin", "add", "uv", record=True),
+                mock.call("asdf", "install", "uv", "latest", record=True),
+                mock.call("asdf", "global", "uv", "latest", record=True),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools",
+                ),
+                mock.call(
+                    "uv",
+                    "venv",
+                    "$READTHEDOCS_VIRTUALENV_PATH",
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    "uv",
+                    "sync",
+                    "--group",
+                    "docs",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "uv run zensical build --clean",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),
@@ -2175,7 +2305,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -2488,7 +2618,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-20.04",
+                    "os": "ubuntu-24.04",
                     "tools": {
                         "python": "mambaforge-4.10",
                     },
@@ -2970,9 +3100,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert notification_request.json() == {
             "attached_to": f"build/{self.build.pk}",
             "message_id": ConfigError.INVALID_VERSION,
-            "state": "unread",
-            "dismissable": False,
-            "news": False,
             "format_values": {},
         }
 
@@ -2994,22 +3121,118 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         assert revoke_key_request.path == "/api/v2/revoke/"
 
 
+class TestBuildTaskCleanBuild(BuildEnvironmentBase):
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.BuildDirector.setup_vcs")
+    def test_retire_builder_and_fail_build_if_files_cant_be_removed(
+        self, setup_vcs, clean_build, retire_builder
+    ):
+        clean_build.return_value = False
+        self._trigger_update_docs_task()
+
+        setup_vcs.assert_not_called()
+        # Only retired from ``after_return``, since the files are still there.
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_if_files_cant_be_removed_after_build(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        # Clean before the build, files left after the build.
+        clean_build.side_effect = [True, False]
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_once_if_files_cant_be_removed_and_terminate_on_finish(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        fixture.get(
+            Feature,
+            feature_id=Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            projects=[self.project],
+        )
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.side_effect = [True, False]
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_retire_builder_on_finish(self, load_yaml_config, clean_build, retire_builder):
+        fixture.get(
+            Feature,
+            feature_id=Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH,
+            projects=[self.project],
+        )
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.return_value = True
+        self._trigger_update_docs_task()
+
+        retire_builder.assert_called_once_with(build_id=self.build.pk)
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_dont_retire_builder_if_files_are_removed(
+        self, load_yaml_config, clean_build, retire_builder
+    ):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+        clean_build.return_value = True
+        self._trigger_update_docs_task()
+        retire_builder.assert_not_called()
+
+
 class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
         sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
+    def test_retire_builder_and_fail_sync_if_files_cant_be_removed(
+        self, execute, clean_build, retire_builder
+    ):
+        clean_build.return_value = False
+        self._trigger_sync_repository_task()
+        execute.assert_not_called()
+        # Only retired from ``after_return``, since the files are still there.
+        retire_builder.assert_called_once_with()
+
+    @mock.patch("readthedocs.projects.tasks.builds.retire_builder")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
+    def test_retire_builder_if_files_cant_be_removed_after_sync(
+        self, execute, clean_build, retire_builder
+    ):
+        clean_build.side_effect = [True, False]
+        self._trigger_sync_repository_task()
+        execute.assert_called_once()
+        retire_builder.assert_called_once_with()
+
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_clean_build_after_sync_repository(self, clean_build):
         self._trigger_sync_repository_task()
-        clean_build.assert_called_once()
+        # Called from ``before_start`` and ``after_return``.
+        assert clean_build.call_count == 2
 
     @mock.patch("readthedocs.projects.tasks.builds.SyncRepositoryTask.execute")
-    @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
     def test_clean_build_after_failure_in_sync_repository(self, clean_build, execute):
         execute.side_effect = Exception("Something weird happen")
 
         self._trigger_sync_repository_task()
-        clean_build.assert_called_once()
+        # Called from ``before_start`` and ``after_return``.
+        assert clean_build.call_count == 2
 
     @pytest.mark.parametrize(
         "verbose_name",

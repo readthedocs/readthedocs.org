@@ -1,12 +1,19 @@
 Business hosting
 ================
 
-.. this page is currently moving towards becoming "About Read the Docs for Business"
+.. this page is currently moving towards becoming "About Read the Docs Business"
 .. rather than an index of features.
 
 We offer |com_brand| for building and hosting documentation for private repositories.
 
 In order to get started quickly, you can start a `free 30-day trial <https://about.readthedocs.com/pricing/>`__ to test out the platform.
+
+.. note::
+
+   During the trial period,
+   your documentation is served with a ``noindex`` robots directive,
+   so search engines won't index it.
+   Subscribe to a paid plan to make your documentation indexable.
 
 .. seealso::
 

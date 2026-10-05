@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from django_dynamic_fixture import get
 
+from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
     BRANCH,
@@ -242,6 +243,29 @@ class TestAutomationRuleVersionMatching:
         assert rule.run(version) is True
         assert self.project.versions.filter(slug=slug).exists()
 
+    @pytest.mark.parametrize("version_type", [BRANCH, TAG])
+    def test_action_delete_version_on_uploaded_version(self, trigger_build, version_type):
+        slug = "delete-me"
+        version = get(
+            Version,
+            slug=slug,
+            verbose_name=slug,
+            project=self.project,
+            active=True,
+            type=version_type,
+            is_uploaded=True,
+        )
+        rule = get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[version_type],
+        )
+        assert rule.run(version) is True
+        assert self.project.versions.filter(slug=slug).exists()
+
     def test_action_set_default_version(self, trigger_build):
         version = get(
             Version,
@@ -436,6 +460,48 @@ class TestAutomationRuleManager:
         assert list(
             self.project.automation_rules.all().values_list("priority", flat=True)
         ) == [0, 1, 2, 3]
+
+
+@pytest.mark.django_db
+class TestAutomationRuleExecution:
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
+        self.project = get(Project)
+
+    def test_delete_action_runs_only_for_deleted_versions(self):
+        added_version = get(
+            Version,
+            slug="new-version",
+            verbose_name="new-version",
+            project=self.project,
+            active=True,
+            type=TAG,
+        )
+        deleted_version = get(
+            Version,
+            slug="deleted-version",
+            verbose_name="deleted-version",
+            project=self.project,
+            active=True,
+            type=TAG,
+        )
+        get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.DELETE_VERSION_ACTION,
+            version_types=[TAG],
+        )
+
+        run_version_automation_rules(
+            project=self.project,
+            added_versions={added_version.slug},
+            deleted_active_versions={deleted_version.slug},
+        )
+
+        assert self.project.versions.filter(slug=added_version.slug).exists()
+        assert not self.project.versions.filter(slug=deleted_version.slug).exists()
 
 
 @pytest.mark.django_db
@@ -840,6 +906,7 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=self.version,
+            commit=None,
             from_webhook=True,
         )
 
@@ -912,6 +979,7 @@ class TestWebhookAutomationRules:
         trigger_build.assert_called_once_with(
             project=self.project,
             version=external_version,
+            commit=None,
             from_webhook=True,
         )
 

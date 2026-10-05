@@ -26,7 +26,7 @@ although you will still see :ref:`community ads <advertising/ethical-advertising
 `Gold members`_ may also remove advertising from their projects for all visitors.
 
 For businesses looking to remove advertising,
-please consider :doc:`Read the Docs for Business </commercial/index>`.
+please consider :doc:`Read the Docs Business </commercial/index>`.
 
 .. _Gold members: https://app.readthedocs.org/accounts/gold/
 

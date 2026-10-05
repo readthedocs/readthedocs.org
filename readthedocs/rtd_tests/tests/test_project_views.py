@@ -3,28 +3,33 @@ from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get, new
+from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
-from readthedocs.builds.models import Build, Version
-from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.integrations.models import GenericAPIWebhook
+from readthedocs.integrations.models import GitHubWebhook
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import (
-    Domain,
-    EmailHook,
-    Project,
-    WebHook,
-    WebHookEvent,
-)
+from readthedocs.projects.models import Domain
+from readthedocs.projects.models import EmailHook
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
+from readthedocs.projects.models import WebHook
+from readthedocs.projects.models import WebHookEvent
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
-from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.rtd_tests.base import WizardTestCase
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
@@ -48,9 +53,7 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
         }
         self.data = {}
         for key in data:
-            self.data.update(
-                {("{}-{}".format(key, k), v) for (k, v) in list(data[key].items())}
-            )
+            self.data.update({("{}-{}".format(key, k), v) for (k, v) in list(data[key].items())})
         self.data["{}-current_step".format(self.wizard_class_slug)] = "extra"
 
     def test_banned_user(self):
@@ -98,7 +101,6 @@ class TestBasicsForm(WizardTestCase):
             "repo": "https://github.com/fail/sauce",
             "repo_type": "git",
             "remote_repository": "1234",
-            "default_branch": "main",
         }
         resp = self.client.post(
             "/dashboard/import/",
@@ -288,7 +290,6 @@ class TestAdvancedForm(TestBasicsForm):
             "name": "foobar",
             "repo": "https://github.com/foo/bar",
             "repo_type": "git",
-            "default_branch": "main",
             "remote_repository": "",
         }
         initial = dict(**config_initial, **basic_initial)
@@ -339,6 +340,75 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
 
+@mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
+class TestDirectUploadImport(TestCase):
+    """Add project wizard when the user chooses direct upload."""
+
+    step_data = {
+        "basics-name": "foobar",
+        "basics-repo": "http://example.com/foobar",
+        "basics-repo_type": "git",
+        "basics-language": "en",
+        "basics-default_branch": "main",
+        "import_wizard_view-current_step": "basics",
+    }
+
+    def setUp(self):
+        self.user = get(User)
+        self.client.force_login(self.user)
+
+    def _import_project(self, direct_upload_query, direct_upload):
+        # The "Configure automatically" tab posts here and seeds the wizard session.
+        seed = {"name": "foobar", "repo": "http://example.com/foobar", "repo_type": "git"}
+        seed.update(direct_upload_query)
+        resp = self.client.post(reverse("projects_import"), seed)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.post(reverse("projects_import_manual"), self.step_data)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data["wizard"]["steps"].current, "config")
+        self.assertEqual(
+            resp.context_data["direct_upload_available"],
+            bool(direct_upload_query),
+        )
+
+        resp = self.client.post(
+            reverse("projects_import_manual"),
+            {
+                "config-is_direct_upload": "true" if direct_upload else "false",
+                "import_wizard_view-current_step": "config",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        return Project.objects.get(slug="foobar")
+
+    def test_direct_upload_project(self):
+        project = self._import_project({"direct_upload": "1"}, True)
+
+        self.assertTrue(project.is_direct_upload)
+        self.assertTrue(project.is_direct_upload)
+        self.assertTrue(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
+        # No build, and no versions: they all come from uploads.
+        self.assertFalse(project.builds.exists())
+        self.assertFalse(project.versions.exists())
+        # Pull request builds are blocked by the build method, the setting is left alone.
+        self.assertTrue(project.external_builds_enabled)
+
+    def test_direct_upload_ignored_when_not_available(self):
+        project = self._import_project({}, True)
+
+        self.assertFalse(project.is_direct_upload)
+        self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
+        self.assertIsNotNone(project.get_latest_version())
+
+    def test_build_on_readthedocs_when_available(self):
+        project = self._import_project({"direct_upload": "1"}, False)
+
+        self.assertFalse(project.is_direct_upload)
+        self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
+        self.assertIsNotNone(project.get_latest_version())
+
+
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
 class TestPublicViews(TestCase):
     def setUp(self):
@@ -372,7 +442,7 @@ class TestPublicViews(TestCase):
 @mock.patch("readthedocs.core.utils.trigger_build", mock.MagicMock())
 class TestPrivateViews(TestCase):
     def setUp(self):
-        self.user = new(User, username="eric")
+        self.user = get(User, username="eric")
         self.user.set_password("test")
         self.user.save()
         self.client.login(username="eric", password="test")
@@ -402,9 +472,28 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(28):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
+
+    def test_dashboard_pull_request_previews_announcement(self):
+        announcement = "projects/partials/announcements/pull-request-previews.html"
+        # NOTE: create at least 3 projects, as the example projects
+        # announcement takes precedence for users with fewer than that.
+        projects = [
+            get(Project, slug=f"project-{index}", users=[self.user]) for index in range(0, 3)
+        ]
+        organization = get(Organization, projects=projects, owners=[self.user])
+
+        # Projects only have internal versions, so the announcement is shown.
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] == announcement
+
+        # Once there is a pull request preview, the announcement is gone.
+        get(Version, project=projects[0], type=EXTERNAL)
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] != announcement
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
@@ -432,9 +521,7 @@ class TestPrivateViews(TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug="pip").exists())
             clean_project_resources.assert_called_once()
-            self.assertEqual(
-                clean_project_resources.call_args[0][0].slug, self.project.slug
-            )
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, self.project.slug)
 
     def test_delete_superproject(self):
         sub_proj = get(Project, slug="test-sub-project", users=[self.user])
@@ -468,6 +555,7 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
             project_pk=self.project.pk,
+            user_pk=self.user.pk,
             integration=integration.first(),
         )
 
@@ -486,9 +574,8 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
 
-    def test_integration_webhooks_sync_no_remote_repository(self):
-        self.project.has_valid_webhook = True
-        self.project.save()
+    @mock.patch("readthedocs.projects.views.private.attach_webhook")
+    def test_integration_webhooks_sync_with_integration(self, attach_webhook):
         integration = get(
             GitHubWebhook,
             project=self.project,
@@ -503,10 +590,33 @@ class TestPrivateViews(TestCase):
                 },
             ),
         )
-        self.project.refresh_from_db()
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(self.project.has_valid_webhook)
+        # The webhook is attached using the requesting user's accounts.
+        attach_webhook.assert_called_once_with(
+            project_pk=self.project.pk,
+            user_pk=self.user.pk,
+            integration=integration,
+        )
+
+    @mock.patch("readthedocs.projects.views.private.attach_webhook")
+    def test_integration_webhooks_sync_without_integration(self, attach_webhook):
+        response = self.client.post(
+            reverse(
+                "projects_integrations_webhooks_sync",
+                kwargs={
+                    "project_slug": self.project.slug,
+                },
+            ),
+        )
+
+        self.assertEqual(response.status_code, 302)
+        # The webhook is attached using the requesting user's accounts.
+        attach_webhook.assert_called_once_with(
+            project_pk=self.project.pk,
+            user_pk=self.user.pk,
+            integration=None,
+        )
 
     def test_remove_user(self):
         user = get(User, username="test")
@@ -627,9 +737,7 @@ class TestBadges(TestCase):
             success=False,
             state=BUILD_STATE_FINISHED,
         )
-        res = self.client.get(
-            self.badge_url, {"version": self.version.slug, "style": "plastic"}
-        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug, "style": "plastic"})
         self.assertContains(res, "failing")
 
         # The plastic badge has slightly more rounding
@@ -643,9 +751,7 @@ class TestBadges(TestCase):
             success=True,
             state=BUILD_STATE_FINISHED,
         )
-        res = self.client.get(
-            self.badge_url, {"version": self.version.slug, "style": "social"}
-        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug, "style": "social"})
         self.assertContains(res, "passing")
 
         # The social badge (but not the other badges) has this element
@@ -777,9 +883,7 @@ class TestWebhooksViews(TestCase):
     def test_update(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
         self.client.post(
-            reverse(
-                "projects_webhooks_edit", args=[self.project.slug, self.webhook.pk]
-            ),
+            reverse("projects_webhooks_edit", args=[self.project.slug, self.webhook.pk]),
             data={
                 "url": "http://www.example.com/new",
                 "payload": "{}",
@@ -793,9 +897,7 @@ class TestWebhooksViews(TestCase):
     def test_delete(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
         self.client.post(
-            reverse(
-                "projects_webhooks_delete", args=[self.project.slug, self.webhook.pk]
-            ),
+            reverse("projects_webhooks_delete", args=[self.project.slug, self.webhook.pk]),
         )
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
@@ -804,6 +906,4 @@ class TestWebhooksViews(TestCase):
 class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
     def setUp(self):
         super().setUp()
-        self.organization = get(
-            Organization, owners=[self.user], projects=[self.project]
-        )
+        self.organization = get(Organization, owners=[self.user], projects=[self.project])

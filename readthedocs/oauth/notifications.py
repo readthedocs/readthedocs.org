@@ -14,6 +14,8 @@ from readthedocs.notifications.messages import registry
 MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
 MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"
 MESSAGE_OAUTH_WEBHOOK_INVALID = "oauth:webhook:invalid"
+MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER = "oauth:webhook:unsupported-git-provider"
+MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH = "oauth:webhook:integration-mismatch"
 MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
 MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
@@ -58,6 +60,34 @@ messages = [
         commits won't trigger new builds for this project.
         See <a href='{{url_integrations}}'>the project integrations</a> for more information.
             """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_UNSUPPORTED_GIT_PROVIDER,
+        header=_("Unsupported Git provider"),
+        body=_(
+            textwrap.dedent(
+                """
+                The project "{{ instance.name }}" is linked to a Git provider that is not supported by Read the Docs,
+                commits won't trigger new builds for this project.
+                Use a <a href="https://docs.readthedocs.com/platform/stable/guides/setup/git-repo-manual.html">generic integration</a> instead.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_INTEGRATION_MISMATCH,
+        header=_("Incompatible integration"),
+        body=_(
+            textwrap.dedent(
+                """
+                The integration type is not compatible with the Git provider of "{{ instance.name }}",
+                commits won't trigger new builds for this project.
+                Make sure the integration matches the project's Git provider.
+                """
             ).strip(),
         ),
         type=ERROR,

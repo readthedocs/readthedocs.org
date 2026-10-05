@@ -1,7 +1,7 @@
 How-to guides: account management
 =================================
 
-⏩️ :doc:`Managing your Read the Docs for Business subscription </commercial/subscriptions>`
+⏩️ :doc:`Managing your Read the Docs Business subscription </commercial/subscriptions>`
     Solving the most common tasks for managing Read the Docs subscriptions.
 
 🔒 :doc:`/guides/management/2fa`
@@ -12,5 +12,5 @@ How-to guides: account management
    :hidden:
    :glob:
 
-   Managing your Read the Docs for Business subscription </commercial/subscriptions>
+   Managing your Read the Docs Business subscription </commercial/subscriptions>
    *

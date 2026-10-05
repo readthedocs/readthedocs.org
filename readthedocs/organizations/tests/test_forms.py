@@ -1,5 +1,6 @@
 import django_dynamic_fixture as fixture
 from allauth.account.models import EmailAddress
+from django_dynamic_fixture import get
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -118,6 +119,42 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
         self.assertEqual(invitation.to_user, None)
         self.assertEqual(invitation.to_email, email)
         self.assertEqual(self.team.members.count(), 0)
+
+    def test_add_team_member_with_username_matching_other_user_email(self):
+        get(User, username="victim@example.com")
+        victim = get(User, username="victim")
+        get(
+            EmailAddress, user=victim, email="victim@example.com", verified=True
+        )
+
+        url = reverse(
+            "organization_team_member_add",
+            args=[self.organization.slug, self.team.slug],
+        )
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        invitation = Invitation.objects.for_object(self.team).get()
+        assert invitation.to_user == victim
+        assert invitation.to_email is None
+
+    def test_add_team_member_with_username_matching_unverified_email(self):
+        get(User, username="victim@example.com")
+
+        url = reverse(
+            "organization_team_member_add",
+            args=[self.organization.slug, self.team.slug],
+        )
+        resp = self.client.post(
+            url, data={"username_or_email": "victim@example.com"}
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        invitation = Invitation.objects.for_object(self.team).get()
+        assert invitation.to_user is None
+        assert invitation.to_email == "victim@example.com"
 
     def test_add_duplicate_invite_by_email(self):
         """Add duplicate invite by email."""

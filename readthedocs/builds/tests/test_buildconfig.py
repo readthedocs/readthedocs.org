@@ -51,7 +51,7 @@ class TestBuildReadthedocsYamlData:
         """Test that builds with different configs create separate BuildConfigs."""
         project = fixture.get(Project)
         config_data1 = {"build": {"os": "ubuntu-22.04"}, "python": {"version": "3.11"}}
-        config_data2 = {"build": {"os": "ubuntu-20.04"}, "python": {"version": "3.10"}}
+        config_data2 = {"build": {"os": "ubuntu-24.04"}, "python": {"version": "3.10"}}
 
         # Create first build
         build1 = fixture.get(Build, project=project)

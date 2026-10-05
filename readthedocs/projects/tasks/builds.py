@@ -37,12 +37,11 @@ from readthedocs.builds.constants import BUILD_STATE_INSTALLING
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATE_UPLOADING
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
+from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import UNDELETABLE_ARTIFACT_TYPES
 from readthedocs.builds.models import APIVersion
-from readthedocs.builds.models import Build
-from readthedocs.builds.signals import build_complete
 from readthedocs.builds.tasks import check_and_disable_project_for_consecutive_failed_builds
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config.config import BuildConfigV2
@@ -72,6 +71,8 @@ from .mixins import SyncRepositoryMixin
 from .search import index_build
 from .utils import BuildRequest
 from .utils import clean_build
+from .utils import purge_docs_cdn
+from .utils import retire_builder
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
 
@@ -180,6 +181,16 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # SECURITY: never run if there are files left by a previous build.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if not clean_build(self.data.version):
+            log.error("There are files left by a previous build. Skipping syncing repository.")
+            raise BuildAppError(
+                BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                format_values={"message": "Error preparing the build environment."},
+            )
+
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -203,8 +214,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
            This handler is called even if the task has failed,
            so some attributes from the `self.data` object may not be defined.
         """
-        if self.data.version:
-            clean_build(self.data.version)
+        # SECURITY: retire this builder if there are files that can't be deleted.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if self.data.version and not clean_build(self.data.version):
+            log.error("There are files left by this build. Retiring this builder.")
+            retire_builder()
 
     def execute(self):
         env_vars = {
@@ -231,6 +246,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         )
 
         with environment:
+            # This signal is used to setup the SSH key on .com.
             before_vcs.send(
                 sender=self.data.version,
                 environment=environment,
@@ -378,6 +394,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.warning("Project build skipped.")
             raise BuildAppError(BuildAppError.BUILDS_DISABLED)
 
+    def _check_build_cancelled(self):
+        # Cancelled while queued. Workers run without mingle, so one started
+        # after the revoke was broadcast doesn't know about it.
+        if self.data.build.get("state") == BUILD_STATE_CANCELLED:
+            log.info("Build already cancelled. Skipping.")
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER)
+
     def before_start(self, task_id, args, kwargs):
         # Create the object to store all the task-related data
         self.data = TaskData()
@@ -388,6 +411,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         structlog.contextvars.bind_contextvars(build_id=self.data.build_pk)
         log.info("Running task.", name=self.name)
+
+        # Enable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=True,
+        )
 
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
@@ -434,28 +464,28 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Save when the task was executed by a builder
         self.data.build["task_executed_at"] = timezone.now()
 
-        # Enable scale-in protection on this instance
-        #
-        # TODO: move this to the beginning of this method
-        # once we don't need to rely on `self.data.project`.
-        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=True,
-            )
-
         if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
             # Clean DOCROOT path completely to avoid conflicts other projects
-            clean_build()
+            is_clean = clean_build()
         else:
-            # Clean the build paths for this version to avoid conflicts with previous run
-            clean_build(self.data.version)
+            # Clean the files of this project left by previous builds
+            is_clean = clean_build(self.data.version)
+
+        # SECURITY: never run if there are files left by a previous build.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if not is_clean:
+            log.error("There are files left by a previous build. Skipping building documentation.")
+            raise BuildAppError(
+                BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                format_values={"message": "Error preparing the build environment."},
+            )
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
         self._setup_sigterm()
 
+        self._check_build_cancelled()
         self._check_project_disabled()
         self._check_concurrency_limit()
         self._reset_build()
@@ -468,7 +498,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # that needs to be removed from the build.
         # See https://github.com/readthedocs/readthedocs.org/issues/11131
         log.info("Resetting build.")
-        self.data.api_client.build(self.data.build["id"]).reset.post()
+        self.data.api_client.build(self.data.build_pk).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
@@ -482,16 +512,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            object may not be defined.
         """
         log.info("Task failed.")
-        if not self.data.build:
-            # NOTE: use `self.data.build_id` (passed to the task) instead
-            # `self.data.build` (retrieved from the API) because it's not present,
-            # probably due the API failed when retrieving it.
-            #
-            # So, we create the `self.data.build` with the minimum required data.
-            self.data.build = {
-                "id": self.data.build_pk,
-            }
-
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         if isinstance(exc, BuildAppError):
@@ -524,27 +544,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             message_id = BuildAppError.GENERIC_WITH_BUILD_ID
 
         # Grab the format values from the exception in case it contains
-        format_values = exc.format_values if hasattr(exc, "format_values") else None
-
-        # Attach the notification to the build, only when ``BuildDirector`` is available.
-        # It may happens the director is not created because the API failed to retrieve
-        # required data to initialize it on ``before_start``.
-        if self.data.build_director:
-            self.data.build_director.attach_notification(
-                attached_to=f"build/{self.data.build['id']}",
-                message_id=message_id,
-                format_values=format_values,
-            )
-        else:
-            log.warning(
-                "We couldn't attach a notification to the build since it failed on an early stage."
-            )
+        format_values = getattr(exc, "format_values", None) or {}
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f"build/{self.data.build_pk}",
+                "message_id": message_id,
+                "format_values": format_values,
+            }
+        )
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:
             self.send_notifications(
-                self.data.version_pk,
-                self.data.build["id"],
+                version_pk=self.data.version_pk,
+                build_pk=self.data.build_pk,
                 event=WebHookEvent.BUILD_FAILED,
             )
 
@@ -565,20 +578,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             status = BUILD_STATUS_FAILURE
             if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
                 # The build was skipped by returning the magic exit code,
-                # marked as CANCELLED, but communicated to GitHub as successful.
-                # This is because the PR has to be available for merging when the build
-                # was skipped on purpose.
-                status = BUILD_STATUS_SUCCESS
+                # marked as CANCELLED, and communicated to the Git provider as
+                # a success so that the pull request is not blocked from merging.
+                # The SKIPPED status keeps the underlying provider state as
+                # "success" but uses a distinct description so reviewers can tell
+                # the build was intentionally skipped rather than actually built.
+                status = BUILD_STATUS_SKIPPED
 
             send_external_build_status(
                 version_type=version_type,
-                build_pk=self.data.build["id"],
+                build_pk=self.data.build_pk,
                 commit=self.data.build_commit,
                 status=status,
             )
 
         # Trigger task to check number of failed builds and disable the project if needed (only for community)
-        if not settings.ALLOW_PRIVATE_REPOS:
+        if not settings.ALLOW_PRIVATE_REPOS and self.data.project and self.data.version:
             check_and_disable_project_for_consecutive_failed_builds.delay(
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
@@ -706,8 +721,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'Files are synced in the storage, but "Version" object is not updated',
                 )
 
+        # Purge the CDN now that the new files are in storage.
+        purge_docs_cdn.delay(version_id=self.data.version.pk)
+
         # Index search data
-        index_build.delay(build_id=self.data.build["id"])
+        index_build.delay(build_id=self.data.build_pk)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
@@ -715,21 +733,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 spam_check_after_build_complete,
             )
 
-            spam_check_after_build_complete.delay(build_id=self.data.build["id"])
-
-        if not self.data.project.has_valid_clone:
-            self.set_valid_clone()
+            spam_check_after_build_complete.delay(build_id=self.data.build_pk)
 
         self.send_notifications(
-            self.data.version.pk,
-            self.data.build["id"],
+            version_pk=self.data.version.pk,
+            build_pk=self.data.build_pk,
             event=WebHookEvent.BUILD_PASSED,
         )
 
         if self.data.build_commit:
             send_external_build_status(
                 version_type=self.data.version.type,
-                build_pk=self.data.build["id"],
+                build_pk=self.data.build_pk,
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
             )
@@ -788,27 +803,31 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        # Be defensive with the signal, so if a listener fails we still clean up
-        try:
-            build_complete.send(sender=Build, build=self.data.build)
-        except Exception:
-            log.exception("Error during build_complete", exc_info=True)
-
-        if self.data.version:
-            clean_build(self.data.version)
-
         try:
             self.data.api_client.revoke.post()
         except Exception:
             log.exception("Failed to revoke build api key.", exc_info=True)
 
         # Disable scale-in protection on this instance
-        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
-            set_builder_scale_in_protection.delay(
-                build_id=self.data.build_pk,
-                builder=socket.gethostname(),
-                protected_from_scale_in=False,
-            )
+        set_builder_scale_in_protection.delay(
+            build_id=self.data.build_pk,
+            builder=socket.gethostname(),
+            protected_from_scale_in=False,
+        )
+
+        # SECURITY: retire this builder if there are files that can't be deleted.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        is_clean = False
+        if self.data.project and self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
+            is_clean = clean_build()
+        elif self.data.version:
+            is_clean = clean_build(self.data.version)
+        else:
+            is_clean = clean_build()
+
+        if not is_clean:
+            log.error("There are files left by this build. Retiring this builder.")
 
         log.info(
             "Build finished.",
@@ -816,17 +835,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             success=self.data.build["success"],
         )
 
+        if not is_clean or (
+            self.data.project
+            and self.data.project.has_feature(Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH)
+        ):
+            retire_builder(build_id=self.data.build_pk)
+
     def update_build(self, state=None):
         if state:
             self.data.build["state"] = state
 
-        # Attempt to stop unicode errors on build reporting
-        # for key, val in list(self.data.build.items()):
-        #     if isinstance(val, bytes):
-        #         self.data.build[key] = val.decode('utf-8', 'ignore')
+        # Nothing to update.
+        if not self.data.build:
+            return
 
         try:
-            self.data.api_client.build(self.data.build["id"]).patch(self.data.build)
+            self.data.api_client.build(self.data.build_pk).patch(self.data.build)
         except Exception:
             # NOTE: we are updating the "Build" object on each `state`.
             # Only if the last update fails, there may be some inconsistency
@@ -852,7 +876,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # `Version` objects in the database. This method runs commands
             # (e.g. "hg tags") inside the VCS environment, so it requires to be
             # inside the `with` statement
-            self.sync_versions(self.data.build_director.vcs_repository)
+            # SECURITY: never sync versions from external versions (PRs),
+            # since they are not trusted and could fake the output of the commands
+            # to create/delete versions in our database.
+            if not self.data.version.is_external:
+                self.sync_versions(self.data.build_director.vcs_repository)
+
+            # SECURITY: don't run user code before sycing versions, so users can't manipulate
+            # the output of the command to create/delete versions in our database.
+            self.data.build_director.run_build_job("post_checkout")
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with
@@ -919,25 +951,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         :param build_pk: Build primary key
         """
-        build = {}
-        if build_pk:
-            build = self.data.api_client.build(build_pk).get()
-        private_keys = [
-            "project",
-            "version",
-            "resource_uri",
-            "absolute_uri",
-        ]
-        # TODO: try to use the same technique than for ``APIProject``.
-        return {key: val for key, val in build.items() if key not in private_keys}
-
-    # NOTE: this can be just updated on `self.data.build['']` and sent once the
-    # build has finished to reduce API calls.
-    def set_valid_clone(self):
-        """Mark on the project that it has been cloned properly."""
-        self.data.api_client.project(self.data.project.pk).patch({"has_valid_clone": True})
-        self.data.project.has_valid_clone = True
-        self.data.version.project.has_valid_clone = True
+        return self.data.api_client.build(build_pk).get()
 
     def store_build_artifacts(self):
         """
@@ -959,7 +973,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         build_media_storage = get_storage(
-            build_id=self.data.build["id"],
+            build_id=self.data.build_pk,
             api_client=self.data.api_client,
             storage_type=StorageType.build_media,
         )

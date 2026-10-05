@@ -18,7 +18,6 @@ from readthedocs.projects.models import Project
 
 
 @mock.patch("readthedocs.core.utils.app")
-@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class CancelBuildViewTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
@@ -53,10 +52,24 @@ class CancelBuildViewTests(TestCase):
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 302)
         app.control.revoke.assert_called_once_with(
-            self.build.task_id, signal=mock.ANY, terminate=False
+            self.build.task_id, signal=mock.ANY, terminate=True
         )
         self.build.refresh_from_db()
         self.assertEqual(self.build.state, BUILD_STATE_CANCELLED)
+
+    def test_cancel_triggered_build_not_dispatched(self, app):
+        """A build no worker was handed yet has no task to revoke."""
+        self.build.state = BUILD_STATE_TRIGGERED
+        self.build.task_id = None
+        self.build.save()
+        self.client.force_login(self.user)
+        url = reverse("builds_detail", args=[self.project.slug, self.build.pk])
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, 302)
+        app.control.revoke.assert_not_called()
+        self.build.refresh_from_db()
+        self.assertEqual(self.build.state, BUILD_STATE_CANCELLED)
+        self.assertEqual(self.build.success, False)
 
     def test_cancel_build_anonymous_user(self, app):
         url = reverse("builds_detail", args=[self.project.slug, self.build.pk])
@@ -74,6 +87,7 @@ class CancelBuildViewTests(TestCase):
             project=another_project,
             version=another_project.versions.first(),
             state=BUILD_STATE_INSTALLING,
+            task_id="5678",
         )
 
         self.client.force_login(another_user)
@@ -96,12 +110,10 @@ class CancelBuildViewTests(TestCase):
         )
 
     def _get_project(self, owners, **kwargs):
-        if settings.RTD_ALLOW_ORGANIZATIONS:
-            # TODO: don't set `users=owners` when using orgs, it's redundant.
-            project = get(Project, users=owners, **kwargs)
-            get(Organization, projects=[project], owners=owners)
-            return project
-        return get(Project, users=owners, **kwargs)
+        # TODO: don't set `users=owners` when using orgs, it's redundant.
+        project = get(Project, users=owners, **kwargs)
+        get(Organization, projects=[project], owners=owners)
+        return project
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

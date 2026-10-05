@@ -1,5 +1,10 @@
 import os
 import socket
+import sysconfig
+
+import structlog
+
+from readthedocs.core.logs import shared_processors
 
 from .base import CommunityBaseSettings
 
@@ -10,12 +15,24 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     DEBUG = bool(os.environ.get("RTD_DJANGO_DEBUG", False))
 
+    # Collapse third-party frames in tracebacks to one line
+    RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS = bool(
+        os.environ.get("RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS", False)
+    )
+
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_NETWORK = "community_readthedocs"
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     BUILD_MEMORY_LIMIT = "2g"
+
+    # Personal access token used by the build-isolated dev container's
+    # entrypoint to clone the readthedocs-builder repo when it's
+    # private. Not strictly needed when the host's checkout is
+    # bind-mounted into the dev container (the entrypoint skips the
+    # clone in that case). Leave empty when the repo is public.
+    RTD_BUILDER_TOKEN = os.environ.get("RTD_BUILDER_TOKEN", "")
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -53,6 +70,10 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
+
+    # OpenAI-backed spam rules (readthedocsext.spamfighting) read the key
+    # from settings only; docker-compose passes this variable through.
+    RTD_OPENAI_API_KEY = os.environ.get("RTD_OPENAI_API_KEY")
 
     @property
     def DOCROOT(self):
@@ -101,9 +122,33 @@ class DockerBaseSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
 
+        suppress = []
+        if self.RTD_LOGGING_SUPPRESS_THIRDPARTY_TRACEBACKS:
+            suppress = [sysconfig.get_path("purelib")]
+
+        logging["formatters"]["colored_console"] = {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processors": [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.dev.ConsoleRenderer(
+                    colors=True,
+                    exception_formatter=structlog.dev.RichTracebackFormatter(
+                        show_locals=True,
+                        extra_lines=3,
+                        suppress=suppress,
+                    ),
+                ),
+            ],
+            "foreign_pre_chain": shared_processors,
+        }
         logging["handlers"]["console"]["formatter"] = "colored_console"
         logging["loggers"].update(
             {
+                # Drop Django's default stderr handler, otherwise tracebacks are printed twice
+                "django": {
+                    "handlers": [],
+                    "propagate": True,
+                },
                 # Disable Django access requests logging (e.g. GET /path/to/url)
                 # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
                 "django.server": {
@@ -267,6 +312,14 @@ class DockerBaseSettings(CommunityBaseSettings):
                     "bucket_name": os.environ.get("RTD_S3_USER_CONTENT_STORAGE_BUCKET", "usercontent"),
                     "url_protocol": "http:",
                     "custom_domain": self.PRODUCTION_DOMAIN + "/usercontent",
+                },
+            },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": os.environ.get("RTD_S3_BUILD_UPLOADS_STORAGE_BUCKET", "build-uploads"),
+                    # Explicit default ACL required to generate presigned URLs.
+                    "default_acl": "private",
                 },
             },
         }

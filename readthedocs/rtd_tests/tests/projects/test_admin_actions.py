@@ -6,7 +6,6 @@ from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
 
 
@@ -14,7 +13,6 @@ class ProjectAdminActionsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.owner = fixture.get(User)
-        cls.profile = fixture.get(UserProfile, user=cls.owner, banned=False)
         cls.admin = fixture.get(User, is_staff=True, is_superuser=True)
         cls.project = fixture.get(
             Project,
@@ -41,7 +39,6 @@ class ProjectAdminActionsTest(TestCase):
 
     def test_project_ban_multiple_owners(self):
         owner_b = fixture.get(User)
-        profile_b = fixture.get(UserProfile, user=owner_b, banned=False)
         self.project.users.add(owner_b)
         self.assertFalse(self.owner.profile.banned)
         self.assertFalse(owner_b.profile.banned)

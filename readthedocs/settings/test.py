@@ -126,7 +126,10 @@ class CommunityTestSettings(CommunityBaseSettings):
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
 
-        logging["handlers"]["console"]["level"] = "DEBUG"
+        # Keep test output focused on failures: only warnings/errors reach the
+        # console. DEBUG-level records are still written to the debug.log file
+        # handler for post-mortem inspection.
+        logging["handlers"]["console"]["level"] = "WARNING"
         logging["formatters"]["default"]["format"] = "[%(asctime)s] " + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
@@ -171,6 +174,13 @@ class CommunityTestSettings(CommunityBaseSettings):
                 "OPTIONS": {
                     "location": Path(self.MEDIA_ROOT) / "usercontent",
                     "allow_overwrite": True,
+                },
+            },
+            "build-uploads": {
+                "BACKEND": "readthedocs.storage.s3_storage.RTDS3Storage",
+                "OPTIONS": {
+                    "bucket_name": "build-uploads",
+                    "default_acl": "private",
                 },
             },
         }
