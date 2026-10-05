@@ -400,6 +400,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             default_branch="main",
         )
         self.feature.projects.add(project)
+        self.organization.projects.add(project)
         # Even with a machine-managed "latest" around, the uploaded name is the version.
         latest = project.versions.create_latest(identifier="main")
         self.data["project"] = project.slug
@@ -426,6 +427,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             is_direct_upload=True,
         )
         self.feature.projects.add(project)
+        self.organization.projects.add(project)
         # Direct upload projects don't get "latest" on creation.
         assert not project.versions.exists()
         self.data["project"] = project.slug
@@ -497,6 +499,7 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             is_direct_upload=True,
         )
         self.feature.projects.add(project)
+        self.organization.projects.add(project)
         get(
             AutomationRule,
             project=project,

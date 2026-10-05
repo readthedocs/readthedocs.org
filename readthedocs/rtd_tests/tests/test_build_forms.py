@@ -377,7 +377,12 @@ class TestVersionForm(TestCase):
             slug="uploaded",
         )
         form = VersionForm(
-            {"slug": version.slug, "active": False, "is_uploaded": True},
+            {
+                "slug": version.slug,
+                "active": False,
+                "privacy_level": PUBLIC,
+                "is_uploaded": True,
+            },
             instance=version,
             project=self.project,
         )
@@ -423,7 +428,12 @@ class TestVersionForm(TestCase):
             slug="uploaded",
         )
         form = VersionForm(
-            {"slug": version.slug, "active": True, "is_uploaded": False},
+            {
+                "slug": version.slug,
+                "active": True,
+                "privacy_level": PUBLIC,
+                "is_uploaded": False,
+            },
             instance=version,
             project=self.project,
         )
