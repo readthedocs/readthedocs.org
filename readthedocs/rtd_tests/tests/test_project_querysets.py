@@ -193,6 +193,28 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_only_owner(self):
+        user = get(User)
+        another_user = get(User)
+
+        project_one = get(Project, slug="one", users=[user])
+        project_two = get(Project, slug="two", users=[user])
+        project_three = get(Project, slug="three", users=[another_user])
+        get(Project, slug="four", users=[user, another_user])
+        get(Project, slug="five", users=[])
+
+        project_with_organization = get(Project, slug="six", users=[user])
+        get(Organization, owners=[user], projects=[project_with_organization])
+
+        self.assertEqual(
+            {project_one, project_two}, set(Project.objects.single_owner(user))
+        )
+        self.assertEqual(
+            {project_three}, set(Project.objects.single_owner(another_user))
+        )
+
+
+class ProjectWithFeatureQuerySetTests(TestCase):
     @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_with_feature_explicit(self):
         project = fixture.get(Project, main_language_project=None)
@@ -250,26 +272,6 @@ class ProjectQuerySetTests(TestCase):
     def test_with_feature_unknown(self):
         fixture.get(Project, main_language_project=None)
         self.assertQuerySetEqual(Project.objects.with_feature("does-not-exist"), [])
-
-    def test_only_owner(self):
-        user = get(User)
-        another_user = get(User)
-
-        project_one = get(Project, slug="one", users=[user])
-        project_two = get(Project, slug="two", users=[user])
-        project_three = get(Project, slug="three", users=[another_user])
-        get(Project, slug="four", users=[user, another_user])
-        get(Project, slug="five", users=[])
-
-        project_with_organization = get(Project, slug="six", users=[user])
-        get(Organization, owners=[user], projects=[project_with_organization])
-
-        self.assertEqual(
-            {project_one, project_two}, set(Project.objects.single_owner(user))
-        )
-        self.assertEqual(
-            {project_three}, set(Project.objects.single_owner(another_user))
-        )
 
 
 class FeatureQuerySetTests(TestCase):
