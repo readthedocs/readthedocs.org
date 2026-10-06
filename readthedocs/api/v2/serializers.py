@@ -6,10 +6,10 @@ from django.utils.translation import gettext as _
 from generic_relations.relations import GenericRelatedField
 from rest_framework import serializers
 
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
-from readthedocs.builds.utils import normalize_build_command
 from readthedocs.core.resolver import Resolver
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization

@@ -724,12 +724,12 @@ Build details
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/
+            $ curl -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/'
+            URL = 'https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -788,28 +788,10 @@ Build details
                     "recursive": true
                 }
             },
-            "commands": [
-                {
-                    "id": 123456789,
-                    "command": "git clone --depth 1 https://github.com/pypa/pip .",
-                    "output": "Cloning into '.'...",
-                    "exit_code": 0,
-                    "start_time": "2018-06-19T15:15:59+00:00",
-                    "end_time": "2018-06-19T15:16:02+00:00",
-                    "run_time": 3
-                }
-            ],
             "_links": {
                 "_self": "/api/v3/projects/pip/builds/8592686/",
                 "project": "/api/v3/projects/pip/",
                 "version": "/api/v3/projects/pip/versions/latest/"
-            },
-            "urls": {
-                "build": "https://app.readthedocs.org/projects/pip/builds/8592686/",
-                "project": "https://app.readthedocs.org/projects/pip/",
-                "version": "https://app.readthedocs.org/projects/pip/version/latest/edit/",
-                "documentation": "https://pip.pypa.io/en/latest/",
-                "commit": "https://github.com/pypa/pip/commit/6f808d743fd6f6907ad3e2e969c88a549e76db30"
             }
         }
 
@@ -818,10 +800,9 @@ Build details
     :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
-    :>json object config: The configuration used by this build.
-    :>json array commands: The commands run by this build, with their output.
-                           Only returned on this endpoint, not on listings.
-    :>json object urls: Links to the build, project, version, built documentation and commit.
+
+    :query string expand: Add additional fields in the response.
+                          Allowed value is ``config``.
 
 
 Builds listing

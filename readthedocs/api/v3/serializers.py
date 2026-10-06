@@ -12,12 +12,12 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer
 from taggit.serializers import TagListSerializerField
 
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
-from readthedocs.builds.utils import normalize_build_command
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -148,7 +148,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_documentation(self, obj):
         if not obj.version:
             return None
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(project=obj.project, version=obj.version)
 
     def get_commit(self, obj):
@@ -205,11 +205,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source="length")
     state = BuildStateSerializer(source="*")
-    # ``Build.config`` only reads the ``readthedocs_yaml_config`` FK,
-    # so views ``select_related`` it and we can always include it.
-    # ``config`` was previously an expandable field; ``?expand=config`` is
-    # still accepted and ignored to keep old clients working.
-    config = BuildConfigSerializer(read_only=True)
+    state_display = serializers.CharField(source="get_state_display", read_only=True)
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
     # Kept for backward compatibility. The field was removed from the model,
@@ -226,18 +222,20 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "finished",
             "duration",
             "state",
+            "state_display",
             "success",
             "error",
             "commit",
-            "config",
             "_links",
             "urls",
         ]
 
+        expandable_fields = {"config": (BuildConfigSerializer,)}
+
     def __init__(self, *args, resolver=None, **kwargs):
-        # Use a shared resolver to reduce the amount of DB queries while
-        # resolving documentation URLs (``urls.documentation``).
-        # The resolver caches domain lookups per project,
+        # Use a shared resolver to reduce DB queries when building URLs that
+        # need a domain lookup (e.g. ``urls.documentation``).
+        # The resolver caches these lookups per project,
         # so one instance is shared by all the builds of a listing.
         self.resolver = resolver or Resolver()
         super().__init__(*args, **kwargs)

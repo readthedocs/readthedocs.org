@@ -242,9 +242,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), expected_response)
 
-    def test_projects_builds_detail_expand_config_is_still_accepted(self):
-        # ``config`` used to be an expandable field,
-        # make sure old clients passing ``?expand=config`` keep working.
+    def test_projects_builds_detail_expand_config(self):
         url = reverse(
             "projects-builds-detail",
             kwargs={
@@ -256,8 +254,22 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["config"], {"property": "test value"})
 
+    def test_projects_builds_list_expand_config(self):
+        url = reverse(
+            "projects-builds-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        response = self.client.get(f"{url}?expand=config")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["results"][0]["config"],
+            {"property": "test value"},
+        )
+
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.builds.utils.build_commands_storage")
+    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
     def test_projects_builds_list_does_not_include_commands(
         self,
         build_commands_storage,
@@ -278,31 +290,22 @@ class BuildsEndpointTests(APIEndpointMixin):
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        build = response.json()["results"][0]
-        self.assertNotIn("commands", build)
-        self.assertEqual(build["config"], {"property": "test value"})
+        self.assertNotIn("commands", response.json()["results"][0])
         build_commands_storage.exists.assert_not_called()
 
     def test_projects_builds_list_queries(self):
         # The number of queries must not depend on the number of builds:
-        # count, builds (with project, version and config ``select_related``),
+        # count, builds (with project and version ``select_related``),
         # and the superproject and canonical domain lookups done by the resolver
         # (cached per project).
-        for i in range(5):
-            build = fixture.get(
+        for _ in range(5):
+            fixture.get(
                 Build,
                 version=self.version,
                 project=self.project,
-                readthedocs_yaml_config=self.readthedocs_yaml_config,
                 state="finished",
                 success=True,
                 commit="a1b2c3",
-            )
-            build.commands.create(
-                command="python -m sphinx",
-                description="Build docs",
-                output="Done",
-                exit_code=0,
             )
         url = reverse(
             "projects-builds-list",
@@ -344,7 +347,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.builds.utils.build_commands_storage")
+    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
     def test_projects_builds_detail_reads_commands_from_cold_storage(
         self,
         build_commands_storage,
