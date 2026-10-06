@@ -3,10 +3,74 @@ from unittest import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import (
+    FileManifestIndexer,
+    SearchIndexer,
+    _get_indexers,
+    _should_create_manifest,
+)
+
+
+class TestShouldCreateManifest(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def _disable_manifest_features(self):
+        self.project.addons.filetreediff_enabled = False
+        self.project.addons.save()
+        self.project.show_build_overview_in_comment = False
+        self.project.save()
+
+    def test_base_version(self):
+        version = self.project.versions.get(slug=LATEST)
+        assert _should_create_manifest(version) is True
+
+    def test_external_version(self):
+        version = get(Version, project=self.project, slug="123", type=EXTERNAL)
+        assert _should_create_manifest(version) is True
+
+    def test_non_base_internal_version(self):
+        version = get(Version, project=self.project, slug="stable")
+        assert _should_create_manifest(version) is False
+
+    def test_custom_base_version(self):
+        version = get(Version, project=self.project, slug="main")
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+
+        assert _should_create_manifest(version) is True
+        assert _should_create_manifest(self.project.versions.get(slug=LATEST)) is False
+
+    def test_manifest_features_disabled(self):
+        self._disable_manifest_features()
+
+        version = self.project.versions.get(slug=LATEST)
+        assert _should_create_manifest(version) is False
+
+        external_version = get(Version, project=self.project, slug="123", type=EXTERNAL)
+        assert _should_create_manifest(external_version) is False
+
+    def test_manifest_indexer_skipped_when_features_disabled(self):
+        self._disable_manifest_features()
+        version = get(Version, project=self.project, slug="123", type=EXTERNAL)
+        build = get(Build, version=version, state=BUILD_STATE_FINISHED, success=True)
+
+        indexers = _get_indexers(version=version, build=build)
+
+        assert not any(
+            isinstance(indexer, FileManifestIndexer) for indexer in indexers
+        )
+
+    def test_manifest_indexer_created_by_default(self):
+        version = get(Version, project=self.project, slug="123", type=EXTERNAL)
+        build = get(Build, version=version, state=BUILD_STATE_FINISHED, success=True)
+
+        indexers = _get_indexers(version=version, build=build)
+
+        assert any(isinstance(indexer, FileManifestIndexer) for indexer in indexers)
 
 
 class TestSearchIndexing(TestCase):
