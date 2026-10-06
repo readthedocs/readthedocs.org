@@ -428,9 +428,6 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
-    permit_list_expands = [
-        "config",
-    ]
 
     def get_serializer_class(self):
         # Commands are only returned on the detail endpoint,
@@ -440,9 +437,11 @@ class BuildsViewSet(
         return super().get_serializer_class()
 
     def get_queryset(self):
-        # The serializer reads ``build.version`` and ``build.project``
-        # for every build in the list.
-        return super().get_queryset().select_related("version", "project")
+        # The serializer reads ``build.version``, ``build.project``
+        # and ``build.config`` (``readthedocs_yaml_config``) for every build in the list.
+        return (
+            super().get_queryset().select_related("version", "project", "readthedocs_yaml_config")
+        )
 
     def retrieve(self, request, *args, **kwargs):
         # Keep API behavior parity with v2: hydrate commands from cold storage

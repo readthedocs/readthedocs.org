@@ -208,6 +208,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
     duration = serializers.IntegerField(source="length")
     state = BuildStateSerializer(source="*")
     state_display = serializers.CharField(source="get_state_display", read_only=True)
+    # ``Build.config`` only reads the ``readthedocs_yaml_config`` FK
+    # (``select_related`` on the view), so it's cheap to always include it.
+    # It used to be an expandable field, ``?expand=config`` is still accepted.
+    config = BuildConfigSerializer(read_only=True)
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
     # Kept for backward compatibility. The field was removed from the model,
@@ -228,11 +232,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "success",
             "error",
             "commit",
+            "config",
             "_links",
             "urls",
         ]
-
-        expandable_fields = {"config": (BuildConfigSerializer,)}
 
     def __init__(self, *args, resolver=None, **kwargs):
         # Use a shared resolver to reduce DB queries when building URLs that

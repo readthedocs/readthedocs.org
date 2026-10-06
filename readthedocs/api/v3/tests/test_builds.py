@@ -243,6 +243,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertDictEqual(response.json(), expected_response)
 
     def test_projects_builds_detail_expand_config(self):
+        # ``config`` is always included now, but ``?expand=config`` must keep working.
         url = reverse(
             "projects-builds-detail",
             kwargs={
@@ -290,12 +291,14 @@ class BuildsEndpointTests(APIEndpointMixin):
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("commands", response.json()["results"][0])
+        build = response.json()["results"][0]
+        self.assertNotIn("commands", build)
+        self.assertEqual(build["config"], {"property": "test value"})
         build_commands_storage.exists.assert_not_called()
 
     def test_projects_builds_list_queries(self):
         # The number of queries must not depend on the number of builds:
-        # count, builds (with project and version ``select_related``),
+        # count, builds (with project, version and config ``select_related``),
         # and the superproject and canonical domain lookups done by the resolver
         # (cached per project).
         for _ in range(5):
