@@ -28,6 +28,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
+from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -66,6 +67,7 @@ from .permissions import IsOrganizationAdminMember
 from .permissions import IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import BuildCreateSerializer
+from .serializers import BuildDetailSerializer
 from .serializers import BuildSerializer
 from .serializers import EnvironmentVariableSerializer
 from .serializers import NotificationSerializer
@@ -426,14 +428,33 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
-    permit_list_expands = [
-        "config",
-    ]
+
+    def get_serializer_class(self):
+        # Commands are only returned on the detail endpoint,
+        # they are too expensive to include on listings.
+        if self.action == "retrieve":
+            return BuildDetailSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
-        # The serializer reads ``build.version`` and ``build.project``
-        # for every build in the list.
-        return super().get_queryset().select_related("version", "project")
+        # The serializer reads ``build.version``, ``build.project``
+        # and ``build.config`` (``readthedocs_yaml_config``) for every build in the list.
+        return (
+            super().get_queryset().select_related("version", "project", "readthedocs_yaml_config")
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        # Keep API behavior parity with v2: hydrate commands from cold storage
+        # on detail responses only (list returns serializer output as-is).
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        commands = get_build_commands_from_storage(instance)
+        if commands is not None:
+            data["commands"] = commands
+
+        return Response(data)
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
