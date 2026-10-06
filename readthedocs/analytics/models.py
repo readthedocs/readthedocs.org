@@ -37,13 +37,11 @@ class PageViewManager(models.Manager):
         filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
 
-        # NOTE: a single upsert instead of ``get_or_create`` + ``save``.
-        # The planner had no statistics for today's date during the first
-        # hours of each day and resolved the lookup through the ``date``
-        # index, scanning every row of the day. ``ON CONFLICT`` goes straight
-        # through the unique index, and it's one round trip instead of two.
+        # A single upsert instead of ``get_or_create`` + ``save``: the lookup
+        # by ``date`` picked a bad plan until the day's statistics caught up,
+        # and the ORM can't express an increment on conflict.
         # Rows without a version are covered by a partial unique index,
-        # which Postgres only matches if the conflict target repeats its condition.
+        # which only matches if the conflict target repeats its condition.
         if version is None:
             conflict_target = "(project_id, path, date, status) WHERE version_id IS NULL"
         else:
