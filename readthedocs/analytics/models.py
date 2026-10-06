@@ -4,6 +4,7 @@ import datetime
 from collections import namedtuple
 from urllib.parse import urlparse
 
+from django.db import connections
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
@@ -36,21 +37,38 @@ class PageViewManager(models.Manager):
         filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
 
-        page_view, created = self.get_or_create(
-            project=project,
-            version=version,
-            path=filename,
-            date=timezone.now().date(),
-            status=status,
-            defaults={
-                "view_count": 1,
-                "full_path": path,
-            },
-        )
-        if not created:
-            page_view.view_count = models.F("view_count") + 1
-            page_view.save(update_fields=["view_count"])
-        return page_view
+        # NOTE: a single upsert instead of ``get_or_create`` + ``save``.
+        # The planner had no statistics for today's date during the first
+        # hours of each day and resolved the lookup through the ``date``
+        # index, scanning every row of the day. ``ON CONFLICT`` goes straight
+        # through the unique index, and it's one round trip instead of two.
+        # Rows without a version are covered by a partial unique index,
+        # which Postgres only matches if the conflict target repeats its condition.
+        if version is None:
+            conflict_target = "(project_id, path, date, status) WHERE version_id IS NULL"
+        else:
+            conflict_target = "(project_id, version_id, path, date, status)"
+
+        connection = connections[self.db]
+        table = connection.ops.quote_name(self.model._meta.db_table)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"""
+                INSERT INTO {table}
+                    (project_id, version_id, path, full_path, view_count, date, status)
+                VALUES (%s, %s, %s, %s, 1, %s, %s)
+                ON CONFLICT {conflict_target}
+                DO UPDATE SET view_count = {table}.view_count + 1
+                """,
+                [
+                    project.pk,
+                    version.pk if version else None,
+                    filename,
+                    path,
+                    timezone.now().date(),
+                    int(status),
+                ],
+            )
 
 
 class PageView(models.Model):
