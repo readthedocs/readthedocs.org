@@ -41,6 +41,7 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_HTML_NO_INDEX_FILE = "build:user:output:html-no-index-file"
     BUILD_OUTPUT_OLD_DIRECTORY_USED = "build:user:output:old-directory-used"
     FILE_TOO_LARGE = "build:user:output:file-too-large"
+    BUILD_MEDIA_SIZE_EXCEEDED = "build:user:output:media-size-exceeded"
     TEX_FILE_NOT_FOUND = "build:user:tex-file-not-found"
     PDF_NOT_FOUND = "build:user:pdf-not-found"
     BUILD_ARTIFACTS_ZIP_INVALID = "build:user:artifacts-zip-invalid"

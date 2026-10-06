@@ -348,7 +348,7 @@ class ProxitoHeaderTests(BaseDocServing):
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_robots_txt_with_private_projects_not_allowed(self):
         r = self.client.get(
-            "/robots.txt", headers={"host": "project.dev.readthedocs.io"}
+            "/robots.txt", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
@@ -357,14 +357,14 @@ class ProxitoHeaderTests(BaseDocServing):
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_cache_headers_robots_txt_with_private_projects_allowed(self):
         r = self.client.get(
-            "/robots.txt", headers={"host": "project.dev.readthedocs.io"}
+            "/robots.txt", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
         self.assertEqual(r["Cache-Tag"], "project,project:robots.txt")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
-    def test_cache_headers_robots_txt_with_private_projects_not_allowed(self):
+    def test_cache_headers_sitemap_xml_with_private_projects_not_allowed(self):
         r = self.client.get(
             "/sitemap.xml", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
@@ -373,7 +373,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r["Cache-Tag"], "project,project:sitemap.xml")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
-    def test_cache_headers_robots_txt_with_private_projects_allowed(self):
+    def test_cache_headers_sitemap_xml_with_private_projects_allowed(self):
         r = self.client.get(
             "/sitemap.xml", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )

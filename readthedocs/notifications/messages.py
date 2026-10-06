@@ -395,6 +395,20 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
+        id=BuildUserError.BUILD_MEDIA_SIZE_EXCEEDED,
+        header=_("Build output exceeds the size limit"),
+        body=_(
+            textwrap.dedent(
+                """
+            The {{media_type}} output of this build is {{size}} MB, exceeding the {{limit}} MB limit per format.
+            Builds over this limit may fail in the future.
+            Reduce the size of your generated documentation, or contact support to increase the limit.
+            """
+            ).strip(),
+        ),
+        type=WARNING,
+    ),
+    Message(
         id=BuildUserError.BUILD_OUTPUT_HAS_NO_PDF_FILES,
         header=_("There is no PDF file in output directory"),
         body=_(

@@ -927,9 +927,9 @@ class TestAdditionalDocViews(BaseDocServing):
             """
             User-agent: *
 
-            Disallow: /en/hidden-2/ # Hidden version
-
             Disallow: /en/hidden/ # Hidden version
+
+            Disallow: /en/hidden-2/ # Hidden version
 
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
@@ -1049,6 +1049,25 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_robots_txt_without_default_version(self):
+        # A direct upload project has no versions until the first upload.
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("robots_txt"), headers={"host": "project.readthedocs.io"}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_sitemap_xml_without_default_version(self):
+        self.project.is_direct_upload = True
+        self.project.save()
+        self.project.versions.all().delete()
+        response = self.client.get(
+            reverse("sitemap_xml"), headers={"host": "project.readthedocs.io"}
         )
         self.assertEqual(response.status_code, 404)
 
@@ -1963,11 +1982,11 @@ class TestCDNCache(BaseDocServing):
         self.domain.save()
         self._test_cache_control_header_project(expected_value="public", host=self.domain.domain)
 
-        # HTTPS redirect respects the privacy level of the version.
+        # HTTPS redirects can always be cached.
         resp = self.client.get("/en/latest/", secure=False, headers={"host": self.domain.domain})
         self.assertEqual(resp["Location"], f"https://{self.domain.domain}/en/latest/")
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public, max-age=1200")
-        self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
@@ -1998,7 +2017,7 @@ class TestCDNCache(BaseDocServing):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self._test_cache_control_header_subproject(expected_value="public")
 
-    def test_cache_public_versions_custom_domain(self):
+    def test_cache_public_versions_custom_domain_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.domain.canonical = True
         self.domain.save()

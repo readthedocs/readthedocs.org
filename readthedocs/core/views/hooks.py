@@ -85,6 +85,14 @@ def trigger_sync_versions(project):
         )
         return None
 
+    # Direct upload projects only get the versions they upload.
+    if project.is_direct_upload:
+        log.info(
+            "Sync not triggered because project uses direct upload.",
+            project_slug=project.slug,
+        )
+        return None
+
     try:
         version = project.get_latest_version()
         if not version:

@@ -21,6 +21,7 @@ from readthedocs.builds.models import Build
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.base import ProjectSpamMixin
@@ -32,6 +33,10 @@ log = structlog.get_logger(__name__)
 class BuildBase:
     model = Build
 
+    # The list view calls this several times per request (filters, pagination,
+    # the active builds query); each call resolved the project and the
+    # permission queryset again.
+    @cached_method
     def get_queryset(self):
         self.project_slug = self.kwargs.get("project_slug", None)
         self.project = get_object_or_404(

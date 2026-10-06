@@ -54,11 +54,11 @@ class AccountAdapter(DefaultAccountAdapter):
         if invitation_pk:
             invitation = Invitation.objects.pending().filter(pk=invitation_pk).first()
             if invitation:
-                log.info("Redeeming invitation at sign-up", invitation_pk=invitation_pk)
+                log.info("Redeeming invitation at sign-up", invitation_id=invitation_pk)
                 invitation.redeem(user, request=request)
                 invitation.delete()
             else:
-                log.info("Invitation not found", invitation_pk=invitation_pk)
+                log.info("Invitation not found", invitation_id=invitation_pk)
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):

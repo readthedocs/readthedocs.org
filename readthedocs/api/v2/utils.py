@@ -295,6 +295,10 @@ def normalize_build_command(command, project_slug, version_slug):
 
     regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
     command = re.sub(regex, "", command, count=1)
+
+    # Builders run system binaries by absolute path (e.g. ``/usr/bin/apt-get``).
+    regex = r"^/usr/bin/"
+    command = re.sub(regex, "", command, count=1)
     return command
 
 

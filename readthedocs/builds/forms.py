@@ -15,6 +15,15 @@ from readthedocs.builds.version_slug import validate_version_slug
 
 class VersionForm(forms.ModelForm):
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    is_uploaded = forms.BooleanField(
+        label=_("Uploaded"),
+        required=False,
+        help_text=_(
+            "Versions that are uploaded are not built by Read the Docs. "
+            "Uncheck this to build this version on Read the Docs instead. Any previously uploaded files will be removed, "
+            "a new build will be triggered, and the version will be available when that build succeeds."
+        ),
+    )
 
     class Meta:
         model = Version
@@ -25,6 +34,7 @@ class VersionForm(forms.ModelForm):
             "slug",
             *states_fields,
             *privacy_fields,
+            "is_uploaded",
         )
 
     def __init__(self, *args, **kwargs):
@@ -49,6 +59,13 @@ class VersionForm(forms.ModelForm):
         else:
             self.fields.pop("privacy_level")
 
+        # The way back to Read the Docs builds for a version that was uploaded.
+        # Direct upload projects never build, so there is nothing to go back to.
+        if self.project.is_direct_upload or not (self.instance and self.instance.is_uploaded):
+            self.fields.pop("is_uploaded")
+        else:
+            field_sets.append(Fieldset(_("Direct upload"), "is_uploaded"))
+
         field_sets.append(
             HTML(
                 render_to_string(
@@ -68,6 +85,7 @@ class VersionForm(forms.ModelForm):
         # We need to know if the version was active before the update.
         # We use this value in the save method.
         self._was_active = self.instance.active if self.instance else False
+        self._was_uploaded = self.instance.is_uploaded if self.instance else False
         self._previous_slug = self.instance.slug if self.instance else None
 
     def clean_active(self):
@@ -105,5 +123,5 @@ class VersionForm(forms.ModelForm):
             self._was_active = False
 
         obj = super().save(commit=commit)
-        obj.post_save(was_active=self._was_active)
+        obj.post_save(was_active=self._was_active, was_uploaded=self._was_uploaded)
         return obj

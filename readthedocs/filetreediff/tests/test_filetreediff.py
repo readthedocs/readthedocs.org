@@ -7,7 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_diff, snapshot_base_manifest
+from readthedocs.filetreediff import get_base_version, get_diff, snapshot_base_manifest
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -168,6 +168,22 @@ class TestsFileTreeDiff(TestCase):
         assert diff is None
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_version_not_active(self, storage_open):
+        self.version_b.active = False
+        self.version_b.save()
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff is None
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_base_version_not_built(self, storage_open):
+        self.version_b.built = False
+        self.version_b.save()
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff is None
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_outdated_diff(self, storage_open):
         files_a = {
             "index.html": "hash1",
@@ -201,6 +217,9 @@ class TestsBaseManifestSnapshot(TestCase):
     def setUp(self):
         self.project = get(Project)
         self.base_version = self.project.versions.get(slug=LATEST)
+        self.base_version.active = True
+        self.base_version.built = True
+        self.base_version.save()
         self.base_build = get(
             Build,
             project=self.project,
@@ -279,3 +298,42 @@ class TestsBaseManifestSnapshot(TestCase):
         """snapshot_base_manifest is a no-op if a snapshot already exists."""
         snapshot_base_manifest(self.pr_version, self.base_version)
         storage_open.assert_not_called()
+
+
+class TestsGetBaseVersion(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.latest = self.project.versions.get(slug=LATEST)
+        self.latest.active = True
+        self.latest.built = True
+        self.latest.save()
+
+    def test_defaults_to_latest(self):
+        assert get_base_version(self.project) == self.latest
+
+    def test_configured_base_version(self):
+        version = get(Version, project=self.project, slug="v2", active=True, built=True)
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+        assert get_base_version(self.project) == version
+
+    def test_latest_not_active(self):
+        self.latest.active = False
+        self.latest.save()
+        assert get_base_version(self.project) is None
+
+    def test_latest_not_built(self):
+        self.latest.built = False
+        self.latest.save()
+        assert get_base_version(self.project) is None
+
+    def test_configured_base_version_not_built(self):
+        version = get(Version, project=self.project, slug="v2", active=True, built=False)
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+        # We don't fall back to latest when the configured version is unusable.
+        assert get_base_version(self.project) is None
+
+    def test_latest_deleted(self):
+        self.latest.delete()
+        assert get_base_version(self.project) is None
