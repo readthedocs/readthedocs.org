@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 import pytest
 from django.core.exceptions import SuspiciousFileOperation
@@ -193,3 +194,51 @@ class TestBuildMediaStorage(TestCase):
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
                 self.storage.rclone_sync_directory(tmp_dir, "files")
+
+    def test_rclone_download_directory(self):
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "files/project")
+
+        download_dir = tempfile.mkdtemp()
+        self.storage.rclone_download_directory("files/project", download_dir)
+        self.assertCountEqual(
+            os.listdir(download_dir),
+            ["api", "404.html", "api.fjson", "conf.py", "index.html", "test.html"],
+        )
+        self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
+
+    def test_rclone_download_directory_include_filter(self):
+        with override_settings(DOCROOT=files_dir):
+            self.storage.rclone_sync_directory(files_dir, "files/project")
+
+        download_dir = tempfile.mkdtemp()
+        self.storage.rclone_download_directory("files/project", download_dir, include="*.html")
+        self.assertCountEqual(
+            os.listdir(download_dir),
+            ["api", "404.html", "index.html", "test.html"],
+        )
+        self.assertEqual(os.listdir(os.path.join(download_dir, "api")), ["index.html"])
+
+    def test_rclone_download_directory_not_found(self):
+        # A missing source directory downloads as an empty local copy,
+        # like walking a missing storage path.
+        download_dir = tempfile.mkdtemp()
+        self.storage.rclone_download_directory("does-not-exist/latest", download_dir)
+        self.assertEqual(os.listdir(download_dir), [])
+
+    def test_rclone_download_directory_storage_unreachable(self):
+        # Exit code 3 can also mean the bucket is unreachable or
+        # misconfigured; that must raise instead of emptying the version.
+        download_dir = tempfile.mkdtemp()
+        with mock.patch.object(
+            type(self.storage), "listdir", side_effect=OSError("unreachable")
+        ):
+            with pytest.raises(OSError):
+                self.storage.rclone_download_directory("does-not-exist/latest", download_dir)
+
+    def test_rclone_download_whole_prefix(self):
+        # The whole bucket, and whole top-level prefixes like all projects'
+        # HTML, must be refused.
+        for source in ("", "/", "html", "/html", "pdf/", "external"):
+            with pytest.raises(SuspiciousFileOperation):
+                self.storage.rclone_download_directory(source, tempfile.mkdtemp())
