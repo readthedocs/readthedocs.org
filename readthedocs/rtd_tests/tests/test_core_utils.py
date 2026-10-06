@@ -1,4 +1,5 @@
 """Test core util functions."""
+
 import datetime
 import gc
 import weakref
@@ -6,34 +7,34 @@ from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.utils import timezone
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import (
-    BUILD_STATE_BUILDING,
-    BUILD_STATE_TRIGGERED,
-    LATEST,
-)
-from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import admit_project_builds, slugify, trigger_build
+from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.core.utils import admit_project_builds
+from readthedocs.core.utils import slugify
+from readthedocs.core.utils import trigger_build
+from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.core.utils.objects import cached_method
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    RTD_DEFAULT_FEATURES=dict(
-        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
-    ),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]),
 )
 class CoreUtilTests(TestCase):
     def setUp(self):
-        self.project = get(
-            Project, container_time_limit=None, main_language_project=None
-        )
+        self.project = get(Project, container_time_limit=None, main_language_project=None)
         self.version = get(Version, project=self.project)
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
@@ -49,6 +50,23 @@ class CoreUtilTests(TestCase):
         self.assertFalse(update_docs_task.signature().apply_async.called)
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_skipped_direct_upload_project(self, update_docs_task):
+        self.project.is_direct_upload = True
+        self.project.save()
+        # With and without an explicit version: these projects may not have a default one.
+        for version in (self.version, None):
+            result = trigger_build(project=self.project, version=version)
+            assert result == (None, None)
+        assert not update_docs_task.signature.called
+
+    @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
+    def test_sync_versions_skipped_direct_upload_project(self, sync_repository_task):
+        self.project.is_direct_upload = True
+        self.project.save()
+        assert trigger_sync_versions(self.project) is None
+        assert not sync_repository_task.apply_async.called
+
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_skipped_uploaded_version(self, update_docs_task):
         self.version.is_uploaded = True
         self.version.save()
@@ -61,15 +79,11 @@ class CoreUtilTests(TestCase):
         assert not update_docs_task.signature().apply_async.called
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
-    def test_trigger_build_when_version_not_provided_default_version_exist(
-        self, update_docs_task
-    ):
+    def test_trigger_build_when_version_not_provided_default_version_exist(self, update_docs_task):
         self.assertFalse(Version.objects.filter(slug="test-default-version").exists())
 
         project_1 = get(Project)
-        version_1 = get(
-            Version, project=project_1, slug="test-default-version", active=True
-        )
+        version_1 = get(Version, project=project_1, slug="test-default-version", active=True)
 
         project_1.default_version = "test-default-version"
         project_1.save()
@@ -264,9 +278,7 @@ class CoreUtilTests(TestCase):
 
 
 @override_settings(
-    RTD_DEFAULT_FEATURES=dict(
-        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
-    ),
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]),
 )
 class BuildIsolatedConcurrencyTests(TestCase):
     """Concurrency admission for the build-isolated path."""
@@ -338,10 +350,7 @@ class BuildIsolatedConcurrencyTests(TestCase):
         assert build.task_id is None
         assert build.dispatched_date is None
         send_task.assert_not_called()
-        assert (
-            build.notifications.get().message_id
-            == BuildMaxConcurrencyError.LIMIT_REACHED
-        )
+        assert build.notifications.get().message_id == BuildMaxConcurrencyError.LIMIT_REACHED
 
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_admit_dispatches_up_to_free_slots_fifo(self, send_task):
@@ -423,10 +432,7 @@ class BuildIsolatedConcurrencyTests(TestCase):
         queued.refresh_from_db()
         assert queued.dispatched_date is None
         assert queued.task_id is None
-        assert (
-            queued.notifications.get().message_id
-            == BuildMaxConcurrencyError.LIMIT_REACHED
-        )
+        assert queued.notifications.get().message_id == BuildMaxConcurrencyError.LIMIT_REACHED
         send_task.assert_not_called()
 
 

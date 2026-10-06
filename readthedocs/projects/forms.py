@@ -283,6 +283,10 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
 
     def clean_prevalidation(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        # Pull request previews on direct upload projects come from uploads, there is nothing to validate.
+        if self.instance.is_direct_upload:
+            return
+
         # If the project is attached to a GitHub app integration,
         # it will always be able to build external versions.
         if self.instance.is_github_app_project:
@@ -467,7 +471,10 @@ class ProjectBasicsForm(ProjectForm):
 
 
 class ProjectConfigForm(forms.Form):
-    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+    """Intermediate step to choose how the documentation is built."""
+
+    # Set by the submit button of the tab the user picked: "true" on the direct upload tab.
+    is_direct_upload = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         # Remove 'user' field since it's not expected by BaseForm.
@@ -600,6 +607,19 @@ class UpdateProjectForm(
             self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
 
         self.setup_external_builds_option()
+
+        # Direct upload projects are never built by Read the Docs,
+        # so the build settings have nothing to configure.
+        if self.instance.is_direct_upload:
+            for field in [
+                "default_branch",
+                "readthedocs_yaml_path",
+                "git_checkout_command",
+                "n_consecutive_failed_builds",
+                "external_builds_enabled",
+                "external_builds_privacy_level",
+            ]:
+                self.fields.pop(field, None)
 
         # We use crispy layout here strictly for multifield and field ordering,
         # There's no HTML in Python, it's all in templates and web components.

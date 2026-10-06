@@ -4,6 +4,7 @@ import datetime
 import json
 import os.path
 import re
+from functools import cached_property
 from functools import partial
 from io import BytesIO
 
@@ -195,7 +196,7 @@ class Version(TimeStampedModel):
 
     class Meta:
         unique_together = [("project", "slug")]
-        ordering = ["-verbose_name"]
+        ordering = ["verbose_name"]
 
     def __str__(self):
         return self.verbose_name
@@ -281,11 +282,13 @@ class Version(TimeStampedModel):
         # the Project model
         return self.latest_build
 
-    @property
+    @cached_property
     def latest_build(self):
+        # Cached on the instance: the version list template reads this several
+        # times per row, and each read was a query.
         return self.builds.order_by("-date").first()
 
-    @property
+    @cached_property
     def latest_successful_build(self):
         return (
             self.builds.filter(
@@ -445,7 +448,7 @@ class Version(TimeStampedModel):
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
-    def post_save(self, was_active=False):
+    def post_save(self, was_active=False, was_uploaded=False):
         """
         Run extra steps after updating a version.
 
@@ -457,17 +460,39 @@ class Version(TimeStampedModel):
 
         - When a version is deactivated, we need to clean up its
           files from storage, and search index.
+          Uploaded versions are deleted instead, a new upload recreates them.
         - When a version is activated, we need to trigger a build.
+        - When an uploaded version is handed back to Read the Docs builds,
+          its uploaded files are removed and a build is triggered.
         - We also need to purge the cache from the CDN,
           since the version could have been activated/deactivated,
           or its privacy level could have changed.
+
+        :param was_active: whether the version was active before the save.
+        :param was_uploaded: whether the version was uploaded before the save.
         """
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
+            # Uploaded versions have no inactive state: they are deleted,
+            # and a new upload recreates them.
+            if self.is_uploaded:
+                log.info(
+                    "Deleting deactivated uploaded version.",
+                    project_slug=self.project.slug,
+                    version_slug=self.slug,
+                )
+                self.delete()
+                return
             self.clean_resources()
             return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Handing an uploaded version back to Read the Docs: the uploaded files go away
+        # and a build is triggered, so a failed build never leaves them being served.
+        # A version activated at the same time has no files and was built above.
+        elif was_uploaded and not self.is_uploaded and self.active:
+            self.clean_resources()
             trigger_build(project=self.project, version=self)
         # Purge the cache from the CDN for any other changes.
         self.purge_cdn()

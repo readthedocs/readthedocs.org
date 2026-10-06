@@ -65,17 +65,15 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
-            "DISABLE_PANELS": [
-                # Default ones
+            "DISABLE_PANELS": {
+                # Default panels that are normally disabled
                 "debug_toolbar.panels.profiling.ProfilingPanel",
                 "debug_toolbar.panels.redirects.RedirectsPanel",
-                # Custome ones
-                # We are disabling these because they take a lot of time to execute in the new dashboard.
-                # We make an intensive usage of the ``include`` template tag there.
-                # It's a "known issue/bug" and there is no solution as far as we can tell.
-                "debug_toolbar.panels.sql.SQLPanel",
+                # Panels that are slow
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ],
+                "debug_toolbar.panels.sql.SQLPanel",
+            },
+            "TOOLBAR_STORE_CLASS": "debug_toolbar.store.CacheStore",
         }
 
     @property
@@ -899,6 +897,9 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Log in with this provider directly, and keep the
+                        # other GitHub options behind the modal.
+                        "default": True,
                         "priority": 10,
                     },
                 },
@@ -1115,16 +1116,6 @@ class CommunityBaseSettings(Settings):
                 "processors": [
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                     structlog.dev.ConsoleRenderer(colors=False),
-                ],
-                # Allows to add extra data to log entries generated via ``logging`` module
-                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
-                "foreign_pre_chain": shared_processors,
-            },
-            "colored_console": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processors": [
-                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                    structlog.dev.ConsoleRenderer(colors=True),
                 ],
                 # Allows to add extra data to log entries generated via ``logging`` module
                 # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging

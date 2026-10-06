@@ -171,11 +171,11 @@ class Invitation(TimeStampedModel):
             user = self.to_user
         log.info(
             "Redeeming invitation",
-            invitation_pk=self.pk,
+            invitation_id=self.pk,
             for_user=user.username,
             object_type=self.object_type,
             object_name=self.object_name,
-            object_pk=self.object.pk,
+            object_id=self.object.pk,
         )
         if request:
             self.create_audit_log(
