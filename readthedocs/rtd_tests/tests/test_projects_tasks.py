@@ -15,7 +15,11 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.tasks.utils import finish_unhealthy_builds, send_external_build_status
+from readthedocs.projects.tasks.utils import (
+    finish_unhealthy_builds,
+    purge_docs_cdn,
+    send_external_build_status,
+)
 
 
 class SendBuildStatusTests(TestCase):
@@ -55,6 +59,29 @@ class SendBuildStatusTests(TestCase):
         )
 
         send_build_status.delay.assert_not_called()
+
+
+class PurgeDocsCDNTests(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    @patch("readthedocs.projects.tasks.utils.files_changed")
+    def test_purge_docs_cdn_sends_files_changed(self, files_changed):
+        purge_docs_cdn(self.version.pk)
+
+        files_changed.send.assert_called_once_with(
+            sender=Project,
+            project=self.project,
+            version=self.version,
+        )
+
+    @patch("readthedocs.projects.tasks.utils.files_changed")
+    def test_purge_docs_cdn_version_does_not_exist(self, files_changed):
+        purge_docs_cdn(self.version.pk + 999)
+
+        files_changed.send.assert_not_called()
+
 
 class TestFinishInactiveBuildsTask(TestCase):
 
@@ -105,3 +132,57 @@ class TestFinishInactiveBuildsTask(TestCase):
         self.assertEqual(build_3.state, BUILD_STATE_CANCELLED)
         self.assertEqual(build_3.success, False)
         self.assertEqual(build_3.notifications.count(), 1)
+
+    @patch("readthedocs.projects.tasks.utils.app")
+    def test_finish_unhealthy_builds_reaps_lost_dispatched_builds(self, mocked_app):
+        """
+        A build dispatched to the isolated fleet but never picked up is "lost".
+
+        It's cancelled once it's been ``triggered`` with a ``dispatched_date``
+        older than ``RTD_BUILD_DISPATCH_TIMEOUT``. Recently-dispatched builds
+        and genuinely-queued builds (no ``dispatched_date``) are left alone.
+        """
+        project = get(Project)
+
+        # Dispatched to the fleet long ago but never picked up -> lost.
+        lost = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_TRIGGERED,
+            healthcheck=None,
+            dispatched_date=timezone.now() - datetime.timedelta(minutes=10),
+        )
+
+        # Dispatched recently, still within the timeout -> keep waiting.
+        recent = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_TRIGGERED,
+            healthcheck=None,
+            dispatched_date=timezone.now() - datetime.timedelta(seconds=30),
+        )
+
+        # Genuinely queued, never dispatched -> leave it for the admission task.
+        queued = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_TRIGGERED,
+            healthcheck=None,
+            dispatched_date=None,
+        )
+
+        finish_unhealthy_builds()
+
+        lost.refresh_from_db()
+        assert lost.state == BUILD_STATE_CANCELLED
+        assert lost.success is False
+        assert lost.notifications.count() == 1
+
+        recent.refresh_from_db()
+        assert recent.state == BUILD_STATE_TRIGGERED
+
+        queued.refresh_from_db()
+        assert queued.state == BUILD_STATE_TRIGGERED

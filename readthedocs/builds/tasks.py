@@ -1,8 +1,10 @@
+import datetime
 import json
 
 import requests
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
@@ -16,8 +18,12 @@ from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
 from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
 from readthedocs.builds.constants import BUILD_STATUS_PENDING
+from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
@@ -28,9 +34,11 @@ from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
@@ -89,7 +97,9 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     for version in queryset:
         try:
             last_build = version.last_build
-            if last_build:
+            # Builds without a commit failed before checking out the
+            # repository, so there is no commit to report the status on.
+            if last_build and last_build.commit:
                 status = BUILD_STATUS_PENDING
                 if last_build.finished:
                     status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
@@ -98,7 +108,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     commit=last_build.commit,
                     status=status,
                 )
-        except (TokenExpiredError, InvalidGrantError):
+        except TokenExpiredError, InvalidGrantError:
             log.info("Failed to send status due to expired/invalid token.")
         except Exception:
             log.exception(
@@ -113,6 +123,70 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                 version_slug=version.slug,
             )
             version.delete()
+
+
+def finish_inactive_build(build):
+    """
+    Finish a build that has been detected as inactive.
+
+    The state of the build is set to cancelled, and a notification is attached
+    to the build to inform the user that it was terminated due to inactivity.
+
+    In case the build is still running, we also revoke the Celery task to cancel it.
+    """
+    log.info(
+        "Finishing inactive build.",
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        version_slug=build.version_slug,
+    )
+    build.success = False
+    build.state = BUILD_STATE_CANCELLED
+    build.save()
+
+    # Tell Celery to cancel this task in case it's in a zombie state.
+    if build.task_id:
+        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
+
+    Notification.objects.add(
+        message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+        attached_to=build,
+    )
+
+
+@app.task(queue="web")
+def finish_inactive_uploaded_builds():
+    """
+    Finish builds created using the upload API that are inactive.
+
+    - Finish builds that were never uploaded, and have been inactive past the expiration time.
+    - Finish builds where a post-upload task was triggered, but never finished.
+    """
+    expired = timezone.now() - datetime.timedelta(
+        seconds=settings.RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME
+    )
+    # Finish builds where the upload was never completed.
+    # NOTE: select related on project, since finish_inactive_build uses it for logging.
+    expired_builds = (
+        Build.objects.pending_upload().filter(date__lt=expired).select_related("project")
+    )
+    for build in expired_builds:
+        finish_inactive_build(build)
+
+    # Finish builds that were uploaded, but didn't finish.
+    # NOTE: select related on project, since finish_inactive_build uses it for logging.
+    inactive_builds = (
+        Build.objects.filter(
+            is_uploaded=True,
+            # We don't have a health check for builds using the upload API,
+            # so finish any builds that haven't finished after 6 hours.
+            date__lt=timezone.now() - datetime.timedelta(hours=6),
+        )
+        .exclude(state__in=BUILD_FINAL_STATES)
+        .select_related("project")
+    )
+    for build in inactive_builds:
+        finish_inactive_build(build)
 
 
 @app.task(max_retries=1, default_retry_delay=60, queue="web")
@@ -222,9 +296,11 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, success, or skipped to be sent.
     """
     build = Build.objects.filter(pk=build_pk).select_related("version").first()
-    # Bulds without a verion shouldn't send status, it can happen when
+    # Builds without a version shouldn't send status, it can happen when
     # a build from a deleted version is being processed (race condition).
-    if not build or not build.version:
+    # Builds without a commit failed before checking out the repository,
+    # so there is no commit to report the status on.
+    if not build or not build.version or not commit:
         return
 
     structlog.contextvars.bind_contextvars(
@@ -693,3 +769,135 @@ def remove_build_commands_storage_paths(paths):
         build_commands_storage.delete_paths(paths)
     except Exception:
         log.info("Failed to delete build commands from storage.", exc_info=True)
+
+
+@app.task(queue="web")
+def run_post_build_tasks(build_pk):
+    """
+    Run the post-build work for a build from the build-isolated fleet.
+
+    Triggered from ``BuildViewSet`` when a build reaches a final state —
+    see ``perform_update`` there for the gating.
+
+    The Version is *not* updated here: ``built``, ``has_pdf`` and friends are
+    derived from the artifacts the build produced, which only the runner can see.
+    It PATCHes them itself before finishing.
+    """
+    # Avoid circular imports: readthedocs.projects.tasks imports from this module.
+    from readthedocs.doc_builder.exceptions import BuildCancelled
+    from readthedocs.projects.tasks.search import index_build
+    from readthedocs.projects.tasks.utils import purge_docs_cdn
+    from readthedocs.projects.tasks.utils import send_external_build_status
+
+    build = Build.objects.filter(pk=build_pk).select_related("project", "version").first()
+    if not build:
+        log.warning("Build not found; skipping post-build tasks.", build_id=build_pk)
+        return
+
+    structlog.contextvars.bind_contextvars(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        version_slug=build.version.slug if build.version else None,
+    )
+
+    if build.success:
+        if build.is_uploaded and build.version:
+            version = build.version
+            version.is_uploaded = True
+            version.save(update_fields=["is_uploaded"])
+
+        purge_docs_cdn.delay(version_id=build.version_id)
+        index_build.delay(build_id=build.pk)
+
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.tasks import spam_check_after_build_complete  # noqa
+
+            spam_check_after_build_complete.delay(build_id=build.pk)
+
+        send_build_notifications.delay(
+            version_pk=build.version_id,
+            build_pk=build.pk,
+            event=WebHookEvent.BUILD_PASSED,
+        )
+
+        if build.commit and build.version:
+            send_external_build_status(
+                version_type=build.version.type,
+                build_pk=build.pk,
+                commit=build.commit,
+                status=BUILD_STATUS_SUCCESS,
+            )
+    else:
+        notification = (
+            Notification.objects.filter(
+                attached_to_content_type=ContentType.objects.get_for_model(Build),
+                attached_to_id=build.pk,
+            )
+            .order_by("-modified")
+            .first()
+        )
+        message_id = notification.message_id if notification else None
+
+        cancelled = message_id in (
+            BuildCancelled.CANCELLED_BY_USER,
+            BuildCancelled.SKIPPED_EXIT_CODE_183,
+        )
+        if not cancelled:
+            send_build_notifications.delay(
+                version_pk=build.version_id,
+                build_pk=build.pk,
+                event=WebHookEvent.BUILD_FAILED,
+            )
+
+        if build.commit and build.version:
+            status = BUILD_STATUS_FAILURE
+            if message_id == BuildCancelled.SKIPPED_EXIT_CODE_183:
+                # A build skipped via the magic exit code is reported to the Git
+                # provider as a success, so it doesn't block the pull request.
+                status = BUILD_STATUS_SKIPPED
+            send_external_build_status(
+                version_type=build.version.type,
+                build_pk=build.pk,
+                commit=build.commit,
+                status=status,
+            )
+
+        # Only community disables projects for repeated failures.
+        if not settings.ALLOW_PRIVATE_REPOS and build.version:
+            check_and_disable_project_for_consecutive_failed_builds.delay(
+                project_slug=build.project.slug,
+                version_slug=build.version.slug,
+            )
+
+
+@app.task(queue="web", bind=True)
+def admit_queued_builds(self):
+    """
+    Admit queued isolated builds as concurrency slots free up.
+
+    Runs periodically (see the ``admit-queued-builds`` beat schedule). For every
+    project with builds waiting in ``triggered``, it runs the admission routine
+    (:func:`readthedocs.core.utils.admit_project_builds`), which dispatches as
+    many as there are free concurrency slots.
+    """
+    lock_id = "{0}-lock".format(self.name)
+    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+        if not acquired:
+            # A previous sweep is still running; skip this tick.
+            log.warning("Admit queued builds task still locked")
+            return
+
+        # Only projects with recently-triggered builds; the ``date`` index keeps
+        # this query fast even though it runs every few seconds.
+        project_ids = (
+            Build.objects.filter(
+                state=BUILD_STATE_TRIGGERED,
+                task_id__isnull=True,
+                is_uploaded=False,
+                date__gt=timezone.now() - timezone.timedelta(days=1),
+            )
+            .values_list("project_id", flat=True)
+            .distinct()
+        )
+        for project in Project.objects.filter(pk__in=project_ids):
+            admit_project_builds(project)

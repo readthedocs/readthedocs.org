@@ -469,6 +469,8 @@ class GenericParser:
             "title": "",
             "sections": [],
             "main_content_hash": None,
+            "text_hash": None,
+            "markup_hash": None,
         }
 
     def _process_content(self, page, content):
@@ -478,9 +480,21 @@ class GenericParser:
         title = ""
         sections = []
         main_content_hash = None
+        text_hash = None
+        markup_hash = None
         if body:
+            # The file tree diff compares these to tell if a page changed.
+            # Hashing the HTML alone reported pages as changed when only an
+            # attribute did, so the text is hashed apart from the markup.
+            # TODO: stop writing ``main_content_hash``, it's only there for
+            # manifests that predate the other two and is dropped along with
+            # the fallback in ``get_diff()``.
+            # See https://github.com/readthedocs/readthedocs.org/issues/13258
             main_content_hash = hashlib.md5(body.html.encode()).hexdigest()
             body = self._clean_body(body)
+            text = re.sub(r"\s+", " ", body.text(separator=" ")).strip()
+            text_hash = hashlib.md5(text.encode()).hexdigest()
+            markup_hash = hashlib.md5(body.html.encode()).hexdigest()
             title = self._get_page_title(body, html) or page
             sections = self._get_sections(title=title, body=body)
         else:
@@ -493,4 +507,6 @@ class GenericParser:
             "title": title,
             "sections": sections,
             "main_content_hash": main_content_hash,
+            "text_hash": text_hash,
+            "markup_hash": markup_hash,
         }

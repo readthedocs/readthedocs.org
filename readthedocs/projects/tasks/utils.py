@@ -2,24 +2,32 @@ import datetime
 import os
 import re
 import socket
+from pathlib import Path
 
 import boto3
 import structlog
 from botocore.exceptions import ClientError
 from celery.worker.request import Request
 from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import timezone
+from docker import APIClient
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import finish_inactive_build
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.utils.filesystem import assert_path_is_inside_docroot
 from readthedocs.core.utils.filesystem import safe_rmtree
-from readthedocs.doc_builder.exceptions import BuildAppError
-from readthedocs.notifications.models import Notification
+from readthedocs.doc_builder.constants import DOCKER_SOCKET
+from readthedocs.doc_builder.constants import DOCKER_VERSION
+from readthedocs.projects.models import Project
+from readthedocs.projects.signals import files_changed
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -27,25 +35,129 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
+# Maximum time to wait for the container that removes the build files as root.
+# 3 minutes in seconds.
+CLEAN_BUILD_CONTAINER_TIMEOUT = 3 * 60
+
+
 def clean_build(version=None):
-    """Clean the files used in the build of the given version."""
-    if version:
-        del_dirs = [
-            os.path.join(version.project.doc_path, dir_, version.slug)
-            for dir_ in ("checkouts", "envs", "conda", "artifacts")
-        ]
-        del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
+    """
+    Remove the files used by builds.
 
-        log.info("Removing directories.", directories=del_dirs)
-        for path in del_dirs:
-            safe_rmtree(path, ignore_errors=True)
+    If a version is given, all the files of its project are removed
+    (``Project.doc_path``, the directory mounted into the build container),
+    not only the ones from this version, since builds can write anywhere in that directory.
+    Otherwise, DOCROOT (e.g. ``user_builds/``) is removed completely.
 
-    # Clean up DOCROOT (e.g. `user_builds/`) completely
-    else:
-        log.info("Removing DOCROOT directory.", docroot=settings.DOCROOT)
-        safe_rmtree(settings.DOCROOT, ignore_errors=True)
-        os.makedirs(settings.DOCROOT)
+    Builders run a single build at a time,
+    so there are no other builds using these files.
+
+    :returns: ``True`` if all the files were removed.
+    """
+    path = version.project.doc_path if version else settings.DOCROOT
+    log.info("Removing build files.", path=path)
+    safe_rmtree(path, ignore_errors=True)
+
+    # SECURITY: builds can leave files that can't be removed by the user running
+    # the builder (e.g. owned by root, or without permissions).
+    # Those files must never be accessible from other builds.
+    # lexists() doesn't follow symlinks.
+    if os.path.lexists(path):
+        # Log so we keep a watch on this.
+        log.error("Build files couldn't be removed, trying to remove them as root.", path=path)
+        try:
+            _remove_as_root(path)
+        except SuspiciousFileOperation:
+            # Already logged, the path is checked below.
+            pass
+        safe_rmtree(path, ignore_errors=True)
+
+        # The directory itself could be owned by root without permissions
+        # for the user running the builder (e.g. ``chmod 700``).
+        # It can still be removed once it's empty,
+        # since that only requires permissions on its parent directory.
+        if os.path.isdir(path) and not os.path.islink(path):
+            try:
+                os.rmdir(path)
+            except OSError:
+                # Not empty, the path is checked below.
+                pass
+
+    # NOTE: This should never happen, unless we missed something.
+    if os.path.lexists(path):
+        log.error("Build files couldn't be removed.", path=path)
+        return False
+    return True
+
+
+def _remove_as_root(path):
+    """
+    Remove the content of ``path`` from a Docker container running as root.
+
+    If a build was able to create files that can't be removed by the user running the builder,
+    we should be able to remove them from a container running as root.
+    """
+    # The builder paths aren't paths on the Docker host.
+    if not settings.DOCKER_ENABLE or settings.RTD_DOCKER_COMPOSE:
+        log.info("Skipping removing build files as root.", path=path)
         return
+
+    # NOTE: this should never happen, unless our assumption are wrong.
+    if os.path.islink(path):
+        log.error("Not removing build files as root, path is a symlink.", path=path)
+        raise SuspiciousFileOperation(path)
+
+    assert_path_is_inside_docroot(Path(path))
+
+    log.info("Removing build files as root.", path=path)
+    client = APIClient(base_url=DOCKER_SOCKET, version=DOCKER_VERSION)
+    container = None
+    try:
+        container = client.create_container(
+            image=settings.RTD_DOCKER_CLONE_IMAGE,
+            # `find` doesn't follow symlinks, it removes the symlinks themselves.
+            command=[
+                "find",
+                "/cleanup",
+                # Don't remove the root of the cleanup directory, only its content.
+                "-mindepth",
+                "1",
+                "-delete",
+            ],
+            user="root",
+            network_disabled=True,
+            host_config=client.create_host_config(
+                binds={path: {"bind": "/cleanup", "mode": "rw"}},
+                network_mode="none",
+            ),
+        )
+        client.start(container=container)
+        client.wait(container=container, timeout=CLEAN_BUILD_CONTAINER_TIMEOUT)
+    except Exception:
+        log.exception("Error removing build files as root.", path=path)
+    finally:
+        if container:
+            try:
+                client.remove_container(container=container, force=True)
+            except Exception:
+                log.exception("Error removing the container used to remove build files.")
+
+
+def retire_builder(build_id=None):
+    """
+    Stop this builder from running more tasks, and terminate its instance.
+
+    :returns: ``True`` if this worker stopped consuming new tasks.
+    """
+    if settings.RTD_DOCKER_COMPOSE:
+        log.info("Running development environment. Skipping builder retirement.")
+        return False
+
+    # Stop consuming new tasks first so this worker doesn't grab a
+    # build that would be killed mid-flight when the instance is
+    # terminated.
+    log.info("Retiring builder. Stopping this worker from consuming new tasks.")
+    return stop_consuming_tasks_and_terminate(build_id=build_id)
 
 
 @app.task(queue="web")
@@ -121,39 +233,38 @@ def clean_project_resources(project, version=None, version_slug=None):
 @app.task()
 def finish_unhealthy_builds():
     """
-    Finish inactive builds.
+    Finish builds that will never complete on their own.
 
-    A build is consider inactive if the last healthcheck reported was more than
-    RTD_BUILD_HEALTHCHECK_TIMEOUT seconds ago.
+    Two cases, both marked ``success=False`` and ``state=CANCELLED`` with an
+    ``error`` communicated to the user:
 
-    These inactive builds will be marked as ``success=False`` and
-    ``state=CANCELLED`` with an ``error`` to be communicated to the user.
+    - **Inactive:** a running build whose last healthcheck was more than
+      ``RTD_BUILD_HEALTHCHECK_TIMEOUT`` seconds ago (its builder went silent).
+
+    - **Lost:** an build-isolated build that was dispatched to the fleet more
+      than ``RTD_BUILD_DISPATCH_TIMEOUT`` seconds ago but no builder ever picked
+      it up (still ``triggered``). ``dispatched_date`` is only set on the
+      isolated path, so this never touches legacy builds.
     """
-    log.debug("Running task to finish inactive builds (no healtcheck received).")
-    delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
-    query = (
-        # Grab 3 days old at most to use a fast DB index
-        Q(date__gt=timezone.now() - datetime.timedelta(days=3))
-        & ~Q(state__in=BUILD_FINAL_STATES)
-        & Q(healthcheck__lt=timezone.now() - delta)
+    log.debug("Running task to finish unhealthy builds.")
+    healthcheck_delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
+    dispatch_delta = datetime.timedelta(seconds=settings.RTD_BUILD_DISPATCH_TIMEOUT)
+    # Grab 3 days old at most to use a fast DB index
+    recent = Q(date__gt=timezone.now() - datetime.timedelta(days=3))
+    inactive = ~Q(state__in=BUILD_FINAL_STATES) & Q(
+        healthcheck__lt=timezone.now() - healthcheck_delta
     )
+    lost = Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
+    # NOTE: Builds created using the upload API are omitted from this query since they don't have healthchecks.
+    # They are terminated in a different task (finish_inactive_uploaded_builds).
+    not_upload = ~Q(is_uploaded=True)
+    query = recent & not_upload & (inactive | lost)
 
     projects_finished = set()
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
-
-        # Tell Celery to cancel this task in case it's in a zombie state.
-        app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
-
-        Notification.objects.add(
-            message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
-            attached_to=build,
-        )
-
+        finish_inactive_build(build)
         builds_finished.append(build.pk)
         projects_finished.add(build.project.slug)
 
@@ -164,6 +275,31 @@ def finish_unhealthy_builds():
             project_slugs=projects_finished,
             build_pks=builds_finished,
         )
+
+
+@app.task(queue="web")
+def purge_docs_cdn(version_id):
+    """
+    Purge the docs of the given version from the CDN.
+
+    Triggered as soon as a build finishes uploading its artifacts, so users
+    see the new docs right away, without waiting for search indexing
+    (``index_build``), which runs on the ``reindex`` queue,
+    where a backlog can delay it long after the build has finished.
+
+    Not to be confused with ``Version.purge_cdn``,
+    which signals version *metadata* changes (``version_changed``).
+    """
+    version = Version.objects.filter(pk=version_id).select_related("project").first()
+    if not version:
+        log.debug("Skipping CDN purge. Version doesn't exist.", version_id=version_id)
+        return
+
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        version=version,
+    )
 
 
 def send_external_build_status(version_type, build_pk, commit, status):
@@ -225,7 +361,7 @@ def set_builder_scale_in_protection(builder, protected_from_scale_in, build_id=N
             AutoScalingGroupName=scaling_group,
             ProtectedFromScaleIn=protected_from_scale_in,
         )
-    except (ValidationError, ClientError):
+    except ValidationError, ClientError:
         # Don't log these as exceptions,
         # since there isn't much we can do about it here.
         log.info("Failed when trying to set instance protection.")
@@ -241,6 +377,8 @@ def stop_consuming_tasks_and_terminate(build_id):
     simply won't pick up anything new. This is used before terminating the
     instance so we don't grab a build that would be killed mid-flight on
     shutdown.
+
+    :returns: ``True`` if this worker stopped consuming new tasks.
     """
     terminate_instance = False
     active_queues = ["build:default", "build:large"]
@@ -261,7 +399,7 @@ def stop_consuming_tasks_and_terminate(build_id):
                 hostname=hostname,
                 build_id=build_id,
             )
-            return
+            return terminate_instance
 
         _, instance_id = hostname_match.groups()
         log.info(
@@ -273,6 +411,7 @@ def stop_consuming_tasks_and_terminate(build_id):
             instance_id=instance_id,
             build_id=build_id,
         )
+    return terminate_instance
 
 
 @app.task(queue="web")
@@ -301,7 +440,7 @@ def terminate_builder_instance(instance_id, build_id=None):
             InstanceId=instance_id,
             ShouldDecrementDesiredCapacity=False,
         )
-    except (ValidationError, ClientError):
+    except ValidationError, ClientError:
         # Don't log these as exceptions,
         # since there isn't much we can do about it here.
         log.info("Failed when trying to terminate instance.", instance_id=instance_id)

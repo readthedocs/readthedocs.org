@@ -4,6 +4,7 @@ import datetime
 import json
 import os.path
 import re
+from functools import cached_property
 from functools import partial
 from io import BytesIO
 
@@ -138,11 +139,6 @@ class Version(TimeStampedModel):
     )
     built = models.BooleanField(_("Built"), default=False)
 
-    # TODO: this field (`uploaded`) could be removed. It was used to mark a
-    # version as "Manually uploaded" by the core team, but this is not required
-    # anymore. Users can use `build.commands` for these cases now.
-    uploaded = models.BooleanField(_("Uploaded"), default=False)
-
     privacy_level = models.CharField(
         _("Privacy Level"),
         max_length=20,
@@ -170,6 +166,14 @@ class Version(TimeStampedModel):
         help_text=_("Type of documentation the version was built with."),
     )
 
+    # NOTE: we can also do a normalization, and have a build attribute
+    # that links to the latest successful build of the version.
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
+    )
+
     build_data = models.JSONField(
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
@@ -192,7 +196,7 @@ class Version(TimeStampedModel):
 
     class Meta:
         unique_together = [("project", "slug")]
-        ordering = ["-verbose_name"]
+        ordering = ["verbose_name"]
 
     def __str__(self):
         return self.verbose_name
@@ -278,11 +282,13 @@ class Version(TimeStampedModel):
         # the Project model
         return self.latest_build
 
-    @property
+    @cached_property
     def latest_build(self):
+        # Cached on the instance: the version list template reads this several
+        # times per row, and each read was a query.
         return self.builds.order_by("-date").first()
 
-    @property
+    @cached_property
     def latest_successful_build(self):
         return (
             self.builds.filter(
@@ -355,7 +361,7 @@ class Version(TimeStampedModel):
         Because documentation projects can be hosted on separate domains, this function ALWAYS
         returns with a full "http(s)://<domain>/" prefix.
         """
-        if not self.built and not self.uploaded:
+        if not self.built:
             # External versions (PR builds) should link to the build detail page
             # since they're read-only and we can't "edit" them
             if self.type == EXTERNAL:
@@ -442,7 +448,7 @@ class Version(TimeStampedModel):
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
-    def post_save(self, was_active=False):
+    def post_save(self, was_active=False, was_uploaded=False):
         """
         Run extra steps after updating a version.
 
@@ -454,17 +460,39 @@ class Version(TimeStampedModel):
 
         - When a version is deactivated, we need to clean up its
           files from storage, and search index.
+          Uploaded versions are deleted instead, a new upload recreates them.
         - When a version is activated, we need to trigger a build.
+        - When an uploaded version is handed back to Read the Docs builds,
+          its uploaded files are removed and a build is triggered.
         - We also need to purge the cache from the CDN,
           since the version could have been activated/deactivated,
           or its privacy level could have changed.
+
+        :param was_active: whether the version was active before the save.
+        :param was_uploaded: whether the version was uploaded before the save.
         """
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
+            # Uploaded versions have no inactive state: they are deleted,
+            # and a new upload recreates them.
+            if self.is_uploaded:
+                log.info(
+                    "Deleting deactivated uploaded version.",
+                    project_slug=self.project.slug,
+                    version_slug=self.slug,
+                )
+                self.delete()
+                return
             self.clean_resources()
             return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Handing an uploaded version back to Read the Docs: the uploaded files go away
+        # and a build is triggered, so a failed build never leaves them being served.
+        # A version activated at the same time has no files and was built above.
+        elif was_uploaded and not self.is_uploaded and self.active:
+            self.clean_resources()
             trigger_build(project=self.project, version=self)
         # Purge the cache from the CDN for any other changes.
         self.purge_cdn()
@@ -743,6 +771,11 @@ class Build(models.Model):
     )
     date = models.DateTimeField(_("Date"), auto_now_add=True, db_index=True)
     healthcheck = models.DateTimeField(_("Healthcheck"), null=True, blank=True)
+    dispatched_date = models.DateTimeField(
+        _("Dispatched date"),
+        null=True,
+        blank=True,
+    )
     success = models.BooleanField(_("Success"), default=True)
 
     # Metadata from were the build happened.
@@ -823,6 +856,12 @@ class Build(models.Model):
         related_query_name="build",
         content_type_field="attached_to_content_type",
         object_id_field="attached_to_id",
+    )
+
+    is_uploaded = models.BooleanField(
+        _("Artifacts uploaded using the upload API"),
+        default=False,
+        db_default=False,
     )
 
     # Managers
@@ -966,6 +1005,17 @@ class Build(models.Model):
         date = self.date.date()
         return f"{date}/{self.id}.json"
 
+    @property
+    def uploaded_artifacts_storage_path(self):
+        """
+        Storage path where the uploaded zip with the build artifacts are stored.
+
+        The path is in the format: <project_slug>/<build_id>/artifacts.zip
+
+        Example: pip/1111/artifacts.zip
+        """
+        return f"{self.project.slug}/{self.id}/artifacts.zip"
+
     def get_absolute_url(self):
         return reverse("builds_detail", args=[self.project.slug, self.pk])
 
@@ -1085,6 +1135,7 @@ class Build(models.Model):
             type = self.version.type
         return type == EXTERNAL
 
+    # NOTE: this isn't used
     @property
     def can_rebuild(self):
         """

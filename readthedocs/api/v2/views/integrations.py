@@ -156,7 +156,7 @@ class WebhookMixin:
         if hasattr(self, "project") and self.project:
             try:
                 integration = self.get_integration()
-            except (Http404, ParseError):
+            except Http404, ParseError:
                 # If we can't get a single integration (either none or multiple exist),
                 # we can't store the HTTP exchange
                 integration = None
@@ -289,6 +289,19 @@ class WebhookMixin:
         :param project: Project instance
         :type project: readthedocs.projects.models.Project
         """
+        # Direct upload projects get their pull request previews from the upload API,
+        # creating the version here would leave it empty until the upload arrives.
+        if project.is_direct_upload:
+            log.info(
+                "Pull request previews come from uploads on this project, skipping.",
+                project_slug=project.slug,
+            )
+            return {
+                "build_triggered": False,
+                "project": project.slug,
+                "versions": [],
+            }
+
         version_data = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(
@@ -408,7 +421,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if self.request.content_type == "application/x-www-form-urlencoded":
             try:
                 return json.loads(self.request.data["payload"])
-            except (ValueError, KeyError):
+            except ValueError, KeyError:
                 pass
         return super().get_data()
 

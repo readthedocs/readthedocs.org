@@ -17,6 +17,7 @@ from slugify import slugify as unicode_slugify
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.resolver import Resolver
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -254,6 +255,19 @@ class ServeDocsMixin:
 
             if is_serve_docs_denied(project):
                 return render(request, template_name="errors/proxito/spam.html", status=410)
+
+    def _disabled_organization_response(self, request, project):
+        """Return an error response if the docs of this project shouldn't be served anymore."""
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return None
+
+        if Organization.objects.disable_serving().filter(projects=project).exists():
+            return render(
+                request,
+                template_name="errors/proxito/organization_disabled.html",
+                status=404,
+            )
+        return None
 
     def get_unauthed_response(self, request, project):
         return self._serve_401(request, project)

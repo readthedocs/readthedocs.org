@@ -58,7 +58,7 @@ class BitbucketService(UserService):
             workspace_slugs = [
                 workspace_base["slug"] for workspace_base in self._get_workspaces_base()
             ]
-        except (TypeError, ValueError, KeyError):
+        except TypeError, ValueError, KeyError:
             log.warning("Error syncing Bitbucket workspaces")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -76,7 +76,7 @@ class BitbucketService(UserService):
                     remote_repository = self.create_repository(repo)
                     if remote_repository:
                         remote_ids.append(remote_repository.remote_id)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 log.warning(
                     "Error syncing Bitbucket repositories for workspace.",
                     workspace=workspace_slug,
@@ -102,7 +102,7 @@ class BitbucketService(UserService):
                         remote_repository__vcs_provider=self.vcs_provider_slug,
                         remote_repository__remote_id__in=admin_repos_ids,
                     ).update(admin=True)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 log.warning(
                     "Error syncing Bitbucket admin repositories for workspace.",
                     workspace=workspace_slug,
@@ -389,7 +389,7 @@ class BitbucketService(UserService):
                 )
 
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except RequestException, ValueError:
             log.exception("Bitbucket webhook creation failed for project.")
 
         return False
@@ -446,7 +446,7 @@ class BitbucketService(UserService):
             )
 
         # Catch exceptions with request or deserializing JSON
-        except (KeyError, RequestException, TypeError, ValueError):
+        except KeyError, RequestException, TypeError, ValueError:
             log.exception("Bitbucket webhook update failed for project.")
 
         return False

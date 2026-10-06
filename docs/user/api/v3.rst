@@ -653,6 +653,11 @@ Version update
     When a version is deactivated, its documentation is removed,
     and when it's activated, a new build is triggered.
 
+    Changing the ``slug`` of an active version removes the documentation
+    served under the previous slug and triggers a new build.
+    See :ref:`versions:Version URL identifier (slug)` for what to take into account
+    before renaming a version.
+
     Updates to a version also invalidates its CDN cache.
 
     **Example request**:
@@ -689,7 +694,8 @@ Version update
         {
             "active": true,
             "hidden": false,
-            "privacy_level": "public"
+            "privacy_level": "public",
+            "slug": "0.23"
         }
 
     :statuscode 204: Updated successfully
@@ -697,6 +703,11 @@ Version update
     .. note::
 
        Privacy levels are only available in :doc:`Read the Docs Business </commercial/index>`.
+
+    .. note::
+
+       You can't change the slug of versions managed by Read the Docs,
+       like ``latest`` and ``stable``.
 
 Builds
 ~~~~~~

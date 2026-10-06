@@ -15,6 +15,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -316,6 +317,30 @@ class APIBuildTests(TestCase):
             Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
+    @mock.patch("readthedocs.api.v2.views.model_views.run_post_build_tasks")
+    def test_finishing_uploaded_build_runs_post_build_tasks(self, run_post_build_tasks):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+        )
+        assert not project.has_feature(Feature.USE_BUILD_ISOLATED)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build.pk),
+            {"state": BUILD_STATE_FINISHED},
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_200_OK
+        run_post_build_tasks.delay.assert_called_once_with(build_pk=build.pk)
+
     def test_response_building(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
@@ -329,7 +354,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -370,7 +394,6 @@ class APIBuildTests(TestCase):
             slug="myversion",
             project=project,
             built=True,
-            uploaded=True,
         )
         build = get(
             Build,
@@ -397,6 +420,22 @@ class APIBuildTests(TestCase):
             "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
         )
 
+    def test_normalize_build_command_strips_leading_usr_bin(self):
+        command = normalize_build_command(
+            "/usr/bin/apt-get install --assume-yes -- vim",
+            "myproject",
+            "myversion",
+        )
+        assert command == "apt-get install --assume-yes -- vim"
+
+    def test_normalize_build_command_keeps_usr_bin_in_arguments(self):
+        command = normalize_build_command(
+            "cat /usr/bin/foo",
+            "myproject",
+            "myversion",
+        )
+        assert command == "cat /usr/bin/foo"
+
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
@@ -410,7 +449,6 @@ class APIBuildTests(TestCase):
             Version,
             project=project,
             built=False,
-            uploaded=False,
         )
         build = get(
             Build,
@@ -2297,9 +2335,35 @@ class IntegrationsTests(TestCase):
         self.assertTrue(external_version)
 
     @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
-    def test_github_pull_request_reopened_event(
+    def test_github_pull_request_opened_event_direct_upload_project(
         self, trigger_build, core_trigger_build
     ):
+        self.project.is_direct_upload = True
+        self.project.save()
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_pull_request_payload
+            ),
+        }
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_pull_request_payload,
+            format="json",
+            headers=headers,
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data["build_triggered"])
+        self.assertEqual(resp.data["versions"], [])
+        # The preview is created by the upload API, not by the webhook.
+        self.assertFalse(self.project.versions(manager=EXTERNAL).filter(verbose_name="2").exists())
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         # Update the payload for `reopened` webhook event
@@ -2346,7 +2410,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=prev_identifier,
@@ -2394,7 +2457,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=pull_request_number,
             identifier=identifier,
@@ -3034,7 +3096,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=prev_identifier,
@@ -3080,7 +3141,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
@@ -3124,7 +3184,6 @@ class IntegrationsTests(TestCase):
             project=self.project,
             type=EXTERNAL,
             built=True,
-            uploaded=True,
             active=True,
             verbose_name=merge_request_number,
             identifier=identifier,
@@ -3623,11 +3682,11 @@ class APIVersionTests(TestCase):
                 "environment_variables": {},
                 "features": [],
                 "git_checkout_command": None,
-                "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

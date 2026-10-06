@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -16,8 +17,8 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiffManifestFile
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
-from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
 from readthedocs.storage import build_media_storage
@@ -53,7 +54,14 @@ class SearchIndexer(Indexer):
 
     If search_index_name is provided, it will be used as the search index name,
     otherwise the default one will be used.
+
+    Files are sent to Elasticsearch in batches of ``batch_size`` as they are
+    processed, so memory use is bounded by the batch size rather than by the
+    number of pages in the version. Each ``HTMLFile`` keeps its parsed content
+    (``processed_json``) alive until it is dropped here.
     """
+
+    batch_size = 500
 
     def __init__(
         self,
@@ -82,18 +90,25 @@ class SearchIndexer(Indexer):
                 break
 
         self._html_files_to_index.append(html_file)
+        if len(self._html_files_to_index) >= self.batch_size:
+            self._index_pending()
+
+    def _index_pending(self):
+        if not self._html_files_to_index:
+            return
+        index_objects(
+            document=PageDocument,
+            objects=self._html_files_to_index,
+            index_name=self.search_index_name,
+            # Pages are indexed in small chunks to avoid a
+            # large payload that will probably timeout ES.
+            chunk_size=100,
+        )
+        self._html_files_to_index = []
 
     def collect(self, sync_id: int):
-        # Index new files in ElasticSearch.
-        if self._html_files_to_index:
-            index_objects(
-                document=PageDocument,
-                objects=self._html_files_to_index,
-                index_name=self.search_index_name,
-                # Pages are indexed in small chunks to avoid a
-                # large payload that will probably timeout ES.
-                chunk_size=100,
-            )
+        # Index the files that haven't been sent yet.
+        self._index_pending()
 
         # Remove old HTMLFiles from ElasticSearch.
         remove_indexed_files(
@@ -102,6 +117,16 @@ class SearchIndexer(Indexer):
             sync_id=sync_id,
             index_name=self.search_index_name,
         )
+
+        # Only the live index affects cached search results. When re-creating
+        # the index under a new name, the CDN has to be purged manually after
+        # ``reindex_elasticsearch --change-index``.
+        if not self.search_index_name:
+            search_index_updated.send(
+                sender=Project,
+                project=self.project,
+                version=self.version,
+            )
 
 
 class IndexFileIndexer(Indexer):
@@ -138,14 +163,28 @@ class FileManifestIndexer(Indexer):
         self.post_build_overview = post_build_overview
 
     def process(self, html_file: HTMLFile, sync_id: int):
-        self._hashes[html_file.path] = html_file.processed_json["main_content_hash"]
+        processed_json = html_file.processed_json
+        self._hashes[html_file.path] = (
+            processed_json["main_content_hash"],
+            processed_json["text_hash"],
+            processed_json["markup_hash"],
+        )
 
     def collect(self, sync_id: int):
         manifest = FileTreeDiffManifest(
             build_id=self.build.id,
             files=[
-                FileTreeDiffManifestFile(path=path, main_content_hash=content_hash)
-                for path, content_hash in self._hashes.items()
+                FileTreeDiffManifestFile(
+                    path=path,
+                    main_content_hash=main_content_hash,
+                    text_hash=text_hash,
+                    markup_hash=markup_hash,
+                )
+                for path, (
+                    main_content_hash,
+                    text_hash,
+                    markup_hash,
+                ) in self._hashes.items()
             ],
         )
         write_manifest(self.version, manifest)
@@ -157,10 +196,7 @@ class FileManifestIndexer(Indexer):
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = get_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 
@@ -290,12 +326,6 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 version_slug=version.slug,
             )
 
-    # This signal is used for purging the CDN.
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        version=version,
-    )
     return sync_id
 
 

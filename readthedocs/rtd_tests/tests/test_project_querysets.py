@@ -193,7 +193,6 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
-    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
     def test_only_owner(self):
         user = get(User)
         another_user = get(User)
@@ -213,6 +212,66 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(
             {project_three}, set(Project.objects.single_owner(another_user))
         )
+
+
+class ProjectWithFeatureQuerySetTests(TestCase):
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+    def test_with_feature_explicit(self):
+        project = fixture.get(Project, main_language_project=None)
+        other = fixture.get(Project, main_language_project=None)
+        feature = fixture.get(Feature, projects=[project])
+        self.assertQuerySetEqual(
+            Project.objects.with_feature(feature.feature_id),
+            [project],
+            ordered=False,
+        )
+        self.assertFalse(other.has_feature(feature.feature_id))
+
+    def test_with_feature_default_true(self):
+        project = fixture.get(Project, main_language_project=None)
+        feature = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date + timedelta(days=1),
+            default_true=True,
+        )
+        newer = fixture.get(
+            Project,
+            main_language_project=None,
+            pub_date=feature.add_date + timedelta(days=1),
+        )
+        self.assertQuerySetEqual(
+            Project.objects.with_feature(feature.feature_id),
+            [project],
+            ordered=False,
+        )
+        self.assertTrue(project.has_feature(feature.feature_id))
+        self.assertFalse(newer.has_feature(feature.feature_id))
+
+    def test_with_feature_future_default_true(self):
+        project = fixture.get(Project, main_language_project=None)
+        feature = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date - timedelta(days=1),
+            future_default_true=True,
+        )
+        older = fixture.get(
+            Project,
+            main_language_project=None,
+            pub_date=feature.add_date - timedelta(days=1),
+        )
+        self.assertQuerySetEqual(
+            Project.objects.with_feature(feature.feature_id),
+            [project],
+            ordered=False,
+        )
+        self.assertTrue(project.has_feature(feature.feature_id))
+        self.assertFalse(older.has_feature(feature.feature_id))
+
+    def test_with_feature_unknown(self):
+        fixture.get(Project, main_language_project=None)
+        self.assertQuerySetEqual(Project.objects.with_feature("does-not-exist"), [])
 
 
 class FeatureQuerySetTests(TestCase):

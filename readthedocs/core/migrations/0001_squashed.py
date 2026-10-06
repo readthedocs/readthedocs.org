@@ -13,30 +13,6 @@ from django_safemigrate import Safe
 
 class Migration(migrations.Migration):
     safe = Safe.after_deploy()
-    replaces = [
-        ("core", "0001_initial"),
-        ("core", "0002_make_userprofile_user_a_onetoonefield"),
-        ("core", "0003_add_banned_status"),
-        ("core", "0004_ad-opt-out"),
-        ("core", "0005_migrate-old-passwords"),
-        ("core", "0006_remove_userprofile_allow_email"),
-        ("core", "0007_historicaluser"),
-        ("core", "0008_add_extra_history_fields"),
-        ("core", "0009_historicaluserprofile"),
-        ("core", "0010_add_time_fields"),
-        ("core", "0011_alter_historicaluser_first_name"),
-        ("core", "0012_add_newsletter_setting"),
-        ("core", "0013_add_optout_email_config_file_deprecation"),
-        ("core", "0014_optout_email_build_image_deprecation"),
-        ("core", "0015_remove_email_options"),
-        ("core", "0016_update_dj_simple_history"),
-        ("core", "0017_remove_unused_indexes"),
-        ("core", "0018_add_profile_theme"),
-        ("core", "0019_create_missing_user_profiles"),
-        ("core", "0020_alter_userprofile_user"),
-        ("core", "0021_create_missing_user_profiles"),
-    ]
-
     initial = True
 
     dependencies = [

@@ -396,7 +396,7 @@ which has read access to the `contents permission <https://docs.github.com/en/re
 and it's scoped to the repository to be cloned.
 
 This token is valid for one hour and GitHub automatically grants read access to the `metadata permission <https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-metadata>`__,
-which allows to query the repository collaborators, events, and other metadata.
+which allows querying the repository collaborators, events, and other metadata.
 By default, Read the Docs doesn't show this token during the build,
 but the token is available during the whole build process.
 Make sure to not print it in your build logs,

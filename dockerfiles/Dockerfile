@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG GITHUB_USER
 ARG GITHUB_TOKEN
@@ -41,7 +41,7 @@ RUN apt-get -y install \
       pkg-config \
       libxml2-dev \
       libxmlsec1-dev \
-      libxmlsec1-openssl
+      libxmlsec1-openssl1
 
 # Gets the mc (MinIO Client) used to add buckets upon initialization in RustFS (S3 emulator).
 # The mc client is compatible with any S3-compatible storage, including RustFS.

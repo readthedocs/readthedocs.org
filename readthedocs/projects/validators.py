@@ -239,3 +239,19 @@ def validate_environment_variable_size(project, new_env_value, error_class=Valid
         raise error_class(
             _("The total size of all environment variables in the project cannot exceed 256 KB.")
         )
+
+
+def validate_subproject_alias(parent_project, alias, error_class=ValidationError):
+    """
+    Validate that a subproject alias is valid.
+
+    This is an extra validation on top of the regex validation,
+    to ensure that slashes are not allowed in subproject aliases
+    for projects that don't have the feature enabled.
+    """
+    from readthedocs.projects.models import Feature
+
+    if "/" in alias and not parent_project.has_feature(Feature.ALLOW_SLASHES_IN_SUBPROJECT_ALIAS):
+        raise error_class(
+            _("Aliases can't contain slashes."),
+        )

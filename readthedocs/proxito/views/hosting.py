@@ -1,7 +1,5 @@
 """Views for hosting features."""
 
-from functools import lru_cache
-
 import packaging
 import structlog
 from django.conf import settings
@@ -30,6 +28,8 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.objects import cached_method
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import get_diff
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CALVER
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
@@ -109,7 +109,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
     renderer_classes = [JSONRenderer]
     project_cache_tag = "rtd-addons"
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _resolve_resources(self):
         url = self.request.GET.get("url")
         project_slug = self.request.GET.get("project-slug")
@@ -649,7 +649,7 @@ class AddonsResponseBase:
         if not project.addons.filetreediff_enabled:
             return None
 
-        base_version = project.addons.options_base_version or project.get_latest_version()
+        base_version = get_base_version(project)
         if not base_version or not self._has_permission(request=request, version=base_version):
             return None
 

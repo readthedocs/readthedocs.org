@@ -18,6 +18,7 @@ from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.version_slug import validate_version_slug
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -34,6 +35,7 @@ from readthedocs.projects.models import EnvironmentVariable
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.validators import validate_environment_variable_size
+from readthedocs.projects.validators import validate_subproject_alias
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.validators import validate_redirect
@@ -399,7 +401,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(
             project=obj.project,
             version=obj,
@@ -468,8 +470,14 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It allows to change the version states and privacy level only.
+    It allows to change the version states, slug and privacy level only.
     """
+
+    # ``validate_version_slug`` is stricter than the model's ``version_slug_validator``
+    # (it normalizes the slug and compares, rather than matching a regex), and its error
+    # suggests a valid slug. We drop the model validator so it doesn't run first and
+    # mask that suggestion, which is also what the dashboard form ends up doing.
+    slug = serializers.CharField(max_length=255, required=False, validators=[])
 
     class Meta:
         model = Version
@@ -477,6 +485,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
             "active",
             "hidden",
             "privacy_level",
+            "slug",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -486,6 +495,10 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         # everything is public, we don't allow changing it.
         if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop("privacy_level")
+
+    def validate_slug(self, slug):
+        validate_version_slug(slug, self.instance)
+        return slug
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -546,7 +559,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_documentation(self, obj):
         version = getattr(self.parent, "version", None)
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(project=obj, version=version)
 
 
@@ -989,17 +1002,26 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             "Project with {slug_name}={value} is not valid as subproject"
         )
 
-    def validate_alias(self, value):
+    def validate(self, data):
+        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+
+        # Alias is optional, it defaults to the child's slug when not given.
+        alias = data.get("alias") or data["child"].slug
+
         # Check there is not a subproject with this alias already
-        subproject = self.parent_project.subprojects.filter(alias=value)
+        subproject = self.parent_project.subprojects.filter(alias=alias)
         if subproject.exists():
             raise serializers.ValidationError(
-                _("A subproject with this alias already exists"),
+                {"alias": _("A subproject with this alias already exists")},
             )
-        return value
 
-    def validate(self, data):  # pylint: disable=arguments-renamed
-        self.parent_project.is_valid_as_superproject(serializers.ValidationError)
+        validate_subproject_alias(
+            parent_project=self.parent_project,
+            alias=alias,
+            error_class=serializers.ValidationError,
+        )
+
+        data["alias"] = alias
         return data
 
 

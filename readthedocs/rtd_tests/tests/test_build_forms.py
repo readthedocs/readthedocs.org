@@ -1,14 +1,17 @@
 from unittest import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 
 
 class TestVersionForm(TestCase):
@@ -124,9 +127,7 @@ class TestVersionForm(TestCase):
             path="index.html",
         )
 
-        url = reverse(
-            "project_version_detail", args=(version.project.slug, version.slug)
-        )
+        url = reverse("project_version_detail", args=(version.project.slug, version.slug))
 
         self.client.force_login(self.user)
 
@@ -298,9 +299,7 @@ class TestVersionForm(TestCase):
         )
 
         self.client.force_login(self.user)
-        url = reverse(
-            "project_version_detail", args=(version.project.slug, version.slug)
-        )
+        url = reverse("project_version_detail", args=(version.project.slug, version.slug))
         r = self.client.post(
             url,
             data={
@@ -347,9 +346,7 @@ class TestVersionForm(TestCase):
         )
 
         self.client.force_login(self.user)
-        url = reverse(
-            "project_version_detail", args=(version.project.slug, version.slug)
-        )
+        url = reverse("project_version_detail", args=(version.project.slug, version.slug))
         r = self.client.post(
             url,
             data={
@@ -365,3 +362,90 @@ class TestVersionForm(TestCase):
         remove_build_storage_paths.delay.assert_not_called()
         remove_search_indexes.delay.assert_not_called()
         trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.builds.models.trigger_build", mock.MagicMock())
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_deactivating_uploaded_version_deletes_it(
+        self, remove_build_storage_paths, remove_search_indexes
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            is_uploaded=True,
+            slug="uploaded",
+        )
+        form = VersionForm(
+            {
+                "slug": version.slug,
+                "active": False,
+                "privacy_level": PUBLIC,
+                "is_uploaded": True,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert form.is_valid()
+        form.save()
+
+        assert not Version.objects.filter(pk=version.pk).exists()
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
+
+    def test_uploaded_field_only_for_uploaded_versions(self):
+        version = get(Version, project=self.project, active=True, is_uploaded=False)
+        form = VersionForm(instance=version, project=self.project)
+        assert "is_uploaded" not in form.fields
+
+        version.is_uploaded = True
+        version.save()
+        form = VersionForm(instance=version, project=self.project)
+        assert "is_uploaded" in form.fields
+
+    def test_uploaded_field_hidden_on_direct_upload_project(self):
+        self.project.is_direct_upload = True
+        self.project.save()
+        version = get(Version, project=self.project, active=True, is_uploaded=True)
+        form = VersionForm(instance=version, project=self.project)
+        assert "is_uploaded" not in form.fields
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_clearing_uploaded_removes_files_and_triggers_a_build(
+        self,
+        remove_build_storage_paths,
+        remove_search_indexes,
+        trigger_build,
+    ):
+        version = get(
+            Version,
+            project=self.project,
+            active=True,
+            built=True,
+            is_uploaded=True,
+            slug="uploaded",
+        )
+        form = VersionForm(
+            {
+                "slug": version.slug,
+                "active": True,
+                "privacy_level": PUBLIC,
+                "is_uploaded": False,
+            },
+            instance=version,
+            project=self.project,
+        )
+        assert form.is_valid()
+        form.save()
+
+        version.refresh_from_db()
+        assert not version.is_uploaded
+        assert version.active
+        # The uploaded files are gone, so a failed build never leaves them being served.
+        assert not version.built
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
+        # Exactly one build: the version was already active, so activation doesn't add another.
+        trigger_build.assert_called_once_with(project=self.project, version=version)

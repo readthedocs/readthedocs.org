@@ -46,7 +46,7 @@ class GitHubService(UserService):
                 remote_repository = self.create_repository(repo)
                 if remote_repository:
                     remote_ids.append(remote_repository.remote_id)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             log.warning("Error syncing GitHub repositories")
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
@@ -339,7 +339,7 @@ class GitHubService(UserService):
                 )
 
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except RequestException, ValueError:
             log.exception("GitHub webhook creation failed for project.")
 
         return False
@@ -404,7 +404,7 @@ class GitHubService(UserService):
             )
 
         # Catch exceptions with request or deserializing JSON
-        except (AttributeError, RequestException, ValueError):
+        except AttributeError, RequestException, ValueError:
             log.exception("GitHub webhook update failed for project.")
 
         return False
@@ -544,7 +544,7 @@ class GitHubService(UserService):
             )
 
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except RequestException, ValueError:
             log.exception("GitHub commit status creation failed for project.")
         except InvalidGrantError:
             log.info("Invalid GitHub grant for user.", exc_info=True)
