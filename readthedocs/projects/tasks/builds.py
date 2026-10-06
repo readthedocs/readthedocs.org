@@ -724,8 +724,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Purge the CDN now that the new files are in storage.
         purge_docs_cdn.delay(version_id=self.data.version.pk)
 
-        # Index search data
-        index_build.delay(build_id=self.data.build_pk)
+        # Index search data. External versions skip search indexing,
+        # so they don't need to wait behind the reindex queue.
+        if self.data.version.type == EXTERNAL:
+            index_build.apply_async(kwargs={"build_id": self.data.build_pk}, queue="web")
+        else:
+            index_build.delay(build_id=self.data.build_pk)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:

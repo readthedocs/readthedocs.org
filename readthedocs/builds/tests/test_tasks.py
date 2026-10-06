@@ -707,6 +707,19 @@ class TestRunPostBuildTasks(TestCase):
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
         index_build.delay.assert_called_once_with(build_id=build.pk)
 
+    def test_external_version_indexes_on_web_queue(
+        self, index_build, purge_docs_cdn, send_build_notifications
+    ):
+        version = get(Version, project=self.project, type=EXTERNAL)
+        build = get(Build, project=self.project, version=version, success=True)
+
+        run_post_build_tasks(build_pk=build.pk)
+
+        index_build.apply_async.assert_called_once_with(
+            kwargs={"build_id": build.pk}, queue="web"
+        )
+        index_build.delay.assert_not_called()
+
     def test_failed_build_does_not_purge_cdn(self, index_build, purge_docs_cdn, send_build_notifications):
         build = get(Build, project=self.project, version=self.version, success=False)
 
