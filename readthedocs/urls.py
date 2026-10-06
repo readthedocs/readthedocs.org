@@ -18,6 +18,7 @@ from readthedocs.core.views import HomepageView
 from readthedocs.core.views import SupportView
 from readthedocs.core.views import WelcomeView
 from readthedocs.core.views import do_not_track
+from readthedocs.core.views import schema
 from readthedocs.search.views import GlobalSearchView
 
 
@@ -43,6 +44,7 @@ basic_urls = [
         ".well-known/security.txt",
         TemplateView.as_view(template_name="security.txt", content_type="text/plain"),
     ),
+    path("schemas/config/v2.json", schema, name="schema"),
     path("support/", SupportView.as_view(), name="support"),
     # These are redirected to from the support form
     path(
