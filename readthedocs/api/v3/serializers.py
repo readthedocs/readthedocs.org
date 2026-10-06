@@ -12,12 +12,12 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer
 from taggit.serializers import TagListSerializerField
 
-from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.utils import normalize_build_command
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
@@ -148,7 +148,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     def get_documentation(self, obj):
         if not obj.version:
             return None
-        resolver = getattr(self.parent, "resolver", None) or Resolver()
+        resolver = getattr(self.parent, "resolver", Resolver())
         return resolver.resolve_version(project=obj.project, version=obj.version)
 
     def get_commit(self, obj):
@@ -205,13 +205,16 @@ class BuildSerializer(FlexFieldsModelSerializer):
     success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source="length")
     state = BuildStateSerializer(source="*")
-    state_display = serializers.CharField(source="get_state_display", read_only=True)
+    # ``Build.config`` only reads the ``readthedocs_yaml_config`` FK,
+    # so views ``select_related`` it and we can always include it.
+    # ``config`` was previously an expandable field; ``?expand=config`` is
+    # still accepted and ignored to keep old clients working.
+    config = BuildConfigSerializer(read_only=True)
     _links = BuildLinksSerializer(source="*")
     urls = BuildURLsSerializer(source="*")
     # Kept for backward compatibility. The field was removed from the model,
     # but we still return it as an empty string to avoid breaking API clients.
     error = serializers.SerializerMethodField()
-    commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta:
         model = Build
@@ -223,38 +226,21 @@ class BuildSerializer(FlexFieldsModelSerializer):
             "finished",
             "duration",
             "state",
-            "state_display",
             "success",
             "error",
             "commit",
-            "commands",
+            "config",
             "_links",
             "urls",
         ]
 
-        expandable_fields = {"config": (BuildConfigSerializer,)}
-
     def __init__(self, *args, resolver=None, **kwargs):
-        # Use a shared resolver to reduce DB queries when building URLs that
-        # need a domain lookup (e.g. ``urls.documentation``).
-        self.resolver = resolver
+        # Use a shared resolver to reduce the amount of DB queries while
+        # resolving documentation URLs (``urls.documentation``).
+        # The resolver caches domain lookups per project,
+        # so one instance is shared by all the builds of a listing.
+        self.resolver = resolver or Resolver()
         super().__init__(*args, **kwargs)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # Normalize commands at the build level so we don't trigger an FK
-        # lookup back to project/version per command in the nested serializer.
-        commands = data.get("commands")
-        if commands:
-            project_slug = instance.project.slug
-            version_slug = instance.get_version_slug()
-            for cmd in commands:
-                cmd["command"] = normalize_build_command(
-                    cmd["command"],
-                    project_slug,
-                    version_slug,
-                )
-        return data
 
     def get_error(self, obj):
         return ""
@@ -273,6 +259,36 @@ class BuildSerializer(FlexFieldsModelSerializer):
             return obj.success
 
         return None
+
+
+class BuildDetailSerializer(BuildSerializer):
+    """
+    Build serializer used on the detail endpoint only.
+
+    It includes the build ``commands`` (with their full output),
+    which are too expensive to return for every build on a listing.
+    """
+
+    commands = BuildCommandSerializer(many=True, read_only=True)
+
+    class Meta(BuildSerializer.Meta):
+        fields = BuildSerializer.Meta.fields + ["commands"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Normalize commands at the build level so we don't trigger an FK
+        # lookup back to project/version per command in the nested serializer.
+        commands = data.get("commands")
+        if commands:
+            project_slug = instance.project.slug
+            version_slug = instance.get_version_slug()
+            for cmd in commands:
+                cmd["command"] = normalize_build_command(
+                    cmd["command"],
+                    project_slug,
+                    version_slug,
+                )
+        return data
 
 
 class NotificationMessageSerializer(serializers.Serializer):

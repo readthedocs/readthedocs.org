@@ -1,11 +1,8 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
-import json
-import re
 
 import structlog
-from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import BRANCH
@@ -19,7 +16,6 @@ from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.projects.models import AutomationRule
-from readthedocs.storage import build_commands_storage
 
 
 log = structlog.get_logger(__name__)
@@ -272,71 +268,6 @@ def run_version_automation_rules(project, added_versions, deleted_active_version
                     version_type=version.type,
                 )
                 rule.run(version)
-
-
-def normalize_build_command(command, project_slug, version_slug):
-    """
-    Sanitize the build command to be shown to users.
-
-    It removes internal variables and long paths to make them nicer.
-    """
-    docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
-
-    # Remove Docker hash from DOCROOT when running it locally
-    # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
-    # We have to remove it from the DOCROOT it self since it changes each time
-    # we spin up a new Docker instance locally.
-    container_hash = "/"
-    if settings.RTD_DOCKER_COMPOSE:
-        docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
-        container_hash = "/([0-9a-z]+/)?"
-
-    regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
-    command = re.sub(regex, "", command, count=1)
-
-    # Remove explicit variable names we use to run commands,
-    # since users don't care about these.
-    regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
-    command = re.sub(regex, "", command, count=1)
-
-    regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
-    command = re.sub(regex, "", command, count=1)
-    return command
-
-
-def get_build_commands_from_storage(build):
-    """
-    Return build commands from storage for ``cold_storage`` builds.
-
-    Returns ``None`` when commands can't be loaded from storage and callers
-    should keep using serializer output.
-    """
-    if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
-        return None
-
-    if not build.cold_storage:
-        return None
-
-    storage_path = build.storage_path
-    if not build_commands_storage.exists(storage_path):
-        return None
-
-    try:
-        json_resp = build_commands_storage.open(storage_path).read()
-        commands = json.loads(json_resp)
-        for buildcommand in commands:
-            buildcommand["command"] = normalize_build_command(
-                buildcommand["command"],
-                build.project.slug,
-                build.get_version_slug(),
-            )
-        return commands
-    except Exception:
-        log.exception(
-            "Failed to read build data from storage.",
-            path=storage_path,
-        )
-        return None
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

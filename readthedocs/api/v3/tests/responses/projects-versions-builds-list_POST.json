@@ -1,12 +1,12 @@
 {
     "build": {
         "commit": null,
+        "config": {},
         "created": "2019-04-29T14:00:00Z",
         "duration": null,
         "error": "",
         "finished": null,
         "id": 3,
-        "commands": [],
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/3/",
             "notifications": "https://readthedocs.org/api/v3/projects/project/builds/3/notifications/",
@@ -25,7 +25,6 @@
             "code": "triggered",
             "name": "Triggered"
         },
-        "state_display": "Triggered",
         "success": null,
         "version": "v1.0"
     },

@@ -28,10 +28,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
-from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.utils import get_build_commands_from_storage
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import trigger_sync_versions
@@ -66,6 +66,7 @@ from .permissions import IsOrganizationAdminMember
 from .permissions import IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import BuildCreateSerializer
+from .serializers import BuildDetailSerializer
 from .serializers import BuildSerializer
 from .serializers import EnvironmentVariableSerializer
 from .serializers import NotificationSerializer
@@ -398,12 +399,13 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
-    permit_list_expands = [
-        "config",
-    ]
-    permit_detail_expands = [
-        "config",
-    ]
+
+    def get_serializer_class(self):
+        # Commands are only returned on the detail endpoint,
+        # they are too expensive to include on listings.
+        if self.action == "retrieve":
+            return BuildDetailSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         return (
@@ -412,9 +414,8 @@ class BuildsViewSet(
             .select_related(
                 "project",
                 "version",
-            )
-            .prefetch_related(
-                "commands",
+                # Used by ``Build.config``.
+                "readthedocs_yaml_config",
             )
         )
 

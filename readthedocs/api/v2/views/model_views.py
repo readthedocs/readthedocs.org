@@ -27,7 +27,6 @@ from rest_framework.response import Response
 from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.api.v2.permissions import IsOwner
 from readthedocs.api.v2.permissions import ReadOnlyPermission
-from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.aws.security_token_service import AWSTemporaryCredentialsError
 from readthedocs.aws.security_token_service import get_s3_build_media_scoped_credentials
 from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_credentials
@@ -36,6 +35,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.utils import get_build_commands_from_storage
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
