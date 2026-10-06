@@ -197,10 +197,10 @@ class TestBuildMediaStorage(TestCase):
 
     def test_rclone_download_directory(self):
         with override_settings(DOCROOT=files_dir):
-            self.storage.rclone_sync_directory(files_dir, "files")
+            self.storage.rclone_sync_directory(files_dir, "files/project")
 
         download_dir = tempfile.mkdtemp()
-        self.storage.rclone_download_directory("files", download_dir)
+        self.storage.rclone_download_directory("files/project", download_dir)
         self.assertCountEqual(
             os.listdir(download_dir),
             ["api", "404.html", "api.fjson", "conf.py", "index.html", "test.html"],
@@ -209,10 +209,10 @@ class TestBuildMediaStorage(TestCase):
 
     def test_rclone_download_directory_include_filter(self):
         with override_settings(DOCROOT=files_dir):
-            self.storage.rclone_sync_directory(files_dir, "files")
+            self.storage.rclone_sync_directory(files_dir, "files/project")
 
         download_dir = tempfile.mkdtemp()
-        self.storage.rclone_download_directory("files", download_dir, include="*.html")
+        self.storage.rclone_download_directory("files/project", download_dir, include="*.html")
         self.assertCountEqual(
             os.listdir(download_dir),
             ["api", "404.html", "index.html", "test.html"],
@@ -223,7 +223,7 @@ class TestBuildMediaStorage(TestCase):
         # A missing source directory downloads as an empty local copy,
         # like walking a missing storage path.
         download_dir = tempfile.mkdtemp()
-        self.storage.rclone_download_directory("does-not-exist", download_dir)
+        self.storage.rclone_download_directory("does-not-exist/latest", download_dir)
         self.assertEqual(os.listdir(download_dir), [])
 
     def test_rclone_download_directory_storage_unreachable(self):
@@ -234,8 +234,11 @@ class TestBuildMediaStorage(TestCase):
             type(self.storage), "listdir", side_effect=OSError("unreachable")
         ):
             with pytest.raises(OSError):
-                self.storage.rclone_download_directory("does-not-exist", download_dir)
+                self.storage.rclone_download_directory("does-not-exist/latest", download_dir)
 
-    def test_rclone_download_all_storage(self):
-        with pytest.raises(SuspiciousFileOperation):
-            self.storage.rclone_download_directory("/", tempfile.mkdtemp())
+    def test_rclone_download_whole_prefix(self):
+        # The whole bucket, and whole top-level prefixes like all projects'
+        # HTML, must be refused.
+        for source in ("", "/", "html", "/html", "pdf/", "external"):
+            with pytest.raises(SuspiciousFileOperation):
+                self.storage.rclone_download_directory(source, tempfile.mkdtemp())

@@ -419,3 +419,35 @@ class TestParsers:
         second = parser._process_content("index.html", template.format(text="Other content"))
         assert first["text_hash"] != second["text_hash"]
         assert first["markup_hash"] != second["markup_hash"]
+
+    def test_local_path_reads_from_the_local_copy(self, tmp_path):
+        page = tmp_path / "index.html"
+        page.write_text(
+            '<html><body><div role="main"><h1 id="title">Title</h1><p>Content</p></div></body></html>'
+        )
+
+        parser = GenericParser(self.version, local_path=str(tmp_path))
+        parsed = parser.parse("index.html")
+
+        assert parsed["title"] == "Title"
+        assert parsed["sections"] == [{"id": "title", "title": "Title", "content": "Content"}]
+
+    def test_local_path_refuses_pages_outside_the_local_copy(self, tmp_path):
+        # Page names originate in user-uploaded files; one that resolves
+        # outside the downloaded copy must not be read.
+        outside = tmp_path / "outside.html"
+        outside.write_text("<html><body><h1>Secret</h1></body></html>")
+        local_path = tmp_path / "local"
+        local_path.mkdir()
+
+        parser = GenericParser(self.version, local_path=str(local_path))
+        parsed = parser.parse("../outside.html")
+
+        assert parsed == {
+            "path": "../outside.html",
+            "title": "",
+            "sections": [],
+            "main_content_hash": None,
+            "text_hash": None,
+            "markup_hash": None,
+        }

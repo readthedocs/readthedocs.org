@@ -62,8 +62,10 @@ class RTDBaseStorage:
         A missing source directory results in an empty local copy,
         mimicking what walking a missing storage path does.
         """
-        if source in ("", "/"):
-            raise SuspiciousFileOperation("Downloading all storage cannot be right")
+        # Require at least ``<media_type>/<project>`` so a bad caller can't
+        # pull the whole bucket or a whole media type to local disk.
+        if len([part for part in source.split("/") if part]) < 2:
+            raise SuspiciousFileOperation("Downloading a whole storage prefix cannot be right")
 
         try:
             return self._rclone.copy_to_local(source, destination, include=include)

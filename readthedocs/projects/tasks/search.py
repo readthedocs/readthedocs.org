@@ -4,7 +4,6 @@ from fnmatch import fnmatch
 
 import structlog
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import INTERNAL
@@ -275,22 +274,18 @@ def _process_files(*, version: Version, indexers: list[Indexer], local_path: str
     )
 
     # A single bulk download is much faster than one or more storage
-    # requests per file. HTML is all the indexers consume. The local copy
-    # mirrors the storage layout, so the parser resolves pages as usual.
-    local_storage_path = os.path.join(local_path, storage_path)
-    build_media_storage.rclone_download_directory(
-        storage_path, local_storage_path, include="*.html"
-    )
+    # requests per file. HTML is all the indexers consume.
+    build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
 
     # The injected parser makes ``processed_json`` read from the local copy.
-    parser = GenericParser(version, storage=FileSystemStorage(location=local_path))
-    for root, __, filenames in os.walk(local_storage_path):
+    parser = GenericParser(version, local_path=local_path)
+    for root, __, filenames in os.walk(local_path):
         for filename in filenames:
             # We don't care about non-HTML files (for now?).
             if not filename.endswith(".html"):
                 continue
 
-            relpath = os.path.relpath(os.path.join(root, filename), local_storage_path)
+            relpath = os.path.relpath(os.path.join(root, filename), local_path)
 
             html_file = HTMLFile(
                 project=version.project,
