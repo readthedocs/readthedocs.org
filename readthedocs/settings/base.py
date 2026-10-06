@@ -65,15 +65,17 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
-            "DISABLE_PANELS": {
-                # Default panels that are normally disabled
+            "DISABLE_PANELS": [
+                # Default ones
                 "debug_toolbar.panels.profiling.ProfilingPanel",
                 "debug_toolbar.panels.redirects.RedirectsPanel",
-                # Panels that are slow
-                "debug_toolbar.panels.templates.TemplatesPanel",
+                # Custome ones
+                # We are disabling these because they take a lot of time to execute in the new dashboard.
+                # We make an intensive usage of the ``include`` template tag there.
+                # It's a "known issue/bug" and there is no solution as far as we can tell.
                 "debug_toolbar.panels.sql.SQLPanel",
-            },
-            "TOOLBAR_STORE_CLASS": "debug_toolbar.store.CacheStore",
+                "debug_toolbar.panels.templates.TemplatesPanel",
+            ],
         }
 
     @property
@@ -1157,38 +1159,21 @@ class CommunityBaseSettings(Settings):
                 # Always send from the root, handlers can filter levels
                 "level": "INFO",
             },
-            "docker.utils.config": {
-                "handlers": ["null"],
-                # Don't double log at the root logger for these.
-                "propagate": False,
-            },
-            "django_structlog.middlewares.request": {
-                "handlers": ["null"],
-                # Don't double log at the root logger for these.
-                "propagate": False,
-            },
             "readthedocs": {
                 "handlers": ["debug", "console"],
                 "level": "DEBUG",
                 # Don't double log at the root logger for these.
                 "propagate": False,
             },
-            "django.security.DisallowedHost": {
-                "handlers": ["null"],
-                "propagate": False,
-            },
-            "django.security.DisallowedRedirect": {
-                "handlers": ["null"],
-                "propagate": False,
-            },
-            "elastic_transport.transport": {
-                "handlers": ["null"],
-                "propagate": False,
-            },
-            "celery.worker.consumer.gossip": {
-                "handlers": ["null"],
-                "propagate": False,
-            },
+            # Noisy loggers we don't want in any output. Raising the level
+            # (rather than a null handler) also hides them from pytest,
+            # which captures from every logger.
+            "docker.utils.config": {"level": "CRITICAL"},
+            "django_structlog.middlewares.request": {"level": "CRITICAL"},
+            "django.security.DisallowedHost": {"level": "CRITICAL"},
+            "django.security.DisallowedRedirect": {"level": "CRITICAL"},
+            "elastic_transport.transport": {"level": "CRITICAL"},
+            "celery.worker.consumer.gossip": {"level": "CRITICAL"},
         },
     }
 
