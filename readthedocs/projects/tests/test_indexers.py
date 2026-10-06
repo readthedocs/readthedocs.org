@@ -6,7 +6,39 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import (
+    SearchIndexer,
+    _get_indexers,
+    queue_index_build,
+)
+
+
+@mock.patch("readthedocs.projects.tasks.search.index_build")
+class TestQueueIndexBuild(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_internal_version_uses_the_reindex_queue(self, index_build):
+        version = self.project.versions.first()
+
+        queue_index_build(build_id=1, version=version)
+
+        index_build.delay.assert_called_once_with(build_id=1)
+        index_build.apply_async.assert_not_called()
+
+    def test_external_version_uses_the_web_queue(self, index_build):
+        version = get(Version, project=self.project, slug="123", type=EXTERNAL)
+
+        queue_index_build(build_id=1, version=version)
+
+        index_build.apply_async.assert_called_once_with(kwargs={"build_id": 1}, queue="web")
+        index_build.delay.assert_not_called()
+
+    def test_no_version_uses_the_reindex_queue(self, index_build):
+        # ``index_build`` handles the deleted version itself.
+        queue_index_build(build_id=1, version=None)
+
+        index_build.delay.assert_called_once_with(build_id=1)
 
 
 class TestSearchIndexing(TestCase):
