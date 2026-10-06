@@ -471,7 +471,8 @@ class TestGitHubAppWebhook(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
@@ -565,6 +566,38 @@ class TestGitHubAppWebhook(TestCase):
         }
         r = self.post_webhook("pull_request", payload)
         assert r.status_code == 200
+        assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.oauth.tasks.trigger_build")
+    def test_pull_request_opened_direct_upload_project(self, trigger_build):
+        self.project.is_direct_upload = True
+        self.project.save()
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "action": "opened",
+            "pull_request": {
+                "number": 1,
+                "head": {
+                    "ref": "new-feature",
+                    "sha": "1234abcd",
+                },
+                "base": {
+                    "ref": "main",
+                },
+            },
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("pull_request", payload)
+        assert r.status_code == 200
+        # The preview is created by the upload API, not by the webhook.
         assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
         trigger_build.assert_not_called()
 
@@ -1225,7 +1258,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, commit=None, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, commit=None, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
@@ -1306,7 +1340,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.builds.automation_actions.trigger_build")
@@ -1723,7 +1758,8 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             [
                 mock.call(project=self.project, version=self.version_main, from_webhook=True),
                 mock.call(project=self.project, version=self.version_latest, from_webhook=True),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")

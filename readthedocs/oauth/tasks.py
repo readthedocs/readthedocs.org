@@ -658,7 +658,15 @@ class GitHubAppWebhookHandler:
         )
 
         if action in ("opened", "reopened", "synchronize"):
-            for project in self._get_projects().filter(external_builds_enabled=True):
+            # Direct upload projects get their pull request previews from the upload API,
+            # creating the version here would leave it empty until the upload arrives.
+            # Closed events are still handled below, so uploaded previews get cleaned up.
+            projects = (
+                self._get_projects()
+                .filter(external_builds_enabled=True)
+                .exclude(is_direct_upload=True)
+            )
+            for project in projects:
                 external_version = get_or_create_external_version(
                     project=project,
                     version_data=external_version_data,

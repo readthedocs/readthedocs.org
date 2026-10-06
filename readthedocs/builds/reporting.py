@@ -4,6 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from readthedocs.builds.models import Build
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import get_diff
 from readthedocs.filetreediff.dataclasses import FileTreeDiff
 
@@ -25,7 +26,7 @@ def get_build_overview(build: Build) -> BuildOverview | None:
     which can be included in a comment on a pull request.
     """
     project = build.project
-    base_version = project.addons.options_base_version or project.get_latest_version()
+    base_version = get_base_version(project)
     if not base_version:
         return None
 

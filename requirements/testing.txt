@@ -6,7 +6,7 @@
 #
 alabaster==1.0.0
     # via sphinx
-amqp==5.3.1
+amqp==5.4.0
     # via
     #   -r requirements/pip.txt
     #   kombu
@@ -27,15 +27,15 @@ asgiref==3.12.1
     #   django-structlog
 babel==2.18.0
     # via sphinx
-billiard==4.2.4
+billiard==4.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.89
+boto3==1.43.98
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.89
+botocore==1.43.98
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -77,7 +77,7 @@ click-plugins==1.1.1.2
     # via
     #   -r requirements/pip.txt
     #   celery
-click-repl==0.3.0
+click-repl==0.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -85,7 +85,7 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.16.0
+coverage[toml]==7.16.1
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
@@ -177,7 +177,7 @@ django-timezone-field==7.2.2
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.18.0
+djangorestframework==3.18.1
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -212,14 +212,14 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.32.5
+filelock==3.32.7
     # via
     #   -r requirements/pip.txt
     #   python-discovery
     #   virtualenv
 gunicorn==26.2.0
     # via -r requirements/pip.txt
-idna==3.19
+idna==3.20
     # via
     #   -r requirements/pip.txt
     #   anyio
@@ -277,7 +277,7 @@ packaging==26.3
     #   sphinx
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.11.7
+platformdirs==4.11.11
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -289,13 +289,13 @@ prompt-toolkit==3.0.53
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg[binary,pool]==3.3.5
+psycopg[binary,pool]==3.3.6
     # via -r requirements/pip.txt
-psycopg-binary==3.3.5
+psycopg-binary==3.3.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.3.1
+psycopg-pool==3.3.2
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -316,7 +316,7 @@ pygments==2.21.0
     #   -r requirements/pip.txt
     #   pytest
     #   sphinx
-pyjwt[crypto]==2.13.0
+pyjwt[crypto]==2.14.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -352,7 +352,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.6.0
+python-discovery==1.6.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -374,7 +374,7 @@ qrcode==8.2
     #   django-allauth
 redis==8.1.0
     # via -r requirements/pip.txt
-regex==2026.9.3
+regex==2026.9.10
     # via -r requirements/pip.txt
 requests==2.34.2
     # via
@@ -402,7 +402,7 @@ s3transfer==0.19.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.11
+selectolax==0.4.12
     # via -r requirements/pip.txt
 six==1.17.0
     # via
@@ -454,6 +454,7 @@ typing-extensions==4.16.0
     # via
     #   -r requirements/pip.txt
     #   anyio
+    #   click-repl
     #   elasticsearch
     #   psycopg-pool
     #   pydantic
@@ -465,7 +466,7 @@ typing-inspection==0.4.4
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2026.3
+tzdata==2026.4
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -488,7 +489,7 @@ unidecode==1.4.0
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -504,9 +505,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.7.8
+virtualenv==21.9.0
     # via -r requirements/pip.txt
-wcwidth==0.8.3
+wcwidth==0.8.4
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit

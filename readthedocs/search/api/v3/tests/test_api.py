@@ -3,29 +3,25 @@ from unittest import mock
 
 import pytest
 from django.contrib.auth.models import User
-from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.organizations.models import Organization, Team
-from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.organizations.models import Organization
+from readthedocs.organizations.models import Team
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
 from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.tests.utils import SearchIndexTestMixin
 
 
 @pytest.mark.search
-class SearchTestBase(TestCase):
-    def setUp(self):
-        call_command("search_index", "--delete", "-f")
-        call_command("search_index", "--create")
-
-    def tearDown(self):
-        super().tearDown()
-        call_command("search_index", "--delete", "-f")
-
+class SearchTestBase(SearchIndexTestMixin, TestCase):
     def get_dummy_processed_json(self, extra=None):
         """
         Return a dict to be used as data indexed by ES.

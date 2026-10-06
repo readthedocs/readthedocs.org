@@ -4,13 +4,18 @@ import datetime
 
 import structlog
 from django.db import models
+from django.db.models import Case
 from django.db.models import Q
+from django.db.models import Value
+from django.db.models import When
 from django.utils import timezone
 
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.querysets import NoReprQuerySet
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -144,6 +149,24 @@ class VersionQuerySetBase(NoReprQuerySet, models.QuerySet):
             .exclude(project__delisted=True)
             .exclude(project__is_spam=True)
             .distinct()
+        )
+
+    def sort_version_aware_naive(self):
+        """
+        Order versions with "latest" first, "stable" second, then alphabetically.
+
+        This is a naive SQL-level approximation of the full version-aware
+        sorting (which requires Python-level semantic version parsing).
+        It ensures special versions appear at the top, but does not handle
+        semantic version ordering (e.g. 1.9 vs 1.10).
+        """
+        return self.order_by(
+            Case(
+                When(verbose_name=LATEST_VERBOSE_NAME, then=Value(0)),
+                When(verbose_name=STABLE_VERBOSE_NAME, then=Value(1)),
+                default=Value(2),
+            ),
+            "verbose_name",
         )
 
 

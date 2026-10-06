@@ -1,7 +1,5 @@
 """Project views for authenticated users."""
 
-from functools import lru_cache
-
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -40,6 +38,8 @@ from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import slugify
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -73,6 +73,7 @@ from readthedocs.projects.models import AutomationRuleMatch
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
@@ -157,7 +158,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # NOTE: This method is called twice, on .org it doesn't matter,
     # as the queryset is straightforward, but on .com it
     # does some extra work that results in several queries.
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -289,13 +290,25 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+def direct_upload_available(request):
+    """
+    Whether the "Add project" wizard offers direct upload.
+
+    Beta gate: the wizard has to be opened with ``?direct_upload=1``.
+    """
+    return request.GET.get("direct_upload") == "1" or request.POST.get("direct_upload") == "1"
+
+
 def show_config_step(wizard):
     """
     Decide whether or not show the config step on "Add project" wizard.
 
     If the `.readthedocs.yaml` file already exist in the default branch, we
-    don't show this step.
+    don't show this step, unless direct upload is available, since the user
+    still has to choose how the documentation will be built.
     """
+    if wizard.initial_dict.get("direct_upload"):
+        return True
 
     # Try to get the cleaned data from the "basics" step only if
     # we are in a step after it, otherwise, return True since we don't
@@ -411,6 +424,41 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         """Return template names based on step name."""
         return f"projects/import_{self.steps.current}.html"
 
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        context["direct_upload_available"] = bool(self.initial_dict.get("direct_upload"))
+        if self.steps.current == "config":
+            context["project_slug"] = self._get_project_slug_preview()
+        return context
+
+    def _get_project_slug_preview(self):
+        """Slug the project will get, derived from the "basics" step, for the upload examples."""
+        data = self.storage.get_step_data("basics")
+        if not data:
+            return ""
+        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
+        if not form.is_valid():
+            return ""
+        # .com sets the slug on the instance while cleaning (organization prefix).
+        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
+
+    def _uses_direct_upload(self, form_list):
+        """Whether direct upload was chosen in the config step, only possible when the beta gate allows it."""
+        if not self.initial_dict.get("direct_upload"):
+            return False
+        for form in form_list:
+            if isinstance(form, self.form_list.get("config")):
+                return bool(form.cleaned_data.get("is_direct_upload"))
+        return False
+
+    def _setup_direct_upload(self, project):
+        """Enable the upload API on a new direct upload project (beta gate)."""
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+        )
+        feature.projects.add(project)
+        log.info("Project configured for direct upload.", project_slug=project.slug)
+
     def done(self, form_list, **kwargs):
         """
         Save form data as object instance.
@@ -429,8 +477,14 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
                 break
 
         # Save the basics form to create the project instance, then alter
-        # attributes directly from other forms
+        # attributes directly from other forms.
+        # Has to be set before saving: `Project.save` creates `latest`
+        # for projects built by Read the Docs, and direct upload projects don't get one.
+        basics_form.instance.is_direct_upload = self._uses_direct_upload(form_list)
         project = basics_form.save()
+
+        if project.is_direct_upload:
+            self._setup_direct_upload(project)
 
         self.finish_import_project(self.request, project)
 
@@ -459,12 +513,14 @@ class ImportView(PrivateViewMixin, TemplateView):
         initial_data["extra"] = {}
         for key in ["description", "project_url"]:
             initial_data["extra"][key] = request.POST.get(key)
+        initial_data["direct_upload"] = direct_upload_available(request)
         request.method = "GET"
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["view_csrf_token"] = get_token(self.request)
+        context["direct_upload_available"] = direct_upload_available(self.request)
 
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)

@@ -250,23 +250,27 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
 
-    @pytest.mark.parametrize("external", [True, False])
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_sync_versions_not_called_for_external_versions(
-        self, load_yaml_config, sync_versions, external
-    ):
+    def test_sync_versions_called_for_internal_versions(self, load_yaml_config, sync_versions):
         load_yaml_config.return_value = get_build_config({}, validate=True)
 
-        self.version.type = EXTERNAL if external else BRANCH
+        self.version.type = BRANCH
         self.version.save()
 
         self._trigger_update_docs_task()
+        sync_versions.assert_called_once()
 
-        if external:
-            sync_versions.assert_not_called()
-        else:
-            sync_versions.assert_called_once()
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_not_called_for_external_versions(self, load_yaml_config, sync_versions):
+        load_yaml_config.return_value = get_build_config({}, validate=True)
+
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        self._trigger_update_docs_task()
+        sync_versions.assert_not_called()
 
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.run_build_job")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")

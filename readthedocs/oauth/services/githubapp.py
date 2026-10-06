@@ -1,5 +1,4 @@
 from functools import cached_property
-from functools import lru_cache
 from itertools import groupby
 
 import structlog
@@ -15,6 +14,7 @@ from github.Repository import Repository as GHRepository
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import SELECT_BUILD_STATUS
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
@@ -44,7 +44,7 @@ class GitHubAppService(Service):
     def gh_app_client(self):
         return get_gh_app_client()
 
-    @lru_cache
+    @cached_method
     def get_app_installation(self) -> GHInstallation:
         """
         Return the installation object from the GitHub API.
@@ -112,7 +112,7 @@ class GitHubAppService(Service):
             if resp.status_code != 200:
                 log.info(
                     "Failed to fetch installations from GitHub",
-                    user=user,
+                    user_username=user.username,
                     account_id=account.uid,
                     status_code=resp.status_code,
                     response=resp.json(),
@@ -336,14 +336,12 @@ class GitHubAppService(Service):
         self._resync_collaborators(gh_repo, remote_repo)
         return remote_repo
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def _get_gh_organization(self, login: str) -> GHOrganization:
         """Get a GitHub organization object given its login identifier."""
         return self.installation_client.get_organization(login)
 
-    # NOTE: normally, this should cache only one organization at a time, but just in case...
-    @lru_cache(maxsize=50)
+    @cached_method
     def update_or_create_organization(self, login: str) -> RemoteOrganization:
         """
         Create or update a remote organization from its login identifier.
@@ -438,8 +436,8 @@ class GitHubAppService(Service):
         except RateLimitExceededException:
             log.info(
                 "Rate limit exceeded while sending build status to GitHub",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 commit=commit,
                 status=status,
                 exc_info=True,
@@ -449,8 +447,8 @@ class GitHubAppService(Service):
         except GithubException as e:
             log.info(
                 "Failed to send build status to GitHub",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 commit=commit,
                 status=status,
                 exc_info=True,
@@ -493,7 +491,7 @@ class GitHubAppService(Service):
             log.info(
                 "Failed to get clone token for project",
                 installation_id=self.installation.installation_id,
-                project=project.slug,
+                project_slug=project.slug,
                 exc_info=True,
             )
             return None
@@ -526,8 +524,8 @@ class GitHubAppService(Service):
         if gh_pull.state != "open":
             log.info(
                 "Pull request is closed or merged, skipping comment.",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
                 pr_state=gh_pull.state,
             )
             return
@@ -552,6 +550,6 @@ class GitHubAppService(Service):
         else:
             log.debug(
                 "No comment to update, skipping commenting",
-                project=project.slug,
-                build=build.pk,
+                project_slug=project.slug,
+                build_id=build.pk,
             )

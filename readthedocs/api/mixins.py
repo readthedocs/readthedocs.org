@@ -1,5 +1,3 @@
-import functools
-
 import structlog
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -7,6 +5,7 @@ from django.utils.functional import cached_property
 from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.proxito.cache import add_cache_tags
 
 
@@ -71,7 +70,7 @@ class EmbedAPIMixin:
     Used in combination with ``CDNCacheTagsMixin`` to add project/version slug
     in the response to be cached.
 
-    Note that these methods are cached (``lru_cache`` and ``cached_property``)
+    Note that these methods are cached (``cached_method`` and ``cached_property``)
     to avoid hitting the database multiple times on the same request.
     """
 
@@ -87,7 +86,7 @@ class EmbedAPIMixin:
             # isn't pointing to a valid RTD project.
             return None
 
-    @functools.lru_cache(maxsize=1)
+    @cached_method
     def _get_project(self):
         if self.external:
             return None
@@ -97,7 +96,7 @@ class EmbedAPIMixin:
 
         raise Http404
 
-    @functools.lru_cache(maxsize=1)
+    @cached_method
     def _get_version(self):
         if self.external:
             return None

@@ -330,7 +330,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(
             project=obj.project,
             version=obj,
@@ -488,7 +488,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_documentation(self, obj):
         version = getattr(self.parent, "version", None)
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(project=obj, version=version)
 
 
