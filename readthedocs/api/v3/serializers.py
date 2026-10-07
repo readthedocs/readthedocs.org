@@ -391,7 +391,7 @@ class VersionSerializer(serializers.ModelSerializer):
                 alias_version = obj.project.get_original_latest_version()
             if alias_version and alias_version.active:
                 # NOTE: we use __class__, as this serializer can be subclassed.
-                return [self.__class__(alias_version).data]
+                return [self.__class__(alias_version, resolver=self.resolver).data]
         return []
 
 

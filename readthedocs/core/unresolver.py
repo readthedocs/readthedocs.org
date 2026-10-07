@@ -186,7 +186,7 @@ class Unresolver:
         "^/{version}(/{filename})?$"
     )
 
-    def unresolve_url(self, url, append_indexhtml=True):
+    def unresolve_url(self, url, append_indexhtml=True, unresolved_domain=None):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -196,12 +196,22 @@ class Unresolver:
         :param url: Full URL to unresolve (including the protocol and domain part).
         :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
+        :param unresolved_domain: An already unresolved domain
+         (e.g. ``request.unresolved_domain``). It's re-used only if it was
+         unresolved from the same domain as the URL, saving the queries to
+         unresolve it again.
         """
         parsed_url = urlparse(url)
         if parsed_url.scheme not in ["http", "https"]:
             raise InvalidSchemeError(parsed_url.scheme)
         domain = parsed_url.hostname
-        unresolved_domain = self.unresolve_domain(domain)
+        if (
+            not unresolved_domain
+            # The project from the X-RTD-Slug header isn't tied to the domain.
+            or unresolved_domain.is_from_http_header
+            or unresolved_domain.source_domain != domain
+        ):
+            unresolved_domain = self.unresolve_domain(domain)
         return self._unresolve(
             unresolved_domain=unresolved_domain,
             parsed_url=parsed_url,

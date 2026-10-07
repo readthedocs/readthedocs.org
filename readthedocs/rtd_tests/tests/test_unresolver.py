@@ -6,6 +6,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
+    DomainSourceType,
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidExternalVersionError,
@@ -15,6 +16,7 @@ from readthedocs.core.unresolver import (
     SuspiciousHostnameError,
     TranslationNotFoundError,
     TranslationWithoutVersionError,
+    UnresolvedDomain,
     VersionNotFoundError,
     unresolve,
     unresolver,
@@ -454,6 +456,40 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(result.project, self.pip)
         self.assertTrue(result.is_from_public_domain)
         self.assertEqual(result.source_domain, "pip.readthedocs.io")
+
+    def test_unresolve_url_reuses_unresolved_domain(self):
+        unresolved_domain = unresolver.unresolve_domain("pip.readthedocs.io")
+        # Only the version is queried, the project comes from the unresolved domain.
+        with self.assertNumQueries(1):
+            parts = unresolver.unresolve_url(
+                "https://pip.readthedocs.io/en/latest/",
+                unresolved_domain=unresolved_domain,
+            )
+        assert parts.parent_project is unresolved_domain.project
+        assert parts.project is unresolved_domain.project
+        assert parts.version == self.version
+
+    def test_unresolve_url_ignores_unresolved_domain_from_another_domain(self):
+        unresolved_domain = unresolver.unresolve_domain("pip.readthedocs.io")
+        parts = unresolver.unresolve_url(
+            f"https://{self.subproject.slug}.readthedocs.io/{self.subproject.language}/latest/",
+            unresolved_domain=unresolved_domain,
+        )
+        assert parts.project == self.subproject
+        assert parts.version == self.subproject_version
+
+    def test_unresolve_url_ignores_unresolved_domain_from_http_header(self):
+        unresolved_domain = UnresolvedDomain(
+            source_domain="pip.readthedocs.io",
+            source=DomainSourceType.http_header,
+            project=self.subproject,
+        )
+        parts = unresolver.unresolve_url(
+            "https://pip.readthedocs.io/en/latest/",
+            unresolved_domain=unresolved_domain,
+        )
+        assert parts.project == self.pip
+        assert parts.version == self.version
 
     def test_unresolve_domain_with_full_url_invalid_protocol(self):
         invalid_protocols = [

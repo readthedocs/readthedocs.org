@@ -408,7 +408,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(11):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -932,7 +932,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(11):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -961,7 +961,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(11):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -974,6 +974,58 @@ class TestReadTheDocsConfigJson(TestCase):
                 },
             )
         assert r.status_code == 200
+
+    def test_number_of_queries_url_stable(self):
+        # Serializing ``stable`` performs extra queries to find the version it points to
+        # (``aliases``, ``ref`` and ``urls.vcs``), we do this only once,
+        # even if the current version is also listed in the active versions.
+        for i in range(10):
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=f"1.{i}",
+                verbose_name=f"1.{i}",
+                identifier=f"sha-1.{i}",
+                type="tag",
+                built=True,
+                active=True,
+            )
+        fixture.get(
+            Version,
+            project=self.project,
+            privacy_level=PUBLIC,
+            slug="stable",
+            verbose_name="stable",
+            identifier="sha-1.9",
+            type="tag",
+            machine=True,
+            built=True,
+            active=True,
+        )
+
+        with self.assertNumQueries(16):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/stable/",
+                    "client-version": "0.6.0",
+                    "api-version": "1.0.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+        data = r.json()
+        assert data["versions"]["current"]["slug"] == "stable"
+        assert data["versions"]["current"]["ref"] == "1.9"
+        assert [alias["slug"] for alias in data["versions"]["current"]["aliases"]] == ["1.9"]
+        [stable] = [
+            version for version in data["versions"]["active"] if version["slug"] == "stable"
+        ]
+        assert data["versions"]["current"] == stable
 
     def test_number_of_queries_url_subproject(self):
         subproject = fixture.get(
@@ -997,7 +1049,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(10):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1013,7 +1065,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         # Test parent project has fewer queries
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(11):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1039,7 +1091,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(12):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1189,7 +1241,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(16):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

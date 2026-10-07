@@ -1,5 +1,7 @@
 """Views for hosting features."""
 
+import copy
+
 import packaging
 import structlog
 from django.conf import settings
@@ -36,7 +38,6 @@ from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
 from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
 from readthedocs.projects.models import Project
-from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.version_handling import comparable_version
 from readthedocs.projects.version_handling import sort_versions_calver
 from readthedocs.projects.version_handling import sort_versions_custom_pattern
@@ -122,7 +123,12 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
         if url:
             try:
-                unresolved_url = unresolver.unresolve_url(url)
+                # Re-use the domain unresolved by the middleware,
+                # the URL is usually from the same domain as the request.
+                unresolved_url = unresolver.unresolve_url(
+                    url,
+                    unresolved_domain=getattr(self.request, "unresolved_domain", None),
+                )
                 # Project from the URL: if it's a subproject it will differ from
                 # the main project got from the domain.
                 project = unresolved_url.project
@@ -137,7 +143,12 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 project = getattr(exc, "project", None)
         else:
             # When not sending "url", we require "project-slug" and "version-slug".
-            project = get_object_or_404(Project, slug=project_slug)
+            unresolved_domain = getattr(self.request, "unresolved_domain", None)
+            if unresolved_domain and unresolved_domain.project.slug == project_slug:
+                # Re-use the project from the domain unresolved by the middleware.
+                project = unresolved_domain.project
+            else:
+                project = get_object_or_404(Project, slug=project_slug)
             # We do allow hitting this URL without a valid version.
             # This is the same case than sending `?url=` with a partial match
             # (eg. invalid URL path).
@@ -160,9 +171,12 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                     success=True,
                     state=BUILD_STATE_FINISHED,
                 )
-                .select_related("project", "version")
                 .first()
             )
+            if build:
+                # We already have these objects, no need to join them in the query.
+                build.project = project
+                build.version = version
 
         return project, version, build, filename
 
@@ -386,24 +400,38 @@ class AddonsResponseBase:
         if version:
             search_default_filter = f"project:{project.slug}/{version.slug}"
 
+        sorted_versions_active_built_not_hidden = list(sorted_versions_active_built_not_hidden)
+        # These are "sorted active, built, not hidden versions"
+        active_versions_data = VersionAddonsSerializer(
+            sorted_versions_active_built_not_hidden,
+            resolver=resolver,
+            many=True,
+        ).data
+        current_version_data = None
+        if version:
+            # The current version is usually one of the active versions,
+            # re-use (a copy of) its data instead of serializing it again,
+            # serializing a version can perform several queries (e.g. ``aliases``).
+            for active_version, version_data in zip(
+                sorted_versions_active_built_not_hidden, active_versions_data
+            ):
+                if active_version.pk == version.pk:
+                    current_version_data = copy.deepcopy(version_data)
+                    break
+            else:
+                current_version_data = VersionAddonsSerializer(
+                    version,
+                    resolver=resolver,
+                ).data
+
         data = {
             "api_version": "1",
             "projects": self._get_projects_response(
                 request=request, project=project, version=version, resolver=resolver
             ),
             "versions": {
-                "current": VersionAddonsSerializer(
-                    version,
-                    resolver=resolver,
-                ).data
-                if version
-                else None,
-                # These are "sorted active, built, not hidden versions"
-                "active": VersionAddonsSerializer(
-                    sorted_versions_active_built_not_hidden,
-                    resolver=resolver,
-                    many=True,
-                ).data,
+                "current": current_version_data,
+                "active": active_versions_data,
             },
             "builds": {
                 "current": BuildAddonsSerializer(build).data if build else None,
@@ -521,20 +549,21 @@ class AddonsResponseBase:
 
         if version and project.addons.search_show_subprojects_filter:
             # Show the subprojects filter on the parent project and subproject
-            # TODO: Remove these queries and try to find a way to get this data
-            # from the resolver, which has already done these queries.
             # TODO: Replace this fixed filters with the work proposed in
             # https://github.com/readthedocs/addons/issues/22
-            relationship = (
-                ProjectRelationship.objects.filter(Q(parent=project) | Q(child=project))
-                .select_related("parent")
-                .first()
-            )
-            if relationship:
+            #
+            # The parent relationship is already loaded (and cached)
+            # by the project serializer and the resolver.
+            superproject_slug = None
+            if project.parent_relationship:
+                superproject_slug = project.parent_relationship.parent.slug
+            elif project.subprojects.exists():
+                superproject_slug = project.slug
+            if superproject_slug:
                 data["addons"]["search"]["filters"].append(
                     [
                         "Include subprojects",
-                        f"subprojects:{relationship.parent.slug}/{version.slug}",
+                        f"subprojects:{superproject_slug}/{version.slug}",
                         True,
                     ]
                 )
@@ -544,11 +573,8 @@ class AddonsResponseBase:
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
         # In that case, we just don't include the `doc_diff` object in the response.
         if url:
-            base_version_slug = (
-                project.addons.options_base_version.slug
-                if project.addons.options_base_version
-                else LATEST
-            )
+            base_version = project.addons.options_base_version
+            base_version_slug = base_version.slug if base_version else LATEST
             data["addons"].update(
                 {
                     "doc_diff": {
@@ -559,6 +585,9 @@ class AddonsResponseBase:
                             version_slug=base_version_slug,
                             language=project.language,
                             filename=filename,
+                            # We already know the version type, avoid a query.
+                            # ``latest`` can't be an external version.
+                            external=base_version.is_external if base_version else False,
                         )
                         if filename
                         else None,
@@ -618,8 +647,18 @@ class AddonsResponseBase:
         # even if there are no results. Django optimizes the queryset
         # if only we need to check if there are results or not.
         if translations_qs.exists():
+            # Share the main project instance between all translations,
+            # so the resolver queries its relationships (e.g. superproject,
+            # canonical custom domain) only once instead of once per translation.
+            translation_objects = []
+            for translation in translations_qs:
+                if translation.pk == main_project.pk:
+                    translation = main_project
+                elif translation.main_language_project_id == main_project.pk:
+                    translation.main_language_project = main_project
+                translation_objects.append(translation)
             translations = ProjectAddonsSerializer(
-                translations_qs,
+                translation_objects,
                 resolver=resolver,
                 version=version,
                 many=True,
