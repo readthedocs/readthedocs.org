@@ -134,11 +134,16 @@ class ExternalBuildManager(models.Manager):
 class BuildConfigManager(models.Manager):
     """Manager for BuildConfig model."""
 
+    @staticmethod
+    def get_data_hash(data):
+        """Return the hash used to identify a configuration (``BuildConfig.data_hash``)."""
+        dump = json.dumps(data)
+        return hashlib.sha256(dump.encode("utf-8")).hexdigest()
+
     def get_or_create(self, **kwargs):
         data = kwargs.pop("data", None)
         if isinstance(data, dict):
-            dump = json.dumps(data)
-            data_hash = hashlib.sha256(dump.encode("utf-8")).hexdigest()
+            data_hash = self.get_data_hash(data)
             kwargs.setdefault("defaults", {})["data"] = data
 
             return super().get_or_create(

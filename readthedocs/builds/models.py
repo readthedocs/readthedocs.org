@@ -922,7 +922,7 @@ class Build(models.Model):
         if self._readthedocs_yaml_config_changed:
             if self._readthedocs_yaml_config is None:
                 self.readthedocs_yaml_config = None
-            else:
+            elif not self._is_current_readthedocs_yaml_config(self._readthedocs_yaml_config):
                 build_config, _ = BuildConfig.objects.get_or_create(
                     data=self._readthedocs_yaml_config
                 )
@@ -942,6 +942,17 @@ class Build(models.Model):
         super().save(*args, **kwargs)
         self._readthedocs_yaml_config = None
         self._readthedocs_yaml_config_changed = False
+
+    def _is_current_readthedocs_yaml_config(self, data):
+        """
+        Check if ``data`` is the same configuration already attached to this build.
+
+        The builder sends the whole build (including its config) on every state change,
+        this avoids looking up the ``BuildConfig`` again when the config didn't change.
+        """
+        if not self.readthedocs_yaml_config_id or not isinstance(data, dict):
+            return False
+        return self.readthedocs_yaml_config.data_hash == BuildConfig.objects.get_data_hash(data)
 
     def delete(self, *args, **kwargs):
         # Delete from storage if the build steps are stored outside the database.

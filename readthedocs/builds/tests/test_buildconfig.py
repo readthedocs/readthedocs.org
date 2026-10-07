@@ -1,5 +1,7 @@
 """Tests for BuildConfig model and Build.readthedocs_yaml_config field."""
 
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 import pytest
 
@@ -65,6 +67,42 @@ class TestBuildReadthedocsYamlData:
 
         # Should have different BuildConfigs
         assert build1.readthedocs_yaml_config.pk != build2.readthedocs_yaml_config.pk
+        assert BuildConfig.objects.count() == 2
+
+    def test_build_saved_again_with_same_config_skips_lookup(self):
+        """Saving the same config again doesn't look up or create a BuildConfig."""
+        project = fixture.get(Project)
+        config_data = {"build": {"os": "ubuntu-22.04"}, "python": {"version": "3.11"}}
+        build = fixture.get(Build, project=project)
+        build.config = config_data
+        build.save()
+        build_config = build.readthedocs_yaml_config
+
+        build = Build.objects.select_related("readthedocs_yaml_config").get(pk=build.pk)
+        build.config = dict(config_data)
+        with mock.patch.object(BuildConfig.objects, "get_or_create") as get_or_create:
+            build.save()
+
+        get_or_create.assert_not_called()
+        build.refresh_from_db()
+        assert build.readthedocs_yaml_config == build_config
+        assert BuildConfig.objects.count() == 1
+
+    def test_build_saved_again_with_different_config_updates_buildconfig(self):
+        """Changing the config of a build links it to a new BuildConfig."""
+        project = fixture.get(Project)
+        config_data1 = {"build": {"os": "ubuntu-22.04"}}
+        config_data2 = {"build": {"os": "ubuntu-24.04"}}
+        build = fixture.get(Build, project=project)
+        build.config = config_data1
+        build.save()
+
+        build = Build.objects.get(pk=build.pk)
+        build.config = config_data2
+        build.save()
+
+        build.refresh_from_db()
+        assert build.readthedocs_yaml_config.data == config_data2
         assert BuildConfig.objects.count() == 2
 
     def test_build_without_config_does_not_create_buildconfig(self):
