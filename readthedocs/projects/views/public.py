@@ -31,6 +31,8 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
+from readthedocs.core.pagination import PAGINATE_BY
+from readthedocs.core.pagination import paginate
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -54,6 +56,7 @@ class ProjectTagIndex(ListView):
     """List view of public :py:class:`Project` instances."""
 
     model = Project
+    paginate_by = PAGINATE_BY
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
@@ -127,8 +130,7 @@ class ProjectDetailViewBase(
             queryset=versions,
             project=project,
         )
-        versions = self.get_filtered_queryset()
-        context["versions"] = versions
+        context["versions"] = paginate(self.request, self.get_filtered_queryset())
 
         # Direct upload projects point to the upload docs until something is uploaded.
         context["direct_upload_waiting"] = (

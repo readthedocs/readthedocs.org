@@ -472,9 +472,23 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(28):
+        with self.assertNumQueries(27):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
+
+    def test_dashboard_is_paginated(self):
+        for i in range(20):
+            get(Project, slug=f"project-{i}", users=[self.user])
+
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.status_code == 200
+        assert len(r.context["project_list"]) == 15
+        assert r.context["page_obj"].paginator.num_pages == 2
+
+        r = self.client.get(reverse("projects_dashboard"), {"page": 2})
+        assert r.status_code == 200
+        # 20 projects plus ``self.project``.
+        assert len(r.context["project_list"]) == 6
 
     def test_dashboard_pull_request_previews_announcement(self):
         announcement = "projects/partials/announcements/pull-request-previews.html"
@@ -823,9 +837,7 @@ class TestProjectEmailNotifications(TestCase):
             reverse("projects_notifications", args=[self.project.slug]),
         )
         self.assertEqual(resp.status_code, 200)
-        queryset = resp.context["emails"]
-        self.assertEqual(queryset.count(), 1)
-        self.assertEqual(queryset.first(), self.email_notification)
+        self.assertEqual(list(resp.context["emails"]), [self.email_notification])
 
     def test_create(self):
         self.assertEqual(self.project.emailhook_notifications.all().count(), 1)

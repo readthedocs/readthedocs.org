@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load pagination_tags %}
 {% load socialaccount %}
 
 {% block title %}{% trans "Project Dashboard" %}{% endblock %}
@@ -21,8 +20,6 @@
         </div>
 
         <div class="filter">
-          {% autopaginate filter.qs 15 %}
-
           <!-- BEGIN filter list -->
           <div class="module">
             <div class="module-wrapper">
@@ -39,7 +36,7 @@
           </div>
           <!-- END filter list -->
 
-          {% paginate %}
+          {% include "core/pagination.html" %}
 
         </div>
       {% endif %}

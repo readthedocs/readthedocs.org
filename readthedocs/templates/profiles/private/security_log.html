@@ -1,7 +1,6 @@
 {% extends "profiles/base_profile_edit.html" %}
 
 {% load i18n %}
-{% load pagination_tags %}
 
 {% block title %}{% trans "Security Log" %}{% endblock %}
 
@@ -18,8 +17,6 @@
   {% endblocktrans %}
 </p>
 
-{% autopaginate object_list 15 %}
-
 <div class="module">
   <div class="button-bar">
     <ul>
@@ -34,5 +31,5 @@
 
   {% include "audit/list_logs.html" with omit_user=True %}
 </div>
-{% paginate %}
+{% include "core/pagination.html" %}
 {% endblock %}

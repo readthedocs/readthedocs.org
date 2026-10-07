@@ -1,5 +1,7 @@
 import django_dynamic_fixture as fixture
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework.test import APIClient
 
 from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
@@ -220,3 +222,25 @@ class IntegrationModelTests(TestCase):
             project=project,
         )
         self.assertIsNotNone(integration.token)
+
+
+class IntegrationListViewTests(TestCase):
+    def setUp(self):
+        self.user = fixture.get(User, username="eric")
+        self.project = fixture.get(Project, slug="pip", users=[self.user])
+        self.client.force_login(self.user)
+
+    def test_list_is_paginated_with_subclasses(self):
+        for _ in range(16):
+            fixture.get(
+                Integration,
+                project=self.project,
+                integration_type=Integration.GITHUB_WEBHOOK,
+            )
+
+        resp = self.client.get(reverse("projects_integrations", args=[self.project.slug]))
+        assert resp.status_code == 200
+        page = resp.context["page_obj"]
+        assert page.paginator.num_pages == 2
+        assert len(page.object_list) == 15
+        assert all(isinstance(obj, GitHubWebhook) for obj in page.object_list)

@@ -19,6 +19,7 @@ from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build
 from readthedocs.core.filters import FilterContextMixin
+from readthedocs.core.pagination import PAGINATE_BY
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import cancel_build
 from readthedocs.core.utils.objects import cached_method
@@ -58,6 +59,7 @@ class BuildList(
     ListView,
 ):
     filterset_class = BuildListFilter
+    paginate_by = PAGINATE_BY
 
     def _get_versions(self, project):
         project.versions(manager=INTERNAL).public(
@@ -70,6 +72,12 @@ class BuildList(
         return self.project
 
     def get_context_data(self, **kwargs):
+        # Paginate the filtered queryset, this also sets ``build_list``.
+        filterset = self.get_filterset(
+            queryset=self.get_queryset(),
+            project=self.get_project(),
+        )
+        kwargs["object_list"] = self.get_filtered_queryset()
         context = super().get_context_data(**kwargs)
 
         active_builds = (
@@ -83,14 +91,7 @@ class BuildList(
         context["project"] = self.project
         context["active_builds"] = active_builds
         context["versions"] = self._get_versions(self.project)
-
-        builds = self.get_queryset()
-        context["filter"] = self.get_filterset(
-            queryset=builds,
-            project=self.project,
-        )
-        builds = self.get_filtered_queryset()
-        context["build_qs"] = builds
+        context["filter"] = filterset
 
         return context
 

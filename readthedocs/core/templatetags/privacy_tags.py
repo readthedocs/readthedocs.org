@@ -3,7 +3,6 @@
 from django import template
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.projects.models import Project
 
 
 register = template.Library()
@@ -17,13 +16,3 @@ def is_admin(user, project):
 @register.filter
 def is_member(user, project):
     return AdminPermission.is_member(user, project)
-
-
-@register.simple_tag(takes_context=True)
-def get_public_projects(context, user):
-    projects = Project.objects.for_user_and_viewer(
-        user=user,
-        viewer=context["request"].user,
-    ).annotate_has_successful_build()
-    context["public_projects"] = projects
-    return ""

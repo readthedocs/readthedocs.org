@@ -1,8 +1,6 @@
 {% extends "projects/base_project.html" %}
 {% load i18n %}
 
-{% load pagination_tags %}
-
 {% block title %}
 {% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}
 {% endblock %}
@@ -14,8 +12,6 @@
 {% endblock %}
 
 {% block content %}
-          {% autopaginate project_list 15 %}
-
           <!-- BEGIN projects list -->
           <div class="module">
             <div class="module-wrapper">
@@ -38,6 +34,6 @@
           </div>
           <!-- END projects list -->
 
-          {% paginate %}
+          {% include "core/pagination.html" %}
 
 {% endblock %}

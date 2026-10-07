@@ -22,6 +22,8 @@ from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import AsyncDeleteViewWithMessage
 from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.pagination import PAGINATE_BY
+from readthedocs.core.pagination import paginate
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.filters import OrganizationListFilterSet
 from readthedocs.organizations.forms import OrganizationSignupForm
@@ -79,7 +81,7 @@ class ListOrganization(FilterContextMixin, PrivateViewMixin, OrganizationView, L
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["filter"] = self.get_filterset()
-        context["organization_list"] = self.get_filtered_queryset()
+        context["organization_list"] = paginate(self.request, self.get_filtered_queryset())
         return context
 
 
@@ -142,6 +144,7 @@ class DeleteOrganization(
 # Owners views
 class EditOrganizationOwners(PrivateViewMixin, OrganizationOwnerView, ListView):
     template_name = "organizations/admin/owners_edit.html"
+    paginate_by = PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -229,6 +232,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     model = AuditLog
     template_name = "organizations/security_log.html"
     feature_type = TYPE_AUDIT_LOGS
+    paginate_by = PAGINATE_BY
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get("download", False)

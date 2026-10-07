@@ -201,7 +201,7 @@ class BuildViewTests(TestCase):
             reverse("builds_project_list", args=[self.pip.slug]),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIn(external_version_build, response.context["build_qs"])
+        self.assertIn(external_version_build, response.context["object_list"])
 
 
 @override_settings(

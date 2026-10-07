@@ -38,6 +38,8 @@ from readthedocs.core.forms import UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
+from readthedocs.core.pagination import PAGINATE_BY
+from readthedocs.core.pagination import paginate
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
@@ -178,7 +180,13 @@ class ProfileDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["profile"] = self.get_object().profile
+        user = self.get_object()
+        context["profile"] = user.profile
+        public_projects = Project.objects.for_user_and_viewer(
+            user=user,
+            viewer=self.request.user,
+        ).annotate_has_successful_build()
+        context["public_projects"] = paginate(self.request, public_projects)
         return context
 
 
@@ -231,7 +239,7 @@ class TokenMixin(PrivateViewMixin):
 
 
 class TokenListView(TokenMixin, ListView):
-    pass
+    paginate_by = PAGINATE_BY
 
 
 class TokenCreateView(TokenMixin, CreateView):
@@ -259,6 +267,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
     model = AuditLog
     template_name = "profiles/private/security_log.html"
     days_limit = settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
+    paginate_by = PAGINATE_BY
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get("download", False)
