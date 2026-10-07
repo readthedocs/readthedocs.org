@@ -199,11 +199,15 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         model = BuildCommandResult
         exclude = []
 
-    def update(self, instance, validated_data):
+    def get_fields(self):
+        fields = super().get_fields()
         # Build isn't allowed to be updated after creation
         # (e.g. to avoid moving commands to another build).
-        validated_data.pop("build", None)
-        return super().update(instance, validated_data)
+        # Making it read-only also avoids querying the build
+        # when the builder sends it on updates.
+        if self.instance is not None:
+            fields["build"] = serializers.PrimaryKeyRelatedField(read_only=True)
+        return fields
 
 
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):

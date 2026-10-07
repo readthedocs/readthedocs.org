@@ -455,22 +455,31 @@ class BuildCommandViewSet(
 
     def perform_create(self, serializer):
         """Restrict creation to builds attached to the project from the api key."""
-        build_pk = serializer.validated_data["build"].pk
-        build_api_key = self.request.build_api_key
-        if not build_api_key.project.builds.filter(pk=build_pk).exists():
+        build = serializer.validated_data["build"]
+        # The build is already loaded by the serializer,
+        # comparing the IDs avoids loading the project and querying the build again.
+        if build.project_id != self.request.build_api_key.project_id:
             raise PermissionDenied()
 
-        if BuildCommandResult.objects.filter(
-            build=serializer.validated_data["build"],
-            start_time=serializer.validated_data["start_time"],
-        ).exists():
+        # Skip duplicated commands created by retried requests.
+        # Commands saved before they run don't have a start time yet,
+        # so it can't be used to identify them.
+        start_time = serializer.validated_data.get("start_time")
+        if (
+            start_time is not None
+            and BuildCommandResult.objects.filter(
+                build=build,
+                start_time=start_time,
+            ).exists()
+        ):
             log.warning("Build command is duplicated. Skipping...")
             return
 
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
-        return self.model.objects.filter(build__project=api_key.project)
+        # Filter by ID to avoid loading the project of the API key.
+        return self.model.objects.filter(build__project_id=api_key.project_id)
 
 
 class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):

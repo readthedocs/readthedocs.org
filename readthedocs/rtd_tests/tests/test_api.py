@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -1146,6 +1148,86 @@ class APITests(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(BuildCommandResult.objects.count(), 1)
+
+    def test_build_commands_saved_before_running(self):
+        """Commands saved before they run (without start time) aren't treated as duplicated."""
+        project = get(Project)
+        build = get(Build, project=project, version=project.versions.first())
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        data = {
+            "build": build.pk,
+            "command": "git status",
+            "output": "",
+            "exit_code": None,
+            "start_time": None,
+            "end_time": None,
+        }
+        first = client.post("/api/v2/command/", data, format="json")
+        second = client.post("/api/v2/command/", data, format="json")
+
+        assert first.status_code == 201
+        assert second.status_code == 201
+        assert first.data["id"] != second.data["id"]
+        assert BuildCommandResult.objects.filter(build=build).count() == 2
+
+    def test_build_commands_create_for_another_project_build(self):
+        project = get(Project)
+        another_project = get(Project)
+        another_build = get(
+            Build, project=another_project, version=another_project.versions.first()
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        data = {"build": another_build.pk, "command": "git status"}
+        resp = client.post("/api/v2/command/", data, format="json")
+        assert resp.status_code == 403
+
+        data = {"build": another_build.pk + 1000, "command": "git status"}
+        resp = client.post("/api/v2/command/", data, format="json")
+        assert resp.status_code == 400
+
+        assert not BuildCommandResult.objects.exists()
+
+    def test_build_commands_queries(self):
+        """Creating and updating a command doesn't query the project or the build again."""
+        project = get(Project)
+        build = get(Build, project=project, version=project.versions.first())
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        data = {
+            "build": build.pk,
+            "command": "git status",
+            "output": "",
+            "exit_code": None,
+            "start_time": None,
+            "end_time": None,
+        }
+
+        with CaptureQueriesContext(connection) as queries:
+            resp = client.post("/api/v2/command/", data, format="json")
+        assert resp.status_code == 201
+        tables = [query["sql"].split(" FROM ")[-1].split()[0] for query in queries]
+        assert tables.count('"projects_project"') == 0
+        assert tables.count('"builds_build"') == 1
+        assert tables.count('"builds_buildcommandresult"') == 0
+
+        now = timezone.now()
+        data.update(output="Done", exit_code=0, start_time=now, end_time=now)
+        with CaptureQueriesContext(connection) as queries:
+            resp = client.patch(
+                f"/api/v2/command/{resp.data['id']}/", data, format="json"
+            )
+        assert resp.status_code == 200
+        assert resp.data["build"] == build.pk
+        tables = [query["sql"].split(" FROM ")[-1].split()[0] for query in queries]
+        assert tables.count('"projects_project"') == 0
+        assert tables.count('"builds_build"') == 0
 
     def test_build_commands_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
