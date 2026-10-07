@@ -539,7 +539,7 @@ class ProxiedSearchAPITest(SearchAPITest):
             self.project.add_subproject(subproject)
 
         # Search on default version.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(22):
             resp = self.get(self.url, data={"q": "subprojects:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
