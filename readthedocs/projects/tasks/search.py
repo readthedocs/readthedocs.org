@@ -40,7 +40,12 @@ class Indexer:
     to collect the results of the operation after processing all files.
 
     `sync_id` is used to differentiate the files from the current sync from the previous one.
+
+    `needs_sections` tells if the indexer reads ``sections`` from ``processed_json``,
+    pages are parsed without them when no indexer needs them.
     """
+
+    needs_sections = False
 
     def process(self, html_file: HTMLFile, sync_id: int):
         raise NotImplementedError
@@ -65,6 +70,7 @@ class SearchIndexer(Indexer):
     """
 
     batch_size = 500
+    needs_sections = True
 
     def __init__(
         self,
@@ -292,7 +298,11 @@ def _process_files(*, version: Version, indexers: list[Indexer], local_path: str
     build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
 
     # The injected parser makes ``processed_json`` read from the local copy.
-    parser = GenericParser(version, local_path=local_path)
+    parser = GenericParser(
+        version,
+        local_path=local_path,
+        parse_sections=any(indexer.needs_sections for indexer in indexers),
+    )
     for root, __, filenames in os.walk(local_path):
         for filename in filenames:
             # We don't care about non-HTML files (for now?).

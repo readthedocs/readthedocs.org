@@ -65,12 +65,15 @@ class GenericParser:
         "video",
     ]
 
-    def __init__(self, version, local_path=None):
+    def __init__(self, version, local_path=None, parse_sections=True):
         self.version = version
         self.project = self.version.project
         # When set, pages are read from this local directory
         # (a downloaded copy of the version's HTML) instead of from storage.
         self.local_path = local_path
+        # Sections are only needed for search indexing and are most of the parsing work.
+        # Callers that only need the title and hashes (file tree diff) can skip them.
+        self.parse_sections = parse_sections
 
     def _get_page_content(self, page):
         """Gets the page content from the local copy or from storage."""
@@ -462,6 +465,9 @@ class GenericParser:
         """
         Get the parsed JSON for search indexing.
 
+        With ``parse_sections=False`` on the parser only the title and hashes
+        are computed and ``sections`` is left empty.
+
         Returns a dictionary with the following structure.
         {
             'path': 'file path',
@@ -513,7 +519,8 @@ class GenericParser:
             text_hash = hashlib.md5(text.encode()).hexdigest()
             markup_hash = hashlib.md5(body.html.encode()).hexdigest()
             title = self._get_page_title(body, html) or page
-            sections = self._get_sections(title=title, body=body)
+            if self.parse_sections:
+                sections = self._get_sections(title=title, body=body)
         else:
             log.info(
                 "Page doesn't look like it has valid content, skipping.",

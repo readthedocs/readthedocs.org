@@ -432,6 +432,19 @@ class TestParsers:
         assert parsed["title"] == "Title"
         assert parsed["sections"] == [{"id": "title", "title": "Title", "content": "Content"}]
 
+    def test_parse_without_sections(self, tmp_path):
+        page = tmp_path / "index.html"
+        page.write_text(
+            '<html><body><div role="main"><h1 id="title">Title</h1><p>Content</p></div></body></html>'
+        )
+        parsed = GenericParser(self.version, local_path=str(tmp_path)).parse("index.html")
+        parsed_without_sections = GenericParser(
+            self.version, local_path=str(tmp_path), parse_sections=False
+        ).parse("index.html")
+
+        assert parsed["sections"] == [{"id": "title", "title": "Title", "content": "Content"}]
+        assert parsed_without_sections == {**parsed, "sections": []}
+
     def test_local_path_refuses_pages_outside_the_local_copy(self, tmp_path):
         # Page names originate in user-uploaded files; one that resolves
         # outside the downloaded copy must not be read.
