@@ -262,9 +262,10 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     # `mock.Mock` object in the database.
     #
     # Store the task_id in the build object to be able to cancel it later.
+    # Only save this field, the build task may have already updated the build.
     if isinstance(task.id, (str, int)):
         build.task_id = task.id
-        build.save()
+        build.save(update_fields=["task_id"])
 
     return task, build
 
@@ -338,7 +339,7 @@ def submit_to_build_isolated(*, project, build):
     # dispatch time so the reaper can spot builds no builder ever picked up.
     build.task_id = result.id
     build.dispatched_date = timezone.now()
-    build.save()
+    build.save(update_fields=["task_id", "dispatched_date"])
 
     return result, build
 

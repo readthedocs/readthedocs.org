@@ -207,6 +207,22 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_build_saves_only_task_id(self, update_docs):
+        """Storing the task id doesn't overwrite what the build task already saved."""
+
+        def apply_async():
+            # The build task can start before ``apply_async`` returns.
+            Build.objects.filter(project=self.project).update(state=BUILD_STATE_BUILDING)
+            return mock.Mock(id="task-id")
+
+        update_docs.signature.return_value.apply_async.side_effect = apply_async
+        _, build = trigger_build(project=self.project, version=self.version)
+
+        build.refresh_from_db()
+        assert build.task_id == "task-id"
+        assert build.state == BUILD_STATE_BUILDING
+
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_max_concurrency_reached(self, update_docs, app):
@@ -326,6 +342,23 @@ class BuildIsolatedConcurrencyTests(TestCase):
         assert build.dispatched_date is not None
         assert send_task.call_count == 1
         assert build.notifications.count() == 0
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_saves_only_dispatch_fields(self, send_task):
+        """Dispatching doesn't overwrite what the build task already saved."""
+
+        def dispatch(*args, **kwargs):
+            # The builder can pick up the task before ``send_task`` returns.
+            Build.objects.filter(project=self.project).update(state=BUILD_STATE_BUILDING)
+            return mock.Mock(id="task-id")
+
+        send_task.side_effect = dispatch
+        _, build = trigger_build(project=self.project, version=self.version)
+
+        build.refresh_from_db()
+        assert build.task_id == "task-id"
+        assert build.dispatched_date is not None
+        assert build.state == BUILD_STATE_BUILDING
 
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_trigger_build_isolated_path_queues_when_limit_reached(self, send_task):
