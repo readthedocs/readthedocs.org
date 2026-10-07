@@ -372,7 +372,13 @@ class WebhookMixin:
         if self.get_integration().secret and not self.project.default_branch:
             # Always check for the machine attribute, since latest can be user created.
             # RTD doesn't manage those.
-            self.project.versions.filter(slug=LATEST, machine=True).update(
+            # Most webhooks send the same default branch we already have,
+            # exclude that case so we don't rewrite the row on every event.
+            self.project.versions.filter(slug=LATEST, machine=True).exclude(
+                identifier=default_branch,
+                verbose_name=LATEST_VERBOSE_NAME,
+                type=BRANCH,
+            ).update(
                 identifier=default_branch,
                 verbose_name=LATEST_VERBOSE_NAME,
                 type=BRANCH,

@@ -5,6 +5,7 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -51,6 +52,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
+    LATEST_VERBOSE_NAME,
     TAG,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
@@ -3496,6 +3498,55 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(set(resp.data["versions"]), {"latest", "master"})
+
+    def test_github_webhook_updates_latest_default_branch(self, trigger_build):
+        self.project.default_branch = None
+        self.project.save()
+        latest = self.project.versions.get(slug=LATEST)
+        latest.identifier = "master"
+        latest.save()
+        payload = json.dumps({"ref": "refs/heads/main", "repository": {"default_branch": "main"}})
+
+        resp = self.client.post(
+            f"/api/v2/webhook/github/{self.project.slug}/",
+            payload,
+            content_type="application/json",
+            headers={GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload)},
+        )
+
+        assert resp.status_code == 200
+        latest.refresh_from_db()
+        assert latest.identifier == "main"
+        assert latest.verbose_name == LATEST_VERBOSE_NAME
+        assert latest.type == BRANCH
+
+    def test_github_webhook_does_not_rewrite_unchanged_default_branch(self, trigger_build):
+        self.project.default_branch = None
+        self.project.save()
+        latest = self.project.versions.get(slug=LATEST)
+        latest.identifier = "main"
+        latest.verbose_name = LATEST_VERBOSE_NAME
+        latest.type = BRANCH
+        latest.save()
+        payload = json.dumps({"ref": "refs/heads/main", "repository": {"default_branch": "main"}})
+        rows_updated = []
+
+        def count_version_updates(execute, sql, params, many, context):
+            result = execute(sql, params, many, context)
+            if sql.startswith('UPDATE "builds_version"'):
+                rows_updated.append(context["cursor"].rowcount)
+            return result
+
+        with connection.execute_wrapper(count_version_updates):
+            resp = self.client.post(
+                f"/api/v2/webhook/github/{self.project.slug}/",
+                payload,
+                content_type="application/json",
+                headers={GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload)},
+            )
+
+        assert resp.status_code == 200
+        assert sum(rows_updated) == 0
 
     def test_webhook_build_another_branch(self, trigger_build):
         client = APIClient()
