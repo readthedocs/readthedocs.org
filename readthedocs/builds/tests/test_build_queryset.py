@@ -201,3 +201,36 @@ class TestBuildQuerySet:
             )
         assert (True, 2, 2) == Build.objects.concurrent(project_limited)
         assert (False, 2, 10) == Build.objects.concurrent(project_not_limited)
+
+    def test_concurrent_builds_sibling_translations(self):
+        project = fixture.get(Project, max_concurrent_builds=None, main_language_project=None)
+        translation = fixture.get(Project, max_concurrent_builds=None, main_language_project=project)
+        sibling = fixture.get(Project, max_concurrent_builds=None, main_language_project=project)
+        other = fixture.get(Project, max_concurrent_builds=None, main_language_project=None)
+        for build_project in (project, sibling, other):
+            fixture.get(Build, project=build_project, state="building")
+
+        assert (False, 2, 4) == Build.objects.concurrent(translation)
+        assert (False, 1, 4) == Build.objects.concurrent(other)
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+    def test_concurrent_builds_organization_and_translations(self):
+        organization = fixture.get(Organization, max_concurrent_builds=None)
+        project = fixture.get(Project, max_concurrent_builds=None, main_language_project=None)
+        other = fixture.get(Project, max_concurrent_builds=None, main_language_project=None)
+        organization.projects.add(project, other)
+        # The translation isn't part of the organization.
+        translation = fixture.get(Project, max_concurrent_builds=None, main_language_project=project)
+        for build_project in (other, translation):
+            fixture.get(Build, project=build_project, state="building")
+
+        assert (False, 2, 4) == Build.objects.concurrent(project)
+
+    def test_concurrent_builds_queries(self, django_assert_num_queries):
+        project = fixture.get(Project, max_concurrent_builds=2, main_language_project=None)
+        fixture.get(Project, max_concurrent_builds=None, main_language_project=project)
+        project = Project.objects.get(pk=project.pk)
+
+        # Only the count, translations are filtered in the same query.
+        with django_assert_num_queries(1):
+            assert (False, 0, 2) == Build.objects.concurrent(project)
