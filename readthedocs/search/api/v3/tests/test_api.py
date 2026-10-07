@@ -1041,3 +1041,49 @@ class SearchAPIWithOrganizationsTest(SearchTestBase):
         )
         self.assertEqual(len(results), 2)
         self.assertEqual(resp.data["query"], "test")
+
+
+@pytest.mark.proxito
+@override_settings(
+    ALLOW_PRIVATE_REPOS=False,
+    RTD_ALLOW_ORGANIZATIONS=False,
+    PUBLIC_DOMAIN="readthedocs.io",
+)
+@mock.patch.object(SearchExecutor, "search", new=mock.MagicMock(return_value=None))
+class ProxiedSearchAPITest(TestCase):
+    """
+    Test the search API served from the docs domain.
+
+    The search itself is mocked, so these tests don't need Elasticsearch.
+    """
+
+    def setUp(self):
+        self.project = get(Project, slug="project", privacy_level=PUBLIC)
+        self.project.versions.update(privacy_level=PUBLIC, active=True, built=True)
+        self.another_project = get(Project, slug="another", privacy_level=PUBLIC)
+        self.another_project.versions.update(privacy_level=PUBLIC, active=True, built=True)
+        self.url = "/_/api/v3/search/"
+        self.host = "project.readthedocs.io"
+
+    @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch")
+    def test_search_project_from_its_domain(self, record_search_query_batch):
+        # The project is re-used from the middleware:
+        # project (middleware), version, feature flag,
+        # and the parent relationship and canonical domain to build the docs URL.
+        with self.assertNumQueries(5):
+            resp = self.client.get(
+                self.url,
+                data={"q": "project:project/latest test"},
+                headers={"host": self.host},
+            )
+        assert resp.status_code == 200
+        assert resp.data["projects"] == [{"slug": "project", "versions": [{"slug": "latest"}]}]
+
+    def test_search_another_project(self):
+        resp = self.client.get(
+            self.url,
+            data={"q": "project:another/latest test"},
+            headers={"host": self.host},
+        )
+        assert resp.status_code == 200
+        assert resp.data["projects"] == [{"slug": "another", "versions": [{"slug": "latest"}]}]

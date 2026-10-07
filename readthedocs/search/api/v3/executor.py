@@ -217,13 +217,26 @@ class SearchExecutor:
             return parts
         return parts[0], None
 
-    def _get_project_and_version(self, value):
-        project_slug, version_slug = self._split_project_and_version(value)
-        project = (
+    def _get_project(self, project_slug):
+        """
+        Get a project by its slug.
+
+        When searching from the docs domain (proxied API),
+        the project from the domain was already fetched by the middleware,
+        and it's normally the project being searched, so we re-use it.
+        """
+        unresolved_domain = getattr(self.request, "unresolved_domain", None)
+        if unresolved_domain and unresolved_domain.project.slug == project_slug:
+            return unresolved_domain.project
+        return (
             Project.objects.filter(slug=project_slug)
             .prefetch_organization(select_related=["stripe_subscription"])
             .first()
         )
+
+    def _get_project_and_version(self, value):
+        project_slug, version_slug = self._split_project_and_version(value)
+        project = self._get_project(project_slug)
         if not project:
             return None, None
 
