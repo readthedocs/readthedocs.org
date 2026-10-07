@@ -48,14 +48,23 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
         return self.api(*args, **kwargs)
 
     def get_matching_redirect_with_path(
-        self, filename, path=None, language=None, version_slug=None, forced_only=False
+        self,
+        filename,
+        path=None,
+        language=None,
+        version_slug=None,
+        forced_only=False,
+        original_path=None,
     ):
         """
         Get the matching redirect with the path to redirect to.
 
         :param filename: The filename being served.
-        :param path: The whole path from the request.
+        :param path: The whole path from the request. For subprojects, the
+            subproject prefix was already stripped from this path.
         :param forced_only: Include only forced redirects in the results.
+        :param original_path: The path before stripping the subproject prefix,
+            used to match redirects whose ``from_url`` includes that prefix.
         :returns: A tuple with the matching redirect and new path.
         """
         # Small optimization to skip executing the big query below.
@@ -70,6 +79,16 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
         # For example, ``/docs`` will match ``/docs/`` and ``/docs``.
         filename_without_trailling_slash = self._strip_trailling_slash(normalized_filename)
         path_without_trailling_slash = self._strip_trailling_slash(normalized_path)
+
+        # To retain support for subprojects using a from URL relative to the
+        # superproject, we do the same normalization steps above to the
+        # non-stripped URL.
+        original_normalized_path = normalized_path
+        if original_path and original_path != path:
+            original_normalized_path = self._normalize_path(original_path)
+        original_path_without_trailling_slash = self._strip_trailling_slash(
+            original_normalized_path
+        )
 
         # Add extra fields with the ``filename`` and ``path`` to perform a
         # filter at db level instead with Python.
@@ -91,6 +110,18 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
                 output_field=CharField(),
             ),
         )
+        # These fields are only used if the redirect is for a subproject
+        if original_normalized_path != normalized_path:
+            queryset = queryset.annotate(
+                original_path=Value(
+                    original_normalized_path,
+                    output_field=CharField(),
+                ),
+                original_path_without_trailling_slash=Value(
+                    original_path_without_trailling_slash,
+                    output_field=CharField(),
+                ),
+            )
         page = Q(
             redirect_type=PAGE_REDIRECT,
             from_url_without_rest__isnull=True,
@@ -109,6 +140,17 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
             from_url_without_rest__isnull=False,
             path__startswith=F("from_url_without_rest"),
         )
+        # And again, only used for subproject redirects
+        if original_normalized_path != normalized_path:
+            exact |= Q(
+                redirect_type=EXACT_REDIRECT,
+                from_url_without_rest__isnull=True,
+                original_path_without_trailling_slash__exact=F("from_url"),
+            ) | Q(
+                redirect_type=EXACT_REDIRECT,
+                from_url_without_rest__isnull=False,
+                original_path__startswith=F("from_url_without_rest"),
+            )
         clean_url_to_html = Q(redirect_type=CLEAN_URL_TO_HTML_REDIRECT)
         html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)
 
@@ -135,9 +177,19 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
 
         redirect = queryset.select_related("project").first()
         if redirect:
+            # If the redirect is relying on the superproject relative URL
+            # workaround, use that URL when computing the redirect instead of
+            # the stripped path.
+            current_path = normalized_path
+            if original_normalized_path != normalized_path and not (
+                redirect.from_url_without_rest
+                and normalized_path.startswith(redirect.from_url_without_rest)
+            ):
+                current_path = original_normalized_path
+
             new_path = redirect.get_redirect_path(
                 filename=normalized_filename,
-                path=normalized_path,
+                path=current_path,
                 language=language,
                 version_slug=version_slug,
             )
