@@ -875,9 +875,7 @@ class TestWebhooksViews(TestCase):
             reverse("projects_webhooks", args=[self.project.slug]),
         )
         self.assertEqual(resp.status_code, 200)
-        queryset = resp.context["object_list"]
-        self.assertEqual(queryset.count(), 1)
-        self.assertEqual(queryset.first(), self.webhook)
+        self.assertEqual(list(resp.context["object_list"]), [self.webhook])
 
     def test_create(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)

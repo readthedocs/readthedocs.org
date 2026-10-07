@@ -376,27 +376,27 @@ class OrganizationSecurityLogTests(TestCase):
         # Show logs for self.organization only.
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, self.queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(self.url + "?project=project")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(
             auditlogs, self.queryset.filter(log_project_slug="project")
         )
 
         resp = self.client.get(self.url + "?project=another-project")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertEqual(auditlogs.count(), 0)
 
         # Show logs filtered by IP.
         ip = "10.10.10.2"
         resp = self.client.get(self.url + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, self.queryset.filter(ip=ip))
 
         # Show logs filtered by action.
@@ -408,13 +408,13 @@ class OrganizationSecurityLogTests(TestCase):
         ]:
             resp = self.client.get(self.url + f"?action={action}")
             self.assertEqual(resp.status_code, 200)
-            auditlogs = resp.context_data["object_list"]
+            auditlogs = resp.context_data["paginator"].object_list
             self.assertQuerySetEqual(auditlogs, self.queryset.filter(action=action))
 
         # Show logs filtered by user.
         resp = self.client.get(self.url + "?user=member")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(
             auditlogs, self.queryset.filter(log_user_username="member")
         )
@@ -437,22 +437,22 @@ class OrganizationSecurityLogTests(TestCase):
 
         resp = self.client.get(self.url + "?date_before=2020-10-10")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertEqual(auditlogs.count(), 0)
 
         resp = self.client.get(self.url + "?date_after=2023-10-10")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertEqual(auditlogs.count(), 0)
 
         resp = self.client.get(self.url + "?date_before=2021-03-9")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, self.queryset.filter(action=AuditLog.AUTHN))
 
         resp = self.client.get(self.url + "?date_after=2021-03-11")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(
             auditlogs, self.queryset.filter(action=AuditLog.AUTHN_FAILURE)
         )
@@ -461,7 +461,7 @@ class OrganizationSecurityLogTests(TestCase):
             self.url + "?date_after=2021-01-01&date_before=2021-03-10"
         )
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(
             auditlogs, self.queryset.exclude(action=AuditLog.AUTHN_FAILURE)
         )

@@ -244,20 +244,20 @@ class ProfileViewsTest(TestCase):
         # and for authn/authn_failure/logout events only.
         resp = self.client.get(reverse("profiles_security_log"))
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(reverse("profiles_security_log") + "?project=project")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, queryset.filter(log_project_slug="project"))
 
         # Show logs filtered by IP.
         ip = "10.10.10.2"
         resp = self.client.get(reverse("profiles_security_log") + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, queryset.filter(ip=ip))
 
         # Show logs filtered by action.
@@ -265,7 +265,7 @@ class ProfileViewsTest(TestCase):
             reverse("profiles_security_log") + "?action=authentication"
         )
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, queryset.filter(action=AuditLog.AUTHN))
 
         # Show logs filtered by action.
@@ -273,7 +273,7 @@ class ProfileViewsTest(TestCase):
             reverse("profiles_security_log") + "?action=authentication-failure"
         )
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(
             auditlogs, queryset.filter(action=AuditLog.AUTHN_FAILURE)
         )
@@ -284,13 +284,13 @@ class ProfileViewsTest(TestCase):
                 reverse("profiles_security_log") + f"?{filter}=invalid"
             )
             self.assertEqual(resp.status_code, 200)
-            auditlogs = resp.context_data["object_list"]
+            auditlogs = resp.context_data["paginator"].object_list
             self.assertEqual(auditlogs.count(), 0, filter)
 
         # If action isn't a valid value, the filter is just ignored.
         resp = self.client.get(reverse("profiles_security_log") + "?action=invalid")
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data["object_list"]
+        auditlogs = resp.context_data["paginator"].object_list
         self.assertQuerySetEqual(auditlogs, queryset)
 
 
