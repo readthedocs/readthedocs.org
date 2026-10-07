@@ -101,18 +101,17 @@ def sync_versions_to_db(project, versions, type):
 
     added.update(_create_versions(project, type, versions_to_create))
 
+    # Put back RTD's stable and latest versions if the user doesn't have them.
+    # This runs on every sync, so only touch the rows that need it.
+    machine_slugs = []
     if not has_user_stable:
-        stable_version = project.versions.filter(slug=STABLE, type=type).first()
-        if stable_version:
-            # Put back the RTD's stable version
-            stable_version.machine = True
-            stable_version.save()
+        machine_slugs.append(STABLE)
     if not has_user_latest:
-        latest_version = project.versions.filter(slug=LATEST, type=type).first()
-        if latest_version:
-            # Put back the RTD's latest version
-            latest_version.machine = True
-            latest_version.save()
+        machine_slugs.append(LATEST)
+    if machine_slugs:
+        project.versions.filter(slug__in=machine_slugs, type=type, machine=False).update(
+            machine=True
+        )
     if added:
         log.info(
             "Re-syncing versions: versions added.",

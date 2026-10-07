@@ -268,8 +268,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     project.update_latest_version()
     # TODO: move this to an automation rule
     promoted_version = project.update_stable_version()
-    new_stable = project.get_stable_version()
-    if promoted_version and new_stable and new_stable.active:
+    new_stable = project.get_stable_version() if promoted_version else None
+    if new_stable and new_stable.active:
         log.info(
             "Triggering new stable build.",
             project_slug=project.slug,

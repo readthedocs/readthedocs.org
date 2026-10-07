@@ -1319,11 +1319,17 @@ class Project(models.Model):
             .filter(verbose_name=default_version_name)
             .first()
         )
-        latest.verbose_name = LATEST_VERBOSE_NAME
-        latest.type = original_latest.type if original_latest else BRANCH
+        latest_type = original_latest.type if original_latest else BRANCH
         # For latest, the identifier is the name of the branch/tag.
-        latest.identifier = default_version_name
-        latest.save()
+        if (
+            latest.verbose_name != LATEST_VERBOSE_NAME
+            or latest.type != latest_type
+            or latest.identifier != default_version_name
+        ):
+            latest.verbose_name = LATEST_VERBOSE_NAME
+            latest.type = latest_type
+            latest.identifier = default_version_name
+            latest.save()
         return latest
 
     def update_stable_version(self):

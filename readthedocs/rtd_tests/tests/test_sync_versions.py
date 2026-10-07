@@ -1082,6 +1082,37 @@ class TestSyncVersions(TestCase):
             1,
         )
 
+    def test_sync_without_changes_doesnt_update_machine_versions(self):
+        self.pip.default_branch = "master"
+        self.pip.save()
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+        ]
+        tags_data = [
+            {
+                "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+                "verbose_name": "0.8.1",
+            },
+            {
+                "identifier": "f1c4b3b0d1f40c2d8b8c6d4c5b8f1f5e0e4e3c9a",
+                "verbose_name": "0.8",
+            },
+        ]
+        sync_versions_task(self.pip.pk, branches_data=branches_data, tags_data=tags_data)
+        machine_versions = self.pip.versions.filter(slug__in=[LATEST, STABLE])
+        modified = dict(machine_versions.values_list("slug", "modified"))
+
+        sync_versions_task(self.pip.pk, branches_data=branches_data, tags_data=tags_data)
+
+        assert dict(machine_versions.values_list("slug", "modified")) == modified
+        assert set(machine_versions.values_list("slug", "machine")) == {
+            (LATEST, True),
+            (STABLE, True),
+        }
+
     @mock.patch("readthedocs.builds.tasks.run_version_automation_rules")
     def test_automation_rules_are_triggered_for_new_versions(
         self, run_version_automation_rules
