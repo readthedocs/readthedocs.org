@@ -112,10 +112,12 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             self._get_response_dict("remoterepositories-list"),
         )
 
-    def _make_remote_repository(self, full_name, admin):
+    def _make_remote_repository(self, full_name, admin, organization=...):
+        if organization is ...:
+            organization = self.remote_organization
         remote_repository = fixture.get(
             RemoteRepository,
-            organization=self.remote_organization,
+            organization=organization,
             full_name=full_name,
             name=full_name.split("/")[-1],
             vcs=REPO_TYPE_GIT,
@@ -179,4 +181,28 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             "aaa/tool",
             "readthedocs/tool",
             "rtd/project",
+        ]
+
+    def test_remote_repository_list_import_ordering_ranks_name_matches_first(self):
+        # Owner matches the query. Without an organization (user repository),
+        # the owner is only known through ``full_name``.
+        self._make_remote_repository("mydocs/project", admin=True, organization=None)
+        # Repository name contains the query.
+        self._make_remote_repository("readthedocs/sphinx-docs", admin=True)
+        # Repository name starts with the query.
+        self._make_remote_repository("readthedocs/docs", admin=True)
+        # Repository name starts with the query, but the user can't import it.
+        self._make_remote_repository("readthedocs/docs-locked", admin=False)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse("remoterepositories-list"),
+            {"full_name": "docs", "ordering": "import"},
+        )
+        assert response.status_code == 200
+        assert [repo["full_name"] for repo in response.json()["results"]] == [
+            "readthedocs/docs",
+            "readthedocs/sphinx-docs",
+            "mydocs/project",
+            "readthedocs/docs-locked",
         ]
