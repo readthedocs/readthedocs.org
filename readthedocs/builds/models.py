@@ -286,6 +286,10 @@ class Version(TimeStampedModel):
     def latest_build(self):
         # Cached on the instance: the version list template reads this several
         # times per row, and each read was a query.
+        # Querysets can load it for all versions in a single query with
+        # ``Prefetch("builds", queryset=Build.objects.order_by("-date")[:1], to_attr="_latest_builds")``.
+        if hasattr(self, "_latest_builds"):
+            return next(iter(self._latest_builds), None)
         return self.builds.order_by("-date").first()
 
     @cached_property

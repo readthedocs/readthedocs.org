@@ -1,14 +1,19 @@
+from datetime import timedelta
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
@@ -428,6 +433,59 @@ class TestPublicViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context["versions"])
+
+    def _create_versions_with_builds(self, slugs):
+        """Create a version per slug, with three builds each, and return the newest builds."""
+        now = timezone.now()
+        latest_builds = {}
+        for slug in slugs:
+            version = get(
+                Version,
+                project=self.pip,
+                slug=slug,
+                verbose_name=slug,
+                active=True,
+                privacy_level=PUBLIC,
+                type=BRANCH,
+            )
+            for days in (2, 0, 1):
+                build = get(Build, project=self.pip, version=version)
+                # ``date`` is ``auto_now_add``, so it can only be set with an update.
+                Build.objects.filter(pk=build.pk).update(date=now - timedelta(days=days))
+            latest_builds[version.pk] = Build.objects.get(version=version, date=now)
+        return latest_builds
+
+    def test_project_detail_view_prefetches_latest_build(self):
+        get(
+            Version,
+            project=self.pip,
+            slug="no-builds",
+            active=True,
+            privacy_level=PUBLIC,
+            type=BRANCH,
+        )
+        latest_builds = self._create_versions_with_builds(["v1", "v2", "v3"])
+
+        response = self.client.get(reverse("projects_detail", args=[self.pip.slug]))
+        assert response.status_code == 200
+
+        versions = list(response.context["versions"])
+        assert {version.slug for version in versions} >= {"no-builds", "v1", "v2", "v3"}
+        with self.assertNumQueries(0):
+            for version in versions:
+                assert version.latest_build == latest_builds.get(version.pk)
+
+    def test_project_detail_view_queries_do_not_grow_with_versions(self):
+        url = reverse("projects_detail", args=[self.pip.slug])
+        self._create_versions_with_builds(["v1", "v2"])
+        with CaptureQueriesContext(connection) as few_versions:
+            assert self.client.get(url).status_code == 200
+
+        self._create_versions_with_builds(["v3", "v4", "v5", "v6"])
+        with CaptureQueriesContext(connection) as more_versions:
+            assert self.client.get(url).status_code == 200
+
+        assert len(more_versions.captured_queries) == len(few_versions.captured_queries)
 
     @mock.patch(
         "readthedocs.projects.views.base.ProjectSpamMixin.is_show_dashboard_denied_wrapper",

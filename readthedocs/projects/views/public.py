@@ -7,6 +7,7 @@ import os
 import structlog
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Prefetch
 from django.db.models import prefetch_related_objects
 from django.http import Http404
 from django.http import HttpResponse
@@ -28,6 +29,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
@@ -127,7 +129,16 @@ class ProjectDetailViewBase(
             queryset=versions,
             project=project,
         )
-        versions = self.get_filtered_queryset()
+        # Each row shows the version's latest build (``Version.latest_build``).
+        # The template paginates this queryset, so the prefetch runs once per
+        # page, fetching only one build per version.
+        versions = self.get_filtered_queryset().prefetch_related(
+            Prefetch(
+                "builds",
+                queryset=Build.objects.order_by("-date")[:1],
+                to_attr="_latest_builds",
+            )
+        )
         context["versions"] = versions
 
         # Direct upload projects point to the upload docs until something is uploaded.
