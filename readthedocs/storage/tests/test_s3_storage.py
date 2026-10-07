@@ -1,10 +1,16 @@
+import io
 from unittest import mock
 
 import pytest
+from botocore.exceptions import ClientError
 from django.core.exceptions import SuspiciousFileOperation, SuspiciousOperation
 from django.test import TestCase
 
 from readthedocs.storage.s3_storage import RTDS3Storage
+
+
+def client_error(status):
+    return ClientError({"ResponseMetadata": {"HTTPStatusCode": status}}, "GetObject")
 
 
 class TestRTDS3Storage(TestCase):
@@ -131,3 +137,29 @@ class TestRTDS3Storage(TestCase):
             ],
             ExpiresIn=60,
         )
+
+    def test_read_file(self):
+        mock_bucket = mock.MagicMock()
+        self.storage._bucket = mock_bucket
+        obj = mock_bucket.Object.return_value
+        obj.get.return_value = {"Body": io.BytesIO(b"<html>404</html>")}
+
+        assert self.storage.read_file("html/project/latest/404.html") == b"<html>404</html>"
+
+        mock_bucket.Object.assert_called_once_with("html/project/latest/404.html")
+        obj.get.assert_called_once_with()
+        # A single GetObject, no HeadObject before it.
+        obj.load.assert_not_called()
+        obj.download_fileobj.assert_not_called()
+
+    def test_read_file_missing(self):
+        self.storage._bucket = mock.MagicMock()
+        self.storage._bucket.Object.return_value.get.side_effect = client_error(404)
+        with pytest.raises(FileNotFoundError):
+            self.storage.read_file("html/project/latest/404.html")
+
+    def test_read_file_other_errors_propagate(self):
+        self.storage._bucket = mock.MagicMock()
+        self.storage._bucket.Object.return_value.get.side_effect = client_error(403)
+        with pytest.raises(ClientError):
+            self.storage.read_file("html/project/latest/404.html")

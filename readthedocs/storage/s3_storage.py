@@ -13,6 +13,7 @@ from functools import cached_property
 from itertools import batched
 
 import structlog
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import SuspiciousFileOperation
@@ -48,6 +49,23 @@ class RTDS3Storage(RTDBaseStorage, S3Boto3Storage):
 
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
+
+    def read_file(self, path) -> bytes:
+        """
+        Read a whole object with a single ``GetObject`` request.
+
+        ``open()`` needs three requests: django-storages sends a ``HeadObject``
+        when opening the file, and boto3's transfer manager sends another one
+        before the ``GetObject``.
+        """
+        name = self._normalize_name(clean_name(path))
+        try:
+            response = self.bucket.Object(name).get()
+        except ClientError as err:
+            if err.response["ResponseMetadata"]["HTTPStatusCode"] == 404:
+                raise FileNotFoundError(f"File does not exist: {name}") from err
+            raise
+        return response["Body"].read()
 
     def delete_directory(self, path):
         """

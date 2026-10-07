@@ -561,7 +561,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     storage_filename_path=storage_filename_path,
                 )
                 try:
-                    content = build_media_storage.open(storage_filename_path).read()
+                    content = build_media_storage.read_file(storage_filename_path)
                     return HttpResponse(content, status=404)
                 except FileNotFoundError:
                     log.warning(
