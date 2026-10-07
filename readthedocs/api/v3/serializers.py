@@ -386,9 +386,9 @@ class VersionSerializer(serializers.ModelSerializer):
     def get_aliases(self, obj):
         if obj.machine and obj.slug in (STABLE, LATEST):
             if obj.slug == STABLE:
-                alias_version = obj.project.get_original_stable_version()
+                alias_version = obj.original_stable_version
             if obj.slug == LATEST:
-                alias_version = obj.project.get_original_latest_version()
+                alias_version = obj.original_latest_version
             if alias_version and alias_version.active:
                 # NOTE: we use __class__, as this serializer can be subclassed.
                 return [self.__class__(alias_version, resolver=self.resolver).data]

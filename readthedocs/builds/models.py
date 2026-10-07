@@ -263,10 +263,53 @@ class Version(TimeStampedModel):
 
         It returns None when the version is not stable (machine created).
         """
-        if self.slug == STABLE and self.machine:
-            stable = determine_stable_version(self.project.versions(manager=INTERNAL).all())
-            if stable:
-                return stable.slug
+        original_stable = self.original_stable_version
+        if original_stable:
+            return original_stable.slug
+
+    @cached_property
+    def original_stable_version(self):
+        """
+        Get the original version this machine created ``stable`` version points to.
+
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if this version isn't a machine created ``stable``,
+        or if it doesn't point to a valid version.
+
+        Cached on the instance, since ``ref``, ``git_identifier``
+        and the API's ``aliases`` all need it.
+        """
+        if self.slug != STABLE or not self.machine:
+            return None
+        # Several tags can point to the same identifier.
+        # Return the stable one.
+        return determine_stable_version(
+            self.project.versions(manager=INTERNAL).filter(identifier=self.identifier)
+        )
+
+    @cached_property
+    def original_latest_version(self):
+        """
+        Get the original version this machine created ``latest`` version points to.
+
+        When latest is machine created, it's basically an alias
+        for the default branch/tag (like main/master).
+
+        Returns None if this version isn't a machine created ``latest``,
+        or if it doesn't point to a valid version.
+        """
+        # For latest, the identifier is the name of the branch/tag.
+        if self.slug != LATEST or not self.machine or not self.identifier:
+            return None
+        return (
+            self.project.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(verbose_name=self.identifier)
+            .first()
+        )
 
     @property
     def vcs_url(self):
@@ -339,7 +382,7 @@ class Version(TimeStampedModel):
 
         # Stable is special as it doesn't contain the actual name in verbose_name.
         if self.slug == STABLE and self.machine:
-            original_stable = self.project.get_original_stable_version()
+            original_stable = self.original_stable_version
             # NOTE: we no longer save branch names with the "origin/" prefix,
             # but we remove it for old versions.
             if original_stable:

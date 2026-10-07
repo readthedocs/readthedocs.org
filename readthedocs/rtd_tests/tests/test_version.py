@@ -97,6 +97,51 @@ class TestVersionModel(VersionMixin, TestCase):
     def test_git_identifier_for_stable_version(self):
         self.assertEqual(self.branch_version.git_identifier, "stable")
 
+    def test_stable_version_original_version_query_is_shared(self):
+        get(Version, project=self.pip, slug="9.0", verbose_name="9.0", identifier="sha-9.0", type=TAG)
+        get(Version, project=self.pip, slug="9.1", verbose_name="9.1", identifier="sha-9.0", type=TAG)
+        # Not synced to stable yet, ``ref`` follows what stable points to.
+        get(Version, project=self.pip, slug="10.0", verbose_name="10.0", identifier="sha-10.0", type=TAG)
+        stable = self.pip.versions.get(slug=STABLE)
+        stable.identifier = "sha-9.0"
+        stable.type = TAG
+        stable.save()
+
+        stable = self.pip.versions.select_related("project").get(slug=STABLE)
+        # ``ref``, ``git_identifier`` and ``vcs_url`` share a single query,
+        # filtered by identifier instead of reading every version of the project.
+        with self.assertNumQueries(1):
+            assert stable.ref == "9.1"
+            assert stable.git_identifier == "9.1"
+            assert stable.vcs_url == "https://github.com/pypa/pip/tree/9.1/"
+        assert self.pip.get_original_stable_version().slug == "9.1"
+
+    def test_ref_for_manual_stable_version(self):
+        stable = self.pip.versions.get(slug=STABLE)
+        stable.machine = False
+        stable.save()
+        assert stable.ref is None
+        assert stable.original_stable_version is None
+        assert self.pip.get_original_stable_version() is None
+
+    def test_ref_for_non_stable_version(self):
+        assert self.tag_version.ref is None
+        assert self.external_version.ref is None
+
+    def test_original_latest_version(self):
+        main = get(Version, project=self.pip, slug="main", verbose_name="main", identifier="main", type=BRANCH)
+        latest = self.pip.versions.get(slug=LATEST)
+        latest.identifier = "main"
+        latest.save()
+        assert latest.original_latest_version == main
+        assert self.pip.get_original_latest_version() == main
+
+        latest.machine = False
+        latest.save()
+        latest = self.pip.versions.get(slug=LATEST)
+        assert latest.original_latest_version is None
+        assert self.pip.get_original_latest_version() is None
+
     def test_git_identifier_for_latest_version(self):
         self.assertEqual(self.tag_version.git_identifier, "master")
 
