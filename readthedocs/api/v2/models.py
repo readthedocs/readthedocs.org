@@ -36,12 +36,18 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         delta = 60 * 60 * 24  # 24h
         expiry_date = timezone.now() + timedelta(seconds=delta)
         name_max_length = self.model._meta.get_field("name").max_length
-        return super().create_key(
+        # Same as ``BaseAPIKeyManager.create_key``, but forcing an INSERT.
+        # ``assign_key`` sets the primary key, so a plain ``save()``
+        # would run an UPDATE first, which never matches a new key.
+        obj = self.model(
             # Name is required, so we use the project slug for it.
             name=project.slug[:name_max_length],
             expiry_date=expiry_date,
             project=project,
         )
+        key = self.assign_key(obj)
+        obj.save(force_insert=True, using=self.db)
+        return obj, key
 
 
 class BuildAPIKey(AbstractAPIKey):

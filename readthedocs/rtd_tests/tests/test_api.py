@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -800,6 +802,17 @@ class APITests(TestCase):
         build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
         self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
         self.assertEqual(build_api_key_obj.name, "a" * 50)
+
+    def test_create_key_with_a_single_insert(self):
+        project = get(Project)
+
+        with CaptureQueriesContext(connection) as queries:
+            build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+
+        assert [query["sql"].split()[0] for query in queries.captured_queries] == ["INSERT"]
+        assert BuildAPIKey.objects.get_from_key(build_api_key) == build_api_key_obj
+        assert build_api_key_obj.project == project
+        assert build_api_key_obj.name == project.slug
 
     def test_revoke_build_api_key(self):
         user = get(User)
