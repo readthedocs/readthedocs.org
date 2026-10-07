@@ -49,14 +49,14 @@ class ProjectAdminSerializer(ProjectSerializer):
     general API, mostly for fields used in the build process
     """
 
-    features = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="feature_id",
-    )
-
+    features = serializers.SerializerMethodField()
     environment_variables = serializers.SerializerMethodField()
     skip = serializers.SerializerMethodField()
+
+    def get_features(self, obj):
+        # Share the set used by ``Project.has_feature``,
+        # so serializing and checking features costs a single query.
+        return sorted(obj.feature_ids)
 
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""

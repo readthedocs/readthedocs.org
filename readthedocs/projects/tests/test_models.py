@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -268,6 +270,8 @@ class TestURLPatternsUtils(TestCase):
             projects=[self.project],
             feature_id=Feature.USE_PROXIED_APIS_WITH_PREFIX,
         )
+        # Features are cached per instance, re-fetch the project to see the new one.
+        self.project = Project.objects.get(pk=self.project.pk)
         self.assertEqual(self.project.proxied_api_url, "prefix/_/")
         self.assertEqual(self.project.proxied_api_host, "/prefix/_")
         self.assertEqual(self.project.proxied_api_prefix, "/prefix/")
@@ -283,3 +287,53 @@ class TestURLPatternsUtils(TestCase):
 
         with self.assertNumQueries(51):
             self.project.delete()
+
+
+class TestProjectFeatures(TestCase):
+    def setUp(self):
+        self.project = get(Project, main_language_project=None)
+
+    def test_has_feature(self):
+        explicit = get(Feature, projects=[self.project])
+        past_default = get(
+            Feature,
+            projects=[],
+            add_date=self.project.pub_date + timedelta(days=1),
+            default_true=True,
+        )
+        future_default = get(
+            Feature,
+            projects=[],
+            add_date=self.project.pub_date - timedelta(days=1),
+            future_default_true=True,
+        )
+        # Defaults that don't apply to this project's creation date.
+        not_past_default = get(
+            Feature,
+            projects=[],
+            add_date=self.project.pub_date - timedelta(days=1),
+            default_true=True,
+        )
+        not_future_default = get(
+            Feature,
+            projects=[],
+            add_date=self.project.pub_date + timedelta(days=1),
+            future_default_true=True,
+        )
+
+        project = Project.objects.get(pk=self.project.pk)
+        assert project.has_feature(explicit.feature_id)
+        assert project.has_feature(past_default.feature_id)
+        assert project.has_feature(future_default.feature_id)
+        assert not project.has_feature(not_past_default.feature_id)
+        assert not project.has_feature(not_future_default.feature_id)
+        assert not project.has_feature("unknown")
+
+    def test_has_feature_queries_once_per_instance(self):
+        feature = get(Feature, projects=[self.project])
+        project = Project.objects.get(pk=self.project.pk)
+
+        with self.assertNumQueries(1):
+            assert project.has_feature(feature.feature_id)
+            assert not project.has_feature(Feature.USE_BUILD_ISOLATED)
+            assert project.feature_ids == {feature.feature_id}

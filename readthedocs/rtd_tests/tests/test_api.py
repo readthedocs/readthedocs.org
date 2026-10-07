@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -1617,6 +1619,22 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn("features", resp.data)
         self.assertEqual(resp.data["features"], [feature.feature_id])
+
+    def test_version_detail_queries_features_once(self):
+        project = get(Project, main_language_project=None)
+        version = get(Version, project=project)
+        feature = get(Feature, projects=[project])
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        with CaptureQueriesContext(connection) as queries:
+            resp = client.get(reverse("version-detail", args=[version.pk]))
+
+        assert resp.status_code == 200
+        assert resp.data["project"]["features"] == [feature.feature_id]
+        feature_queries = [q for q in queries if '"projects_feature"' in q["sql"]]
+        assert len(feature_queries) == 1
 
     @mock.patch.object(GitHubAppService, "get_clone_token")
     def test_project_clone_token(self, get_clone_token):

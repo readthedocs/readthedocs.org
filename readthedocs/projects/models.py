@@ -1480,6 +1480,16 @@ class Project(models.Model):
     def features(self):
         return Feature.objects.for_project(self)
 
+    @cached_property
+    def feature_ids(self):
+        """
+        Set of ids of all the features enabled for this project.
+
+        The set is computed once per instance and isn't updated if features
+        are added or removed afterwards, use a fresh instance to see the changes.
+        """
+        return set(self.features.values_list("feature_id", flat=True))
+
     def has_feature(self, feature_id):
         """
         Does project have existing feature flag.
@@ -1488,7 +1498,7 @@ class Project(models.Model):
         we consider the project to have the flag. This is used for deprecating a
         feature or changing behavior for new projects
         """
-        return self.features.filter(feature_id=feature_id).exists()
+        return feature_id in self.feature_ids
 
     def get_feature_value(self, feature, positive, negative):
         """
