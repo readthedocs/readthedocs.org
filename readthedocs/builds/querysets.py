@@ -259,27 +259,27 @@ class BuildQuerySet(NoReprQuerySet, models.QuerySet):
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
         limit_reached = False
-        query = Q(
-            project=project,
+
+        # Count the builds of the project and its translations.
+        # If the project is a translation, count the builds of its main
+        # language project and all of its translations.
+        main_project_id = project.main_language_project_id or project.pk
+        projects = (
+            Project.objects.filter(Q(pk=main_project_id) | Q(main_language_project=main_project_id))
+            .order_by()
+            .values("pk")
         )
-
-        if project.main_language_project:
-            # Project is a translation, counts all builds of all the translations
-            query |= Q(project__main_language_project=project.main_language_project)
-            query |= Q(project__slug=project.main_language_project.slug)
-
-        elif project.translations.exists():
-            # The project has translations, counts their builds as well
-            query |= Q(project__in=project.translations.all())
 
         # If the project belongs to an organization, count all the projects
         # from this organization as well
         organization = project.organization
         if organization:
-            query |= Q(project__in=organization.projects.all())
+            projects = projects.union(organization.projects.order_by().values("pk"))
 
+        # Filter by a single subquery of projects instead of OR-ing conditions,
+        # so the database can use the (project, date) index.
         # Limit builds to 5 hours ago to speed up the query
-        query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
+        query = Q(project__in=projects, date__gt=timezone.now() - datetime.timedelta(hours=5))
 
         concurrent = (
             self.filter(query)
