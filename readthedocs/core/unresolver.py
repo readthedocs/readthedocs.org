@@ -23,6 +23,7 @@ from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
+from readthedocs.redirects.models import Redirect
 
 
 log = structlog.get_logger(__name__)
@@ -610,7 +611,10 @@ class Unresolver:
         if not domain_object:
             log.info("Invalid domain.", domain=domain)
             raise InvalidCustomDomainError(domain=domain)
-        domain_object.project._is_subproject = domain_object._project_is_subproject
+        project = domain_object.project
+        project._is_subproject = domain_object._project_is_subproject
+        project._has_enabled_redirects = domain_object._project_has_enabled_redirects
+        project._has_forced_redirects = domain_object._project_has_forced_redirects
 
         log.debug("Custom domain.", domain=domain)
         return UnresolvedDomain(
@@ -626,9 +630,11 @@ class Unresolver:
         Project queryset with the data needed to serve a request.
 
         Proxito checks on every request whether the project is a subproject,
-        whether it has a canonical HTTPS custom domain, and its addons config.
+        whether it has a canonical HTTPS custom domain, its addons config,
+        and whether it has any redirects.
         Loading them with the project saves a query for each of them.
-        See ``Project.is_subproject`` and ``ServeDocsBase._get_canonical_redirect_type``.
+        See ``Project.is_subproject``, ``ServeDocsBase._get_canonical_redirect_type``
+        and ``ServeRedirectMixin.get_redirect_response``.
 
         The queryset is built once and cloned on each use,
         resolving the subquery expressions is expensive.
@@ -638,6 +644,10 @@ class Unresolver:
             _has_canonical_https_domain=Exists(
                 Domain.objects.filter(project=OuterRef("pk"), canonical=True, https=True)
             ),
+            _has_enabled_redirects=Exists(self._get_enabled_redirects(OuterRef("pk"))),
+            _has_forced_redirects=Exists(
+                self._get_enabled_redirects(OuterRef("pk")).filter(force=True)
+            ),
         )
 
     @cached_property
@@ -646,8 +656,25 @@ class Unresolver:
         return Domain.objects.select_related("project__addons").annotate(
             _project_is_subproject=Exists(
                 ProjectRelationship.objects.filter(child=OuterRef("project_id"))
-            )
+            ),
+            _project_has_enabled_redirects=Exists(
+                self._get_enabled_redirects(OuterRef("project_id"))
+            ),
+            _project_has_forced_redirects=Exists(
+                self._get_enabled_redirects(OuterRef("project_id")).filter(force=True)
+            ),
         )
+
+    @staticmethod
+    def _get_enabled_redirects(project):
+        """
+        Enabled redirects of the project, used to annotate the project querysets.
+
+        Most projects don't have redirects,
+        knowing it in advance allows skipping the redirect queries.
+        """
+        # TODO: use filter(enabled=True) once we have removed the null option from the field.
+        return Redirect.objects.filter(project=project).exclude(enabled=False)
 
     def _resolve_project_slug(self, slug, domain):
         """Get the project from the slug or raise an exception if not found."""

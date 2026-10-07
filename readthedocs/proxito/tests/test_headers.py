@@ -258,8 +258,8 @@ class ProxitoHeaderTests(BaseDocServing):
         assert r["X-RTD-Force-Addons"] == "true"
 
     def test_serve_number_of_queries(self):
-        """Serving a page only queries the project, version, and forced redirects."""
-        with self.assertNumQueries(3):
+        """Serving a page only queries the project and version."""
+        with self.assertNumQueries(2):
             r = self.client.get(
                 "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
             )

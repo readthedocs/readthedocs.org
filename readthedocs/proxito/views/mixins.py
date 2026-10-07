@@ -334,6 +334,16 @@ class ServeRedirectMixin:
         :returns: redirect response with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
+        # Annotated by the unresolver when loading the project,
+        # most projects don't have redirects, so we can skip the query.
+        has_redirects = getattr(
+            project,
+            "_has_forced_redirects" if forced_only else "_has_enabled_redirects",
+            None,
+        )
+        if has_redirects is False:
+            return None
+
         redirect, redirect_path = project.redirects.get_matching_redirect_with_path(
             language=language,
             version_slug=version_slug,

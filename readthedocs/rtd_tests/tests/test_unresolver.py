@@ -1,6 +1,6 @@
 import django_dynamic_fixture as fixture
 import pytest
-from django.test import override_settings
+from django.test import RequestFactory, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
@@ -20,7 +20,9 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
-from readthedocs.projects.models import AddonsConfig, Domain, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Feature, Project
+from readthedocs.redirects.constants import PAGE_REDIRECT
+from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
@@ -484,6 +486,37 @@ class UnResolverTests(ResolverBase):
         with self.assertNumQueries(0):
             assert pip.is_subproject is False
             assert pip.addons == self.pip.addons
+
+    def test_unresolve_domain_loads_project_redirect_flags(self):
+        """The project is loaded knowing if it has enabled and forced redirects."""
+        get(Domain, domain="docs.sub.com", project=self.subproject)
+        get(Feature, feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER, projects=[self.pip])
+        redirect = {"redirect_type": PAGE_REDIRECT, "from_url": "/a.html", "to_url": "/b.html"}
+        get(Redirect, project=self.pip, force=False, enabled=True, **redirect)
+        get(Redirect, project=self.pip, force=True, enabled=False, **redirect)
+        forced = get(Redirect, project=self.subproject, force=True, **redirect)
+        # ``enabled`` is nullable, ``None`` means enabled.
+        Redirect.objects.filter(pk=forced.pk).update(enabled=None)
+        request = RequestFactory().get("/", headers={"host": "docs.pip.com", "x-rtd-slug": "pip"})
+
+        projects = [
+            unresolver.unresolve_domain("pip.readthedocs.io").project,
+            unresolver.unresolve_domain_from_request(request).project,
+            unresolver.unresolve_domain("sub.readthedocs.io").project,
+            unresolver.unresolve_domain("docs.sub.com").project,
+            unresolver.unresolve_domain("trans.readthedocs.io").project,
+        ]
+        flags = [
+            (project.slug, project._has_enabled_redirects, project._has_forced_redirects)
+            for project in projects
+        ]
+        assert flags == [
+            ("pip", True, False),
+            ("pip", True, False),
+            ("sub", True, True),
+            ("sub", True, True),
+            ("trans", False, False),
+        ]
 
     def test_unresolve_domain_with_full_url_invalid_protocol(self):
         invalid_protocols = [

@@ -8,6 +8,8 @@ and adapted to use:
  * El Proxito
 """
 
+from unittest import mock
+
 from django.urls import reverse
 import django_dynamic_fixture as fixture
 from django.test.utils import override_settings
@@ -23,6 +25,7 @@ from readthedocs.redirects.constants import (
     PAGE_REDIRECT,
 )
 from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.querysets import RedirectQuerySet
 
 from .base import BaseDocServing
 from .mixins import MockStorageMixin
@@ -332,6 +335,121 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
         r = self.client.get("/en/latest/install.html?foo=bar", headers={"host": host})
         self.assertEqual(r.status_code, 404)
+
+    def _spy_redirect_lookups(self):
+        return mock.patch.object(
+            RedirectQuerySet,
+            "get_matching_redirect_with_path",
+            autospec=True,
+            side_effect=RedirectQuerySet.get_matching_redirect_with_path,
+        )
+
+    def _get_404_handler(self, path, host="project.dev.readthedocs.io", **kwargs):
+        return self.client.get(
+            reverse("proxito_404_handler", kwargs={"proxito_path": path}),
+            headers={"host": host},
+            **kwargs,
+        )
+
+    # Serve existing files from NGINX, instead of raising a 404.
+    @override_settings(PYTHON_MEDIA=False)
+    def test_redirect_lookup_skipped_without_enabled_redirects(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+            enabled=False,
+        )
+        with self._spy_redirect_lookups() as lookup:
+            r = self.client.get(
+                "/en/latest/index.html", headers={"host": "project.dev.readthedocs.io"}
+            )
+            assert r.status_code == 200
+            r = self._get_404_handler("/en/latest/install.html")
+            assert r.status_code == 404
+            r = self._get_404_handler(
+                "/en/latest/install.html", host=self.domain.domain, secure=True
+            )
+            assert r.status_code == 404
+        lookup.assert_not_called()
+
+    # Serve existing files from NGINX, instead of raising a 404.
+    @override_settings(PYTHON_MEDIA=False)
+    def test_forced_redirect_lookup_skipped_without_forced_redirects(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=False,
+        )
+        with self._spy_redirect_lookups() as lookup:
+            r = self.client.get(
+                "/en/latest/index.html", headers={"host": "project.dev.readthedocs.io"}
+            )
+            assert r.status_code == 200
+            lookup.assert_not_called()
+
+            r = self._get_404_handler("/en/latest/install.html")
+            assert r.status_code == 302
+            assert r["Location"] == (
+                "http://project.dev.readthedocs.io/en/latest/tutorial/install.html"
+            )
+            lookup.assert_called_once()
+
+    # Serve existing files from NGINX, instead of raising a 404.
+    @override_settings(PYTHON_MEDIA=False)
+    def test_redirect_with_null_enabled_and_force(self):
+        """Redirects with ``enabled=None`` are enabled, with ``force=None`` aren't forced."""
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/index.html",
+            to_url="/en/latest/tutorial/index.html",
+            force=None,
+        )
+        Redirect.objects.filter(pk=redirect.pk).update(enabled=None)
+        r = self.client.get(
+            "/en/latest/index.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        r = self._get_404_handler("/en/latest/index.html")
+        assert r.status_code == 302
+        assert r["Location"] == "http://project.dev.readthedocs.io/en/latest/tutorial/index.html"
+
+        Redirect.objects.filter(pk=redirect.pk).update(force=True)
+        r = self.client.get(
+            "/en/latest/index.html", headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 302
+        assert r["Location"] == "http://project.dev.readthedocs.io/en/latest/tutorial/index.html"
+
+    def test_redirect_lookup_without_annotated_project(self):
+        """Subprojects aren't loaded by the unresolver, the redirects are queried instead."""
+        self.subproject.versions.update(built=True, active=True)
+        fixture.get(
+            Redirect,
+            project=self.subproject,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/projects/subproject/en/latest/index.html",
+            to_url="/projects/subproject/en/latest/tutorial/index.html",
+            force=True,
+        )
+        with self._spy_redirect_lookups() as lookup:
+            r = self.client.get(
+                "/projects/subproject/en/latest/index.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+        assert r.status_code == 302
+        assert r["Location"] == (
+            "http://project.dev.readthedocs.io/projects/subproject/en/latest/tutorial/index.html"
+        )
+        lookup.assert_called_once()
 
     def test_exact_redirect_avoid_infinite_redirect(self):
         """
