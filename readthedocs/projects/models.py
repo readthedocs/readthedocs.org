@@ -1249,14 +1249,9 @@ class Project(models.Model):
         or if isn't machine created.
         """
         current_stable = self.get_stable_version()
-        if not current_stable or not current_stable.machine:
+        if not current_stable:
             return None
-        # Several tags can point to the same identifier.
-        # Return the stable one.
-        original_stable = determine_stable_version(
-            self.versions(manager=INTERNAL).filter(identifier=current_stable.identifier)
-        )
-        return original_stable
+        return current_stable.original_stable_version
 
     def get_latest_version(self):
         return self.versions.filter(slug=LATEST).first()
@@ -1271,20 +1266,10 @@ class Project(models.Model):
         Returns None if latest doesn't point to a valid version,
         or if isn't managed by RTD (machine=False).
         """
-        # For latest, the identifier is the name of the branch/tag.
-        latest_version_identifier = (
-            self.versions.filter(slug=LATEST, machine=True)
-            .values_list("identifier", flat=True)
-            .first()
-        )
-        if not latest_version_identifier:
+        current_latest = self.get_latest_version()
+        if not current_latest:
             return None
-        return (
-            self.versions(manager=INTERNAL)
-            .exclude(slug=LATEST)
-            .filter(verbose_name=latest_version_identifier)
-            .first()
-        )
+        return current_latest.original_latest_version
 
     def update_latest_version(self):
         """
