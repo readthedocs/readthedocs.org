@@ -133,7 +133,9 @@ class RedirectQuerySet(NoReprQuerySet, models.QuerySet):
         if forced_only:
             queryset = queryset.filter(force=True)
 
-        redirect = queryset.select_related("project").first()
+        # No ``select_related("project")``: this is called from ``project.redirects``,
+        # so Django already sets ``redirect.project`` to that instance.
+        redirect = queryset.first()
         if redirect:
             new_path = redirect.get_redirect_path(
                 filename=normalized_filename,

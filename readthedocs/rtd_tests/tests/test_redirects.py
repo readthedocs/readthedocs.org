@@ -38,6 +38,22 @@ class CustomRedirectTests(TestCase):
         expected_path = "/en/latest/install.html#custom-fragment"
         self.assertEqual(path, expected_path)
 
+    def test_matching_redirect_reuses_project_instance(self):
+        project = Project.objects.get(pk=self.pip.pk)
+        kwargs = {
+            "filename": "/install.html",
+            "path": "/en/latest/install.html",
+            "language": "en",
+            "version_slug": LATEST,
+        }
+        # Warm up the project's cached properties used to resolve the path.
+        project.redirects.get_matching_redirect_with_path(**kwargs)
+        # Only the redirect query, the project isn't fetched again.
+        with self.assertNumQueries(1):
+            redirect, path = project.redirects.get_matching_redirect_with_path(**kwargs)
+        assert redirect.project is project
+        assert path == "/en/latest/install.html#custom-fragment"
+
     def test_redirects_order(self):
         self.pip.redirects.all().delete()
         redirect_a = get(
