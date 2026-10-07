@@ -39,6 +39,15 @@ LOCAL_COPY_PREFIX = "index-build-"
 LOCAL_COPY_MAX_AGE_SECONDS = 4 * 60 * 60
 
 
+def _local_copy_root():
+    """Directory holding the downloaded copies, created on first use."""
+    root = settings.RTD_INDEX_LOCAL_COPY_DIR
+    if not root:
+        return tempfile.gettempdir()
+    os.makedirs(root, exist_ok=True)
+    return root
+
+
 def _remove_stale_local_copies():
     """
     Remove local copies leaked by workers that died mid-task.
@@ -48,7 +57,7 @@ def _remove_stale_local_copies():
     instance's disk, failing every later download.
     """
     cutoff = time.time() - LOCAL_COPY_MAX_AGE_SECONDS
-    for entry in os.scandir(tempfile.gettempdir()):
+    for entry in os.scandir(_local_copy_root()):
         try:
             if (
                 entry.name.startswith(LOCAL_COPY_PREFIX)
@@ -397,7 +406,9 @@ def index_build(build_id):
             build=build,
         )
         _remove_stale_local_copies()
-        with tempfile.TemporaryDirectory(prefix=LOCAL_COPY_PREFIX) as tmp_dir:
+        with tempfile.TemporaryDirectory(
+            prefix=LOCAL_COPY_PREFIX, dir=_local_copy_root()
+        ) as tmp_dir:
             return _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to index build")
@@ -443,7 +454,9 @@ def reindex_version(version_id, search_index_name=None):
             post_build_overview=False,
         )
         _remove_stale_local_copies()
-        with tempfile.TemporaryDirectory(prefix=LOCAL_COPY_PREFIX) as tmp_dir:
+        with tempfile.TemporaryDirectory(
+            prefix=LOCAL_COPY_PREFIX, dir=_local_copy_root()
+        ) as tmp_dir:
             _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to re-index version")

@@ -3,7 +3,7 @@ import tempfile
 import time
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
@@ -45,6 +45,21 @@ class TestRemoveStaleLocalCopies(TestCase):
         assert not os.path.exists(stale)
         assert os.path.exists(fresh)
         assert os.path.exists(unrelated)
+
+    def test_configured_local_copy_dir(self):
+        # On hosts where /tmp is a RAM-backed tmpfs, the copies live in a
+        # configured disk-backed directory instead, created on first use.
+        root = os.path.join(tempfile.mkdtemp(), "index-scratch")
+        with override_settings(RTD_INDEX_LOCAL_COPY_DIR=root):
+            stale_name = f"{LOCAL_COPY_PREFIX}old"
+            _remove_stale_local_copies()
+            assert os.path.isdir(root)
+
+            stale = self._make_dir(
+                root, stale_name, age_seconds=LOCAL_COPY_MAX_AGE_SECONDS + 60
+            )
+            _remove_stale_local_copies()
+            assert not os.path.exists(stale)
 
 
 class TestSearchIndexing(TestCase):

@@ -55,6 +55,11 @@ class CommunityBaseSettings(Settings):
     # Build FTD index for all versions
     RTD_FILETREEDIFF_ALL = False
 
+    # Directory where search indexing downloads a version's HTML before
+    # parsing it. None means the system default temporary directory; point it
+    # at a disk-backed path on hosts where /tmp is a RAM-backed tmpfs.
+    RTD_INDEX_LOCAL_COPY_DIR = None
+
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
         def _show_debug_toolbar(request):
