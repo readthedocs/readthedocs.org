@@ -295,7 +295,7 @@ def send_build_status(build_pk, commit, status):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, success, or skipped to be sent.
     """
-    build = Build.objects.filter(pk=build_pk).select_related("version").first()
+    build = Build.objects.filter(pk=build_pk).select_related("project", "version__project").first()
     # Builds without a version shouldn't send status, it can happen when
     # a build from a deleted version is being processed (race condition).
     # Builds without a commit failed before checking out the repository,
@@ -408,7 +408,7 @@ def send_build_notifications(version_pk, build_pk, event):
     if not version or version.type == EXTERNAL:
         return
 
-    build = Build.objects.filter(pk=build_pk).first()
+    build = Build.objects.filter(pk=build_pk).select_related("project").first()
     if not build:
         return
 

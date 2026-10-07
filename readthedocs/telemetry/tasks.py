@@ -16,7 +16,7 @@ def save_build_data(build_id, data):
     Mainly used from the builders,
     since they don't have access to the database.
     """
-    build = Build.objects.filter(id=build_id).first()
+    build = Build.objects.filter(id=build_id).select_related("project", "version").first()
     if build:
         BuildData.objects.collect(build, data)
 
