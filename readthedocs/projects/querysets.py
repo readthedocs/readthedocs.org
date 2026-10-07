@@ -106,7 +106,11 @@ class ProjectQuerySetBase(NoReprQuerySet, models.QuerySet):
         :rtype: bool
         """
         spam_project = False
-        any_owner_banned = any(u.profile.banned for u in project.users.all())
+        owners = project.users.all()
+        if "users" not in getattr(project, "_prefetched_objects_cache", {}):
+            # Fetch the profiles with the owners, instead of one query per owner.
+            owners = owners.select_related("profile")
+        any_owner_banned = any(u.profile.banned for u in owners)
         organization = project.organization
 
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:

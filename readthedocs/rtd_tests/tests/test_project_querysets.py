@@ -120,6 +120,23 @@ class ProjectQuerySetTests(TestCase):
         del project.organization
         self.assertFalse(Project.objects.is_active(project))
 
+    def test_is_active_checks_owners_with_one_query(self):
+        owners = [get(User) for _ in range(3)]
+        owners[-1].profile.banned = True
+        owners[-1].profile.save()
+        project = get(Project, skip=False, users=owners)
+
+        with self.assertNumQueries(1):
+            assert Project.objects.is_active(project) is False
+
+    def test_is_active_uses_prefetched_owners(self):
+        owners = [get(User) for _ in range(3)]
+        get(Project, skip=False, users=owners)
+        project = Project.objects.prefetch_related("users__profile").get(users=owners[0])
+
+        with self.assertNumQueries(0):
+            assert Project.objects.is_active(project) is True
+
     def test_dashboard(self):
         query = Project.objects.dashboard(user=self.user)
         self.assertEqual(query.count(), len(self.user_projects))
