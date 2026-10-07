@@ -13,15 +13,17 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
+from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.core.utils.objects import cached_method
+from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
@@ -326,6 +328,26 @@ class BuildIsolatedConcurrencyTests(TestCase):
         assert build.dispatched_date is not None
         assert send_task.call_count == 1
         assert build.notifications.count() == 0
+        # First build of the version: no previous config to hint the image from.
+        assert send_task.call_args.kwargs["kwargs"]["build_os_hint"] is None
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_hints_the_last_successful_build_os(self, send_task):
+        """The worker starts the container from the last successful build's ``build.os``."""
+        send_task.return_value.id = "task-id"
+        config = get(BuildConfig, data={"version": 2, "build": {"os": "ubuntu-22.04"}})
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            success=True,
+            readthedocs_yaml_config=config,
+        )
+
+        trigger_build(project=self.project, version=self.version)
+
+        assert send_task.call_args.kwargs["kwargs"]["build_os_hint"] == "ubuntu-22.04"
 
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_trigger_build_isolated_path_queues_when_limit_reached(self, send_task):
