@@ -4,6 +4,7 @@ import structlog
 from dateutil.parser import parse
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
@@ -189,6 +190,7 @@ def record_search_query_batch(
     """Record/update a search query for analytics for multiple projects/versions."""
     time = parse(time_string)
     before_10_sec = time - timezone.timedelta(seconds=10)
+    new_queries = []
     for project_slug, version_slug in projects_and_versions:
         partial_query_qs = SearchQuery.objects.filter(
             project__slug=project_slug,
@@ -203,25 +205,37 @@ def record_search_query_batch(
             if query.startswith(partial_query.query):
                 partial_query.query = query
                 partial_query.total_results = total_results
-                partial_query.save()
+                partial_query.save(update_fields=["query", "total_results", "modified"])
                 break
         else:
-            version = (
-                Version.objects.filter(slug=version_slug, project__slug=project_slug)
-                .select_related("project")
-                .first()
-            )
-            if not version:
-                log.debug(
-                    "Not recording the search query because project or version does not exist.",
-                    project_slug=project_slug,
-                    version_slug=version_slug,
-                )
-                return
+            new_queries.append((project_slug, version_slug))
 
-            SearchQuery.objects.create(
+    if not new_queries:
+        return
+
+    # Fetch the versions of all new queries at once and insert them in a single query.
+    versions_filter = Q()
+    for project_slug, version_slug in new_queries:
+        versions_filter |= Q(project__slug=project_slug, slug=version_slug)
+    versions = Version.objects.filter(versions_filter).select_related("project")
+    versions = {(version.project.slug, version.slug): version for version in versions}
+
+    search_queries = []
+    for project_slug, version_slug in new_queries:
+        version = versions.get((project_slug, version_slug))
+        if not version:
+            log.debug(
+                "Not recording the search query because project or version does not exist.",
+                project_slug=project_slug,
+                version_slug=version_slug,
+            )
+            continue
+        search_queries.append(
+            SearchQuery(
                 project=version.project,
                 version=version,
                 query=query,
                 total_results=total_results,
             )
+        )
+    SearchQuery.objects.bulk_create(search_queries)
