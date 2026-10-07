@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from unittest import mock
 
 import django_dynamic_fixture as fixture
@@ -33,26 +32,17 @@ class TestEmbedAPIv3InternalPages:
         yield
         cache.clear()
 
-    def _mock_open(self, content):
-        @contextmanager
-        def f(*args, **kwargs):
-            read_mock = mock.MagicMock()
-            read_mock.read.return_value = content
-            yield read_mock
-
-        return f
-
     @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
-    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.read_file")
     @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
-    def test_default_main_section(self, storage_exists, storage_open, app, client):
+    def test_default_main_section(self, storage_exists, storage_read_file, app, client):
         app.build()
         path = app.outdir / "index.html"
         assert path.exists() is True
         content = open(path).read()
 
         storage_exists.return_value = True
-        storage_open.side_effect = self._mock_open(content)
+        storage_read_file.return_value = content
 
         params = {
             "url": "https://project.readthedocs.io/en/latest/",
@@ -109,13 +99,13 @@ class TestEmbedAPIv3InternalPages:
         compare_content_without_blank_lines(json_response["content"], content)
 
     @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=False)
-    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.read_file")
     @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
     def test_s3_storage_decoded_filename(
-        self, storage_exists, storage_open, app, client
+        self, storage_exists, storage_read_file, app, client
     ):
         storage_exists.return_value = True
-        storage_open.side_effect = self._mock_open('<div id="section">content</div>')
+        storage_read_file.return_value = '<div id="section">content</div>'
 
         params = {
             "url": "https://project.readthedocs.io/en/latest/My%20Spaced%20File.html#section",
@@ -123,4 +113,4 @@ class TestEmbedAPIv3InternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        storage_open.assert_called_once_with("html/project/latest/My Spaced File.html")
+        storage_read_file.assert_called_once_with("html/project/latest/My Spaced File.html")

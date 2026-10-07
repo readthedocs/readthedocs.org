@@ -172,8 +172,7 @@ def get_manifest(version: Version) -> FileTreeDiffManifest | None:
         filename=MANIFEST_FILE_NAME,
     )
     try:
-        with build_media_storage.open(manifest_path) as manifest_file:
-            manifest = json.load(manifest_file)
+        manifest = json.loads(build_media_storage.read_file(manifest_path))
     except FileNotFoundError:
         return None
 
@@ -198,8 +197,7 @@ def _get_base_manifest_snapshot(
         filename=BASE_MANIFEST_SNAPSHOT_FILE_NAME,
     )
     try:
-        with build_media_storage.open(snapshot_path) as f:
-            data = json.load(f)
+        data = json.loads(build_media_storage.read_file(snapshot_path))
     except FileNotFoundError:
         return None
 

@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from unittest import mock
 
 import pytest
@@ -49,17 +48,8 @@ class TestEmbedAPIV3Access(TestCase):
         """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
         return self.client.get(*args, **kwargs)
 
-    def _mock_open(self, content):
-        @contextmanager
-        def f(*args, **kwargs):
-            read_mock = mock.MagicMock()
-            read_mock.read.return_value = content
-            yield read_mock
-
-        return f
-
     def _mock_storage(self, storage_mock):
-        storage_mock.open.side_effect = self._mock_open(self.content)
+        storage_mock.read_file.return_value = self.content
 
     def test_get_content_public_version_anonymous_user(self, storage_mock):
         self._mock_storage(storage_mock)

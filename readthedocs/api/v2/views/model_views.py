@@ -367,24 +367,25 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                 date=str(instance.date.date()),
                 id=instance.id,
             )
-            if build_commands_storage.exists(storage_path):
-                try:
-                    json_resp = build_commands_storage.open(storage_path).read()
-                    data["commands"] = json.loads(json_resp)
+            try:
+                json_resp = build_commands_storage.read_file(storage_path)
+                data["commands"] = json.loads(json_resp)
 
-                    # Normalize commands in the same way than when returning
-                    # them using the serializer
-                    for buildcommand in data["commands"]:
-                        buildcommand["command"] = normalize_build_command(
-                            buildcommand["command"],
-                            instance.project.slug,
-                            instance.get_version_slug(),
-                        )
-                except Exception:
-                    log.exception(
-                        "Failed to read build data from storage.",
-                        path=storage_path,
+                # Normalize commands in the same way than when returning
+                # them using the serializer
+                for buildcommand in data["commands"]:
+                    buildcommand["command"] = normalize_build_command(
+                        buildcommand["command"],
+                        instance.project.slug,
+                        instance.get_version_slug(),
                     )
+            except FileNotFoundError:
+                pass
+            except Exception:
+                log.exception(
+                    "Failed to read build data from storage.",
+                    path=storage_path,
+                )
         return Response(data)
 
     @decorators.action(

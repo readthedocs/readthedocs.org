@@ -1,5 +1,4 @@
 import json
-from contextlib import contextmanager
 from unittest import mock
 
 from django.test import TestCase
@@ -10,16 +9,6 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff import get_base_version, get_diff, snapshot_base_manifest
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
-
-
-def _mock_open(content):
-    @contextmanager
-    def f(*args, **kwargs):
-        read_mock = mock.MagicMock()
-        read_mock.read.return_value = content
-        yield read_mock
-
-    return f
 
 
 def _mock_manifest(
@@ -41,7 +30,7 @@ def _mock_manifest(
         manifest_files[path] = {"main_content_hash": main_content_hash}
         if path in text_hashes:
             manifest_files[path]["text_hash"] = text_hashes[path]
-    return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
+    return json.dumps({"build": {"id": build_id}, "files": manifest_files}).encode()
 
 
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
@@ -91,15 +80,15 @@ class TestsFileTreeDiff(TestCase):
             success=True,
         )
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_no_changes(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_diff_no_changes(self, storage_read_file):
         files_a = {
             "index.html": "hash1",
             "tutorials/index.html": "hash2",
         }
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, files_a)(),
-            _mock_manifest(self.build_b.id, files_a)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a.id, files_a),
+            _mock_manifest(self.build_b.id, files_a),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert diff.added == []
@@ -107,8 +96,8 @@ class TestsFileTreeDiff(TestCase):
         assert diff.modified == []
         assert not diff.outdated
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_changes(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_diff_changes(self, storage_read_file):
         files_a = {
             "index.html": "hash1",
             "tutorials/index.html": "hash2",
@@ -119,9 +108,9 @@ class TestsFileTreeDiff(TestCase):
             "tutorials/index.html": "hash-changed",
             "deleted.html": "hash-deleted",
         }
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, files_a)(),
-            _mock_manifest(self.build_b.id, files_b)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a.id, files_a),
+            _mock_manifest(self.build_b.id, files_b),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert [file.path for file in diff.files] == ["deleted.html", "new-file.html", "tutorials/index.html"]
@@ -130,61 +119,61 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert not diff.outdated
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_manifests_without_content_hashes(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_diff_manifests_without_content_hashes(self, storage_read_file):
         """Manifests written before the content hash compare by their HTML hash."""
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, {"index.html": "hash-changed"}, text_hashes={})(),
-            _mock_manifest(self.build_b.id, {"index.html": "hash1"}, text_hashes={})(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "hash-changed"}, text_hashes={}),
+            _mock_manifest(self.build_b.id, {"index.html": "hash1"}, text_hashes={}),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert [file.path for file in diff.modified] == ["index.html"]
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_one_manifest_without_content_hashes(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_diff_one_manifest_without_content_hashes(self, storage_read_file):
         """When one side has no content hash, both sides compare by their HTML hash."""
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, {"index.html": "html1"}, {"index.html": "content1"})(),
-            _mock_manifest(self.build_b.id, {"index.html": "html1"}, text_hashes={})(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, {"index.html": "content1"}),
+            _mock_manifest(self.build_b.id, {"index.html": "html1"}, text_hashes={}),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert diff.modified == []
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_diff_prefers_content_hashes(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_diff_prefers_content_hashes(self, storage_read_file):
         """A page whose HTML changed but whose content didn't isn't modified."""
         text_hashes = {"index.html": "same-content"}
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, {"index.html": "html1"}, text_hashes)(),
-            _mock_manifest(self.build_b.id, {"index.html": "html2"}, text_hashes)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a.id, {"index.html": "html1"}, text_hashes),
+            _mock_manifest(self.build_b.id, {"index.html": "html2"}, text_hashes),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert diff.modified == []
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_missing_manifest(self, storage_open):
-        storage_open.side_effect = FileNotFoundError
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_missing_manifest(self, storage_read_file):
+        storage_read_file.side_effect = FileNotFoundError
         diff = get_diff(self.version_a, self.version_b)
         assert diff is None
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_base_version_not_active(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_base_version_not_active(self, storage_read_file):
         self.version_b.active = False
         self.version_b.save()
         diff = get_diff(self.version_a, self.version_b)
         assert diff is None
-        storage_open.assert_not_called()
+        storage_read_file.assert_not_called()
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_base_version_not_built(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_base_version_not_built(self, storage_read_file):
         self.version_b.built = False
         self.version_b.save()
         diff = get_diff(self.version_a, self.version_b)
         assert diff is None
-        storage_open.assert_not_called()
+        storage_read_file.assert_not_called()
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_outdated_diff(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_outdated_diff(self, storage_read_file):
         files_a = {
             "index.html": "hash1",
             "tutorials/index.html": "hash2",
@@ -195,9 +184,9 @@ class TestsFileTreeDiff(TestCase):
             "tutorials/index.html": "hash-changed",
             "deleted.html": "hash-deleted",
         }
-        storage_open.side_effect = [
-            _mock_manifest(self.build_a_old.id, files_a)(),
-            _mock_manifest(self.build_b_old.id, files_b)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.build_a_old.id, files_a),
+            _mock_manifest(self.build_b_old.id, files_b),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert [file.path for file in diff.files] == ["deleted.html", "new-file.html", "tutorials/index.html"]
@@ -244,38 +233,38 @@ class TestsBaseManifestSnapshot(TestCase):
             success=True,
         )
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snapshot_used_over_live_base(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_snapshot_used_over_live_base(self, storage_read_file):
         """For PRs, get_diff uses the snapshot instead of the live base manifest."""
         pr_files = {"index.html": "pr-hash", "new-page.html": "new-hash"}
         snapshot_files = {"index.html": "original-hash"}
 
         # get_diff reads: 1) PR manifest, 2) base snapshot
-        storage_open.side_effect = [
-            _mock_manifest(self.pr_build.id, pr_files)(),
-            _mock_manifest(self.base_build.id, snapshot_files)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.pr_build.id, pr_files),
+            _mock_manifest(self.base_build.id, snapshot_files),
         ]
         diff = get_diff(self.pr_version, self.base_version)
         assert [f.path for f in diff.added] == ["new-page.html"]
         assert [f.path for f in diff.modified] == ["index.html"]
         assert diff.deleted == []
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_fallback_to_live_base_when_no_snapshot(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_fallback_to_live_base_when_no_snapshot(self, storage_read_file):
         pr_files = {"index.html": "pr-hash"}
         live_base_files = {"index.html": "live-hash"}
 
         # 1) PR manifest, 2) snapshot miss, 3) live base manifest
-        storage_open.side_effect = [
-            _mock_manifest(self.pr_build.id, pr_files)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.pr_build.id, pr_files),
             FileNotFoundError,
-            _mock_manifest(self.base_build.id, live_base_files)(),
+            _mock_manifest(self.base_build.id, live_base_files),
         ]
         diff = get_diff(self.pr_version, self.base_version)
         assert [f.path for f in diff.modified] == ["index.html"]
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_snapshot_prevents_false_positives_from_stale_base(self, storage_open):
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "read_file")
+    def test_snapshot_prevents_false_positives_from_stale_base(self, storage_read_file):
         """
         PR only changed index.html. Meanwhile base added extra.html.
         Without snapshot the diff would show extra.html as deleted — bogus.
@@ -283,9 +272,9 @@ class TestsBaseManifestSnapshot(TestCase):
         pr_files = {"index.html": "pr-hash", "about.html": "same-hash"}
         snapshot_files = {"index.html": "original-hash", "about.html": "same-hash"}
 
-        storage_open.side_effect = [
-            _mock_manifest(self.pr_build.id, pr_files)(),
-            _mock_manifest(self.base_build.id, snapshot_files)(),
+        storage_read_file.side_effect = [
+            _mock_manifest(self.pr_build.id, pr_files),
+            _mock_manifest(self.base_build.id, snapshot_files),
         ]
         diff = get_diff(self.pr_version, self.base_version)
         assert [f.path for f in diff.modified] == ["index.html"]

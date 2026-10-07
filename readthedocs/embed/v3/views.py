@@ -102,8 +102,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 media_type=MEDIA_TYPE_HTML, filename=tryfile
             )
             try:
-                with build_media_storage.open(storage_file_path) as fd:
-                    return fd.read()
+                return build_media_storage.read_file(storage_file_path)
             except Exception:  # noqa
                 log.warning("Unable to read file.", file_path=storage_file_path)
 

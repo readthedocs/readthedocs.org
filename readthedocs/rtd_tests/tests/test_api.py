@@ -790,6 +790,50 @@ class APIBuildTests(TestCase):
         assert r.data["version"] is None
         assert r.data["commands"][0]["command"] == command
 
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v2.views.model_views.build_commands_storage")
+    def test_build_commands_from_cold_storage(self, build_commands_storage):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            cold_storage=True,
+        )
+        command = "$READTHEDOCS_VIRTUALENV_PATH/bin/python -m pip install sphinx"
+        build_commands_storage.read_file.return_value = json.dumps(
+            [{"command": command, "output": "Running...", "exit_code": 0}]
+        ).encode()
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        r = client.get(reverse("build-detail", args=(build.pk,)))
+        assert r.status_code == 200
+        assert r.data["commands"] == [
+            {"command": "python -m pip install sphinx", "output": "Running...", "exit_code": 0}
+        ]
+        build_commands_storage.read_file.assert_called_once_with(
+            f"{build.date.date()}/{build.pk}.json"
+        )
+
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
+    @mock.patch("readthedocs.api.v2.views.model_views.log")
+    @mock.patch("readthedocs.api.v2.views.model_views.build_commands_storage")
+    def test_build_commands_missing_from_cold_storage(self, build_commands_storage, log):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_FINISHED,
+            cold_storage=True,
+        )
+        build_commands_storage.read_file.side_effect = FileNotFoundError
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        r = client.get(reverse("build-detail", args=(build.pk,)))
+        assert r.status_code == 200
+        assert r.data["commands"] == []
+        log.exception.assert_not_called()
+
 
 class APITests(TestCase):
     fixtures = ["eric.json", "test_data.json"]
