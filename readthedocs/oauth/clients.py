@@ -1,6 +1,8 @@
+import functools
 from datetime import datetime
 
 import structlog
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from django.conf import settings
 from django.utils import timezone
 from github import Auth
@@ -76,11 +78,29 @@ def get_oauth2_client(account):
     return session
 
 
+@functools.cache
+def _load_gh_app_private_key(private_key: str):
+    return load_pem_private_key(private_key.encode(), password=None)
+
+
+def _get_gh_app_private_key():
+    """
+    Return the GitHub App private key, parsed once per process.
+
+    Parsing a PEM RSA key validates it, which takes ~45 ms of CPU.
+    PyGithub signs a new JWT for every request authenticated as the app
+    (like creating an installation token), and given the key as a string,
+    PyJWT parses it every time.
+    """
+    return _load_gh_app_private_key(settings.GITHUB_APP_PRIVATE_KEY)
+
+
 def get_gh_app_client() -> GithubIntegration:
     """Return a client authenticated as the GitHub App to interact with the API."""
     app_auth = Auth.AppAuth(
         app_id=settings.GITHUB_APP_CLIENT_ID,
-        private_key=settings.GITHUB_APP_PRIVATE_KEY,
+        # A callable, so the parsed key is reused by every JWT signed.
+        private_key=_get_gh_app_private_key,
         # 10 minutes is the maximum allowed by GitHub.
         # PyGithub will handle the token expiration and renew it automatically.
         jwt_expiry=60 * 10,
