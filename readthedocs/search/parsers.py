@@ -458,9 +458,13 @@ class GenericParser:
             contents.append(self._parse_content(content))
         return " ".join(contents)
 
-    def parse(self, page):
+    def parse(self, page, *, parse_sections=True):
         """
         Get the parsed JSON for search indexing.
+
+        With ``parse_sections=False`` only the title and hashes are computed
+        and ``sections`` is left empty, which skips most of the work
+        for callers that don't index the page in search.
 
         Returns a dictionary with the following structure.
         {
@@ -478,7 +482,7 @@ class GenericParser:
         try:
             content = self._get_page_content(page)
             if content:
-                return self._process_content(page, content)
+                return self._process_content(page, content, parse_sections=parse_sections)
         except Exception:
             log.info("Failed to index page.", path=page, exc_info=True)
         return {
@@ -490,7 +494,7 @@ class GenericParser:
             "markup_hash": None,
         }
 
-    def _process_content(self, page, content):
+    def _process_content(self, page, content, *, parse_sections=True):
         """Parses the content into a structured dict."""
         html = HTMLParser(content)
         body = self._get_main_node(html)
@@ -513,7 +517,8 @@ class GenericParser:
             text_hash = hashlib.md5(text.encode()).hexdigest()
             markup_hash = hashlib.md5(body.html.encode()).hexdigest()
             title = self._get_page_title(body, html) or page
-            sections = self._get_sections(title=title, body=body)
+            if parse_sections:
+                sections = self._get_sections(title=title, body=body)
         else:
             log.info(
                 "Page doesn't look like it has valid content, skipping.",

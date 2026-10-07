@@ -1750,10 +1750,12 @@ class HTMLFile(ImportedFile):
 
     # Optional parser override; the default reads from the build media storage.
     parser = None
+    # Sections are only needed for search indexing, and are the bulk of the parsing work.
+    parse_sections = True
 
     def get_processed_json(self):
         parser = self.parser or GenericParser(self.version)
-        return parser.parse(self.path)
+        return parser.parse(self.path, parse_sections=self.parse_sections)
 
     @cached_property
     def processed_json(self):
