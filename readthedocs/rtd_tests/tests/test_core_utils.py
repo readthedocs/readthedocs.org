@@ -13,11 +13,13 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import admit_project_builds
+from readthedocs.core.utils import cancel_build
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import trigger_sync_versions
@@ -222,6 +224,29 @@ class CoreUtilTests(TestCase):
         build.refresh_from_db()
         assert build.task_id == "task-id"
         assert build.state == BUILD_STATE_BUILDING
+
+    @mock.patch("readthedocs.core.utils.app")
+    def test_cancel_triggered_build_saves_only_cancel_fields(self, app):
+        """Cancelling doesn't overwrite what the build task already saved."""
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            task_id="task-id",
+        )
+        # The build task starts after the build was loaded to be cancelled.
+        Build.objects.filter(pk=build.pk).update(builder="builder-1", commit="abc123")
+
+        cancel_build(build)
+
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_CANCELLED
+        assert build.success is False
+        assert build.length == 0
+        assert build.builder == "builder-1"
+        assert build.commit == "abc123"
+        app.control.revoke.assert_called_once_with("task-id", signal="SIGINT", terminate=True)
 
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
