@@ -10,6 +10,10 @@ from readthedocs.projects.models import Project
 
 
 class BuildAPIKeyManager(BaseAPIKeyManager):
+    def get_usable_keys(self):
+        # The project is used on every request authenticated with a build API key.
+        return super().get_usable_keys().select_related("project")
+
     # pylint: disable=arguments-differ
     def create_key(self, project):
         """

@@ -399,7 +399,12 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset_for_api_key(self, api_key):
-        return self.model.objects.filter(project=api_key.project)
+        # These relationships are used when saving the build and serializing the response.
+        return self.model.objects.filter(project=api_key.project).select_related(
+            "project",
+            "version",
+            "readthedocs_yaml_config",
+        )
 
     @decorators.action(
         detail=True,

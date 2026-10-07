@@ -316,6 +316,27 @@ class APIBuildTests(TestCase):
             Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
 
+    def test_build_update_response_excludes_commands(self):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version)
+        get(BuildCommandResult, build=build, command="python -m sphinx", output="Running...")
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == 200
+        assert resp.data["state"] == BUILD_STATE_CLONING
+        assert "commands" not in resp.data
+        assert "docs_url" not in resp.data
+
+        resp = client.get(f"/api/v2/build/{build.pk}/")
+        assert resp.status_code == 200
+        assert len(resp.data["commands"]) == 1
+        assert resp.data["docs_url"] == version.get_absolute_url()
+
     @mock.patch("readthedocs.api.v2.views.model_views.run_post_build_tasks")
     def test_finishing_uploaded_build_runs_post_build_tasks(self, run_post_build_tasks):
         project = Project.objects.get(pk=1)
@@ -825,6 +846,48 @@ class APITests(TestCase):
         resp = client.post(revoke_url, HTTP_AUTHORIZATION=f"Token {build_api_key}")
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(BuildAPIKey.objects.is_valid(build_api_key))
+
+    def test_build_api_key_is_validated_once_per_request(self):
+        project = get(Project)
+        build = get(Build, project=project, version=project.versions.first())
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        with mock.patch.object(
+            BuildAPIKey.objects,
+            "get_from_key",
+            wraps=BuildAPIKey.objects.get_from_key,
+        ) as get_from_key:
+            resp = client.patch(
+                f"/api/v2/build/{build.pk}/",
+                {"state": BUILD_STATE_CLONING},
+                format="json",
+            )
+
+        assert resp.status_code == 200
+        get_from_key.assert_called_once_with(build_api_key)
+
+    def test_expired_or_revoked_build_api_key_is_rejected(self):
+        project = get(Project)
+        build = get(Build, project=project, version=project.versions.first())
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == 200
+
+        build_api_key_obj.expiry_date = timezone.now() - datetime.timedelta(minutes=1)
+        build_api_key_obj.save()
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == 403
+
+        build_api_key_obj.expiry_date = timezone.now() + datetime.timedelta(minutes=1)
+        build_api_key_obj.revoked = True
+        build_api_key_obj.save()
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == 403
 
     @override_settings(BUILD_TIME_LIMIT=600)
     def test_expiricy_key(self):

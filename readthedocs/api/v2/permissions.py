@@ -75,6 +75,18 @@ class HasBuildAPIKey(BaseHasAPIKey):
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
+        # DRF calls ``has_permission`` again from ``has_object_permission``
+        # when permissions are composed (e.g. ``HasBuildAPIKey | ReadOnlyPermission``),
+        # cache the result on the request to validate the key only once.
+        try:
+            return request._has_build_api_key
+        except AttributeError:
+            pass
+
+        request._has_build_api_key = self._has_permission(request)
+        return request._has_build_api_key
+
+    def _has_permission(self, request):
         request.build_api_key = None
         key = self.get_key(request)
         if not key:

@@ -271,11 +271,16 @@ class BuildAdminSerializer(BuildSerializer):
     """
     Build serializer to update Build objects from build instances.
 
-    It allows write operations on `commands` and display fields (e.g. builder)
+    It allows write operations on display fields (e.g. builder)
     that are allowed for admin purposes only.
+
+    The builder updates the build on each state change and discards the response,
+    so ``commands`` and ``docs_url`` are excluded to avoid serializing
+    all the commands and resolving the docs URL on every update.
     """
 
-    commands = BuildCommandSerializer(many=True, read_only=True)
+    commands = None
+    docs_url = None
     uploaded_artifacts_storage_path = serializers.ReadOnlyField()
 
     class Meta(BuildSerializer.Meta):
@@ -293,6 +298,7 @@ class BuildAdminReadOnlySerializer(BuildAdminSerializer):
     """
 
     commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
+    docs_url = serializers.SerializerMethodField()
 
 
 class SearchIndexSerializer(serializers.Serializer):
