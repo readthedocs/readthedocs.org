@@ -313,7 +313,7 @@ Configuration for Conda support.
    version: 2
 
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
        python: "mambaforge-22.9"
 
@@ -346,7 +346,7 @@ Python, Node.js, Rust, and Go.
    version: 2
 
    build:
-     os: ubuntu-24.04
+     os: ubuntu-26.04
      tools:
        python: "3.13"
        nodejs: "22"
@@ -546,7 +546,7 @@ See :doc:`/build-customization` for more details.
    version: 2
 
    build:
-     os: ubuntu-24.04
+     os: ubuntu-26.04
      tools:
        python: "3.13"
      jobs:
@@ -591,7 +591,7 @@ When running builds from pull requests, only the ``html`` step will be executed.
 
    formats: [pdf, epub]
    build:
-     os: ubuntu-24.04
+     os: ubuntu-26.04
      tools:
        python: "3.13"
      jobs:
@@ -638,7 +638,7 @@ When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will
    version: 2
 
    build:
-     os: ubuntu-24.04
+     os: ubuntu-26.04
      tools:
        python: "3.13"
      commands:
