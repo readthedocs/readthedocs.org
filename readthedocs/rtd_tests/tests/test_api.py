@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -3657,6 +3659,30 @@ class APIVersionTests(TestCase):
             resp.data,
             version_data,
         )
+
+    def test_get_version_with_build_api_key_queries_dont_depend_on_project_owners(self):
+        project = get(Project, users=[get(User)])
+        version = project.versions.first()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        url = reverse("version-detail", kwargs={"pk": version.pk})
+        headers = {"authorization": f"Token {build_api_key}"}
+
+        with CaptureQueriesContext(connection) as one_owner:
+            resp = self.client.get(url, headers=headers)
+        assert resp.status_code == 200
+        assert resp.data["project"]["skip"] is False
+
+        banned_user = get(User)
+        banned_user.profile.banned = True
+        banned_user.profile.save()
+        project.users.add(banned_user, get(User))
+
+        with CaptureQueriesContext(connection) as three_owners:
+            resp = self.client.get(url, headers=headers)
+        assert resp.status_code == 200
+        assert len(resp.data["project"]["users"]) == 3
+        assert resp.data["project"]["skip"] is True
+        assert len(three_owners) == len(one_owner)
 
     def test_get_active_versions(self):
         """Test the full response of

@@ -6,9 +6,11 @@ from dataclasses import asdict
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import BooleanField
 from django.db.models import Case
+from django.db.models import Prefetch
 from django.db.models import Value
 from django.db.models import When
 from django.http import Http404
@@ -250,7 +252,10 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     )
 
     def get_queryset_for_api_key(self, api_key):
-        return self.model.objects.filter(project=api_key.project)
+        # The admin serializer lists the project owners and checks if any of them is banned.
+        return self.model.objects.filter(project=api_key.project).prefetch_related(
+            Prefetch("project__users", queryset=User.objects.select_related("profile")),
+        )
 
     def get_queryset(self):
         return super().get_queryset().select_related("project")
