@@ -1,3 +1,6 @@
+import os
+import tempfile
+import time
 from unittest import mock
 
 from django.test import TestCase
@@ -6,7 +9,42 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import (
+    LOCAL_COPY_MAX_AGE_SECONDS,
+    LOCAL_COPY_PREFIX,
+    SearchIndexer,
+    _get_indexers,
+    _remove_stale_local_copies,
+)
+
+
+class TestRemoveStaleLocalCopies(TestCase):
+    def _make_dir(self, root, name, age_seconds=0):
+        path = os.path.join(root, name)
+        os.makedirs(os.path.join(path, "nested"))
+        if age_seconds:
+            stamp = time.time() - age_seconds
+            os.utime(path, (stamp, stamp))
+        return path
+
+    def test_removes_only_stale_local_copies(self):
+        tmp_root = tempfile.mkdtemp()
+        stale = self._make_dir(
+            tmp_root, f"{LOCAL_COPY_PREFIX}old", age_seconds=LOCAL_COPY_MAX_AGE_SECONDS + 60
+        )
+        fresh = self._make_dir(tmp_root, f"{LOCAL_COPY_PREFIX}new")
+        unrelated = self._make_dir(
+            tmp_root, "somebody-elses", age_seconds=LOCAL_COPY_MAX_AGE_SECONDS + 60
+        )
+
+        with mock.patch(
+            "readthedocs.projects.tasks.search.tempfile.gettempdir", return_value=tmp_root
+        ):
+            _remove_stale_local_copies()
+
+        assert not os.path.exists(stale)
+        assert os.path.exists(fresh)
+        assert os.path.exists(unrelated)
 
 
 class TestSearchIndexing(TestCase):

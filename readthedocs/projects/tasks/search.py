@@ -1,5 +1,7 @@
 import os
+import shutil
 import tempfile
+import time
 from fnmatch import fnmatch
 
 import structlog
@@ -29,6 +31,35 @@ from readthedocs.worker import app
 
 
 log = structlog.get_logger(__name__)
+
+# Prefix of the temporary directories a version's HTML is downloaded into.
+LOCAL_COPY_PREFIX = "index-build-"
+# A local copy older than this can't belong to a live task and is safe to
+# remove. Indexing a version takes minutes; this leaves a wide margin.
+LOCAL_COPY_MAX_AGE_SECONDS = 4 * 60 * 60
+
+
+def _remove_stale_local_copies():
+    """
+    Remove local copies leaked by workers that died mid-task.
+
+    ``TemporaryDirectory`` cleans up on exceptions, but not when the worker
+    is killed outright (deploys, OOM); the leaked copies eventually fill the
+    instance's disk, failing every later download.
+    """
+    cutoff = time.time() - LOCAL_COPY_MAX_AGE_SECONDS
+    for entry in os.scandir(tempfile.gettempdir()):
+        try:
+            if (
+                entry.name.startswith(LOCAL_COPY_PREFIX)
+                and entry.is_dir(follow_symlinks=False)
+                and entry.stat(follow_symlinks=False).st_mtime < cutoff
+            ):
+                log.info("Removing stale local copy.", path=entry.path)
+                shutil.rmtree(entry.path, ignore_errors=True)
+        except OSError:
+            # Raced with another worker's cleanup.
+            continue
 
 
 class Indexer:
@@ -365,7 +396,8 @@ def index_build(build_id):
             version=version,
             build=build,
         )
-        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+        _remove_stale_local_copies()
+        with tempfile.TemporaryDirectory(prefix=LOCAL_COPY_PREFIX) as tmp_dir:
             return _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to index build")
@@ -410,7 +442,8 @@ def reindex_version(version_id, search_index_name=None):
             search_index_name=search_index_name,
             post_build_overview=False,
         )
-        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+        _remove_stale_local_copies()
+        with tempfile.TemporaryDirectory(prefix=LOCAL_COPY_PREFIX) as tmp_dir:
             _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to re-index version")
