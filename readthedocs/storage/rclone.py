@@ -101,12 +101,23 @@ class BaseRClone:
         env.update(self.env_vars)
         log.info("Executing rclone command.", command=command)
         log.debug("Executing rclone commmad.", env=env)
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            env=env,
-            check=True,
-        )
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                env=env,
+                check=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            # The exception only carries the exit status; what actually failed
+            # is on stderr. The errors and the final summary come last, and
+            # ``--verbose`` logs every transfer, so keep only the tail.
+            log.error(
+                "rclone execution failed.",
+                exit_code=exc.returncode,
+                stderr=exc.stderr.decode(errors="replace")[-8192:],
+            )
+            raise
         log.debug(
             "rclone execution finished.",
             stdout=result.stdout.decode(),
