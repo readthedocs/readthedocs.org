@@ -310,18 +310,22 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         )
         assert running_build.pk != response.data["build"]["id"]
 
-    @override_settings(RTD_DOCKER_COMPOSE=True, USING_AWS=False)
+    @override_settings(
+        RTD_DOCKER_COMPOSE=True,
+        USING_AWS=False,
+        PRODUCTION_DOMAIN="devthedocs.com",
+    )
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_docker_compose_replaces_storage_hostname(self, storages_mock, send_build_status):
         storage_mock = self._mock_storage(storages_mock)
         storage_mock.generate_presigned_post.return_value = {
-            "url": "http://storage/build-uploads",
+            "url": "http://storage:9000/build-uploads",
             "fields": {"key": "project/1/artifacts.zip"},
         }
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data["upload_url"]["url"] == "http://127.0.0.1/build-uploads"
+        assert response.data["upload_url"]["url"] == "http://storage.devthedocs.com/build-uploads"
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")

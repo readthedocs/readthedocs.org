@@ -225,6 +225,48 @@ save some work while typing docker compose commands. This section explains these
     Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
     It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
+Development services
+~~~~~~~~~~~~~~~~~~~~
+
+Only NGINX is published on the host.
+It serves the other development services by hostname, on the same port as the dashboard
+(``devthedocs.org`` for community, ``devthedocs.com`` for business):
+
+.. list-table::
+   :header-rows: 1
+
+   * - Hostname
+     - Service
+   * - ``assets.devthedocs.org``
+     - ext-theme assets development server (webpack)
+   * - ``addons.devthedocs.org``
+     - Addons development server
+   * - ``storage.devthedocs.org``
+     - S3 storage API, used by the upload API's presigned URLs
+   * - ``storage-console.devthedocs.org``
+     - S3 storage web console
+   * - ``search.devthedocs.org``
+     - Elasticsearch
+
+Running community and business side by side
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Both ``devthedocs.org`` and ``devthedocs.com`` resolve to ``127.0.0.1``,
+so the two NGINX containers can't both own port 80.
+Instead, the environment that owns port 80 forwards the other one's domains to its NGINX,
+so all the URLs stay the same.
+
+Start both with ``inv docker.up``, in any order.
+``inv docker.up`` publishes NGINX on port 80 unless another container already does,
+in which case it uses the side-by-side port: ``10080`` for community, ``10081`` for business.
+Set ``RTDDEV_PORT_NGINX`` to choose the port yourself.
+
+.. note::
+
+   Running both environments takes around 11 GB of memory.
+   Give Docker at least 16 GB, otherwise containers get killed when it runs out of memory.
+   The first one to go is usually a webpack container, which leaves the dashboard without styles.
+
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

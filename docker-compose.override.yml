@@ -32,6 +32,9 @@ services:
     environment:
       - NGINX_WEB_SERVER_NAME=${NGINX_WEB_SERVER_NAME:-devthedocs.org}
       - NGINX_PROXITO_SERVER_NAME=${NGINX_PROXITO_SERVER_NAME:-*.devthedocs.org *.build.devthedocs.org}
+      # The other environment, see `common/dockerfiles/nginx/side-by-side.conf.template`
+      - NGINX_SIDE_BY_SIDE_SERVER_NAME=${NGINX_SIDE_BY_SIDE_SERVER_NAME:-.devthedocs.com}
+      - NGINX_SIDE_BY_SIDE_PORT=${NGINX_SIDE_BY_SIDE_PORT:-10081}
 
   proxito:
     image: community-server:latest

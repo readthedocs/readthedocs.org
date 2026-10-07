@@ -88,7 +88,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.devthedocs.org:10001"
+            return f"http://assets.{self.PRODUCTION_DOMAIN}"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = "SEARCH" in os.environ
