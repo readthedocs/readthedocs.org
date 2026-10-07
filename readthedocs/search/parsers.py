@@ -329,27 +329,30 @@ class GenericParser:
 
            This will mutate the original `body`.
         """
-        nodes_to_be_removed = itertools.chain(
+        selectors = [
             # Non-content nodes
-            body.css("script"),
-            body.css("style"),
-            body.css("template"),
-            body.css("noscript"),
+            "script",
+            "style",
+            "template",
+            "noscript",
             # Navigation nodes
-            body.css("nav"),
-            body.css("[role=navigation]"),
-            body.css("[role=search]"),
+            "nav",
+            "[role=navigation]",
+            "[role=search]",
             # Permalinks, this is a Sphinx convention.
-            body.css(".headerlink"),
+            ".headerlink",
             # Line numbers from code blocks, they are very noisy in contents.
             # This convention is popular in Sphinx.
-            body.css(".linenos"),
-            body.css(".lineno"),
+            ".linenos",
+            ".lineno",
             # Sphinx doesn't wrap the result from the `toctree` directive
             # in a nav tag. so we need to manually remove that content.
-            body.css(".toctree-wrapper"),
-        )
-        for node in nodes_to_be_removed:
+            ".toctree-wrapper",
+        ]
+        # A selector group is matched one selector at a time, so this returns
+        # the same nodes in the same order as one ``css()`` call per selector,
+        # while setting up the selector engine only once.
+        for node in body.css(", ".join(selectors)):
             node.decompose()
 
         return body
@@ -509,7 +512,9 @@ class GenericParser:
             # See https://github.com/readthedocs/readthedocs.org/issues/13258
             main_content_hash = hashlib.md5(body.html.encode()).hexdigest()
             body = self._clean_body(body)
-            text = re.sub(r"\s+", " ", body.text(separator=" ")).strip()
+            # Same as replacing each run of whitespace with a space and stripping,
+            # ``str.split()`` and ``\s`` agree on what whitespace is.
+            text = " ".join(body.text(separator=" ").split())
             text_hash = hashlib.md5(text.encode()).hexdigest()
             markup_hash = hashlib.md5(body.html.encode()).hexdigest()
             title = self._get_page_title(body, html) or page

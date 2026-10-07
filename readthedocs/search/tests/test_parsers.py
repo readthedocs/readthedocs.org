@@ -1,3 +1,4 @@
+import hashlib
 import json
 from contextlib import contextmanager
 from pathlib import Path
@@ -419,6 +420,40 @@ class TestParsers:
         second = parser._process_content("index.html", template.format(text="Other content"))
         assert first["text_hash"] != second["text_hash"]
         assert first["markup_hash"] != second["markup_hash"]
+
+    def test_text_hash_collapses_all_whitespace(self):
+        """
+        Every run of whitespace in the text is hashed as a single space.
+
+        Non-ASCII whitespace counts too, so a page whose text didn't change
+        keeps the hash stored in the manifests of older builds.
+        """
+        parser = GenericParser(self.version)
+        content = """
+            <html><body><div role="main">
+                <h1>Title of the page</h1>
+                <p>Some&nbsp;\u2003 content\n\t here</p>
+            </div></body></html>
+        """
+        parsed = parser._process_content("index.html", content)
+        expected = hashlib.md5(b"Title of the page Some content here").hexdigest()
+        assert parsed["text_hash"] == expected
+
+    def test_clean_body_removes_overlapping_nodes(self):
+        """Nodes matched by more than one selector, or nested in one another, are removed."""
+        parser = GenericParser(self.version)
+        content = """
+            <html><body><div role="main">
+                <h1 id="title">Title<a class="headerlink" href="#title">#</a></h1>
+                <nav role="navigation"><script>var a;</script><a class="headerlink">#</a></nav>
+                <div class="toctree-wrapper" role="search"><noscript>No JS</noscript></div>
+                <p>Content<span class="lineno linenos">1</span></p>
+                <template><style>p {}</style></template>
+            </div></body></html>
+        """
+        parsed = parser._process_content("index.html", content)
+        assert parsed["sections"] == [{"id": "title", "title": "Title", "content": "Content"}]
+        assert parsed["text_hash"] == hashlib.md5(b"Title Content").hexdigest()
 
     def test_local_path_reads_from_the_local_copy(self, tmp_path):
         page = tmp_path / "index.html"
