@@ -1189,7 +1189,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 ],
             ),
         ]
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(16):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

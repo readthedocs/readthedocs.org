@@ -108,6 +108,19 @@ class TestsFileTreeDiff(TestCase):
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_reuses_latest_builds(self, storage_open):
+        files = {"index.html": "hash1"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files)(),
+            _mock_manifest(self.build_b.id, files)(),
+        ]
+        # Only the latest successful build of each version is queried.
+        with self.assertNumQueries(2):
+            diff = get_diff(self.version_a, self.version_b)
+        assert diff.current_version_build == self.build_a
+        assert diff.base_version_build == self.build_b
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_changes(self, storage_open):
         files_a = {
             "index.html": "hash1",
@@ -205,6 +218,8 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert diff.outdated
+        assert diff.current_version_build == self.build_a_old
+        assert diff.base_version_build == self.build_b_old
 
 
 @mock.patch(
@@ -255,10 +270,14 @@ class TestsBaseManifestSnapshot(TestCase):
             _mock_manifest(self.pr_build.id, pr_files)(),
             _mock_manifest(self.base_build.id, snapshot_files)(),
         ]
-        diff = get_diff(self.pr_version, self.base_version)
+        # The PR's latest build, and the snapshot's build.
+        with self.assertNumQueries(2):
+            diff = get_diff(self.pr_version, self.base_version)
         assert [f.path for f in diff.added] == ["new-page.html"]
         assert [f.path for f in diff.modified] == ["index.html"]
         assert diff.deleted == []
+        assert diff.current_version_build == self.pr_build
+        assert diff.base_version_build == self.base_build
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_fallback_to_live_base_when_no_snapshot(self, storage_open):

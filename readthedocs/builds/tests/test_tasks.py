@@ -581,6 +581,17 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
+    def test_post_build_overview_shares_project_instance(self, get_diff, post_comment):
+        """Both versions use the build's project, so its relations are fetched once."""
+        get_diff.return_value = None
+        post_build_overview(build_pk=self.current_version_build.pk)
+        current_version = get_diff.call_args.kwargs["current_version"]
+        base_version = get_diff.call_args.kwargs["base_version"]
+        assert current_version.project is base_version.project
+        post_comment.assert_not_called()
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
     def test_post_build_overview_more_than_5_files(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,

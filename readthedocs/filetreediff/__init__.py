@@ -107,6 +107,7 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     # build (the base branch kept moving) — that's the whole point. Marking
     # the diff as outdated here would defeat the snapshot's purpose.
     base_version_manifest = None
+    base_latest_build = None
     if current_version.is_external:
         base_version_manifest = _get_base_manifest_snapshot(current_version)
 
@@ -125,8 +126,12 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     current_version_file_paths = set(current_version_manifest.files.keys())
     base_version_file_paths = set(base_version_manifest.files.keys())
 
-    current_version_build = Build.objects.get(id=current_version_manifest.build.id)
-    base_version_build = Build.objects.get(id=base_version_manifest.build.id)
+    current_version_build, base_version_build = _get_manifest_builds(
+        current_version_manifest,
+        base_version_manifest,
+        # The manifests usually come from the latest builds, which are already loaded.
+        loaded_builds=[current_latest_build, base_latest_build],
+    )
 
     files: list[tuple[str, FileTreeDiffFileStatus]] = []
     for file_path in current_version_file_paths - base_version_file_paths:
@@ -159,6 +164,18 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
         base_version_build=base_version_build,
         outdated=outdated,
     )
+
+
+def _get_manifest_builds(*manifests: FileTreeDiffManifest, loaded_builds: list[Build | None]):
+    """Return the build of each manifest, only querying the ones that aren't in ``loaded_builds``."""
+    builds = {build.id: build for build in loaded_builds if build}
+    missing_ids = {manifest.build.id for manifest in manifests} - builds.keys()
+    if missing_ids:
+        builds.update(Build.objects.in_bulk(missing_ids))
+    try:
+        return [builds[manifest.build.id] for manifest in manifests]
+    except KeyError:
+        raise Build.DoesNotExist("Build from the manifest doesn't exist.")
 
 
 def get_manifest(version: Version) -> FileTreeDiffManifest | None:

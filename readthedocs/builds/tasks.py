@@ -286,6 +286,20 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     return True
 
 
+def _get_build_with_project(build_pk):
+    """
+    Return the build with its version and project loaded.
+
+    ``build.project`` and ``build.version.project`` are the same instance,
+    so data cached on the project (addons config, parent relationship, etc.)
+    is fetched only once.
+    """
+    build = Build.objects.filter(pk=build_pk).select_related("project", "version").first()
+    if build and build.version:
+        build.version.project = build.project
+    return build
+
+
 @app.task(max_retries=3, default_retry_delay=60, queue="web")
 def send_build_status(build_pk, commit, status):
     """
@@ -295,7 +309,7 @@ def send_build_status(build_pk, commit, status):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, success, or skipped to be sent.
     """
-    build = Build.objects.filter(pk=build_pk).select_related("version").first()
+    build = _get_build_with_project(build_pk)
     # Builds without a version shouldn't send status, it can happen when
     # a build from a deleted version is being processed (race condition).
     # Builds without a commit failed before checking out the repository,
@@ -361,7 +375,7 @@ def post_build_overview(build_pk):
 
     Only GitHub is supported at the moment.
     """
-    build = Build.objects.filter(pk=build_pk).first()
+    build = _get_build_with_project(build_pk)
     if not build:
         return
 
