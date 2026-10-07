@@ -204,6 +204,68 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNotNone(r.get("X-RTD-Force-Addons"))
         self.assertEqual(r["X-RTD-Force-Addons"], "true")
 
+    def test_force_addons_header_addons_disabled(self):
+        self.project.addons.enabled = False
+        self.project.addons.save()
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert "X-RTD-Force-Addons" not in r.headers
+
+    def test_force_addons_header_without_addons_config(self):
+        self.project.addons.delete()
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        assert r.status_code == 200
+        assert "X-RTD-Force-Addons" not in r.headers
+
+    def test_force_addons_header_custom_domain(self):
+        r = self.client.get("/en/latest/", secure=True, headers={"host": self.domain.domain})
+        assert r.status_code == 200
+        assert r["X-RTD-Force-Addons"] == "true"
+
+        self.project.addons.enabled = False
+        self.project.addons.save()
+        r = self.client.get("/en/latest/", secure=True, headers={"host": self.domain.domain})
+        assert r.status_code == 200
+        assert "X-RTD-Force-Addons" not in r.headers
+
+    def test_force_addons_header_uses_subproject_addons(self):
+        self.subproject.versions.update(built=True, active=True)
+        self.subproject.addons.enabled = False
+        self.subproject.addons.save()
+        r = self.client.get(
+            "/projects/subproject/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        assert r.status_code == 200
+        assert r["X-RTD-Project"] == "subproject"
+        assert "X-RTD-Force-Addons" not in r.headers
+
+        self.project.addons.enabled = False
+        self.project.addons.save()
+        self.subproject.addons.enabled = True
+        self.subproject.addons.save()
+        r = self.client.get(
+            "/projects/subproject/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        assert r.status_code == 200
+        assert r["X-RTD-Force-Addons"] == "true"
+
+    def test_serve_number_of_queries(self):
+        """Serving a page only queries the project, version, and forced redirects."""
+        with self.assertNumQueries(3):
+            r = self.client.get(
+                "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+            )
+        assert r.status_code == 200
+        assert r["X-RTD-Force-Addons"] == "true"
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cors_headers_external_version(self):
         get(

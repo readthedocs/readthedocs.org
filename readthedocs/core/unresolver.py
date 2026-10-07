@@ -7,7 +7,10 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django.db.models.functions import Length
+from django.utils.functional import cached_property
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
@@ -19,6 +22,7 @@ from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.projects.models import ProjectRelationship
 
 
 log = structlog.get_logger(__name__)
@@ -602,10 +606,11 @@ class Unresolver:
             raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.
-        domain_object = Domain.objects.filter(domain=domain).select_related("project").first()
+        domain_object = self._domain_queryset.filter(domain=domain).first()
         if not domain_object:
             log.info("Invalid domain.", domain=domain)
             raise InvalidCustomDomainError(domain=domain)
+        domain_object.project._is_subproject = domain_object._project_is_subproject
 
         log.debug("Custom domain.", domain=domain)
         return UnresolvedDomain(
@@ -615,10 +620,39 @@ class Unresolver:
             domain=domain_object,
         )
 
+    @cached_property
+    def _project_queryset(self):
+        """
+        Project queryset with the data needed to serve a request.
+
+        Proxito checks on every request whether the project is a subproject,
+        whether it has a canonical HTTPS custom domain, and its addons config.
+        Loading them with the project saves a query for each of them.
+        See ``Project.is_subproject`` and ``ServeDocsBase._get_canonical_redirect_type``.
+
+        The queryset is built once and cloned on each use,
+        resolving the subquery expressions is expensive.
+        """
+        return Project.objects.select_related("addons").annotate(
+            _is_subproject=Exists(ProjectRelationship.objects.filter(child=OuterRef("pk"))),
+            _has_canonical_https_domain=Exists(
+                Domain.objects.filter(project=OuterRef("pk"), canonical=True, https=True)
+            ),
+        )
+
+    @cached_property
+    def _domain_queryset(self):
+        """Same as ``_project_queryset``, but for custom domains."""
+        return Domain.objects.select_related("project__addons").annotate(
+            _project_is_subproject=Exists(
+                ProjectRelationship.objects.filter(child=OuterRef("project_id"))
+            )
+        )
+
     def _resolve_project_slug(self, slug, domain):
         """Get the project from the slug or raise an exception if not found."""
         try:
-            return Project.objects.get(slug=slug)
+            return self._project_queryset.get(slug=slug)
         except Project.DoesNotExist as exc:
             raise InvalidSubdomainError(domain=domain) from exc
 
@@ -639,7 +673,7 @@ class Unresolver:
         # Explicit Project slug being passed in.
         header_project_slug = request.headers.get("X-RTD-Slug", "").lower()
         if header_project_slug:
-            project = Project.objects.filter(
+            project = self._project_queryset.filter(
                 slug=header_project_slug,
                 feature__feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
             ).first()

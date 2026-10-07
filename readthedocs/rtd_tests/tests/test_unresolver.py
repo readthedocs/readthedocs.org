@@ -20,7 +20,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Project
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
@@ -454,6 +454,36 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(result.project, self.pip)
         self.assertTrue(result.is_from_public_domain)
         self.assertEqual(result.source_domain, "pip.readthedocs.io")
+
+    def test_unresolve_domain_loads_project_serving_data(self):
+        """The project is loaded with what Proxito checks on every request."""
+        get(Domain, domain="docs.foobar.com", project=self.pip, canonical=True, https=True)
+        sub_domain = get(Domain, domain="docs.sub.com", project=self.subproject)
+        self.subproject.addons.delete()
+
+        pip = unresolver.unresolve_domain("pip.readthedocs.io").project
+        subproject = unresolver.unresolve_domain("sub.readthedocs.io").project
+        with self.assertNumQueries(0):
+            assert pip.is_subproject is False
+            assert pip._has_canonical_https_domain is True
+            assert pip.addons == self.pip.addons
+            assert subproject.is_subproject is True
+            assert subproject._has_canonical_https_domain is False
+            with pytest.raises(AddonsConfig.DoesNotExist):
+                subproject.addons
+
+        unresolved_domain = unresolver.unresolve_domain("docs.sub.com")
+        assert unresolved_domain.domain == sub_domain
+        subproject = unresolved_domain.project
+        with self.assertNumQueries(0):
+            assert subproject.is_subproject is True
+            with pytest.raises(AddonsConfig.DoesNotExist):
+                subproject.addons
+
+        pip = unresolver.unresolve_domain("docs.foobar.com").project
+        with self.assertNumQueries(0):
+            assert pip.is_subproject is False
+            assert pip.addons == self.pip.addons
 
     def test_unresolve_domain_with_full_url_invalid_protocol(self):
         invalid_protocols = [

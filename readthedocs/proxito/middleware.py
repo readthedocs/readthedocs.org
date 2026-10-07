@@ -348,15 +348,34 @@ class ProxitoMiddleware(MiddlewareMixin):
           Enabled on all projects by default starting on Oct 7, 2024.
 
         """
-        addons = False
         project_slug = getattr(request, "path_project_slug", "")
+        if not project_slug:
+            return
 
-        if project_slug:
-            addons = AddonsConfig.objects.filter(project__slug=project_slug).first()
+        addons = self._get_addons_config(request, project_slug)
+        if addons and addons.enabled:
+            response["X-RTD-Force-Addons"] = "true"
 
-            if addons:
-                if addons.enabled:
-                    response["X-RTD-Force-Addons"] = "true"
+    def _get_addons_config(self, request, project_slug):
+        """
+        Get the ``AddonsConfig`` of the project being served.
+
+        Reuse the project already loaded from the request when possible,
+        the unresolver loads it together with its addons config.
+        """
+        unresolved_domain = getattr(request, "unresolved_domain", None)
+        unresolved_url = getattr(request, "unresolved_url", None)
+        projects = [
+            unresolved_domain.project if unresolved_domain else None,
+            unresolved_url.project if unresolved_url else None,
+        ]
+        for project in projects:
+            if project and project.slug == project_slug:
+                try:
+                    return project.addons
+                except AddonsConfig.DoesNotExist:
+                    return None
+        return AddonsConfig.objects.filter(project__slug=project_slug).first()
 
     def add_cors_headers(self, request, response):
         """

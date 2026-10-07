@@ -161,9 +161,14 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             return RedirectType.subproject_to_main_domain
 
         if unresolved_domain.is_from_public_domain:
-            canonical_domain = (
-                Domain.objects.filter(project=project).filter(canonical=True, https=True).exists()
-            )
+            # Annotated by the unresolver when loading the project.
+            canonical_domain = getattr(project, "_has_canonical_https_domain", None)
+            if canonical_domain is None:
+                canonical_domain = (
+                    Domain.objects.filter(project=project)
+                    .filter(canonical=True, https=True)
+                    .exists()
+                )
             # For .com we need to check if the project supports custom domains.
             if canonical_domain and Resolver()._use_cname(project):
                 log.debug(

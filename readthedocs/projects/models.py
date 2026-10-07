@@ -938,6 +938,9 @@ class Project(models.Model):
     @cached_property
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
+        if hasattr(self, "_is_subproject"):
+            # Annotated by the unresolver when loading the project.
+            return self._is_subproject
         return self.superprojects.exists()
 
     @cached_property
