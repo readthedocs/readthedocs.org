@@ -66,13 +66,13 @@ after the step that builds your documentation:
        # the pull request's code with access to your token.
        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
        steps:
-         - uses: actions/checkout@v5
+         - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
          # Build your documentation using the tool you are already using
          #
          # Building with Sphinx as example:
          #
-         # - uses: actions/setup-python@v6
+         # - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
          #   with:
          #     python-version: "3.14"
          # - run: pip install -r docs/requirements.txt
@@ -97,6 +97,10 @@ See :ref:`guides/build/direct-upload:Versions` for how uploaded versions behave.
 The ``paths`` filters make the workflow run only when the documentation or its dependencies change.
 Adjust them to match your repository layout,
 or remove them to upload on every push and pull request.
+
+The example pins the third-party actions to a commit hash, as GitHub recommends.
+Do the same for the upload action by replacing ``@v1`` with the full commit hash of a release,
+as described in the `action's README <https://github.com/readthedocs/upload-action#versioning>`__.
 
 
 Uploading from any other environment
@@ -159,6 +163,11 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
 Versions
 --------
 
+Uploaded versions behave differently depending on whether the project is built by Read the Docs or not.
+
+Projects that only use direct upload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 On a project that only uses direct upload, every version comes from an upload,
 and the name you upload is the version you get:
 uploading ``main`` publishes ``main``, uploading ``v1.0`` publishes ``v1.0``.
@@ -193,6 +202,27 @@ Automation rules
    Hide, activate or set the default version from the project settings,
    or from your pipeline through the :doc:`API </api/v3>`.
    On a project built by Read the Docs, uploading a version runs the automation rules as usual.
+
+Projects built by Read the Docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On a project that Read the Docs builds from your repository, you can upload any single version
+while the rest of the project keeps being built as before.
+
+The version doesn't need to exist before the first upload.
+A branch, tag or pull request that Read the Docs doesn't know yet is created by the upload.
+Uploading the branch that ``latest`` tracks updates ``latest`` version.
+
+Once a version has been uploaded, Read the Docs stops building it.
+Pushes to the branch, new commits on the pull request and manual builds don't trigger anything for that version,
+so every later update has to come through an upload as well.
+A pull request preview is the usual case:
+after the first upload for a pull request, each new commit has to be uploaded by your pipeline.
+
+To have Read the Docs build an uploaded version again,
+uncheck :guilabel:`Uploaded` in the version settings.
+The uploaded files are removed, a build is triggered,
+and the version is available again when that build succeeds.
 
 Limits
 ------
