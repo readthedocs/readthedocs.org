@@ -1679,8 +1679,13 @@ class APIProject(Project):
     def save(self, *args, **kwargs):
         return 0
 
+    @property
+    def feature_ids(self):
+        # Builders don't have database access, use the features from the API.
+        return set(self.features)
+
     def has_feature(self, feature_id):
-        return feature_id in self.features
+        return feature_id in self.feature_ids
 
     @property
     def show_advertising(self):

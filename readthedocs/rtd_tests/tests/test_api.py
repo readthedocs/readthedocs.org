@@ -1770,6 +1770,17 @@ class APITests(TestCase):
             {"RELEASE": "prod"},
         )
 
+    def test_api_project_features_dont_query_the_database(self):
+        api_project = APIProject(
+            name="Test Project",
+            slug="test-project",
+            features=[Feature.USE_GVISOR_RUNTIME],
+        )
+        with self.assertNumQueries(0):
+            assert api_project.feature_ids == {Feature.USE_GVISOR_RUNTIME}
+            assert api_project.has_feature(Feature.USE_GVISOR_RUNTIME)
+            assert not api_project.has_feature(Feature.BUILD_FULL_CLEAN)
+
     def test_invalid_attributes_api_project(self):
         invalid_attribute = "invalid_attribute"
         project_data = {
