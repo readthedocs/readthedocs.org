@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.db.models import OuterRef
+from django.db.models import Q
 from django.db.models import Subquery
 from django.http import Http404
 from django.http import HttpResponse
@@ -374,6 +375,8 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
     This view is called by an internal nginx redirect when there is a 404.
     """
 
+    custom_404_files = ("404.html", "404/index.html")
+
     def get(self, request, proxito_path):
         """
         Handler for 404 pages on subdomains.
@@ -461,16 +464,24 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # If the version isn't marked as built, we don't check for index files,
         # since the version doesn't have any files.
         # This is /en/latest/foo -> /en/latest/foo/index.html.
-        if version and version.built:
-            response = self._get_index_file_redirect(
+        # If the path ends with `/`, we already tried to serve the `/index.html` file.
+        index_file = None
+        if version and version.built and not proxito_path.endswith("/"):
+            index_file = (filename.rstrip("/") + "/index.html").lstrip("/")
+
+        # The index file and the custom 404 pages are looked up with a single query.
+        html_files = self._get_html_files(
+            project=project,
+            version=version,
+            index_file=index_file,
+        )
+
+        if index_file and (version, index_file) in html_files:
+            return self._get_index_file_redirect(
                 request=request,
-                project=project,
-                version=version,
-                filename=filename,
+                tryfile=index_file,
                 full_path=proxito_path,
             )
-            if response:
-                return response
 
         # Check and perform redirects on 404 handler for non-external domains only.
         # NOTE: This redirect check must be done after trying files like
@@ -496,8 +507,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         response = self._get_custom_404_page(
             request=request,
-            project=project,
-            version=version,
+            html_files=html_files,
         )
         if response:
             return response
@@ -510,45 +520,75 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             path_not_found=proxito_path,
         )
 
-    def _get_custom_404_page(self, request, project, version=None):
+    def _get_html_files(self, project, version=None, index_file=None):
+        """
+        Get the HTML files the 404 handler may redirect to or serve.
+
+        These are the ``index_file`` of the current version,
+        and the custom 404 pages (404.html or 404/index.html) of the current version
+        and of the default version.
+
+        We don't check for files in versions that aren't marked as built,
+        since they don't have any files.
+
+        :returns: a list of ``(version, path)`` tuples, the current version first.
+        """
+        include_default_version = not version or version.slug != project.default_version
+        filters = Q()
+        if version and version.built:
+            paths = [*self.custom_404_files, index_file] if index_file else self.custom_404_files
+            filters |= Q(version=version, path__in=paths)
+        if include_default_version:
+            filters |= Q(
+                version__project=project,
+                version__slug=project.default_version,
+                version__built=True,
+                path__in=self.custom_404_files,
+            )
+
+        if not filters:
+            return []
+
+        queryset = HTMLFile.objects.filter(filters)
+        if not include_default_version:
+            # All files are from the current version, we don't need to fetch it again.
+            return [(version, path) for path in queryset.values_list("path", flat=True)]
+
+        html_files = []
+        for html_file in queryset.select_related("version"):
+            if version and html_file.version_id == version.pk:
+                html_files.append((version, html_file.path))
+            else:
+                # Avoid an extra query when building the storage path.
+                html_file.version.project = project
+                html_files.append((html_file.version, html_file.path))
+
+        # Files from the current version come first.
+        html_files.sort(key=lambda item: item[0] != version)
+        return html_files
+
+    def _get_custom_404_page(self, request, html_files):
         """
         Try to serve a custom 404 page from this project.
 
-        If a version is given, try to serve the 404 page from that version first,
+        Try to serve the 404 page from the current version first,
         if it doesn't exist, try to serve the 404 page from the default version.
 
         We check for a 404.html or 404/index.html file.
 
-        We don't check for a custom 404 page in versions that aren't marked as built,
-        since they don't have any files.
-
         If a 404 page is found, we return a response with the content of that file,
         `None` otherwise.
+
+        :param html_files: files returned by ``_get_html_files``.
         """
-        versions_404 = [version] if version and version.built else []
-        if not version or version.slug != project.default_version:
-            default_version = project.versions.filter(slug=project.default_version).first()
-            if default_version and default_version.built:
-                versions_404.append(default_version)
-
-        if not versions_404:
-            return None
-
-        tryfiles = ["404.html", "404/index.html"]
-        available_404_files = list(
-            HTMLFile.objects.filter(version__in=versions_404, path__in=tryfiles).values_list(
-                "version__slug", "path"
-            )
-        )
-        if not available_404_files:
-            return None
-
+        # Unique versions, keeping their order.
+        versions_404 = dict.fromkeys(version_404 for version_404, _ in html_files)
         for version_404 in versions_404:
             if not self.allowed_user(request, version_404):
                 continue
 
-            for tryfile in tryfiles:
-                if (version_404.slug, tryfile) not in available_404_files:
+            for tryfile in self.custom_404_files:
+                if (version_404, tryfile) not in html_files:
                     continue
 
                 storage_filename_path = version_404.get_storage_path(
@@ -571,23 +611,14 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     return None
         return None
 
-    def _get_index_file_redirect(self, request, project, version, filename, full_path):
+    def _get_index_file_redirect(self, request, tryfile, full_path):
         """
-        Check if a file is a directory and redirect to its index file.
+        Redirect to the index file of a directory.
 
         For example:
 
         - /en/latest/foo -> /en/latest/foo/index.html
         """
-        # If the path ends with `/`, we already tried to serve
-        # the `/index.html` file.
-        if full_path.endswith("/"):
-            return None
-
-        tryfile = (filename.rstrip("/") + "/index.html").lstrip("/")
-        if not HTMLFile.objects.filter(version=version, path=tryfile).exists():
-            return None
-
         log.info("Redirecting to index file.", tryfile=tryfile)
         # Use urlparse so that we maintain GET args in our redirect
         parts = urlparse(full_path)
