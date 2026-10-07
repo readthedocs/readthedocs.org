@@ -2,6 +2,8 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
@@ -58,6 +60,41 @@ class TestCancelOldBuilds:
         assert builds_count_before == builds_count_after - 1
         assert update_docs_task.signature.called
         assert update_docs_task.signature().apply_async.called
+
+    @mock.patch("readthedocs.builds.tasks.send_build_notifications")
+    @mock.patch("readthedocs.core.utils.app")
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_running_builds_are_queried_once(self, update_docs_task, app, send_build_notifications):
+        for state in (BUILD_STATE_TRIGGERED, BUILD_STATE_BUILDING):
+            fixture.get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=state,
+                task_id=state,
+            )
+
+        with CaptureQueriesContext(connection) as queries:
+            trigger_build(project=self.project, version=self.version)
+
+        running_builds_queries = [
+            query["sql"]
+            for query in queries.captured_queries
+            if query["sql"].startswith("SELECT")
+            and 'FROM "builds_build"' in query["sql"]
+            and 'WHERE ("builds_build"."version_id" =' in query["sql"]
+        ]
+        project_queries = [
+            query["sql"]
+            for query in queries.captured_queries
+            if query["sql"].startswith('SELECT "projects_project"')
+        ]
+        assert len(running_builds_queries) == 1
+        assert project_queries == []
+        assert app.control.revoke.call_count == 2
+        assert set(
+            Build.objects.filter(version=self.version).values_list("state", flat=True)
+        ) == {BUILD_STATE_TRIGGERED, BUILD_STATE_CANCELLED, BUILD_STATE_BUILDING}
 
     @pytest.mark.parametrize(
         "state",
