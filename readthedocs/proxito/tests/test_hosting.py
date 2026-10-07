@@ -408,7 +408,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(11):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -961,7 +961,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(14):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -997,7 +997,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(13):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1012,8 +1012,8 @@ class TestReadTheDocsConfigJson(TestCase):
             )
         assert r.status_code == 200
 
-        # Test parent project has fewer queries
-        with self.assertNumQueries(15):
+        # The parent project is already in the unresolver cache from the previous request
+        with self.assertNumQueries(13):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -1039,7 +1039,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(23):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

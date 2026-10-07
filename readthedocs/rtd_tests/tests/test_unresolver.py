@@ -467,3 +467,41 @@ class UnResolverTests(ResolverBase):
                 unresolver.unresolve_domain(
                     f"{protocol}://pip.readthedocs.io/en/latest/"
                 )
+
+
+@override_settings(
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
+    RTD_UNRESOLVER_PROJECT_CACHE_TIMEOUT=60,
+)
+@pytest.mark.proxito
+class UnresolverProjectCacheTests(ResolverBase):
+    def test_public_domain_project_is_cached(self):
+        unresolver.unresolve_domain("pip.readthedocs.io")
+        with self.assertNumQueries(0):
+            unresolved_domain = unresolver.unresolve_domain("pip.readthedocs.io")
+        assert unresolved_domain.project == self.pip
+
+    def test_cache_is_invalidated_on_save(self):
+        unresolver.unresolve_domain("pip.readthedocs.io")
+        self.pip.custom_prefix = "/prefix/"
+        self.pip.save()
+        unresolved_domain = unresolver.unresolve_domain("pip.readthedocs.io")
+        assert unresolved_domain.project.custom_prefix == "/prefix/"
+
+    def test_cache_is_invalidated_on_delete(self):
+        unresolver.unresolve_domain("pip.readthedocs.io")
+        self.pip.delete()
+        with pytest.raises(InvalidSubdomainError):
+            unresolver.unresolve_domain("pip.readthedocs.io")
+
+    def test_external_domain_project_is_not_cached(self):
+        unresolver.unresolve_domain("pip--1.dev.readthedocs.build")
+        with self.assertNumQueries(1):
+            unresolver.unresolve_domain("pip--1.dev.readthedocs.build")
+
+    @override_settings(RTD_UNRESOLVER_PROJECT_CACHE_TIMEOUT=0)
+    def test_cache_disabled(self):
+        unresolver.unresolve_domain("pip.readthedocs.io")
+        with self.assertNumQueries(1):
+            unresolver.unresolve_domain("pip.readthedocs.io")

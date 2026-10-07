@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models.functions import Length
 
 from readthedocs.builds.constants import EXTERNAL
@@ -22,6 +23,11 @@ from readthedocs.projects.models import Project
 
 
 log = structlog.get_logger(__name__)
+
+
+def get_project_cache_key(slug):
+    """Cache key for the project served from ``<slug>.PUBLIC_DOMAIN``."""
+    return f"unresolver:project:{slug}"
 
 
 class UnresolverError(Exception):
@@ -576,7 +582,7 @@ class Unresolver:
             return UnresolvedDomain(
                 source_domain=domain,
                 source=DomainSourceType.public_domain,
-                project=self._resolve_project_slug(project_slug, domain),
+                project=self._resolve_project_slug(project_slug, domain, use_cache=True),
             )
 
         # Serve from the RTD_EXTERNAL_VERSION_DOMAIN, ensuring it looks like
@@ -615,12 +621,34 @@ class Unresolver:
             domain=domain_object,
         )
 
-    def _resolve_project_slug(self, slug, domain):
-        """Get the project from the slug or raise an exception if not found."""
+    def _resolve_project_slug(self, slug, domain, use_cache=False):
+        """
+        Get the project from the slug or raise an exception if not found.
+
+        :param use_cache: Look up the project in the cache first,
+         and store it there on a miss.
+         The cached entry is deleted when the project is saved or deleted
+         (see ``readthedocs.projects.signals``),
+         and expires after ``RTD_UNRESOLVER_PROJECT_CACHE_TIMEOUT`` seconds.
+        """
+        timeout = settings.RTD_UNRESOLVER_PROJECT_CACHE_TIMEOUT
+        use_cache = use_cache and timeout > 0
+        if use_cache:
+            cache_key = get_project_cache_key(slug)
+            project = cache.get(cache_key)
+            if project is not None:
+                return project
+
         try:
-            return Project.objects.get(slug=slug)
+            project = Project.objects.get(slug=slug)
         except Project.DoesNotExist as exc:
             raise InvalidSubdomainError(domain=domain) from exc
+
+        if use_cache:
+            # Cache the instance as fetched, before anything stores
+            # per-request state (``cached_property``, related objects) on it.
+            cache.set(cache_key, project, timeout=timeout)
+        return project
 
     def unresolve_domain_from_request(self, request):
         """

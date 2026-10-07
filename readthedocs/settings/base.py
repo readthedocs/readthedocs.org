@@ -1218,6 +1218,10 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_MAX_SCORE = 9999
     RTD_SPAM_NOINDEX_CACHE_TIMEOUT = 60 * 60
 
+    # Seconds the unresolver caches the project served from ``<slug>.PUBLIC_DOMAIN``.
+    # Set to 0 to disable the cache.
+    RTD_UNRESOLVER_PROJECT_CACHE_TIMEOUT = 60
+
     # Max number of builds that can be waiting to be uploaded by the user using the upload API.
     # This is to prevent users from requesting too many builds to be uploaded at once,
     # which could be because of a bug in their code or abuse of the API.
