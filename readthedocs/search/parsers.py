@@ -65,6 +65,9 @@ class GenericParser:
         "video",
     ]
 
+    # Tags that start a section (see ``_is_section``).
+    section_tags = frozenset([f"h{n}" for n in range(10)] + ["header"])
+
     def __init__(self, version, local_path=None):
         self.version = version
         self.project = self.version.project
@@ -163,9 +166,8 @@ class GenericParser:
 
     def _parse_content(self, content):
         """Converts all new line characters and multiple spaces to a single space."""
-        content = content.strip().split()
-        content = (text.strip() for text in content)
-        content = " ".join(text for text in content if text)
+        # ``split()`` without arguments already drops surrounding whitespace and empty strings.
+        content = " ".join(content.split())
         if len(content) > self.max_content_length:
             log.info(
                 "Content too long, truncating.",
@@ -360,8 +362,7 @@ class GenericParser:
 
         The tag is a section if it's a ``h`` or a ``header`` tag.
         """
-        is_h_tag = re.match(r"h\d$", tag.tag)
-        return is_h_tag or tag.tag == "header"
+        return tag.tag in self.section_tags
 
     def _parse_section_title(self, tag):
         """
@@ -426,13 +427,12 @@ class GenericParser:
         Sphinx and Mkdocs codeblocks usually have a class named
         ``highlight`` or ``highlight-{language}``.
         """
-        if not tag.css_first("pre"):
+        # This is called for every node we visit,
+        # so check the class before searching the whole subtree for a ``pre`` tag.
+        classes = tag.attributes.get("class") or ""
+        if not any(c.startswith("highlight") for c in classes.split()):
             return False
-
-        for c in tag.attributes.get("class", "").split():
-            if c.startswith("highlight"):
-                return True
-        return False
+        return tag.css_first("pre") is not None
 
     def _parse_code_section(self, tag):
         """
