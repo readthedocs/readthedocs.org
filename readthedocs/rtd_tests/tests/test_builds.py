@@ -254,6 +254,28 @@ class BuildModelTests(TestCase):
         self.assertEqual(build.version_type, BRANCH)
         self.assertEqual(build.commit, "a1b2c3")
 
+    def test_save_copies_version_fields(self):
+        build = get(Build, project=self.project, version=self.version)
+        Version.objects.filter(pk=self.version.pk).update(verbose_name="v3", slug="v3")
+
+        build = Build.objects.get(pk=build.pk)
+        build.save(update_fields=["version_name", "version_slug"])
+
+        build.refresh_from_db()
+        assert build.version_name == "v3"
+        assert build.version_slug == "v3"
+
+    def test_save_update_fields_doesnt_fetch_version(self):
+        build = get(Build, project=self.project, version=self.version)
+
+        build = Build.objects.get(pk=build.pk)
+        build.task_id = "task-id"
+        with self.assertNumQueries(1):
+            build.save(update_fields=["task_id"])
+
+        build.refresh_from_db()
+        assert build.task_id == "task-id"
+
     def test_can_rebuild_with_regular_version(self):
         build = get(
             Build,

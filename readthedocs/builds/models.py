@@ -934,7 +934,14 @@ class Build(models.Model):
                     build_config_id=build_config.id,
                 )
 
-        if self.version:
+        # Avoid fetching the version when none of the fields copied from it are saved.
+        update_fields = kwargs.get("update_fields")
+        copy_version_fields = update_fields is None or not {
+            "version_name",
+            "version_slug",
+            "version_type",
+        }.isdisjoint(update_fields)
+        if copy_version_fields and self.version:
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
