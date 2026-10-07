@@ -135,7 +135,7 @@ The following example shows how a non-secret single-purpose environment variable
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_build:
          - EXAMPLE_ENVIRONMENT_VARIABLE=foobar command --flag
