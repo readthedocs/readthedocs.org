@@ -214,20 +214,24 @@ class WebhookMixin:
         if self.integration is not None:
             return self.integration
 
-        integrations = Integration.objects.filter(
-            project=self.project,
-            integration_type=self.integration_type,
+        # Fetch up to two integrations in a single query,
+        # that's enough to know if there is none, one, or more than one.
+        integrations = list(
+            Integration.objects.filter(
+                project=self.project,
+                integration_type=self.integration_type,
+            )[:2]
         )
 
-        if not integrations.exists():
+        if not integrations:
             raise Http404("No Integration matches the given query.")
-        elif integrations.count() > 1:
+        elif len(integrations) > 1:
             raise ParseError(
                 "Multiple integrations found for this project. "
                 "Please use the webhook URL with an explicit integration ID."
             )
 
-        self.integration = integrations.first()
+        self.integration = integrations[0]
         return self.integration
 
     def get_response_push(self, project, versions_info: list[VersionInfo]):

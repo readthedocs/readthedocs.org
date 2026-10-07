@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -3573,6 +3575,29 @@ class IntegrationsTests(TestCase):
         # Should return 400 Bad Request
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Multiple integrations found", resp.data["detail"])
+
+    def test_github_webhook_looks_up_integration_with_one_query(self, trigger_build):
+        client = APIClient()
+        payload = {"ref": "refs/heads/master"}
+
+        with CaptureQueriesContext(connection) as queries:
+            resp = client.post(
+                f"/api/v2/webhook/github/{self.project.slug}/",
+                payload,
+                format="json",
+                headers={
+                    GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+                },
+            )
+
+        assert resp.status_code == 200
+        integration_queries = [
+            query["sql"]
+            for query in queries.captured_queries
+            if query["sql"].startswith("SELECT")
+            and 'FROM "integrations_integration"' in query["sql"]
+        ]
+        assert len(integration_queries) == 1
 
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
