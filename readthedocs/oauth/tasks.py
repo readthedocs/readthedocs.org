@@ -22,6 +22,7 @@ from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
+from readthedocs.oauth.clients import invalidate_gh_installation_token
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
@@ -317,6 +318,15 @@ class GitHubAppWebhookHandler:
             raise ValueError(f"Unsupported event: {self.event}")
 
         log.info("Handling event from GitHubAppWebhookHandler.")
+
+        # The installation's repositories or permissions changed (or it was suspended/deleted),
+        # discard its cached access token so we don't keep using one created before the change.
+        if (
+            self.event in ("installation", "installation_repositories")
+            and installation_id != "unknown"
+        ):
+            invalidate_gh_installation_token(installation_id)
+
         self.event_handlers[self.event]()
 
     def _handle_installation_event(self):

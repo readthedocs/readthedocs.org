@@ -1,5 +1,6 @@
 import copy
 import json
+from datetime import timedelta
 from unittest import mock
 
 import pytest
@@ -15,6 +16,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -1219,6 +1221,71 @@ class GitHubAppTests(TestCase):
                 build=build, commit=commit, status=BUILD_STATUS_SUCCESS
             )
         assert status_api_request.called
+
+    def _get_valid_access_token_json(self, token):
+        expires_at = timezone.now() + timedelta(hours=1)
+        return self._get_access_token_json(
+            token=token,
+            expires_at=expires_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_reuses_installation_token(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(Build, project=self.project, version=version)
+        access_token_request = request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            json=self._get_valid_access_token_json(token="ghs_cached"),
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            json={},
+        )
+
+        # Each task creates its own service, they should share the token.
+        for _ in range(3):
+            assert GitHubAppService(self.installation).send_build_status(
+                build=build, commit=commit, status=BUILD_STATUS_PENDING
+            )
+
+        assert access_token_request.call_count == 1
+        assert status_api_request.call_count == 3
+        assert status_api_request.last_request.headers["Authorization"] == "token ghs_cached"
+
+    @requests_mock.Mocker(kw="request")
+    def test_send_build_status_retries_with_new_token_on_bad_credentials(self, request):
+        commit = "1234abc"
+        version = self.project.versions.get(slug=LATEST)
+        build = get(Build, project=self.project, version=version)
+        access_token_request = request.post(
+            f"{self.api_url}/app/installations/1111/access_tokens",
+            [
+                {"json": self._get_valid_access_token_json(token="ghs_revoked")},
+                {"json": self._get_valid_access_token_json(token="ghs_new")},
+            ],
+        )
+        status_api_request = request.post(
+            f"{self.api_url}/repositories/{self.remote_repository.remote_id}/statuses/{commit}",
+            [
+                {"status_code": 401, "json": {"message": "Bad credentials"}},
+                {"json": {}},
+            ],
+        )
+
+        assert self.installation.service.send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_PENDING
+        )
+        assert access_token_request.call_count == 2
+        assert status_api_request.call_count == 2
+        assert status_api_request.last_request.headers["Authorization"] == "token ghs_new"
+
+        # The new token is the one shared with other services.
+        assert GitHubAppService(self.installation).send_build_status(
+            build=build, commit=commit, status=BUILD_STATUS_PENDING
+        )
+        assert access_token_request.call_count == 2
+        assert status_api_request.last_request.headers["Authorization"] == "token ghs_new"
 
     @requests_mock.Mocker(kw="request")
     def test_get_clone_token(self, request):

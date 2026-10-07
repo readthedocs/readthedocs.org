@@ -7,6 +7,7 @@ import requests_mock
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -244,7 +245,13 @@ class TestGitHubAppWebhook(TestCase):
         assert r.status_code == 200
         assert not GitHubAppInstallation.objects.filter(installation_id=2222).exists()
 
+    def _cache_installation_token(self):
+        cache_key = self.installation.service.installation_auth.cache_key
+        cache.set(cache_key, {"token": "ghs_old", "expires_at": None})
+        return cache_key
+
     def test_installation_new_permissions_accepted(self):
+        cache_key = self._cache_installation_token()
         payload = {
             "action": "new_permissions_accepted",
             "installation": {
@@ -255,9 +262,12 @@ class TestGitHubAppWebhook(TestCase):
         }
         r = self.post_webhook("installation", payload)
         assert r.status_code == 200
+        # Tokens created before the change are discarded.
+        assert cache.get(cache_key) is None
 
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
     def test_installation_repositories_added(self, update_or_create_repositories):
+        cache_key = self._cache_installation_token()
         payload = {
             "action": "added",
             "installation": {
@@ -284,6 +294,7 @@ class TestGitHubAppWebhook(TestCase):
         r = self.post_webhook("installation_repositories", payload)
         assert r.status_code == 200
         update_or_create_repositories.assert_called_once_with([1234, 5678])
+        assert cache.get(cache_key) is None
 
     @mock.patch.object(GitHubAppService, "update_or_create_repositories")
     def test_installation_repositories_added_all(self, update_or_create_repositories):

@@ -1,7 +1,9 @@
 from datetime import datetime
+from datetime import timedelta
 
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 from django.utils import timezone
 from github import Auth
 from github import GithubIntegration
@@ -103,3 +105,67 @@ def get_gh_app_client() -> GithubIntegration:
             total=5,
         ),
     )
+
+
+# Stop using a cached installation token this long before GitHub expires it,
+# so a request never goes out with a token that is about to expire.
+GH_APP_INSTALLATION_TOKEN_EXPIRY_MARGIN = timedelta(minutes=5)
+
+
+def _get_gh_installation_token_cache_key(installation_id: int) -> str:
+    return f"github-app-installation-token:{installation_id}"
+
+
+def invalidate_gh_installation_token(installation_id: int):
+    """Remove the cached access token of the given installation, so the next request mints a new one."""
+    cache.delete(_get_gh_installation_token_cache_key(installation_id))
+
+
+class CachedAppInstallationAuth(Auth.AppInstallationAuth):
+    """
+    Authenticate as a GitHub App installation, sharing the access token through Django's cache.
+
+    PyGithub only keeps the token on the auth object, so every new client
+    (one per task) used to request a new token from GitHub.
+    Installation tokens are valid for one hour and can be used concurrently,
+    so we share them between processes until shortly before they expire.
+
+    See https://docs.github.com/en/rest/apps/apps#create-an-installation-access-token-for-an-app.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._token = None
+        self._token_expires_at = None
+
+    @property
+    def cache_key(self) -> str:
+        return _get_gh_installation_token_cache_key(self.installation_id)
+
+    @property
+    def token(self) -> str:
+        if self._token is None or self._token_expires_at <= timezone.now():
+            self._token, self._token_expires_at = self._get_token()
+        return self._token
+
+    def _get_token(self) -> tuple[str, datetime]:
+        cached = cache.get(self.cache_key)
+        if cached:
+            return cached["token"], cached["expires_at"]
+
+        authorization = self._get_installation_authorization()
+        expires_at = authorization.expires_at - GH_APP_INSTALLATION_TOKEN_EXPIRY_MARGIN
+        timeout = (expires_at - timezone.now()).total_seconds()
+        if timeout > 0:
+            cache.set(
+                self.cache_key,
+                {"token": authorization.token, "expires_at": expires_at},
+                timeout=int(timeout),
+            )
+        return authorization.token, expires_at
+
+    def invalidate(self):
+        """Discard the token, so the next request mints a new one."""
+        invalidate_gh_installation_token(self.installation_id)
+        self._token = None
+        self._token_expires_at = None

@@ -1,9 +1,11 @@
 from functools import cached_property
+from functools import wraps
 from itertools import groupby
 
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+from github import BadCredentialsException
 from github import Github
 from github import GithubException
 from github import RateLimitExceededException
@@ -15,6 +17,7 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.core.utils.objects import cached_method
+from readthedocs.oauth.clients import CachedAppInstallationAuth
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.clients import get_oauth2_client
 from readthedocs.oauth.constants import GITHUB_APP
@@ -28,6 +31,29 @@ from readthedocs.oauth.services.base import SyncServiceError
 
 
 log = structlog.get_logger(__name__)
+
+
+def _retry_with_new_installation_token(method):
+    """
+    Retry the method once with a new installation token if GitHub rejects the cached one.
+
+    Installation tokens are shared through the cache until shortly before they expire,
+    but GitHub can still revoke them earlier.
+    """
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return method(self, *args, **kwargs)
+        except BadCredentialsException:
+            log.info(
+                "GitHub rejected the installation token, retrying with a new one.",
+                installation_id=self.installation.installation_id,
+            )
+            self.installation_auth.invalidate()
+            return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 class GitHubAppService(Service):
@@ -58,9 +84,19 @@ class GitHubAppService(Service):
         )
 
     @cached_property
+    def installation_auth(self) -> CachedAppInstallationAuth:
+        return CachedAppInstallationAuth(
+            app_auth=self.gh_app_client.auth,
+            installation_id=self.installation.installation_id,
+            requester=self.gh_app_client.requester,
+        )
+
+    @cached_property
     def installation_client(self) -> Github:
         """Return a client authenticated as the GitHub installation to interact with the GH API."""
-        return self.gh_app_client.get_github_for_installation(self.installation.installation_id)
+        # Same as GithubIntegration.get_github_for_installation,
+        # but reusing the installation token across clients.
+        return Github(**self.gh_app_client.requester.withAuth(self.installation_auth).kwargs)
 
     @classmethod
     def for_project(cls, project):
@@ -402,6 +438,7 @@ class GitHubAppService(Service):
             provider=self.allauth_provider.id,
         ).select_related("user")
 
+    @_retry_with_new_installation_token
     def send_build_status(self, *, build, commit, status):
         """
         Create a commit status on GitHub for the given build.
@@ -504,6 +541,7 @@ class GitHubAppService(Service):
         """When using a GitHub App, we don't need to set up a webhook."""
         return True
 
+    @_retry_with_new_installation_token
     def post_comment(self, build, comment: str, create_new: bool = True):
         """
         Post a comment on the pull request attached to the build.
