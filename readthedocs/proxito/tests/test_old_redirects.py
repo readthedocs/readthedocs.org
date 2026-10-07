@@ -1069,6 +1069,25 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
         )
 
+    def test_exact_redirect_with_superproject_relative_sibling_url(self):
+        fixture.get(
+            Redirect,
+            project=self.subproject,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/projects/subproject/en/2.2/*",
+            to_url="/projects/someothersubproject/en/2.2/:splat",
+            force=True,
+        )
+        r = self.client.get(
+            "/projects/subproject/en/2.2/",
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/projects/someothersubproject/en/2.2/",
+        )
+
 
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
 class UserForcedRedirectTests(BaseDocServing):

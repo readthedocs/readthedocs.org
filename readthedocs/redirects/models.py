@@ -308,12 +308,15 @@ class Redirect(models.Model):
     def redirect_exact(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
         to_url = self._redirect_with_wildcard(current_path=path)
-        if to_url and not self.redirects_to_external_domain:
-            # For subprojects, the to_url is relative to the subproject docs
-            # root, so we need to add the subproject prefix to the final URL.
-            if self.project.subproject_prefix and not to_url.startswith(
-                self.project.subproject_prefix
-            ):
+        if to_url and self.project.is_subproject and not self.redirects_to_external_domain:
+            # TODO Superproject relative URLs in subprojects will be deprecated.
+            # For now, any redirects in a subproject using any subproject
+            # prefixed ``to_url`` (``/projects/*``) will redirect relative to
+            # the superproject, not the subproject. This catches both projects
+            # using a workaround to redirect into the same subproject and
+            # redirects pointing to a sibling subproject.
+            subproject_prefix = self.project.superproject.custom_subproject_prefix or "/projects/"
+            if not to_url.startswith(subproject_prefix):
                 to_url = unsafe_join_url_path(self.project.subproject_prefix, to_url)
         return to_url
 
