@@ -118,22 +118,18 @@ class HttpExchangeManager(models.Manager):
         return obj
 
     def delete_limit(self, related_object, limit=10):
-        # If the related_object is an instance of Integration,
-        # it could be a proxy model, so we force it to always be the "real" model.
-        if isinstance(related_object, Integration):
-            model = Integration
-        else:
-            model = related_object
-
-        queryset = self.filter(
-            content_type=ContentType.objects.get(
-                app_label=model._meta.app_label,
-                model=model._meta.model_name,
-            ),
-            object_id=related_object.pk,
-        )
-        for exchange in queryset[limit:]:
-            exchange.delete()
+        """Delete all but the latest ``limit`` exchanges of ``related_object``."""
+        # ``get_for_model`` is cached, and like the generic foreign key,
+        # it uses the concrete model (the Integration proxies share one content type).
+        content_type = ContentType.objects.get_for_model(related_object)
+        queryset = self.filter(content_type=content_type, object_id=related_object.pk)
+        # A single DELETE with a subquery, instead of loading each old exchange
+        # (bodies included) and deleting it one by one.
+        # NOTE: ``_raw_delete`` skips the ``pre_delete`` and ``post_delete`` signals.
+        # Nothing listens to them for this model, but django-elasticsearch-dsl connects
+        # to every model, which would make ``.delete()`` load the rows first.
+        old_exchanges = self.filter(pk__in=queryset.values("pk")[limit:])
+        old_exchanges._raw_delete(old_exchanges.db)
 
 
 class HttpExchange(models.Model):

@@ -271,6 +271,26 @@ class BuildNotificationsTests(TestCase):
         self.assertEqual(exchange.response_body, '{"response": "ok"}')
         self.assertEqual(exchange.status_code, 201)
 
+    @requests_mock.Mocker(kw="mock_request")
+    def test_webhook_keeps_only_latest_exchanges(self, mock_request):
+        webhook = get(
+            WebHook,
+            url="https://example.com/webhook/",
+            project=self.project,
+            events=[WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED)],
+        )
+        mock_request.post(webhook.url, status_code=200)
+        sent = []
+        for _ in range(12):
+            send_build_notifications(
+                version_pk=self.version.pk,
+                build_pk=self.build.pk,
+                event=WebHookEvent.BUILD_FAILED,
+            )
+            sent.append(webhook.exchanges.order_by("-date").first().pk)
+
+        assert set(webhook.exchanges.values_list("pk", flat=True)) == set(sent[2:])
+
     def test_send_email_notification_on_build_failure(self):
         get(EmailHook, project=self.project)
         send_build_notifications(
