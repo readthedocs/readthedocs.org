@@ -4,7 +4,9 @@ import datetime
 from collections import namedtuple
 from urllib.parse import urlparse
 
+from django.db import IntegrityError
 from django.db import models
+from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -36,21 +38,28 @@ class PageViewManager(models.Manager):
         filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
 
-        page_view, created = self.get_or_create(
-            project=project,
-            version=version,
-            path=filename,
-            date=timezone.now().date(),
-            status=status,
-            defaults={
-                "view_count": 1,
-                "full_path": path,
-            },
-        )
-        if not created:
-            page_view.view_count = models.F("view_count") + 1
-            page_view.save(update_fields=["view_count"])
-        return page_view
+        lookup = {
+            "project": project,
+            "version": version,
+            "path": filename,
+            "date": timezone.now().date(),
+            "status": status,
+        }
+        # Most page views are for a page that was already viewed today,
+        # so we try to increase the counter first with a single UPDATE,
+        # instead of doing a SELECT followed by an UPDATE.
+        if self._increase_view_count(lookup):
+            return
+        try:
+            with transaction.atomic():
+                self.create(**lookup, view_count=1, full_path=path)
+        except IntegrityError:
+            # The object was created by another request in the meantime.
+            if not self._increase_view_count(lookup):
+                raise
+
+    def _increase_view_count(self, lookup):
+        return self.filter(**lookup).update(view_count=models.F("view_count") + 1)
 
 
 class PageView(models.Model):

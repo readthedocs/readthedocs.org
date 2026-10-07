@@ -45,6 +45,11 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     @cached_method
     def _get_project(self):
         project_slug = self.request.GET.get("project")
+        # Reuse the project already fetched by the middleware when possible,
+        # this is the common case (the project isn't a subproject or translation).
+        unresolved_domain = getattr(self.request, "unresolved_domain", None)
+        if unresolved_domain and unresolved_domain.project.slug == project_slug:
+            return unresolved_domain.project
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
@@ -115,7 +120,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             return
 
         try:
-            unresolved = unresolver.unresolve_url(absolute_uri)
+            unresolved = self._unresolve(absolute_uri, absolute_uri_parsed)
             filename = unresolved.filename
             absolute_uri_project = unresolved.project
         except InvalidPathForVersionedProjectError as exc:
@@ -145,6 +150,25 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             path=absolute_uri_parsed.path,
             status=status,
         )
+
+    def _unresolve(self, absolute_uri, absolute_uri_parsed):
+        """
+        Unresolve the given URI.
+
+        The page view is normally sent from the same domain the docs are served from,
+        in that case we re-use the domain already unresolved by the middleware
+        instead of resolving it again (which requires querying the database).
+        """
+        unresolved_domain = self.request.unresolved_domain
+        same_domain = (
+            unresolved_domain.is_from_public_domain or unresolved_domain.is_from_custom_domain
+        ) and absolute_uri_parsed.hostname == unresolved_domain.source_domain
+        if same_domain and absolute_uri_parsed.scheme in ("http", "https"):
+            return unresolver.unresolve_path(
+                unresolved_domain=unresolved_domain,
+                path=absolute_uri_parsed.path,
+            )
+        return unresolver.unresolve_url(absolute_uri)
 
 
 class AnalyticsView(SettingsOverrideObject):

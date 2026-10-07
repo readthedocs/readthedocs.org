@@ -230,6 +230,14 @@ class AnalyticsPageViewsTests(TestCase):
                 PageView.objects.all().order_by("-date").first().view_count == 1
             ), f"'{self.absolute_uri}' has 1 view tomorrow"
 
+    def test_increase_page_view_count_reuses_unresolved_domain(self):
+        self.client.get(self.url, headers={"host": self.host})
+        # Project (middleware), version, version (unresolver), feature flags, UPDATE.
+        with self.assertNumQueries(5):
+            resp = self.client.get(self.url, headers={"host": self.host})
+        assert resp.status_code == 204
+        assert PageView.objects.get().view_count == 2
+
     def test_dont_track_external_domains(self):
         self.assertEqual(PageView.objects.all().count(), 0)
         get(
