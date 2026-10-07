@@ -110,7 +110,7 @@ class WebhookMixin:
         self.data = self.get_data()
         try:
             self.project = self.get_project(slug=project_slug)
-            if not Project.objects.is_active(self.project):
+            if not self.project.is_active():
                 resp = {"detail": "This project is currently disabled"}
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Project.DoesNotExist as exc:
@@ -148,6 +148,9 @@ class WebhookMixin:
         return bool(integration.secret)
 
     def get_project(self, **kwargs):
+        # ``WebhookView`` already fetched the project with the integration.
+        if self.integration is not None:
+            return self.integration.project
         return Project.objects.get(**kwargs)
 
     def finalize_response(self, req, *args, **kwargs):
@@ -946,7 +949,7 @@ class WebhookView(APIView):
         # See #4940 for more background.
         request.body  # noqa
         integration = get_object_or_404(
-            Integration,
+            Integration.objects.select_related("project"),
             project__slug=project_slug,
             pk=integration_pk,
         )

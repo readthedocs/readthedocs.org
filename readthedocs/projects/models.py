@@ -44,6 +44,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.db import delete_in_batches
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.domains.validators import check_domains_limit
@@ -1569,6 +1570,17 @@ class Project(models.Model):
             .exclude(pk=self.pk)
         )
         return queryset
+
+    @cached_method
+    def is_active(self):
+        """
+        Check if the project is active, see ``ProjectQuerySet.is_active``.
+
+        The result is cached on the instance,
+        since triggering builds from a webhook checks it once per version.
+        Use ``Project.objects.is_active`` if the project could have changed.
+        """
+        return Project.objects.is_active(self)
 
     @cached_property
     def organization(self):

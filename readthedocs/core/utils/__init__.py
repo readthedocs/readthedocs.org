@@ -54,14 +54,13 @@ def prepare_build(
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Feature
-    from readthedocs.projects.models import Project
     from readthedocs.projects.models import WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
     structlog.contextvars.bind_contextvars(project_slug=project.slug)
 
-    if not Project.objects.is_active(project):
+    if not project.is_active():
         log.warning(
             "Build not triggered because project is not active.",
         )

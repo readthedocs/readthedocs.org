@@ -5,7 +5,9 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -3379,6 +3381,30 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data["build_triggered"])
+
+    def test_webhook_with_integration_id_loads_project_once(self, trigger_build):
+        client = APIClient()
+        with CaptureQueriesContext(connection) as queries:
+            resp = client.post(
+                f"/api/v2/webhook/{self.project.slug}/{self.github_integration.pk}/",
+                self.github_payload,
+                format="json",
+                headers={
+                    GITHUB_SIGNATURE_HEADER: get_signature(
+                        self.github_integration, self.github_payload
+                    ),
+                },
+            )
+
+        assert resp.status_code == 200
+        assert resp.data["build_triggered"] is True
+        # The project is fetched with the integration, not on its own.
+        project_queries = [
+            query["sql"]
+            for query in queries.captured_queries
+            if query["sql"].startswith('SELECT "projects_project"."id"')
+        ]
+        assert project_queries == []
 
     def test_generic_api_respects_basic_auth(self, trigger_build):
         client = APIClient()

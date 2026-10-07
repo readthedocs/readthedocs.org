@@ -213,6 +213,18 @@ class ProjectQuerySetTests(TestCase):
             {project_three}, set(Project.objects.single_owner(another_user))
         )
 
+    def test_project_is_active_is_cached_per_instance(self):
+        user = get(User)
+        project = get(Project, skip=False, users=[user])
+        assert project.is_active() is True
+
+        user.profile.banned = True
+        user.profile.save()
+        with self.assertNumQueries(0):
+            assert project.is_active() is True
+        # A new instance checks again.
+        assert Project.objects.get(pk=project.pk).is_active() is False
+
 
 class ProjectWithFeatureQuerySetTests(TestCase):
     @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
