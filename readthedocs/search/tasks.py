@@ -203,7 +203,7 @@ def record_search_query_batch(
             if query.startswith(partial_query.query):
                 partial_query.query = query
                 partial_query.total_results = total_results
-                partial_query.save()
+                partial_query.save(update_fields=["query", "total_results", "modified"])
                 break
         else:
             version = (
@@ -217,7 +217,7 @@ def record_search_query_batch(
                     project_slug=project_slug,
                     version_slug=version_slug,
                 )
-                return
+                continue
 
             SearchQuery.objects.create(
                 project=version.project,
