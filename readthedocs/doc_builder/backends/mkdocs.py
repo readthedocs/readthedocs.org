@@ -91,7 +91,6 @@ class BaseMkdocs(BaseBuilder):
                 "uv",
                 "run",
                 "--no-sync",
-                "--no-dev",
                 "mkdocs",
             )
 

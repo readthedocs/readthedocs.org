@@ -182,7 +182,6 @@ class BaseSphinx(BaseBuilder):
                 "uv",
                 "run",
                 "--no-sync",
-                "--no-dev",
                 "sphinx-build",
             )
 
