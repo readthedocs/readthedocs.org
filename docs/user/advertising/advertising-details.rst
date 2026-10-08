@@ -89,7 +89,7 @@ Do Not Track Policy
 -------------------
 
 Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
-For more details, see the :ref:`Do Not Track section <privacy-policy:Do Not Track>`
+For more details, see the `Do Not Track section <https://about.readthedocs.com/privacy-policy/#do-not-track>`_
 of our privacy policy.
 
 
