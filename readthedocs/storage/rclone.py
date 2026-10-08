@@ -111,11 +111,12 @@ class BaseRClone:
         except subprocess.CalledProcessError as exc:
             # The exception only carries the exit status; what actually failed
             # is on stderr. The errors and the final summary come last, and
-            # ``--verbose`` logs every transfer, so keep only the tail.
+            # ``--verbose`` logs every transfer, so keep the last lines only.
+            stderr_tail = "\n".join(exc.stderr.decode(errors="replace").splitlines()[-20:])
             log.error(
                 "rclone execution failed.",
                 exit_code=exc.returncode,
-                stderr=exc.stderr.decode(errors="replace")[-8192:],
+                stderr=stderr_tail,
             )
             raise
         log.debug(
