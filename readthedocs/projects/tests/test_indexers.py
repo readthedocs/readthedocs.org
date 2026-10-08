@@ -1,12 +1,114 @@
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.constants import GITHUB_APP
+from readthedocs.oauth.models import GitHubAppInstallation, RemoteRepository
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.search import SearchIndexer, _get_indexers
+from readthedocs.projects.tasks.search import (
+    FileManifestIndexer,
+    SearchIndexer,
+    _get_indexers,
+    _should_create_manifest,
+)
+
+
+class TestShouldCreateManifest(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def _external_version(self):
+        return get(Version, project=self.project, slug="123", type=EXTERNAL)
+
+    def _disable_manifest_features(self):
+        self.project.addons.filetreediff_enabled = False
+        self.project.addons.save()
+        self.project.show_build_overview_in_comment = False
+        self.project.save()
+
+    def test_base_version(self):
+        version = self.project.versions.get(slug=LATEST)
+        assert _should_create_manifest(version) is True
+
+    def test_base_version_with_features_disabled(self):
+        # The base version's manifest is always kept fresh: a stale one would
+        # become the baseline of pull request diffs.
+        self._disable_manifest_features()
+        version = self.project.versions.get(slug=LATEST)
+        assert _should_create_manifest(version) is True
+
+    def test_external_version(self):
+        assert _should_create_manifest(self._external_version()) is True
+
+    def test_non_base_internal_version(self):
+        version = get(Version, project=self.project, slug="stable")
+        assert _should_create_manifest(version) is False
+
+    def test_custom_base_version(self):
+        version = get(Version, project=self.project, slug="main")
+        self.project.addons.options_base_version = version
+        self.project.addons.save()
+
+        assert _should_create_manifest(version) is True
+        assert _should_create_manifest(self.project.versions.get(slug=LATEST)) is False
+
+    def test_external_version_with_features_disabled(self):
+        self._disable_manifest_features()
+        assert _should_create_manifest(self._external_version()) is False
+
+    def test_build_overview_needs_the_github_app(self):
+        # ``show_build_overview_in_comment`` defaults to True but is only
+        # honored (and only editable) for GitHub App projects.
+        self.project.addons.filetreediff_enabled = False
+        self.project.addons.save()
+        self.project.show_build_overview_in_comment = True
+        self.project.save()
+        version = self._external_version()
+
+        assert _should_create_manifest(version) is False
+
+        self.project.remote_repository = get(
+            RemoteRepository,
+            vcs_provider=GITHUB_APP,
+            github_app_installation=get(GitHubAppInstallation),
+            remote_id="12345",
+        )
+        self.project.save()
+        assert _should_create_manifest(version) is True
+
+    @override_settings(RTD_FILETREEDIFF_ALL=True)
+    def test_filetreediff_all_overrides_everything(self):
+        self._disable_manifest_features()
+        version = get(Version, project=self.project, slug="stable")
+        assert _should_create_manifest(version) is True
+
+    def test_manifest_indexer_skipped_when_features_disabled(self):
+        self._disable_manifest_features()
+        build = get(
+            Build,
+            version=self._external_version(),
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+
+        indexers = _get_indexers(version=build.version, build=build)
+
+        assert not any(isinstance(indexer, FileManifestIndexer) for indexer in indexers)
+
+    def test_manifest_indexer_created_by_default(self):
+        build = get(
+            Build,
+            version=self._external_version(),
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+
+        indexers = _get_indexers(version=build.version, build=build)
+
+        assert any(isinstance(indexer, FileManifestIndexer) for indexer in indexers)
 
 
 class TestSearchIndexing(TestCase):
