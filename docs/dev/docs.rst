@@ -48,7 +48,7 @@ you may want to verify those changes locally before pushing upstream.
    .. code-block:: console
 
       (.venv) $ pip install -r requirements/testing.txt
-      (.venv) $ pip install -r requirements/docs.txt
+      (.venv) $ pip install -r requirements/docs-local.txt
 
 #. Build the documents:
 

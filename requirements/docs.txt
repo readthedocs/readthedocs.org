@@ -6,30 +6,14 @@
 #
 alabaster==1.0.0
     # via sphinx
-anyio==4.15.1
-    # via
-    #   starlette
-    #   watchfiles
 babel==2.18.0
-    # via
-    #   sphinx
-    #   sphinx-intl
+    # via sphinx
 certifi==2026.7.22
     # via
     #   requests
     #   sphinx-prompt
 charset-normalizer==3.5.1
     # via requests
-click==8.5.0
-    # via
-    #   sphinx-intl
-    #   uvicorn
-colorama==0.4.6
-    # via sphinx-autobuild
-contourpy==1.4.0
-    # via matplotlib
-cycler==0.12.1
-    # via matplotlib
 docutils==0.21.2
     # via
     #   myst-parser
@@ -37,13 +21,8 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.65.0
-    # via matplotlib
-h11==0.16.0
-    # via uvicorn
 idna==3.20
     # via
-    #   anyio
     #   requests
     #   sphinx-prompt
 imagesize==2.0.1
@@ -53,41 +32,27 @@ jinja2==3.1.6
     #   myst-parser
     #   sphinx
     #   sphinx-prompt
-kiwisolver==1.5.1
-    # via matplotlib
 markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-matplotlib==3.11.2
-    # via -r requirements/docs.in
 mdit-py-plugins==0.6.1
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
 myst-parser==5.1.0
     # via -r requirements/docs.in
-numpy==2.5.3
-    # via
-    #   contourpy
-    #   matplotlib
 packaging==26.3
-    # via
-    #   matplotlib
-    #   sphinx
-pillow==12.3.0
-    # via matplotlib
+    # via sphinx
 pygments==2.21.0
     # via
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.3.2
-    # via matplotlib
-python-dateutil==2.9.0.post0
-    # via matplotlib
+pystemmer==3.1.0
+    # via -r requirements/docs.in
 pyyaml==6.0.3
     # via myst-parser
 requests==2.34.2
@@ -98,18 +63,14 @@ roman-numerals==4.1.0
     # via roman-numerals-py
 roman-numerals-py==4.1.0
     # via sphinx
-six==1.17.0
-    # via python-dateutil
 snowballstemmer==3.1.1
     # via sphinx
 sphinx==8.2.3
     # via
     #   -r requirements/docs.in
     #   myst-parser
-    #   sphinx-autobuild
     #   sphinx-copybutton
     #   sphinx-design
-    #   sphinx-intl
     #   sphinx-notfound-page
     #   sphinx-prompt
     #   sphinx-rtd-theme
@@ -118,13 +79,9 @@ sphinx==8.2.3
     #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
-sphinx-autobuild==2025.8.25
-    # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
 sphinx-design==0.7.0
-    # via -r requirements/docs.in
-sphinx-intl==2.4.0
     # via -r requirements/docs.in
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
@@ -156,17 +113,7 @@ sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==1.6.0
-    # via sphinx-autobuild
-typing-extensions==4.16.0
-    # via anyio
 urllib3==2.8.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.53.0
-    # via sphinx-autobuild
-watchfiles==1.2.0
-    # via sphinx-autobuild
-websockets==17.1
-    # via sphinx-autobuild

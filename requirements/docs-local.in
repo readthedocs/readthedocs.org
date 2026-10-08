@@ -1,0 +1,8 @@
+# Tools for working on the docs locally, on top of what Read the Docs needs to build them.
+-r docs.txt
+
+# Live-reloading server used by `make livehtml`
+sphinx-autobuild
+
+# Translation management used by `invoke l10n.docs`
+sphinx-intl

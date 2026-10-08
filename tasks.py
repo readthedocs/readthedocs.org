@@ -82,6 +82,8 @@ def update(ctx, package=None):
         "requirements/docker",
         "requirements/testing",
         "requirements/docs",
+        # Built on top of docs.txt, so it must come after it.
+        "requirements/docs-local",
         "requirements/deploy",
     ]
     for file in files:

@@ -5,11 +5,12 @@
 # https://github.com/executablebooks/sphinx-tabs/issues/212
 sphinx==8.2.3
 
-matplotlib  # opengraph social cards
+# C implementation of the Snowball stemmer, picked up automatically by Sphinx
+# when building the search index. Produces the same index, several times faster.
+PyStemmer
 
 sphinx_rtd_theme
 sphinx-tabs
-sphinx-intl
 sphinx-design
 sphinx-multiproject
 
@@ -20,7 +21,6 @@ sphinx-notfound-page
 sphinxemoji
 sphinxcontrib-httpdomain
 sphinx-prompt
-sphinx-autobuild
 sphinxext-opengraph
 sphinx-copybutton
 
