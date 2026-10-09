@@ -131,11 +131,15 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
-    if running_builds.count() > 0:
+    running_builds = list(
+        version.builds.exclude(state__in=BUILD_FINAL_STATES)
+        .exclude(pk=build.pk)
+        .select_related("project")
+    )
+    if running_builds:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
-            running_builds=running_builds.count(),
+            running_builds=len(running_builds),
         )
 
     # If there are builds triggered/running for this particular project and version,
@@ -262,9 +266,10 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     # `mock.Mock` object in the database.
     #
     # Store the task_id in the build object to be able to cancel it later.
+    # Only save this field, the build task may have already updated the build.
     if isinstance(task.id, (str, int)):
         build.task_id = task.id
-        build.save()
+        build.save(update_fields=["task_id"])
 
     return task, build
 
@@ -338,7 +343,7 @@ def submit_to_build_isolated(*, project, build):
     # dispatch time so the reaper can spot builds no builder ever picked up.
     build.task_id = result.id
     build.dispatched_date = timezone.now()
-    build.save()
+    build.save(update_fields=["task_id", "dispatched_date"])
 
     return result, build
 
@@ -453,13 +458,15 @@ def cancel_build(build):
         )
 
         build.length = 0
-        build.save()
+        # Only save the fields changed here, the build task may have already
+        # started and updated other fields of the build.
+        build.save(update_fields=["state", "success", "length"])
 
     if build.task_id:
         log.warning(
             "Canceling build.",
             project_slug=build.project.slug,
-            version_slug=build.version.slug,
+            version_slug=build.version_slug,
             build_id=build.pk,
             build_task_id=build.task_id,
         )
