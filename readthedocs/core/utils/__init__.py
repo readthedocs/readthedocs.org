@@ -445,6 +445,12 @@ def cancel_build(build):
         build.state = BUILD_STATE_CANCELLED
         build.success = False
 
+        # It is no longer waiting for a slot.
+        Notification.objects.cancel(
+            message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+            attached_to=build,
+        )
+
         # Add a notification for this build
         Notification.objects.add(
             message_id=BuildCancelled.CANCELLED_BY_USER,

@@ -15,6 +15,8 @@ from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
+from readthedocs.builds.constants import ADMIT_LOCK_EXPIRE
+from readthedocs.builds.constants import ARCHIVE_LOCK_EXPIRE
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
@@ -24,7 +26,6 @@ from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
-from readthedocs.builds.constants import LOCK_EXPIRE
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
@@ -60,7 +61,7 @@ def archive_builds_task(self, days=14, limit=200):
         return
 
     lock_id = "{0}-lock".format(self.name)
-    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+    with memcache_lock(lock_id, ARCHIVE_LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             log.warning("Archive Builds Task still locked")
             return False
@@ -861,7 +862,9 @@ def admit_queued_builds(self):
     many as there are free concurrency slots.
     """
     lock_id = "{0}-lock".format(self.name)
-    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+    # Short expiry: a sweep killed mid-run (instance terminated, OOM) must not
+    # block admission for long.
+    with memcache_lock(lock_id, ADMIT_LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             # A previous sweep is still running; skip this tick.
             log.warning("Admit queued builds task still locked")
