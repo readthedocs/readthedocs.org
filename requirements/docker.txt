@@ -29,11 +29,11 @@ billiard==4.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.98
+boto3==1.43.103
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.98
+botocore==1.43.103
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -123,6 +123,7 @@ django==5.2.17
     #   django-extensions
     #   django-filter
     #   django-formtools
+    #   django-ipware
     #   django-safemigrate
     #   django-simple-history
     #   django-storages
@@ -158,7 +159,7 @@ django-gravatar2==1.4.5
     # via -r requirements/pip.txt
 django-impersonate==1.9.5
     # via -r requirements/pip.txt
-django-ipware==7.0.1
+django-ipware==8.0.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -213,7 +214,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.32.7
+filelock==4.0.4
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -259,7 +260,7 @@ lxml==6.0.1
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.10.3
+markdown==3.11
     # via -r requirements/pip.txt
 markdown-it-py==4.2.0
     # via rich
@@ -292,7 +293,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.11.11
+platformdirs==4.12.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -312,7 +313,7 @@ psycopg-binary==3.3.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.3.2
+psycopg-pool==3.3.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -339,7 +340,7 @@ pygments==2.21.0
     #   ipython-pygments-lexers
     #   pdbpp
     #   rich
-pyjwt[crypto]==2.14.0
+pyjwt[crypto]==2.15.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -367,7 +368,7 @@ python-discovery==1.6.1
     #   -r requirements/pip.txt
     #   tox
     #   virtualenv
-python-ipware==3.0.0
+python-ipware==4.1.0
     # via
     #   -r requirements/pip.txt
     #   django-ipware
@@ -375,7 +376,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2026.3.post1
+pytz==2026.4
     # via -r requirements/pip.txt
 pyyaml==6.0.3
     # via -r requirements/pip.txt
@@ -445,7 +446,7 @@ toml==0.10.2
     #   bumpver
 tomli-w==1.2.0
     # via tox
-tox==4.63.0
+tox==4.64.3
     # via
     #   -r requirements/docker.in
     #   tox-uv-bare
@@ -506,7 +507,7 @@ urllib3==2.8.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.12.17
+uv==0.12.19
     # via tox-uv
 vine==5.1.0
     # via
@@ -514,11 +515,11 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.9.0
+virtualenv==21.13.0
     # via
     #   -r requirements/pip.txt
     #   tox
-wcwidth==0.8.4
+wcwidth==0.9.1
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
