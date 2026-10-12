@@ -876,8 +876,8 @@ def admit_queued_builds(self):
     """
     Admit queued isolated builds as concurrency slots free up.
 
-    Runs periodically (see the ``admit-queued-builds`` beat schedule). For every
-    project with builds waiting in ``triggered``, it runs the admission routine
+    Runs periodically (every 5s; see the ``admit-queued-builds`` beat schedule).
+    For every project with builds waiting in ``triggered``, it runs the admission routine
     (:func:`readthedocs.core.utils.admit_project_builds`), which dispatches as
     many as there are free concurrency slots.
     """
