@@ -44,6 +44,32 @@ class TestViews(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.project.redirects.all().count(), 2)
 
+    def test_create_redirect_form_prefilled_from_query_string(self):
+        """The build overview comment links here with the deleted file pre-filled."""
+        resp = self.client.get(
+            reverse("projects_redirects_create", args=[self.project.slug]),
+            data={"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
+        )
+        form = resp.context["form"]
+        assert form.initial["redirect_type"] == PAGE_REDIRECT
+        assert form.initial["from_url"] == "/legacy/timing-deprecated.html"
+        # Only the author knows where the file went.
+        assert not form.initial.get("to_url")
+
+    def test_create_redirect_form_ignores_unknown_redirect_type(self):
+        resp = self.client.get(
+            reverse("projects_redirects_create", args=[self.project.slug]),
+            data={"redirect_type": "not-a-type", "from_url": "/config.html"},
+        )
+        form = resp.context["form"]
+        assert form.initial["from_url"] == "/config.html"
+        assert form.initial.get("redirect_type") != "not-a-type"
+
+    def test_create_redirect_form_without_query_string(self):
+        resp = self.client.get(reverse("projects_redirects_create", args=[self.project.slug]))
+        form = resp.context["form"]
+        assert not form.initial.get("from_url")
+
     def test_update_redirect(self):
         self.assertEqual(self.project.redirects.all().count(), 1)
         resp = self.client.post(

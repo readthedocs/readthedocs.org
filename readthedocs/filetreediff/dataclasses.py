@@ -196,6 +196,19 @@ class FileTreeDiff:
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
 
     @cached_property
+    def summary(self):
+        """Breakdown of the changed files, e.g. ``2 added · 8 modified · 1 deleted``."""
+        parts = []
+        for label, files in (
+            ("added", self.added),
+            ("modified", self.modified),
+            ("deleted", self.deleted),
+        ):
+            if files:
+                parts.append(f"{len(files)} {label}")
+        return " · ".join(parts)
+
+    @cached_property
     def should_auto_expand(self):
         """Auto-expand the details view when there are few files."""
         return len(self.files) < 5
