@@ -216,8 +216,6 @@ Uploading the branch that ``latest`` tracks updates ``latest`` version.
 Once a version has been uploaded, Read the Docs stops building it.
 Pushes to the branch, new commits on the pull request and manual builds don't trigger anything for that version,
 so every later update has to come through an upload as well.
-A pull request preview is the usual case:
-after the first upload for a pull request, each new commit has to be uploaded by your pipeline.
 
 To have Read the Docs build an uploaded version again,
 uncheck :guilabel:`Uploaded` in the version settings.
