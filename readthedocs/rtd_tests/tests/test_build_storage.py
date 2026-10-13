@@ -137,6 +137,32 @@ class TestBuildMediaStorage(TestCase):
         self.assertCountEqual(dirs, [])
         self.assertCountEqual(files, ["index.html"])
 
+    def test_rclone_failure_logs_stderr(self):
+        # The CalledProcessError only carries the exit status; rclone's
+        # stderr says what actually failed and must reach the logs.
+        import subprocess
+
+        from readthedocs.storage import rclone
+
+        error = subprocess.CalledProcessError(
+            returncode=1,
+            cmd=["rclone"],
+            output=b"",
+            stderr=b"2026/10/07 ERROR: Failed to copy: boom",
+        )
+        tmp_dir = tempfile.mkdtemp()
+        with (
+            override_settings(DOCROOT=tmp_dir),
+            mock.patch.object(rclone.subprocess, "run", side_effect=error),
+            mock.patch.object(rclone, "log") as log,
+        ):
+            with pytest.raises(subprocess.CalledProcessError):
+                self.storage.rclone_sync_directory(tmp_dir, "files")
+
+        __, kwargs = log.error.call_args
+        assert kwargs["exit_code"] == 1
+        assert "Failed to copy: boom" in kwargs["stderr"]
+
     def test_rclone_sync(self):
         tmp_files_dir = Path(tempfile.mkdtemp()) / "files"
         shutil.copytree(files_dir, tmp_files_dir, symlinks=True)
