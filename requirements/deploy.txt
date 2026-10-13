@@ -29,11 +29,11 @@ billiard==4.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.98
+boto3==1.43.103
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.98
+botocore==1.43.103
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -117,6 +117,7 @@ django==5.2.17
     #   django-extensions
     #   django-filter
     #   django-formtools
+    #   django-ipware
     #   django-safemigrate
     #   django-simple-history
     #   django-storages
@@ -152,7 +153,7 @@ django-gravatar2==1.4.5
     # via -r requirements/pip.txt
 django-impersonate==1.9.5
     # via -r requirements/pip.txt
-django-ipware==7.0.1
+django-ipware==8.0.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -205,7 +206,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==3.32.7
+filelock==4.0.4
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -248,11 +249,11 @@ lxml==6.0.1
     #   pyquery
     #   python3-saml
     #   xmlsec
-markdown==3.10.3
+markdown==3.11
     # via -r requirements/pip.txt
 matplotlib-inline==0.2.2
     # via ipython
-newrelic==13.5.0
+newrelic==13.6.1
     # via -r requirements/deploy.in
 oauthlib==3.3.1
     # via
@@ -274,7 +275,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.11.11
+platformdirs==4.12.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -291,7 +292,7 @@ psycopg-binary==3.3.6
     # via
     #   -r requirements/pip.txt
     #   psycopg
-psycopg-pool==3.3.2
+psycopg-pool==3.3.3
     # via
     #   -r requirements/pip.txt
     #   psycopg
@@ -316,7 +317,7 @@ pygments==2.21.0
     #   -r requirements/pip.txt
     #   ipython
     #   ipython-pygments-lexers
-pyjwt[crypto]==2.14.0
+pyjwt[crypto]==2.15.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -341,7 +342,7 @@ python-discovery==1.6.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-python-ipware==3.0.0
+python-ipware==4.1.0
     # via
     #   -r requirements/pip.txt
     #   django-ipware
@@ -349,7 +350,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2026.3.post1
+pytz==2026.4
     # via -r requirements/pip.txt
 pyyaml==6.0.3
     # via -r requirements/pip.txt
@@ -383,7 +384,7 @@ s3transfer==0.19.2
     #   boto3
 selectolax==0.4.12
     # via -r requirements/pip.txt
-sentry-sdk==2.69.2
+sentry-sdk==2.70.0
     # via structlog-sentry
 six==1.17.0
     # via
@@ -480,9 +481,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.9.0
+virtualenv==21.13.0
     # via -r requirements/pip.txt
-wcwidth==0.8.4
+wcwidth==0.9.1
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
