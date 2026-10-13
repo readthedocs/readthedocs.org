@@ -9,8 +9,6 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
-from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.utils import delete_versions_from_db
@@ -22,7 +20,6 @@ from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
-from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
@@ -87,7 +84,12 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as closed after ``days``.
 
-    The commit status is updated to link to the build page, as the docs are removed.
+    The commit status is not re-sent. GitHub statuses belong to the commit, not
+    the PR, and are immutable once created, so the original one stays after the
+    PR is closed. Re-sending it months later only re-triggers other integrations.
+
+    See https://github.com/readthedocs/readthedocs.org/issues/13372 and
+    https://github.blog/news-insights/the-library/commit-status-api/
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
@@ -95,34 +97,12 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
         modified__lte=days_ago,
     ).order_by("modified")[:limit]
     for version in queryset:
-        try:
-            last_build = version.last_build
-            # Builds without a commit failed before checking out the
-            # repository, so there is no commit to report the status on.
-            if last_build and last_build.commit:
-                status = BUILD_STATUS_PENDING
-                if last_build.finished:
-                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
-                send_build_status(
-                    build_pk=last_build.pk,
-                    commit=last_build.commit,
-                    status=status,
-                )
-        except TokenExpiredError, InvalidGrantError:
-            log.info("Failed to send status due to expired/invalid token.")
-        except Exception:
-            log.exception(
-                "Failed to send status",
-                project_slug=version.project.slug,
-                version_slug=version.slug,
-            )
-        else:
-            log.info(
-                "Removing external version.",
-                project_slug=version.project.slug,
-                version_slug=version.slug,
-            )
-            version.delete()
+        log.info(
+            "Removing external version.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+        )
+        version.delete()
 
 
 def finish_inactive_build(build):
