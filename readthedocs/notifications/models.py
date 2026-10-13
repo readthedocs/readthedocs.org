@@ -60,6 +60,11 @@ class Notification(TimeStampedModel):
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
+        # Newest first. An explicit ordering is required: the APIv3
+        # notification endpoints paginate this model with limit/offset, and
+        # paginating an unordered queryset returns rows in a
+        # database-dependent order that changes between page queries.
+        ordering = ["-created", "-pk"]
         indexes = [
             models.Index(fields=["attached_to_content_type", "attached_to_id"]),
         ]

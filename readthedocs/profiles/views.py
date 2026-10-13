@@ -433,7 +433,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         return self.request.user.socialaccount_set.filter(provider=GitHubAppProvider.id).first()
 
     def _get_old_github_accounts(self):
-        return self.request.user.socialaccount_set.filter(provider=GitHubProvider.id)
+        # ``SocialAccount`` has no default ordering, and these lists are
+        # paginated in the templates.
+        return self.request.user.socialaccount_set.filter(provider=GitHubProvider.id).order_by("pk")
 
     def post(self, request, *args, **kwargs):
         project_slug = request.POST.get("project")
