@@ -29,6 +29,17 @@ server {
         proxy_pass http://addons:8000/readthedocs-addons.js.map;
     }
 
+    # Un-prefix proxied API paths (`/_/…`) served under a custom path prefix.
+    #
+    # Projects with a custom path prefix (`Project.custom_prefix`) and the
+    # `USE_PROXIED_APIS_WITH_PREFIX` feature generate their proxied URLs under
+    # that prefix (e.g. `/docs/_/addons/`), so a customer only needs to proxy a
+    # single path to us. Django only routes these paths at the domain root, so
+    # we strip the prefix back off here before handing the request to Proxito.
+    location ~ ^/.+/(_/(?:addons|api|downloads|static)(?:/.*)?)$ {
+        rewrite ^/.+/(_/(?:addons|api|downloads|static)(?:/.*)?)$ /$1 last;
+    }
+
     # Proxito doc serving
     location / {
         proxy_pass http://proxito:8000;
