@@ -38,6 +38,7 @@ class HomepageTest(TestCase):
             reverse("welcome"),
         )
         assert response.headers.get("Location") == reverse("projects_dashboard")
+        assert response["CDN-Cache-Control"] == "private"
 
     @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_welcome_unauth(self):
@@ -46,3 +47,4 @@ class HomepageTest(TestCase):
             reverse("welcome"),
         )
         assert response.headers.get("Location") == "https://about.readthedocs.com/?ref=readthedocs.org"
+        assert response["CDN-Cache-Control"] == "public"
