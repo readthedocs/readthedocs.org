@@ -48,6 +48,11 @@ log = structlog.get_logger(__name__)  # noqa
 
 ADDONS_VERSIONS_SUPPORTED = (1, 2)
 
+# Maximum number of files returned for each status (added, modified, deleted)
+# in the file tree diff. Large pull requests can change thousands of files,
+# and resolving a URL for each one makes the response slow and heavy.
+FILETREEDIFF_FILES_LIMIT = 50
+
 
 class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
@@ -642,6 +647,9 @@ class AddonsResponseBase:
 
         This response is only enabled for external versions,
         we do the comparison between the current version and the latest version.
+
+        Each list of files is capped at ``FILETREEDIFF_FILES_LIMIT``,
+        ``totals`` holds the full count so the client can show how many were left out.
         """
         if not version.is_external and not settings.RTD_FILETREEDIFF_ALL:
             return None
@@ -674,7 +682,7 @@ class AddonsResponseBase:
                         ),
                     },
                 }
-                for file in files
+                for file in files[:FILETREEDIFF_FILES_LIMIT]
             ]
 
         return {
@@ -683,6 +691,11 @@ class AddonsResponseBase:
                 "added": _serialize_files(diff.added),
                 "deleted": _serialize_files(diff.deleted),
                 "modified": _serialize_files(diff.modified),
+            },
+            "totals": {
+                "added": len(diff.added),
+                "deleted": len(diff.deleted),
+                "modified": len(diff.modified),
             },
         }
 

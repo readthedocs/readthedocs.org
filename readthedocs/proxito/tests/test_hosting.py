@@ -1128,9 +1128,57 @@ class TestReadTheDocsConfigJson(TestCase):
                     },
                 ],
             },
+            "totals": {
+                "added": 1,
+                "deleted": 1,
+                "modified": 1,
+            },
         }
         assert r.status_code == 200
         assert r.json()["addons"]["filetreediff"] == expected
+
+    @override_settings(
+        RTD_FILETREEDIFF_ALL=True,
+    )
+    @mock.patch("readthedocs.proxito.views.hosting.get_diff")
+    def test_file_tree_diff_files_limit(self, get_diff):
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
+
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.version,
+            current_version_build=self.build,
+            base_version=self.version,
+            base_version_build=self.build,
+            files=[(f"added-{i:03}.html", FileTreeDiffFileStatus.added) for i in range(120)]
+            + [("modified.html", FileTreeDiffFileStatus.modified)],
+            outdated=False,
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        filetreediff_response = r.json()["addons"]["filetreediff"]
+        added = filetreediff_response["diff"]["added"]
+        assert len(added) == 50
+        assert added[0]["filename"] == "added-000.html"
+        assert added[-1]["filename"] == "added-049.html"
+        assert len(filetreediff_response["diff"]["modified"]) == 1
+        assert filetreediff_response["totals"] == {
+            "added": 120,
+            "deleted": 0,
+            "modified": 1,
+        }
 
     @mock.patch("readthedocs.filetreediff.get_manifest")
     def test_file_tree_diff(self, get_manifest):
@@ -1235,6 +1283,11 @@ class TestReadTheDocsConfigJson(TestCase):
                         },
                     },
                 ],
+            },
+            "totals": {
+                "added": 1,
+                "deleted": 1,
+                "modified": 1,
             },
         }
 
