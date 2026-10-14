@@ -17,6 +17,7 @@ The process is as follows:
 """
 
 import json
+from difflib import SequenceMatcher
 
 import structlog
 
@@ -129,6 +130,7 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     base_version_build = Build.objects.get(id=base_version_manifest.build.id)
 
     files: list[tuple[str, FileTreeDiffFileStatus]] = []
+    changed_blocks: dict[str, int] = {}
     for file_path in current_version_file_paths - base_version_file_paths:
         files.append((file_path, FileTreeDiffFileStatus.added))
 
@@ -150,6 +152,10 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
             modified = file_a.main_content_hash != file_b.main_content_hash
         if modified:
             files.append((file_path, FileTreeDiffFileStatus.modified))
+            if file_a.block_hashes is not None and file_b.block_hashes is not None:
+                changed_blocks[file_path] = count_changed_blocks(
+                    file_b.block_hashes, file_a.block_hashes
+                )
 
     return FileTreeDiff(
         files=files,
@@ -158,6 +164,23 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
         base_version=base_version,
         base_version_build=base_version_build,
         outdated=outdated,
+        changed_blocks=changed_blocks,
+    )
+
+
+def count_changed_blocks(base_hashes: list[str], current_hashes: list[str]) -> int:
+    """
+    Count the blocks that changed between two versions of a file.
+
+    The blocks are aligned first, so inserting a paragraph counts as one
+    change instead of shifting every block after it. A block that was edited
+    in place counts once, not as one removed and one added.
+    """
+    matcher = SequenceMatcher(a=base_hashes, b=current_hashes, autojunk=False)
+    return sum(
+        max(base_end - base_start, current_end - current_start)
+        for tag, base_start, base_end, current_start, current_end in matcher.get_opcodes()
+        if tag != "equal"
     )
 
 

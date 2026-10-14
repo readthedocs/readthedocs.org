@@ -26,6 +26,7 @@ def _mock_manifest(
     build_id: int,
     files: dict[str, str],
     text_hashes: dict[str, str] | None = None,
+    block_hashes: dict[str, list[str]] | None = None,
 ):
     """
     Mock the manifest file of a version.
@@ -33,6 +34,7 @@ def _mock_manifest(
     ``files`` maps each path to the hash of its HTML, ``text_hashes`` to the
     hash of its content, defaulting to the same hash. Manifests written before
     the content hash was introduced don't have it, pass an empty dict for those.
+    ``block_hashes`` maps each path to the hashes of its blocks, if any.
     """
     if text_hashes is None:
         text_hashes = files
@@ -41,6 +43,8 @@ def _mock_manifest(
         manifest_files[path] = {"main_content_hash": main_content_hash}
         if path in text_hashes:
             manifest_files[path]["text_hash"] = text_hashes[path]
+        if block_hashes and path in block_hashes:
+            manifest_files[path]["block_hashes"] = block_hashes[path]
     return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
 
 
@@ -160,6 +164,31 @@ class TestsFileTreeDiff(TestCase):
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert diff.modified == []
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_sorts_modified_by_changed_blocks(self, storage_open):
+        """Modified files with more changed blocks go first, files without a count last."""
+        files_a = {"a.html": "a2", "b.html": "b2", "c.html": "c2"}
+        files_b = {"a.html": "a1", "b.html": "b1", "c.html": "c1"}
+        blocks_a = {
+            "a.html": ["title", "new", "p1", "p2"],
+            "b.html": ["title", "edited", "new1", "new2"],
+        }
+        blocks_b = {
+            "a.html": ["title", "p1", "p2"],
+            "b.html": ["title", "p1"],
+            "c.html": ["title"],
+        }
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files_a, block_hashes=blocks_a)(),
+            _mock_manifest(self.build_b.id, files_b, block_hashes=blocks_b)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert [(file.path, file.changed_blocks) for file in diff.modified] == [
+            ("b.html", 3),
+            ("a.html", 1),
+            ("c.html", None),
+        ]
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_missing_manifest(self, storage_open):

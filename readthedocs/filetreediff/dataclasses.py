@@ -29,6 +29,10 @@ class FileTreeDiffManifestFile:
     changed from one that only moved its markup around, which isn't used yet:
     see https://github.com/readthedocs/readthedocs.org/issues/13258
 
+    ``block_hashes`` has a short hash of the text of each block of the file
+    (paragraphs, headings, list items, cells...), in order. Aligning them
+    tells how many blocks of a modified file changed.
+
     ``main_content_hash`` is a hash of the HTML before stripping anything. It
     is all that manifests written before the other two have, and goes away with
     them (see the ``TODO`` in ``get_diff()``).
@@ -38,6 +42,7 @@ class FileTreeDiffManifestFile:
     main_content_hash: str
     text_hash: str | None = None
     markup_hash: str | None = None
+    block_hashes: list[str] | None = None
 
 
 @dataclass(slots=True)
@@ -66,6 +71,7 @@ class FileTreeDiffManifest:
                 main_content_hash=file["main_content_hash"],
                 text_hash=file.get("text_hash"),
                 markup_hash=file.get("markup_hash"),
+                block_hashes=file.get("block_hashes"),
             )
             for path, file in data["files"].items()
         ]
@@ -101,9 +107,13 @@ class FileTreeDiffFile:
         path: str,
         status: FileTreeDiffFileStatus,
         diff: "FileTreeDiff",
+        changed_blocks: int | None = None,
     ):
         self.path = path
         self.status = status
+        # Number of blocks that changed in a modified file,
+        # ``None`` if one of the manifests doesn't have block hashes.
+        self.changed_blocks = changed_blocks
         self.current_version = diff.current_version
         self.current_version_build = diff.current_version_build
         self.base_version = diff.base_version
@@ -140,6 +150,7 @@ class FileTreeDiff:
         base_version_build: Build,
         files: list[tuple[str, FileTreeDiffFileStatus]],
         outdated: bool,
+        changed_blocks: dict[str, int] | None = None,
     ):
         self.project = current_version.project
         self.current_version = current_version
@@ -148,9 +159,15 @@ class FileTreeDiff:
         self.base_version_build = base_version_build
         self._resolver = Resolver()
         self.outdated = outdated
+        changed_blocks = changed_blocks or {}
         self.files = sorted(
             (
-                FileTreeDiffFile(path=path, status=status, diff=self)
+                FileTreeDiffFile(
+                    path=path,
+                    status=status,
+                    diff=self,
+                    changed_blocks=changed_blocks.get(path),
+                )
                 for path, status in self._filter_files(files)
             ),
             key=self._sortpath,
@@ -192,8 +209,15 @@ class FileTreeDiff:
 
     @cached_property
     def modified(self):
-        """List of modified files."""
-        return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
+        """
+        List of modified files, the ones with the most changed blocks first.
+
+        Files without a count of changed blocks go last, in path order.
+        """
+        return sorted(
+            (file for file in self.files if file.status == FileTreeDiffFileStatus.modified),
+            key=lambda file: -(file.changed_blocks or 0),
+        )
 
     @cached_property
     def should_auto_expand(self):

@@ -171,6 +171,7 @@ class FileManifestIndexer(Indexer):
             processed_json["main_content_hash"],
             processed_json["text_hash"],
             processed_json["markup_hash"],
+            processed_json["block_hashes"],
         )
 
     def collect(self, sync_id: int):
@@ -182,11 +183,13 @@ class FileManifestIndexer(Indexer):
                     main_content_hash=main_content_hash,
                     text_hash=text_hash,
                     markup_hash=markup_hash,
+                    block_hashes=block_hashes,
                 )
                 for path, (
                     main_content_hash,
                     text_hash,
                     markup_hash,
+                    block_hashes,
                 ) in self._hashes.items()
             ],
         )

@@ -65,6 +65,49 @@ class GenericParser:
         "video",
     ]
 
+    # Elements the file tree diff aligns one by one when comparing two versions
+    # of a page, see ``_get_block_hashes()``. Keep in sync with
+    # ``BLOCK_ELEMENTS`` in https://github.com/readthedocs/addons/blob/main/src/docdiff.diff.js.
+    diff_block_elements = {
+        "article",
+        "aside",
+        "blockquote",
+        "caption",
+        "colgroup",
+        "dd",
+        "details",
+        "div",
+        "dl",
+        "dt",
+        "figcaption",
+        "figure",
+        "footer",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "hr",
+        "li",
+        "main",
+        "nav",
+        "ol",
+        "p",
+        "pre",
+        "section",
+        "summary",
+        "table",
+        "tbody",
+        "td",
+        "tfoot",
+        "th",
+        "thead",
+        "tr",
+        "ul",
+    }
+
     def __init__(self, version, local_path=None):
         self.version = version
         self.project = self.version.project
@@ -488,7 +531,45 @@ class GenericParser:
             "main_content_hash": None,
             "text_hash": None,
             "markup_hash": None,
+            "block_hashes": None,
         }
+
+    def _get_blocks(self, node):
+        """
+        Yield the leaf blocks of ``node``, in document order.
+
+        A node whose children are all blocks is a container: we descend into
+        it instead of taking it as a whole. Anything else (a paragraph, a
+        heading, a cell, or a ``div`` with text directly in it) is a leaf.
+        """
+        # Inline elements without text, like the empty ``<span id>`` targets
+        # Sphinx adds next to sections, don't make a node a leaf.
+        children = [
+            child
+            for child in node.iter(include_text=True)
+            if child.tag != "_comment"
+            and (child.tag in self.diff_block_elements or child.text().strip())
+        ]
+        if children and all(child.tag in self.diff_block_elements for child in children):
+            for child in children:
+                yield from self._get_blocks(child)
+        else:
+            yield node
+
+    def _get_block_hashes(self, body):
+        """
+        Hash the text of each leaf block of ``body``.
+
+        The file tree diff aligns these lists to count how many blocks changed
+        between two versions of a page. Blocks without text are skipped, and
+        hashes are kept short since they are only compared within one page.
+        """
+        hashes = []
+        for block in self._get_blocks(body):
+            text = re.sub(r"\s+", " ", block.text(separator=" ")).strip()
+            if text:
+                hashes.append(hashlib.md5(text.encode()).hexdigest()[:8])
+        return hashes
 
     def _process_content(self, page, content):
         """Parses the content into a structured dict."""
@@ -499,6 +580,7 @@ class GenericParser:
         main_content_hash = None
         text_hash = None
         markup_hash = None
+        block_hashes = None
         if body:
             # The file tree diff compares these to tell if a page changed.
             # Hashing the HTML alone reported pages as changed when only an
@@ -512,6 +594,8 @@ class GenericParser:
             text = re.sub(r"\s+", " ", body.text(separator=" ")).strip()
             text_hash = hashlib.md5(text.encode()).hexdigest()
             markup_hash = hashlib.md5(body.html.encode()).hexdigest()
+            # Parsing the sections removes nodes from the body, hash it first.
+            block_hashes = self._get_block_hashes(body)
             title = self._get_page_title(body, html) or page
             sections = self._get_sections(title=title, body=body)
         else:
@@ -526,4 +610,5 @@ class GenericParser:
             "main_content_hash": main_content_hash,
             "text_hash": text_hash,
             "markup_hash": markup_hash,
+            "block_hashes": block_hashes,
         }
