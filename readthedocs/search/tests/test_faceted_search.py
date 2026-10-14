@@ -55,3 +55,9 @@ class TestPageSearch:
 
         assert result_paths_latest == expected_paths
         assert result_paths_stable == expected_paths
+
+
+def test_page_search_scores_by_best_section():
+    query = PageSearch(query="slack")._s.to_dict()
+    nested = query["query"]["function_score"]["query"]["bool"]["should"][-1]["nested"]
+    assert nested["score_mode"] == "max"
