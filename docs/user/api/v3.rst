@@ -735,12 +735,12 @@ Build details
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
+            $ curl -H "Authorization: Token <token>" https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config'
+            URL = 'https://app.readthedocs.org/api/v3/projects/pip/builds/8592686/'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -811,9 +811,7 @@ Build details
     :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
-
-    :query string expand: Add additional fields in the response.
-                          Allowed value is ``config``.
+    :>json object config: The configuration used by this build
 
 
 Builds listing
