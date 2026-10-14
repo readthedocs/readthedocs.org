@@ -65,21 +65,14 @@ class TestPageSearch:
 
 @pytest.mark.django_db
 @pytest.mark.search
-def test_page_about_a_term_ranks_above_a_page_mentioning_it_once(
-    es_index, mock_processed_json, settings
-):
-    """
-    A page is scored by its best matching section.
-
-    Averaging section scores ranked a page with one short "Slack" section
-    above the Slack page, whose other sections mention Slack in passing.
-    """
-    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
+def test_page_scored_by_best_matching_section(es_index, mock_processed_json):
     project = get(Project, slug="community", privacy_level=PUBLIC, versions=[])
     version = project.versions.get(slug=LATEST)
-    for name in ("slack.html", "recap.html"):
-        html_file = get(HTMLFile, project=project, version=version, name=name, path=name, build=1)
-        PageDocument().update(html_file)
+    html_files = [
+        get(HTMLFile, project=project, version=version, name=name, path=name, build=1)
+        for name in ("slack.html", "recap.html")
+    ]
+    PageDocument().update(html_files)
 
     page_search = PageSearch(query="slack", projects={"community": LATEST})
     paths = [result.path for result in page_search.execute()]

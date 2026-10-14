@@ -344,7 +344,7 @@ class PageSearch(RTDFacetedSearch):
         )
 
         # Score the page by its best matching section,
-        # the default (avg) penalizes pages with many weak matches.
+        # the default (avg) penalizes pages whose other sections match weakly.
         return Nested(
             path=path,
             score_mode="max",

@@ -2,7 +2,6 @@
   "path": "recap",
   "title": "Conference recap",
   "sections": [
-    {"id": "talks", "title": "Talks", "content": "Thanks to everyone who spoke this year."},
     {"id": "slack", "title": "Slack", "content": "Our Slack has grown this year."}
   ]
 }
