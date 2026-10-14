@@ -1,0 +1,56 @@
+{
+  "path": "conf/portland/2026/news/thanks-recap",
+  "title": "Portland 2026 Recap - Talk Videos, Photos, Sketchnotes, COC Report",
+  "sections": [
+    {
+      "id": "portland-2026-recap-talk-videos-photos-sketchnotes-coc-report",
+      "title": "Portland 2026 Recap - Talk Videos, Photos, Sketchnotes, COC Report",
+      "content": "Hi everyone, Our team is slowly emerging from the post-conference recovery period, and we wanted to send out a quick message to thank everyone for helping to make Write the Docs Portland 2026 such a success. We appreciate everyone who makes the conference possible: speakers, sponsors, organizers, volunteers, and attendees alike! It was wonderful to be back at Revolution Hall in Portland for another great year of talks, conversations, and community."
+    },
+    {
+      "id": "conference-recap",
+      "title": "Conference recap",
+      "content": "With over 400 in-person attendees and over 175 virtual attendees, we had another great turnout this year! We had the usual mix of talks on the main stage along with Q&A, Lightning Talks, Unconference sessions, Writing Day sessions, and a couple social events. We also tried a few new things this year. We took over the Martha’s Coffee Shop space, giving the Unconference and Writing Day room to breathe with quieter, more focused conversations. Promptless and Mintlify hosted sponsor sessions in that space on Monday and Tuesday mornings, and we expanded Writing Day with a new Git and GitHub workshop, resume and portfolio reviews, and pre-scheduled roundtable discussions. We will continue to work on improving the conference experience for everyone, and we appreciate all the feedback we’ve received already."
+    },
+    {
+      "id": "talk-videos",
+      "title": "Talk videos",
+      "content": "All of the conference talks, Q&A, and Lightning Talks are now up on the Portland 2026 playlist on our YouTube channel. Thanks again to all our speakers, emcees, and folks who asked wonderful questions!"
+    },
+    {
+      "id": "conference-photos",
+      "title": "Conference photos",
+      "content": "The full set of conference photos is available in our Portland 2026 Flickr album, thanks to our wonderful photographer Kay! You’re welcome to use them for non-commercial purposes, such as conference write-ups, as per our Creative Commons License."
+    },
+    {
+      "id": "talk-sketchnotes",
+      "title": "Talk sketchnotes",
+      "content": "Sketchnotes for the talks are now up in our 2026 Sketchnotes Flickr album. Thanks to our talented sketchnote artist Dennis for capturing the talks in such a creative way!"
+    },
+    {
+      "id": "code-of-conduct-transparency-report",
+      "title": "Code of Conduct transparency report",
+      "content": "As with any Write the Docs event, this conference was covered by our community Code of Conduct. We aim to be as transparent with CoC incidents and enforcement as we can. To ensure that our CoC was visible and accessible, we took a number of specific steps: Every participant agreed to the Code of Conduct in advance during registration. The CoC, or a summary, was included on the conference website and around the venue. The CoC was repeatedly mentioned in our conference introduction and announcements. We specifically stressed that the CoC applies to all conference spaces, including the social event. We encouraged all attendees to report any incident, even if they were not sure whether it was a violation. We are happy to say that we received no Code of Conduct reports during the conference. Attendees can always report incidents, even after the conference, by emailing us at conduct@writethedocs.org."
+    },
+    {
+      "id": "join-our-slack-network",
+      "title": "Join our Slack network",
+      "content": "Our Slack network is a great way to stay connected to the community beyond our conferences. We have channels for specific doc tools, meetups, career advice, and other areas of discussion. Check out the Slack page on our website for more information."
+    },
+    {
+      "id": "join-a-local-meetup",
+      "title": "Join a local meetup",
+      "content": "Participating in your local meetup is a great way to keep in touch with other documentarians. We have meetups in cities around the world."
+    },
+    {
+      "id": "come-to-our-upcoming-events",
+      "title": "Come to our upcoming events",
+      "content": "We have more conferences coming up. Keep an eye on our conference pages and newsletter for announcements and dates: Kenya 2026, August 8 Berlin 2026, September 6-8 Australia 2026, December 3-4 And for the first time ever, we already have a date for our next Portland conference in this year’s recap. Mark your calendars for May 2-4, 2027 — back here at Revolution Hall."
+    },
+    {
+      "id": "thanks-again",
+      "title": "Thanks again",
+      "content": "The conference is possible only because folks like you make it a great experience. Thanks for making it another wonderful year. We hope to see you back again next year, or even sooner at one of our other events. And thanks again to all our sponsors: Promptless Mintlify ReadMe Stainless GitBook Fern MongoDB Expert Support KnowledgeOwl HelpDocs Google GitHub Read the Docs"
+    }
+  ]
+}

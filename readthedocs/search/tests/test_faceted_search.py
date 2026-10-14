@@ -1,6 +1,14 @@
 import pytest
+from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
+from readthedocs.search.documents import PageDocument
 from readthedocs.search.faceted_search import PageSearch
+
+from .dummy_data import WRITETHEDOCS_PAGES
 
 
 @pytest.mark.django_db
@@ -57,7 +65,56 @@ class TestPageSearch:
         assert result_paths_stable == expected_paths
 
 
-def test_page_search_scores_by_best_section():
-    query = PageSearch(query="slack")._s.to_dict()
-    nested = query["query"]["function_score"]["query"]["bool"]["should"][-1]["nested"]
-    assert nested["score_mode"] == "max"
+@pytest.fixture
+def writethedocs(es_index, mock_processed_json, db, settings):
+    """
+    Index real pages from writethedocs.org, as parsed by our HTML parser.
+
+    The dedicated Slack page has many sections mentioning Slack,
+    while each recap has a single short section about it.
+    """
+    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
+    project = get(Project, slug="writethedocs", privacy_level=PUBLIC, versions=[])
+    version = project.versions.get(slug=LATEST)
+    for basename in WRITETHEDOCS_PAGES:
+        html_file = get(
+            HTMLFile,
+            project=project,
+            version=version,
+            name=f"{basename}.html",
+            path=f"{basename}.html",
+            build=1,
+        )
+        PageDocument().update(html_file)
+    return project
+
+
+@pytest.mark.django_db
+@pytest.mark.search
+class TestSectionScoring:
+    """
+    Pages are scored by their best matching section.
+
+    Averaging section scores ranked pages that mention "slack" once
+    above the pages about Slack, which have many weaker matches too.
+    """
+
+    def _search(self, query):
+        page_search = PageSearch(query=query, projects={"writethedocs": LATEST})
+        return [result.path for result in page_search.execute()]
+
+    def test_slack_page_ranks_first(self, writethedocs):
+        paths = self._search("slack")
+
+        assert paths[0] == "slack"
+
+    def test_slack_pages_rank_above_recaps(self, writethedocs):
+        paths = self._search("slack")
+
+        for recap in (
+            "conf/au/2017/news/event-recap-feedback",
+            "conf/eu/2016/news/thanks-for-coming",
+            "conf/portland/2026/news/thanks-recap",
+        ):
+            assert paths.index("slack") < paths.index(recap)
+            assert paths.index("sponsorship/slack") < paths.index(recap)
