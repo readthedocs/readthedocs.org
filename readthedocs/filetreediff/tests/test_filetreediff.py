@@ -7,7 +7,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.filetreediff import get_base_version, get_diff, snapshot_base_manifest
+from readthedocs.filetreediff import (
+    count_changed_blocks,
+    get_base_version,
+    get_diff,
+    snapshot_base_manifest,
+)
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -26,7 +31,7 @@ def _mock_manifest(
     build_id: int,
     files: dict[str, str],
     text_hashes: dict[str, str] | None = None,
-    block_hashes: dict[str, list[str]] | None = None,
+    changed_blocks: dict[str, int] | None = None,
 ):
     """
     Mock the manifest file of a version.
@@ -34,7 +39,7 @@ def _mock_manifest(
     ``files`` maps each path to the hash of its HTML, ``text_hashes`` to the
     hash of its content, defaulting to the same hash. Manifests written before
     the content hash was introduced don't have it, pass an empty dict for those.
-    ``block_hashes`` maps each path to the hashes of its blocks, if any.
+    ``changed_blocks`` maps paths to their number of changed blocks.
     """
     if text_hashes is None:
         text_hashes = files
@@ -43,8 +48,8 @@ def _mock_manifest(
         manifest_files[path] = {"main_content_hash": main_content_hash}
         if path in text_hashes:
             manifest_files[path]["text_hash"] = text_hashes[path]
-        if block_hashes and path in block_hashes:
-            manifest_files[path]["block_hashes"] = block_hashes[path]
+        if changed_blocks and path in changed_blocks:
+            manifest_files[path]["changed_blocks"] = changed_blocks[path]
     return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
 
 
@@ -167,21 +172,13 @@ class TestsFileTreeDiff(TestCase):
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_sorts_modified_by_changed_blocks(self, storage_open):
-        """Modified files with more changed blocks go first, files without a count last."""
+        """Files with more changed blocks go first, files without a count go last."""
         files_a = {"a.html": "a2", "b.html": "b2", "c.html": "c2"}
         files_b = {"a.html": "a1", "b.html": "b1", "c.html": "c1"}
-        blocks_a = {
-            "a.html": ["title", "new", "p1", "p2"],
-            "b.html": ["title", "edited", "new1", "new2"],
-        }
-        blocks_b = {
-            "a.html": ["title", "p1", "p2"],
-            "b.html": ["title", "p1"],
-            "c.html": ["title"],
-        }
+        changed_blocks = {"a.html": 1, "b.html": 3}
         storage_open.side_effect = [
-            _mock_manifest(self.build_a.id, files_a, block_hashes=blocks_a)(),
-            _mock_manifest(self.build_b.id, files_b, block_hashes=blocks_b)(),
+            _mock_manifest(self.build_a.id, files_a, changed_blocks=changed_blocks)(),
+            _mock_manifest(self.build_b.id, files_b)(),
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert [(file.path, file.changed_blocks) for file in diff.modified] == [
@@ -189,6 +186,15 @@ class TestsFileTreeDiff(TestCase):
             ("a.html", 1),
             ("c.html", None),
         ]
+
+    def test_count_changed_blocks(self):
+        base = ["Title", "First", "Second"]
+        assert count_changed_blocks(base, base) == 0
+        # An added block doesn't shift the ones after it.
+        assert count_changed_blocks(base, ["Title", "New", "First", "Second"]) == 1
+        # An edited block counts once.
+        assert count_changed_blocks(base, ["Title", "Edited", "Second"]) == 1
+        assert count_changed_blocks(base, ["Title"]) == 2
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_missing_manifest(self, storage_open):

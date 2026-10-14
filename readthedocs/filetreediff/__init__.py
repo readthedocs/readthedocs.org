@@ -28,6 +28,7 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.projects.models import Project
+from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 
 
@@ -152,10 +153,8 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
             modified = file_a.main_content_hash != file_b.main_content_hash
         if modified:
             files.append((file_path, FileTreeDiffFileStatus.modified))
-            if file_a.block_hashes is not None and file_b.block_hashes is not None:
-                changed_blocks[file_path] = count_changed_blocks(
-                    file_b.block_hashes, file_a.block_hashes
-                )
+            if file_a.changed_blocks is not None:
+                changed_blocks[file_path] = file_a.changed_blocks
 
     return FileTreeDiff(
         files=files,
@@ -168,20 +167,41 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     )
 
 
-def count_changed_blocks(base_hashes: list[str], current_hashes: list[str]) -> int:
+def add_changed_blocks(manifest: FileTreeDiffManifest, version: Version, base_version: Version):
+    """
+    Set the number of changed blocks on each modified file of the manifest.
+
+    Only files whose text changed are parsed again, from both versions.
+    """
+    base_manifest = _get_base_manifest_snapshot(version) or get_manifest(base_version)
+    if not base_manifest:
+        return
+
+    parser = GenericParser(version)
+    base_parser = GenericParser(base_version)
+    for path, file in manifest.files.items():
+        base_file = base_manifest.files.get(path)
+        if not base_file or base_file.text_hash == file.text_hash:
+            continue
+        file.changed_blocks = count_changed_blocks(
+            base_parser.get_blocks(path),
+            parser.get_blocks(path),
+        )
+
+
+def count_changed_blocks(base_blocks: list[str], blocks: list[str]) -> int:
     """
     Count the blocks that changed between two versions of a file.
 
-    The blocks are aligned first, so inserting a paragraph counts as one
-    change instead of shifting every block after it. A block that was edited
-    in place counts once, not as one removed and one added.
+    The blocks are aligned first, so adding a paragraph counts as one change,
+    instead of changing every block after it. A block edited in place counts once.
     """
-    matcher = SequenceMatcher(a=base_hashes, b=current_hashes, autojunk=False)
-    return sum(
-        max(base_end - base_start, current_end - current_start)
-        for tag, base_start, base_end, current_start, current_end in matcher.get_opcodes()
-        if tag != "equal"
-    )
+    matcher = SequenceMatcher(a=base_blocks, b=blocks, autojunk=False)
+    changed = 0
+    for operation, base_start, base_end, start, end in matcher.get_opcodes():
+        if operation != "equal":
+            changed += max(base_end - base_start, end - start)
+    return changed
 
 
 def get_manifest(version: Version) -> FileTreeDiffManifest | None:

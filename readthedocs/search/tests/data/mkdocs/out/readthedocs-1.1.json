@@ -5,20 +5,6 @@
     "main_content_hash": "25c48df9b31b31eaee235206a48239a5",
     "text_hash": "5d91c255a344f731e6f22a02e6a02de4",
     "markup_hash": "25c48df9b31b31eaee235206a48239a5",
-    "block_hashes": [
-      "cdd94f86",
-      "ce145611",
-      "81751580",
-      "cd2117e0",
-      "8a4d1af2",
-      "0cc175b9",
-      "92eb5ffe",
-      "4a8a08f0",
-      "78acb808",
-      "4cc56af0",
-      "44540ffb",
-      "76ddc1c4"
-    ],
     "sections": [
       {
         "id": "read-the-docs-mkdocs-test-project",
@@ -48,10 +34,6 @@
     "main_content_hash": "5f6d687421dad7e1409dcaa3ccd2d34d",
     "text_hash": "7f5c24be74faf261f5aa35b567b838bf",
     "markup_hash": "5f6d687421dad7e1409dcaa3ccd2d34d",
-    "block_hashes": [
-      "4f4adcbf",
-      "d0fbda98"
-    ],
     "sections": [
       {
         "id": "404-page-not-found",
@@ -66,11 +48,6 @@
     "main_content_hash": "68a6609034e0a45adb135a60b98c12b8",
     "text_hash": "8b5245086e11b33a5a52709e4a804ff6",
     "markup_hash": "68a6609034e0a45adb135a60b98c12b8",
-    "block_hashes": [
-      "043345a8",
-      "9b70af63",
-      "f8eac0ea"
-    ],
     "sections": [
       {
         "id": "versions-themes",

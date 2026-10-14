@@ -11,6 +11,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import add_changed_blocks
 from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
@@ -171,7 +172,6 @@ class FileManifestIndexer(Indexer):
             processed_json["main_content_hash"],
             processed_json["text_hash"],
             processed_json["markup_hash"],
-            processed_json["block_hashes"],
         )
 
     def collect(self, sync_id: int):
@@ -183,17 +183,14 @@ class FileManifestIndexer(Indexer):
                     main_content_hash=main_content_hash,
                     text_hash=text_hash,
                     markup_hash=markup_hash,
-                    block_hashes=block_hashes,
                 )
                 for path, (
                     main_content_hash,
                     text_hash,
                     markup_hash,
-                    block_hashes,
                 ) in self._hashes.items()
             ],
         )
-        write_manifest(self.version, manifest)
 
         # For PR previews, snapshot the base version's manifest on the first
         # PR build where the snapshot can be created.
@@ -205,6 +202,9 @@ class FileManifestIndexer(Indexer):
             base_version = get_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
+                add_changed_blocks(manifest, self.version, base_version)
+
+        write_manifest(self.version, manifest)
 
         if (
             self.post_build_overview

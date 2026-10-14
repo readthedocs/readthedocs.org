@@ -420,32 +420,24 @@ class TestParsers:
         assert first["text_hash"] != second["text_hash"]
         assert first["markup_hash"] != second["markup_hash"]
 
-    def test_block_hashes_align_with_blocks(self):
-        """Containers are descended into, each leaf block gets one hash."""
-        parser = GenericParser(self.version)
-        template = """
+    def test_get_blocks(self, tmp_path):
+        """Containers are looked into, each paragraph, heading, or item is a block."""
+        page = tmp_path / "index.html"
+        page.write_text(
+            """
             <html><body><div role="main">
                 <section id="title">
-                    <h1>Title of the page</h1>
-                    <p>First paragraph.</p>
-                    <div class="note"><p>{note}</p></div>
-                    <ul><li>One</li><li>Two <strong>items</strong></li></ul>
-                    <table><tr><td>Cell</td><td></td></tr></table>
+                    <span id="target"></span>
+                    <h1>Title</h1>
+                    <p>Some <strong>text</strong>.</p>
+                    <div class="note"><p>A note.</p></div>
+                    <ul><li>One</li><li>Two</li></ul>
                 </section>
             </div></body></html>
-        """
-        first = parser._process_content("index.html", template.format(note="A note."))
-        second = parser._process_content("index.html", template.format(note="Another note."))
-        # Title, paragraph, note, two list items and one non-empty cell.
-        assert len(first["block_hashes"]) == 6
-        assert [a == b for a, b in zip(first["block_hashes"], second["block_hashes"])] == [
-            True,
-            True,
-            False,
-            True,
-            True,
-            True,
-        ]
+            """
+        )
+        parser = GenericParser(self.version, local_path=str(tmp_path))
+        assert parser.get_blocks("index.html") == ["Title", "Some text.", "A note.", "One", "Two"]
 
     def test_local_path_reads_from_the_local_copy(self, tmp_path):
         page = tmp_path / "index.html"
@@ -477,5 +469,4 @@ class TestParsers:
             "main_content_hash": None,
             "text_hash": None,
             "markup_hash": None,
-            "block_hashes": None,
         }
