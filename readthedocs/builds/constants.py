@@ -168,7 +168,8 @@ BUILD_STATUS_CHOICES = ((BUILD_STATUS_NORMAL, "Normal"),)
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
 
-LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
+ARCHIVE_LOCK_EXPIRE = 60 * 180  # Lock for the 15-minute build-archiving task (3hs)
+ADMIT_LOCK_EXPIRE = 30  # Lock for the 5-second admission sweep (30s)
 
 # All artifact types supported by Read the Docs.
 # They match the output directory (`_readthedocs/<artifact type>`)
