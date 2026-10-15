@@ -137,29 +137,39 @@ Connect your Git repository and treat docs like code.
 We run the hard parts, builds, previews, and authentication,
 so you can focus on writing great docs.
 
-Up to date documentation
-    Whenever you push code to Git,
-    Read the Docs automatically builds your docs
+Build automatically
+    Every push to Git builds your docs,
+    with Sphinx, MkDocs, Docusaurus, or any other tool,
     so your code and documentation always match.
     Get started with our :doc:`tutorial </tutorial/index>`.
 
-Catch regressions before you merge
+Preview your changes
     Every pull request gets a live preview build
     with a visual diff against your production docs.
     Review the rendered output instead of raw markup.
     Set up :doc:`pull request previews </pull-requests>`.
 
-Documentation for every version
-    Match your product release cycle with multiple versions of your docs,
-    built automatically from any branch or tag.
+Maintain docs as code
+    Match your release cycle with multiple versions of your docs,
+    built from any branch or tag,
+    and translate them into multiple languages.
     Start hosting all your :doc:`versions </versions>`.
 
-Free for open source, built for teams
-    We have hosted open source documentation since 2010,
-    and |org_brand| hosts over 100,000 projects at no cost.
-    |com_brand| runs the infrastructure for engineering and docs teams,
-    with private repositories, access control, and single sign-on.
-    Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
+Everything in one place
+    Search, redirects, analytics, and custom domains come built in,
+    and your docs are ready for AI tools with ``llms.txt``, Markdown, and agent skills.
+    See how to serve your docs to :doc:`AI agents </reference/llms-txt>`.
+
+Decide who sees your docs
+    Control access from your internal team to the whole world,
+    and manage permissions in one place with single sign-on.
+    Learn about :doc:`hosting private documentation </commercial/index>`.
+
+|org_brand| is free for open source projects,
+and has hosted open source documentation since 2010.
+|com_brand| runs the infrastructure for engineering and docs teams,
+with private repositories, access control, and single sign-on.
+Compare them on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
