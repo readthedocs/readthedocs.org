@@ -25,7 +25,6 @@ def group(desired, max_size=100):
 
 
 @override_settings(
-    DEBUG=False,
     RTD_DOCKER_COMPOSE=False,
     RTD_AWS_SCALE_IN_REGION_NAME="us-east-2",
     RTD_BUILD_ISOLATED_ASG_NAME=ASG_NAME,

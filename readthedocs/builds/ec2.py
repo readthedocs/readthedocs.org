@@ -12,6 +12,7 @@ with a decrement, so idle capacity never grows and nothing has to scale in.
 
 import datetime
 import re
+from enum import StrEnum
 
 import boto3
 import structlog
@@ -29,9 +30,13 @@ log = structlog.get_logger(__name__)
 # Hostname set by cloud-init: ``build-isolated-i-0123456789abcdef0``.
 BUILDER_HOSTNAME_RE = re.compile(r"^([a-z\-]+)-(i-[a-f0-9]+)$")
 
-STATE_TERMINATED = "terminated"
-STATE_KEPT = "kept"
-STATE_FAILED = "failed"
+
+class InstanceState(StrEnum):
+    """Outcome of an instance release, as reported to the worker."""
+
+    TERMINATED = "terminated"
+    KEPT = "kept"
+    FAILED = "failed"
 
 
 class InvalidBuilder(ValueError):
@@ -44,10 +49,6 @@ def parse_builder(builder: str) -> tuple[str, str]:
     if not match or not match.group(1).startswith("build"):
         raise InvalidBuilder(builder)
     return match.group(1), match.group(2)
-
-
-def _is_dev() -> bool:
-    return settings.DEBUG or settings.RTD_DOCKER_COMPOSE
 
 
 def _autoscaling_client():
@@ -78,11 +79,18 @@ def _set_protection(client, asg_name: str, instance_id: str, protected: bool) ->
     return True
 
 
-def protect_instance(asg_name: str, instance_id: str) -> bool:
-    """Protect ``instance_id`` from ASG scale-in."""
-    if _is_dev():
-        log.info("Development environment. Skipping scale-in protection.")
+def protect_instance(builder: str) -> bool:
+    """
+    Protect the instance behind the ``builder`` hostname from ASG scale-in.
+
+    In development there is no instance, so any hostname is accepted and
+    nothing is called. Raises ``InvalidBuilder`` otherwise if the hostname
+    isn't a build instance.
+    """
+    if settings.RTD_DOCKER_COMPOSE:
+        log.info("Development environment. Skipping scale-in protection.", builder=builder)
         return False
+    asg_name, instance_id = parse_builder(builder)
     return _set_protection(_autoscaling_client(), asg_name, instance_id, protected=True)
 
 
@@ -126,7 +134,7 @@ def ensure_warm_buffer():
     # NOTE: eventually, when we have more ASG running isolated builds,
     # we will want to get the ASG name from the queue name (e.g., "build:isolated-large").
     asg_name = settings.RTD_BUILD_ISOLATED_ASG_NAME
-    if _is_dev() or not asg_name:
+    if settings.RTD_DOCKER_COMPOSE or not asg_name:
         return
 
     try:
@@ -181,39 +189,42 @@ def _terminate(client, instance_id: str, decrement: bool):
     log.info("Instance termination requested.", instance_id=instance_id, decrement=decrement)
 
 
-def release_instance(asg_name: str, instance_id: str, *, keep: bool = False) -> tuple[str, bool]:
+def release_instance(builder: str, *, keep: bool = False) -> tuple[InstanceState, bool]:
     """
-    Release ``instance_id`` once its build is over.
+    Release the instance behind the ``builder`` hostname once its build is over.
 
     Clears scale-in protection and terminates the instance, always decrementing
     desired capacity. With ``keep`` the instance is left running after the protection is
     cleared. Returns ``(state, decremented)`` where ``state`` is
-    ``terminated``, ``kept`` or ``failed``.
+    ``terminated``, ``kept`` or ``failed``. In development there is no instance:
+    any hostname is accepted and ``kept`` is returned. Raises ``InvalidBuilder``
+    otherwise if the hostname isn't a build instance.
     """
-    if _is_dev():
-        log.info("Development environment. Skipping instance release.")
-        return STATE_KEPT, False
+    if settings.RTD_DOCKER_COMPOSE:
+        log.info("Development environment. Skipping instance release.", builder=builder)
+        return InstanceState.KEPT, False
 
+    asg_name, instance_id = parse_builder(builder)
     client = _autoscaling_client()
     _set_protection(client, asg_name, instance_id, protected=False)
 
     if keep:
         log.warning("Keeping the instance alive.", instance_id=instance_id)
-        return STATE_KEPT, False
+        return InstanceState.KEPT, False
 
     try:
         _terminate(client, instance_id, True)
-        return STATE_TERMINATED, True
+        return InstanceState.TERMINATED, True
     except ClientError as exc:
         if _is_already_gone(exc):
             log.info("Instance already gone.", instance_id=instance_id)
-            return STATE_TERMINATED, False
+            return InstanceState.TERMINATED, False
         if not _is_at_min_size(exc):
             log.exception("Instance termination failed.", instance_id=instance_id)
-            return STATE_FAILED, False
+            return InstanceState.FAILED, False
     except Exception:
         log.exception("Instance termination failed.", instance_id=instance_id)
-        return STATE_FAILED, False
+        return InstanceState.FAILED, False
 
     # Desired already equals MinSize. The instance stopped consuming the queue
     # when its build arrived, so leaving it alive would strand it: terminate
@@ -221,7 +232,7 @@ def release_instance(asg_name: str, instance_id: str, *, keep: bool = False) -> 
     log.info("Fleet at MinSize; terminating without decrement.", instance_id=instance_id)
     try:
         _terminate(client, instance_id, False)
-        return STATE_TERMINATED, False
+        return InstanceState.TERMINATED, False
     except Exception:
         log.exception("Instance termination failed.", instance_id=instance_id)
-        return STATE_FAILED, False
+        return InstanceState.FAILED, False

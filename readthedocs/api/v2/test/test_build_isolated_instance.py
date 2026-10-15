@@ -26,7 +26,6 @@ def client_error(message):
 
 
 @override_settings(
-    DEBUG=False,
     RTD_DOCKER_COMPOSE=False,
     RTD_AWS_SCALE_IN_REGION_NAME="us-east-2",
 )
@@ -168,8 +167,25 @@ class BuildIsolatedInstanceTests(TestCase):
         assert not BuildAPIKey.objects.is_valid(self.key)
 
     @override_settings(RTD_DOCKER_COMPOSE=True)
-    def test_release_skips_aws_in_development(self, boto3_client):
+    def test_protect_accepts_the_container_hostname_in_development(self, boto3_client):
+        """The dev worker calls the API like production; there is no instance to protect."""
+        self.build.builder = ""
+        self.build.save()
+
+        resp = self.client.post(self.protect_url, {"builder": "3f9a1c2b7d4e"})
+
+        assert resp.status_code == 204
+        self.build.refresh_from_db()
+        assert self.build.builder == "3f9a1c2b7d4e"
+        boto3_client.assert_not_called()
+
+    @override_settings(RTD_DOCKER_COMPOSE=True)
+    def test_release_keeps_the_container_in_development(self, boto3_client):
+        self.build.builder = "3f9a1c2b7d4e"
+        self.build.save()
+
         resp = self.client.post(self.release_url)
 
         assert resp.json() == {"state": "kept", "decremented": False}
         boto3_client.assert_not_called()
+        assert not BuildAPIKey.objects.is_valid(self.key)

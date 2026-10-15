@@ -35,9 +35,8 @@ from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_cre
 from readthedocs.aws.security_token_service import get_s3_build_uploads_scoped_credentials
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.builds.ec2 import STATE_FAILED
+from readthedocs.builds.ec2 import InstanceState
 from readthedocs.builds.ec2 import InvalidBuilder
-from readthedocs.builds.ec2 import parse_builder
 from readthedocs.builds.ec2 import protect_instance
 from readthedocs.builds.ec2 import release_instance
 from readthedocs.builds.models import Build
@@ -419,7 +418,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         build = self.get_object()
         builder = request.data.get("builder", "")
         try:
-            asg_name, instance_id = parse_builder(builder)
+            protect_instance(builder)
         except InvalidBuilder:
             return Response(
                 {"builder": ["Not a valid build instance hostname."]},
@@ -428,7 +427,6 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
         build.builder = builder
         build.save()
-        protect_instance(asg_name, instance_id)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @decorators.action(
@@ -446,19 +444,17 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         """
         build = self.get_object()
         try:
-            asg_name, instance_id = parse_builder(build.builder)
+            state, decremented = release_instance(
+                build.builder,
+                keep=build.project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE),
+            )
         except InvalidBuilder:
             return Response(
                 {"builder": ["Not a valid build instance hostname."]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        state, decremented = release_instance(
-            asg_name,
-            instance_id,
-            keep=build.project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE),
-        )
-        if state != STATE_FAILED:
+        if state is not InstanceState.FAILED:
             request.build_api_key.revoked = True
             request.build_api_key.save()
         return Response({"state": state, "decremented": decremented})
