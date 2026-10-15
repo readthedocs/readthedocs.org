@@ -36,6 +36,7 @@ log = structlog.get_logger(__name__)
 
 MANIFEST_FILE_NAME = "manifest.json"
 BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
+MAX_FILES_TO_COUNT_CHANGED_BLOCKS = 100
 
 
 def get_base_version(project: Project) -> Version | None:
@@ -172,21 +173,39 @@ def add_changed_blocks(manifest: FileTreeDiffManifest, version: Version, base_ve
     Set the number of changed blocks on each modified file of the manifest.
 
     Only files whose text changed are parsed again, from both versions.
+    Nothing is counted when too many files changed, since each one is read
+    twice from storage. Files without a count keep their path order.
     """
     base_manifest = _get_base_manifest_snapshot(version) or get_manifest(base_version)
     if not base_manifest:
         return
 
-    parser = GenericParser(version)
-    base_parser = GenericParser(base_version)
+    modified_files = []
     for path, file in manifest.files.items():
         base_file = base_manifest.files.get(path)
-        if not base_file or base_file.text_hash == file.text_hash:
-            continue
-        file.changed_blocks = count_changed_blocks(
-            base_parser.get_blocks(path),
-            parser.get_blocks(path),
+        if base_file and base_file.text_hash != file.text_hash:
+            modified_files.append(file)
+
+    if len(modified_files) > MAX_FILES_TO_COUNT_CHANGED_BLOCKS:
+        log.info(
+            "Too many modified files, not counting changed blocks.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+            modified_files=len(modified_files),
         )
+        return
+
+    parser = GenericParser(version)
+    base_parser = GenericParser(base_version)
+    for file in modified_files:
+        try:
+            file.changed_blocks = count_changed_blocks(
+                base_parser.get_blocks(file.path),
+                parser.get_blocks(file.path),
+            )
+        except Exception:
+            # The count only sorts the list, never fail the manifest for it.
+            log.warning("Failed to count changed blocks.", path=file.path, exc_info=True)
 
 
 def count_changed_blocks(base_blocks: list[str], blocks: list[str]) -> int:
