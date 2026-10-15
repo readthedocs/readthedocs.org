@@ -133,30 +133,33 @@ Read the Docs: documentation simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs simplifies managing software documentation
-by building and hosting your docs automatically,
-using the Git workflow you already use for code.
-Treating documentation like code lets your team use tools they already know,
-and makes keeping your docs updated easier.
+Read the Docs is your documentation infrastructure layer.
+Connect your Git repository and treat docs like code.
+We run the hard parts, builds, previews, and authentication,
+so you can focus on writing great docs.
 
 Up to date documentation
     Whenever you push code to Git,
-    Read the Docs will automatically build your docs
-    so your code and documentation are always up-to-date.
+    Read the Docs automatically builds your docs
+    so your code and documentation always match.
     Get started with our :doc:`tutorial </tutorial/index>`.
 
+Catch regressions before you merge
+    Every pull request gets a live preview build
+    with a visual diff against your production docs.
+    Review the rendered output instead of raw markup.
+    Set up :doc:`pull request previews </pull-requests>`.
+
 Documentation for every version
-    Read the Docs can host multiple versions of your docs.
-    Keep your 1.0 and 2.0 documentation online,
-    pulled directly from Git.
+    Match your product release cycle with multiple versions of your docs,
+    built automatically from any branch or tag.
     Start hosting all your :doc:`versions </versions>`.
 
-Open source and user focused
-    Our company is bootstrapped and 100% user-focused,
-    so our product gets better for our users instead of our investors.
-    |org_brand| hosts documentation for over 100,000 large
-    and small open source projects at no cost.
-    |com_brand| supports hundreds of organizations with product and internal documentation.
+Free for open source, built for teams
+    We have hosted open source documentation since 2010,
+    and |org_brand| hosts over 100,000 projects at no cost.
+    |com_brand| runs the infrastructure for engineering and docs teams,
+    with private repositories, access control, and single sign-on.
     Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
