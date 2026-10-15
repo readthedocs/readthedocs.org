@@ -5,9 +5,13 @@ Including the main homepage, documentation and header rendering,
 and server errors.
 """
 
+from pathlib import Path
+
 import structlog
 from django.conf import settings
+from django.contrib.auth.decorators import login_not_required
 from django.http import Http404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -167,4 +171,13 @@ def do_not_track(request):
             "tracking": "N" if dnt_header == "1" else "T",
         },
         content_type="application/tracking-status+json",
+    )
+
+
+@login_not_required
+def schema(request):
+    schema_path = Path(settings.SITE_ROOT) / "readthedocs/rtd_tests/fixtures/spec/v2/schema.json"
+    return HttpResponse(
+        schema_path.read_text(encoding="utf-8"),
+        content_type="application/schema+json",
     )
