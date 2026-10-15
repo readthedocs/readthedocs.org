@@ -421,10 +421,10 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.13``
   - ``3.14``
   - ``latest`` (alias for the latest version available on Read the Docs)
-  - ``miniconda3-4.7``
-  - ``miniconda3-3.12-24.1``
-  - ``miniconda3-3.12-24.9``
-  - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
+  - ``miniconda3-4.7`` (deprecated)
+  - ``miniconda3-3.12-24.1`` (deprecated)
+  - ``miniconda3-3.12-24.9`` (deprecated)
+  - ``miniconda-latest`` (deprecated)
   - ``mambaforge-4.10`` (deprecated)
   - ``mambaforge-22.9`` (deprecated)
   - ``mambaforge-23.11`` (deprecated)
