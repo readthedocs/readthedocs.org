@@ -193,6 +193,22 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
     def get_object(self):
         return self.request.user.profile
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # Same cookie Django's ``set_language`` view sets, so ``LocaleMiddleware``
+        # picks the language up on the next request.
+        response.set_cookie(
+            settings.LANGUAGE_COOKIE_NAME,
+            form.cleaned_data["language"],
+            max_age=settings.LANGUAGE_COOKIE_AGE,
+            path=settings.LANGUAGE_COOKIE_PATH,
+            domain=settings.LANGUAGE_COOKIE_DOMAIN,
+            secure=settings.LANGUAGE_COOKIE_SECURE,
+            httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+            samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+        )
+        return response
+
     def get_success_url(self):
         return reverse(
             "profiles_dashboard_preferences_edit",

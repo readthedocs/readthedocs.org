@@ -918,7 +918,7 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         self.client.force_login(self.user)
 
     def test_theme_post_default(self):
-        data = {"theme": "default"}
+        data = {"theme": "default", "language": "en"}
         response = self.client.post(self.url, data)
         assert response.status_code == 302
 
@@ -929,7 +929,7 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         assert self.profile.use_light_theme()
 
     def test_theme_post_light(self):
-        data = {"theme": "light"}
+        data = {"theme": "light", "language": "en"}
         response = self.client.post(self.url, data)
         assert response.status_code == 302
 
@@ -940,7 +940,7 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         assert self.profile.use_light_theme()
 
     def test_theme_post_dark(self):
-        data = {"theme": "dark"}
+        data = {"theme": "dark", "language": "en"}
         response = self.client.post(self.url, data)
         assert response.status_code == 302
 
@@ -951,7 +951,7 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         assert not self.profile.use_light_theme()
 
     def test_theme_post_system(self):
-        data = {"theme": "system"}
+        data = {"theme": "system", "language": "en"}
         response = self.client.post(self.url, data)
         assert response.status_code == 302
 
@@ -962,7 +962,7 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         assert not self.profile.use_light_theme()
 
     def test_invalid_data_post(self):
-        invalid_data = {"theme": "invalid_theme"}
+        invalid_data = {"theme": "invalid_theme", "language": "en"}
         response = self.client.post(self.url, invalid_data)
         assert response.status_code == 200
 
@@ -975,3 +975,29 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         assert len(form.errors) == 1
         assert "theme" in form.errors
         assert len(form.errors["theme"]) == 1
+
+    def test_language_post_sets_cookie(self):
+        data = {"theme": "default", "language": "es"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+        assert response.cookies[settings.LANGUAGE_COOKIE_NAME].value == "es"
+
+        # The cookie is picked up by the locale middleware on the next request.
+        response = self.client.get(self.url)
+        assert response.wsgi_request.LANGUAGE_CODE == "es"
+
+    def test_language_initial_is_current_language(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "fr"
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        assert response.context["form"].fields["language"].initial == "fr"
+
+    def test_language_invalid_post(self):
+        data = {"theme": "dark", "language": "xx"}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 200
+        assert settings.LANGUAGE_COOKIE_NAME not in response.cookies
+        assert "language" in response.context["form"].errors
+
+        self.profile.refresh_from_db()
+        assert self.profile.theme == "default"

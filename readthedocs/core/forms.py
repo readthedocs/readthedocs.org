@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms.fields import CharField
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import set_change_reason
@@ -82,12 +83,42 @@ class UserDeleteForm(forms.ModelForm):
         return cleaned_data
 
 
+def get_language_choices():
+    """
+    Choices for the dashboard language, labeled in each language's own name.
+
+    Users looking for their language shouldn't need to know its English name.
+    """
+    choices = []
+    for code, name in settings.LANGUAGES:
+        try:
+            name = translation.get_language_info(code)["name_local"]
+        except KeyError:
+            pass
+        choices.append((code, name))
+    return choices
+
+
 class UserProfileDashboardPreferencesForm(forms.ModelForm):
-    """Form for dashboard preferences."""
+    """
+    Form for dashboard preferences.
+
+    The language isn't stored on the profile. Django's ``LocaleMiddleware``
+    reads it from a cookie, which the view sets when the form is saved.
+    """
+
+    language = forms.ChoiceField(
+        label=_("Dashboard language"),
+        choices=get_language_choices,
+    )
 
     class Meta:
         model = UserProfile
         fields = ["theme"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["language"].initial = translation.get_language()
 
 
 class UserAdvertisingForm(forms.ModelForm):
