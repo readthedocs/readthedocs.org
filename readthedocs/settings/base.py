@@ -636,9 +636,11 @@ class CommunityBaseSettings(Settings):
     RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
-    # Idle build-isolated instances to keep warm. A finishing instance only
-    # shrinks the fleet above this
-    RTD_BUILD_ISOLATED_WARM_BUFFER = 27
+    # Auto Scaling group of the build-isolated fleet. Every dispatch raises its
+    # desired capacity to dispatched builds + BUFFER (``builds.ec2``); there
+    # are no ASG scaling policies. ``None`` disables the lift.
+    RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
+    RTD_BUILD_ISOLATED_BUFFER = 20
 
     # ``scalein`` IAM user used for Auto Scaling calls on behalf of builders.
     RTD_AWS_SCALE_IN_ACCESS_KEY = None

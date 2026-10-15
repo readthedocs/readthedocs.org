@@ -1,9 +1,15 @@
 """
-Scale-in protection and termination for build EC2 instances.
+Fleet sizing, scale-in protection and termination for build EC2 instances.
 
 The worker on the instance holds no AWS credentials: it calls the
 ``instance/protect`` and ``instance/release`` build API endpoints and the web
 tier performs the Auto Scaling calls with the ``scalein`` IAM user.
+
+The fleet has no ASG scaling policies. Every dispatch raises desired capacity
+so a buffer of idle instances stays ahead of demand,
+and every finished build terminates its own instance with a decrement,
+so idle capacity never grows and nothing has to scale
+in.
 """
 
 import datetime
@@ -15,7 +21,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.utils import timezone
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 
 
@@ -82,69 +88,75 @@ def protect_instance(asg_name: str, instance_id: str) -> bool:
     return _set_protection(_autoscaling_client(), asg_name, instance_id, protected=True)
 
 
-def _queued_builds() -> int | None:
-    """Builds dispatched to the isolated queue that no instance has started yet."""
-    try:
-        return Build.objects.filter(
-            state=BUILD_STATE_TRIGGERED,
+def _dispatched_builds() -> int:
+    """
+    Builds dispatched to the isolated fleet that haven't finished, queued or running.
+
+    One instance is needed per build counted here. Same query as the
+    "Builds dispatched" CloudWatch metric.
+    """
+    return (
+        Build.objects.filter(
             dispatched_date__isnull=False,
             date__gte=timezone.now() - datetime.timedelta(days=1),
-        ).count()
-    except Exception:
-        log.exception("Failed to count queued builds.")
-        return None
+        )
+        .exclude(state__in=BUILD_FINAL_STATES)
+        .count()
+    )
 
 
-def _idle_instances(client, asg_name: str, instance_id: str) -> int | None:
-    """In-service, unprotected instances in the ASG, excluding ``instance_id``."""
-    try:
-        groups = client.describe_auto_scaling_groups(
-            AutoScalingGroupNames=[asg_name],
-        ).get("AutoScalingGroups", [])
-    except Exception:
-        log.exception("Failed to describe the autoscaling group.", asg_name=asg_name)
-        return None
-
+def _describe_group(client, asg_name: str) -> dict | None:
+    """The ASG as ``DescribeAutoScalingGroups`` returns it, or ``None`` if missing."""
+    groups = client.describe_auto_scaling_groups(
+        AutoScalingGroupNames=[asg_name],
+    ).get("AutoScalingGroups", [])
     if not groups:
         log.warning("Autoscaling group not found.", asg_name=asg_name)
         return None
-
-    return sum(
-        1
-        for instance in groups[0].get("Instances", [])
-        if instance.get("InstanceId") != instance_id
-        and instance.get("LifecycleState") == "InService"
-        and not instance.get("ProtectedFromScaleIn")
-    )
+    return groups[0]
 
 
-def _should_decrement(client, asg_name: str, instance_id: str) -> bool:
+def ensure_warm_buffer():
     """
-    Whether terminating this instance should shrink the fleet.
+    Raise the fleet's desired capacity so ``RTD_BUILD_ISOLATED_BUFFER`` idle
+    instances stay ahead of demand.
 
-    Only while nothing is queued and the group already has the warm buffer
-    idle; otherwise the ASG replaces it so the next build lands on a warm
-    instance. Any failure answers ``False`` so the instance is replaced.
+    Desired must cover every dispatched build plus the buffer. This only ever raises
+    desired: a finished build removes its instance and its demand together.
     """
-    queued = _queued_builds()
-    if queued is None or queued > 0:
-        log.info("Builds queued or queue unknown; replacing the instance.", queued=queued)
-        return False
+    # NOTE: eventually, when we have more ASG running isolated builds,
+    # we will want to get the ASG name from the queue name (e.g., "build:isolated-large").
+    asg_name = settings.RTD_BUILD_ISOLATED_ASG_NAME
+    if _is_dev() or not asg_name:
+        return
 
-    idle = _idle_instances(client, asg_name, instance_id)
-    if idle is None:
-        return False
+    try:
+        client = _autoscaling_client()
+        group = _describe_group(client, asg_name)
+        if group is None:
+            return
 
-    warm_buffer = settings.RTD_BUILD_ISOLATED_WARM_BUFFER
-    decrement = idle >= warm_buffer
-    log.info(
-        "Warm buffer checked.",
-        asg_name=asg_name,
-        idle=idle,
-        warm_buffer=warm_buffer,
-        decrement=decrement,
-    )
-    return decrement
+        desired = group["DesiredCapacity"]
+        dispatched = _dispatched_builds()
+        target = min(dispatched + settings.RTD_BUILD_ISOLATED_BUFFER, group["MaxSize"])
+        log.info(
+            "Warm buffer checked.",
+            asg_name=asg_name,
+            dispatched=dispatched,
+            desired=desired,
+            target=target,
+        )
+        if target <= desired:
+            return
+
+        client.set_desired_capacity(
+            AutoScalingGroupName=asg_name,
+            DesiredCapacity=target,
+            HonorCooldown=False,
+        )
+        log.info("Warm buffer lifted.", asg_name=asg_name, desired=desired, target=target)
+    except Exception:
+        log.exception("Failed to lift the warm buffer.", asg_name=asg_name)
 
 
 def _error_message(exc: ClientError) -> str:
@@ -174,10 +186,10 @@ def release_instance(asg_name: str, instance_id: str, *, keep: bool = False) -> 
     """
     Release ``instance_id`` once its build is over.
 
-    Clears scale-in protection and terminates the instance, shrinking the
-    fleet when the warm buffer allows it. With ``keep`` the instance is left
-    running after the protection is cleared. Returns ``(state, decremented)``
-    where ``state`` is ``terminated``, ``kept`` or ``failed``.
+    Clears scale-in protection and terminates the instance, always decrementing
+    desired capacity. With ``keep`` the instance is left running after the protection is
+    cleared. Returns ``(state, decremented)`` where ``state`` is
+    ``terminated``, ``kept`` or ``failed``.
     """
     if _is_dev():
         log.info("Development environment. Skipping instance release.")
@@ -190,15 +202,14 @@ def release_instance(asg_name: str, instance_id: str, *, keep: bool = False) -> 
         log.warning("Keeping the instance alive.", instance_id=instance_id)
         return STATE_KEPT, False
 
-    decrement = _should_decrement(client, asg_name, instance_id)
     try:
-        _terminate(client, instance_id, decrement)
-        return STATE_TERMINATED, decrement
+        _terminate(client, instance_id, True)
+        return STATE_TERMINATED, True
     except ClientError as exc:
         if _is_already_gone(exc):
             log.info("Instance already gone.", instance_id=instance_id)
             return STATE_TERMINATED, False
-        if not (decrement and _is_at_min_size(exc)):
+        if not _is_at_min_size(exc):
             log.exception("Instance termination failed.", instance_id=instance_id)
             return STATE_FAILED, False
     except Exception:

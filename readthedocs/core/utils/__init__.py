@@ -309,6 +309,7 @@ def submit_to_build_isolated(*, project, build):
     """
     # Avoid circular import
     from readthedocs.api.v2.models import BuildAPIKey
+    from readthedocs.builds.ec2 import ensure_warm_buffer
     from readthedocs.projects.models import Feature
 
     # TODO: create a build API key that's scoped to the build itself,
@@ -339,6 +340,9 @@ def submit_to_build_isolated(*, project, build):
     build.task_id = result.id
     build.dispatched_date = timezone.now()
     build.save()
+
+    # This build needs an instance; launch one if the idle buffer is short.
+    ensure_warm_buffer()
 
     return result, build
 

@@ -3,13 +3,11 @@ from unittest import mock
 from botocore.exceptions import ClientError
 from django.test import TestCase
 from django.test import override_settings
-from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework.test import APIClient
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature
@@ -27,23 +25,10 @@ def client_error(message):
     )
 
 
-def asg_instances(idle):
-    """The ASG as DescribeAutoScalingGroups returns it: us, plus ``idle`` idle peers."""
-    instances = [
-        {"InstanceId": INSTANCE_ID, "LifecycleState": "InService", "ProtectedFromScaleIn": True}
-    ]
-    instances += [
-        {"InstanceId": f"i-idle{n}", "LifecycleState": "InService", "ProtectedFromScaleIn": False}
-        for n in range(idle)
-    ]
-    return {"AutoScalingGroups": [{"Instances": instances}]}
-
-
 @override_settings(
     DEBUG=False,
     RTD_DOCKER_COMPOSE=False,
     RTD_AWS_SCALE_IN_REGION_NAME="us-east-2",
-    RTD_BUILD_ISOLATED_WARM_BUFFER=2,
 )
 @mock.patch("readthedocs.builds.ec2.boto3.client")
 class BuildIsolatedInstanceTests(TestCase):
@@ -64,19 +49,8 @@ class BuildIsolatedInstanceTests(TestCase):
         self.protect_url = f"/api/v2/build/{self.build.pk}/instance/protect/"
         self.release_url = f"/api/v2/build/{self.build.pk}/instance/release/"
 
-    def asg(self, boto3_client, idle=0):
-        asg = boto3_client.return_value
-        asg.describe_auto_scaling_groups.return_value = asg_instances(idle)
-        return asg
-
-    def queue_a_build(self):
-        get(
-            Build,
-            project=self.project,
-            version=self.version,
-            state=BUILD_STATE_TRIGGERED,
-            dispatched_date=timezone.now(),
-        )
+    def asg(self, boto3_client):
+        return boto3_client.return_value
 
     def test_protect_requires_a_build_api_key(self, boto3_client):
         resp = APIClient().post(self.protect_url, {"builder": BUILDER})
@@ -122,14 +96,14 @@ class BuildIsolatedInstanceTests(TestCase):
         assert resp.status_code == 400
         boto3_client.assert_not_called()
 
-    def test_release_replaces_the_instance_while_builds_are_queued(self, boto3_client):
-        asg = self.asg(boto3_client, idle=5)
-        self.queue_a_build()
+    def test_release_terminates_the_instance_and_shrinks_the_fleet(self, boto3_client):
+        """A finished build takes its instance and its demand away together."""
+        asg = self.asg(boto3_client)
 
         resp = self.client.post(self.release_url)
 
         assert resp.status_code == 200
-        assert resp.json() == {"state": "terminated", "decremented": False}
+        assert resp.json() == {"state": "terminated", "decremented": True}
         asg.set_instance_protection.assert_called_once_with(
             InstanceIds=[INSTANCE_ID],
             AutoScalingGroupName="build-isolated",
@@ -137,30 +111,13 @@ class BuildIsolatedInstanceTests(TestCase):
         )
         asg.terminate_instance_in_auto_scaling_group.assert_called_once_with(
             InstanceId=INSTANCE_ID,
-            ShouldDecrementDesiredCapacity=False,
-        )
-        assert not BuildAPIKey.objects.is_valid(self.key)
-
-    def test_release_shrinks_the_fleet_when_the_warm_buffer_is_idle(self, boto3_client):
-        asg = self.asg(boto3_client, idle=2)
-
-        resp = self.client.post(self.release_url)
-
-        assert resp.json() == {"state": "terminated", "decremented": True}
-        asg.terminate_instance_in_auto_scaling_group.assert_called_once_with(
-            InstanceId=INSTANCE_ID,
             ShouldDecrementDesiredCapacity=True,
         )
-
-    def test_release_keeps_the_fleet_below_the_warm_buffer(self, boto3_client):
-        self.asg(boto3_client, idle=1)
-
-        resp = self.client.post(self.release_url)
-
-        assert resp.json() == {"state": "terminated", "decremented": False}
+        asg.describe_auto_scaling_groups.assert_not_called()
+        assert not BuildAPIKey.objects.is_valid(self.key)
 
     def test_release_retries_without_decrement_at_min_size(self, boto3_client):
-        asg = self.asg(boto3_client, idle=2)
+        asg = self.asg(boto3_client)
         asg.terminate_instance_in_auto_scaling_group.side_effect = [
             client_error("Currently, desiredSize equals minSize (5)."),
             None,
