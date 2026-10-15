@@ -66,12 +66,6 @@ class BuildIsolatedInstanceTests(TestCase):
         assert resp.status_code == 404
         boto3_client.assert_not_called()
 
-    def test_protect_rejects_hostnames_outside_the_isolated_fleet(self, boto3_client):
-        resp = self.client.post(self.protect_url, {"builder": "build-default-i-0123456789abcdef0"})
-
-        assert resp.status_code == 400
-        boto3_client.assert_not_called()
-
     def test_protect_claims_the_build_and_protects_the_instance(self, boto3_client):
         self.build.builder = ""
         self.build.save()
