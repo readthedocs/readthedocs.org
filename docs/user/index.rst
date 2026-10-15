@@ -1,5 +1,5 @@
-Read the Docs: documentation simplified
-=======================================
+Read the Docs: your documentation infrastructure layer
+======================================================
 
 .. toctree::
    :maxdepth: 2
@@ -126,14 +126,13 @@ Read the Docs: documentation simplified
    Read the Docs website <https://about.readthedocs.com>
 
 .. meta::
-   :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
+   :description lang=en: Connect your Git repository and treat docs like code. Read the Docs runs builds, previews, and authentication so you can focus on writing great docs.
 
 .. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
 .. raw:: html
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs is your documentation infrastructure layer.
 Connect your Git repository and treat docs like code.
 We run the hard parts, builds, previews, and authentication,
 so you can focus on writing great docs.
