@@ -36,7 +36,7 @@ log = structlog.get_logger(__name__)
 
 MANIFEST_FILE_NAME = "manifest.json"
 BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
-MAX_FILES_TO_COUNT_CHANGED_BLOCKS = 100
+MAX_FILES_TO_COUNT_CHANGED_BLOCKS = 25
 
 
 def get_base_version(project: Project) -> Version | None:
