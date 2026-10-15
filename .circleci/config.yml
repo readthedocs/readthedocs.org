@@ -21,6 +21,10 @@
 #   Bump "v1" in key names to bust all caches.
 #   See: https://circleci.com/docs/guides/optimize/caching/
 #
+# Log output:
+#   apt, pip and tox run quietly, and --cov-report= skips the per-job
+#   coverage table (coverage-report prints the combined one).
+#
 # Other design decisions:
 #   - tests-search runs two pytest commands because some tests are marked
 #     both "search" and "proxito" (e.g. test_proxied_api.py). These need
@@ -85,7 +89,7 @@ jobs:
     docker:
       - image: 'cimg/python:3.14'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --cov-report= --no-cov-on-fail
     resource_class: large.gen2
     steps:
       - setup-checkout
@@ -93,11 +97,11 @@ jobs:
       - restore_cache:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - run: sudo apt-get -qq update
+      - run: sudo apt-get -qq install -y rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
-      - run: pip install --user tox tox-uv
-      - run: tox -e py314
+      - run: pip install --quiet --user tox tox-uv
+      - run: tox --no-list-dependencies -e py314
       - run: cp .coverage .coverage.tests
       - save_cache:
           key: pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -116,7 +120,7 @@ jobs:
     docker:
       - image: 'cimg/python:3.14'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --cov-report= --no-cov-on-fail
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:9.3.1'
         name: search
         environment:
@@ -131,10 +135,10 @@ jobs:
       - restore_cache:
           keys:
             - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
-      - run: pip install --user tox tox-uv
-      - run: tox -e search
+      - run: sudo apt-get -qq update
+      - run: sudo apt-get -qq install -y rclone
+      - run: pip install --quiet --user tox tox-uv
+      - run: tox --no-list-dependencies -e search
       - run: cp .coverage .coverage.search
       - save_cache:
           key: pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -153,7 +157,7 @@ jobs:
     docker:
       - image: 'cimg/python:3.14'
         environment:
-          PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+          PYTEST_COVERAGE: --cov-config .coveragerc --cov --cov-report= --no-cov-on-fail
     resource_class: large.gen2
     steps:
       - setup-checkout
@@ -161,8 +165,8 @@ jobs:
       - restore_cache:
           keys:
             - pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: pip install --user tox tox-uv
-      - run: tox -e proxito
+      - run: pip install --quiet --user tox tox-uv
+      - run: tox --no-list-dependencies -e proxito
       - run: cp .coverage .coverage.proxito
       - save_cache:
           key: pip-proxito-v2-{{ checksum "requirements-cache-key.txt" }}
@@ -186,7 +190,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: pip install --user 'tox<4'
+      - run: pip install --quiet --user 'tox<4'
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
@@ -233,9 +237,9 @@ jobs:
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: pip install --user tox tox-uv
-      - run: tox -e pre-commit
-      - run: tox -e migrations
+      - run: pip install --quiet --user tox tox-uv
+      - run: tox --no-list-dependencies -e pre-commit
+      - run: tox --no-list-dependencies -e migrations
       - save_cache:
           key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
           paths:
