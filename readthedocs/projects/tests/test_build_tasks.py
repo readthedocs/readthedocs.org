@@ -512,7 +512,7 @@ class TestBuildTask(BuildEnvironmentBase):
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
     @mock.patch("readthedocs.projects.tasks.builds.purge_docs_cdn")
-    @mock.patch("readthedocs.projects.tasks.builds.index_build")
+    @mock.patch("readthedocs.projects.tasks.builds.queue_index_build")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build", return_value=True)
@@ -523,7 +523,7 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         send_external_build_status,
-        index_build,
+        queue_index_build,
         purge_docs_cdn,
         shutilmock,
     ):
@@ -615,7 +615,7 @@ class TestBuildTask(BuildEnvironmentBase):
             status=BUILD_STATUS_SUCCESS,
         )
 
-        index_build.delay.assert_called_once_with(build_id=self.build.pk)
+        queue_index_build.assert_called_once_with(build_id=self.build.pk, version=mock.ANY)
 
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
 

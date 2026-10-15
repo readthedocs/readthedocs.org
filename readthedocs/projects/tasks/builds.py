@@ -68,7 +68,7 @@ from ..models import APIProject
 from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
-from .search import index_build
+from .search import queue_index_build
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import purge_docs_cdn
@@ -724,8 +724,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Purge the CDN now that the new files are in storage.
         purge_docs_cdn.delay(version_id=self.data.version.pk)
 
-        # Index search data
-        index_build.delay(build_id=self.data.build_pk)
+        # Index search data.
+        queue_index_build(build_id=self.data.build_pk, version=self.data.version)
 
         # Check if the project is spam
         if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:

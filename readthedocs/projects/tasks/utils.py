@@ -284,8 +284,8 @@ def purge_docs_cdn(version_id):
 
     Triggered as soon as a build finishes uploading its artifacts, so users
     see the new docs right away, without waiting for search indexing
-    (``index_build``), which runs on the ``reindex`` queue,
-    where a backlog can delay it long after the build has finished.
+    (``index_build``), whose queue can have a backlog that delays it
+    long after the build has finished.
 
     Not to be confused with ``Version.purge_cdn``,
     which signals version *metadata* changes (``version_changed``).

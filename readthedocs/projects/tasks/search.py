@@ -337,6 +337,19 @@ def _process_files(*, version: Version, indexers: list[Indexer], local_path: str
     return sync_id
 
 
+def queue_index_build(*, build_id, version):
+    """
+    Queue ``index_build`` for a finished build.
+
+    External versions skip search indexing,
+    so they don't need to wait behind the ``reindex`` queue.
+    """
+    if version is not None and version.is_external:
+        index_build.apply_async(kwargs={"build_id": build_id}, queue="web")
+    else:
+        index_build.delay(build_id=build_id)
+
+
 @app.task(queue="reindex")
 def index_build(build_id):
     """Create imported files and search index for the build."""
