@@ -211,6 +211,33 @@ class FileManifestIndexer(Indexer):
             post_build_overview.delay(self.build.id)
 
 
+def _should_create_manifest(version: Version) -> bool:
+    """Check whether ``version`` needs a file tree diff manifest."""
+    if settings.RTD_FILETREEDIFF_ALL:
+        return True
+
+    project = version.project
+    addons = project.addons
+
+    # We compare PR previews against the latest version, unless the project
+    # has a specific options_base_version set. The base version's manifest is
+    # always written: a stale one would be snapshotted as the baseline of
+    # pull request diffs, which skip the staleness check.
+    base_version_slug = addons.options_base_version.slug if addons.options_base_version else LATEST
+    if version.slug == base_version_slug:
+        return True
+
+    # Pull request builds only need a manifest when a feature consumes it:
+    # file tree diff, or build overview comments (GitHub App only).
+    return bool(
+        version.is_external
+        and (
+            addons.filetreediff_enabled
+            or (project.show_build_overview_in_comment and project.is_github_app_project)
+        )
+    )
+
+
 def _get_indexers(
     *, version: Version, build: Build, search_index_name=None, post_build_overview=True
 ):
@@ -243,17 +270,7 @@ def _get_indexers(
         )
         indexers.append(search_indexer)
 
-    # We compare PR previews against the latest version,
-    # unless the project has a specific options_base_version set.
-    base_version = (
-        version.project.addons.options_base_version.slug
-        if version.project.addons.options_base_version
-        else LATEST
-    )
-    create_manifest = (
-        version.is_external or version.slug == base_version or settings.RTD_FILETREEDIFF_ALL
-    )
-    if create_manifest:
+    if _should_create_manifest(version):
         file_manifest_indexer = FileManifestIndexer(
             version=version,
             build=build,
