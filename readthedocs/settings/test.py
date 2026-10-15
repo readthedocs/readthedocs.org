@@ -131,6 +131,9 @@ class CommunityTestSettings(CommunityBaseSettings):
         # handler for post-mortem inspection.
         logging["handlers"]["console"]["level"] = "WARNING"
         logging["formatters"]["default"]["format"] = "[%(asctime)s] " + self.LOG_FORMAT
+        # Expected 4xx responses and exceptions the test client re-raises
+        # would otherwise be logged a second time.
+        logging["loggers"]["django.request"] = {"level": "CRITICAL"}
         # Allow Sphinx and other tools to create loggers
         logging["disable_existing_loggers"] = False
         return logging
