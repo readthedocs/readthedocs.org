@@ -1030,6 +1030,12 @@ class CommunityBaseSettings(Settings):
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
+    # Don't connect django-elasticsearch-dsl's receivers to every model's signals.
+    # All our documents use ``ignore_signals = True`` and have no related models,
+    # so its receivers are no-ops; we index from our own receivers
+    # (``readthedocs.search.signals``) and tasks instead.
+    # Receivers without a sender also disable Django's fast delete for every model.
+    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.BaseSignalProcessor"
 
     ALLOWED_HOSTS = ["*"]
 
