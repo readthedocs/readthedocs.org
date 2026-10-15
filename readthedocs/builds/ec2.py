@@ -5,11 +5,9 @@ The worker on the instance holds no AWS credentials: it calls the
 ``instance/protect`` and ``instance/release`` build API endpoints and the web
 tier performs the Auto Scaling calls with the ``scalein`` IAM user.
 
-The fleet has no ASG scaling policies. Every dispatch raises desired capacity
-so a buffer of idle instances stays ahead of demand,
-and every finished build terminates its own instance with a decrement,
-so idle capacity never grows and nothing has to scale
-in.
+A periodic task raises desired capacity so a buffer of idle instances stays
+ahead of demand, and every finished build terminates its own instance
+with a decrement, so idle capacity never grows and nothing has to scale in.
 """
 
 import datetime
@@ -121,8 +119,9 @@ def ensure_warm_buffer():
     Raise the fleet's desired capacity so ``RTD_BUILD_ISOLATED_BUFFER`` idle
     instances stay ahead of demand.
 
-    Desired must cover every dispatched build plus the buffer. This only ever raises
-    desired: a finished build removes its instance and its demand together.
+    Called every few seconds from the ``autoscaling`` queue. Desired must cover
+    every dispatched build plus the buffer. This only ever raises desired: a
+    finished build removes its instance and its demand together.
     """
     # NOTE: eventually, when we have more ASG running isolated builds,
     # we will want to get the ASG name from the queue name (e.g., "build:isolated-large").

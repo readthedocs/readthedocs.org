@@ -1,6 +1,7 @@
 from unittest import mock
 
 from botocore.exceptions import ClientError
+from django.core.cache import cache
 from django.test import TestCase
 from django.test import override_settings
 from django.utils import timezone
@@ -12,7 +13,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import submit_to_build_isolated
+from readthedocs.builds.tasks import set_build_isolated_desired_capacity
 from readthedocs.projects.models import Project
 
 
@@ -117,14 +118,20 @@ class EnsureWarmBufferTests(TestCase):
 
         assert ec2.ensure_warm_buffer() is None
 
-    @mock.patch("readthedocs.builds.ec2.ensure_warm_buffer")
-    @mock.patch("readthedocs.core.utils.app.send_task")
-    def test_dispatch_lifts_the_warm_buffer(self, send_task, ensure_warm_buffer, boto3_client):
-        send_task.return_value.id = "task-id"
-        build = self.build(dispatched=False)
+    @mock.patch("readthedocs.builds.tasks.ensure_warm_buffer")
+    def test_periodic_task_lifts_the_warm_buffer(self, ensure_warm_buffer, boto3_client):
+        assert set_build_isolated_desired_capacity() is True
 
-        submit_to_build_isolated(project=self.project, build=build)
-
-        build.refresh_from_db()
-        assert build.dispatched_date is not None
         ensure_warm_buffer.assert_called_once_with()
+
+    @mock.patch("readthedocs.builds.tasks.ensure_warm_buffer")
+    def test_periodic_task_skips_while_another_run_holds_the_lock(
+        self, ensure_warm_buffer, boto3_client
+    ):
+        lock_id = f"{set_build_isolated_desired_capacity.name}-lock"
+        cache.add(lock_id, "other-run", 10)
+        self.addCleanup(cache.delete, lock_id)
+
+        assert set_build_isolated_desired_capacity() is False
+
+        ensure_warm_buffer.assert_not_called()

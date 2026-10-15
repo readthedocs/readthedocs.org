@@ -636,9 +636,8 @@ class CommunityBaseSettings(Settings):
     RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
-    # Auto Scaling group of the build-isolated fleet. Every dispatch raises its
-    # desired capacity to dispatched builds + BUFFER (``builds.ec2``); there
-    # are no ASG scaling policies. ``None`` disables the lift.
+    # Auto Scaling group of the build-isolated fleet. A periodic task raises its
+    # desired capacity to dispatched builds + BUFFER.
     RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
     RTD_BUILD_ISOLATED_BUFFER = 20
 
@@ -797,6 +796,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=22, hour="*"),
             "options": {"queue": "web"},
             "kwargs": {"days": 365 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 2_500},
+        },
+        "every-5s-build-isolated-desired-capacity": {
+            "task": "readthedocs.builds.tasks.set_build_isolated_desired_capacity",
+            "schedule": timedelta(seconds=5),
+            "options": {"queue": "autoscaling", "expires": 5},
         },
     }
 
