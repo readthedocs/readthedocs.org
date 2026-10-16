@@ -195,11 +195,14 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        language = form.cleaned_data.get("language")
+        if not language:
+            return response
         # Same cookie Django's ``set_language`` view sets, so ``LocaleMiddleware``
         # picks the language up on the next request.
         response.set_cookie(
             settings.LANGUAGE_COOKIE_NAME,
-            form.cleaned_data["language"],
+            language,
             max_age=settings.LANGUAGE_COOKIE_AGE,
             path=settings.LANGUAGE_COOKIE_PATH,
             domain=settings.LANGUAGE_COOKIE_DOMAIN,

@@ -110,6 +110,7 @@ class UserProfileDashboardPreferencesForm(forms.ModelForm):
     language = forms.ChoiceField(
         label=_("Dashboard language"),
         choices=get_language_choices,
+        required=False,
     )
 
     class Meta:
