@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.i18n import set_language
 from rest_framework.authtoken.models import Token
 from vanilla import CreateView
 from vanilla import DeleteView
@@ -194,23 +195,10 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
         return self.request.user.profile
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        language = form.cleaned_data.get("language")
-        if not language:
-            return response
-        # Same cookie Django's ``set_language`` view sets, so ``LocaleMiddleware``
-        # picks the language up on the next request.
-        response.set_cookie(
-            settings.LANGUAGE_COOKIE_NAME,
-            language,
-            max_age=settings.LANGUAGE_COOKIE_AGE,
-            path=settings.LANGUAGE_COOKIE_PATH,
-            domain=settings.LANGUAGE_COOKIE_DOMAIN,
-            secure=settings.LANGUAGE_COOKIE_SECURE,
-            httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
-            samesite=settings.LANGUAGE_COOKIE_SAMESITE,
-        )
-        return response
+        super().form_valid(form)
+        # Django's own view validates the language, sets the cookie that
+        # ``LocaleMiddleware`` reads, and redirects to the form's ``next`` field.
+        return set_language(self.request)
 
     def get_success_url(self):
         return reverse(

@@ -995,6 +995,12 @@ class TestUserProfileDashboardPreferencesEdit(TestCase):
         response = self.client.get(self.url)
         assert response.wsgi_request.LANGUAGE_CODE == "fr"
 
+    def test_language_post_redirects_to_next(self):
+        data = {"theme": "default", "language": "es", "next": self.url}
+        response = self.client.post(self.url, data)
+        assert response.status_code == 302
+        assert response["Location"] == self.url
+
     def test_language_initial_is_current_language(self):
         self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "fr"
         response = self.client.get(self.url)
