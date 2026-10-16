@@ -13,11 +13,13 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import admit_project_builds
+from readthedocs.core.utils import cancel_build
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.views.hooks import trigger_sync_versions
@@ -207,6 +209,45 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_trigger_build_saves_only_task_id(self, update_docs):
+        """Storing the task id doesn't overwrite what the build task already saved."""
+
+        def apply_async():
+            # The build task can start before ``apply_async`` returns.
+            Build.objects.filter(project=self.project).update(state=BUILD_STATE_BUILDING)
+            return mock.Mock(id="task-id")
+
+        update_docs.signature.return_value.apply_async.side_effect = apply_async
+        _, build = trigger_build(project=self.project, version=self.version)
+
+        build.refresh_from_db()
+        assert build.task_id == "task-id"
+        assert build.state == BUILD_STATE_BUILDING
+
+    @mock.patch("readthedocs.core.utils.app")
+    def test_cancel_triggered_build_saves_only_cancel_fields(self, app):
+        """Cancelling doesn't overwrite what the build task already saved."""
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_TRIGGERED,
+            task_id="task-id",
+        )
+        # The build task starts after the build was loaded to be cancelled.
+        Build.objects.filter(pk=build.pk).update(builder="builder-1", commit="abc123")
+
+        cancel_build(build)
+
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_CANCELLED
+        assert build.success is False
+        assert build.length == 0
+        assert build.builder == "builder-1"
+        assert build.commit == "abc123"
+        app.control.revoke.assert_called_once_with("task-id", signal="SIGINT", terminate=True)
+
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     def test_trigger_max_concurrency_reached(self, update_docs, app):
@@ -326,6 +367,23 @@ class BuildIsolatedConcurrencyTests(TestCase):
         assert build.dispatched_date is not None
         assert send_task.call_count == 1
         assert build.notifications.count() == 0
+
+    @mock.patch("readthedocs.core.utils.app.send_task")
+    def test_trigger_build_isolated_path_saves_only_dispatch_fields(self, send_task):
+        """Dispatching doesn't overwrite what the build task already saved."""
+
+        def dispatch(*args, **kwargs):
+            # The builder can pick up the task before ``send_task`` returns.
+            Build.objects.filter(project=self.project).update(state=BUILD_STATE_BUILDING)
+            return mock.Mock(id="task-id")
+
+        send_task.side_effect = dispatch
+        _, build = trigger_build(project=self.project, version=self.version)
+
+        build.refresh_from_db()
+        assert build.task_id == "task-id"
+        assert build.dispatched_date is not None
+        assert build.state == BUILD_STATE_BUILDING
 
     @mock.patch("readthedocs.core.utils.app.send_task")
     def test_trigger_build_isolated_path_queues_when_limit_reached(self, send_task):
