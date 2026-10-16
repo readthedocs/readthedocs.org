@@ -1,5 +1,5 @@
-Read the Docs: documentation simplified
-=======================================
+Read the Docs: your documentation infrastructure layer
+======================================================
 
 .. toctree::
    :maxdepth: 2
@@ -126,38 +126,50 @@ Read the Docs: documentation simplified
    Read the Docs website <https://about.readthedocs.com>
 
 .. meta::
-   :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
+   :description lang=en: Connect your Git repository and treat docs like code. Read the Docs runs builds, previews, and authentication so you can focus on writing great docs.
 
 .. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
 .. raw:: html
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs simplifies managing software documentation
-by building and hosting your docs automatically,
-using the Git workflow you already use for code.
-Treating documentation like code lets your team use tools they already know,
-and makes keeping your docs updated easier.
+Connect your Git repository and treat docs like code.
+We run the hard parts, builds, previews, and authentication,
+so you can focus on writing great docs.
 
-Up to date documentation
-    Whenever you push code to Git,
-    Read the Docs will automatically build your docs
-    so your code and documentation are always up-to-date.
+Build automatically
+    Every push to Git builds your docs,
+    with Sphinx, MkDocs, Docusaurus, or any other tool,
+    so your code and documentation always match.
     Get started with our :doc:`tutorial </tutorial/index>`.
 
-Documentation for every version
-    Read the Docs can host multiple versions of your docs.
-    Keep your 1.0 and 2.0 documentation online,
-    pulled directly from Git.
+Preview your changes
+    Every pull request gets a live preview build
+    with a visual diff against your production docs.
+    Review the rendered output instead of raw markup.
+    Set up :doc:`pull request previews </pull-requests>`.
+
+Maintain docs as code
+    Match your release cycle with multiple versions of your docs,
+    built from any branch or tag,
+    and translate them into multiple languages.
     Start hosting all your :doc:`versions </versions>`.
 
-Open source and user focused
-    Our company is bootstrapped and 100% user-focused,
-    so our product gets better for our users instead of our investors.
-    |org_brand| hosts documentation for over 100,000 large
-    and small open source projects at no cost.
-    |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
+Everything in one place
+    Search, redirects, analytics, and custom domains come built in,
+    and your docs are ready for AI tools with ``llms.txt``, Markdown, and agent skills.
+    See how to serve your docs to :doc:`AI agents </reference/llms-txt>`.
+
+Decide who sees your docs
+    Control access from your internal team to the whole world,
+    and manage permissions in one place with single sign-on.
+    Learn about :doc:`hosting private documentation </commercial/index>`.
+
+|org_brand| is free for open source projects,
+and has hosted open source documentation since 2010.
+|com_brand| runs the infrastructure for engineering and docs teams,
+with private repositories, access control, and single sign-on.
+Compare them on `our pricing page <https://about.readthedocs.com/pricing/>`_.
 
 First time here?
 ----------------
