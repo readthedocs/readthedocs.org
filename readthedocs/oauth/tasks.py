@@ -633,6 +633,7 @@ class GitHubAppWebhookHandler:
                     log.info(
                         "No automation rule matched, skipping build.",
                         project_slug=project.slug,
+                        reason="no-automation-rule-matched",
                     )
             else:
                 build_versions_from_names(
@@ -661,12 +662,22 @@ class GitHubAppWebhookHandler:
             # Direct upload projects get their pull request previews from the upload API,
             # creating the version here would leave it empty until the upload arrives.
             # Closed events are still handled below, so uploaded previews get cleaned up.
-            projects = (
-                self._get_projects()
-                .filter(external_builds_enabled=True)
-                .exclude(is_direct_upload=True)
-            )
-            for project in projects:
+            for project in self._get_projects():
+                if project.is_direct_upload:
+                    log.info(
+                        "Skipping pull request event.",
+                        project_slug=project.slug,
+                        reason="direct-upload-project",
+                    )
+                    continue
+                if not project.external_builds_enabled:
+                    log.info(
+                        "Skipping pull request event.",
+                        project_slug=project.slug,
+                        reason="pull-request-previews-disabled",
+                    )
+                    continue
+
                 external_version = get_or_create_external_version(
                     project=project,
                     version_data=external_version_data,
@@ -722,6 +733,7 @@ class GitHubAppWebhookHandler:
                         log.info(
                             "No automation rule matched, skipping build.",
                             project_slug=project.slug,
+                            reason="no-automation-rule-matched",
                         )
                 else:
                     trigger_build(
@@ -742,6 +754,7 @@ class GitHubAppWebhookHandler:
             return
 
         # We don't care about the other actions.
+        log.debug("Ignoring pull request action.", pr_action=action)
         return
 
     def _handle_organization_event(self):
@@ -839,8 +852,20 @@ class GitHubAppWebhookHandler:
         """
         remote_repository = self._get_remote_repository()
         if not remote_repository:
+            log.info(
+                "Repository not found in installation, skipping event.",
+                repository_id=self.data.get("repository", {}).get("id"),
+                repository_full_name=self.data.get("repository", {}).get("full_name"),
+            )
             return Project.objects.none()
-        return remote_repository.projects.all()
+        projects = remote_repository.projects.all()
+        if not projects.exists():
+            log.info(
+                "No projects linked to repository, skipping event.",
+                remote_repository_id=remote_repository.pk,
+                repository_full_name=remote_repository.full_name,
+            )
+        return projects
 
     def _get_remote_repository(self):
         """

@@ -57,8 +57,20 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
                 trigger_build(project=project, version=version, from_webhook=True)
                 to_build.add(version.slug)
             else:
-                log.info("Not building.", version_slug=version.slug)
+                log.info(
+                    "Not building, version is not active.",
+                    project_slug=project.slug,
+                    version_slug=version.slug,
+                    reason="version-not-active",
+                )
                 not_building.add(version.slug)
+    if not to_build and not not_building:
+        log.info(
+            "Not building, no version matches the pushed branches or tags.",
+            project_slug=project.slug,
+            versions=[(info.name, info.type) for info in versions_info],
+            reason="version-not-found",
+        )
     return to_build, not_building
 
 
