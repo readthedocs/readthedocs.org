@@ -195,10 +195,13 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
         return self.request.user.profile
 
     def form_valid(self, form):
-        super().form_valid(form)
-        # Django's own view validates the language, sets the cookie that
-        # ``LocaleMiddleware`` reads, and redirects to the form's ``next`` field.
-        return set_language(self.request)
+        response = super().form_valid(form)
+        # Django's own view validates the language and builds the cookie that
+        # ``LocaleMiddleware`` reads. Keep our redirect and carry the cookie over.
+        cookie = set_language(self.request).cookies.get(settings.LANGUAGE_COOKIE_NAME)
+        if cookie:
+            response.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+        return response
 
     def get_success_url(self):
         return reverse(
