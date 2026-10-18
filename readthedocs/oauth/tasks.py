@@ -852,20 +852,14 @@ class GitHubAppWebhookHandler:
         """
         remote_repository = self._get_remote_repository()
         if not remote_repository:
-            log.info(
+            # Debug only: the app is installed org-wide, so this fires for
+            # every event on every repository without a project.
+            log.debug(
                 "Repository not found in installation, skipping event.",
                 repository_id=self.data.get("repository", {}).get("id"),
-                repository_full_name=self.data.get("repository", {}).get("full_name"),
             )
             return Project.objects.none()
-        projects = remote_repository.projects.all()
-        if not projects.exists():
-            log.info(
-                "No projects linked to repository, skipping event.",
-                remote_repository_id=remote_repository.pk,
-                repository_full_name=remote_repository.full_name,
-            )
-        return projects
+        return remote_repository.projects.all()
 
     def _get_remote_repository(self):
         """
