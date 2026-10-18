@@ -11,7 +11,7 @@ class DocsAPIRootView(APIRootView):
     Each request requires an `Authorization` HTTP header with `Token <your-token>`,
     find the token in [your account](/accounts/tokens/).
 
-    Read the full documentation at <https://docs.readthedocs.io/page/api/v3.html>.
+    Read the full documentation at <https://docs.readthedocs.com/platform/stable/api/v3.html>.
     """
 
     def get_view_name(self):

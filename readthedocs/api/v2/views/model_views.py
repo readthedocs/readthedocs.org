@@ -138,7 +138,7 @@ class DisableListEndpoint:
                 "msg": (
                     "List endpoint have been disabled due to heavy resource usage. "
                     "Take into account than APIv2 is planned to be deprecated soon. "
-                    "Please use APIv3: https://docs.readthedocs.io/page/api/v3.html"
+                    "Please use APIv3: https://docs.readthedocs.com/platform/stable/api/v3.html"
                 ),
             },
             status=status.HTTP_410_GONE,
