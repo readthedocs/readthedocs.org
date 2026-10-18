@@ -276,6 +276,17 @@ class UploadCompleteView(APIv3Settings, APIView):
 
         storage = storages["build-uploads"]
         if not storage.exists(build.uploaded_artifacts_storage_path):
+            # The client won't retry after reporting success,
+            # so finish the build now with a note instead of leaving it
+            # pending until the upload URL expires.
+            build.state = BUILD_STATE_FINISHED
+            build.success = False
+            build.save()
+            Notification.objects.add(
+                message_id=BuildUserError.BUILD_ARTIFACTS_ZIP_NOT_FOUND,
+                attached_to=build,
+                dismissable=False,
+            )
             return Response(
                 {
                     "detail": "Uploaded artifacts file not found in storage. Make sure the upload was successful."

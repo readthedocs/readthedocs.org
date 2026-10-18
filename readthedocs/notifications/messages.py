@@ -484,6 +484,34 @@ BUILD_MESSAGES = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_NOT_FOUND,
+        header=_("Artifacts zip file was not found"),
+        body=_(
+            textwrap.dedent(
+                """
+                Your CI job reported the upload as finished,
+                but no artifacts zip file was found on Read the Docs.
+                Check that the upload step in your CI job completed successfully.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED,
+        header=_("Upload was never completed"),
+        body=_(
+            textwrap.dedent(
+                """
+                This build was started by your CI job,
+                but the artifacts zip file was never uploaded and the upload URL has expired.
+                Check your CI job for errors between the build and upload steps.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [

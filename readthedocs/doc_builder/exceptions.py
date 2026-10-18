@@ -46,6 +46,8 @@ class BuildUserError(BuildBaseException):
     PDF_NOT_FOUND = "build:user:pdf-not-found"
     BUILD_ARTIFACTS_ZIP_INVALID = "build:user:artifacts-zip-invalid"
     BUILD_ARTIFACTS_ZIP_UPLOAD_FAILED = "build:user:artifacts-zip-upload-failed"
+    BUILD_ARTIFACTS_ZIP_NOT_FOUND = "build:user:artifacts-zip-not-found"
+    BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED = "build:user:artifacts-zip-never-uploaded"
 
     NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"
