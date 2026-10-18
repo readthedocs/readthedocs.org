@@ -134,42 +134,81 @@ Read the Docs: your documentation infrastructure layer
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
 Connect your Git repository and treat docs like code.
-We run the hard parts, builds, previews, and authentication,
-so you can focus on writing great docs.
+Read the Docs runs the builds, previews, and authentication,
+so you ship documentation from the same pull requests as your code.
 
-Build automatically
-    Every push to Git builds your docs,
-    with Sphinx, MkDocs, Docusaurus, or any other tool,
-    so your code and documentation always match.
-    Get started with our :doc:`tutorial </tutorial/index>`.
+.. grid:: 2
+    :gutter: 2
 
-Preview your changes
-    Every pull request gets a live preview build
-    with a visual diff against your production docs.
-    Review the rendered output instead of raw markup.
-    Set up :doc:`pull request previews </pull-requests>`.
+    .. grid-item-card:: Build on every push
+        :link: /builds
+        :link-type: doc
 
-Maintain docs as code
-    Match your release cycle with multiple versions of your docs,
-    built from any branch or tag,
-    and translate them into multiple languages.
-    Start hosting all your :doc:`versions </versions>`.
+        A webhook from GitHub, GitLab, or Bitbucket triggers a build
+        in an isolated environment defined in ``.readthedocs.yaml``.
+        Pick the OS and Python or Node version, and run any build command.
+        Sphinx, MkDocs, Docusaurus, or any tool that outputs HTML.
 
-Everything in one place
-    Search, redirects, analytics, and custom domains come built in,
-    and your docs are ready for AI tools with ``llms.txt``, Markdown, and agent skills.
-    See how to serve your docs to :doc:`AI agents </reference/llms-txt>`.
+    .. grid-item-card:: Preview pull requests
+        :link: /pull-requests
+        :link-type: doc
 
-Decide who sees your docs
-    Control access from your internal team to the whole world,
-    and manage permissions in one place with single sign-on.
-    Learn about :doc:`hosting private documentation </commercial/index>`.
+        Each pull request builds to its own URL, posts a status check,
+        and shows a visual diff of the rendered pages against production.
 
-|org_brand| is free for open source projects,
-and has hosted open source documentation since 2010.
-|com_brand| runs the infrastructure for engineering and docs teams,
-with private repositories, access control, and single sign-on.
-Compare them on `our pricing page <https://about.readthedocs.com/pricing/>`_.
+    .. grid-item-card:: Version from branches and tags
+        :link: /versions
+        :link-type: doc
+
+        Each branch or tag becomes a version at its own URL,
+        like ``/en/stable/`` or ``/en/v2.0/``.
+        Automation rules activate versions as you tag releases,
+        and translations ship the same way.
+
+    .. grid-item-card:: Host with everything built in
+        :link: /custom-domains
+        :link-type: doc
+
+        CDN hosting on your own domain with HTTPS,
+        redirects, server-side search with an API,
+        and traffic and search analytics.
+
+    .. grid-item-card:: Serve docs to AI agents
+        :link: /reference/llms-txt
+        :link-type: doc
+
+        ``llms.txt``, Markdown through ``Accept: text/markdown`` content negotiation,
+        and agent skills make your docs usable from any AI tool.
+
+    .. grid-item-card:: Control who reads your docs
+        :link: /commercial/index
+        :link-type: doc
+
+        On |com_brand|, build from private repositories and gate access per project,
+        with single sign-on through GitHub, GitLab, Bitbucket, Google Workspace, or SAML.
+
+|org_brand| is free for open source projects and has hosted them since 2010.
+|com_brand| adds private repositories, access control, and team management
+for engineering and docs teams.
+`Compare plans <https://about.readthedocs.com/pricing/>`_.
+
+.. grid:: 2
+
+    .. grid-item::
+
+        .. button-link:: https://app.readthedocs.org/dashboard/import/
+            :color: primary
+            :expand:
+
+            Add a project on Community
+
+    .. grid-item::
+
+        .. button-link:: https://app.readthedocs.com/dashboard/import/
+            :color: info
+            :expand:
+
+            Add a project on Business
 
 First time here?
 ----------------
