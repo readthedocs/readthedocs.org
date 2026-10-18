@@ -490,9 +490,9 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-                This build was started by your CI job,
+                A direct upload build was started,
                 but the artifacts zip file was never uploaded and the upload URL has expired.
-                Check your CI job for errors between the build and upload steps.
+                Check for errors between your build and upload steps.
                 """
             ).strip(),
         ),
