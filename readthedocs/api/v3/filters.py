@@ -1,5 +1,3 @@
-import re
-
 import django_filters.rest_framework as filters
 from django.db.models import BooleanField
 from django.db.models import Case
@@ -81,63 +79,42 @@ class NotificationFilter(filters.FilterSet):
 
 
 class RemoteRepositoryOrderingFilter(filters.OrderingFilter):
-    """
-    Ordering filter with a custom ``import`` choice.
-
-    ``import`` orders repositories by how likely they are to be imported
-    next, for the dashboard's add project page: repositories the user can
-    import come first, then the ones whose name matches the ``full_name``
-    search (before the ones matching only on the owner), repositories that
-    already have a project sink to the bottom of their group, and
-    documentation-looking names get a boost, keeping the default
-    alphabetical order as the tiebreak.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.extra["choices"] += [
-            ("import", "Repositories most likely to be imported first"),
-        ]
+    """Ordering filter with an ``import`` choice that puts the best import candidates first."""
 
     def filter(self, qs, value):
-        if value and "import" in value:
-            return qs.annotate(
-                _search_rank=self._get_search_rank(),
-                _has_project=Exists(Project.objects.filter(remote_repository=OuterRef("pk"))),
-                _looks_like_docs=ExpressionWrapper(
-                    Q(name__icontains="doc"),
-                    output_field=BooleanField(),
-                ),
-            ).order_by(
-                "-_admin",
-                "_search_rank",
-                "_has_project",
-                "-_looks_like_docs",
-                "organization__name",
-                "full_name",
-            )
-        return super().filter(qs, value)
+        if not value or "import" not in value:
+            return super().filter(qs, value)
 
-    def _get_search_rank(self):
-        """
-        Rank repositories by how the ``full_name`` search matched them.
-
-        ``full_name`` is ``owner/name``, so the search matches the owner and
-        the repository name alike. Repositories whose name starts with the
-        query rank first, then the ones whose name contains it, then the ones
-        matching on the owner (user or organization) only. Without a search,
-        all repositories rank the same.
-        """
+        # The ``full_name`` search matches the owner too, so rank repositories
+        # the query matched on the name (prefix, then anywhere) above the rest.
         query = self.parent.form.cleaned_data.get("full_name")
-        if not query:
-            return Value(0, output_field=IntegerField())
-        return Case(
-            When(name__istartswith=query, then=Value(0)),
-            When(name__icontains=query, then=Value(1)),
-            # Match the owner portion of ``full_name`` (everything before the ``/``).
-            When(full_name__iregex=rf"^[^/]*{re.escape(query)}", then=Value(2)),
-            default=Value(3),
-            output_field=IntegerField(),
+        search_rank = (
+            Case(
+                When(name__istartswith=query, then=0),
+                When(name__icontains=query, then=1),
+                default=2,
+                output_field=IntegerField(),
+            )
+            if query
+            else Value(0)
+        )
+
+        # Importable repositories first, best search match, nothing imported
+        # yet, documentation-looking names, and alphabetical as the tiebreak.
+        return qs.annotate(
+            _search_rank=search_rank,
+            _has_project=Exists(Project.objects.filter(remote_repository=OuterRef("pk"))),
+            _looks_like_docs=ExpressionWrapper(
+                Q(name__icontains="doc"),
+                output_field=BooleanField(),
+            ),
+        ).order_by(
+            "-_admin",
+            "_search_rank",
+            "_has_project",
+            "-_looks_like_docs",
+            "organization__name",
+            "full_name",
         )
 
 
@@ -145,7 +122,9 @@ class RemoteRepositoryFilter(filters.FilterSet):
     name = filters.CharFilter(field_name="name", lookup_expr="icontains")
     full_name = filters.CharFilter(field_name="full_name", lookup_expr="icontains")
     organization = filters.CharFilter(field_name="organization__slug")
-    ordering = RemoteRepositoryOrderingFilter()
+    ordering = RemoteRepositoryOrderingFilter(
+        choices=[("import", "Repositories most likely to be imported first")],
+    )
 
     class Meta:
         model = RemoteRepository
