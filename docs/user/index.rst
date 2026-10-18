@@ -192,24 +192,6 @@ so you ship documentation from the same pull requests as your code.
 for engineering and docs teams.
 `Compare plans <https://about.readthedocs.com/pricing/>`_.
 
-.. grid:: 2
-
-    .. grid-item::
-
-        .. button-link:: https://app.readthedocs.org/dashboard/import/
-            :color: primary
-            :expand:
-
-            Add a project on Community
-
-    .. grid-item::
-
-        .. button-link:: https://app.readthedocs.com/dashboard/import/
-            :color: info
-            :expand:
-
-            Add a project on Business
-
 First time here?
 ----------------
 
