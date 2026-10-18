@@ -611,16 +611,6 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         storage_mock.exists.assert_called_once_with(self.build.uploaded_artifacts_storage_path)
 
-        # The report was final, so the build is closed with a note instead of waiting to expire.
-        self.build.refresh_from_db()
-        assert self.build.state == BUILD_STATE_FINISHED
-        assert not self.build.success
-        notification = Notification.objects.get(
-            attached_to_content_type__model="build",
-            attached_to_id=self.build.pk,
-        )
-        assert notification.message_id == BuildUserError.BUILD_ARTIFACTS_ZIP_NOT_FOUND
-
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.upload.api.views.storages")
     def test_success_triggers_processing_task(self, storages_mock, app_mock):

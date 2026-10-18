@@ -106,7 +106,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
         version.delete()
 
 
-def finish_inactive_build(build, message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY):
+def finish_inactive_build(build):
     """
     Finish a build that has been detected as inactive.
 
@@ -114,9 +114,9 @@ def finish_inactive_build(build, message_id=BuildAppError.BUILD_TERMINATED_DUE_I
     to the build to inform the user why it was terminated.
 
     In case the build is still running, we also revoke the Celery task to cancel it.
-
-    :param message_id: Notification to attach to the build. Defaults to the generic inactivity message.
     """
+    # Decide the message before touching the build, since cancelling changes its state.
+    message_id = _inactive_build_message_id(build)
     log.info(
         "Finishing inactive build.",
         build_id=build.pk,
@@ -137,6 +137,19 @@ def finish_inactive_build(build, message_id=BuildAppError.BUILD_TERMINATED_DUE_I
     )
 
 
+def _inactive_build_message_id(build):
+    """
+    Pick the notification explaining why an inactive build is being cancelled.
+
+    An uploaded build still in the triggered state with no task is one whose
+    CI job never called the complete endpoint (see ``BuildQuerySet.pending_upload``).
+    For those, the upload is what went missing, not the build.
+    """
+    if build.is_uploaded and build.state == BUILD_STATE_TRIGGERED and not build.task_id:
+        return BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
+    return BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
+
+
 @app.task(queue="web")
 def finish_inactive_uploaded_builds():
     """
@@ -154,12 +167,7 @@ def finish_inactive_uploaded_builds():
         Build.objects.pending_upload().filter(date__lt=expired).select_related("project")
     )
     for build in expired_builds:
-        # The CI job never called the complete endpoint, so the user
-        # is told the upload is what went missing, not the build.
-        finish_inactive_build(
-            build,
-            message_id=BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED,
-        )
+        finish_inactive_build(build)
 
     # Finish builds that were uploaded, but didn't finish.
     # NOTE: select related on project, since finish_inactive_build uses it for logging.

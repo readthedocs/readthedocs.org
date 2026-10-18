@@ -485,20 +485,6 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
-        id=BuildUserError.BUILD_ARTIFACTS_ZIP_NOT_FOUND,
-        header=_("Artifacts zip file was not found"),
-        body=_(
-            textwrap.dedent(
-                """
-                Your CI job reported the upload as finished,
-                but no artifacts zip file was found on Read the Docs.
-                Check that the upload step in your CI job completed successfully.
-                """
-            ).strip(),
-        ),
-        type=ERROR,
-    ),
-    Message(
         id=BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED,
         header=_("Upload was never completed"),
         body=_(
