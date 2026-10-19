@@ -44,6 +44,8 @@ from readthedocs.api.v2.views.integrations import (
 )
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
@@ -187,6 +189,29 @@ class APIBuildTests(TestCase):
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
         self.assertEqual(build.notifications.count(), 0)
+
+    def test_reset_finished_build_is_rejected(self):
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        for state in [BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED]:
+            build = get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=state,
+                builder="Builder",
+            )
+            build.commands.add(get(BuildCommandResult, build=build))
+
+            r = client.post(reverse("build-reset", args=(build.pk,)))
+
+            self.assertEqual(r.status_code, 409)
+            build.refresh_from_db()
+            self.assertEqual(build.state, state)
+            self.assertEqual(build.builder, "Builder")
+            self.assertEqual(build.commands.count(), 1)
 
     @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_tools_scoped_credentials")
     @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_media_scoped_credentials")
@@ -339,6 +364,70 @@ class APIBuildTests(TestCase):
         )
         assert resp.status_code == status.HTTP_200_OK
         run_post_build_tasks.delay.assert_called_once_with(build_pk=build.pk)
+
+    def test_build_state_can_move_forward(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_CLONING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_BUILDING}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_BUILDING
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_FINISHED}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_FINISHED
+
+    def test_build_state_can_stay_the_same(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_BUILDING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_BUILDING}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+
+    def test_build_state_cannot_move_backward(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_BUILDING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == status.HTTP_400_BAD_REQUEST
+        assert "state" in resp.data
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_BUILDING
+
+    def test_build_state_cannot_leave_a_final_state(self):
+        project = Project.objects.get(pk=1)
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        for current, new in [
+            (BUILD_STATE_FINISHED, BUILD_STATE_BUILDING),
+            (BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED),
+            (BUILD_STATE_CANCELLED, BUILD_STATE_FINISHED),
+        ]:
+            build = Build.objects.create(
+                project=project, version=project.versions.first(), state=current
+            )
+            resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": new}, format="json")
+            assert resp.status_code == status.HTTP_400_BAD_REQUEST
+            build.refresh_from_db()
+            assert build.state == current
 
     def test_response_building(self):
         """The ``view docs`` attr should return a link to the dashboard."""
