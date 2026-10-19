@@ -11,6 +11,8 @@ from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import add_never_cache_headers
+from django.utils.cache import patch_vary_headers
 from django.views.generic import TemplateView
 from django.views.generic import View
 
@@ -48,7 +50,7 @@ class HomepageView(View):
         return redirect(reverse("account_login"))
 
 
-class WelcomeView(View):
+class WelcomeView(CDNCacheControlMixin, View):
     """
     Conditionally redirect to website home page or to dashboard.
 
@@ -61,21 +63,35 @@ class WelcomeView(View):
     User hitting app.readthedocs.org / app.readthedocs.com
       1. when user is logged in, redirect to dashboard
       2. when user is logged off, redirect to login page
+
+    The response depends on the session cookie, so it must never be cached:
+    not at the CDN (Cloudflare doesn't vary its cache on ``Cookie``) and not
+    in the browser (a cached redirect would keep sending a user to the
+    website after they log in).
     """
 
+    cache_response = False
+
     def get(self, request, *args, **kwargs):
-        # Redirect to user dashboard for logged in users
         if request.user.is_authenticated:
-            return redirect(reverse("projects_dashboard"))
+            # Temporary, since the same URL sends logged out users elsewhere.
+            response = redirect(reverse("projects_dashboard"))
+        else:
+            # Redirect to ``about.`` in production
+            query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
+            if request.META["QUERY_STRING"]:
+                # Small hack to not append `&` to URLs without a query_string
+                query_string += "&" + request.META["QUERY_STRING"]
 
-        # Redirect to ``about.`` in production
-        query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
-        if request.META["QUERY_STRING"]:
-            # Small hack to not append `&` to URLs without a query_string
-            query_string += "&" + request.META["QUERY_STRING"]
+            # Permanent, so search engines move the ranking of the old
+            # homepage (readthedocs.org) to the website instead of keeping
+            # the old URL indexed. ``add_never_cache_headers`` below stops
+            # browsers from remembering it.
+            response = redirect(f"https://about.readthedocs.com/{query_string}", permanent=True)
 
-        # Do a 302 here so that it varies on logged in status
-        return redirect(f"https://about.readthedocs.com/{query_string}", permanent=False)
+        add_never_cache_headers(response)
+        patch_vary_headers(response, ["Cookie"])
+        return response
 
 
 class SupportView(PrivateViewMixin, TemplateView):
