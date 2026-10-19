@@ -116,7 +116,12 @@ def finish_inactive_build(build):
     In case the build is still running, we also revoke the Celery task to cancel it.
     """
     # Decide the message before touching the build, since cancelling changes its state.
-    message_id = _inactive_build_message_id(build)
+    # An uploaded build still in the triggered state with no task is one whose
+    # complete call never came (see ``BuildQuerySet.pending_upload``),
+    # so the upload is what went missing, not the build.
+    message_id = BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
+    if build.is_uploaded and build.state == BUILD_STATE_TRIGGERED and not build.task_id:
+        message_id = BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
     log.info(
         "Finishing inactive build.",
         build_id=build.pk,
@@ -135,19 +140,6 @@ def finish_inactive_build(build):
         message_id=message_id,
         attached_to=build,
     )
-
-
-def _inactive_build_message_id(build):
-    """
-    Pick the notification explaining why an inactive build is being cancelled.
-
-    An uploaded build still in the triggered state with no task is one whose
-    CI job never called the complete endpoint (see ``BuildQuerySet.pending_upload``).
-    For those, the upload is what went missing, not the build.
-    """
-    if build.is_uploaded and build.state == BUILD_STATE_TRIGGERED and not build.task_id:
-        return BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
-    return BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
 
 
 @app.task(queue="web")
