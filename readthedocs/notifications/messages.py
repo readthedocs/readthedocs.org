@@ -484,6 +484,20 @@ BUILD_MESSAGES = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED,
+        header=_("Upload was never completed"),
+        body=_(
+            textwrap.dedent(
+                """
+                A direct upload build was started,
+                but the artifacts zip file was never uploaded and the upload URL has expired.
+                Check for errors between your build and upload steps.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [

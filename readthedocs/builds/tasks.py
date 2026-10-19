@@ -37,6 +37,7 @@ from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
@@ -111,10 +112,17 @@ def finish_inactive_build(build):
     Finish a build that has been detected as inactive.
 
     The state of the build is set to cancelled, and a notification is attached
-    to the build to inform the user that it was terminated due to inactivity.
+    to the build to inform the user why it was terminated.
 
     In case the build is still running, we also revoke the Celery task to cancel it.
     """
+    # Decide the message before touching the build, since cancelling changes its state.
+    # An uploaded build still in the triggered state with no task is one whose
+    # complete call never came (see ``BuildQuerySet.pending_upload``),
+    # so the upload is what went missing, not the build.
+    message_id = BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
+    if build.is_uploaded and build.state == BUILD_STATE_TRIGGERED and not build.task_id:
+        message_id = BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
     log.info(
         "Finishing inactive build.",
         build_id=build.pk,
@@ -130,7 +138,7 @@ def finish_inactive_build(build):
         app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
     Notification.objects.add(
-        message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+        message_id=message_id,
         attached_to=build,
     )
 
