@@ -239,12 +239,12 @@ class RemoveFieldsMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Only remove the fields from this instance.
+        # ``self.Meta`` is shared with the parent serializer,
+        # removing them there would also remove them from the API responses.
         for field in self.FIELDS_TO_REMOVE:
             if field in self.fields:
                 del self.fields[field]
-
-            if field in self.Meta.fields:
-                del self.Meta.fields[self.Meta.fields.index(field)]
 
 
 # NOTE: the following serializers are required only to remove some fields we
@@ -278,6 +278,8 @@ class VersionAddonsSerializer(RemoveFieldsMixin, VersionSerializer):
 class BuildAddonsSerializer(RemoveFieldsMixin, BuildSerializer):
     FIELDS_TO_REMOVE = [
         "_links",
+        # Keep the addons payload small.
+        "config",
     ]
 
 
@@ -406,7 +408,7 @@ class AddonsResponseBase:
                 ).data,
             },
             "builds": {
-                "current": BuildAddonsSerializer(build).data if build else None,
+                "current": BuildAddonsSerializer(build, resolver=resolver).data if build else None,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
