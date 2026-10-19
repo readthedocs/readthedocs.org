@@ -411,7 +411,7 @@ s3transfer==0.19.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==1.0.0
+selectolax==0.4.12
     # via -r requirements/pip.txt
 six==1.17.0
     # via

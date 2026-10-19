@@ -277,7 +277,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.19.2
     # via boto3
-selectolax==1.0.0
+selectolax==0.4.12
     # via -r requirements/pip.in
 six==1.17.0
     # via
