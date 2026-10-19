@@ -7,6 +7,8 @@ from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
@@ -105,6 +107,22 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
+        # Link to the version already using this slug.
+        existing = (
+            self.instance.project.versions.filter(slug=slug).exclude(pk=self.instance.pk).first()
+        )
+        if existing:
+            url = reverse(
+                "project_version_detail",
+                args=[existing.project.slug, existing.slug],
+            )
+            raise forms.ValidationError(
+                format_html(
+                    _('A version with that slug already exists: <a href="{url}">{slug}</a>.'),
+                    url=url,
+                    slug=existing.slug,
+                )
+            )
         validate_version_slug(slug, self.instance)
         return slug
 
