@@ -18,8 +18,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
-from django.views.i18n import set_language
 from rest_framework.authtoken.models import Token
 from vanilla import CreateView
 from vanilla import DeleteView
@@ -196,11 +196,11 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        # Django's own view validates the language and builds the cookie that
-        # ``LocaleMiddleware`` reads. Keep our redirect and carry the cookie over.
-        cookie = set_language(self.request).cookies.get(settings.LANGUAGE_COOKIE_NAME)
-        if cookie:
-            response.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+        language = form.cleaned_data.get("language")
+        if language:
+            # https://docs.djangoproject.com/en/5.2/topics/i18n/translation/#explicitly-setting-the-active-language
+            translation.activate(language)
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
         return response
 
     def get_success_url(self):
