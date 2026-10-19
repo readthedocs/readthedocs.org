@@ -633,7 +633,6 @@ class GitHubAppWebhookHandler:
                     log.info(
                         "No automation rule matched, skipping build.",
                         project_slug=project.slug,
-                        reason="no-automation-rule-matched",
                     )
             else:
                 build_versions_from_names(
@@ -665,16 +664,14 @@ class GitHubAppWebhookHandler:
             for project in self._get_projects():
                 if project.is_direct_upload:
                     log.info(
-                        "Skipping pull request event.",
+                        "Skipping pull request event, project uses direct upload.",
                         project_slug=project.slug,
-                        reason="direct-upload-project",
                     )
                     continue
                 if not project.external_builds_enabled:
                     log.info(
-                        "Skipping pull request event.",
+                        "Skipping pull request event, pull request previews are disabled.",
                         project_slug=project.slug,
-                        reason="pull-request-previews-disabled",
                     )
                     continue
 
@@ -733,7 +730,6 @@ class GitHubAppWebhookHandler:
                         log.info(
                             "No automation rule matched, skipping build.",
                             project_slug=project.slug,
-                            reason="no-automation-rule-matched",
                         )
                 else:
                     trigger_build(

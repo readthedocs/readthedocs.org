@@ -61,7 +61,6 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
                     "Not building, version is not active.",
                     project_slug=project.slug,
                     version_slug=version.slug,
-                    reason="version-not-active",
                 )
                 not_building.add(version.slug)
     if not to_build and not not_building:
@@ -70,7 +69,6 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
             "Not building, no version matches the pushed branches or tags.",
             project_slug=project.slug,
             versions_count=len(versions_info),
-            reason="version-not-found",
         )
     return to_build, not_building
 
