@@ -34,6 +34,7 @@ extensions = [
     "sphinxcontrib.httpdomain",
     "sphinxemoji.sphinxemoji",
     "sphinxext.opengraph",
+    "sphinx_sitemap",
 ]
 
 multiproject_projects = {
@@ -77,6 +78,19 @@ templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 # Old Read the Docs injections makes it point only to the default version,
 # for instance /en/stable/
 html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
+# Sitemap for search engines, served next to the docs at <version>/sitemap.xml.
+# ``html_baseurl`` already includes the language and version,
+# so only append the page link.
+sitemap_url_scheme = "{link}"
+# Primary language only, no alternate ``hreflang`` entries.
+sitemap_locales = [None]
+sitemap_excludes = [
+    "404.html",
+    "genindex.html",
+    "search.html",
+    "http-routingtable.html",
+]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"

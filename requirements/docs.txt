@@ -134,6 +134,8 @@ sphinx-prompt==1.10.2
     # via -r requirements/docs.in
 sphinx-rtd-theme==3.1.0
     # via -r requirements/docs.in
+sphinx-sitemap==2.9.0
+    # via -r requirements/docs.in
 sphinx-tabs==3.5.0
     # via -r requirements/docs.in
 sphinxcontrib-applehelp==2.0.0
