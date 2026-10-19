@@ -74,7 +74,7 @@ When contributing code, then please follow the standard Contribution Guidelines 
 Contributing to documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.io (likely the website you are currently reading).
+Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.com/dev/ (likely the website you are currently reading).
 
 There are guidelines around writing and formatting documentation for the project.
 For full details, including how to build it, see :doc:`/docs`.

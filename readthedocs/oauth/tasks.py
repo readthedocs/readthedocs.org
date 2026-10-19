@@ -268,7 +268,7 @@ def attach_webhook(project_pk, user_pk, integration=None, **kwargs):
         attached_to=project,
         format_values={
             "provider_name": service_class.allauth_provider.name,
-            "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
+            "url_docs_webhook": "https://docs.readthedocs.com/platform/stable/reference/git-integration.html",
         },
     )
     return False
