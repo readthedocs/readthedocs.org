@@ -26,9 +26,6 @@ class RTDFacetedSearch(FacetedSearch):
     # The score of and should be higher as it satisfies both or and and.
     operators = ["and", "or"]
 
-    # Boost for pages containing the query as an exact phrase.
-    phrase_boost = 2
-
     # Sources to be excluded from results.
     excludes = []
 
@@ -125,19 +122,11 @@ class RTDFacetedSearch(FacetedSearch):
                 )
             queries.append(query_string)
 
-        # Rank pages containing the exact phrase above pages
-        # where the words appear far apart or repeated.
-        # Advanced syntax (like ``-word``) is left to SimpleQueryString alone,
-        # a phrase match would bring back the pages it excludes.
+        # Rank pages with the exact phrase first.
+        # Skipped for advanced syntax, a phrase match would bring back
+        # the pages that ``-word`` excludes.
         if len(query.split()) > 1 and not self._is_advanced_query(query):
-            queries.append(
-                MultiMatch(
-                    query=query,
-                    fields=fields,
-                    type="phrase",
-                    boost=self.phrase_boost,
-                )
-            )
+            queries.append(MultiMatch(query=query, fields=fields, type="phrase", boost=2))
         return queries
 
     def _get_single_term_queries(self, query, fields):
