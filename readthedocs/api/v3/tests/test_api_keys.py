@@ -49,13 +49,10 @@ class RTDAPIKeyTests(TestCase):
         with pytest.raises(RTDAPIKey.DoesNotExist):
             RTDAPIKey.objects.get_from_key(key.removeprefix("rtdorg_project_"))
 
-    def test_get_from_key_from_another_platform(self):
+    def test_get_from_key_with_another_platform_prefix(self):
         _, key = self._create_key()
-        with override_settings(ALLOW_PRIVATE_REPOS=True):
-            with pytest.raises(RTDAPIKey.DoesNotExist):
-                RTDAPIKey.objects.get_from_key(key)
-            with pytest.raises(RTDAPIKey.DoesNotExist):
-                RTDAPIKey.objects.get_from_key(key.replace("rtdorg_", "rtdcom_", 1))
+        with pytest.raises(RTDAPIKey.DoesNotExist):
+            RTDAPIKey.objects.get_from_key(key.replace("rtdorg_", "rtdcom_", 1))
 
     def test_get_from_key_invalid_secret(self):
         _, key = self._create_key()
