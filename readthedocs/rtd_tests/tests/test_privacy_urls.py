@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
     Build,
@@ -15,7 +16,7 @@ from readthedocs.builds.models import (
 )
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook, AutomationRule
+from readthedocs.projects.models import Domain, EnvironmentVariable, Feature, Project, WebHook, AutomationRule
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.utils import create_user
 
@@ -221,6 +222,15 @@ class ProjectMixin(URLAccessMixin):
             project=self.pip,
             redirect_type="sphinx_html",
         )
+        get(
+            Feature,
+            feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            projects=[self.pip],
+        )
+        self.api_key, _ = RTDAPIKey.objects.create_key(
+            project=self.pip,
+            name="api key",
+        )
         self.default_kwargs = {
             "project_slug": self.pip.slug,
             "subproject_slug": self.subproject.slug,
@@ -235,6 +245,7 @@ class ProjectMixin(URLAccessMixin):
             "integration_pk": self.integration.pk,
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
+            "apikey_prefix": self.api_key.prefix,
             "automation_rule_pk": self.automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
@@ -327,6 +338,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
             "status_code": 405
         },
+        "/dashboard/pip/apikeys/{apikey_prefix}/revoke/": {"status_code": 405},
         "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
         "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
         "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
@@ -341,6 +353,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
+            "apikey_prefix": self.api_key.prefix,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
@@ -375,6 +388,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
+            "apikey_prefix": self.api_key.prefix,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,

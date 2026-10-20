@@ -27,14 +27,20 @@ Prerequisites
 -------------
 
 * A project on Read the Docs, with direct upload enabled by our support team.
-* An :ref:`API token <api/v3:Token>` belonging to a user with admin access to the project.
+* An API token for your project.
   Store it as a secret in your continuous integration service.
 
-.. note::
+To create an API token for your project:
 
-   We are working on project-scoped tokens,
-   which give access to a single project instead of everything the user can access.
-   They will be released soon, and we recommend switching to them once available.
+#. Go to the :guilabel:`Settings` of your project.
+#. Click on :guilabel:`API tokens`.
+#. Click on :guilabel:`Add API token`.
+#. Choose a name, the :guilabel:`Upload documentation` permission, and when the token expires.
+#. Copy the token. It's only shown once.
+
+A project API token only gives access to your project.
+You can also use your personal :ref:`API token <api/v3:Token>`,
+but it gives access to everything your user has access to.
 
 Uploading from GitHub Actions
 -----------------------------
