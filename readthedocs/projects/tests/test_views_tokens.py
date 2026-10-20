@@ -115,6 +115,25 @@ class ProjectTokenViewsTests(TestCase):
         assert "expiration_date" in response.context["form"].errors
         assert not RTDAPIKey.objects.exists()
 
+    def test_create_with_existing_name(self):
+        self._create_key()
+        response = self.client.post(
+            self.create_url,
+            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+        )
+        assert response.status_code == 200
+        assert "name" in response.context["form"].errors
+        assert RTDAPIKey.objects.filter(project=self.project).count() == 1
+
+    def test_create_with_name_of_revoked_key(self):
+        self._create_key(revoked=True)
+        response = self.client.post(
+            self.create_url,
+            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+        )
+        assert response.status_code == 302
+        assert RTDAPIKey.objects.filter(project=self.project, revoked=False).count() == 1
+
     def test_create_requires_a_permission(self):
         response = self.client.post(
             self.create_url,
