@@ -11,14 +11,14 @@ from rest_framework_api_key.models import BaseAPIKeyManager
 from readthedocs.projects.models import Project
 
 
-class ProjectPermission(StrEnum):
+class ProjectPermission(models.TextChoices):
     """
     Permissions that can be granted to a project scoped API key.
 
     Only upload is supported for now, read and write can be added later.
     """
 
-    UPLOAD = "project:upload"
+    UPLOAD = "project:upload", _("Upload documentation")
 
 
 class APIKeyScope(StrEnum):
@@ -137,3 +137,11 @@ class RTDAPIKey(AbstractAPIKey):
         # TODO: when adding read/write permissions, resolve implied permissions here
         # (e.g. write implies read), keep storing only the permissions that were granted.
         return permission in self.permissions
+
+    def get_permissions_display(self):
+        """Return the human readable names of the permissions of this key."""
+        return [
+            ProjectPermission(permission).label
+            for permission in self.permissions
+            if permission in ProjectPermission.values
+        ]
