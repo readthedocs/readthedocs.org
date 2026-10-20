@@ -20,6 +20,42 @@ so that you have a reference for how we're using them.
             Practical steps to add a configuration file to your documentation project.
 
 
+   connected service
+      The link between your Read the Docs account and your account at a Git provider
+      such as GitHub, GitLab or Bitbucket.
+
+      Read the Docs uses a connected service to log you in, to list the repositories
+      you have access to, and to create a :term:`Git integration` when you add a project.
+
+      Manage your connected services from
+      :guilabel:`Settings` > :guilabel:`Connected Services`.
+      A single Read the Docs account can have a connected service for several providers
+      at the same time.
+
+      .. seealso::
+
+         :doc:`/guides/connecting-git-account`
+            How to create or remove a connected service.
+
+         :doc:`/integrations/index`
+            How connected services and Git integrations fit together.
+
+   connected repository
+      A project that was configured to use a repository through a
+      :term:`connected service` account,
+      rather than having the repository URL entered manually.
+
+      Read the Docs uses the token from the connected service to keep reaching the
+      repository,
+      so there is no repository URL configured on the project itself.
+      This is what allows an automatically configured
+      :term:`Git integration` to be created for it.
+
+      .. seealso::
+
+         :doc:`/integrations/index`
+            The difference between automatically and manually configured integrations.
+
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
       This varies for our two properties:
@@ -48,6 +84,28 @@ so that you have a reference for how we're using them.
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
+
+   Git integration
+      The link between a Read the Docs project and one Git repository.
+
+      Read the Docs uses a Git integration to build your documentation when the
+      repository changes, to keep your :doc:`versions </versions>` in sync, to report
+      build statuses back to your Git provider, and to create pull request builds.
+
+      Every project you add with a :term:`connected service` gets a Git integration
+      set up for you automatically. Manage them for a project from
+      :guilabel:`Admin` > :guilabel:`Integrations`.
+
+      A project without a Git integration can still be added, but the repository has
+      to be configured manually.
+
+      .. seealso::
+
+         :doc:`/integrations/index`
+            How connected services and Git integrations fit together.
+
+         :doc:`/integrations/webhooks`
+            What a Git integration does and how it is configured.
 
    GitOps
       Denotes the use of code maintained in Git to automate building, testing, and deployment of infrastructure.
@@ -161,8 +219,11 @@ so that you have a reference for how we're using them.
 
       .. seealso::
 
+         :doc:`/integrations/webhooks`
+            How a Git integration receives and acts on these webhooks.
+
          :doc:`/guides/setup/git-repo-manual`
-            Manually configuration for Git repositories.
+            Manual configuration for Git repositories.
 
          :doc:`/build-notifications`
             Receive notifications when your documentation builds fail.
