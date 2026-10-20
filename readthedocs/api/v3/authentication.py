@@ -28,9 +28,9 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
         try:
             api_key = self.model.objects.get_from_key(key)
         except self.model.DoesNotExist:
-            raise exceptions.AuthenticationFailed(_("Invalid API key."))
+            raise exceptions.AuthenticationFailed(_("Invalid token."))
 
         if api_key.has_expired:
-            raise exceptions.AuthenticationFailed(_("API key has expired."))
+            raise exceptions.AuthenticationFailed(_("Token has expired."))
 
         return AnonymousUser(), api_key
