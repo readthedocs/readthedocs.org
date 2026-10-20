@@ -2,7 +2,10 @@
 
 import json
 import re
+from datetime import datetime
+from datetime import time
 from datetime import timedelta
+from datetime import timezone as dt_timezone
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -1444,7 +1447,7 @@ class EnvironmentVariableForm(forms.ModelForm):
         return name
 
 
-class ProjectAPIKeyForm(forms.Form):
+class ProjectTokenForm(forms.Form):
     """
     Form to create an API key scoped to a project.
 
@@ -1452,12 +1455,14 @@ class ProjectAPIKeyForm(forms.Form):
     so ``save`` returns it together with the object for the view to show it once.
     """
 
+    CUSTOM = "custom"
     NEVER = "never"
     EXPIRATION_CHOICES = (
+        ("7", _("7 days")),
         ("30", _("30 days")),
+        ("60", _("60 days")),
         ("90", _("90 days")),
-        ("180", _("180 days")),
-        ("365", _("1 year")),
+        (CUSTOM, _("Custom")),
         (NEVER, _("No expiration")),
     )
     PERMISSION_CHOICES = ((ProjectPermission.UPLOAD, _("Upload documentation")),)
@@ -1482,18 +1487,39 @@ class ProjectAPIKeyForm(forms.Form):
     expires_in = forms.ChoiceField(
         label=_("Expiration"),
         choices=EXPIRATION_CHOICES,
-        initial="90",
+        initial="30",
+    )
+    expiration_date = forms.DateField(
+        label=_("Expiration date"),
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text=_("The token expires at the end of this day (UTC)"),
     )
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
-    def clean_expires_in(self):
-        expires_in = self.cleaned_data["expires_in"]
+    def clean(self):
+        cleaned_data = super().clean()
+        expires_in = cleaned_data.get("expires_in")
         if expires_in == self.NEVER:
-            return None
-        return timezone.now() + timedelta(days=int(expires_in))
+            cleaned_data["expiry_date"] = None
+        elif expires_in == self.CUSTOM:
+            expiration_date = cleaned_data.get("expiration_date")
+            if not expiration_date:
+                self.add_error("expiration_date", _("Choose an expiration date."))
+            elif expiration_date <= timezone.now().date():
+                self.add_error("expiration_date", _("Choose a date in the future."))
+            else:
+                cleaned_data["expiry_date"] = datetime.combine(
+                    expiration_date,
+                    time.max,
+                    tzinfo=dt_timezone.utc,
+                )
+        elif expires_in:
+            cleaned_data["expiry_date"] = timezone.now() + timedelta(days=int(expires_in))
+        return cleaned_data
 
     def save(self):
         """Create the key and return the ``(RTDAPIKey, key)`` tuple."""
@@ -1502,7 +1528,7 @@ class ProjectAPIKeyForm(forms.Form):
             name=self.cleaned_data["name"],
             description=self.cleaned_data["description"],
             permissions=self.cleaned_data["permissions"],
-            expiry_date=self.cleaned_data["expires_in"],
+            expiry_date=self.cleaned_data["expiry_date"],
         )
 
 
