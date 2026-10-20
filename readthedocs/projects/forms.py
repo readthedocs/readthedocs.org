@@ -1447,7 +1447,49 @@ class EnvironmentVariableForm(forms.ModelForm):
         return name
 
 
-class ProjectTokenForm(forms.Form):
+class ProjectTokenUpdateForm(forms.ModelForm):
+    """
+    Form to update an API key scoped to a project.
+
+    Only the name, description, and permissions can be changed,
+    the key and its expiration are set when it's created.
+    """
+
+    PERMISSION_CHOICES = ((ProjectPermission.UPLOAD, _("Upload documentation")),)
+
+    permissions = forms.MultipleChoiceField(
+        label=_("Permissions"),
+        choices=PERMISSION_CHOICES,
+        initial=[ProjectPermission.UPLOAD],
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = RTDAPIKey
+        fields = ["name", "description", "permissions"]
+        labels = {
+            "name": _("Name"),
+        }
+        help_texts = {
+            "name": _("A name to identify this token"),
+            "description": _("Optional. What is this token used for?"),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        api_keys = RTDAPIKey.objects.filter(project=self.project, name=name, revoked=False)
+        if self.instance.pk:
+            api_keys = api_keys.exclude(pk=self.instance.pk)
+        if api_keys.exists():
+            raise forms.ValidationError(_("A token with this name already exists."))
+        return name
+
+
+class ProjectTokenForm(ProjectTokenUpdateForm):
     """
     Form to create an API key scoped to a project.
 
@@ -1464,29 +1506,12 @@ class ProjectTokenForm(forms.Form):
         (CUSTOM, _("Custom")),
         (NEVER, _("No expiration")),
     )
-    PERMISSION_CHOICES = ((ProjectPermission.UPLOAD, _("Upload documentation")),)
 
-    name = forms.CharField(
-        label=_("Name"),
-        max_length=RTDAPIKey._meta.get_field("name").max_length,
-        help_text=_("A name to identify this token"),
-    )
-    description = forms.CharField(
-        label=_("Description"),
-        required=False,
-        max_length=RTDAPIKey._meta.get_field("description").max_length,
-        help_text=_("Optional. What is this token used for?"),
-    )
-    permissions = forms.MultipleChoiceField(
-        label=_("Permissions"),
-        choices=PERMISSION_CHOICES,
-        initial=[ProjectPermission.UPLOAD],
-        widget=forms.CheckboxSelectMultiple,
-    )
     expires_in = forms.ChoiceField(
         label=_("Expiration"),
         choices=EXPIRATION_CHOICES,
         initial="30",
+        help_text=_("The expiration can't be changed after the token is created"),
     )
     expiration_date = forms.DateField(
         label=_("Expiration date"),
@@ -1494,16 +1519,6 @@ class ProjectTokenForm(forms.Form):
         widget=forms.DateInput(attrs={"type": "date"}),
         help_text=_("The token expires at the end of this day (UTC)"),
     )
-
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
-
-    def clean_name(self):
-        name = self.cleaned_data["name"]
-        if RTDAPIKey.objects.filter(project=self.project, name=name, revoked=False).exists():
-            raise forms.ValidationError(_("A token with this name already exists."))
-        return name
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1526,7 +1541,7 @@ class ProjectTokenForm(forms.Form):
             cleaned_data["expiry_date"] = timezone.now() + timedelta(days=int(expires_in))
         return cleaned_data
 
-    def save(self):
+    def save(self, commit=True):
         """Create the key and return the ``(RTDAPIKey, key)`` tuple."""
         return RTDAPIKey.objects.create_key(
             project=self.project,
