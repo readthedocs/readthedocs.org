@@ -79,9 +79,9 @@ templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 # Sitemap for search engines, served next to the docs at <version>/sitemap.xml.
-# Only when building on Read the Docs: other builds (like the docs-upload
-# workflow) have no canonical URL and would get relative links in the sitemap.
-if os.environ.get("READTHEDOCS_CANONICAL_URL"):
+# Only on Read the Docs builds. The docs-upload workflow mirrors this build to
+# another domain with canonicals pointing here, and must not ship a sitemap.
+if os.environ.get("READTHEDOCS") == "True":
     extensions.append("sphinx_sitemap")
     # ``html_baseurl`` already includes the language and version,
     # so only append the page link.
