@@ -1455,11 +1455,9 @@ class ProjectTokenUpdateForm(forms.ModelForm):
     the key and its expiration are set when it's created.
     """
 
-    PERMISSION_CHOICES = ((ProjectPermission.UPLOAD, _("Upload documentation")),)
-
     permissions = forms.MultipleChoiceField(
         label=_("Permissions"),
-        choices=PERMISSION_CHOICES,
+        choices=ProjectPermission.choices,
         initial=[ProjectPermission.UPLOAD],
         widget=forms.CheckboxSelectMultiple,
     )
