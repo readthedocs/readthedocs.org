@@ -180,6 +180,69 @@ class ProjectTokenViewsTests(TestCase):
         assert "Upload from GitHub Actions" not in content
         assert reverse("projects_tokens_detail", args=[self.project.slug, api_key.prefix]) in content
 
+    def test_update(self):
+        api_key, key = self._create_key(expiry_date=timezone.now() + timedelta(days=7))
+        expiry_date = api_key.expiry_date
+        url = reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix])
+        response = self.client.post(
+            url,
+            {
+                "name": "New name",
+                "description": "New description",
+                "permissions": [ProjectPermission.UPLOAD],
+                # Not part of the update form, ignored.
+                "expires_in": "never",
+            },
+        )
+        assert response.status_code == 302
+        assert response["Location"] == reverse(
+            "projects_tokens_detail", args=[self.project.slug, api_key.prefix]
+        )
+        api_key.refresh_from_db()
+        assert api_key.name == "New name"
+        assert api_key.description == "New description"
+        assert api_key.expiry_date == expiry_date
+        assert RTDAPIKey.objects.get_from_key(key) == api_key
+
+    def test_update_form_fields(self):
+        api_key, _ = self._create_key()
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+        )
+        assert response.status_code == 200
+        assert list(response.context["form"].fields) == ["name", "description", "permissions"]
+
+    def test_update_keeps_its_own_name(self):
+        api_key, _ = self._create_key()
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 302
+
+    def test_update_with_existing_name(self):
+        self._create_key()
+        api_key, _ = RTDAPIKey.objects.create_key(name="other", project=self.project)
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 200
+        assert "name" in response.context["form"].errors
+        api_key.refresh_from_db()
+        assert api_key.name == "other"
+
+    def test_update_key_from_another_project(self):
+        other_project = get(Project, slug="other", users=[self.user])
+        api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            {"name": "New name", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 404
+        api_key.refresh_from_db()
+        assert api_key.name == "key"
+
     def test_delete(self):
         api_key, _ = self._create_key()
         response = self.client.post(
