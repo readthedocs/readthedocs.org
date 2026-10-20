@@ -66,7 +66,7 @@ class UploadAPIMixin:
     def _has_access(self, project):
         api_key = self._get_api_key()
         if api_key:
-            return api_key.project_id == project.id
+            return api_key.project == project
         return AdminPermission.is_admin(self.request.user, project)
 
 

@@ -15,13 +15,20 @@ class ProjectPermission(StrEnum):
     """
     Permissions that can be granted to a project scoped API key.
 
-    Only upload is supported for now, read and write will be added later.
+    Only upload is supported for now, read and write can be added later.
     """
 
     UPLOAD = "project:upload"
 
 
 class APIKeyScope(StrEnum):
+    """
+    Scope that an API key can have.
+
+    Currently only project scoped keys are supported, but organization and user scoped keys
+    can be added in the future.
+    """
+
     PROJECT = "project"
 
 
@@ -74,11 +81,9 @@ class RTDAPIKeyManager(BaseAPIKeyManager):
                 return scope
         return None
 
-    def get_from_key(self, key):
-        # Reject keys from another platform.
-        if not self.get_scope_from_key(key):
-            raise self.model.DoesNotExist("Key is not valid.")
-        return super().get_from_key(key)
+    def get_usable_keys(self) -> models.QuerySet:
+        """Override to select related project for performance when checking permissions."""
+        return super().get_usable_keys().select_related("project")
 
 
 class RTDAPIKey(AbstractAPIKey):
@@ -94,6 +99,13 @@ class RTDAPIKey(AbstractAPIKey):
         on_delete=models.CASCADE,
         related_name="api_keys",
         help_text=_("Project that this API key grants access to"),
+    )
+    description = models.CharField(
+        _("Description"),
+        max_length=255,
+        blank=True,
+        default="",
+        help_text=_("What this API key is used for"),
     )
     permissions = models.JSONField(
         default=list,
@@ -114,7 +126,12 @@ class RTDAPIKey(AbstractAPIKey):
 
     @property
     def scope(self):
+        # TODO: when adding organization and user scoped keys, return the correct scope here.
         return APIKeyScope.PROJECT
+
+    @property
+    def is_project_scoped(self):
+        return self.scope == APIKeyScope.PROJECT
 
     def has_permission(self, permission):
         # TODO: when adding read/write permissions, resolve implied permissions here

@@ -725,6 +725,12 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
+    def test_key_from_another_platform(self):
+        # The key isn't one of ours, it's left to the user token authentication.
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
+            response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
     def test_expired_key(self):
         self.api_key.expiry_date = timezone.now() - timedelta(days=1)
         self.api_key.save()
