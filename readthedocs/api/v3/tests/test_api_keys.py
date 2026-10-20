@@ -32,6 +32,13 @@ class RTDAPIKeyTests(TestCase):
         assert api_key.prefix.startswith("rtdcom_project_")
         assert key.startswith(f"{api_key.prefix}.")
 
+    def test_fields_fit_max_length(self):
+        # SQLite doesn't enforce max_length, check it explicitly.
+        api_key, _ = self._create_key()
+        for field in ("id", "prefix", "hashed_key"):
+            max_length = RTDAPIKey._meta.get_field(field).max_length
+            assert len(getattr(api_key, field)) <= max_length
+
     def test_get_from_key(self):
         api_key, key = self._create_key()
         assert RTDAPIKey.objects.get_from_key(key) == api_key
