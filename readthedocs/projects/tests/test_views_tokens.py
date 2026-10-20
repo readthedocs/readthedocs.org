@@ -143,6 +143,11 @@ class ProjectTokenViewsTests(TestCase):
         assert "permissions" in response.context["form"].errors
         assert not RTDAPIKey.objects.exists()
 
+    def test_list_shows_permission_names(self):
+        self._create_key()
+        response = self.client.get(self.list_url)
+        assert "Upload documentation" in response.content.decode()
+
     def test_list_excludes_revoked_keys(self):
         api_key, _ = self._create_key()
         self._create_key(revoked=True)
