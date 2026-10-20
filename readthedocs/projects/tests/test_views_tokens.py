@@ -149,27 +149,22 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(self.list_url)
         assert list(response.context["object_list"]) == [api_key]
 
-    def test_detail(self):
+    def test_edit_page(self):
         api_key, _ = self._create_key(description="Upload from GitHub Actions")
         response = self.client.get(
-            reverse("projects_tokens_detail", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
         )
         assert response.status_code == 200
         assert response.context["object"] == api_key
-        assert "Upload from GitHub Actions" in response.content.decode()
+        content = response.content.decode()
+        assert "Upload from GitHub Actions" in content
+        # Fields that can't be changed are shown as read only.
+        assert f"{api_key.prefix}.****" in content
 
-    def test_detail_revoked_key(self):
+    def test_edit_page_revoked_key(self):
         api_key, _ = self._create_key(revoked=True)
         response = self.client.get(
-            reverse("projects_tokens_detail", args=[self.project.slug, api_key.prefix]),
-        )
-        assert response.status_code == 404
-
-    def test_detail_key_from_another_project(self):
-        other_project = get(Project, slug="other", users=[self.user])
-        api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
-        response = self.client.get(
-            reverse("projects_tokens_detail", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
         )
         assert response.status_code == 404
 
@@ -178,7 +173,7 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(self.list_url)
         content = response.content.decode()
         assert "Upload from GitHub Actions" not in content
-        assert reverse("projects_tokens_detail", args=[self.project.slug, api_key.prefix]) in content
+        assert reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]) in content
 
     def test_update(self):
         api_key, key = self._create_key(expiry_date=timezone.now() + timedelta(days=7))
@@ -196,7 +191,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 302
         assert response["Location"] == reverse(
-            "projects_tokens_detail", args=[self.project.slug, api_key.prefix]
+            "projects_tokens_edit", args=[self.project.slug, api_key.prefix]
         )
         api_key.refresh_from_db()
         assert api_key.name == "New name"
