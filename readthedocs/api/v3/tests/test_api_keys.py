@@ -70,3 +70,11 @@ class RTDAPIKeyTests(TestCase):
         api_key.save()
         with pytest.raises(RTDAPIKey.DoesNotExist):
             RTDAPIKey.objects.get_from_key(key)
+
+    def test_get_permissions_display(self):
+        api_key, _ = self._create_key()
+        assert api_key.get_permissions_display() == ["Upload documentation"]
+
+        # Unknown permissions are skipped.
+        api_key.permissions = [ProjectPermission.UPLOAD, "project:unknown"]
+        assert api_key.get_permissions_display() == ["Upload documentation"]
