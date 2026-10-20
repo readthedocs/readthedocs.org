@@ -65,6 +65,7 @@ from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.forms import ProjectTokenForm
+from readthedocs.projects.forms import ProjectTokenUpdateForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1217,6 +1218,18 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
         self.request.session[self.session_key] = key
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
+    form_class = ProjectTokenUpdateForm
+    template_name = "projects/token_form.html"
+    success_message = _("API token updated")
+
+    def get_success_url(self):
+        return reverse(
+            "projects_tokens_detail",
+            args=[self.get_project().slug, self.object.prefix],
+        )
 
 
 class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
