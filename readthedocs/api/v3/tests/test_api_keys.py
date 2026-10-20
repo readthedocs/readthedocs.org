@@ -20,15 +20,17 @@ class RTDAPIKeyTests(TestCase):
             **kwargs,
         )
 
-    @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_community_key_prefix(self):
         api_key, key = self._create_key()
-        assert key.startswith(f"rtdorg_proj_{api_key.prefix}.")
+        assert api_key.prefix.startswith("rtdorg_project_")
+        assert key.startswith(f"{api_key.prefix}.")
 
-    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_business_key_prefix(self):
         api_key, key = self._create_key()
-        assert key.startswith(f"rtdcom_proj_{api_key.prefix}.")
+        assert api_key.prefix.startswith("rtdcom_project_")
+        assert key.startswith(f"{api_key.prefix}.")
 
     def test_get_from_key(self):
         api_key, key = self._create_key()
@@ -38,11 +40,11 @@ class RTDAPIKeyTests(TestCase):
     def test_get_from_key_without_platform_prefix(self):
         api_key, key = self._create_key()
         with pytest.raises(RTDAPIKey.DoesNotExist):
-            RTDAPIKey.objects.get_from_key(key.removeprefix("rtdorg_proj_"))
+            RTDAPIKey.objects.get_from_key(key.removeprefix("rtdorg_project_"))
 
     def test_get_from_key_from_another_platform(self):
         _, key = self._create_key()
-        with override_settings(RTD_ALLOW_ORGANIZATIONS=True):
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
             with pytest.raises(RTDAPIKey.DoesNotExist):
                 RTDAPIKey.objects.get_from_key(key)
             with pytest.raises(RTDAPIKey.DoesNotExist):
