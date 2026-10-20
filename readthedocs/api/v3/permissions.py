@@ -68,6 +68,9 @@ class HasAPIKeyPermission(BasePermission):
     Checking that the key has access to the object being accessed is up to the view.
     """
 
+    # TODO: views can only require a single permission for now.
+    # When adding read/write permissions, let views define the required permission
+    # per request method (e.g. read for safe methods, write for the rest).
     def has_permission(self, request, view):
         api_key = request.auth
         return isinstance(api_key, RTDAPIKey) and api_key.has_permission(view.api_key_permission)
