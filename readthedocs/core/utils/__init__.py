@@ -322,7 +322,13 @@ def submit_to_build_isolated(*, project, build):
     # stays alive for inspection. Ignored in dev (no instance to keep).
     no_self_terminate = project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE)
 
-    log.info("Dispatching build to build-isolated queue.")
+    # ``build.os`` of the version's last successful build. The worker starts
+    # the container from it so the clone can run at once, and switches
+    # containers after the clone if the config disagrees. ``None`` for a
+    # version that never built successfully; the worker then uses a default.
+    build_os_hint = ((build.version.config or {}).get("build") or {}).get("os")
+
+    log.info("Dispatching build to build-isolated queue.", build_os_hint=build_os_hint)
     result = app.send_task(
         settings.RTD_BUILD_ISOLATED_TASK_NAME,
         kwargs={
@@ -330,6 +336,7 @@ def submit_to_build_isolated(*, project, build):
             "build_api_key": build_api_key,
             "environment": environment,
             "no_self_terminate": no_self_terminate,
+            "build_os_hint": build_os_hint,
         },
         queue=settings.RTD_BUILD_ISOLATED_QUEUE,
     )
