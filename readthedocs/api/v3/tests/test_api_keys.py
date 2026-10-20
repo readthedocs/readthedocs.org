@@ -1,0 +1,61 @@
+import pytest
+from django.test import TestCase
+from django.test import override_settings
+from django_dynamic_fixture import get
+
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.projects.models import Project
+
+
+class RTDAPIKeyTests(TestCase):
+    def setUp(self):
+        self.project = get(Project, slug="project")
+
+    def _create_key(self, **kwargs):
+        return RTDAPIKey.objects.create_key(
+            name="key",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+            **kwargs,
+        )
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+    def test_community_key_prefix(self):
+        api_key, key = self._create_key()
+        assert key.startswith(f"rtdorg_proj_{api_key.prefix}.")
+
+    @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+    def test_business_key_prefix(self):
+        api_key, key = self._create_key()
+        assert key.startswith(f"rtdcom_proj_{api_key.prefix}.")
+
+    def test_get_from_key(self):
+        api_key, key = self._create_key()
+        assert RTDAPIKey.objects.get_from_key(key) == api_key
+        assert api_key.has_permission(ProjectPermission.UPLOAD)
+
+    def test_get_from_key_without_platform_prefix(self):
+        api_key, key = self._create_key()
+        with pytest.raises(RTDAPIKey.DoesNotExist):
+            RTDAPIKey.objects.get_from_key(key.removeprefix("rtdorg_proj_"))
+
+    def test_get_from_key_from_another_platform(self):
+        _, key = self._create_key()
+        with override_settings(RTD_ALLOW_ORGANIZATIONS=True):
+            with pytest.raises(RTDAPIKey.DoesNotExist):
+                RTDAPIKey.objects.get_from_key(key)
+            with pytest.raises(RTDAPIKey.DoesNotExist):
+                RTDAPIKey.objects.get_from_key(key.replace("rtdorg_", "rtdcom_", 1))
+
+    def test_get_from_key_invalid_secret(self):
+        _, key = self._create_key()
+        with pytest.raises(RTDAPIKey.DoesNotExist):
+            RTDAPIKey.objects.get_from_key(key + "x")
+
+    def test_get_from_key_revoked(self):
+        api_key, key = self._create_key()
+        api_key.revoked = True
+        api_key.save()
+        with pytest.raises(RTDAPIKey.DoesNotExist):
+            RTDAPIKey.objects.get_from_key(key)

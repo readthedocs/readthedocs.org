@@ -8,8 +8,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.v2.utils import run_version_automation_rules
+from readthedocs.api.v3.authentication import RTDAPIKeyAuthentication
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.permissions import HasAPIKeyPermission
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
+from readthedocs.api.v3.throttling import AnonRateThrottle
+from readthedocs.api.v3.throttling import UserRateThrottle
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
@@ -33,7 +39,33 @@ from readthedocs.upload.api.serializers import UploadStatus
 log = structlog.get_logger(__name__)
 
 
-class UploadInitiateView(APIv3Settings, APIView):
+class UploadAPIMixin:
+    """
+    Authentication and permissions shared by the upload API views.
+
+    Requests can be authenticated with a user token,
+    or with a project API key with the ``project:upload`` permission.
+    """
+
+    authentication_classes = [RTDAPIKeyAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated | HasAPIKeyPermission]
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+    api_key_permission = ProjectPermission.UPLOAD
+
+    def _get_api_key(self):
+        api_key = self.request.auth
+        if isinstance(api_key, RTDAPIKey):
+            return api_key
+        return None
+
+    def _has_access(self, project):
+        api_key = self._get_api_key()
+        if api_key:
+            return api_key.project_id == project.id
+        return AdminPermission.is_admin(self.request.user, project)
+
+
+class UploadInitiateView(UploadAPIMixin, APIv3Settings, APIView):
     """
     Initiate a direct artifacts upload.
 
@@ -41,11 +73,11 @@ class UploadInitiateView(APIv3Settings, APIView):
     for uploading the artifacts zip file to S3.
     """
 
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
-        serializer = UploadInitiateSerializer(data=request.data)
+        serializer = UploadInitiateSerializer(
+            data=request.data,
+            context={"api_key": self._get_api_key()},
+        )
         serializer.is_valid(raise_exception=True)
 
         project_slug = serializer.validated_data["project"]
@@ -58,7 +90,7 @@ class UploadInitiateView(APIv3Settings, APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not AdminPermission.is_admin(request.user, project):
+        if not self._has_access(project):
             return Response(
                 {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -215,16 +247,13 @@ class UploadInitiateView(APIv3Settings, APIView):
         return response
 
 
-class UploadCompleteView(APIv3Settings, APIView):
+class UploadCompleteView(UploadAPIMixin, APIv3Settings, APIView):
     """
     Notify that the upload is complete and trigger build processing.
 
     This endpoint receives the build ID and status, and triggers
     the processing task if the upload was successful.
     """
-
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = UploadCompleteSerializer(data=request.data)
@@ -246,7 +275,7 @@ class UploadCompleteView(APIv3Settings, APIView):
 
         # Check permissions
         project = build.project
-        if not AdminPermission.is_admin(request.user, project):
+        if not self._has_access(project):
             return Response(
                 {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
