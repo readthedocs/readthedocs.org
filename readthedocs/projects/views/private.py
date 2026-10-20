@@ -1186,6 +1186,10 @@ class ProjectTokenList(ProjectTokenMixin, ListView):
         return context
 
 
+class ProjectTokenDetail(ProjectTokenMixin, DetailView):
+    template_name = "projects/token_detail.html"
+
+
 class ProjectTokenCreate(ProjectTokenMixin, CreateView):
     template_name = "projects/token_form.html"
     success_message = _("API token created")
