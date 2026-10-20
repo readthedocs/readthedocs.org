@@ -58,13 +58,13 @@ from readthedocs.projects.forms import EmailHookForm
 from readthedocs.projects.forms import EnvironmentVariableForm
 from readthedocs.projects.forms import IntegrationForm
 from readthedocs.projects.forms import ProjectAdvertisingForm
-from readthedocs.projects.forms import ProjectAPIKeyForm
 from readthedocs.projects.forms import ProjectAutomaticForm
 from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
+from readthedocs.projects.forms import ProjectTokenForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1162,24 +1162,24 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
     http_method_names = ["post"]
 
 
-class ProjectAPIKeyMixin(PrivateViewMixin, ProjectAdminMixin):
+class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     """API keys scoped to a single project."""
 
     model = RTDAPIKey
-    form_class = ProjectAPIKeyForm
+    form_class = ProjectTokenForm
     # The pk includes the hashed key, which doesn't belong in URLs.
     lookup_field = "prefix"
-    lookup_url_kwarg = "apikey_prefix"
+    lookup_url_kwarg = "token_prefix"
 
     # The key is only available when it's created,
     # so it's passed to the list view in the session to show it once.
-    session_key = "project_api_key"
+    session_key = "project_token"
 
     @cached_method
     def get_project(self):
         # API keys are only used by the upload API for now, which is behind a feature flag.
         project = super().get_project()
-        if project and not project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD):
+        if project and not project.allows_direct_artifacts_upload:
             raise Http404
         return project
 
@@ -1188,24 +1188,24 @@ class ProjectAPIKeyMixin(PrivateViewMixin, ProjectAdminMixin):
 
     def get_success_url(self):
         return reverse(
-            "projects_apikeys",
+            "projects_tokens",
             args=[self.get_project().slug],
         )
 
 
-class ProjectAPIKeyList(ProjectAPIKeyMixin, ListView):
+class ProjectTokenList(ProjectTokenMixin, ListView):
     # The model lives in the ``v3`` app,
     # the default template name doesn't match the other project settings templates.
-    template_name = "projects/projectapikey_list.html"
+    template_name = "projects/token_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["created_api_key"] = self.request.session.pop(self.session_key, None)
+        context["created_token"] = self.request.session.pop(self.session_key, None)
         return context
 
 
-class ProjectAPIKeyCreate(ProjectAPIKeyMixin, CreateView):
-    template_name = "projects/projectapikey_form.html"
+class ProjectTokenCreate(ProjectTokenMixin, CreateView):
+    template_name = "projects/token_form.html"
     success_message = _("API token created")
 
     def form_valid(self, form):
@@ -1215,7 +1215,7 @@ class ProjectAPIKeyCreate(ProjectAPIKeyMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ProjectAPIKeyRevoke(ProjectAPIKeyMixin, GenericModelView):
+class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
     """Revoke a key instead of deleting it, to keep a record of it."""
 
     success_message = _("API token revoked")
