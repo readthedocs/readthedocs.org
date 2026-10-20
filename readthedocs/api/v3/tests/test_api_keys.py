@@ -1,4 +1,6 @@
 import pytest
+from django.db import IntegrityError
+from django.db import transaction
 from django.test import TestCase
 from django.test import override_settings
 from django_dynamic_fixture import get
@@ -65,3 +67,13 @@ class RTDAPIKeyTests(TestCase):
         api_key.save()
         with pytest.raises(RTDAPIKey.DoesNotExist):
             RTDAPIKey.objects.get_from_key(key)
+
+    def test_name_is_unique_per_project(self):
+        self._create_key()
+        with pytest.raises(IntegrityError), transaction.atomic():
+            self._create_key()
+
+        # Revoked keys and keys from other projects don't count.
+        RTDAPIKey.objects.filter(project=self.project).update(revoked=True)
+        self._create_key()
+        RTDAPIKey.objects.create_key(name="key", project=get(Project, slug="other"))

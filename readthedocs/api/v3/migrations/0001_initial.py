@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                     "name",
                     models.CharField(
                         default=None,
-                        help_text="A free-form name for the API key. Need not be unique. 50 characters max.",
+                        help_text="A name to identify the API key, unique per project. 50 characters max.",
                         max_length=50,
                     ),
                 ),
@@ -89,6 +89,13 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "API keys",
                 "ordering": ("-created",),
                 "abstract": False,
+                "constraints": [
+                    models.UniqueConstraint(
+                        condition=models.Q(("revoked", False)),
+                        fields=("project", "name"),
+                        name="unique_active_api_key_name_per_project",
+                    )
+                ],
             },
         ),
     ]
