@@ -64,14 +64,22 @@ class UploadURLSerializer(serializers.Serializer):
 class UploadInitiateSerializer(serializers.Serializer):
     """Serializer for the upload initiate endpoint."""
 
-    # NOTE: if a project-scoped token is used in the future,
-    # we can infer the project from the token and make this
-    # field optional or remove it entirely.
     project = serializers.CharField(
-        required=True,
-        help_text="Project identifier (slug).",
+        required=False,
+        help_text=(
+            "Project identifier (slug). "
+            "Optional when using a project API key, the project of the key is used."
+        ),
     )
     version = UploadVersionSerializer()
+
+    def validate(self, attrs):
+        if not attrs.get("project"):
+            api_key = self.context.get("api_key")
+            if not api_key:
+                raise serializers.ValidationError({"project": "This field is required."})
+            attrs["project"] = api_key.project.slug
+        return attrs
 
 
 class UploadInitiateResponseSerializer(serializers.Serializer):

@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 
+from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
 from readthedocs.subscriptions.products import get_feature
 
@@ -57,3 +58,16 @@ class IsOrganizationAdminMember(BasePermission):
         organization = view._get_parent_organization()
         if view.is_admin_member(request.user, organization):
             return True
+
+
+class HasAPIKeyPermission(BasePermission):
+    """
+    Grant permission if the request was authenticated with an API key that has the required permission.
+
+    Views using this permission should define the ``api_key_permission`` attribute.
+    Checking that the key has access to the object being accessed is up to the view.
+    """
+
+    def has_permission(self, request, view):
+        api_key = request.auth
+        return isinstance(api_key, RTDAPIKey) and api_key.has_permission(view.api_key_permission)
