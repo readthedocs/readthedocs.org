@@ -2,6 +2,7 @@
 
 import json
 import re
+from datetime import timedelta
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -16,9 +17,12 @@ from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
@@ -1438,6 +1442,68 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class ProjectAPIKeyForm(forms.Form):
+    """
+    Form to create an API key scoped to a project.
+
+    The key is only available when it's created,
+    so ``save`` returns it together with the object for the view to show it once.
+    """
+
+    NEVER = "never"
+    EXPIRATION_CHOICES = (
+        ("30", _("30 days")),
+        ("90", _("90 days")),
+        ("180", _("180 days")),
+        ("365", _("1 year")),
+        (NEVER, _("No expiration")),
+    )
+    PERMISSION_CHOICES = ((ProjectPermission.UPLOAD, _("Upload documentation")),)
+
+    name = forms.CharField(
+        label=_("Name"),
+        max_length=RTDAPIKey._meta.get_field("name").max_length,
+        help_text=_("A name to identify this token"),
+    )
+    description = forms.CharField(
+        label=_("Description"),
+        required=False,
+        max_length=RTDAPIKey._meta.get_field("description").max_length,
+        help_text=_("Optional. What is this token used for?"),
+    )
+    permissions = forms.MultipleChoiceField(
+        label=_("Permissions"),
+        choices=PERMISSION_CHOICES,
+        initial=[ProjectPermission.UPLOAD],
+        widget=forms.CheckboxSelectMultiple,
+    )
+    expires_in = forms.ChoiceField(
+        label=_("Expiration"),
+        choices=EXPIRATION_CHOICES,
+        initial="90",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_expires_in(self):
+        expires_in = self.cleaned_data["expires_in"]
+        if expires_in == self.NEVER:
+            return None
+        return timezone.now() + timedelta(days=int(expires_in))
+
+    def save(self):
+        """Create the key and return the ``(RTDAPIKey, key)`` tuple."""
+        return RTDAPIKey.objects.create_key(
+            project=self.project,
+            name=self.cleaned_data["name"],
+            description=self.cleaned_data["description"],
+            permissions=self.cleaned_data["permissions"],
+            expiry_date=self.cleaned_data["expires_in"],
+        )
 
 
 # TODO if you are extending this form or reusing this pattern for any similar views,
