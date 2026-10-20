@@ -68,6 +68,14 @@ class WelcomeView(CDNCacheControlMixin, View):
     not at the CDN (Cloudflare doesn't vary its cache on ``Cookie``) and not
     in the browser (a cached redirect would keep sending a user to the
     website after they log in).
+
+    .. note::
+
+       This relies on Cloudflare respecting the origin's cache headers for
+       this path. A cache rule that overrides them (an edge or browser TTL set
+       on the dashboard domain) would silently cache the redirect again, so
+       after deploying check that ``/welcome/`` returns
+       ``cf-cache-status: DYNAMIC`` and no ``max-age``.
     """
 
     cache_response = False
