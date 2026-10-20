@@ -238,6 +238,15 @@ class ProjectTokenViewsTests(TestCase):
         api_key.refresh_from_db()
         assert api_key.name == "key"
 
+    def test_expired_key(self):
+        api_key, _ = self._create_key(expiry_date=timezone.now() - timedelta(days=1))
+        response = self.client.get(self.list_url)
+        assert "This token has expired" in response.content.decode()
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
+        )
+        assert "This token has expired" in response.content.decode()
+
     def test_delete(self):
         api_key, _ = self._create_key()
         response = self.client.post(
