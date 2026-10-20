@@ -130,7 +130,7 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(self.list_url)
         assert list(response.context["object_list"]) == [api_key]
 
-    def test_revoke(self):
+    def test_delete(self):
         api_key, _ = self._create_key()
         response = self.client.post(
             reverse("projects_tokens_delete", args=[self.project.slug, api_key.prefix]),
@@ -139,7 +139,7 @@ class ProjectTokenViewsTests(TestCase):
         api_key.refresh_from_db()
         assert api_key.revoked
 
-    def test_revoke_key_from_another_project(self):
+    def test_delete_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
         api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
         response = self.client.post(

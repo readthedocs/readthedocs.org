@@ -1216,9 +1216,9 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
 
 
 class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
-    """Revoke a key instead of deleting it, to keep a record of it."""
+    """Mark the key as revoked instead of deleting it, to keep a record of it."""
 
-    success_message = _("API token revoked")
+    success_message = _("API token deleted")
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
