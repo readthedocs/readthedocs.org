@@ -14,8 +14,7 @@ from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.api.v3.permissions import HasAPIKeyPermission
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
-from readthedocs.api.v3.throttling import AnonRateThrottle
-from readthedocs.api.v3.throttling import UserRateThrottle
+from readthedocs.api.v3.throttling import APIKeyRateThrottle
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
@@ -49,8 +48,14 @@ class UploadAPIMixin:
 
     authentication_classes = [RTDAPIKeyAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKeyPermission]
-    throttle_classes = [UserRateThrottle, AnonRateThrottle]
     api_key_permission = ProjectPermission.UPLOAD
+
+    def get_throttles(self):
+        # Requests authenticated with an API key don't have a user,
+        # throttle them by key instead of as anonymous requests.
+        if self._get_api_key():
+            return [APIKeyRateThrottle()]
+        return super().get_throttles()
 
     def _get_api_key(self):
         api_key = self.request.auth

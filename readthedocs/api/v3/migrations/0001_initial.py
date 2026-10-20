@@ -22,13 +22,13 @@ class Migration(migrations.Migration):
                     "id",
                     models.CharField(
                         editable=False,
-                        max_length=150,
+                        max_length=200,
                         primary_key=True,
                         serialize=False,
                         unique=True,
                     ),
                 ),
-                ("prefix", models.CharField(editable=False, max_length=8, unique=True)),
+                ("prefix", models.CharField(editable=False, max_length=32, unique=True)),
                 ("hashed_key", models.CharField(editable=False, max_length=150)),
                 ("created", models.DateTimeField(auto_now_add=True, db_index=True)),
                 (

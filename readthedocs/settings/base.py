@@ -1090,6 +1090,7 @@ class CommunityBaseSettings(Settings):
         "DEFAULT_THROTTLE_RATES": {
             "anon": "5/minute",
             "user": "60/minute",
+            "api_key": "60/minute",
         },
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",
