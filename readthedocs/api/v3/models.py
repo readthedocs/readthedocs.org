@@ -100,6 +100,13 @@ class RTDAPIKey(AbstractAPIKey):
         related_name="api_keys",
         help_text=_("Project that this API key grants access to"),
     )
+    # Override to document that the name is unique per project.
+    name = models.CharField(
+        max_length=50,
+        blank=False,
+        default=None,
+        help_text=_("A name to identify the API key, unique per project. 50 characters max."),
+    )
     description = models.CharField(
         _("Description"),
         max_length=255,
@@ -123,6 +130,14 @@ class RTDAPIKey(AbstractAPIKey):
     class Meta(AbstractAPIKey.Meta):
         verbose_name = _("API key")
         verbose_name_plural = _("API keys")
+        constraints = [
+            # Revoked keys are kept as a record, their names can be reused.
+            models.UniqueConstraint(
+                fields=["project", "name"],
+                condition=models.Q(revoked=False),
+                name="unique_active_api_key_name_per_project",
+            ),
+        ]
 
     @property
     def scope(self):
