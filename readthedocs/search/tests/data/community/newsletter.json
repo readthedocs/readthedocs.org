@@ -1,0 +1,7 @@
+{
+  "path": "newsletter",
+  "title": "Newsletter",
+  "sections": [
+    {"id": "newsletter", "title": "Newsletter", "content": "Read the Write the Docs newsletter every month."}
+  ]
+}
