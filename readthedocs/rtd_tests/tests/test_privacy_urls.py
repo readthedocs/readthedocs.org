@@ -245,7 +245,7 @@ class ProjectMixin(URLAccessMixin):
             "integration_pk": self.integration.pk,
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
-            "token_prefix": self.api_key.prefix,
+            "token_pk": self.api_key.pk,
             "automation_rule_pk": self.automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
@@ -338,7 +338,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
             "status_code": 405
         },
-        "/dashboard/pip/tokens/{token_prefix}/delete/": {"status_code": 405},
+        "/dashboard/pip/tokens/{token_pk}/delete/": {"status_code": 405},
         "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
         "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
         "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
@@ -353,7 +353,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
-            "token_prefix": self.api_key.prefix,
+            "token_pk": self.api_key.pk,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
@@ -388,7 +388,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
-            "token_prefix": self.api_key.prefix,
+            "token_pk": self.api_key.pk,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
