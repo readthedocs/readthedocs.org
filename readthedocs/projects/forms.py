@@ -1460,7 +1460,6 @@ class ProjectTokenForm(forms.Form):
     EXPIRATION_CHOICES = (
         ("7", _("7 days")),
         ("30", _("30 days")),
-        ("60", _("60 days")),
         ("90", _("90 days")),
         (CUSTOM, _("Custom")),
         (NEVER, _("No expiration")),
