@@ -117,4 +117,6 @@ class RTDAPIKey(AbstractAPIKey):
         return APIKeyScope.PROJECT
 
     def has_permission(self, permission):
+        # TODO: when adding read/write permissions, resolve implied permissions here
+        # (e.g. write implies read), keep storing only the permissions that were granted.
         return permission in self.permissions
