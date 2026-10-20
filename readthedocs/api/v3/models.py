@@ -22,19 +22,19 @@ class ProjectPermission(StrEnum):
 
 
 class APIKeyScope(StrEnum):
-    PROJECT = "proj"
+    PROJECT = "project"
 
 
 def get_platform_prefix():
     """Prefix used to identify the platform (Community or Business) a key belongs to."""
-    return "rtdcom" if settings.RTD_ALLOW_ORGANIZATIONS else "rtdorg"
+    return "rtdcom" if settings.ALLOW_PRIVATE_REPOS else "rtdorg"
 
 
 def get_key_prefix(scope):
     """
     Return the prefix used to identify the platform and scope of a key.
 
-    For example, ``rtdorg_proj_`` for a project scoped key in Read the Docs Community.
+    For example, ``rtdorg_project_`` for a project scoped key in Read the Docs Community.
     """
     return f"{get_platform_prefix()}_{scope}_"
 
@@ -43,16 +43,16 @@ class RTDAPIKeyGenerator(KeyGenerator):
     """
     Generate keys prefixed with the platform and scope of the key.
 
-    Keys have the form ``rtdorg_proj_<prefix>.<secret>``.
-    Only the random ``<prefix>`` is stored in the database to look up the key,
+    Keys have the form ``rtdorg_project_<random>.<secret>``.
+    The ``rtdorg_project_<random>`` part is stored as the prefix to look up the key,
     the full key is hashed.
     """
 
     # pylint: disable=arguments-differ
     def generate(self, scope):
-        prefix = self.get_prefix()
+        prefix = get_key_prefix(scope) + self.get_prefix()
         secret_key = self.get_secret_key()
-        key = get_key_prefix(scope) + concatenate(prefix, secret_key)
+        key = concatenate(prefix, secret_key)
         hashed_key = self.hash(key)
         return key, prefix, hashed_key
 
@@ -75,15 +75,10 @@ class RTDAPIKeyManager(BaseAPIKeyManager):
         return None
 
     def get_from_key(self, key):
-        scope = self.get_scope_from_key(key)
-        if not scope:
+        # Reject keys from another platform.
+        if not self.get_scope_from_key(key):
             raise self.model.DoesNotExist("Key is not valid.")
-
-        prefix, _, _ = key.removeprefix(get_key_prefix(scope)).partition(".")
-        api_key = self.get_usable_keys().get(prefix=prefix)
-        if api_key.scope != scope or not api_key.is_valid(key):
-            raise self.model.DoesNotExist("Key is not valid.")
-        return api_key
+        return super().get_from_key(key)
 
 
 class RTDAPIKey(AbstractAPIKey):
@@ -105,6 +100,11 @@ class RTDAPIKey(AbstractAPIKey):
         blank=True,
         help_text=_("List of permissions granted to this API key"),
     )
+
+    # Override to fit the platform and scope part of the prefix (e.g. ``rtdorg_project_``),
+    # the ID is the prefix and the hashed key (136 chars) joined by a dot.
+    id = models.CharField(max_length=200, unique=True, primary_key=True, editable=False)
+    prefix = models.CharField(max_length=32, unique=True, editable=False)
 
     objects = RTDAPIKeyManager()
 
