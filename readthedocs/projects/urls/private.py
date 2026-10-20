@@ -43,7 +43,6 @@ from readthedocs.projects.views.private import ProjectRedirectsUpdate
 from readthedocs.projects.views.private import ProjectSearchSettingsUpdate
 from readthedocs.projects.views.private import ProjectTokenCreate
 from readthedocs.projects.views.private import ProjectTokenDelete
-from readthedocs.projects.views.private import ProjectTokenDetail
 from readthedocs.projects.views.private import ProjectTokenList
 from readthedocs.projects.views.private import ProjectTokenUpdate
 from readthedocs.projects.views.private import ProjectTranslationsCreate
@@ -361,11 +360,6 @@ api_token_urls = [
         "<slug:project_slug>/tokens/create/",
         ProjectTokenCreate.as_view(),
         name="projects_tokens_create",
-    ),
-    path(
-        "<slug:project_slug>/tokens/<slug:token_prefix>/",
-        ProjectTokenDetail.as_view(),
-        name="projects_tokens_detail",
     ),
     path(
         "<slug:project_slug>/tokens/<slug:token_prefix>/edit/",
