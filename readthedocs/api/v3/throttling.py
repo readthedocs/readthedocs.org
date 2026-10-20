@@ -11,6 +11,7 @@ class APIKeyRateThrottle(SimpleRateThrottle):
     def get_cache_key(self, request, view):
         if not isinstance(request.auth, RTDAPIKey):
             return None
+
         return self.cache_format % {
             "scope": self.scope,
             "ident": request.auth.prefix,

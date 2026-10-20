@@ -76,9 +76,10 @@ class UploadInitiateSerializer(serializers.Serializer):
     def validate(self, attrs):
         if not attrs.get("project"):
             api_key = self.context.get("api_key")
-            if not api_key:
+            if api_key and api_key.is_project_scoped:
+                attrs["project"] = api_key.project.slug
+            else:
                 raise serializers.ValidationError({"project": "This field is required."})
-            attrs["project"] = api_key.project.slug
         return attrs
 
 

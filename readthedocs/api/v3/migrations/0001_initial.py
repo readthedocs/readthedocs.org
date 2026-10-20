@@ -40,6 +40,16 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "description",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        help_text="What this API key is used for",
+                        max_length=255,
+                        verbose_name="Description",
+                    ),
+                ),
+                (
                     "revoked",
                     models.BooleanField(
                         blank=True,
