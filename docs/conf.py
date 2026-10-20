@@ -34,7 +34,6 @@ extensions = [
     "sphinxcontrib.httpdomain",
     "sphinxemoji.sphinxemoji",
     "sphinxext.opengraph",
-    "sphinx_sitemap",
 ]
 
 multiproject_projects = {
@@ -80,17 +79,21 @@ templates_path = [os.path.join(os.path.dirname(__file__), "_templates")]
 html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 # Sitemap for search engines, served next to the docs at <version>/sitemap.xml.
-# ``html_baseurl`` already includes the language and version,
-# so only append the page link.
-sitemap_url_scheme = "{link}"
-# Primary language only, no alternate ``hreflang`` entries.
-sitemap_locales = [None]
-sitemap_excludes = [
-    "404.html",
-    "genindex.html",
-    "search.html",
-    "http-routingtable.html",
-]
+# Only when building on Read the Docs: other builds (like the docs-upload
+# workflow) have no canonical URL and would get relative links in the sitemap.
+if os.environ.get("READTHEDOCS_CANONICAL_URL"):
+    extensions.append("sphinx_sitemap")
+    # ``html_baseurl`` already includes the language and version,
+    # so only append the page link.
+    sitemap_url_scheme = "{link}"
+    # Primary language only, no alternate ``hreflang`` entries.
+    sitemap_locales = [None]
+    sitemap_excludes = [
+        "404.html",
+        "genindex.html",
+        "search.html",
+        "http-routingtable.html",
+    ]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
