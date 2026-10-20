@@ -69,7 +69,6 @@ class RTDAPIKeyManager(BaseAPIKeyManager):
 
     def assign_key(self, obj):
         key, prefix, hashed_key = self.key_generator.generate(scope=obj.scope)
-        obj.id = concatenate(prefix, hashed_key)
         obj.prefix = prefix
         obj.hashed_key = hashed_key
         return key
@@ -113,9 +112,10 @@ class RTDAPIKey(AbstractAPIKey):
         help_text=_("List of permissions granted to this API key"),
     )
 
-    # Override to fit the platform and scope part of the prefix (e.g. ``rtdorg_project_``),
-    # the ID is the prefix and the hashed key (136 chars) joined by a dot.
-    id = models.CharField(max_length=200, unique=True, primary_key=True, editable=False)
+    # The library uses the prefix and the hashed key as the primary key,
+    # use an auto-incremented ID instead, so the hashed key isn't exposed in URLs or relations.
+    id = models.AutoField(primary_key=True)
+    # Override to fit the platform and scope part of the prefix (e.g. ``rtdorg_project_``).
     prefix = models.CharField(max_length=32, unique=True, editable=False)
 
     objects = RTDAPIKeyManager()
