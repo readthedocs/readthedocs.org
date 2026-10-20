@@ -1,7 +1,5 @@
 """Subscriptions views."""
 
-from functools import lru_cache
-
 import structlog
 from django.contrib import messages
 from django.http import Http404
@@ -14,6 +12,7 @@ from djstripe.enums import SubscriptionStatus
 from vanilla import DetailView
 from vanilla import GenericView
 
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.payments.utils import get_stripe_client
 from readthedocs.subscriptions.forms import PlanForm
@@ -98,7 +97,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             )
             return HttpResponseRedirect(self.get_success_url())
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_object(self):
         """
         Get or create a default subscription for the organization.

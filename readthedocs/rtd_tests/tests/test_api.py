@@ -14,6 +14,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -417,6 +418,22 @@ class APIBuildTests(TestCase):
             build["commands"][0]["command"],
             "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
         )
+
+    def test_normalize_build_command_strips_leading_usr_bin(self):
+        command = normalize_build_command(
+            "/usr/bin/apt-get install --assume-yes -- vim",
+            "myproject",
+            "myversion",
+        )
+        assert command == "apt-get install --assume-yes -- vim"
+
+    def test_normalize_build_command_keeps_usr_bin_in_arguments(self):
+        command = normalize_build_command(
+            "cat /usr/bin/foo",
+            "myproject",
+            "myversion",
+        )
+        assert command == "cat /usr/bin/foo"
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
@@ -2259,9 +2276,35 @@ class IntegrationsTests(TestCase):
         self.assertTrue(external_version)
 
     @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
-    def test_github_pull_request_reopened_event(
+    def test_github_pull_request_opened_event_direct_upload_project(
         self, trigger_build, core_trigger_build
     ):
+        self.project.is_direct_upload = True
+        self.project.save()
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_pull_request_payload
+            ),
+        }
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_pull_request_payload,
+            format="json",
+            headers=headers,
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data["build_triggered"])
+        self.assertEqual(resp.data["versions"], [])
+        # The preview is created by the upload API, not by the webhook.
+        self.assertFalse(self.project.versions(manager=EXTERNAL).filter(verbose_name="2").exists())
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         # Update the payload for `reopened` webhook event
@@ -3584,6 +3627,7 @@ class APIVersionTests(TestCase):
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

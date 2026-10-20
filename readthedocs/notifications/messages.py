@@ -186,7 +186,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             The build was terminated due to time out.
-            Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
+            Read more about <a href="https://docs.readthedocs.com/platform/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
             """
             ).strip(),
         ),
@@ -199,7 +199,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             This build was terminated due to excessive memory consumption.
-            Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
+            Read more about <a href="https://docs.readthedocs.com/platform/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
             """
             ).strip(),
         ),
@@ -266,7 +266,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
              No content was output to the path "$READTHEDOCS_OUTPUT/html".
-             Read more about <a href="https://docs.readthedocs.io/page/build-customization.html#where-to-put-files">where to put your built files</a>.
+             Read more about <a href="https://docs.readthedocs.com/platform/stable/build-customization.html#where-to-put-files">where to put your built files</a>.
              """
             ).strip(),
         ),
@@ -347,7 +347,7 @@ BUILD_MESSAGES = [
                 """
             The configuration file required to build documentation is missing from your project.
             Add a configuration file to your project to make it build successfully.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">configuration file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.com/platform/stable/config-file/v2.html">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -361,7 +361,7 @@ BUILD_MESSAGES = [
                 """
             The configuration key <code>build.image</code> is deprecated.
             Use <code>build.os</code> instead to continue building your project.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.com/platform/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -374,7 +374,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             The configuration key <code>build.os</code> is required to build your documentation.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.com/platform/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -393,6 +393,20 @@ BUILD_MESSAGES = [
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_MEDIA_SIZE_EXCEEDED,
+        header=_("Build output exceeds the size limit"),
+        body=_(
+            textwrap.dedent(
+                """
+            The {{media_type}} output of this build is {{size}} MB, exceeding the {{limit}} MB limit per format.
+            Builds over this limit may fail in the future.
+            Reduce the size of your generated documentation, or contact support to increase the limit.
+            """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
     Message(
         id=BuildUserError.BUILD_OUTPUT_HAS_NO_PDF_FILES,
@@ -414,7 +428,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             <strong>The <code>build.commands</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
-            Read more at <a href="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
+            Read more at <a href="https://docs.readthedocs.com/platform/stable/build-customization.html#extend-or-override-the-build-process">our documentation</a> to find out its limitations and potential issues.
             """
             ).strip(),
         ),
@@ -465,6 +479,20 @@ BUILD_MESSAGES = [
                 """
                 Read the Docs could not process the artifacts zip file uploaded.
                 Make sure the zip file is valid and contains the expected files.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED,
+        header=_("Upload was never completed"),
+        body=_(
+            textwrap.dedent(
+                """
+                A direct upload build was started,
+                but the artifacts zip file was never uploaded and the upload URL has expired.
+                Check for errors between your build and upload steps.
                 """
             ).strip(),
         ),

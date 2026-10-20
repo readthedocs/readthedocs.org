@@ -224,7 +224,7 @@ Use a robots.txt file ✅️
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A ``robots.txt`` file is readable by crawlers
-and lives at the root of your site (eg. https://docs.readthedocs.io/robots.txt).
+and lives at the root of your site (eg. https://docs.readthedocs.com/robots.txt).
 It tells search engines which pages to crawl or not to crawl
 and can allow you to control how a search engine crawls your site.
 For example, you may want to request that search engines
@@ -245,7 +245,7 @@ Use a sitemap.xml file ✅️
 
 A sitemap is a file readable by crawlers that contains a list of pages
 and other files on your site and some metadata or relationships about them
-(eg. https://docs.readthedocs.io/sitemap.xml).
+(eg. https://docs.readthedocs.com/sitemap.xml).
 A good sitemaps provides information like how frequently a page or file is updated
 or any alternate language versions of a page.
 

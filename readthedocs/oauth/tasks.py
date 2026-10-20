@@ -268,7 +268,7 @@ def attach_webhook(project_pk, user_pk, integration=None, **kwargs):
         attached_to=project,
         format_values={
             "provider_name": service_class.allauth_provider.name,
-            "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
+            "url_docs_webhook": "https://docs.readthedocs.com/platform/stable/reference/git-integration.html",
         },
     )
     return False
@@ -658,7 +658,23 @@ class GitHubAppWebhookHandler:
         )
 
         if action in ("opened", "reopened", "synchronize"):
-            for project in self._get_projects().filter(external_builds_enabled=True):
+            # Direct upload projects get their pull request previews from the upload API,
+            # creating the version here would leave it empty until the upload arrives.
+            # Closed events are still handled below, so uploaded previews get cleaned up.
+            for project in self._get_projects():
+                if project.is_direct_upload:
+                    log.info(
+                        "Skipping pull request event, project uses direct upload.",
+                        project_slug=project.slug,
+                    )
+                    continue
+                if not project.external_builds_enabled:
+                    log.info(
+                        "Skipping pull request event, pull request previews are disabled.",
+                        project_slug=project.slug,
+                    )
+                    continue
+
                 external_version = get_or_create_external_version(
                     project=project,
                     version_data=external_version_data,
@@ -734,6 +750,7 @@ class GitHubAppWebhookHandler:
             return
 
         # We don't care about the other actions.
+        log.debug("Ignoring pull request action.", pr_action=action)
         return
 
     def _handle_organization_event(self):
@@ -831,6 +848,12 @@ class GitHubAppWebhookHandler:
         """
         remote_repository = self._get_remote_repository()
         if not remote_repository:
+            # Debug only: the app is installed org-wide, so this fires for
+            # every event on every repository without a project.
+            log.debug(
+                "Repository not found in installation, skipping event.",
+                repository_id=self.data.get("repository", {}).get("id"),
+            )
             return Project.objects.none()
         return remote_repository.projects.all()
 

@@ -61,7 +61,7 @@ if docset == "user":
 
 ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
-ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
+ogp_image = "https://docs.readthedocs.com/platform/stable/_static/img/logo-opengraph.png"
 # Inspired by https://github.com/executablebooks/MyST-Parser/pull/404/
 ogp_custom_meta_tags = (
     '<meta name="twitter:card" content="summary_large_image" />',
@@ -80,7 +80,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "2026.09.22"
+version = "2026.10.13post2"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 # Exclude design docs from dev documentation
@@ -115,9 +115,9 @@ intersphinx_mapping = {
 # to avoid Sphinx falling back to old references that won't exist after a PR is merged.
 # The dev docs link to the user docs (rtd), and the user docs link to the dev docs (rtd-dev).
 if docset == "dev":
-    intersphinx_mapping["rtd"] = ("https://docs.readthedocs.io/en/stable/", None)
+    intersphinx_mapping["rtd"] = ("https://docs.readthedocs.com/platform/stable/", None)
 else:
-    intersphinx_mapping["rtd-dev"] = ("https://dev.readthedocs.io/en/latest/", None)
+    intersphinx_mapping["rtd-dev"] = ("https://docs.readthedocs.com/dev/latest/", None)
 
 # Intersphinx: Do not try to resolve unresolved labels that aren't explicitly prefixed.
 # The default setting for intersphinx_disabled_reftypes can cause some pretty bad

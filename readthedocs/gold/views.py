@@ -183,7 +183,7 @@ class GoldSubscriptionPortal(GenericView):
         except:  # noqa
             log.exception(
                 "There was an error connecting to Stripe.",
-                user_userame=user.username,
+                user_username=user.username,
                 stripe_customer=stripe_customer,
             )
             messages.error(

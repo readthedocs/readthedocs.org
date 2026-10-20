@@ -72,9 +72,9 @@ from .search import index_build
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import purge_docs_cdn
+from .utils import retire_builder
 from .utils import send_external_build_status
 from .utils import set_builder_scale_in_protection
-from .utils import stop_consuming_tasks_and_terminate
 
 
 log = structlog.get_logger(__name__)
@@ -181,6 +181,16 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # SECURITY: never run if there are files left by a previous build.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if not clean_build(self.data.version):
+            log.error("There are files left by a previous build. Skipping syncing repository.")
+            raise BuildAppError(
+                BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                format_values={"message": "Error preparing the build environment."},
+            )
+
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -204,8 +214,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
            This handler is called even if the task has failed,
            so some attributes from the `self.data` object may not be defined.
         """
-        if self.data.version:
-            clean_build(self.data.version)
+        # SECURITY: retire this builder if there are files that can't be deleted.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if self.data.version and not clean_build(self.data.version):
+            log.error("There are files left by this build. Retiring this builder.")
+            retire_builder()
 
     def execute(self):
         env_vars = {
@@ -452,10 +466,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         if self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
             # Clean DOCROOT path completely to avoid conflicts other projects
-            clean_build()
+            is_clean = clean_build()
         else:
-            # Clean the build paths for this version to avoid conflicts with previous run
-            clean_build(self.data.version)
+            # Clean the files of this project left by previous builds
+            is_clean = clean_build(self.data.version)
+
+        # SECURITY: never run if there are files left by a previous build.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        if not is_clean:
+            log.error("There are files left by a previous build. Skipping building documentation.")
+            raise BuildAppError(
+                BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                format_values={"message": "Error preparing the build environment."},
+            )
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
@@ -779,9 +803,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(build_state)
         self.save_build_data()
 
-        if self.data.version:
-            clean_build(self.data.version)
-
         try:
             self.data.api_client.revoke.post()
         except Exception:
@@ -794,28 +815,31 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             protected_from_scale_in=False,
         )
 
+        # SECURITY: retire this builder if there are files that can't be deleted.
+        # This should never happen, unless we missed something during the cleanup.
+        # See GHSA-ph72-r8p8-3w4r.
+        is_clean = False
+        if self.data.project and self.data.project.has_feature(Feature.BUILD_FULL_CLEAN):
+            is_clean = clean_build()
+        elif self.data.version:
+            is_clean = clean_build(self.data.version)
+        else:
+            is_clean = clean_build()
+
+        if not is_clean:
+            log.error("There are files left by this build. Retiring this builder.")
+
         log.info(
             "Build finished.",
             length=self.data.build["length"],
             success=self.data.build["success"],
         )
 
-        if self.data.project and self.data.project.has_feature(
-            Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH
+        if not is_clean or (
+            self.data.project
+            and self.data.project.has_feature(Feature.TERMINATE_INSTANCE_ON_BUILD_FINISH)
         ):
-            if settings.RTD_DOCKER_COMPOSE:
-                log.info(
-                    "Running development environment. Skipping instance termination.",
-                )
-                return
-
-            # Stop consuming new tasks first so this worker doesn't grab a
-            # build that would be killed mid-flight when the instance is
-            # terminated.
-            log.info(
-                "Stopping consumption of new tasks before terminating the instance...",
-            )
-            stop_consuming_tasks_and_terminate(build_id=self.data.build_pk)
+            retire_builder(build_id=self.data.build_pk)
 
     def update_build(self, state=None):
         if state:

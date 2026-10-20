@@ -70,12 +70,16 @@ class BuildListFilter(ModelFilterSet):
         return self.project.versions.public(
             user=self.request.user,
             only_active=False,
-        )
+        ).sort_version_aware_naive()
 
     def get_version_choices_queryset(self):
         # Used to populate the dropdown. Keep it to active internal versions.
-        return self.project.versions(manager=INTERNAL).public(
-            user=self.request.user,
+        return (
+            self.project.versions(manager=INTERNAL)
+            .public(
+                user=self.request.user,
+            )
+            .sort_version_aware_naive()
         )
 
     def get_state(self, queryset, _, value):

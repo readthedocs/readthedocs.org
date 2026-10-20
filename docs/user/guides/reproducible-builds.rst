@@ -38,10 +38,10 @@ and ensures that all your versions can be rebuilt from a reproducible configurat
 
    # Explicitly set the OS and Python versions
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
        nodejs: "20"
-       python: "3.12"
+       python: "3.14"
 
 Use a requirements file for Python dependencies
 -----------------------------------------------

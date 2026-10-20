@@ -103,6 +103,9 @@ class ProjectImportMixin:
         - Run extra tasks that are needed before building the project
         - Trigger the initial build
 
+        Direct upload projects skip the last two steps:
+        Read the Docs never builds them, and the webhook and SSH key are not needed.
+
         It requires the Project was already saved into the DB.
 
         :param request: Django Request object
@@ -114,6 +117,9 @@ class ProjectImportMixin:
             project_slug=project.slug,
             user_username=request.user.username,
         )
+
+        if project.is_direct_upload:
+            return None
 
         update_docs, build = prepare_build(project)
         if (update_docs, build) == (None, None):

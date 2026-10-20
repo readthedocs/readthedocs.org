@@ -11,5 +11,5 @@ or you can add a generic webhook integration.
 
 You can find more information on our webhook intergrations in our documentation, at:
 
-https://docs.readthedocs.io/page/webhooks.html#webhook-github-services
+https://docs.readthedocs.com/platform/stable/guides/setup/git-repo-manual.html#webhook-integration-github
 {% endblock %}

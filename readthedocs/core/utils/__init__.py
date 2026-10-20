@@ -67,6 +67,12 @@ def prepare_build(
         )
         return (None, None)
 
+    # Direct upload projects are never built by Read the Docs.
+    # Checked before resolving the default version, since these projects may not have one yet.
+    if project.is_direct_upload and not is_uploaded:
+        log.info("Build not triggered because project uses direct upload.")
+        return (None, None)
+
     if not version:
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
@@ -438,6 +444,12 @@ def cancel_build(build):
         # Build object here.
         build.state = BUILD_STATE_CANCELLED
         build.success = False
+
+        # It is no longer waiting for a slot.
+        Notification.objects.cancel(
+            message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+            attached_to=build,
+        )
 
         # Add a notification for this build
         Notification.objects.add(

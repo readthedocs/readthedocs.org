@@ -91,6 +91,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "show_advertising",
             "environment_variables",
             "max_concurrent_builds",
+            "max_build_media_size",
             "readthedocs_yaml_path",
             "clone_token",
             "has_ssh_key_with_write_access",

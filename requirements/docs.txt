@@ -18,7 +18,7 @@ certifi==2026.7.22
     # via
     #   requests
     #   sphinx-prompt
-charset-normalizer==3.5.1
+charset-normalizer==3.5.2
     # via requests
 click==8.5.0
     # via
@@ -37,11 +37,11 @@ docutils==0.21.2
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.65.0
+fonttools==4.66.1
     # via matplotlib
 h11==0.16.0
     # via uvicorn
-idna==3.19
+idna==3.20
     # via
     #   anyio
     #   requests
@@ -59,7 +59,7 @@ markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
-markupsafe==3.0.3
+markupsafe==3.0.4
     # via jinja2
 matplotlib==3.11.2
     # via -r requirements/docs.in
@@ -84,7 +84,7 @@ pygments==2.21.0
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==3.3.2
+pyparsing==3.3.3
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
@@ -156,17 +156,17 @@ sphinxemoji==0.3.2
     # via -r requirements/docs.in
 sphinxext-opengraph==0.13.0
     # via -r requirements/docs.in
-starlette==1.6.0
+starlette==1.7.0
     # via sphinx-autobuild
 typing-extensions==4.16.0
     # via anyio
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   requests
     #   sphinx-prompt
-uvicorn==0.52.4
+uvicorn==0.54.0
     # via sphinx-autobuild
-watchfiles==1.2.0
+watchfiles==1.3.0
     # via sphinx-autobuild
-websockets==17.1
+websockets==17.2
     # via sphinx-autobuild
