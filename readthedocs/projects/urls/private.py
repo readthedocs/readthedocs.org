@@ -362,12 +362,12 @@ api_token_urls = [
         name="projects_tokens_create",
     ),
     path(
-        "<slug:project_slug>/tokens/<slug:token_prefix>/edit/",
+        "<slug:project_slug>/tokens/<int:token_pk>/edit/",
         ProjectTokenUpdate.as_view(),
         name="projects_tokens_edit",
     ),
     path(
-        "<slug:project_slug>/tokens/<slug:token_prefix>/delete/",
+        "<slug:project_slug>/tokens/<int:token_pk>/delete/",
         ProjectTokenDelete.as_view(),
         name="projects_tokens_delete",
     ),
