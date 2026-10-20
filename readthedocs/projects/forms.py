@@ -1499,6 +1499,12 @@ class ProjectTokenForm(forms.Form):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if RTDAPIKey.objects.filter(project=self.project, name=name, revoked=False).exists():
+            raise forms.ValidationError(_("A token with this name already exists."))
+        return name
+
     def clean(self):
         cleaned_data = super().clean()
         expires_in = cleaned_data.get("expires_in")
