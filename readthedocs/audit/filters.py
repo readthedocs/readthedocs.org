@@ -19,6 +19,9 @@ class UserSecurityLogFilter(FilterSet):
         (AuditLog.INVITATION_REVOKED, AuditLog.INVITATION_REVOKED_TEXT),
         (AuditLog.INVITATION_ACCEPTED, AuditLog.INVITATION_ACCEPTED_TEXT),
         (AuditLog.INVITATION_DECLINED, AuditLog.INVITATION_DECLINED_TEXT),
+        (AuditLog.UPLOAD_INITIATED, AuditLog.UPLOAD_INITIATED_TEXT),
+        (AuditLog.UPLOAD_COMPLETED, AuditLog.UPLOAD_COMPLETED_TEXT),
+        (AuditLog.UPLOAD_DENIED, AuditLog.UPLOAD_DENIED_TEXT),
     ]
 
     ip = CharFilter(field_name="ip", lookup_expr="exact")
@@ -56,5 +59,8 @@ class OrganizationSecurityLogFilter(UserSecurityLogFilter):
         # (AuditLog.INVITATION_DECLINED, AuditLog.INVITATION_DECLINED_TEXT),
         (AuditLog.PAGEVIEW, AuditLog.PAGEVIEW_TEXT),
         (AuditLog.DOWNLOAD, AuditLog.DOWNLOAD_TEXT),
+        (AuditLog.UPLOAD_INITIATED, AuditLog.UPLOAD_INITIATED_TEXT),
+        (AuditLog.UPLOAD_COMPLETED, AuditLog.UPLOAD_COMPLETED_TEXT),
+        (AuditLog.UPLOAD_DENIED, AuditLog.UPLOAD_DENIED_TEXT),
     ]
     user = CharFilter(field_name="log_user_username", lookup_expr="exact")
