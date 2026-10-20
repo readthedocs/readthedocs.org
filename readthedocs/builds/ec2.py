@@ -219,20 +219,21 @@ def release_instance(builder: str, *, keep: bool = False) -> tuple[InstanceState
         if _is_already_gone(exc):
             log.info("Instance already gone.", instance_id=instance_id)
             return InstanceState.TERMINATED, False
-        if not _is_at_min_size(exc):
+
+        if _is_at_min_size(exc):
+            # Desired already equals MinSize. The instance stopped consuming the queue
+            # when its build arrived, so leaving it alive would strand it: terminate
+            # without the decrement and let the ASG replace it.
+            log.info("Fleet at MinSize; terminating without decrement.", instance_id=instance_id)
+            try:
+                _terminate(client, instance_id, False)
+                return InstanceState.TERMINATED, False
+            except Exception:
+                log.exception("Instance termination failed.", instance_id=instance_id)
+                return InstanceState.FAILED, False
+        else:
             log.exception("Instance termination failed.", instance_id=instance_id)
             return InstanceState.FAILED, False
-    except Exception:
-        log.exception("Instance termination failed.", instance_id=instance_id)
-        return InstanceState.FAILED, False
-
-    # Desired already equals MinSize. The instance stopped consuming the queue
-    # when its build arrived, so leaving it alive would strand it: terminate
-    # without the decrement and let the ASG replace it.
-    log.info("Fleet at MinSize; terminating without decrement.", instance_id=instance_id)
-    try:
-        _terminate(client, instance_id, False)
-        return InstanceState.TERMINATED, False
     except Exception:
         log.exception("Instance termination failed.", instance_id=instance_id)
         return InstanceState.FAILED, False
