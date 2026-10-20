@@ -29,9 +29,6 @@ from readthedocs.projects.views.private import IntegrationExchangeDetail
 from readthedocs.projects.views.private import IntegrationList
 from readthedocs.projects.views.private import IntegrationWebhookSync
 from readthedocs.projects.views.private import ProjectAdvertisingUpdate
-from readthedocs.projects.views.private import ProjectAPIKeyCreate
-from readthedocs.projects.views.private import ProjectAPIKeyList
-from readthedocs.projects.views.private import ProjectAPIKeyRevoke
 from readthedocs.projects.views.private import ProjectDashboard
 from readthedocs.projects.views.private import ProjectDelete
 from readthedocs.projects.views.private import ProjectEmailNotificationsCreate
@@ -44,6 +41,9 @@ from readthedocs.projects.views.private import ProjectRedirectsInsert
 from readthedocs.projects.views.private import ProjectRedirectsList
 from readthedocs.projects.views.private import ProjectRedirectsUpdate
 from readthedocs.projects.views.private import ProjectSearchSettingsUpdate
+from readthedocs.projects.views.private import ProjectTokenCreate
+from readthedocs.projects.views.private import ProjectTokenDelete
+from readthedocs.projects.views.private import ProjectTokenList
 from readthedocs.projects.views.private import ProjectTranslationsCreate
 from readthedocs.projects.views.private import ProjectTranslationsDelete
 from readthedocs.projects.views.private import ProjectTranslationsList
@@ -349,25 +349,25 @@ environmentvariable_urls = [
 
 urlpatterns += environmentvariable_urls
 
-projectapikey_urls = [
+api_token_urls = [
     path(
-        "<slug:project_slug>/apikeys/",
-        ProjectAPIKeyList.as_view(),
-        name="projects_apikeys",
+        "<slug:project_slug>/tokens/",
+        ProjectTokenList.as_view(),
+        name="projects_tokens",
     ),
     path(
-        "<slug:project_slug>/apikeys/create/",
-        ProjectAPIKeyCreate.as_view(),
-        name="projects_apikeys_create",
+        "<slug:project_slug>/tokens/create/",
+        ProjectTokenCreate.as_view(),
+        name="projects_tokens_create",
     ),
     path(
-        "<slug:project_slug>/apikeys/<slug:apikey_prefix>/revoke/",
-        ProjectAPIKeyRevoke.as_view(),
-        name="projects_apikeys_revoke",
+        "<slug:project_slug>/tokens/<slug:token_prefix>/delete/",
+        ProjectTokenDelete.as_view(),
+        name="projects_tokens_delete",
     ),
 ]
 
-urlpatterns += projectapikey_urls
+urlpatterns += api_token_urls
 
 automation_rule_urls = [
     path(

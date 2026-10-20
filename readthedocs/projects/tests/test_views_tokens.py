@@ -12,7 +12,7 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
-class ProjectAPIKeyViewsTests(TestCase):
+class ProjectTokenViewsTests(TestCase):
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, slug="project", users=[self.user])
@@ -22,8 +22,8 @@ class ProjectAPIKeyViewsTests(TestCase):
             projects=[self.project],
         )
         self.client.force_login(self.user)
-        self.list_url = reverse("projects_apikeys", args=[self.project.slug])
-        self.create_url = reverse("projects_apikeys_create", args=[self.project.slug])
+        self.list_url = reverse("projects_tokens", args=[self.project.slug])
+        self.create_url = reverse("projects_tokens_create", args=[self.project.slug])
 
     def _create_key(self, **kwargs):
         return RTDAPIKey.objects.create_key(
@@ -54,10 +54,10 @@ class ProjectAPIKeyViewsTests(TestCase):
 
         # The key is shown once.
         response = self.client.get(self.list_url)
-        key = response.context["created_api_key"]
+        key = response.context["created_token"]
         assert RTDAPIKey.objects.get_from_key(key) == api_key
         response = self.client.get(self.list_url)
-        assert response.context["created_api_key"] is None
+        assert response.context["created_token"] is None
 
     def test_create_without_expiration(self):
         response = self.client.post(
@@ -71,6 +71,49 @@ class ProjectAPIKeyViewsTests(TestCase):
         assert response.status_code == 302
         api_key = RTDAPIKey.objects.get(project=self.project)
         assert api_key.expiry_date is None
+
+    def test_create_with_custom_expiration(self):
+        expiration_date = timezone.now().date() + timedelta(days=10)
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+                "expiration_date": expiration_date.isoformat(),
+            },
+        )
+        assert response.status_code == 302
+        api_key = RTDAPIKey.objects.get(project=self.project)
+        assert api_key.expiry_date.date() == expiration_date
+        assert api_key.expiry_date > timezone.now() + timedelta(days=10)
+
+    def test_create_with_custom_expiration_requires_a_date(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+            },
+        )
+        assert response.status_code == 200
+        assert "expiration_date" in response.context["form"].errors
+        assert not RTDAPIKey.objects.exists()
+
+    def test_create_with_custom_expiration_today(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+                "expiration_date": timezone.now().date().isoformat(),
+            },
+        )
+        assert response.status_code == 200
+        assert "expiration_date" in response.context["form"].errors
+        assert not RTDAPIKey.objects.exists()
 
     def test_create_requires_a_permission(self):
         response = self.client.post(
@@ -90,7 +133,7 @@ class ProjectAPIKeyViewsTests(TestCase):
     def test_revoke(self):
         api_key, _ = self._create_key()
         response = self.client.post(
-            reverse("projects_apikeys_revoke", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_delete", args=[self.project.slug, api_key.prefix]),
         )
         assert response.status_code == 302
         api_key.refresh_from_db()
@@ -100,7 +143,7 @@ class ProjectAPIKeyViewsTests(TestCase):
         other_project = get(Project, slug="other", users=[self.user])
         api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
         response = self.client.post(
-            reverse("projects_apikeys_revoke", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_delete", args=[self.project.slug, api_key.prefix]),
         )
         assert response.status_code == 404
         api_key.refresh_from_db()
@@ -114,3 +157,13 @@ class ProjectAPIKeyViewsTests(TestCase):
     def test_non_admin_user(self):
         self.client.force_login(get(User))
         assert self.client.get(self.list_url).status_code == 404
+
+    def test_sidebar_link(self):
+        edit_url = reverse("projects_edit", args=[self.project.slug])
+        assert not self.project.is_direct_upload
+        response = self.client.get(edit_url)
+        assert self.list_url in response.content.decode()
+
+        self.feature.projects.remove(self.project)
+        response = self.client.get(edit_url)
+        assert self.list_url not in response.content.decode()

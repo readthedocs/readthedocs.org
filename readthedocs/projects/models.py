@@ -1490,6 +1490,11 @@ class Project(models.Model):
         """
         return self.features.filter(feature_id=feature_id).exists()
 
+    @cached_property
+    def allows_direct_artifacts_upload(self):
+        """Whether the project can upload its documentation using the upload API."""
+        return self.is_direct_upload or self.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD)
+
     def get_feature_value(self, feature, positive, negative):
         """
         Look up project feature, return corresponding value.
