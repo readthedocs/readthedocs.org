@@ -1168,9 +1168,7 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
 
     model = RTDAPIKey
     form_class = ProjectTokenForm
-    # The pk includes the hashed key, which doesn't belong in URLs.
-    lookup_field = "prefix"
-    lookup_url_kwarg = "token_prefix"
+    lookup_url_kwarg = "token_pk"
 
     # The key is only available when it's created,
     # so it's passed to the list view in the session to show it once.
@@ -1224,7 +1222,7 @@ class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
     def get_success_url(self):
         return reverse(
             "projects_tokens_edit",
-            args=[self.get_project().slug, self.object.prefix],
+            args=[self.get_project().slug, self.object.pk],
         )
 
 

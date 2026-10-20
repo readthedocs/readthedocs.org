@@ -152,7 +152,7 @@ class ProjectTokenViewsTests(TestCase):
     def test_edit_page(self):
         api_key, _ = self._create_key(description="Upload from GitHub Actions")
         response = self.client.get(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
         )
         assert response.status_code == 200
         assert response.context["object"] == api_key
@@ -164,7 +164,7 @@ class ProjectTokenViewsTests(TestCase):
     def test_edit_page_revoked_key(self):
         api_key, _ = self._create_key(revoked=True)
         response = self.client.get(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
         )
         assert response.status_code == 404
 
@@ -173,12 +173,12 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(self.list_url)
         content = response.content.decode()
         assert "Upload from GitHub Actions" not in content
-        assert reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]) in content
+        assert reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]) in content
 
     def test_update(self):
         api_key, key = self._create_key(expiry_date=timezone.now() + timedelta(days=7))
         expiry_date = api_key.expiry_date
-        url = reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix])
+        url = reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk])
         response = self.client.post(
             url,
             {
@@ -191,7 +191,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 302
         assert response["Location"] == reverse(
-            "projects_tokens_edit", args=[self.project.slug, api_key.prefix]
+            "projects_tokens_edit", args=[self.project.slug, api_key.pk]
         )
         api_key.refresh_from_db()
         assert api_key.name == "New name"
@@ -202,7 +202,7 @@ class ProjectTokenViewsTests(TestCase):
     def test_update_form_fields(self):
         api_key, _ = self._create_key()
         response = self.client.get(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
         )
         assert response.status_code == 200
         assert list(response.context["form"].fields) == ["name", "description", "permissions"]
@@ -210,7 +210,7 @@ class ProjectTokenViewsTests(TestCase):
     def test_update_keeps_its_own_name(self):
         api_key, _ = self._create_key()
         response = self.client.post(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
             {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
         )
         assert response.status_code == 302
@@ -219,7 +219,7 @@ class ProjectTokenViewsTests(TestCase):
         self._create_key()
         api_key, _ = RTDAPIKey.objects.create_key(name="other", project=self.project)
         response = self.client.post(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
             {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
         )
         assert response.status_code == 200
@@ -231,7 +231,7 @@ class ProjectTokenViewsTests(TestCase):
         other_project = get(Project, slug="other", users=[self.user])
         api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
         response = self.client.post(
-            reverse("projects_tokens_edit", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
             {"name": "New name", "description": "", "permissions": [ProjectPermission.UPLOAD]},
         )
         assert response.status_code == 404
@@ -241,7 +241,7 @@ class ProjectTokenViewsTests(TestCase):
     def test_delete(self):
         api_key, _ = self._create_key()
         response = self.client.post(
-            reverse("projects_tokens_delete", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_delete", args=[self.project.slug, api_key.pk]),
         )
         assert response.status_code == 302
         api_key.refresh_from_db()
@@ -251,7 +251,7 @@ class ProjectTokenViewsTests(TestCase):
         other_project = get(Project, slug="other", users=[self.user])
         api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
         response = self.client.post(
-            reverse("projects_tokens_delete", args=[self.project.slug, api_key.prefix]),
+            reverse("projects_tokens_delete", args=[self.project.slug, api_key.pk]),
         )
         assert response.status_code == 404
         api_key.refresh_from_db()
