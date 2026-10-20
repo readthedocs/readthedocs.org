@@ -61,13 +61,16 @@ We want users to be able to identify the type of API key and what platform it is
 For keys that belong to Read the Docs Community, we will use the prefix ``rtdorg_``,
 and for keys that belong to Read the Docs Business, we will use the prefix ``rtdcom_``
 (another option is to use ``rtd_``/``rtdb_`` or ``rtd_``/``rtdcom_``).
-In addition, we will add another prefix to identify the type of API key, e.g. ``proj_``, ``org_``, ``user_``.
+In addition, we will add another prefix to identify the type of API key: ``project_``, ``organization_``, or ``user_``.
+We'll use the full names instead of abbreviations (like ``proj_`` or ``org_``), since they are clearer and easier to identify.
 We can achieve this by extending the ``KeyGenerator`` and ``BaseAPIKeyManager`` classes.
 
 For example:
 
-- ``rtdorg_proj_abc123`` for a project scoped API key in Read the Docs Community.
-- ``rtdcom_proj_abc123`` for a project scoped API key in Read the Docs Business.
+- ``rtdorg_project_abc123`` for a project scoped API key in Read the Docs Community.
+- ``rtdcom_project_abc123`` for a project scoped API key in Read the Docs Business.
+- ``rtdorg_organization_abc123`` for an organization scoped API key in Read the Docs Community.
+- ``rtdcom_user_abc123`` for a user scoped API key in Read the Docs Business.
 
 Having prefixes will also help our own tools/scripts (like the upload client) to identify the type of API key and what platform it is for,
 so we can infer what URL to use for the API, and if the project/organization should be provided or not.
