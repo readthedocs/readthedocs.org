@@ -122,6 +122,20 @@ class RTDAPIKey(AbstractAPIKey):
         related_name="created_api_keys",
         help_text=_("User that created this API key"),
     )
+    # Extra information in case the user is deleted.
+    created_by_user_id = models.IntegerField(
+        _("Created by user ID"),
+        null=True,
+        blank=True,
+        editable=False,
+    )
+    created_by_username = models.CharField(
+        _("Created by username"),
+        max_length=150,
+        blank=True,
+        default="",
+        editable=False,
+    )
     last_used_at = models.DateTimeField(
         _("Last used"),
         null=True,
@@ -153,6 +167,10 @@ class RTDAPIKey(AbstractAPIKey):
         # Keys can be revoked from the dashboard or the admin, set the date in both cases.
         if self.revoked and not self.revoked_at:
             self.revoked_at = timezone.now()
+        # Keep the user that created the key, even if it's renamed or deleted later.
+        if self.created_by_id and not self.created_by_user_id:
+            self.created_by_user_id = self.created_by.pk
+            self.created_by_username = self.created_by.username
         super().save(*args, **kwargs)
 
     @property
