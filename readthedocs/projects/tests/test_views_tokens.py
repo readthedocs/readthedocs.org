@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -77,6 +78,26 @@ class ProjectTokenViewsTests(TestCase):
 
         response = self.client.get(self.list_url)
         assert response.context["created_token"] is not None
+
+    @override_settings(SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies")
+    def test_created_token_with_signed_cookie_sessions(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "30",
+            },
+        )
+        assert response.status_code == 302
+
+        api_key = RTDAPIKey.objects.get(project=self.project)
+        response = self.client.get(self.list_url)
+        key = response.context["created_token"]
+        assert RTDAPIKey.objects.get_from_key(key) == api_key
+        response = self.client.get(self.list_url)
+        assert response.context["created_token"] is None
 
     def test_create_without_expiration(self):
         response = self.client.post(
