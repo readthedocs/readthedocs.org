@@ -78,3 +78,13 @@ class RTDAPIKeyTests(TestCase):
         # Unknown permissions are skipped.
         api_key.permissions = [ProjectPermission.UPLOAD, "project:unknown"]
         assert api_key.get_permissions_display() == ["Upload documentation"]
+
+    def test_modified_is_updated_on_save(self):
+        api_key, _ = self._create_key()
+        modified = api_key.modified
+        assert modified is not None
+
+        api_key.name = "new name"
+        api_key.save()
+        api_key.refresh_from_db()
+        assert api_key.modified > modified
