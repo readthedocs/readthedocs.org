@@ -32,21 +32,19 @@ so you can confirm what your provider is sending.
 GitHub incoming webhook
 -----------------------
 
-This integration is our original integraiton for GitHub support.
+This is our legacy integration for GitHub support.
 It is still supported but we recommend GitHub users use our :doc:`./github-app` integration instead.
 Several of our newest features only work on GitHub and only when using our GitHub App integration.
 
 :Supported:
    - Triggering new builds
-   - Commit events
-   - Branch and tag events
+   - Version synchronization with branches and tags
+   - Automatic webhook and SSH/deploy key creation
    - Pull request builds
 :Not supported:
    - Pull request comments
 :Configuration methods:
    Automatic or manual
-:Payload validation: 
-   `Supported <https://developer.github.com/webhooks/securing/>`__
 
 .. seealso::
 
@@ -56,35 +54,33 @@ Several of our newest features only work on GitHub and only when using our GitHu
 GitLab incoming webhook
 -----------------------
 
+GitLab is only supported through a webhook integration,
+and not all merge request features are supported by build request builds.
+
 :Supported:
    - Triggering new builds
-   - Commit events
-   - Branch and tag events
+   - Version synchronization with branches and tags
+   - Automatic webhook and SSH/deploy key creation
    - Pull request builds
-:Unsupported:
+:Not supported:
    - Pull request comments
 :Configuration methods:
    Automatic or manual
-:Payload validation: 
-   `Supported <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token>`__
-
-For pull request builds to work,
-the webhook has to be configured to send merge request events, not only push events.
 
 Bitbucket incoming webhook
 --------------------------
 
+Bitbucket support is limited and is only supported with a webhook integration.
+
 :Supported:
    - Triggering new builds
-   - Commit events
-   - Branch and tag events
-:Unsupported:
+   - Version synchronization with branches and tags
+   - Automatic webhook and SSH/deploy key creation
+:Not supported:
    - Pull request builds
    - Pull request comments
 :Configuration methods:
    Automatic or manual
-:Payload validation: 
-   `Supported <https://support.atlassian.com/bitbucket-cloud/docs/manage-webhooks/#Secure-webhooks>`__
 
 Generic API incoming webhook
 ----------------------------
@@ -94,16 +90,13 @@ generic API incoming webhook integration.
 
 :Supported:
    - Triggering new builds
-:Unsupported:
-   - Commit events
-   - Branch and tag events
+:Not supported:
+   - Version synchronization with branches and tags
+   - Automatic webhook and SSH/deploy key creation
    - Pull request builds
    - Pull request comments
-   - Commit status reporting
 :Configuration methods:
-   Manual only
-:Payload validation: 
-   Requires manual configuration
+   Automatic or manual
 
 .. seealso::
    :doc:`./guides/creating-generic`
