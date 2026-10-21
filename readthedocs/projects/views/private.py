@@ -4,6 +4,7 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
 from django.http import Http404
@@ -1171,11 +1172,10 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     lookup_url_kwarg = "token_pk"
 
     # The key is only available when it's created,
-    # so it's passed to the list view in the session to show it once.
-    # TODO: discuss a better place for it. The plain key stays in the session store
-    # until the list view is loaded, forever if the redirect isn't followed.
-    # An option is to use the cache with a short TTL, keyed by the session and project.
-    session_key = "project_token"
+    # so it's passed to the list view in the cache to show it once.
+    # The cache is used instead of the session, so the plain key
+    # isn't stored for long if the redirect isn't followed.
+    created_token_cache_timeout = 5 * 60
 
     @cached_method
     def get_project(self):
@@ -1194,6 +1194,10 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
             args=[self.get_project().slug],
         )
 
+    def get_created_token_cache_key(self):
+        # Keyed by the session, so the key is only shown to the user that created it.
+        return f"project-token:{self.request.session.session_key}:{self.get_project().slug}"
+
 
 class ProjectTokenList(ProjectTokenMixin, ListView):
     # The model lives in the ``v3`` app,
@@ -1202,7 +1206,9 @@ class ProjectTokenList(ProjectTokenMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["created_token"] = self.request.session.pop(self.session_key, None)
+        cache_key = self.get_created_token_cache_key()
+        context["created_token"] = cache.get(cache_key)
+        cache.delete(cache_key)
         return context
 
 
@@ -1212,7 +1218,11 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
 
     def form_valid(self, form):
         _api_key, key = form.save()
-        self.request.session[self.session_key] = key
+        cache.set(
+            self.get_created_token_cache_key(),
+            key,
+            timeout=self.created_token_cache_timeout,
+        )
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
 
