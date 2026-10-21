@@ -15,4 +15,5 @@ class PaymentsAppConfig(AppConfig):
         # eMudhra intermediate CAs (October 2026). Use certifi so Stripe API
         # calls get the same trust store as the rest of our HTTP clients.
         # dj-stripe uses the same module-level setting.
+        # See https://github.com/stripe/stripe-python/pull/503
         stripe.ca_bundle_path = certifi.where()
