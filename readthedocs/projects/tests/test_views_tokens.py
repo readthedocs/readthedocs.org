@@ -45,9 +45,10 @@ class ProjectTokenViewsTests(TestCase):
             },
         )
         assert response.status_code == 302
-        assert response["Location"] == self.list_url
+        redirect_url = response["Location"]
 
         api_key = RTDAPIKey.objects.get(project=self.project)
+        assert redirect_url == f"{self.list_url}?created={api_key.pk}"
         assert api_key.name == "CI"
         assert api_key.description == "Upload from GitHub Actions"
         assert api_key.permissions == [ProjectPermission.UPLOAD]
@@ -55,10 +56,10 @@ class ProjectTokenViewsTests(TestCase):
         assert api_key.created_by == self.user
 
         # The key is shown once.
-        response = self.client.get(self.list_url)
+        response = self.client.get(redirect_url)
         key = response.context["created_token"]
         assert RTDAPIKey.objects.get_from_key(key) == api_key
-        response = self.client.get(self.list_url)
+        response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
 
     def test_created_token_is_only_shown_in_the_same_session(self):
@@ -71,14 +72,51 @@ class ProjectTokenViewsTests(TestCase):
             },
         )
         assert response.status_code == 302
+        redirect_url = response["Location"]
 
+        # Same user in another session.
         other_client = self.client_class()
         other_client.force_login(self.user)
-        response = other_client.get(self.list_url)
+        response = other_client.get(redirect_url)
         assert response.context["created_token"] is None
 
+        # Another admin of the project.
+        other_user = get(User)
+        self.project.users.add(other_user)
+        other_client = self.client_class()
+        other_client.force_login(other_user)
+        response = other_client.get(redirect_url)
+        assert response.context["created_token"] is None
+
+        # Without the ID of the key, or with an invalid one.
         response = self.client.get(self.list_url)
+        assert response.context["created_token"] is None
+        response = self.client.get(self.list_url, {"created": "invalid"})
+        assert response.context["created_token"] is None
+
+        response = self.client.get(redirect_url)
         assert response.context["created_token"] is not None
+
+    def test_create_several_tokens_before_following_the_redirects(self):
+        redirect_urls = []
+        for name in ["first", "second"]:
+            response = self.client.post(
+                self.create_url,
+                {
+                    "name": name,
+                    "permissions": [ProjectPermission.UPLOAD],
+                    "expires_in": "30",
+                },
+            )
+            assert response.status_code == 302
+            redirect_urls.append(response["Location"])
+        assert redirect_urls[0] != redirect_urls[1]
+
+        # Each redirect shows its own key.
+        for name, redirect_url in zip(["first", "second"], redirect_urls):
+            response = self.client.get(redirect_url)
+            key = response.context["created_token"]
+            assert RTDAPIKey.objects.get_from_key(key).name == name
 
     @override_settings(SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies")
     def test_created_token_with_signed_cookie_sessions(self):
@@ -92,12 +130,13 @@ class ProjectTokenViewsTests(TestCase):
             },
         )
         assert response.status_code == 302
+        redirect_url = response["Location"]
 
         api_key = RTDAPIKey.objects.get(project=self.project)
-        response = self.client.get(self.list_url)
+        response = self.client.get(redirect_url)
         key = response.context["created_token"]
         assert RTDAPIKey.objects.get_from_key(key) == api_key
-        response = self.client.get(self.list_url)
+        response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
 
     def test_create_without_expiration(self):

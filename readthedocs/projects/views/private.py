@@ -17,6 +17,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -1161,6 +1162,8 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     # The cache is used instead of the session, so the plain key
     # isn't stored for long if the redirect isn't followed.
     created_token_cache_timeout = 2 * 60
+    # Query parameter with the ID of the created key, so each redirect shows its own key.
+    created_token_param = "created"
 
     @cached_method
     def get_project(self):
@@ -1179,16 +1182,17 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
             args=[self.get_project().slug],
         )
 
-    def get_created_token_cache_key(self):
+    def get_created_token_cache_key(self, api_key_id):
         # Keyed by the user and a random ID stored in their session,
         # so the key is only shown to the user that created it, in the same session.
         # The session key isn't used, since with signed cookies it's the session data itself,
         # and it changes when the session is modified.
+        # The ID of the key avoids overwriting it when creating several keys at the same time.
         session_id = self.request.session.setdefault(
             "project_token_session_id",
             secrets.token_urlsafe(16),
         )
-        return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}"
+        return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}:{api_key_id}"
 
 
 class ProjectTokenList(ProjectTokenMixin, ListView):
@@ -1199,8 +1203,9 @@ class ProjectTokenList(ProjectTokenMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["created_token"] = None
-        if self.request.method == "GET":
-            cache_key = self.get_created_token_cache_key()
+        api_key_id = self.request.GET.get(self.created_token_param, "")
+        if self.request.method == "GET" and api_key_id.isdigit():
+            cache_key = self.get_created_token_cache_key(int(api_key_id))
             context["created_token"] = cache.get(cache_key)
             cache.delete(cache_key)
         return context
@@ -1215,14 +1220,15 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
         return super().get_form(data, files, **kwargs)
 
     def form_valid(self, form):
-        _api_key, key = form.save()
+        api_key, key = form.save()
         cache.set(
-            self.get_created_token_cache_key(),
+            self.get_created_token_cache_key(api_key.pk),
             key,
             timeout=self.created_token_cache_timeout,
         )
         messages.success(self.request, self.success_message)
-        return HttpResponseRedirect(self.get_success_url())
+        query = urlencode({self.created_token_param: api_key.pk})
+        return HttpResponseRedirect(f"{self.get_success_url()}?{query}")
 
 
 class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
