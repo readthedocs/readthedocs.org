@@ -52,6 +52,7 @@ class ProjectTokenViewsTests(TestCase):
         assert api_key.description == "Upload from GitHub Actions"
         assert api_key.permissions == [ProjectPermission.UPLOAD]
         assert api_key.expiry_date.date() == (timezone.now() + timedelta(days=30)).date()
+        assert api_key.created_by == self.user
 
         # The key is shown once.
         response = self.client.get(self.list_url)
