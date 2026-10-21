@@ -480,7 +480,7 @@ class AddonsResponseBase:
                         # It contains the name of the filter and the search syntax to prepend
                         # to the user's query.
                         # It uses "Search query sintax":
-                        # https://docs.readthedocs.io/en/stable/server-side-search/syntax.html
+                        # https://docs.readthedocs.com/platform/stable/server-side-search/syntax.html
                         # [
                         #     "Include subprojects",
                         #     f"subprojects:{project.slug}/{version.slug}",

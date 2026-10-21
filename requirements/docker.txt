@@ -29,11 +29,11 @@ billiard==4.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.103
+boto3==1.43.108
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.103
+botocore==1.43.108
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -47,7 +47,7 @@ celery==5.6.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.7.22
+certifi==2026.10.19
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -57,7 +57,7 @@ cffi==2.1.1
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.5.1
+charset-normalizer==3.5.2
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -90,7 +90,7 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==50.0.1
+cryptography==50.0.2
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -151,7 +151,7 @@ django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
-django-filter==26.1
+django-filter==26.2
     # via -r requirements/pip.txt
 django-formtools==2.7
     # via -r requirements/pip.txt
@@ -214,7 +214,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==4.0.4
+filelock==4.0.10
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -285,6 +285,7 @@ packaging==26.3
     #   pyproject-api
     #   tox
     #   tox-uv-bare
+    #   virtualenv
 parso==0.8.7
     # via jedi
 pdbpp==0.12.1
@@ -293,7 +294,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.12.0
+platformdirs==4.12.3
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -340,7 +341,7 @@ pygments==2.21.0
     #   ipython-pygments-lexers
     #   pdbpp
     #   rich
-pyjwt[crypto]==2.15.0
+pyjwt[crypto]==2.15.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -349,7 +350,7 @@ pynacl==1.6.2
     # via
     #   -r requirements/pip.txt
     #   pygithub
-pyproject-api==1.11.2
+pyproject-api==1.11.3
     # via tox
 pyquery==2.1.0
     # via -r requirements/pip.txt
@@ -368,7 +369,7 @@ python-discovery==1.6.1
     #   -r requirements/pip.txt
     #   tox
     #   virtualenv
-python-ipware==4.1.0
+python-ipware==4.1.1
     # via
     #   -r requirements/pip.txt
     #   django-ipware
@@ -386,7 +387,7 @@ qrcode==8.2
     #   django-allauth
 redis==8.1.0
     # via -r requirements/pip.txt
-regex==2026.9.10
+regex==2026.9.29
     # via -r requirements/pip.txt
 requests==2.34.2
     # via
@@ -446,13 +447,13 @@ toml==0.10.2
     #   bumpver
 tomli-w==1.2.0
     # via tox
-tox==4.64.3
+tox==4.64.8
     # via
     #   -r requirements/docker.in
     #   tox-uv-bare
-tox-uv==1.36.0
+tox-uv==1.36.1
     # via -r requirements/docker.in
-tox-uv-bare==1.36.0
+tox-uv-bare==1.36.1
     # via tox-uv
 traitlets==5.16.1
     # via
@@ -474,7 +475,7 @@ typing-inspection==0.4.4
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2026.4
+tzdata==2026.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -487,7 +488,7 @@ ua-parser==1.0.2
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==202606
+ua-parser-builtins==202610
     # via
     #   -r requirements/pip.txt
     #   ua-parser
@@ -507,7 +508,7 @@ urllib3==2.8.0
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
-uv==0.12.19
+uv==0.12.23
     # via tox-uv
 vine==5.1.0
     # via
@@ -515,7 +516,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.13.0
+virtualenv==21.14.5
     # via
     #   -r requirements/pip.txt
     #   tox

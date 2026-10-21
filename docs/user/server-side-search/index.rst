@@ -65,8 +65,8 @@ Analytics
    Know what your users are searching for.
    See :doc:`/search-analytics`
 
-.. _"full-text search": https://docs.readthedocs.io/en/latest/search.html?q=%22full-text+search%22
-.. _"project:docs project:dev search": https://docs.readthedocs.io/en/latest/search.html?q=project:docs+project:dev+search
+.. _"full-text search": https://docs.readthedocs.com/platform/stable/search.html?q=%22full-text+search%22
+.. _"project:docs project:dev search": https://docs.readthedocs.com/platform/stable/search.html?q=project:docs+project:dev+search
 
 .. figure:: /_static/images/search-analytics-demo.png
    :width: 50%

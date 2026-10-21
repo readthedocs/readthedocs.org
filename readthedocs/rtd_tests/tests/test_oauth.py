@@ -2937,6 +2937,35 @@ class BitbucketOAuthTests(TestCase):
             self.service.sync_repositories()
 
     @requests_mock.Mocker(kw="request")
+    def test_sync_repositories_continues_after_failed_workspace(self, request):
+        """A failing workspace doesn't stop the sync of the other workspaces."""
+        workspace_a = self._make_workspace_access_response("workspace-a", "{uuid-a}")
+        workspace_b = self._make_workspace_access_response("workspace-b", "{uuid-b}")
+        repo_b = self._make_repo_response("workspace-b", "repo-b", "{repo-b}")
+
+        request.get(
+            "https://api.bitbucket.org/2.0/user/workspaces/",
+            json={"values": [workspace_a, workspace_b]},
+        )
+        # Malformed payload, iterating over ``None`` raises TypeError.
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-a",
+            json={"values": None},
+        )
+        request.get(
+            "https://api.bitbucket.org/2.0/repositories/workspace-b",
+            json={"values": [repo_b]},
+        )
+
+        with self.assertRaises(SyncServiceError):
+            self.service.sync_repositories()
+
+        assert RemoteRepository.objects.filter(
+            vcs_provider=BITBUCKET, remote_id="{repo-b}"
+        ).exists()
+        assert "/2.0/repositories/workspace-b" in [req.path for req in request.request_history]
+
+    @requests_mock.Mocker(kw="request")
     def test_update_remote_repository(self, request):
         remote_repo = get(
             RemoteRepository,
