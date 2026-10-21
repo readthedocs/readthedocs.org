@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RTDAPIKey",
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
                 ("prefix", models.CharField(editable=False, max_length=32, unique=True)),
                 ("hashed_key", models.CharField(editable=False, max_length=150)),
                 ("created", models.DateTimeField(auto_now_add=True, db_index=True)),
