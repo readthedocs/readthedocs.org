@@ -109,13 +109,35 @@ class RTDAPIKeyTests(TestCase):
         assert api_key.last_used_at > last_used_at
 
     def test_created_by_is_kept_when_the_user_is_deleted(self):
-        user = get(User)
+        user = get(User, username="eric")
+        user_id = user.pk
         api_key, _ = self._create_key(created_by=user)
         assert api_key.created_by == user
+        assert api_key.created_by_user_id == user_id
+        assert api_key.created_by_username == "eric"
 
         user.delete()
         api_key.refresh_from_db()
         assert api_key.created_by is None
+        assert api_key.created_by_user_id == user_id
+        assert api_key.created_by_username == "eric"
+
+    def test_created_by_username_isnt_updated(self):
+        user = get(User, username="eric")
+        api_key, _ = self._create_key(created_by=user)
+
+        user.username = "new-username"
+        user.save()
+        api_key.name = "new name"
+        api_key.save()
+        api_key.refresh_from_db()
+        assert api_key.created_by_username == "eric"
+
+    def test_created_by_empty(self):
+        api_key, _ = self._create_key()
+        assert api_key.created_by is None
+        assert api_key.created_by_user_id is None
+        assert api_key.created_by_username == ""
 
     def test_revoked_at(self):
         api_key, _ = self._create_key()
