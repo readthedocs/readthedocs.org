@@ -2,6 +2,7 @@ from enum import StrEnum
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.crypto import KeyGenerator
 from rest_framework_api_key.crypto import concatenate
@@ -112,6 +113,13 @@ class RTDAPIKey(AbstractAPIKey):
         help_text=_("List of permissions granted to this API key"),
     )
     modified = models.DateTimeField(_("Modified"), auto_now=True)
+    revoked_at = models.DateTimeField(
+        _("Revoked at"),
+        null=True,
+        blank=True,
+        editable=False,
+        help_text=_("When the API key was revoked"),
+    )
 
     # The library uses the prefix and the hashed key as the primary key,
     # use an auto-incremented ID instead, so the hashed key isn't exposed in URLs or relations.
@@ -124,6 +132,12 @@ class RTDAPIKey(AbstractAPIKey):
     class Meta(AbstractAPIKey.Meta):
         verbose_name = _("API key")
         verbose_name_plural = _("API keys")
+
+    def save(self, *args, **kwargs):
+        # Keys can be revoked from the dashboard or the admin, set the date in both cases.
+        if self.revoked and not self.revoked_at:
+            self.revoked_at = timezone.now()
+        super().save(*args, **kwargs)
 
     @property
     def scope(self):
