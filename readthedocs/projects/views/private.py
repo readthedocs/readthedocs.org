@@ -1,5 +1,7 @@
 """Project views for authenticated users."""
 
+import secrets
+
 import structlog
 from django.conf import settings
 from django.contrib import messages
@@ -1154,10 +1156,11 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     lookup_url_kwarg = "token_pk"
 
     # The key is only available when it's created,
-    # so it's passed to the list view in the cache to show it once.
+    # so it's passed to the list view in the cache to show it once
+    # (this is a redirect after the create view, so the session is lost).
     # The cache is used instead of the session, so the plain key
     # isn't stored for long if the redirect isn't followed.
-    created_token_cache_timeout = 5 * 60
+    created_token_cache_timeout = 2 * 60
 
     @cached_method
     def get_project(self):
@@ -1177,8 +1180,15 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
         )
 
     def get_created_token_cache_key(self):
-        # Keyed by the session, so the key is only shown to the user that created it.
-        return f"project-token:{self.request.session.session_key}:{self.get_project().slug}"
+        # Keyed by the user and a random ID stored in their session,
+        # so the key is only shown to the user that created it, in the same session.
+        # The session key isn't used, since with signed cookies it's the session data itself,
+        # and it changes when the session is modified.
+        session_id = self.request.session.setdefault(
+            "project_token_id",
+            secrets.token_urlsafe(16),
+        )
+        return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}"
 
 
 class ProjectTokenList(ProjectTokenMixin, ListView):
