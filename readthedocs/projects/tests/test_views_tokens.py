@@ -59,6 +59,25 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(self.list_url)
         assert response.context["created_token"] is None
 
+    def test_created_token_is_only_shown_in_the_same_session(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "30",
+            },
+        )
+        assert response.status_code == 302
+
+        other_client = self.client_class()
+        other_client.force_login(self.user)
+        response = other_client.get(self.list_url)
+        assert response.context["created_token"] is None
+
+        response = self.client.get(self.list_url)
+        assert response.context["created_token"] is not None
+
     def test_create_without_expiration(self):
         response = self.client.post(
             self.create_url,
