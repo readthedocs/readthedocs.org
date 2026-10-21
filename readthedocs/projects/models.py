@@ -1493,7 +1493,7 @@ class Project(models.Model):
     @cached_property
     def allows_direct_artifacts_upload(self):
         """Whether the project can upload its documentation using the upload API."""
-        return self.is_direct_upload or self.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD)
+        return self.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD)
 
     def get_feature_value(self, feature, positive, negative):
         """
