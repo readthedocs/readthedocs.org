@@ -97,7 +97,7 @@ if os.environ.get("READTHEDOCS") == "True":
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "2026.10.13post2"
+version = "2026.10.21"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 # Exclude design docs from dev documentation
