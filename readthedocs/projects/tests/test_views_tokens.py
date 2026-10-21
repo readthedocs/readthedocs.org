@@ -300,6 +300,7 @@ class ProjectTokenViewsTests(TestCase):
         assert response.status_code == 302
         api_key.refresh_from_db()
         assert api_key.revoked
+        assert api_key.revoked_at is not None
 
     def test_delete_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
