@@ -38,10 +38,10 @@ and ensures that all your versions can be rebuilt from a reproducible configurat
 
    # Explicitly set the OS and Python versions
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
        nodejs: "20"
-       python: "3.12"
+       python: "3.14"
 
 Use a requirements file for Python dependencies
 -----------------------------------------------
@@ -105,7 +105,7 @@ and it generates a ``requirements.txt`` file with the full set of transitive dep
           # via sphinx
       babel==2.11.0
           # via sphinx
-      certifi==2022.12.7
+      certifi==2026.10.19
           # via requests
       charset-normalizer==2.1.1
           # via requests

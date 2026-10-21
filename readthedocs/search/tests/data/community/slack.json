@@ -1,0 +1,10 @@
+{
+  "path": "slack",
+  "title": "Slack",
+  "sections": [
+    {"id": "slack", "title": "Slack", "content": "Join our Slack to chat with the community."},
+    {"id": "channels", "title": "Channels", "content": "Channels group conversations by topic, location, and interest. Browse the channel list in Slack to find yours."},
+    {"id": "guidelines", "title": "Guidelines", "content": "Be kind, stay on topic, and follow the code of conduct. Moderators may remove messages from Slack that break these rules."},
+    {"id": "moderation", "title": "Moderation", "content": "Report problems to the moderators, who review every report and reply privately through Slack direct messages."}
+  ]
+}

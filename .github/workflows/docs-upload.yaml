@@ -36,6 +36,9 @@ jobs:
         working-directory: docs
         env:
           PROJECT: user
+          # This build is mirrored to the docs-upload QA projects. Point every
+          # page's canonical at the real docs so search engines index those.
+          READTHEDOCS_CANONICAL_URL: https://docs.readthedocs.com/platform/stable/
         run: sphinx-build -W --keep-going -b html . _build/html
 
       - name: Upload documentation to Read the Docs Community

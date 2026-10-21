@@ -31,11 +31,11 @@ billiard==4.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.103
+boto3==1.43.108
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.103
+botocore==1.43.108
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -47,7 +47,7 @@ celery==5.6.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.7.22
+certifi==2026.10.19
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -57,7 +57,7 @@ cffi==2.1.1
     #   -r requirements/pip.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.5.1
+charset-normalizer==3.5.2
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -85,13 +85,13 @@ colorama==0.4.6
     # via
     #   -r requirements/pip.txt
     #   bumpver
-coverage[toml]==7.16.1
+coverage[toml]==7.16.2
     # via pytest-cov
 cron-descriptor==1.4.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==50.0.1
+cryptography==50.0.2
     # via
     #   -r requirements/pip.txt
     #   fido2
@@ -150,7 +150,7 @@ django-elasticsearch-dsl==9.0
     # via -r requirements/pip.txt
 django-extensions==4.1
     # via -r requirements/pip.txt
-django-filter==26.1
+django-filter==26.2
     # via -r requirements/pip.txt
 django-formtools==2.7
     # via -r requirements/pip.txt
@@ -213,7 +213,7 @@ fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==4.0.4
+filelock==4.0.10
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -258,7 +258,7 @@ lxml==6.0.1
     #   xmlsec
 markdown==3.11
     # via -r requirements/pip.txt
-markupsafe==3.0.3
+markupsafe==3.0.4
     # via jinja2
 oauthlib==3.3.1
     # via
@@ -276,9 +276,10 @@ packaging==26.3
     #   kombu
     #   pytest
     #   sphinx
+    #   virtualenv
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.12.0
+platformdirs==4.12.3
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -317,7 +318,7 @@ pygments==2.21.0
     #   -r requirements/pip.txt
     #   pytest
     #   sphinx
-pyjwt[crypto]==2.15.0
+pyjwt[crypto]==2.15.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -341,7 +342,7 @@ pytest-custom-exit-code==0.3.0
     # via -r requirements/testing.in
 pytest-django==4.14.0
     # via -r requirements/testing.in
-pytest-mock==3.15.1
+pytest-mock==3.16.0
     # via -r requirements/testing.in
 python-crontab==3.4.0
     # via
@@ -357,7 +358,7 @@ python-discovery==1.6.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-python-ipware==4.1.0
+python-ipware==4.1.1
     # via
     #   -r requirements/pip.txt
     #   django-ipware
@@ -375,7 +376,7 @@ qrcode==8.2
     #   django-allauth
 redis==8.1.0
     # via -r requirements/pip.txt
-regex==2026.9.10
+regex==2026.9.29
     # via -r requirements/pip.txt
 requests==2.34.2
     # via
@@ -467,7 +468,7 @@ typing-inspection==0.4.4
     # via
     #   -r requirements/pip.txt
     #   pydantic
-tzdata==2026.4
+tzdata==2026.5
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -480,7 +481,7 @@ ua-parser==1.0.2
     # via
     #   -r requirements/pip.txt
     #   user-agents
-ua-parser-builtins==202606
+ua-parser-builtins==202610
     # via
     #   -r requirements/pip.txt
     #   ua-parser
@@ -506,7 +507,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.13.0
+virtualenv==21.14.5
     # via -r requirements/pip.txt
 wcwidth==0.9.1
     # via
