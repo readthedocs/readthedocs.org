@@ -111,6 +111,7 @@ class RTDAPIKey(AbstractAPIKey):
         blank=True,
         help_text=_("List of permissions granted to this API key"),
     )
+    modified = models.DateTimeField(_("Modified"), auto_now=True)
 
     # The library uses the prefix and the hashed key as the primary key,
     # use an auto-incremented ID instead, so the hashed key isn't exposed in URLs or relations.
