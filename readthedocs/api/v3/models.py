@@ -113,6 +113,22 @@ class RTDAPIKey(AbstractAPIKey):
         help_text=_("List of permissions granted to this API key"),
     )
     modified = models.DateTimeField(_("Modified"), auto_now=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("Created by"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_api_keys",
+        help_text=_("User that created this API key"),
+    )
+    last_used = models.DateTimeField(
+        _("Last used"),
+        null=True,
+        blank=True,
+        editable=False,
+        help_text=_("When the API key was last used, updated at most once per hour"),
+    )
     revoked_at = models.DateTimeField(
         _("Revoked at"),
         null=True,

@@ -1,8 +1,12 @@
+from datetime import timedelta
+
 import pytest
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test import override_settings
 from django_dynamic_fixture import get
 
+from readthedocs.api.v3.authentication import RTDAPIKeyAuthentication
 from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.projects.models import Project
@@ -78,6 +82,40 @@ class RTDAPIKeyTests(TestCase):
         # Unknown permissions are skipped.
         api_key.permissions = [ProjectPermission.UPLOAD, "project:unknown"]
         assert api_key.get_permissions_display() == ["Upload documentation"]
+
+    def test_last_used(self):
+        api_key, key = self._create_key()
+        assert api_key.last_used is None
+        modified = api_key.modified
+
+        authentication = RTDAPIKeyAuthentication()
+        authentication.authenticate_credentials(key)
+        api_key.refresh_from_db()
+        last_used = api_key.last_used
+        assert last_used is not None
+        # The modified date isn't changed when the key is used.
+        assert api_key.modified == modified
+
+        # Not updated again within the hour.
+        authentication.authenticate_credentials(key)
+        api_key.refresh_from_db()
+        assert api_key.last_used == last_used
+
+        RTDAPIKey.objects.filter(pk=api_key.pk).update(
+            last_used=last_used - timedelta(hours=2),
+        )
+        authentication.authenticate_credentials(key)
+        api_key.refresh_from_db()
+        assert api_key.last_used > last_used
+
+    def test_created_by_is_kept_when_the_user_is_deleted(self):
+        user = get(User)
+        api_key, _ = self._create_key(created_by=user)
+        assert api_key.created_by == user
+
+        user.delete()
+        api_key.refresh_from_db()
+        assert api_key.created_by is None
 
     def test_revoked_at(self):
         api_key, _ = self._create_key()
