@@ -85,28 +85,28 @@ class RTDAPIKeyTests(TestCase):
 
     def test_last_used(self):
         api_key, key = self._create_key()
-        assert api_key.last_used is None
+        assert api_key.last_used_at is None
         modified = api_key.modified
 
         authentication = RTDAPIKeyAuthentication()
         authentication.authenticate_credentials(key)
         api_key.refresh_from_db()
-        last_used = api_key.last_used
-        assert last_used is not None
+        last_used_at = api_key.last_used_at
+        assert last_used_at is not None
         # The modified date isn't changed when the key is used.
         assert api_key.modified == modified
 
         # Not updated again within the hour.
         authentication.authenticate_credentials(key)
         api_key.refresh_from_db()
-        assert api_key.last_used == last_used
+        assert api_key.last_used_at == last_used_at
 
         RTDAPIKey.objects.filter(pk=api_key.pk).update(
-            last_used=last_used - timedelta(hours=2),
+            last_used_at=last_used_at - timedelta(hours=2),
         )
         authentication.authenticate_credentials(key)
         api_key.refresh_from_db()
-        assert api_key.last_used > last_used
+        assert api_key.last_used_at > last_used_at
 
     def test_created_by_is_kept_when_the_user_is_deleted(self):
         user = get(User)

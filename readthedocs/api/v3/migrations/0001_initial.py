@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(auto_now=True, verbose_name="Modified"),
                 ),
                 (
-                    "last_used",
+                    "last_used_at",
                     models.DateTimeField(
                         blank=True,
                         editable=False,
