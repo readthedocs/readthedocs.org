@@ -1154,6 +1154,9 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
 
     # The key is only available when it's created,
     # so it's passed to the list view in the session to show it once.
+    # TODO: discuss a better place for it. The plain key stays in the session store
+    # until the list view is loaded, forever if the redirect isn't followed.
+    # An option is to use the cache with a short TTL, keyed by the session and project.
     session_key = "project_token"
 
     @cached_method
