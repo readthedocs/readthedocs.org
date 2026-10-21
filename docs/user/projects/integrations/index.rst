@@ -68,7 +68,7 @@ Manually configured
 ~~~~~~~~~~~~~~~~~~~
 
 For projects using an unsupported Git provider,
-or using a manually configured repository URL, 
+or using a manually configured repository URL,
 integrations will need to be manually configured and managed.
 An integration created manually *will not* configure the provider repository,
 **several setup steps are required on the provider to use the integration**.
@@ -114,7 +114,7 @@ Using integrations
 
 .. TODO tune this copy, it's sloppy.
 
-To start using an integraiton, you may only need to create a project.
+To start using an integration, you may only need to create a project.
 However if you need to configure an integration manually at all,
 the following guides will help you understand how to manage your project's
 integration.
@@ -128,8 +128,8 @@ integration.
     the integration.
 
 :doc:`./guides/managing-github-app`
-    How to manage a GitHub App integration, including how to accept permisions
-    and install the application for your repository and organizaiton.
+    How to manage a GitHub App integration, including how to accept permissions
+    and install the application for your repository and organization.
 
 .. toctree::
    :glob:

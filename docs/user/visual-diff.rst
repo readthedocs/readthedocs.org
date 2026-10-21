@@ -35,7 +35,7 @@ Show build overview in pull requests
 
 .. note::
 
-   This feature is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
+   This feature is only available for projects connected using a :doc:`/projects/integrations/github-app` integration.
 
 To enable or disable this feature for your project:
 

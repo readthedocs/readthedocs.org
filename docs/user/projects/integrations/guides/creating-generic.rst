@@ -2,7 +2,7 @@ Creating a generic API integration
 ==================================
 
 Projects using repositories that are not hosted with a supported provider can
-use our :doc:`../webhook:Generic API webhook` integration.
+use our :ref:`projects/integrations/webhook:Generic API incoming webhook` integration.
 
 To manually set up an integration for your project,
 go to :guilabel:`Settings` > :guilabel:`Integrations` > :guilabel:`Add integration`.

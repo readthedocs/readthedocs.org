@@ -61,13 +61,14 @@ does not have the correct scopes or permissions.
 The first repair to try in these cases would be to update any missing scopes.
 
 If the integration is automatically configured and has a connected repository,
-try resyncing the webhook from the integration detail page.
+try re-syncing the webhook from the integration detail page.
+Automatically configured integrations will have a button for re-syncing the webhook.
 This will update the repository webhook if the connected repository link is still valid.
 
 If the integration is manually configured,
 one of the repository admins will need to manually verify the webhook scopes.
-The :ref:`steps for manual intgreation creation <projects/integrations/guides/creating:Manually configured integration>`
-list the neccessary scopes for each provider webhook.
+The :ref:`steps for manual integration creation <integration-create-manual>`
+list the necessary scopes for each provider webhook.
 You can review these directions on your existing repository webhook
 and update any missing scopes or permissions.
 

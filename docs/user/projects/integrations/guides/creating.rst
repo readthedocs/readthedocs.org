@@ -7,12 +7,14 @@ available:
 
 `Automatically configured integration`_
     By adding a connected service account to your user and connecting your
-    repository to your project, an integration will be automatically connected. 
+    repository to your project, an integration will be automatically connected.
     **This is recommended for most projects**.
 
 `Manually configured integration`_
     Manually configured integrations can be used by any project using an
     unsupported provider or where no maintainer has a connected provider account.
+
+.. _integration-create-automatic:
 
 Automatically configured integration
 ------------------------------------
@@ -27,6 +29,8 @@ the repository's provider.
 
 .. TODO pointers to next steps. Link to connected repository page when it exists
 
+.. _integration-create-manual:
+
 Manually configured integration
 -------------------------------
 
@@ -35,10 +39,18 @@ integrations. If your repository's provider is not supported or you do not have
 a connected service account for your provider, your project will have to use a
 manually configured integration instead.
 
+There will be several set up steps required for your provider,
+which are normally managed by automatically configured integrations:
+
+- Configuring a webhook on your provider for your repository,
+  pointing to the integration that you will create
+- Private repositories will also need to be configured with an SSH key or deploy key in order to allow cloning.
+  (|com_brand| only).
+
 .. warning::
    Manual configuration is only recommended for advanced users.
    Project maintainers are responsible for all project and repository configuration.
-   We recommend most projects use a connected repository and automaticallly
+   We recommend most projects use a connected repository and automatically
    configured integration.
 
 To manually set up an integration for your project,
@@ -82,8 +94,8 @@ request builds**.
 .. [1] Integrations that are functional are known to work with manual
    configuration but are not officially supported or tested.
 
-Configuring your provider
--------------------------
+Configuring the repository webhook
+----------------------------------
 
 You need to configure your Git provider to send a webhook that alerts Read the Docs of changes.
 Read the Docs will sync versions and build your documentation whenever a Git commit happens.
@@ -146,7 +158,84 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
    .. tab:: Others
 
-      Other providers are supported through a generic webhook, see :doc:`../generic`.
+      Other providers are supported through a :doc:`generic webhook </projects/integrations/guides/creating-generic>`.
+
+
+Configuring an SSH key
+----------------------
+
+.. note::
+   Private repositories are only supported on |com_brand|.
+   You can skip this step if your are using a public repository
+   or your project is hosted on |org_brand|.
+
+Each project using a private repository is configured with an SSH key pair consisting of a public and private key.
+Your repository will need to be configured with the public SSH key
+in order to allow builds to clone your repository.
+
+.. figure:: /img/screenshots/business-project-ssh-key.png
+   :scale: 40%
+   :align: right
+   :alt: Project SSH key details.
+
+#. Go to the :menuselection:`Settings --> SSH keys` page for your project.
+#. Click on the fingerprint of the SSH key.
+#. Copy the text from the :guilabel:`Public SSH key` field
+#. Next, configure your repository with this key,
+   we've provided instructions for common Git providers:
+
+.. tabs::
+
+   .. tab:: GitHub
+
+      For GitHub, you can use
+      `deploy keys with read only access <https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys>`__.
+
+      #. Go to your project on GitHub
+      #. Click on :guilabel:`Settings`
+      #. Click on :guilabel:`Deploy Keys`
+      #. Click on :guilabel:`Add deploy key`
+      #. Put a descriptive title and paste the public key you copied above.
+      #. Click on :guilabel:`Add key`
+
+   .. tab:: GitLab
+
+      For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.com/ee/user/project/deploy_keys/index.html>`__.
+
+      #. Go to your project on GitLab
+      #. Click on :guilabel:`Settings`
+      #. Click on :guilabel:`Repository`
+      #. Expand the :guilabel:`Deploy Keys` section
+      #. Put a descriptive title and paste the public key you copied above.
+      #. Click on :guilabel:`Add key`
+
+   .. tab:: Bitbucket
+
+      For Bitbucket, you can use `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__.
+
+      #. Go your project on Bitbucket
+      #. Click on :guilabel:`Repository Settings`
+      #. Click on :guilabel:`Access keys`
+      #. Click on :guilabel:`Add key`
+      #. Put a descriptive label and paste the public key you copied above.
+      #. Click on :guilabel:`Add SSH key`
+
+   .. tab:: Azure DevOps
+
+      For Azure DevOps, you can use `SSH key authentication <https://docs.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate?view=azure-devops>`__.
+
+      #. Go your Azure DevOps page
+      #. Click on :guilabel:`User settings`
+      #. Click on :guilabel:`SSH public keys`
+      #. Click on :guilabel:`New key`
+      #. Put a descriptive name and paste the public key you copied above.
+      #. Click on :guilabel:`Add`
+
+   .. tab:: Others
+
+      If you are using a provider not listed here,
+      you should still be able to configure your repository with your project's SSH key.
+      Refer to your provider's documentation for managing SSH keys on private repositories.
 
 .. seealso::
 

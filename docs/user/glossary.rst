@@ -19,16 +19,16 @@ so that you have a reference for how we're using them.
          :doc:`/config-file/index`
             Practical steps to add a configuration file to your documentation project.
 
-
    connected service
       The link between your Read the Docs account and your account at a Git provider
-      such as GitHub, GitLab or Bitbucket.
+      like |git_providers_or|.
 
-      Read the Docs uses a connected service to log you in, to list the repositories
-      you have access to, and to create a :term:`Git integration` when you add a project.
+      Read the Docs uses connected services to providing authentication,
+      to interact with the repositories you have access to,
+      and to create a :doc:`integrations </projects/integrations/index>`.
 
-      Manage your connected services from
-      :guilabel:`Settings` > :guilabel:`Connected Services`.
+      Manage your connected services from the user menu,
+      under :guilabel:`Settings` > :guilabel:`Connected services`.
       A single Read the Docs account can have a connected service for several providers
       at the same time.
 
@@ -37,24 +37,17 @@ so that you have a reference for how we're using them.
          :doc:`/guides/connecting-git-account`
             How to create or remove a connected service.
 
-         :doc:`/integrations/index`
-            How connected services and Git integrations fit together.
-
    connected repository
-      A project that was configured to use a repository through a
-      :term:`connected service` account,
-      rather than having the repository URL entered manually.
+      A project that was configured to use a repository through a :term:`connected service` account,
+      rather than using a manually configured repository URL.
 
-      Read the Docs uses the token from the connected service to keep reaching the
-      repository,
-      so there is no repository URL configured on the project itself.
-      This is what allows an automatically configured
-      :term:`Git integration` to be created for it.
+      Read the Docs uses this connection for all configuration of the
+      :doc:`integration </projects/integrations/index>` and the project's repository.
 
       .. seealso::
 
-         :doc:`/integrations/index`
-            The difference between automatically and manually configured integrations.
+         :doc:`/projects/integrations/index`
+            An explanation of project integrations and how to use them.
 
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
@@ -85,27 +78,14 @@ so that you have a reference for how we're using them.
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
 
-   Git integration
+   integration
       The link between a Read the Docs project and one Git repository.
-
-      Read the Docs uses a Git integration to build your documentation when the
-      repository changes, to keep your :doc:`versions </versions>` in sync, to report
-      build statuses back to your Git provider, and to create pull request builds.
-
-      Every project you add with a :term:`connected service` gets a Git integration
-      set up for you automatically. Manage them for a project from
-      :guilabel:`Admin` > :guilabel:`Integrations`.
-
-      A project without a Git integration can still be added, but the repository has
-      to be configured manually.
 
       .. seealso::
 
-         :doc:`/integrations/index`
-            How connected services and Git integrations fit together.
-
-         :doc:`/integrations/webhooks`
-            What a Git integration does and how it is configured.
+         :doc:`/projects/integrations/index`
+            A complete explanation of integrations, the different types and
+            configuration methdos, and how to manage them for your project.
 
    GitOps
       Denotes the use of code maintained in Git to automate building, testing, and deployment of infrastructure.
@@ -208,22 +188,18 @@ so that you have a reference for how we're using them.
       The default way for Python projects to create an isolated environment. This ensures that a :doc:`reproducible set of dependencies </guides/reproducible-builds>` are installed so that you project builds the same way each time.
 
    webhook
-      A webhook is a special URL that can be called from another service,
-      usually with a secret token.
-      It is commonly used to start a build or a deployment or to send a status update.
+      A webhook is a unique URL that can be called from another service,
+      usually using a secret token.
 
       There are two important types of webhooks for Read the Docs:
 
-      * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
-      * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
+      * :doc:`Webhook integrations </projects/integrations/webhook>` provide an incoming webhook that wait for data from Git providers.
+      * Git providers have outgoing webhooks configured on repositories which notify these project integrations of changes to the repository.
 
       .. seealso::
 
-         :doc:`/integrations/webhooks`
-            How a Git integration receives and acts on these webhooks.
-
-         :doc:`/guides/setup/git-repo-manual`
-            Manual configuration for Git repositories.
+         :doc:`/projects/integrations/webhook`
+            Additional information on our webhook integrations for providers like |git_providers_or|
 
          :doc:`/build-notifications`
             Receive notifications when your documentation builds fail.

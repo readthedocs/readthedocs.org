@@ -3,14 +3,14 @@ Managing a GitHub App integration
 
 .. note::
    This information is for the :doc:`../github-app` integration only.
-   Ensure that your project is not using our :ref:`projects/integrations/webhook:GitHub incoming webhook` integration instead. 
+   Ensure that your project is not using our :ref:`projects/integrations/webhook:GitHub incoming webhook` integration instead.
 
 Creating a GitHub App integration
 ---------------------------------
 
-Our GitHub App intgration can only be created by connecting your project
+Our GitHub App integration can only be created by connecting your project
 to a repository using a GitHub App connected account.
-Unlike our :doc:`../webhook:GitHub incoming webhook`,
+Unlike our :ref:`projects/integrations/webhook:GitHub incoming webhook`,
 this integration cannot be created manually.
 This integration will automatically show as a project integration once
 our GitHub App is installed for the repository on GitHub and the project is
@@ -71,7 +71,7 @@ If you need to migrate a project manually:
   go to the settings page of your GitHub repository,
   click on the GitHub :guilabel:`Deploy keys` tab, and delete the key with a title
   matching the format ``support@readthedocs.com (<your-project-slug>)``.
-- :ref:`integrations/github-app:connecting a repository to an existing project`.
+- Follow the steps for `connecting to an existing project <Connecting a repository to an existing project>`_.
 
 Revoking access
 ---------------
@@ -83,7 +83,7 @@ Revoking access
    but the projects and their documentation stay available.
    If you grant access to the repository again,
    you need to
-   :ref:`reconnect your project to the repository <integrations/github-app:connecting a repository to an existing project>`.
+   `reconnect your project to the repository <Connecting a repository to an existing project>`_.
 
 You revoke access from your **GitHub account or organization settings**, not from
 Read the Docs.

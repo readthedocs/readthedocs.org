@@ -11,7 +11,7 @@ for connecting your repositories to Read the Docs.
    - Pull request builds
    - Pull request comments
 :Configuration methods:
-   Automatic only 
+   Automatic only
 
 Differences with GitHub integrations
 ------------------------------------
@@ -88,5 +88,5 @@ and that only trusted users are able to trigger builds on your project.
 
 .. seealso::
 
-   :doc:`./guides/pull-requests`
+   :doc:`/guides/pull-requests`
       How to configure pull request builds.
