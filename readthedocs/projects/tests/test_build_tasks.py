@@ -14,6 +14,7 @@ from django.test.utils import override_settings
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_STATE_FINISHED,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -23,7 +24,11 @@ from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
-from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.doc_builder.exceptions import (
+    BuildAlreadyFinished,
+    BuildCancelled,
+    BuildUserError,
+)
 from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError

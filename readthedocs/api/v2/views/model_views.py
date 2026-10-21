@@ -395,6 +395,11 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def reset(self, request, **kwargs):
         """Reset the build so it can be re-used when re-trying."""
         instance = self.get_object()
+        if instance.finished:
+            return Response(
+                {"detail": f"Build is already {instance.state} and can't be reset."},
+                status=status.HTTP_409_CONFLICT,
+            )
         instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
