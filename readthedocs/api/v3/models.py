@@ -141,7 +141,7 @@ class RTDAPIKey(AbstractAPIKey):
         null=True,
         blank=True,
         editable=False,
-        help_text=_("When the API key was last used, updated at most once per hour"),
+        help_text=_("When the API key was last used"),
     )
     revoked_at = models.DateTimeField(
         _("Revoked at"),

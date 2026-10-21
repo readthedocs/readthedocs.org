@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -40,10 +38,10 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
         return AnonymousUser(), api_key
 
     def update_last_used(self, api_key):
-        # Avoid a write on every request, the date is only updated once per hour.
+        # This is a write on every request, API keys are only used by the upload API for now,
+        # which doesn't get many requests. If this becomes a problem,
+        # only update it if the last update was more than x minutes ago.
         now = timezone.now()
-        if api_key.last_used_at and api_key.last_used_at > now - timedelta(hours=1):
-            return
         api_key.last_used_at = now
         # Use update to not change the modified date of the key.
         self.model.objects.filter(pk=api_key.pk).update(last_used_at=now)

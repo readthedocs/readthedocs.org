@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(
                         blank=True,
                         editable=False,
-                        help_text="When the API key was last used, updated at most once per hour",
+                        help_text="When the API key was last used",
                         null=True,
                         verbose_name="Last used",
                     ),
