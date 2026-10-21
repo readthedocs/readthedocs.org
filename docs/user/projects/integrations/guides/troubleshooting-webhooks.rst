@@ -21,9 +21,7 @@ you may be able to use the integration detail page to help debug the issue.
 Each webhook integration stores the webhook request from the repository provider.
 You'll find a list of these exchanges in any of the integration detail pages.
 
-.. TODO update this screenshot
-
-.. figure:: /img/screenshot-webhook.png
+.. figure:: /img/screenshots/community-project-webhook-activity.png
    :alt: A list of requests to a webhook integration.
 
    A list of requests to a webhook integration.
