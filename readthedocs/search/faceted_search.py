@@ -121,6 +121,12 @@ class RTDFacetedSearch(FacetedSearch):
                     operator=operator,
                 )
             queries.append(query_string)
+
+        # Rank pages with the exact phrase first.
+        # Skipped for advanced syntax, a phrase match would bring back
+        # the pages that ``-word`` excludes.
+        if len(query.split()) > 1 and not self._is_advanced_query(query):
+            queries.append(MultiMatch(query=query, fields=fields, type="phrase", boost=2))
         return queries
 
     def _get_single_term_queries(self, query, fields):
