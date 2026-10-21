@@ -42,8 +42,8 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
     def update_last_used(self, api_key):
         # Avoid a write on every request, the date is only updated once per hour.
         now = timezone.now()
-        if api_key.last_used and api_key.last_used > now - timedelta(hours=1):
+        if api_key.last_used_at and api_key.last_used_at > now - timedelta(hours=1):
             return
-        api_key.last_used = now
+        api_key.last_used_at = now
         # Use update to not change the modified date of the key.
-        self.model.objects.filter(pk=api_key.pk).update(last_used=now)
+        self.model.objects.filter(pk=api_key.pk).update(last_used_at=now)

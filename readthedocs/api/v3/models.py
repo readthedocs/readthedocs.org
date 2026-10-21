@@ -122,7 +122,7 @@ class RTDAPIKey(AbstractAPIKey):
         related_name="created_api_keys",
         help_text=_("User that created this API key"),
     )
-    last_used = models.DateTimeField(
+    last_used_at = models.DateTimeField(
         _("Last used"),
         null=True,
         blank=True,
