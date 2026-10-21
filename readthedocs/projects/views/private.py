@@ -1198,9 +1198,11 @@ class ProjectTokenList(ProjectTokenMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cache_key = self.get_created_token_cache_key()
-        context["created_token"] = cache.get(cache_key)
-        cache.delete(cache_key)
+        context["created_token"] = None
+        if self.request.method == "GET":
+            cache_key = self.get_created_token_cache_key()
+            context["created_token"] = cache.get(cache_key)
+            cache.delete(cache_key)
         return context
 
 
