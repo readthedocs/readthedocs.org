@@ -31,7 +31,7 @@ celery==5.6.3
     #   -r requirements/pip.in
     #   django-celery-beat
     #   django-structlog
-certifi==2026.7.22
+certifi==2026.10.19
     # via
     #   elastic-transport
     #   requests
