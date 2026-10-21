@@ -79,6 +79,22 @@ class RTDAPIKeyTests(TestCase):
         api_key.permissions = [ProjectPermission.UPLOAD, "project:unknown"]
         assert api_key.get_permissions_display() == ["Upload documentation"]
 
+    def test_revoked_at(self):
+        api_key, _ = self._create_key()
+        assert api_key.revoked_at is None
+
+        api_key.revoked = True
+        api_key.save()
+        api_key.refresh_from_db()
+        revoked_at = api_key.revoked_at
+        assert revoked_at is not None
+
+        # It isn't changed when the key is saved again.
+        api_key.name = "new name"
+        api_key.save()
+        api_key.refresh_from_db()
+        assert api_key.revoked_at == revoked_at
+
     def test_modified_is_updated_on_save(self):
         api_key, _ = self._create_key()
         modified = api_key.modified

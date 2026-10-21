@@ -70,6 +70,16 @@ class Migration(migrations.Migration):
                     models.DateTimeField(auto_now=True, verbose_name="Modified"),
                 ),
                 (
+                    "revoked_at",
+                    models.DateTimeField(
+                        blank=True,
+                        editable=False,
+                        help_text="When the API key was revoked",
+                        null=True,
+                        verbose_name="Revoked at",
+                    ),
+                ),
+                (
                     "project",
                     models.ForeignKey(
                         help_text="Project that this API key grants access to",
