@@ -5,6 +5,7 @@ from django_filters import FilterSet
 from django_filters import ModelChoiceFilter
 from django_filters import views
 from django_filters.fields import ModelChoiceField
+from django_filters.fields import ModelChoiceIterator
 
 
 log = structlog.get_logger(__name__)
@@ -25,6 +26,15 @@ class ModelFilterSet(FilterSet):
         super().__init__(data=data, **kwargs)
 
 
+class FilteredModelChoiceIterator(ModelChoiceIterator):
+    """Iterate over ``choices_queryset`` instead of ``queryset`` when set."""
+
+    def __init__(self, field):
+        super().__init__(field)
+        if field.choices_queryset is not None:
+            self.queryset = field.choices_queryset
+
+
 class FilteredModelChoiceField(ModelChoiceField):
     """
     Choice field for tuning model choices.
@@ -38,11 +48,25 @@ class FilteredModelChoiceField(ModelChoiceField):
                             internal method ``label_for_instance``.
     :param has_search: Display dropdown as a scrolling, searchable dropdown
                             instead of a static dropdown list.
+    :param choices_queryset: Queryset used to populate the dropdown choices.
+                             ``queryset`` is still used to validate the value,
+                             so it can accept values not shown as choices.
     """
 
-    def __init__(self, queryset, *, label_attribute=None, has_search=True, **kwargs):
+    iterator = FilteredModelChoiceIterator
+
+    def __init__(
+        self,
+        queryset,
+        *,
+        label_attribute=None,
+        has_search=True,
+        choices_queryset=None,
+        **kwargs,
+    ):
         self.label_attribute = label_attribute
         self.has_search = has_search
+        self.choices_queryset = choices_queryset
         super().__init__(queryset, **kwargs)
 
     def label_from_instance(self, obj):
@@ -70,23 +94,39 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
     Additional parameters from this class:
 
     :param queryset_method: Name of method on parent FilterSet to call to build
-                            queryset for choice population.
+                            queryset for value validation and, unless
+                            ``choices_queryset_method`` is given, for choice
+                            population.
     :type queryset_method: str
+    :param choices_queryset_method: Name of method on parent FilterSet to call
+                                    to build the queryset for choice population
+                                    only.
+    :type choices_queryset_method: str
     """
 
     field_class = FilteredModelChoiceField
 
     def __init__(self, *args, **kwargs):
         self.queryset_method = kwargs.pop("queryset_method", None)
+        self.choices_queryset_method = kwargs.pop("choices_queryset_method", None)
         super().__init__(*args, **kwargs)
+
+    def _call_parent_method(self, name):
+        fn = getattr(self.parent, name, None)
+        if not callable(fn):
+            raise ValueError(f"Method {name} is not callable")
+        return fn()
 
     def get_queryset(self, request):
         if self.queryset_method:
-            fn = getattr(self.parent, self.queryset_method, None)
-            if not callable(fn):
-                raise ValueError(f"Method {self.queryset_method} is not callable")
-            return fn()
+            return self._call_parent_method(self.queryset_method)
         return super().get_queryset(request)
+
+    @property
+    def field(self):
+        if self.choices_queryset_method:
+            self.extra["choices_queryset"] = self._call_parent_method(self.choices_queryset_method)
+        return super().field
 
 
 class FilterContextMixin(views.FilterMixin):
