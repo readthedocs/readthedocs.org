@@ -112,6 +112,25 @@ class Migration(migrations.Migration):
                         verbose_name="Created by",
                     ),
                 ),
+                (
+                    "created_by_user_id",
+                    models.IntegerField(
+                        blank=True,
+                        editable=False,
+                        null=True,
+                        verbose_name="Created by user ID",
+                    ),
+                ),
+                (
+                    "created_by_username",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        editable=False,
+                        max_length=150,
+                        verbose_name="Created by username",
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "API key",
