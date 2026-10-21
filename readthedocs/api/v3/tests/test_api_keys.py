@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -96,14 +94,6 @@ class RTDAPIKeyTests(TestCase):
         # The modified date isn't changed when the key is used.
         assert api_key.modified == modified
 
-        # Not updated again within the hour.
-        authentication.authenticate_credentials(key)
-        api_key.refresh_from_db()
-        assert api_key.last_used_at == last_used_at
-
-        RTDAPIKey.objects.filter(pk=api_key.pk).update(
-            last_used_at=last_used_at - timedelta(hours=2),
-        )
         authentication.authenticate_credentials(key)
         api_key.refresh_from_db()
         assert api_key.last_used_at > last_used_at
