@@ -1208,6 +1208,10 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
     template_name = "projects/token_form.html"
     success_message = _("API token created")
 
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
+
     def form_valid(self, form):
         _api_key, key = form.save()
         cache.set(

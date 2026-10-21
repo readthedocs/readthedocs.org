@@ -1518,6 +1518,10 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
         help_text=_("The token expires at the end of this day (UTC)"),
     )
 
+    def __init__(self, *args, user, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
         expires_in = cleaned_data.get("expires_in")
@@ -1547,6 +1551,7 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
             description=self.cleaned_data["description"],
             permissions=self.cleaned_data["permissions"],
             expiry_date=self.cleaned_data["expiry_date"],
+            created_by=self.user,
         )
 
 
