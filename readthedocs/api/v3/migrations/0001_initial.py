@@ -66,6 +66,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "modified",
+                    models.DateTimeField(auto_now=True, verbose_name="Modified"),
+                ),
+                (
                     "project",
                     models.ForeignKey(
                         help_text="Project that this API key grants access to",
