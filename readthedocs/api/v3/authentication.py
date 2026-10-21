@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
@@ -33,4 +36,14 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
         if api_key.has_expired:
             raise exceptions.AuthenticationFailed(_("Token has expired."))
 
+        self.update_last_used(api_key)
         return AnonymousUser(), api_key
+
+    def update_last_used(self, api_key):
+        # Avoid a write on every request, the date is only updated once per hour.
+        now = timezone.now()
+        if api_key.last_used and api_key.last_used > now - timedelta(hours=1):
+            return
+        api_key.last_used = now
+        # Use update to not change the modified date of the key.
+        self.model.objects.filter(pk=api_key.pk).update(last_used=now)
