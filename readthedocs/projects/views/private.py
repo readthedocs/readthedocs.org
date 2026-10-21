@@ -1203,7 +1203,7 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
         # The session key isn't used, since with signed cookies it's the session data itself,
         # and it changes when the session is modified.
         session_id = self.request.session.setdefault(
-            "project_token_id",
+            "project_token_session_id",
             secrets.token_urlsafe(16),
         )
         return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}"

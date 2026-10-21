@@ -1473,8 +1473,8 @@ class ProjectTokenUpdateForm(forms.ModelForm):
             "description": _("Optional. What is this token used for?"),
         }
 
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
+    def __init__(self, *args, project, **kwargs):
+        self.project = project
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
