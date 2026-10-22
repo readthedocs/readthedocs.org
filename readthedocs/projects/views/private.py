@@ -1169,7 +1169,7 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     def get_project(self):
         # API keys are only used by the upload API for now, which is behind a feature flag.
         project = super().get_project()
-        if project and not project.allows_direct_artifacts_upload:
+        if project and not project.allows_direct_upload:
             raise Http404
         return project
 
