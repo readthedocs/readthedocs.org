@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest import mock
 
 from django.conf import settings
@@ -6,11 +7,14 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
@@ -627,3 +631,143 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         app_mock.send_task.assert_called_once()
         call_kwargs = app_mock.send_task.call_args.kwargs
         assert call_kwargs["kwargs"]["build_pk"] == self.build.id
+
+
+@override_settings(ALLOW_PRIVATE_REPOS=False)
+class UploadAPIKeyTests(UploadAPIEndpointMixin):
+    def setUp(self):
+        super().setUp()
+        self.api_key, self.key = RTDAPIKey.objects.create_key(
+            name="upload",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.key}")
+        self.initiate_url = reverse("upload-api-initiate")
+        self.complete_url = reverse("upload-api-complete")
+        self.data = {
+            "version": {
+                "name": "main",
+                "type": BRANCH,
+                "commit": "a" * 40,
+            },
+        }
+
+    def _mock_storage(self, storages_mock):
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.generate_presigned_post.return_value = {
+            "url": "https://storage.example.com/build-uploads",
+            "fields": {"key": "project/1/artifacts.zip"},
+        }
+        storage_mock.exists.return_value = True
+        return storage_mock
+
+    @mock.patch("readthedocs.core.utils.app")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload(self, storages_mock, send_build_status, app_mock):
+        self._mock_storage(storages_mock)
+        app_mock.send_task.return_value = mock.Mock(id="task-id-123")
+
+        # The project is inferred from the key.
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        build = Build.objects.get(pk=response.data["build"]["id"])
+        assert build.project == self.project
+
+        response = self.client.post(
+            self.complete_url,
+            {"build": build.pk, "status": UploadStatus.success.value},
+        )
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        build.refresh_from_db()
+        assert build.task_id == "task-id-123"
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_initiate_with_project(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        self.data["project"] = self.project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_initiate_with_another_project(self):
+        other_project = get(Project, slug="other-project", users=[self.user])
+        self.feature.projects.add(other_project)
+        self.data["project"] = other_project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_complete_build_from_another_project(self):
+        other_project = get(Project, slug="other-project", users=[self.user])
+        other_build = get(
+            Build,
+            project=other_project,
+            version=get(Version, project=other_project),
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+            task_id=None,
+        )
+        response = self.client.post(
+            self.complete_url,
+            {"build": other_build.pk, "status": UploadStatus.success.value},
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_key_without_project(self):
+        self.api_key.project = None
+        self.api_key.save()
+
+        # The project can't be inferred from the key.
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # And the key doesn't have access to any project.
+        self.data["project"] = self.project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_key_without_upload_permission(self):
+        self.api_key.permissions = []
+        self.api_key.save()
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_invalid_key(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.key}x")
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_key_from_another_platform(self):
+        # The key isn't one of ours, it's left to the user token authentication.
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
+            response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_expired_key(self):
+        self.api_key.expiry_date = timezone.now() - timedelta(days=1)
+        self.api_key.save()
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_revoked_key(self):
+        self.api_key.revoked = True
+        self.api_key.save()
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_user_token_requires_project(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "project" in response.data
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_not_throttled_as_anonymous(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        # The anonymous rate is 5/minute, the user rate is 60/minute.
+        for i in range(10):
+            self.data["version"]["name"] = f"v{i}"
+            response = self.client.post(self.initiate_url, self.data)
+            assert response.status_code == status.HTTP_201_CREATED
