@@ -352,6 +352,13 @@ class ProjectTokenViewsTests(TestCase):
         assert self.client.get(self.list_url).status_code == 404
         assert self.client.get(self.create_url).status_code == 404
 
+    def test_direct_upload_project_without_feature_flag(self):
+        self.feature.projects.remove(self.project)
+        self.project.is_direct_upload = True
+        self.project.save()
+        assert self.client.get(self.list_url).status_code == 200
+        assert self.client.get(self.create_url).status_code == 200
+
     def test_non_admin_user(self):
         self.client.force_login(get(User))
         assert self.client.get(self.list_url).status_code == 404
