@@ -1458,7 +1458,6 @@ class ProjectTokenUpdateForm(forms.ModelForm):
     permissions = forms.MultipleChoiceField(
         label=_("Permissions"),
         choices=ProjectPermission.choices,
-        initial=[ProjectPermission.UPLOAD],
         widget=forms.CheckboxSelectMultiple,
     )
 
