@@ -714,6 +714,19 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    def test_key_without_project(self):
+        self.api_key.project = None
+        self.api_key.save()
+
+        # The project can't be inferred from the key.
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # And the key doesn't have access to any project.
+        self.data["project"] = self.project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     def test_key_without_upload_permission(self):
         self.api_key.permissions = []
         self.api_key.save()

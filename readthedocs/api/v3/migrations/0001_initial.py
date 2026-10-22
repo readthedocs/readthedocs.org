@@ -94,7 +94,9 @@ class Migration(migrations.Migration):
                 (
                     "project",
                     models.ForeignKey(
+                        blank=True,
                         help_text="Project that this API key grants access to",
+                        null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="api_keys",
                         to="projects.project",
@@ -133,8 +135,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "API key",
-                "verbose_name_plural": "API keys",
+                "verbose_name": "API token",
+                "verbose_name_plural": "API tokens",
                 "ordering": ("-created",),
                 "abstract": False,
             },

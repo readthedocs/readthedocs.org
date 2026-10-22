@@ -97,6 +97,8 @@ class RTDAPIKey(AbstractAPIKey):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="api_keys",
         help_text=_("Project that this API key grants access to"),
     )
@@ -160,8 +162,8 @@ class RTDAPIKey(AbstractAPIKey):
     objects = RTDAPIKeyManager()
 
     class Meta(AbstractAPIKey.Meta):
-        verbose_name = _("API key")
-        verbose_name_plural = _("API keys")
+        verbose_name = _("API token")
+        verbose_name_plural = _("API tokens")
 
     def save(self, *args, **kwargs):
         # Keys can be revoked from the dashboard or the admin, set the date in both cases.
@@ -180,7 +182,7 @@ class RTDAPIKey(AbstractAPIKey):
 
     @property
     def is_project_scoped(self):
-        return self.scope == APIKeyScope.PROJECT
+        return self.scope == APIKeyScope.PROJECT and self.project_id is not None
 
     def has_permission(self, permission):
         # TODO: when adding read/write permissions, resolve implied permissions here
