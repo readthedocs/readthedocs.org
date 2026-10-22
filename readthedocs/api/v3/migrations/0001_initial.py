@@ -94,7 +94,9 @@ class Migration(migrations.Migration):
                 (
                     "project",
                     models.ForeignKey(
+                        blank=True,
                         help_text="Project that this API key grants access to",
+                        null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="api_keys",
                         to="projects.project",

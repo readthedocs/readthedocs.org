@@ -97,6 +97,8 @@ class RTDAPIKey(AbstractAPIKey):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="api_keys",
         help_text=_("Project that this API key grants access to"),
     )
@@ -180,7 +182,7 @@ class RTDAPIKey(AbstractAPIKey):
 
     @property
     def is_project_scoped(self):
-        return self.scope == APIKeyScope.PROJECT
+        return self.scope == APIKeyScope.PROJECT and self.project_id is not None
 
     def has_permission(self, permission):
         # TODO: when adding read/write permissions, resolve implied permissions here
