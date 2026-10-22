@@ -64,6 +64,11 @@ class UploadAPIMixin:
         return None
 
     def _has_access(self, project):
+        """
+        Check if the request has access to the given project.
+
+        Utility method to check if the request has access to the given project.
+        """
         api_key = self._get_api_key()
         if api_key:
             return api_key.project == project
