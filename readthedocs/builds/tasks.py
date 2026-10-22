@@ -27,6 +27,7 @@ from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import TAG
+from readthedocs.builds.ec2 import ensure_warm_buffer
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
@@ -48,6 +49,22 @@ from readthedocs.worker import app
 
 
 log = structlog.get_logger(__name__)
+
+
+@app.task(queue="autoscaling", bind=True)
+def set_build_isolated_desired_capacity(self):
+    """
+    Keep the build-isolated fleet's desired capacity at "dispatched builds + buffer".
+
+    Runs every few seconds from beat.
+    """
+    lock_id = f"{self.name}-lock"
+    with memcache_lock(lock_id, lock_expire=10, app_identifier=self.app.oid) as acquired:
+        if not acquired:
+            log.warning("Build-isolated desired capacity task still locked.")
+            return False
+        ensure_warm_buffer()
+    return True
 
 
 @app.task(queue="web", bind=True)
