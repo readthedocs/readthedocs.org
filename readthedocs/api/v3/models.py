@@ -160,8 +160,8 @@ class RTDAPIKey(AbstractAPIKey):
     objects = RTDAPIKeyManager()
 
     class Meta(AbstractAPIKey.Meta):
-        verbose_name = _("API key")
-        verbose_name_plural = _("API keys")
+        verbose_name = _("API token")
+        verbose_name_plural = _("API tokens")
 
     def save(self, *args, **kwargs):
         # Keys can be revoked from the dashboard or the admin, set the date in both cases.
