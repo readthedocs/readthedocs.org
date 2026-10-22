@@ -13,7 +13,7 @@ from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from selectolax.parser import HTMLParser
+from selectolax.lexbor import LexborHTMLParser
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.mixins import EmbedAPIMixin
@@ -175,12 +175,12 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
             selector = f'[id="{fragment}"]'
             try:
-                node = HTMLParser(page_content).css_first(selector)
+                node = LexborHTMLParser(page_content, encoding=True).css_first(selector)
             except ValueError:
                 log.warning("Invalid CSS selector from fragment.", fragment=fragment)
                 node = None
         else:
-            html = HTMLParser(page_content)
+            html = LexborHTMLParser(page_content, encoding=True)
             node = self._find_main_node(html, selector)
 
         if not node:
@@ -247,18 +247,13 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
                     parent_node = node.parent
                     if "glossary" in node.parent.attributes.get("class"):
-                        # iterate through child and next nodes
-                        traverse = node.traverse()
-                        iteration = 0
-                        while iteration < 5:
-                            next_node = next(traverse, None)
-                            # TODO: Do we need to support terms with missing descriptions?
-                            # This will not produce correct results in this case.
-
-                            # Stop at the next 'dd' node, which is the description
-                            if iteration >= 5 or (next_node and next_node.tag == "dd"):
-                                break
-                            iteration += 1
+                        # Iterate through the next siblings,
+                        # and stop at the next 'dd' node, which is the description.
+                        # TODO: Do we need to support terms with missing descriptions?
+                        # This will not produce correct results in this case.
+                        next_node = node.next
+                        while next_node and next_node.tag != "dd":
+                            next_node = next_node.next
 
                     elif "citation" in node.parent.attributes.get("class"):
                         next_node = node.next.next
