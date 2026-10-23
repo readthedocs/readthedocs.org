@@ -50,7 +50,6 @@ from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
-from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import AutomationRuleForm
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.forms import EmailHookForm
@@ -63,6 +62,7 @@ from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
+from readthedocs.projects.forms import ProjectSearchSettingsForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1398,7 +1398,7 @@ class ProjectSearchSettingsUpdate(PrivateViewMixin, ProjectAdminMixin, UpdateVie
     template_name = "projects/search_settings_form.html"
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
-    form_class = AddonsConfigSearchSettingsForm
+    form_class = ProjectSearchSettingsForm
 
     def get_queryset(self):
         return self.model.objects.for_admin_user(self.request.user)

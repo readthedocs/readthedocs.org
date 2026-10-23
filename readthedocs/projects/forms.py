@@ -503,7 +503,6 @@ class UpdateProjectForm(
             "default_branch",
             "readthedocs_yaml_path",
             "git_checkout_command",
-            "search_indexing_enabled",
             "n_consecutive_failed_builds",
             # Meta data
             "programming_language",
@@ -545,8 +544,6 @@ class UpdateProjectForm(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.had_search_disabled = not self.instance.search_indexing_enabled
-
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
             (key, value) for key, value in self.fields["versioning_scheme"].choices if key
@@ -561,11 +558,6 @@ class UpdateProjectForm(
                 f'This setting is inherited from the <a href="{link}">parent translation</a>.',
             )
             self.fields["versioning_scheme"].disabled = True
-
-        # Only show this field if search is disabled for the project.
-        # We allow enabling it from the form, but not disabling it.
-        if self.instance.search_indexing_enabled:
-            self.fields.pop("search_indexing_enabled")
 
         # Only show this field if building for this project is disabled due to N+ consecutive builds failing
         # We allow disabling it from the form, but not enabling it.
@@ -710,17 +702,6 @@ class UpdateProjectForm(
         if not value:
             return None
         return [line.strip() for line in value.splitlines() if line.strip()]
-
-    def save(self, commit=True):
-        instance = super().save(commit)
-        # Trigger a reindex when enabling search from the form.
-        if self.had_search_disabled and instance.search_indexing_enabled:
-            index_project.delay(project_slug=instance.slug)
-            Notification.objects.cancel(
-                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
-                attached_to=instance,
-            )
-        return instance
 
 
 class ProjectRelationshipForm(forms.ModelForm):
@@ -1440,21 +1421,67 @@ class EnvironmentVariableForm(forms.ModelForm):
         return name
 
 
-# TODO if you are extending this form or reusing this pattern for any similar views,
-# be advised we probably want this form to be a project form instead. This is
-# especially true if we want to mix addons and backend configuration options.
-# We won't want the form tightly tied to addons models in this case.
-class AddonsConfigSearchSettingsForm(forms.ModelForm):
-    """Form to configure addons search settings."""
+class ProjectSearchSettingsForm(forms.ModelForm):
+    """
+    Form to configure the search settings of a project.
+
+    Mixes the project level ``search_indexing_enabled`` setting with the
+    search options from ``AddonsConfig``.
+    """
+
+    # These fields live on ``AddonsConfig`` -- label, help text and initial
+    # value come from the model field so there is a single source of truth.
+    search_enabled = forms.BooleanField(required=False)
+    search_show_subprojects_filter = forms.BooleanField(required=False)
+
+    addons_fields = ["search_enabled", "search_show_subprojects_filter"]
 
     class Meta:
-        model = AddonsConfig
-        fields = ["search_enabled", "search_show_subprojects_filter"]
+        model = Project
+        fields = ["search_indexing_enabled"]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-        kwargs["instance"] = self.project.addons
+        kwargs.setdefault("instance", self.project)
         super().__init__(*args, **kwargs)
+
+        self.had_search_indexing_disabled = not self.instance.search_indexing_enabled
+
+        # Search indexing can be re-enabled from the dashboard, but not disabled.
+        # Indexing is only disabled automatically for projects without searches.
+        if self.instance.search_indexing_enabled:
+            field = self.fields["search_indexing_enabled"]
+            field.disabled = True
+            field.help_text = _(
+                "Search indexing is enabled for this project. "
+                "It's disabled automatically for projects that don't receive any searches."
+            )
+
+        addons = self.instance.addons
+        for name in self.addons_fields:
+            model_field = AddonsConfig._meta.get_field(name)
+            form_field = self.fields[name]
+            form_field.label = model_field.verbose_name
+            form_field.help_text = model_field.help_text
+            form_field.initial = getattr(addons, name)
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+
+        addons = project.addons
+        for name in self.addons_fields:
+            setattr(addons, name, self.cleaned_data.get(name, False))
+        if commit:
+            addons.save()
+
+        # Trigger a reindex when enabling search from the form.
+        if self.had_search_indexing_disabled and project.search_indexing_enabled:
+            index_project.delay(project_slug=project.slug)
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+                attached_to=project,
+            )
+        return project
 
 
 class AutomationRuleForm(forms.ModelForm):
