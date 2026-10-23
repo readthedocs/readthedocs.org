@@ -160,7 +160,11 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # does some extra work that results in several queries.
     @cached_method
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        # The project list shows the latest build (including pull request builds),
+        # which is also what the default sort uses.
+        return Project.objects.dashboard(self.request.user).select_related(
+            "latest_build__version",
+        )
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)

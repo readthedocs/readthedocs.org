@@ -469,10 +469,9 @@ class TestPrivateViews(TestCase):
                     state=BUILD_STATE_FINISHED,
                 )
 
-        # This number is bit higher, but for projects with lots of builds
-        # is better to have more queries than optimizing with a prefetch,
-        # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(28):
+        # The latest build is a denormalized field selected with the project,
+        # so the project list doesn't query builds per project.
+        with self.assertNumQueries(13):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
