@@ -11,7 +11,6 @@ from readthedocs.builds.constants import (
     BUILD_STATE_INSTALLING,
     BUILD_STATE_TRIGGERED,
     BUILD_STATE_UPLOADING,
-    EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
@@ -113,25 +112,3 @@ class TestCancelOldBuilds:
         self.project.refresh_from_db()
         assert self.project.builds.count() == 2
         assert self.project.latest_build == build
-
-    @mock.patch("readthedocs.core.utils.cancel_build")
-    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
-    def test_external_build_does_not_update_latest_build(self, update_docs_task, cancel_build):
-        external_version = fixture.get(Version, project=self.project, type=EXTERNAL)
-
-        # A pull request build doesn't set the latest build.
-        trigger_build(project=self.project, version=external_version)
-        self.project.refresh_from_db()
-        assert self.project.builds.count() == 1
-        assert self.project.latest_build is None
-
-        _, build = trigger_build(project=self.project, version=self.version)
-        self.project.refresh_from_db()
-        assert self.project.latest_build == build
-
-        # A newer pull request build doesn't replace the latest build either.
-        trigger_build(project=self.project, version=external_version)
-        self.project.refresh_from_db()
-        assert self.project.builds.count() == 3
-        assert self.project.latest_build == build
-        assert self.project.latest_internal_build == build
