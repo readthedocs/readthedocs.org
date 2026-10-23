@@ -1,9 +1,12 @@
 """Project views for authenticated users."""
 
+import secrets
+
 import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
 from django.http import Http404
@@ -14,6 +17,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -26,6 +30,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.api.v3.models import RTDAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
@@ -63,6 +68,8 @@ from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
+from readthedocs.projects.forms import ProjectTokenForm
+from readthedocs.projects.forms import ProjectTokenUpdateForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1140,6 +1147,114 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage):
     success_message = _("Environment variable deleted")
     http_method_names = ["post"]
+
+
+class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
+    """API keys scoped to a single project."""
+
+    model = RTDAPIKey
+    form_class = ProjectTokenForm
+    lookup_url_kwarg = "token_pk"
+
+    # The key is only available when it's created,
+    # so it's passed to the list view in the cache to show it once
+    # (this is a redirect after the create view, so the session is lost).
+    # The cache is used instead of the session, so the plain key
+    # isn't stored for long if the redirect isn't followed.
+    created_token_cache_timeout = 2 * 60
+    # Query parameter with the ID of the created key, so each redirect shows its own key.
+    created_token_param = "created"
+
+    @cached_method
+    def get_project(self):
+        # API keys are only used by the upload API for now, which is behind a feature flag.
+        project = super().get_project()
+        if project and not project.allows_direct_upload:
+            raise Http404
+        return project
+
+    def get_queryset(self):
+        return super().get_queryset().filter(revoked=False)
+
+    def get_success_url(self):
+        return reverse(
+            "projects_tokens",
+            args=[self.get_project().slug],
+        )
+
+    def get_created_token_cache_key(self, api_key_id):
+        # Keyed by the user and a random ID stored in their session,
+        # so the key is only shown to the user that created it, in the same session.
+        # The session key isn't used, since with signed cookies it's the session data itself,
+        # and it changes when the session is modified.
+        # The ID of the key avoids overwriting it when creating several keys at the same time.
+        session_id = self.request.session.setdefault(
+            "project_token_session_id",
+            secrets.token_urlsafe(16),
+        )
+        return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}:{api_key_id}"
+
+
+class ProjectTokenList(ProjectTokenMixin, ListView):
+    # The model lives in the ``v3`` app,
+    # the default template name doesn't match the other project settings templates.
+    template_name = "projects/token_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_token"] = None
+        api_key_id = self.request.GET.get(self.created_token_param, "")
+        if self.request.method == "GET" and api_key_id.isdigit():
+            cache_key = self.get_created_token_cache_key(int(api_key_id))
+            context["created_token"] = cache.get(cache_key)
+            cache.delete(cache_key)
+        return context
+
+
+class ProjectTokenCreate(ProjectTokenMixin, CreateView):
+    template_name = "projects/token_form.html"
+    success_message = _("API token created")
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
+
+    def form_valid(self, form):
+        api_key, key = form.save()
+        cache.set(
+            self.get_created_token_cache_key(api_key.pk),
+            key,
+            timeout=self.created_token_cache_timeout,
+        )
+        messages.success(self.request, self.success_message)
+        query = urlencode({self.created_token_param: api_key.pk})
+        return HttpResponseRedirect(f"{self.get_success_url()}?{query}")
+
+
+class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
+    form_class = ProjectTokenUpdateForm
+    template_name = "projects/token_form.html"
+    success_message = _("API token updated")
+
+    def get_success_url(self):
+        return reverse(
+            "projects_tokens_edit",
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
+    """Mark the key as revoked instead of deleting it, to keep a record of it."""
+
+    success_message = _("API token deleted")
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        api_key = self.get_object()
+        api_key.revoked = True
+        api_key.save()
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class AutomationRuleMixin(PrivateViewMixin, ProjectAdminMixin):
