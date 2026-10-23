@@ -11,12 +11,6 @@ Feature reference
   A project may define multiple domains,
   as well as define the *canonical domain* where all other domains will redirect.
 
-⏩️ :doc:`/reference/git-integration`
-  Read the Docs integrates with |git_providers_and|.
-  This makes your Git repositories easy to import and configure automatically.
-
-  Note that we also support other Git providers through :doc:`manual configuration </guides/setup/git-repo-manual>`.
-
 ⏩️ :doc:`/versions`
   We support multiple versions and translations,
   integrated nicely into the URL of your documentation.
