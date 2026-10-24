@@ -1,6 +1,8 @@
 """Git-related utilities."""
 
+import random
 import re
+import time
 from typing import Iterable
 from urllib.parse import urlparse
 
@@ -27,6 +29,9 @@ class Backend(BaseVCS):
 
     fallback_branch = "master"  # default branch
     repo_depth = 50
+    # Seconds to wait before each retry of a fetch of a pull request ref
+    # that doesn't exist on the remote yet. Up to 10% is added as jitter.
+    fetch_retry_delays = (3, 6, 12)
 
     def __init__(self, *args, use_token=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -314,6 +319,19 @@ class Backend(BaseVCS):
                     version_type=self.version.type,
                     version_identifier=self.version.identifier,
                 )
+
+        # Git providers create the pull request ref asynchronously,
+        # a build triggered when the pull request is opened may start before the ref exists.
+        if self.version.type == EXTERNAL:
+            for delay in self.fetch_retry_delays:
+                # stderr is included in stdout, since we aren't using ``demux``.
+                code, stdout, stderr = self.run(*cmd, warn_only=True)
+                if code == 0:
+                    return code, stdout, stderr
+                if "couldn't find remote ref" not in stdout:
+                    raise RepositoryError(message_id=RepositoryError.GENERIC)
+                # Jitter, so builds triggered together don't retry in lockstep.
+                time.sleep(delay * random.uniform(1, 1.1))
 
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
