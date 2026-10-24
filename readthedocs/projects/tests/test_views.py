@@ -494,6 +494,21 @@ class TestTrafficAnalyticsView(TestCase):
         self.url = reverse("projects_traffic_analytics", args=[self.project.slug])
         self.client.force_login(self.user)
 
+    def test_get_shows_analytics_settings(self):
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        assert resp.context["form"].fields["analytics_enabled"].initial is False
+
+    def test_post_enables_analytics(self):
+        assert self.project.addons.analytics_enabled is False
+
+        resp = self.client.post(self.url, data={"analytics_enabled": True})
+        assert resp.status_code == 302
+        assert resp["Location"] == self.url
+
+        self.project.addons.refresh_from_db()
+        assert self.project.addons.analytics_enabled is True
+
     def test_download_traffic_200_csv(self):
         PageView.objects.create(
             project=self.project,
@@ -573,6 +588,46 @@ class TestTrafficAnalyticsView(TestCase):
         csv_data = list(csv.reader(content))
         # Only header row, no data rows
         self.assertEqual(len(csv_data), 1)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestAddonsConfigUpdate(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.client.force_login(self.user)
+
+    def test_addons_page_only_has_page_level_settings(self):
+        resp = self.client.get(reverse("projects_addons", args=[self.project.slug]))
+        assert resp.status_code == 200
+        fields = resp.context["form"].fields
+        assert "flyout_enabled" in fields
+        assert "linkpreviews_enabled" in fields
+        # Configured from the search, pull request builds and traffic analytics pages.
+        for name in (
+            "search_enabled",
+            "search_show_subprojects_filter",
+            "analytics_enabled",
+            "doc_diff_enabled",
+            "filetreediff_enabled",
+            "filetreediff_ignored_files",
+            "options_base_version",
+            "notifications_show_on_external",
+        ):
+            assert name not in fields
+
+    def test_pull_requests_page_has_diff_settings(self):
+        resp = self.client.get(reverse("projects_pull_requests", args=[self.project.slug]))
+        assert resp.status_code == 200
+        fields = resp.context["form"].fields
+        for name in (
+            "notifications_show_on_external",
+            "doc_diff_enabled",
+            "filetreediff_enabled",
+            "filetreediff_ignored_files",
+            "options_base_version",
+        ):
+            assert name in fields
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)

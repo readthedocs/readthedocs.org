@@ -25,8 +25,8 @@ Enabling traffic analytics
 
 #. Go to the new :term:`dashboard`.
 #. Click on a project name.
-#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
-#. Go to :guilabel:`Analytics` and check :guilabel:`Analytics enabled`.
+#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Traffic analytics`.
+#. Check :guilabel:`Enable traffic analytics` and click :guilabel:`Update`.
 
 Data storage
 ------------

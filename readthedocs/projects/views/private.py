@@ -63,6 +63,7 @@ from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.forms import ProjectSearchSettingsForm
+from readthedocs.projects.forms import ProjectTrafficAnalyticsForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -1280,10 +1281,12 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         return get_feature(project, feature_type=self.feature_type)
 
 
-class TrafficAnalyticsView(PrivateViewMixin, ProjectAdminMixin, TemplateView):
+class TrafficAnalyticsView(PrivateViewMixin, ProjectAdminMixin, FormView):
     template_name = "projects/project_traffic_analytics.html"
-    http_method_names = ["get"]
+    http_method_names = ["get", "post"]
     feature_type = TYPE_PAGEVIEW_ANALYTICS
+    form_class = ProjectTrafficAnalyticsForm
+    success_message = _("Traffic analytics settings have been updated")
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get("download", False)
@@ -1293,6 +1296,19 @@ class TrafficAnalyticsView(PrivateViewMixin, ProjectAdminMixin, TemplateView):
                 return self._get_csv_data_404()
             return self._get_csv_data_200()
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # Analytics can only be enabled when the feature is available for the project.
+        if not self._get_feature(self.get_project()):
+            raise Http404
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("projects_traffic_analytics", args=[self.get_project().slug])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
