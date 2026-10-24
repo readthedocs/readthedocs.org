@@ -221,7 +221,7 @@ messages = [
             textwrap.dedent(
                 """
                 Your project hasn't received any searches recently, to optimize resources, we've disabled search indexing for this project.
-                If you want to re-enable search indexing, check the "Enable search indexing" option from <a href="{% url 'projects_edit' instance.slug %}">the project settings</a>.
+                If you want to re-enable search indexing, check the "Enable search indexing" option from <a href="{% url 'projects_search_settings' instance.slug %}">the search settings</a>.
                 """
             ).strip(),
         ),
