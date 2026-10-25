@@ -14,7 +14,7 @@ babel==2.18.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2026.10.19
+certifi==2026.7.22
     # via
     #   requests
     #   sphinx-prompt
@@ -69,7 +69,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==5.1.0
     # via -r requirements/docs.in
-numpy==2.5.3
+numpy==2.5.4
     # via
     #   contourpy
     #   matplotlib
@@ -110,6 +110,7 @@ sphinx==8.2.3
     #   sphinx-copybutton
     #   sphinx-design
     #   sphinx-intl
+    #   sphinx-last-updated-by-git
     #   sphinx-notfound-page
     #   sphinx-prompt
     #   sphinx-rtd-theme
@@ -126,6 +127,8 @@ sphinx-design==0.7.0
     # via -r requirements/docs.in
 sphinx-intl==2.4.0
     # via -r requirements/docs.in
+sphinx-last-updated-by-git==0.3.8
+    # via sphinx-sitemap
 sphinx-multiproject==1.0.0
     # via -r requirements/docs.in
 sphinx-notfound-page==1.1.0
@@ -144,7 +147,7 @@ sphinxcontrib-devhelp==2.0.0
     # via sphinx
 sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
-sphinxcontrib-httpdomain==2.0.0
+sphinxcontrib-httpdomain==2.1.0
     # via -r requirements/docs.in
 sphinxcontrib-jquery==4.1
     # via sphinx-rtd-theme

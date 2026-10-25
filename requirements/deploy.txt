@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/deploy.txt --uploaded-prior-to=P14D requirements/deploy.in
 #
-amqp==5.4.0
+amqp==5.4.1
     # via
     #   -r requirements/pip.txt
     #   kombu
@@ -25,15 +25,15 @@ asgiref==3.12.1
     #   django-structlog
 asttokens==3.0.2
     # via stack-data
-billiard==4.3.0
+billiard==4.3.1
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.43.108
+boto3==1.43.111
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.43.108
+botocore==1.43.111
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ celery==5.6.3
     #   -r requirements/pip.txt
     #   django-celery-beat
     #   django-structlog
-certifi==2026.10.19
+certifi==2026.7.22
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -76,7 +76,7 @@ click-plugins==1.1.1.2
     # via
     #   -r requirements/pip.txt
     #   celery
-click-repl==0.4.0
+click-repl==0.4.1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -93,7 +93,7 @@ cryptography==50.0.2
     #   -r requirements/pip.txt
     #   fido2
     #   pyjwt
-cssselect==1.5.0
+cssselect==1.6.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -105,7 +105,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.9.0
     # via -r requirements/pip.txt
-django==5.2.17
+django==5.2.18
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -173,7 +173,7 @@ django-timezone-field==7.2.2
     #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.18.1
+djangorestframework==3.18.3
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -182,7 +182,7 @@ djangorestframework-api-key==3.1.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
-dnspython==2.8.0
+dnspython==2.9.0
     # via -r requirements/pip.txt
 docker==7.2.0
     # via -r requirements/pip.txt
@@ -200,13 +200,13 @@ elasticsearch==9.3.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-executing==2.2.1
+executing==2.3.0
     # via stack-data
 fido2==2.2.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-filelock==4.0.10
+filelock==4.1.0
     # via
     #   -r requirements/pip.txt
     #   python-discovery
@@ -253,14 +253,14 @@ markdown==3.11
     # via -r requirements/pip.txt
 matplotlib-inline==0.2.2
     # via ipython
-newrelic==13.6.1
+newrelic==14.0.0
     # via -r requirements/deploy.in
 oauthlib==3.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
     #   requests-oauthlib
-orjson==3.12.0
+orjson==3.13.0
     # via -r requirements/pip.txt
 packaging==26.3
     # via
@@ -276,7 +276,7 @@ pexpect==4.9.0
     # via ipython
 pillow==12.3.0
     # via -r requirements/pip.txt
-platformdirs==4.12.3
+platformdirs==4.12.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -301,13 +301,13 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.4
     # via stack-data
-pycparser==3.0
+pycparser==3.11
     # via
     #   -r requirements/pip.txt
     #   cffi
-pydantic==2.13.5
+pydantic==2.14.0
     # via -r requirements/pip.txt
-pydantic-core==2.46.5
+pydantic-core==2.50.0
     # via
     #   -r requirements/pip.txt
     #   pydantic
@@ -339,7 +339,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   celery
     #   elasticsearch
-python-discovery==1.6.1
+python-discovery==1.6.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -351,7 +351,7 @@ python3-saml==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2026.4
+pytz==2026.5
     # via -r requirements/pip.txt
 pyyaml==6.0.3
     # via -r requirements/pip.txt
@@ -383,7 +383,7 @@ s3transfer==0.19.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.12
+selectolax==1.0.0
     # via -r requirements/pip.txt
 sentry-sdk==2.71.0
     # via structlog-sentry
@@ -482,9 +482,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.14.5
+virtualenv==21.14.6
     # via -r requirements/pip.txt
-wcwidth==0.9.1
+wcwidth==0.9.2
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
