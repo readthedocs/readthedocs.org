@@ -4,10 +4,10 @@ User docs navigation and content structure
 .. note::
 
    Proposal, October 2026. The first steps are open as
-   `PR 13460 <https://github.com/readthedocs/readthedocs.org/pull/13460>`_
-   (AI section) and
    `PR 13461 <https://github.com/readthedocs/readthedocs.org/pull/13461>`_
-   (custom domains merge). The integration docs restructure in
+   (custom domains merge) and
+   `PR 13460 <https://github.com/readthedocs/readthedocs.org/pull/13460>`_
+   (AI section). The integration docs restructure in
    `PR 13451 <https://github.com/readthedocs/readthedocs.org/pull/13451>`_
    applies the same ideas to one feature.
 
@@ -184,27 +184,30 @@ Read in October 2026. The pattern is common; these are the clearest cases.
 Rollout
 -------
 
-Each step ships alone and leaves the docs better than before it. Steps 1–4
-avoid the files PR 13451 touches.
+Merge pages first, under the sidebar as it is today; change the navigation
+only once each feature has one page. Each step ships alone and leaves the
+docs better than before it.
 
-1. Regroup the AI pages into their own section
-   (`PR 13460 <https://github.com/readthedocs/readthedocs.org/pull/13460>`_)
-   and the Addons pages under "Reader experience", in ``index.rst`` only.
-2. Merge the twins PR 13451 doesn't touch, one per PR, with a redirect for
+1. Merge the twins PR 13451 doesn't touch, one per PR, with a redirect for
    the old guide: custom domains
    (`PR 13461 <https://github.com/readthedocs/readthedocs.org/pull/13461>`_),
-   subprojects, redirects, offline formats.
-3. Delete the orphans and the ``guides/*/index`` sub-indexes; remove the
-   duplicate entries from the remaining lists.
+   subprojects, redirects, offline formats, build notifications,
+   organizations and teams, build troubleshooting. The merged page keeps its
+   place in the current sidebar; only the guide's entry disappears.
+2. After PR 13451 merges, the remaining twins: pull requests, automation
+   rules, environment variables, hiding a version, SSO.
+3. Delete the orphans and the ``guides/*/index`` sub-indexes, which by now
+   list little that isn't elsewhere; remove the duplicate entries from the
+   remaining lists.
 4. Rewrite ``index.rst`` into the eight sections and rebuild the front page
-   from the toctrees with ``sphinx_design`` cards. Move the company copy to About.
-5. After PR 13451 merges: the remaining twins (pull requests, automation
-   rules, environment variables, SSO) and the Sphinx-only guides under the
-   Sphinx tool page.
-6. ext-theme: re-sort the settings menu, fill ``project_edit_sidebar`` per
+   from the toctrees with ``sphinx_design`` cards. Move the Sphinx-only
+   guides under the Sphinx tool page and the company copy to About. The AI
+   section (`PR 13460 <https://github.com/readthedocs/readthedocs.org/pull/13460>`_)
+   is a small early piece of this step.
+5. ext-theme: re-sort the settings menu, fill ``project_edit_sidebar`` per
    page, point the dashboard's Help topics at final ``docs.readthedocs.com``
    URLs (today they go through one or two redirects each).
-7. Write the "moving from" guides and link them from the comparison pages.
+6. Write the "moving from" guides and link them from the comparison pages.
 
 Every merged guide gets an exact redirect in the docs project.
 ``sphinx-build -W`` catches broken ``autosectionlabel`` references.
