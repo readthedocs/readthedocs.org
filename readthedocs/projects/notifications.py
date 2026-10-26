@@ -262,8 +262,7 @@ messages = [
             textwrap.dedent(
                 """
                 The slug of version <code>{{from_slug}}</code> is now <code>{{to_slug}}</code>.
-                URLs using the old slug return <code>404 Not Found</code>.
-                <a href="{{redirect_url}}">Create a redirect</a> from <code>{{from_url}}</code> to <code>{{to_url}}</code> to keep them working.
+                <a href="{{redirect_url}}">Create a redirect</a> to keep your old URLs working.
                 """
             ).strip(),
         ),
