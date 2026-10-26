@@ -89,9 +89,12 @@ how to turn it on, what the settings mean. The how-to twin merges into it and
 the feature page keeps its URL. Reference-grade detail (the full config
 schema, every environment variable, the API) stays in Reference and is
 linked from the page. A feature with real variants (integration types, SSO
-providers) becomes a small sub-tree with the feature page as its landing, as
-PR 13451 does for integrations; custom domains, redirects and subprojects
-are one page each.
+providers) grows sub-pages under the feature page, as PR 13451 does for
+integrations. The feature page stays the one entry point: same URL, same
+place in the sidebar, and the sub-pages are reached from it rather than
+listed beside it. A reader or a dashboard link lands in the same place
+whether the feature is one page or ten. Custom domains, redirects and
+subprojects are one page each.
 
 Merges, feature page first: ``custom-domains`` ← ``guides/custom-domains``;
 ``subprojects`` ← ``guides/subprojects``; ``user-defined-redirects`` ←
