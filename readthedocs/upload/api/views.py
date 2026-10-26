@@ -14,7 +14,7 @@ from readthedocs.api.v3.models import RTDToken
 from readthedocs.api.v3.permissions import HasTokenPermission
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
-from readthedocs.api.v3.throttling import APIKeyRateThrottle
+from readthedocs.api.v3.throttling import RTDTokenRateThrottle
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
@@ -54,7 +54,7 @@ class UploadAPIMixin:
         # Requests authenticated with an API key don't have a user,
         # throttle them by key instead of as anonymous requests.
         if self._get_token():
-            return [APIKeyRateThrottle()]
+            return [RTDTokenRateThrottle()]
         return super().get_throttles()
 
     def _get_token(self):
