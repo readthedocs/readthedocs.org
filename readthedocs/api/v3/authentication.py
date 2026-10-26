@@ -4,12 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
 
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 
 
-class RTDAPIKeyAuthentication(TokenAuthentication):
+class RTDTokenAuthentication(TokenAuthentication):
     """
-    Authenticate requests using an API key (``RTDAPIKey``).
+    Authenticate requests using an API key (``RTDToken``).
 
     Keys are passed using the same format as user tokens (``Authorization: Token <key>``),
     and are identified by their prefix (e.g. ``rtdorg_project_``).
@@ -19,7 +19,7 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
     and ``request.auth`` is the API key, views should check the key's permissions.
     """
 
-    model = RTDAPIKey
+    model = RTDToken
 
     def authenticate_credentials(self, key):
         if not self.model.objects.get_scope_from_key(key):
@@ -27,21 +27,21 @@ class RTDAPIKeyAuthentication(TokenAuthentication):
             return None
 
         try:
-            api_key = self.model.objects.get_from_key(key)
+            token = self.model.objects.get_from_key(key)
         except self.model.DoesNotExist:
             raise exceptions.AuthenticationFailed(_("Invalid token."))
 
-        if api_key.has_expired:
+        if token.has_expired:
             raise exceptions.AuthenticationFailed(_("Token has expired."))
 
-        self.update_last_used(api_key)
-        return AnonymousUser(), api_key
+        self.update_last_used(token)
+        return AnonymousUser(), token
 
-    def update_last_used(self, api_key):
+    def update_last_used(self, token):
         # This is a write on every request, API keys are only used by the upload API for now,
         # which doesn't get many requests. If this becomes a problem,
         # only update it if the last update was more than x minutes ago.
         now = timezone.now()
-        api_key.last_used_at = now
+        token.last_used_at = now
         # Use update to not change the modified date of the key.
-        self.model.objects.filter(pk=api_key.pk).update(last_used_at=now)
+        self.model.objects.filter(pk=token.pk).update(last_used_at=now)

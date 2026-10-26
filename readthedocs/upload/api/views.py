@@ -8,9 +8,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from readthedocs.api.v2.utils import run_version_automation_rules
-from readthedocs.api.v3.authentication import RTDAPIKeyAuthentication
+from readthedocs.api.v3.authentication import RTDTokenAuthentication
 from readthedocs.api.v3.models import ProjectPermission
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.api.v3.permissions import HasAPIKeyPermission
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
@@ -46,21 +46,21 @@ class UploadAPIMixin:
     or with a project API key with the ``project:upload`` permission.
     """
 
-    authentication_classes = [RTDAPIKeyAuthentication, TokenAuthentication]
+    authentication_classes = [RTDTokenAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKeyPermission]
-    api_key_permission = ProjectPermission.UPLOAD
+    token_permission = ProjectPermission.UPLOAD
 
     def get_throttles(self):
         # Requests authenticated with an API key don't have a user,
         # throttle them by key instead of as anonymous requests.
-        if self._get_api_key():
+        if self._get_token():
             return [APIKeyRateThrottle()]
         return super().get_throttles()
 
-    def _get_api_key(self):
-        api_key = self.request.auth
-        if isinstance(api_key, RTDAPIKey):
-            return api_key
+    def _get_token(self):
+        token = self.request.auth
+        if isinstance(token, RTDToken):
+            return token
         return None
 
     def _has_access(self, project):
@@ -69,9 +69,9 @@ class UploadAPIMixin:
 
         Utility method to check if the request has access to the given project.
         """
-        api_key = self._get_api_key()
-        if api_key:
-            return api_key.project == project
+        token = self._get_token()
+        if token:
+            return token.project == project
         return AdminPermission.is_admin(self.request.user, project)
 
 
@@ -86,7 +86,7 @@ class UploadInitiateView(UploadAPIMixin, APIv3Settings, APIView):
     def post(self, request):
         serializer = UploadInitiateSerializer(
             data=request.data,
-            context={"api_key": self._get_api_key()},
+            context={"token": self._get_token()},
         )
         serializer.is_valid(raise_exception=True)
 

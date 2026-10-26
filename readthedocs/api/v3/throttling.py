@@ -1,6 +1,6 @@
 from rest_framework.throttling import SimpleRateThrottle
 
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 
 
 class APIKeyRateThrottle(SimpleRateThrottle):
@@ -9,7 +9,7 @@ class APIKeyRateThrottle(SimpleRateThrottle):
     scope = "api_key"
 
     def get_cache_key(self, request, view):
-        if not isinstance(request.auth, RTDAPIKey):
+        if not isinstance(request.auth, RTDToken):
             return None
 
         return self.cache_format % {

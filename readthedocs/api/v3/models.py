@@ -47,7 +47,7 @@ def get_key_prefix(scope):
     return f"{get_platform_prefix()}_{scope}_"
 
 
-class RTDAPIKeyGenerator(KeyGenerator):
+class RTDTokenGenerator(KeyGenerator):
     """
     Generate keys prefixed with the platform and scope of the key.
 
@@ -65,8 +65,8 @@ class RTDAPIKeyGenerator(KeyGenerator):
         return key, prefix, hashed_key
 
 
-class RTDAPIKeyManager(BaseAPIKeyManager):
-    key_generator = RTDAPIKeyGenerator()
+class RTDTokenManager(BaseAPIKeyManager):
+    key_generator = RTDTokenGenerator()
 
     def assign_key(self, obj):
         key, prefix, hashed_key = self.key_generator.generate(scope=obj.scope)
@@ -86,7 +86,7 @@ class RTDAPIKeyManager(BaseAPIKeyManager):
         return super().get_usable_keys().select_related("project")
 
 
-class RTDAPIKey(AbstractAPIKey):
+class RTDToken(AbstractAPIKey):
     """
     API key scoped to a project, with a set of permissions.
 
@@ -99,7 +99,7 @@ class RTDAPIKey(AbstractAPIKey):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="api_keys",
+        related_name="tokens",
         help_text=_("Project that this API key grants access to"),
     )
     description = models.CharField(
@@ -119,7 +119,7 @@ class RTDAPIKey(AbstractAPIKey):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="created_api_keys",
+        related_name="created_tokens",
         help_text=_("User that created this API key"),
     )
     # Extra information in case the user is deleted.
@@ -157,7 +157,7 @@ class RTDAPIKey(AbstractAPIKey):
     # Override to fit the platform and scope part of the prefix (e.g. ``rtdorg_project_``).
     prefix = models.CharField(max_length=32, unique=True, editable=False)
 
-    objects = RTDAPIKeyManager()
+    objects = RTDTokenManager()
 
     class Meta(AbstractAPIKey.Meta):
         verbose_name = _("API token")
