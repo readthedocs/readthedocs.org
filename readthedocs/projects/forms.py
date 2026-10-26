@@ -1478,10 +1478,10 @@ class ProjectTokenUpdateForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data["name"]
-        api_keys = RTDToken.objects.filter(project=self.project, name=name, revoked=False)
+        tokens = RTDToken.objects.filter(project=self.project, name=name, revoked=False)
         if self.instance.pk:
-            api_keys = api_keys.exclude(pk=self.instance.pk)
-        if api_keys.exists():
+            tokens = tokens.exclude(pk=self.instance.pk)
+        if tokens.exists():
             raise forms.ValidationError(_("A token with this name already exists."))
         return name
 

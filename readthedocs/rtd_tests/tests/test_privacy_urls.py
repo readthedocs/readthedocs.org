@@ -227,7 +227,7 @@ class ProjectMixin(URLAccessMixin):
             feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
             projects=[self.pip],
         )
-        self.api_key, _ = RTDToken.objects.create_key(
+        self.token, _ = RTDToken.objects.create_key(
             project=self.pip,
             name="api key",
         )
@@ -245,7 +245,7 @@ class ProjectMixin(URLAccessMixin):
             "integration_pk": self.integration.pk,
             "exchange_pk": self.integration_exchange.pk,
             "environmentvariable_pk": self.environment_variable.pk,
-            "token_pk": self.api_key.pk,
+            "token_pk": self.token.pk,
             "automation_rule_pk": self.automation_rule.pk,
             "steps": 1,
             "invalid_project_slug": "invalid_slug",
@@ -353,7 +353,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
-            "token_pk": self.api_key.pk,
+            "token_pk": self.token.pk,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
@@ -388,7 +388,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             "integration_id": self.integration.id,
             "environmentvariable_id": self.environment_variable.id,
-            "token_pk": self.api_key.pk,
+            "token_pk": self.token.pk,
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
