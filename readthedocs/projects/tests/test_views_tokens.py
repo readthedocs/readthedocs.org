@@ -48,7 +48,7 @@ class ProjectTokenViewsTests(TestCase):
         redirect_url = response["Location"]
 
         token = RTDToken.objects.get(project=self.project)
-        assert redirect_url == f"{self.list_url}?created={token.pk}"
+        assert redirect_url == reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
         assert token.name == "CI"
         assert token.description == "Upload from GitHub Actions"
         assert token.permissions == [ProjectPermission.UPLOAD]
@@ -59,8 +59,10 @@ class ProjectTokenViewsTests(TestCase):
         response = self.client.get(redirect_url)
         key = response.context["created_token"]
         assert RTDToken.objects.get_from_key(key) == token
+        assert key in response.content.decode()
         response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
+        assert key not in response.content.decode()
 
     def test_created_token_is_only_shown_in_the_same_session(self):
         response = self.client.post(
@@ -88,10 +90,15 @@ class ProjectTokenViewsTests(TestCase):
         response = other_client.get(redirect_url)
         assert response.context["created_token"] is None
 
-        # Without the ID of the key, or with an invalid one.
-        response = self.client.get(self.list_url)
-        assert response.context["created_token"] is None
-        response = self.client.get(self.list_url, {"created": "invalid"})
+        # The edit page of another key.
+        other_token, _ = RTDToken.objects.create_key(
+            name="other",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, other_token.pk])
+        )
         assert response.context["created_token"] is None
 
         response = self.client.get(redirect_url)

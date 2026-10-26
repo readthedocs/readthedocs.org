@@ -17,7 +17,6 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -1175,13 +1174,11 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     lookup_url_kwarg = "token_pk"
 
     # The key is only available when it's created,
-    # so it's passed to the list view in the cache to show it once
+    # so it's passed to the edit view in the cache to show it once
     # (this is a redirect after the create view, so the session is lost).
     # The cache is used instead of the session, so the plain key
     # isn't stored for long if the redirect isn't followed.
     created_token_cache_timeout = 2 * 60
-    # Query parameter with the ID of the created key, so each redirect shows its own key.
-    created_token_param = "created"
 
     @cached_method
     def get_project(self):
@@ -1218,16 +1215,6 @@ class ProjectTokenList(ProjectTokenMixin, ListView):
     # the default template name doesn't match the other project settings templates.
     template_name = "projects/token_list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["created_token"] = None
-        token_id = self.request.GET.get(self.created_token_param, "")
-        if self.request.method == "GET" and token_id.isdigit():
-            cache_key = self.get_created_token_cache_key(int(token_id))
-            context["created_token"] = cache.get(cache_key)
-            cache.delete(cache_key)
-        return context
-
 
 class ProjectTokenCreate(ProjectTokenMixin, CreateView):
     template_name = "projects/token_form.html"
@@ -1245,14 +1232,27 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
             timeout=self.created_token_cache_timeout,
         )
         messages.success(self.request, self.success_message)
-        query = urlencode({self.created_token_param: token.pk})
-        return HttpResponseRedirect(f"{self.get_success_url()}?{query}")
+        return HttpResponseRedirect(
+            reverse(
+                "projects_tokens_edit",
+                args=[self.get_project().slug, token.pk],
+            )
+        )
 
 
 class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
     form_class = ProjectTokenUpdateForm
     template_name = "projects/token_form.html"
     success_message = _("API token updated")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_token"] = None
+        if self.request.method == "GET":
+            cache_key = self.get_created_token_cache_key(self.object.pk)
+            context["created_token"] = cache.get(cache_key)
+            cache.delete(cache_key)
+        return context
 
     def get_success_url(self):
         return reverse(
