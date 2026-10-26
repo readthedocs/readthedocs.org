@@ -7,7 +7,6 @@ import re
 from functools import cached_property
 from functools import partial
 from io import BytesIO
-from urllib.parse import urlencode
 
 import structlog
 from django.conf import settings
@@ -457,15 +456,13 @@ class Version(TimeStampedModel):
         resolver = Resolver()
         from_url = resolver.resolve_path(self.project, version_slug=from_slug) + "*"
         to_url = resolver.resolve_path(self.project, version_slug=self.slug) + SPLAT_PLACEHOLDER
-        query = urlencode(
-            {
-                "redirect_type": EXACT_REDIRECT,
-                "from_url": from_url,
-                "to_url": to_url,
-                "http_status": 301,
-            }
-        )
-        redirect_url = reverse("projects_redirects_create", args=[self.project.slug]) + "?" + query
+        query = {
+            "redirect_type": EXACT_REDIRECT,
+            "from_url": from_url,
+            "to_url": to_url,
+            "http_status": 301,
+        }
+        redirect_url = reverse("projects_redirects_create", args=[self.project.slug], query=query)
         Notification.objects.add(
             attached_to=self.project,
             message_id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
