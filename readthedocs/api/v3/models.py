@@ -4,10 +4,9 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from rest_framework_api_key.crypto import KeyGenerator
 from rest_framework_api_key.crypto import concatenate
-from rest_framework_api_key.models import AbstractAPIKey
-from rest_framework_api_key.models import BaseAPIKeyManager
 
 from readthedocs.projects.models import Project
 
@@ -65,14 +64,22 @@ class RTDTokenGenerator(KeyGenerator):
         return key, prefix, hashed_key
 
 
-class RTDTokenManager(BaseAPIKeyManager):
+class RTDTokenManager(models.Manager):
     key_generator = RTDTokenGenerator()
 
     def assign_key(self, obj):
+        """Generate a key for the object, and return the plain key."""
         key, prefix, hashed_key = self.key_generator.generate(scope=obj.scope)
         obj.prefix = prefix
         obj.hashed_key = hashed_key
         return key
+
+    def create_key(self, **kwargs):
+        """Create a key, and return a ``(RTDToken, key)`` tuple."""
+        obj = self.model(**kwargs)
+        key = self.assign_key(obj)
+        obj.save()
+        return obj, key
 
     def get_scope_from_key(self, key):
         """Return the scope of the key from its prefix, or ``None`` if it isn't one of our keys."""
@@ -81,12 +88,25 @@ class RTDTokenManager(BaseAPIKeyManager):
                 return scope
         return None
 
-    def get_usable_keys(self) -> models.QuerySet:
-        """Override to select related project for performance when checking permissions."""
-        return super().get_usable_keys().select_related("project")
+    def get_usable_keys(self):
+        # Select the project for performance when checking permissions.
+        return self.filter(revoked_at__isnull=True).select_related("project")
+
+    def get_from_key(self, key):
+        """
+        Return the key object from the plain key.
+
+        Raises ``DoesNotExist`` if the key doesn't exist, is revoked, or the secret doesn't match.
+        Expiration isn't checked here, so callers can give a better error.
+        """
+        prefix, _, _ = key.partition(".")
+        obj = self.get_usable_keys().get(prefix=prefix)
+        if not self.key_generator.verify(key, obj.hashed_key):
+            raise self.model.DoesNotExist("Key is not valid.")
+        return obj
 
 
-class RTDToken(AbstractAPIKey):
+class RTDToken(TimeStampedModel):
     """
     API key scoped to a project, with a set of permissions.
 
@@ -94,6 +114,15 @@ class RTDToken(AbstractAPIKey):
     other scopes (like organization or user) will be added in the future.
     """
 
+    # Platform and scope part of the key, plus a random part (e.g. ``rtdorg_project_<random>``),
+    # used to look up the key.
+    prefix = models.CharField(max_length=32, unique=True, editable=False)
+    hashed_key = models.CharField(max_length=150, editable=False)
+    name = models.CharField(
+        _("Name"),
+        max_length=50,
+        help_text=_("A name to identify this API key"),
+    )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
@@ -112,7 +141,6 @@ class RTDToken(AbstractAPIKey):
     permissions = models.JSONField(
         help_text=_("List of permissions granted to this API key"),
     )
-    modified = models.DateTimeField(_("Modified"), auto_now=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("Created by"),
@@ -136,6 +164,12 @@ class RTDToken(AbstractAPIKey):
         default="",
         editable=False,
     )
+    expires_at = models.DateTimeField(
+        _("Expires at"),
+        null=True,
+        blank=True,
+        help_text=_("When the API key expires, it can't be used after this date"),
+    )
     last_used_at = models.DateTimeField(
         _("Last used"),
         null=True,
@@ -143,6 +177,7 @@ class RTDToken(AbstractAPIKey):
         editable=False,
         help_text=_("When the API key was last used"),
     )
+    # A revoked key can't be used anymore, this can't be undone.
     revoked_at = models.DateTimeField(
         _("Revoked at"),
         null=True,
@@ -151,27 +186,35 @@ class RTDToken(AbstractAPIKey):
         help_text=_("When the API key was revoked"),
     )
 
-    # The library uses the prefix and the hashed key as the primary key,
-    # use an auto-incremented ID instead, so the hashed key isn't exposed in URLs or relations.
-    id = models.BigAutoField(primary_key=True)
-    # Override to fit the platform and scope part of the prefix (e.g. ``rtdorg_project_``).
-    prefix = models.CharField(max_length=32, unique=True, editable=False)
-
     objects = RTDTokenManager()
 
-    class Meta(AbstractAPIKey.Meta):
+    class Meta:
+        ordering = ("-created",)
         verbose_name = _("API token")
         verbose_name_plural = _("API tokens")
 
+    def __str__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
-        # Keys can be revoked from the dashboard or the admin, set the date in both cases.
-        if self.revoked and not self.revoked_at:
-            self.revoked_at = timezone.now()
         # Keep the user that created the key, even if it's renamed or deleted later.
         if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
             self.created_by_username = self.created_by.username
         super().save(*args, **kwargs)
+
+    @property
+    def has_expired(self):
+        return self.expires_at is not None and self.expires_at < timezone.now()
+
+    @property
+    def is_revoked(self):
+        return self.revoked_at is not None
+
+    def revoke(self):
+        if not self.revoked_at:
+            self.revoked_at = timezone.now()
+            self.save()
 
     @property
     def scope(self):

@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.api.v3.authentication import RTDTokenAuthentication
@@ -68,8 +69,7 @@ class RTDTokenTests(TestCase):
 
     def test_get_from_key_revoked(self):
         token, key = self._create_key()
-        token.revoked = True
-        token.save()
+        token.revoke()
         with pytest.raises(RTDToken.DoesNotExist):
             RTDToken.objects.get_from_key(key)
 
@@ -142,8 +142,7 @@ class RTDTokenTests(TestCase):
         token, _ = self._create_key()
         assert token.revoked_at is None
 
-        token.revoked = True
-        token.save()
+        token.revoke()
         token.refresh_from_db()
         revoked_at = token.revoked_at
         assert revoked_at is not None
@@ -163,3 +162,38 @@ class RTDTokenTests(TestCase):
         token.save()
         token.refresh_from_db()
         assert token.modified > modified
+
+    def test_create_from_admin(self):
+        admin_user = get(User, is_staff=True, is_superuser=True)
+        self.client.force_login(admin_user)
+        response = self.client.post(
+            reverse("admin:v3_rtdtoken_add"),
+            {
+                "name": "admin key",
+                "project": self.project.pk,
+                "description": "",
+                "permissions": '["project:upload"]',
+            },
+            follow=True,
+        )
+        assert response.status_code == 200
+        token = RTDToken.objects.get(name="admin key")
+        assert token.created_by == admin_user
+
+        # The key is shown once in a message.
+        [message] = [str(m) for m in response.context["messages"] if " is: " in str(m)]
+        key = message.split(" is: ")[1].split(". ")[0]
+        assert RTDToken.objects.get_from_key(key) == token
+
+    def test_revoke_from_admin(self):
+        admin_user = get(User, is_staff=True, is_superuser=True)
+        self.client.force_login(admin_user)
+        token, key = self._create_key()
+        self.client.post(
+            reverse("admin:v3_rtdtoken_changelist"),
+            {"action": "revoke", "_selected_action": [token.pk]},
+        )
+        token.refresh_from_db()
+        assert token.is_revoked
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key)

@@ -745,14 +745,13 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_expired_key(self):
-        self.project_token.expiry_date = timezone.now() - timedelta(days=1)
+        self.project_token.expires_at = timezone.now() - timedelta(days=1)
         self.project_token.save()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_revoked_key(self):
-        self.project_token.revoked = True
-        self.project_token.save()
+        self.project_token.revoke()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
