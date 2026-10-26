@@ -62,8 +62,6 @@ class Migration(migrations.Migration):
                 (
                     "permissions",
                     models.JSONField(
-                        blank=True,
-                        default=list,
                         help_text="List of permissions granted to this API key",
                     ),
                 ),
@@ -116,7 +114,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created_by_user_id",
-                    models.IntegerField(
+                    models.PositiveBigIntegerField(
                         blank=True,
                         editable=False,
                         null=True,

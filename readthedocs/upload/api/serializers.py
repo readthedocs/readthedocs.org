@@ -68,7 +68,7 @@ class UploadInitiateSerializer(serializers.Serializer):
         required=False,
         help_text=(
             "Project identifier (slug). "
-            "Optional when using a project token, the project of the token is used."
+            "Optional when using a project token, the project tied to the token is used."
         ),
     )
     version = UploadVersionSerializer()
