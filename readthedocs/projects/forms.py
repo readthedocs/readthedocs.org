@@ -25,7 +25,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.api.v3.models import ProjectPermission
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
@@ -1462,7 +1462,7 @@ class ProjectTokenUpdateForm(forms.ModelForm):
     )
 
     class Meta:
-        model = RTDAPIKey
+        model = RTDToken
         fields = ["name", "description", "permissions"]
         labels = {
             "name": _("Name"),
@@ -1478,7 +1478,7 @@ class ProjectTokenUpdateForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data["name"]
-        api_keys = RTDAPIKey.objects.filter(project=self.project, name=name, revoked=False)
+        api_keys = RTDToken.objects.filter(project=self.project, name=name, revoked=False)
         if self.instance.pk:
             api_keys = api_keys.exclude(pk=self.instance.pk)
         if api_keys.exists():
@@ -1543,8 +1543,8 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
         return cleaned_data
 
     def save(self, commit=True):
-        """Create the key and return the ``(RTDAPIKey, key)`` tuple."""
-        return RTDAPIKey.objects.create_key(
+        """Create the key and return the ``(RTDToken, key)`` tuple."""
+        return RTDToken.objects.create_key(
             project=self.project,
             name=self.cleaned_data["name"],
             description=self.cleaned_data["description"],

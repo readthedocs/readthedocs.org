@@ -30,7 +30,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
@@ -1170,7 +1170,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
     """API keys scoped to a single project."""
 
-    model = RTDAPIKey
+    model = RTDToken
     form_class = ProjectTokenForm
     lookup_url_kwarg = "token_pk"
 

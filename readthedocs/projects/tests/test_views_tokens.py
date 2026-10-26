@@ -8,7 +8,7 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.api.v3.models import ProjectPermission
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
@@ -27,7 +27,7 @@ class ProjectTokenViewsTests(TestCase):
         self.create_url = reverse("projects_tokens_create", args=[self.project.slug])
 
     def _create_key(self, **kwargs):
-        return RTDAPIKey.objects.create_key(
+        return RTDToken.objects.create_key(
             name="key",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
@@ -47,7 +47,7 @@ class ProjectTokenViewsTests(TestCase):
         assert response.status_code == 302
         redirect_url = response["Location"]
 
-        api_key = RTDAPIKey.objects.get(project=self.project)
+        api_key = RTDToken.objects.get(project=self.project)
         assert redirect_url == f"{self.list_url}?created={api_key.pk}"
         assert api_key.name == "CI"
         assert api_key.description == "Upload from GitHub Actions"
@@ -58,7 +58,7 @@ class ProjectTokenViewsTests(TestCase):
         # The key is shown once.
         response = self.client.get(redirect_url)
         key = response.context["created_token"]
-        assert RTDAPIKey.objects.get_from_key(key) == api_key
+        assert RTDToken.objects.get_from_key(key) == api_key
         response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
 
@@ -116,7 +116,7 @@ class ProjectTokenViewsTests(TestCase):
         for name, redirect_url in zip(["first", "second"], redirect_urls):
             response = self.client.get(redirect_url)
             key = response.context["created_token"]
-            assert RTDAPIKey.objects.get_from_key(key).name == name
+            assert RTDToken.objects.get_from_key(key).name == name
 
     @override_settings(SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies")
     def test_created_token_with_signed_cookie_sessions(self):
@@ -132,10 +132,10 @@ class ProjectTokenViewsTests(TestCase):
         assert response.status_code == 302
         redirect_url = response["Location"]
 
-        api_key = RTDAPIKey.objects.get(project=self.project)
+        api_key = RTDToken.objects.get(project=self.project)
         response = self.client.get(redirect_url)
         key = response.context["created_token"]
-        assert RTDAPIKey.objects.get_from_key(key) == api_key
+        assert RTDToken.objects.get_from_key(key) == api_key
         response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
 
@@ -149,7 +149,7 @@ class ProjectTokenViewsTests(TestCase):
             },
         )
         assert response.status_code == 302
-        api_key = RTDAPIKey.objects.get(project=self.project)
+        api_key = RTDToken.objects.get(project=self.project)
         assert api_key.expiry_date is None
 
     def test_create_with_custom_expiration(self):
@@ -164,7 +164,7 @@ class ProjectTokenViewsTests(TestCase):
             },
         )
         assert response.status_code == 302
-        api_key = RTDAPIKey.objects.get(project=self.project)
+        api_key = RTDToken.objects.get(project=self.project)
         assert api_key.expiry_date.date() == expiration_date
         assert api_key.expiry_date > timezone.now() + timedelta(days=10)
 
@@ -179,7 +179,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 200
         assert "expiration_date" in response.context["form"].errors
-        assert not RTDAPIKey.objects.exists()
+        assert not RTDToken.objects.exists()
 
     def test_create_with_custom_expiration_today(self):
         response = self.client.post(
@@ -193,7 +193,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 200
         assert "expiration_date" in response.context["form"].errors
-        assert not RTDAPIKey.objects.exists()
+        assert not RTDToken.objects.exists()
 
     def test_create_with_existing_name(self):
         self._create_key()
@@ -203,7 +203,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 200
         assert "name" in response.context["form"].errors
-        assert RTDAPIKey.objects.filter(project=self.project).count() == 1
+        assert RTDToken.objects.filter(project=self.project).count() == 1
 
     def test_create_with_name_of_revoked_key(self):
         self._create_key(revoked=True)
@@ -212,7 +212,7 @@ class ProjectTokenViewsTests(TestCase):
             {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
         )
         assert response.status_code == 302
-        assert RTDAPIKey.objects.filter(project=self.project, revoked=False).count() == 1
+        assert RTDToken.objects.filter(project=self.project, revoked=False).count() == 1
 
     def test_create_requires_a_permission(self):
         response = self.client.post(
@@ -221,7 +221,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 200
         assert "permissions" in response.context["form"].errors
-        assert not RTDAPIKey.objects.exists()
+        assert not RTDToken.objects.exists()
 
     def test_list_excludes_revoked_keys(self):
         api_key, _ = self._create_key()
@@ -277,7 +277,7 @@ class ProjectTokenViewsTests(TestCase):
         assert api_key.name == "New name"
         assert api_key.description == "New description"
         assert api_key.expiry_date == expiry_date
-        assert RTDAPIKey.objects.get_from_key(key) == api_key
+        assert RTDToken.objects.get_from_key(key) == api_key
 
     def test_update_form_fields(self):
         api_key, _ = self._create_key()
@@ -297,7 +297,7 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_update_with_existing_name(self):
         self._create_key()
-        api_key, _ = RTDAPIKey.objects.create_key(name="other", project=self.project)
+        api_key, _ = RTDToken.objects.create_key(name="other", project=self.project)
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
             {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
@@ -309,7 +309,7 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_update_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
+        api_key, _ = RTDToken.objects.create_key(name="key", project=other_project)
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, api_key.pk]),
             {"name": "New name", "description": "", "permissions": [ProjectPermission.UPLOAD]},
@@ -339,7 +339,7 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_delete_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        api_key, _ = RTDAPIKey.objects.create_key(name="key", project=other_project)
+        api_key, _ = RTDToken.objects.create_key(name="key", project=other_project)
         response = self.client.post(
             reverse("projects_tokens_delete", args=[self.project.slug, api_key.pk]),
         )
