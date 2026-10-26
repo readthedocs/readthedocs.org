@@ -60,7 +60,7 @@ class IsOrganizationAdminMember(BasePermission):
             return True
 
 
-class HasAPIKeyPermission(BasePermission):
+class HasTokenPermission(BasePermission):
     """
     Grant permission if the request was authenticated with an API key that has the required permission.
 
