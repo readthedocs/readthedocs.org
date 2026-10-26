@@ -1,11 +1,11 @@
 from django.contrib import admin
 from rest_framework_api_key.admin import APIKeyModelAdmin
 
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 
 
-@admin.register(RTDAPIKey)
-class RTDAPIKeyAdmin(APIKeyModelAdmin):
+@admin.register(RTDToken)
+class RTDTokenAdmin(APIKeyModelAdmin):
     raw_id_fields = ["project", "created_by"]
     list_display = [*APIKeyModelAdmin.list_display, "project"]
     search_fields = [*APIKeyModelAdmin.search_fields, "project__slug"]

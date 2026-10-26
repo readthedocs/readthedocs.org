@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
 from readthedocs.subscriptions.products import get_feature
 
@@ -64,7 +64,7 @@ class HasAPIKeyPermission(BasePermission):
     """
     Grant permission if the request was authenticated with an API key that has the required permission.
 
-    Views using this permission should define the ``api_key_permission`` attribute.
+    Views using this permission should define the ``token_permission`` attribute.
     Checking that the key has access to the object being accessed is up to the view.
     """
 
@@ -72,5 +72,5 @@ class HasAPIKeyPermission(BasePermission):
     # When adding read/write permissions, let views define the required permission
     # per request method (e.g. read for safe methods, write for the rest).
     def has_permission(self, request, view):
-        api_key = request.auth
-        return isinstance(api_key, RTDAPIKey) and api_key.has_permission(view.api_key_permission)
+        token = request.auth
+        return isinstance(token, RTDToken) and token.has_permission(view.token_permission)

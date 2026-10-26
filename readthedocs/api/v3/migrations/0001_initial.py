@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="RTDAPIKey",
+            name="RTDToken",
             fields=[
                 ("id", models.BigAutoField(primary_key=True, serialize=False)),
                 ("prefix", models.CharField(editable=False, max_length=32, unique=True)),
@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
                         help_text="Project that this API key grants access to",
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="api_keys",
+                        related_name="tokens",
                         to="projects.project",
                     ),
                 ),
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                         help_text="User that created this API key",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="created_api_keys",
+                        related_name="created_tokens",
                         to=settings.AUTH_USER_MODEL,
                         verbose_name="Created by",
                     ),

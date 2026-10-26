@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from readthedocs.api.v3.models import ProjectPermission
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
@@ -637,7 +637,7 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
 class UploadAPIKeyTests(UploadAPIEndpointMixin):
     def setUp(self):
         super().setUp()
-        self.api_key, self.key = RTDAPIKey.objects.create_key(
+        self.project_token, self.key = RTDToken.objects.create_key(
             name="upload",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
@@ -715,8 +715,8 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_key_without_project(self):
-        self.api_key.project = None
-        self.api_key.save()
+        self.project_token.project = None
+        self.project_token.save()
 
         # The project can't be inferred from the key.
         response = self.client.post(self.initiate_url, self.data)
@@ -728,8 +728,8 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_key_without_upload_permission(self):
-        self.api_key.permissions = []
-        self.api_key.save()
+        self.project_token.permissions = []
+        self.project_token.save()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -745,14 +745,14 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_expired_key(self):
-        self.api_key.expiry_date = timezone.now() - timedelta(days=1)
-        self.api_key.save()
+        self.project_token.expiry_date = timezone.now() - timedelta(days=1)
+        self.project_token.save()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_revoked_key(self):
-        self.api_key.revoked = True
-        self.api_key.save()
+        self.project_token.revoked = True
+        self.project_token.save()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
