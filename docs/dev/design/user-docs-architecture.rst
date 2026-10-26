@@ -57,16 +57,18 @@ A feature with real variants, such as integration types, can grow sub-pages
 under its feature page, as PR 13451 does. The feature page stays the entry
 point: same URL, same place in the sidebar, sub-pages reached from it.
 
-Delete the pages nothing links to: ``tutorials/index``,
-``explanation/{index,advanced,methodology}``, the eight ``guides/*/index``
-sub-indexes and ``guides/index``. Together with the merges, this takes 154
-pages to about 125 without moving any.
+Delete the leftover index pages: ``tutorials/index`` and
+``explanation/{index,advanced,methodology}``, which nothing links to, and
+the eight ``guides/*/index`` sub-indexes and ``guides/index``, whose job the
+sidebar does. Together with the merges, this takes 154 ``.rst`` files to
+about 125 without moving any.
 
 **2. Group the sidebar by what the reader is doing.** Eight sections, in
 the order a project owner meets them, each one level deep:
 
 - *Get started*: what Read the Docs is, add your project, choose your tool,
-  tutorial, examples.
+  tutorial, examples, moving from another platform (new; the website's
+  comparison pages say why, these say how).
 - *Documentation tools*: one page per tool. Sphinx's page lists the
   Sphinx-only guides (Intersphinx, Jupyter, custom CSS, and so on).
 - *Build*: config file, build process, customization, pull request builds,
@@ -135,9 +137,9 @@ one page.
 
 1. Merge the pairs PR 13451 doesn't touch, one per PR: custom domains
    (PR 13461), subprojects, redirects, offline formats, build notifications,
-   organizations, build troubleshooting.
+   organizations, config file, build troubleshooting.
 2. After PR 13451 merges, the rest: pull requests, automation rules,
-   environment variables, hiding a version, SSO.
+   environment variables, hiding a version, builds, SSO.
 3. Delete the orphans and the ``guides/*/index`` sub-indexes.
 4. Rewrite ``index.rst`` into the eight sections and rebuild the front page
    from it. PR 13460 is an early piece of this step.
