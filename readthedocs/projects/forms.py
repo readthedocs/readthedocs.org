@@ -1497,9 +1497,9 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
     CUSTOM = "custom"
     NEVER = "never"
     EXPIRATION_CHOICES = (
-        ("7", _("7 days")),
         ("30", _("30 days")),
         ("90", _("90 days")),
+        ("365", _("1 year")),
         (CUSTOM, _("Custom")),
         (NEVER, _("No expiration")),
     )
