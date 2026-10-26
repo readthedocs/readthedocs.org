@@ -8,6 +8,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
@@ -230,6 +231,7 @@ class ProjectMixin(URLAccessMixin):
         self.token, _ = RTDToken.objects.create_key(
             project=self.pip,
             name="api key",
+            permissions=[ProjectPermission.UPLOAD],
         )
         self.default_kwargs = {
             "project_slug": self.pip.slug,

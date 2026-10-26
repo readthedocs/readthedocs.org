@@ -297,7 +297,11 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_update_with_existing_name(self):
         self._create_key()
-        token, _ = RTDToken.objects.create_key(name="other", project=self.project)
+        token, _ = RTDToken.objects.create_key(
+            name="other",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
             {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
@@ -309,7 +313,11 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_update_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        token, _ = RTDToken.objects.create_key(name="key", project=other_project)
+        token, _ = RTDToken.objects.create_key(
+            name="key",
+            project=other_project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
             {"name": "New name", "description": "", "permissions": [ProjectPermission.UPLOAD]},
@@ -339,7 +347,11 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_delete_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        token, _ = RTDToken.objects.create_key(name="key", project=other_project)
+        token, _ = RTDToken.objects.create_key(
+            name="key",
+            project=other_project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
         response = self.client.post(
             reverse("projects_tokens_delete", args=[self.project.slug, token.pk]),
         )
