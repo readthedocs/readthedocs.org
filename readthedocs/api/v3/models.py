@@ -110,8 +110,6 @@ class RTDAPIKey(AbstractAPIKey):
         help_text=_("What this API key is used for"),
     )
     permissions = models.JSONField(
-        default=list,
-        blank=True,
         help_text=_("List of permissions granted to this API key"),
     )
     modified = models.DateTimeField(_("Modified"), auto_now=True)
@@ -125,7 +123,7 @@ class RTDAPIKey(AbstractAPIKey):
         help_text=_("User that created this API key"),
     )
     # Extra information in case the user is deleted.
-    created_by_user_id = models.IntegerField(
+    created_by_user_id = models.PositiveBigIntegerField(
         _("Created by user ID"),
         null=True,
         blank=True,
@@ -170,7 +168,7 @@ class RTDAPIKey(AbstractAPIKey):
         if self.revoked and not self.revoked_at:
             self.revoked_at = timezone.now()
         # Keep the user that created the key, even if it's renamed or deleted later.
-        if self.created_by_id and not self.created_by_user_id:
+        if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
             self.created_by_username = self.created_by.username
         super().save(*args, **kwargs)
