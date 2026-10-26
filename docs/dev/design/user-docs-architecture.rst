@@ -95,11 +95,15 @@ it. It becomes one sentence, three ways in (add your project, choose your
 tool, follow the tutorial), a card per section built from the same toctrees,
 and a help strip. The company copy moves to About.
 
-The dashboard's project settings menu has the same four groups as today's
-docs and can re-sort with them into Setup, Build, Host and Readers. Feature
-page titles take the dashboard's labels ("Pull request builds", "Domains"),
-and each settings page's empty help block gets one link to its feature page.
-One page per feature is what makes that link possible.
+The dashboard already links each settings page to its docs, and today those
+links show the problem: Domains links to both the custom domains guide and
+the overview, Redirects to both of its pages, Environment variables to all
+three. After the merges each pair collapses to one link. The links point at
+the guide URLs, so every merged guide needs its redirect in place before the
+docs PR merges, and ext-theme then updates the link to the feature page. The
+settings menu has the same four groups as today's docs and can re-sort with
+them into Setup, Build, Host and Readers, with feature page titles taking
+the dashboard's labels ("Pull request builds", "Domains").
 
 Not changing
 ------------
@@ -143,7 +147,8 @@ one page.
 3. Delete the orphans and the ``guides/*/index`` sub-indexes.
 4. Rewrite ``index.rst`` into the eight sections and rebuild the front page
    from it. PR 13460 is an early piece of this step.
-5. ext-theme: re-sort the settings menu and add the per-page help links.
+5. ext-theme: point each settings page's help links at the merged feature
+   page (one link where there were two) and re-sort the settings menu.
 6. Write "moving from" guides for the platforms the website compares
    against, and link them from the comparison pages.
 
