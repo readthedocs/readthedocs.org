@@ -8,7 +8,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
-from readthedocs.api.v3.models import RTDAPIKey
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import ALL_VERSIONS, EXTERNAL
 from readthedocs.builds.models import (
     Build,
@@ -227,7 +227,7 @@ class ProjectMixin(URLAccessMixin):
             feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
             projects=[self.pip],
         )
-        self.api_key, _ = RTDAPIKey.objects.create_key(
+        self.api_key, _ = RTDToken.objects.create_key(
             project=self.pip,
             name="api key",
         )
