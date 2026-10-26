@@ -27,13 +27,27 @@ class RTDTokenTests(TestCase):
     def test_community_key_prefix(self):
         token, key = self._create_key()
         assert token.prefix.startswith("rtdorg_project_")
-        assert key.startswith(f"{token.prefix}.")
+        assert key.startswith(f"{token.prefix}_")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_business_key_prefix(self):
         token, key = self._create_key()
         assert token.prefix.startswith("rtdcom_project_")
-        assert key.startswith(f"{token.prefix}.")
+        assert key.startswith(f"{token.prefix}_")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_key_format(self):
+        token, key = self._create_key()
+        platform, scope, random, secret = key.split("_")
+        assert platform == "rtdorg"
+        assert scope == "project"
+        assert token.prefix == f"{platform}_{scope}_{random}"
+        assert len(secret) == 32
+
+    def test_get_from_key_with_dot_separator(self):
+        token, key = self._create_key()
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(f"{token.prefix}.{key.rpartition('_')[2]}")
 
     def test_pk_doesnt_include_the_hashed_key(self):
         token, _ = self._create_key()

@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from rest_framework_api_key.crypto import KeyGenerator
-from rest_framework_api_key.crypto import concatenate
 
 from readthedocs.projects.models import Project
 
@@ -50,18 +49,25 @@ class RTDTokenGenerator(KeyGenerator):
     """
     Generate keys prefixed with the platform and scope of the key.
 
-    Keys have the form ``rtdorg_project_<random>.<secret>``.
+    Keys have the form ``rtdorg_project_<random>_<secret>``.
     The ``rtdorg_project_<random>`` part is stored as the prefix to look up the key,
     the full key is hashed.
+    The random part and the secret only contain letters and digits,
+    so the secret is everything after the last ``_``.
     """
 
     # pylint: disable=arguments-differ
     def generate(self, scope):
         prefix = get_key_prefix(scope) + self.get_prefix()
         secret_key = self.get_secret_key()
-        key = concatenate(prefix, secret_key)
+        key = f"{prefix}_{secret_key}"
         hashed_key = self.hash(key)
         return key, prefix, hashed_key
+
+    @staticmethod
+    def get_prefix_from_key(key):
+        prefix, _, _ = key.rpartition("_")
+        return prefix
 
 
 class RTDTokenManager(models.Manager):
@@ -99,7 +105,7 @@ class RTDTokenManager(models.Manager):
         Raises ``DoesNotExist`` if the key doesn't exist, is revoked, or the secret doesn't match.
         Expiration isn't checked here, so callers can give a better error.
         """
-        prefix, _, _ = key.partition(".")
+        prefix = self.key_generator.get_prefix_from_key(key)
         obj = self.get_usable_keys().get(prefix=prefix)
         if not self.key_generator.verify(key, obj.hashed_key):
             raise self.model.DoesNotExist("Key is not valid.")
