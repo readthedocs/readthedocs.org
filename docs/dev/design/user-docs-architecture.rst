@@ -176,11 +176,14 @@ Each step ships alone and leaves the docs better than before it.
 
 1. Delete the orphans nothing links to: ``tutorials/index``,
    ``explanation/{index,advanced,methodology}``.
-2. Merge the twins PR 13451 doesn't touch, one per PR, into ``projects/<name>/index.rst``
-   with a redirect for the old guide: domains, subprojects, redirects, offline formats.
+2. Merge the twins PR 13451 doesn't touch, one per PR, with a redirect for the
+   old guide: domains (`PR 13461 <https://github.com/readthedocs/readthedocs.org/pull/13461>`_),
+   subprojects, redirects, offline formats. Pages move into ``projects/<name>/``
+   only when their content is being rewritten anyway.
 3. Remove the duplicate entries from the ``guides/*/index`` sub-indexes.
-4. Regroup the AI and Addons toctrees in ``index.rst``; full re-home into eight
-   sections after PR 13451 merges.
+4. Regroup the AI (`PR 13460 <https://github.com/readthedocs/readthedocs.org/pull/13460>`_)
+   and Addons toctrees in ``index.rst``; full re-home into eight sections after
+   PR 13451 merges.
 5. Rebuild the front page from the toctrees with ``sphinx_design`` cards.
 6. Merge the remaining twins and move tool-specific guides under ``tools/sphinx/``.
 7. ext-theme: re-sort the settings menu, fill ``project_edit_sidebar`` per page,
