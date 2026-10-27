@@ -30,6 +30,15 @@ BUILD_FINAL_STATES = (
     BUILD_STATE_CANCELLED,
 )
 
+# Order a build moves through before reaching a final state.
+BUILD_STATE_ORDER = (
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATE_CLONING,
+    BUILD_STATE_INSTALLING,
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_UPLOADING,
+)
+
 BUILD_TYPES = (
     ("html", _("HTML")),
     ("pdf", _("PDF")),
