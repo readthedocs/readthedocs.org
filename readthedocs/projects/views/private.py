@@ -854,6 +854,24 @@ class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
     success_message = _("Redirect created")
 
+    # Query params accepted to pre-fill the form (e.g. from a notification link).
+    prefill_fields = ["redirect_type", "from_url", "to_url", "http_status", "description"]
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self._get_initial_from_query_params()
+        return kwargs
+
+    def _get_initial_from_query_params(self):
+        initial = {
+            field: self.request.GET[field]
+            for field in self.prefill_fields
+            if field in self.request.GET
+        }
+        if "force" in self.request.GET:
+            initial["force"] = self.request.GET["force"].lower() in ("true", "1")
+        return initial
+
 
 class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
     success_message = _("Redirect updated")

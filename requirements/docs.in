@@ -23,6 +23,7 @@ sphinx-prompt
 sphinx-autobuild
 sphinxext-opengraph
 sphinx-copybutton
+sphinx-sitemap
 
 # Markdown
 myst_parser

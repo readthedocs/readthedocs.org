@@ -105,7 +105,7 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        validate_version_slug(slug, self.instance)
+        validate_version_slug(slug, self.instance, link_to_existing=True)
         return slug
 
     def clean_project(self):

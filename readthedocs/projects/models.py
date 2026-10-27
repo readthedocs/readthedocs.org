@@ -454,7 +454,7 @@ class Project(models.Model):
         _("Build pull requests for this project"),
         default=True,
         help_text=_(
-            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
+            'More information in <a href="https://docs.readthedocs.com/platform/stable/pull-requests.html">our docs</a>.'  # noqa
         ),
     )
     external_builds_privacy_level = models.CharField(
@@ -1748,8 +1748,11 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
+    # Optional parser override; the default reads from the build media storage.
+    parser = None
+
     def get_processed_json(self):
-        parser = GenericParser(self.version)
+        parser = self.parser or GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
@@ -1833,7 +1836,7 @@ class WebHook(Notification):
         _("JSON payload"),
         help_text=_(
             "JSON payload to send to the webhook. "
-            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
+            'Check <a href="https://docs.readthedocs.com/platform/stable/guides/build/webhooks.html#variable-substitutions">the docs</a> for available substitutions.',  # noqa
         ),
         blank=True,
         null=True,

@@ -14,6 +14,7 @@ from django.test.utils import override_settings
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_STATE_FINISHED,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -23,7 +24,11 @@ from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
-from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.doc_builder.exceptions import (
+    BuildAlreadyFinished,
+    BuildCancelled,
+    BuildUserError,
+)
 from readthedocs.oauth.models import GitHubAccountType, GitHubAppInstallation, RemoteRepository
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.exceptions import RepositoryError
@@ -1809,7 +1814,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -1861,7 +1866,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.7"},
                     "jobs": {
                         "post_checkout": ["git fetch --unshallow"],
@@ -1894,7 +1899,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf", "epub", "htmlzip"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "create_environment": ["echo create_environment"],
@@ -1974,7 +1979,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf", "epub", "htmlzip"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2024,7 +2029,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2097,7 +2102,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "configuration": "docs/conf.py",
                 },
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2180,7 +2185,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "configuration": "mkdocs.yml",
                 },
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "build": {
@@ -2260,7 +2265,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "version": 2,
                 "formats": ["pdf"],
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {"python": "3.12"},
                     "jobs": {
                         "create_environment": [],
@@ -2305,7 +2310,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "3.10",
                         "nodejs": "16",
@@ -2618,7 +2623,7 @@ class TestBuildTask(BuildEnvironmentBase):
             {
                 "version": 2,
                 "build": {
-                    "os": "ubuntu-24.04",
+                    "os": "ubuntu-26.04",
                     "tools": {
                         "python": "mambaforge-4.10",
                     },

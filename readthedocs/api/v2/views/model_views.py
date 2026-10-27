@@ -35,6 +35,10 @@ from readthedocs.aws.security_token_service import get_s3_build_tools_scoped_cre
 from readthedocs.aws.security_token_service import get_s3_build_uploads_scoped_credentials
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.ec2 import InstanceState
+from readthedocs.builds.ec2 import InvalidBuilder
+from readthedocs.builds.ec2 import protect_instance
+from readthedocs.builds.ec2 import release_instance
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
@@ -138,7 +142,7 @@ class DisableListEndpoint:
                 "msg": (
                     "List endpoint have been disabled due to heavy resource usage. "
                     "Take into account than APIv2 is planned to be deprecated soon. "
-                    "Please use APIv3: https://docs.readthedocs.io/page/api/v3.html"
+                    "Please use APIv3: https://docs.readthedocs.com/platform/stable/api/v3.html"
                 ),
             },
             status=status.HTTP_410_GONE,
@@ -395,8 +399,70 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def reset(self, request, **kwargs):
         """Reset the build so it can be re-used when re-trying."""
         instance = self.get_object()
+        if instance.finished:
+            return Response(
+                {"detail": f"Build is already {instance.state} and can't be reset."},
+                status=status.HTTP_409_CONFLICT,
+            )
         instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="instance/protect",
+    )
+    def instance_protect(self, request, **kwargs):
+        """
+        Claim the build instance and protect it from scale-in.
+
+        Called by the worker before the build starts, so the hostname comes in
+        the body since it's not in the Build object yet.
+        """
+        build = self.get_object()
+        builder = request.data.get("builder", "")
+        try:
+            protect_instance(builder)
+        except InvalidBuilder:
+            return Response(
+                {"builder": ["Not a valid build instance hostname."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        build.builder = builder
+        build.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @decorators.action(
+        detail=True,
+        permission_classes=[HasBuildAPIKey],
+        methods=["post"],
+        url_path="instance/release",
+    )
+    def instance_release(self, request, **kwargs):
+        """
+        Release and terminate the build instance that ran the build.
+
+        Revokes the build API key unless the release failed, so the worker can
+        retry.
+        """
+        build = self.get_object()
+        try:
+            state, decremented = release_instance(
+                build.builder,
+                keep=build.project.has_feature(Feature.KEEP_BUILD_ISOLATED_INSTANCE),
+            )
+        except InvalidBuilder:
+            return Response(
+                {"builder": ["Not a valid build instance hostname."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if state is not InstanceState.FAILED:
+            request.build_api_key.revoked = True
+            request.build_api_key.save()
+        return Response({"state": state, "decremented": decremented})
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
