@@ -1189,7 +1189,7 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
         return project
 
     def get_queryset(self):
-        return super().get_queryset().filter(revoked=False)
+        return super().get_queryset().filter(revoked_at__isnull=True)
 
     def get_success_url(self):
         return reverse(
@@ -1269,8 +1269,7 @@ class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
 
     def post(self, request, *args, **kwargs):
         token = self.get_object()
-        token.revoked = True
-        token.save()
+        token.revoke()
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
 

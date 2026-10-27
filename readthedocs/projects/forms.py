@@ -1478,7 +1478,7 @@ class ProjectTokenUpdateForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data["name"]
-        tokens = RTDToken.objects.filter(project=self.project, name=name, revoked=False)
+        tokens = RTDToken.objects.filter(project=self.project, name=name, revoked_at__isnull=True)
         if self.instance.pk:
             tokens = tokens.exclude(pk=self.instance.pk)
         if tokens.exists():
@@ -1525,7 +1525,7 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
         cleaned_data = super().clean()
         expires_in = cleaned_data.get("expires_in")
         if expires_in == self.NEVER:
-            cleaned_data["expiry_date"] = None
+            cleaned_data["expires_at"] = None
         elif expires_in == self.CUSTOM:
             expiration_date = cleaned_data.get("expiration_date")
             if not expiration_date:
@@ -1533,13 +1533,13 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
             elif expiration_date <= timezone.now().date():
                 self.add_error("expiration_date", _("Choose a date in the future."))
             else:
-                cleaned_data["expiry_date"] = datetime.combine(
+                cleaned_data["expires_at"] = datetime.combine(
                     expiration_date,
                     time.max,
                     tzinfo=dt_timezone.utc,
                 )
         elif expires_in:
-            cleaned_data["expiry_date"] = timezone.now() + timedelta(days=int(expires_in))
+            cleaned_data["expires_at"] = timezone.now() + timedelta(days=int(expires_in))
         return cleaned_data
 
     def save(self, commit=True):
@@ -1549,7 +1549,7 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
             name=self.cleaned_data["name"],
             description=self.cleaned_data["description"],
             permissions=self.cleaned_data["permissions"],
-            expiry_date=self.cleaned_data["expiry_date"],
+            expires_at=self.cleaned_data["expires_at"],
             created_by=self.user,
         )
 
