@@ -1464,11 +1464,7 @@ class ProjectTokenUpdateForm(forms.ModelForm):
     class Meta:
         model = RTDToken
         fields = ["name", "description", "permissions"]
-        labels = {
-            "name": _("Name"),
-        }
         help_texts = {
-            "name": _("A name to identify this token"),
             "description": _("Optional. What is this token used for?"),
         }
 
