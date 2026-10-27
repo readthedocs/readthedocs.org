@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AnonymousUser
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
@@ -34,14 +33,5 @@ class RTDTokenAuthentication(TokenAuthentication):
         if token.has_expired:
             raise exceptions.AuthenticationFailed(_("Token has expired."))
 
-        self.update_last_used(token)
+        token.update_last_used()
         return AnonymousUser(), token
-
-    def update_last_used(self, token):
-        # This is a write on every request, API tokens are only used by the upload API for now,
-        # which doesn't get many requests. If this becomes a problem,
-        # only update it if the last update was more than x minutes ago.
-        now = timezone.now()
-        token.last_used_at = now
-        # Use update to not change the modified date of the token.
-        self.model.objects.filter(pk=token.pk).update(last_used_at=now)

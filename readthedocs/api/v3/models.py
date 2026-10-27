@@ -3,6 +3,7 @@ from enum import StrEnum
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -217,8 +218,40 @@ class RTDToken(TimeStampedModel):
         if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
             self.created_by_username = self.created_by.username
-        super().save(*args, **kwargs)
+        # The row lock taken in ``_keep_dates_from_targeted_updates()`` lasts until the transaction ends,
+        # the read and the save must be in the same transaction so the dates can't change in between.
+        # ``select_for_update()`` also fails outside a transaction, and requests aren't atomic.
+        with transaction.atomic():
+            if self.pk:
+                self._keep_dates_from_targeted_updates()
+            super().save(*args, **kwargs)
         self._initial_revoked_at = self.revoked_at
+
+    def _keep_dates_from_targeted_updates(self):
+        """
+        Keep the revoked and last used dates from the database.
+
+        These dates are changed with targeted updates (``revoke()`` and ``update_last_used()``),
+        so saving an instance that was loaded before they changed would overwrite them.
+        The row is locked until the save is done, so they can't change in between.
+        """
+        # ``select_for_update()`` locks the row (``SELECT ... FOR UPDATE``),
+        # other updates to it, like the one in ``revoke()``, wait until this transaction ends.
+        current = (
+            type(self)
+            .objects.select_for_update()
+            .filter(pk=self.pk)
+            .values("revoked_at", "last_used_at")
+            .first()
+        )
+        if not current:
+            return
+        if current["revoked_at"]:
+            self.revoked_at = current["revoked_at"]
+        if current["last_used_at"] and (
+            not self.last_used_at or current["last_used_at"] > self.last_used_at
+        ):
+            self.last_used_at = current["last_used_at"]
 
     def _validate_revoked(self):
         if self._initial_revoked_at and not self.revoked_at:
@@ -247,9 +280,47 @@ class RTDToken(TimeStampedModel):
         return self.revoked_at is not None
 
     def revoke(self):
-        if not self.revoked_at:
-            self.revoked_at = timezone.now()
-            self.save()
+        """
+        Revoke the token, this can't be undone.
+
+        Done with a single conditional update, so it doesn't depend on this instance being up to date,
+        and a token that was already revoked keeps its original date.
+        """
+        now = timezone.now()
+        type(self).objects.filter(pk=self.pk, revoked_at__isnull=True).update(
+            revoked_at=now,
+            modified=now,
+        )
+        self.refresh_from_db(fields=["revoked_at", "modified"])
+        self._initial_revoked_at = self.revoked_at
+
+    def update_last_used(self):
+        """
+        Set the date the token was last used to now.
+
+        Done with a single conditional update, so the date only moves forward,
+        and the modified date of the token isn't changed.
+
+        .. note::
+
+           This is a write on every request, tokens are only used by the upload API for now,
+           which doesn't get many requests. If this becomes a problem,
+           only update it if the last update was more than x minutes ago.
+        """
+        now = timezone.now()
+        updated = (
+            type(self)
+            .objects.filter(
+                models.Q(last_used_at__isnull=True) | models.Q(last_used_at__lt=now),
+                pk=self.pk,
+            )
+            .update(last_used_at=now)
+        )
+        if updated:
+            self.last_used_at = now
+        else:
+            # Another request already set a later date.
+            self.refresh_from_db(fields=["last_used_at"])
 
     @property
     def scope(self):

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
@@ -5,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.api.v3.authentication import RTDTokenAuthentication
@@ -123,6 +126,28 @@ class RTDTokenTests(TestCase):
         token.refresh_from_db()
         assert token.last_used_at > last_used_at
 
+    def test_update_last_used(self):
+        token, _ = self._create_key()
+        modified = token.modified
+
+        token.update_last_used()
+        last_used_at = token.last_used_at
+        assert last_used_at is not None
+        token.refresh_from_db()
+        assert token.last_used_at == last_used_at
+        assert token.modified == modified
+
+    def test_update_last_used_only_moves_forward(self):
+        token, _ = self._create_key()
+        # Another request set a later date.
+        later = timezone.now() + timedelta(minutes=5)
+        RTDToken.objects.filter(pk=token.pk).update(last_used_at=later)
+
+        token.update_last_used()
+        assert token.last_used_at == later
+        token.refresh_from_db()
+        assert token.last_used_at == later
+
     def test_created_by_is_kept_when_the_user_is_deleted(self):
         user = get(User, username="eric")
         user_id = user.pk
@@ -166,6 +191,44 @@ class RTDTokenTests(TestCase):
         # It isn't changed when the key is saved again.
         token.name = "new name"
         token.save()
+        token.refresh_from_db()
+        assert token.revoked_at == revoked_at
+
+    def test_saving_a_stale_instance_doesnt_restore_a_revoked_token(self):
+        token, key = self._create_key()
+        # Loaded before the token is revoked, e.g. by an admin editing it.
+        stale_token = RTDToken.objects.get(pk=token.pk)
+
+        RTDToken.objects.get(pk=token.pk).revoke()
+        stale_token.name = "new name"
+        stale_token.save()
+
+        token.refresh_from_db()
+        assert token.is_revoked
+        assert token.name == "new name"
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key)
+
+    def test_saving_a_stale_instance_doesnt_overwrite_last_used_at(self):
+        token, key = self._create_key()
+        stale_token = RTDToken.objects.get(pk=token.pk)
+
+        RTDTokenAuthentication().authenticate_credentials(key)
+        stale_token.name = "new name"
+        stale_token.save()
+
+        token.refresh_from_db()
+        assert token.last_used_at is not None
+
+    def test_revoking_a_stale_instance_keeps_the_original_date(self):
+        token, _ = self._create_key()
+        stale_token = RTDToken.objects.get(pk=token.pk)
+
+        token.revoke()
+        revoked_at = token.revoked_at
+        stale_token.revoke()
+
+        assert stale_token.revoked_at == revoked_at
         token.refresh_from_db()
         assert token.revoked_at == revoked_at
 
