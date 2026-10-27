@@ -145,6 +145,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "API token",
                 "verbose_name_plural": "API tokens",
                 "ordering": ("-created",),
+                "get_latest_by": "modified",
             },
         ),
     ]

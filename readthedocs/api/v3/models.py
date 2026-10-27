@@ -194,7 +194,7 @@ class RTDToken(TimeStampedModel):
 
     objects = RTDTokenManager()
 
-    class Meta:
+    class Meta(TimeStampedModel.Meta):
         ordering = ("-created",)
         verbose_name = _("API token")
         verbose_name_plural = _("API tokens")
