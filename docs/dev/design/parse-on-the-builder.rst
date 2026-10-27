@@ -1,126 +1,144 @@
 Parse docs on the builder
 =========================
 
-Parse each page once, on the builder, where the files are already on local disk —
-instead of re-downloading every page from S3 after the build.
-The parse output ships with the build as two artifacts —
-the file tree diff manifest and the search payload —
-and server-side post-build work shrinks to a light ingest task.
+Parse each page once, on the builder, where the files are already on local disk,
+and ship the result with the build —
+instead of re-downloading the whole version from S3 after the build
+to produce the same thing on a web worker.
 
-Two headline wins:
+The first phase is the file tree diff manifest,
+because it is what a user is waiting on:
+the pull request build-overview comment and files changed
+can't show until it exists.
+Today that wait is the ``reindex`` queue plus a full re-download of the version;
+with the manifest shipped by the builder it is a small task on the ``web`` queue
+that runs the moment the build turns green.
 
-- **S3 reads**: from one GET per HTML page per build —
-  the whole version re-downloaded right after the builder uploaded it —
-  to a single GET for the payload at ingest.
-- **Availability after build**: files changed, the pull request build-overview comment,
-  and fresh search results land seconds after the build finishes,
-  instead of waiting behind the ``reindex`` queue backlog.
+Search indexing is unchanged in this phase.
+Moving the parsed search content to the builder as well is the second phase,
+sketched at the end.
 
 Goals
 -----
 
-- Serve files changed, pull request build-overview comments, and fresh search results
-  seconds after a build finishes, independent of the ``reindex`` queue.
-- Eliminate the per-page S3 download-and-parse that follows every build today.
+- Post the pull request build-overview comment,
+  and make files changed available,
+  seconds after a build finishes — independent of the ``reindex`` queue.
+- Stop paying a full S3 download of the version to produce the manifest.
 - Keep all Elasticsearch and database access server-side: builders gain no new trust.
-- Make full Elasticsearch re-indexes replay stored payloads instead of re-parsing the corpus.
-- End with one parser implementation, on the builder —
-  the server-side parse path is transitional, not a second copy to maintain.
+- Nothing regresses when a builder ships no manifest:
+  the server-side path stays as the fallback until the legacy fleet is gone.
 
 Non-goals
 ---------
 
 - Changing the upload client or its zip format — the isolated worker covers uploaded builds.
-- Adding manifest or payload generation to the legacy fleet;
+- Adding manifest generation to the legacy fleet;
   it stays on today's path and ages out with the isolated-builds migration.
-- Changing what gets indexed or how pages are parsed —
+- Changing what the manifest contains or how pages are hashed —
   the same parser output, produced where the files already are.
 - Re-parsing already-built versions when the parser changes —
   parser changes roll forward with new builds (`discussion on #13246`_).
 - Search indexing for pull request versions — external versions stay unindexed, as today.
-- Combining the manifest and payload into a single artifact —
-  the manifest could later be derived from the payload server-side;
-  two independent files keep this iteration's moving pieces fewer.
+
+What changes for users
+----------------------
+
+Today the pull request comment and files changed wait for `index_build`_
+on the ``reindex`` queue.
+With the queue idle that is about 15 seconds after the build finishes on average,
+longer for large documentation sets, and noticeably longer on busy days;
+while a bulk re-index runs, it is hours.
+The docs pages themselves are not affected —
+since `#13276`_ the docs CDN is purged at build success.
+
+Proposed: the comment is posted, and files changed is available,
+as soon as the build is marked finished —
+the task reads one small file from S3 and does no parsing.
+Builds get no slower: the parse runs on the builder
+while the HTML is still being uploaded, and takes a few seconds.
 
 How it works today
 ------------------
 
-A build uploads its HTML to S3 and turns green — and since `#13276`_,
-the docs CDN is purged right there, so the pages themselves go live at build finish.
-Everything else happens afterwards, in `index_build`_ on the ``reindex`` queue:
-`_process_files`_ walks the version's storage prefix,
-and each page is downloaded and parsed via ``HTMLFile.processed_json`` → `GenericParser.parse`_,
-which `opens every file from storage`_.
-That one walk produces the file tree diff manifest, the Elasticsearch documents,
-and the ``index.html``/``404.html`` records El Proxito serves 404s and directory redirects from.
-The ``rtd-search`` CDN purge (`search_index_updated`_) and the pull request build-overview comment
-ride on the same task.
+#. The builder syncs the built HTML to S3 and reports the build as finished.
+#. At build success the server queues two tasks:
+   `purge_docs_cdn`_ (``web`` queue) so the pages go live,
+   and `index_build`_ (``reindex`` queue) for everything else.
+#. ``index_build`` `downloads the whole version`_ with ``rclone`` into a scratch directory
+   and parses every page once.
+   That one walk feeds three indexers:
+   Elasticsearch documents, the ``index.html``/``404.html`` records El Proxito serves 404s from,
+   and the `file tree diff manifest`_.
+#. After the manifest is written, the same task `snapshots the base manifest`_
+   for pull request versions and `queues the build-overview comment`_.
 
-What this costs:
+Where the time goes: profiling on `#13246`_ put about 80% of ``index_build``
+in the S3 download, the rest in parsing.
+The download was already reduced from one GET per page to a single ``rclone`` sync by `#13246`_,
+and the queue is fast when idle —
+but every build still re-downloads what the builder uploaded moments earlier,
+and the comment still waits behind whatever else is on ``reindex``.
+Scaling out the ``reindex`` workers would shorten the queue wait,
+not the round trip, and not the S3 bill.
 
-- Every page makes a full round trip: uploaded by the builder,
-  then immediately re-downloaded and parsed on web-side workers.
-  The cost predates today's feature set:
-  profiling in `#10623`_ measured the predecessor task (``fileify``)
-  at ~9.1s per build on average, ~2.5s of it boto3/S3 calls — before file tree diff existed.
-- Everything user-visible from this task waits behind the queue:
-  files changed, the pull request overview comment, and fresh search results;
-  a bulk re-index backlog delays them by hours.
-- Pull request builds pay the full download-and-parse solely for the manifest:
-  `search indexing skips external versions`_,
-  and the `manifest gate`_ checks ``is_external`` but not ``filetreediff_enabled`` —
-  that flag is only checked `at serve time`_.
-  Every pull request build of every project pays,
-  even with file tree diff and build overview comments off.
-- A full Elasticsearch re-index (`reindex_version`_) re-downloads and re-parses the entire corpus.
+Proposed: ship the manifest with the build
+------------------------------------------
 
-Proposed: parse on the builder
-------------------------------
+Three steps (`readthedocs-builder#40`_ and the matching readthedocs.org change):
 
-The builder has every built page on local disk right before upload:
-the isolated fleet syncs artifact directories in `_upload_artifacts`_,
-and uploaded-zip builds are covered too,
-since the isolated worker `downloads and extracts the zip`_ before syncing —
-the upload client needs no changes.
+#. **The builder parses and uploads the manifest.**
+   Right after the HTML sync starts in `_upload_artifacts`_,
+   the builder parses the HTML it just built
+   with a port of `readthedocs/search/parsers.py`_
+   and writes ``diff/<project>/<version>/manifest.json`` —
+   the same file `FileManifestIndexer`_ writes today, with the same hashes,
+   plus the build id it belongs to and a ``hasher_version``.
+   It uses the per-build scoped S3 credentials it already holds:
+   the `STS policy`_ is built from ``Version.get_storage_paths()`` and spans every media type,
+   including ``diff``.
+   The parse runs in a thread while ``rclone`` syncs the HTML,
+   and the manifest is uploaded once both are done —
+   before the build is marked finished.
+   Uploaded-zip builds are covered too,
+   since the isolated worker `downloads and extracts the zip`_ before the sync;
+   the upload client needs no changes.
+   A manifest failure is logged and never fails the build.
+#. **A ``web`` task uses it at build success.**
+   Next to ``purge_docs_cdn`` and ``index_build``, the server queues
+   ``process_builder_manifest`` on the ``web`` queue.
+   It reads the manifest, checks that it belongs to this build,
+   and then does what the tail of ``index_build`` does today:
+   snapshots the base manifest for pull request versions
+   and queues the build-overview comment.
+   If there is no manifest, or it is from another build, the task does nothing.
+#. **``index_build`` skips what the builder already did.**
+   `_get_indexers`_ leaves out ``FileManifestIndexer`` when a manifest for this build is already stored.
+   Everything else in ``index_build`` is unchanged:
+   search indexing, the ``index.html``/``404.html`` records, and the ``rtd-search`` CDN purge.
+   When no manifest arrived — legacy-fleet builds, or a failed upload —
+   it generates the manifest and posts the comment exactly as today.
 
-After the build, the builder parses each page once —
-the same extraction ``index_build`` runs server-side today —
-and uploads two extra artifacts next to the HTML,
-using the per-build scoped S3 credentials it already holds
-(the `STS policy`_ is built from ``Version.get_storage_paths()`` and spans every media type):
+The upload is a single file, not a sync of the ``diff/`` prefix,
+so the server-written base-manifest snapshot next to it is never deleted.
 
-- ``diff/<project>/<version>/manifest.json`` — the file tree diff manifest:
-  one entry per page with its content hashes, exactly what ``FileManifestIndexer`` writes today.
-- The compressed search payload — one file per version (JSONL, one line per page)
-  holding the parser's ``processed_json`` output: path, title, sections, and the content hashes.
-  That is everything Elasticsearch indexing consumes,
-  so the server never re-downloads or re-parses the pages.
-  Exact media type and filename are open; the scoped credentials cover every option.
+Security
+--------
 
-Builders never talk to Elasticsearch or the database —
-they hold only a per-build, project-scoped API key and those storage credentials.
-At build success, a small server-side task downloads the one payload file and does the rest:
-bulk-indexes internal versions into Elasticsearch through the existing chunked `index_objects`_ path,
-creates the index/404 records from the payload's file list,
-snapshots the base manifest for pull request diffs,
-and posts the pull request overview comment.
-The CDN purge signals (``files_changed``, ``search_index_updated``)
-are already in place after `#13276`_.
+The parse runs in the builder process, outside the build container —
+the same place the upload step already walks the output directory.
+The rules are the ones that step follows today:
 
-What changes
-------------
+- Read regular files only; never follow symlinks.
+  The build can write anything into its output directory,
+  including a link to a file on the host.
+- Keep the parser's caps on page and section size.
+- Server-side, the manifest is untrusted input:
+  the task validates its shape, ignores unknown keys,
+  and only acts on it when the build id matches the build that just finished.
 
-- **S3 reads per build.** Today: one GET per HTML page. Proposed: one GET total, for the payload.
-- **Files changed and the pull request comment.** Today: after the reindex queue drains.
-  Proposed: seconds after build finish.
-- **Fresh search results.** Today: after the reindex queue drains. Proposed: seconds after build finish.
-- **Where the parse runs.** Today: web-side reindex workers. Proposed: the builder that made the files.
-- **Pull request builds with the features off.** Today: full download-and-parse anyway.
-  Proposed: no parse, no manifest.
-- **Full Elasticsearch re-index.** Today: re-download and re-parse the corpus.
-  Proposed: replay stored payloads.
-- **What the reindex queue carries.** Today: all post-build work plus bulk jobs. Proposed: bulk jobs only.
-- **Docs pages on the CDN.** Live at build finish since `#13276`_; unchanged by this proposal.
+Builders never talk to Elasticsearch or the database;
+they hold a per-build, project-scoped API key and the storage credentials they have today.
 
 Changing the parser
 -------------------
@@ -130,79 +148,59 @@ it reaches each version on its next build, and nothing re-parses what is already
 (`discussion on #13246`_ — maintaining the parser server-side as well,
 just to re-extract old builds, is the duplication both reviewers flagged).
 A version that never rebuilds isn't changing its pages either,
-so its stored extraction stays an accurate index of them;
-it only misses extraction improvements until it builds again.
-Payload replay re-indexes stored extractions verbatim,
-so a full Elasticsearch re-index doesn't propagate a parser change either.
+so its stored manifest stays an accurate index of them.
 
-The payload carries a small metadata header — build id, created date,
-and three version fields with different bump disciplines:
+Roll-forward is why the manifest carries a ``hasher_version``:
+after a change to what the hashes mean,
+a pull request built with the new parser diffs against a base version that may not have rebuilt yet.
+``get_diff`` treats the mismatch as "outdated" instead of reporting every file as modified,
+and it heals on the base version's next build.
+The field is written from the first builder release and enforced server-side once both sides carry it;
+today's reader ignores unknown keys, so the order doesn't matter.
+It is bumped only for hash-meaning changes, not every parser release —
+otherwise every release would invalidate every open pull request's diff.
 
-- **Schema version** — the payload file format itself.
-  This is what gates ingest: the tolerant reader accepts known majors,
-  ignores unknown fields, and refuses what it can't parse.
-- **Parser version** — which extractor produced the content.
-  It never gates search ingest,
-  since extractions from different parser versions coexist harmlessly in Elasticsearch;
-  with roll-forward it is pure observability:
-  how much of the corpus each extractor produced,
-  and whether an old extraction explains a search oddity.
-- **Hasher version** — bumped only when a change alters what the file tree diff hashes mean;
-  ``get_diff`` treats a mismatch as "outdated."
-  Roll-forward is what makes this field earn its place:
-  after a bump, a pull request built with the new parser
-  diffs against a base version that may not have rebuilt yet,
-  and the mismatch marks that diff "outdated" instead of reporting every file as modified;
-  it heals on the base version's next build.
-  Keeping this separate from the parser version matters:
-  if every parser release bumped it, every release would invalidate every open pull request's diff.
-
-A parser change paired with an Elasticsearch mapping change spans both repositories:
-the readthedocs.org side (mapping plus tolerant ingest) deploys first, the builder second —
-the same reader-first ordering as the main rollout.
 Golden HTML fixtures with expected hashes, committed to both repositories,
 catch accidental hash drift in CI.
-
-Other risks and open questions
-------------------------------
-
-- **Payloads are derived from user content on build machines.**
-  The ingest task re-enforces the parser's caps (section count, content size)
-  before writing to Elasticsearch.
-- **Payload size on the largest projects.**
-  Compressed JSONL should stay well under the HTML itself,
-  but confirm bounds before making it the re-index source.
 
 Rollout
 -------
 
-#. Already merged: `#13276`_ purges the docs CDN at build success (``purge_docs_cdn``)
-   and adds the ``search_index_updated`` signal,
-   so cached search results can be purged by the ``rtd-search`` cache tag once indexing lands.
-#. Quick relief, independent of the rest:
-   route external versions' ``index_build`` to the ``web`` queue
-   (they skip search indexing already),
-   and skip the manifest indexer when a project has neither file tree diff
-   nor build overview comments enabled.
-#. readthedocs.org, deploys first:
-   skip server-side generation when a manifest for the current build already exists;
-   treat a hasher version mismatch in ``get_diff`` as "outdated";
-   move the base-manifest snapshot and pull request comment to a build-success task.
-#. readthedocs-builder: port the parser
-   (`readthedocs/search/parsers.py`_, 512 lines today, plus golden-fixture tests)
-   and emit the manifest and payload from `_upload_artifacts`_.
-   Covers isolated and uploaded builds in one place.
-#. Search payload ingest task;
-   then payload replay becomes the path for full Elasticsearch re-indexes.
+#. Already merged: `#13276`_ purges the docs CDN at build success,
+   and `#13246`_ replaced the per-page S3 reads in ``index_build`` with one ``rclone`` download.
+#. readthedocs.org, deploys first: skip ``FileManifestIndexer`` when a manifest for the current build exists;
+   add ``process_builder_manifest`` and queue it at build success on both fleets' success paths.
+   Nothing changes until a builder ships a manifest.
+#. readthedocs-builder (`readthedocs-builder#40`_): port the parser with its golden-fixture tests,
+   emit the manifest from ``_upload_artifacts``.
+   Verify on a few projects that the server-side and builder-side manifests match
+   before enabling it fleet-wide.
+#. Enforce ``hasher_version`` in ``get_diff`` once every manifest in storage carries it.
 
-The legacy fleet stays on today's path and ages out with the isolated-builds migration —
-no throwaway code written for it.
-The server-side parse path is equally transitional:
-it keeps covering builds that ship no payload
-(legacy-fleet builds, and versions whose last build predates the rollout),
-and once a one-time pass stores payloads for that long tail,
-the parser code is deleted from readthedocs.org and lives only on the builder —
-resolving the `discussion on #13246`_ about not keeping it in two codebases.
+The two quick-relief changes considered earlier —
+routing external versions' ``index_build`` to the ``web`` queue,
+and skipping the manifest when a project has neither feature on —
+were dropped: the queue is fast now, and with the manifest produced on the builder
+the pull request path no longer depends on ``index_build`` at all.
+
+Phase 2: search content from the builder
+----------------------------------------
+
+The same parse produces everything Elasticsearch indexing consumes:
+path, title, sections, and the content hashes.
+Shipping that as a second, compressed artifact
+would let ``index_build`` ingest one file instead of downloading the version,
+and let full re-indexes replay stored payloads instead of re-parsing the corpus.
+
+That phase has its own questions, left open here:
+
+- Internal versions would always emit the payload, whether or not search is enabled for the project,
+  so turning search on later re-indexes from the stored payload rather than re-parsing;
+  pull request versions would emit only the manifest.
+- Payload size on the largest projects, and the file format,
+  need bounds before payload replay becomes the re-index path.
+- The server-side parser can only be deleted once payloads exist for every version still being served,
+  which needs a one-time pass over the long tail.
 
 Background: why it works this way today
 ---------------------------------------
@@ -237,6 +235,7 @@ each era's constraints simply made it impossible.
   states the manifest "will be done at the end of the build";
   `#11646`_ implements it inside ``index_build`` instead,
   because the server-side walk existed and the isolated builder didn't yet.
+- **2026** — `#13246`_ swaps the per-page storage reads for one ``rclone`` download per build.
 
 Two of the three original constraints have since reversed:
 built files are now local to the builders rather than the webs,
@@ -245,7 +244,9 @@ The one that stands — builders run untrusted code
 and never hold DB or Elasticsearch credentials — is the one this proposal keeps.
 
 .. _#13276: https://github.com/readthedocs/readthedocs.org/pull/13276
+.. _#13246: https://github.com/readthedocs/readthedocs.org/pull/13246
 .. _discussion on #13246: https://github.com/readthedocs/readthedocs.org/pull/13246#issuecomment-5933896429
+.. _readthedocs-builder#40: https://github.com/readthedocs/readthedocs-builder/pull/40
 .. _#10623: https://github.com/readthedocs/readthedocs.org/issues/10623
 .. _#5854: https://github.com/readthedocs/readthedocs.org/pull/5854
 .. _#7161: https://github.com/readthedocs/readthedocs.org/pull/7161
@@ -255,17 +256,15 @@ and never hold DB or Elasticsearch credentials — is the one this proposal keep
 .. _#10378: https://github.com/readthedocs/readthedocs.org/pull/10378
 .. _#10696: https://github.com/readthedocs/readthedocs.org/pull/10696
 .. _#11646: https://github.com/readthedocs/readthedocs.org/pull/11646
-.. _index_build: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L319
-.. _`_process_files`: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L255
-.. _GenericParser.parse: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/search/parsers.py#L444
-.. _opens every file from storage: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/search/parsers.py#L76
-.. _search_index_updated: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L111
-.. _search indexing skips external versions: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L214
-.. _manifest gate: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L236
-.. _at serve time: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/proxito/views/hosting.py#L650
-.. _reindex_version: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/projects/tasks/search.py#L352
-.. _`_upload_artifacts`: https://github.com/readthedocs/readthedocs-builder/blob/4574e1d/builder/builder/runner.py#L446
-.. _downloads and extracts the zip: https://github.com/readthedocs/readthedocs-builder/blob/4574e1d/builder/builder/director.py#L969
-.. _STS policy: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/aws/security_token_service.py#L147
-.. _index_objects: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/search/utils.py
-.. _readthedocs/search/parsers.py: https://github.com/readthedocs/readthedocs.org/blob/01a4d8ecafd751b913b922ab69b08c979f666626/readthedocs/search/parsers.py
+.. _index_build: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L341
+.. _purge_docs_cdn: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/builds/tasks.py#L815
+.. _downloads the whole version: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L292
+.. _file tree diff manifest: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L161
+.. _FileManifestIndexer: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L161
+.. _snapshots the base manifest: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L204
+.. _queues the build-overview comment: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L211
+.. _`_get_indexers`: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/projects/tasks/search.py#L214
+.. _`_upload_artifacts`: https://github.com/readthedocs/readthedocs-builder/blob/54f47c3/builder/builder/runner.py#L447
+.. _downloads and extracts the zip: https://github.com/readthedocs/readthedocs-builder/blob/54f47c3/builder/builder/director.py#L917
+.. _STS policy: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/aws/security_token_service.py#L147
+.. _readthedocs/search/parsers.py: https://github.com/readthedocs/readthedocs.org/blob/5a851c553bc7598b9c5bf3a0e11ba90faa1aec8c/readthedocs/search/parsers.py
