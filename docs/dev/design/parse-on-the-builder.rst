@@ -85,7 +85,7 @@ not the round trip, and not the S3 bill.
 Proposed: ship the manifest with the build
 ------------------------------------------
 
-Three steps (`readthedocs-builder#40`_ and the matching readthedocs.org change):
+Three steps (`readthedocs-builder#40`_ and `#13469`_):
 
 #. **The builder parses and uploads the manifest.**
    Right after the HTML sync starts in `_upload_artifacts`_,
@@ -155,8 +155,8 @@ after a change to what the hashes mean,
 a pull request built with the new parser diffs against a base version that may not have rebuilt yet.
 ``get_diff`` treats the mismatch as "outdated" instead of reporting every file as modified,
 and it heals on the base version's next build.
-The field is written from the first builder release and enforced server-side once both sides carry it;
-today's reader ignores unknown keys, so the order doesn't matter.
+Manifests written before the field existed count as version 1,
+so the check is inert until the constant is bumped on both sides.
 It is bumped only for hash-meaning changes, not every parser release —
 otherwise every release would invalidate every open pull request's diff.
 
@@ -168,15 +168,14 @@ Rollout
 
 #. Already merged: `#13276`_ purges the docs CDN at build success,
    and `#13246`_ replaced the per-page S3 reads in ``index_build`` with one ``rclone`` download.
-#. readthedocs.org, deploys first: skip ``FileManifestIndexer`` when a manifest for the current build exists;
-   add ``process_builder_manifest`` and queue it at build success on both fleets' success paths.
+#. readthedocs.org (`#13469`_), deploys first: skip ``FileManifestIndexer`` when a manifest for the current build exists;
+   add ``process_builder_manifest`` and queue it at build success on both fleets' success paths;
+   read ``hasher_version``.
    Nothing changes until a builder ships a manifest.
 #. readthedocs-builder (`readthedocs-builder#40`_): port the parser with its golden-fixture tests,
    emit the manifest from ``_upload_artifacts``.
    Verify on a few projects that the server-side and builder-side manifests match
    before enabling it fleet-wide.
-#. Enforce ``hasher_version`` in ``get_diff`` once every manifest in storage carries it.
-
 The two quick-relief changes considered earlier —
 routing external versions' ``index_build`` to the ``web`` queue,
 and skipping the manifest when a project has neither feature on —
@@ -247,6 +246,7 @@ and never hold DB or Elasticsearch credentials — is the one this proposal keep
 .. _#13246: https://github.com/readthedocs/readthedocs.org/pull/13246
 .. _discussion on #13246: https://github.com/readthedocs/readthedocs.org/pull/13246#issuecomment-5933896429
 .. _readthedocs-builder#40: https://github.com/readthedocs/readthedocs-builder/pull/40
+.. _#13469: https://github.com/readthedocs/readthedocs.org/pull/13469
 .. _#10623: https://github.com/readthedocs/readthedocs.org/issues/10623
 .. _#5854: https://github.com/readthedocs/readthedocs.org/pull/5854
 .. _#7161: https://github.com/readthedocs/readthedocs.org/pull/7161
