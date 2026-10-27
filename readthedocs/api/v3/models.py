@@ -1,6 +1,7 @@
 from enum import StrEnum
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -107,7 +108,7 @@ class RTDTokenManager(models.Manager):
         """
         prefix = self.key_generator.get_prefix_from_key(key)
         obj = self.get_usable_keys().get(prefix=prefix)
-        if not self.key_generator.verify(key, obj.hashed_key):
+        if not obj.is_valid(key):
             raise self.model.DoesNotExist("Token is not valid.")
         return obj
 
@@ -199,15 +200,43 @@ class RTDToken(TimeStampedModel):
         verbose_name = _("API token")
         verbose_name_plural = _("API tokens")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Store the initial value to detect if a revoked token is being restored.
+        self._initial_revoked_at = self.revoked_at
+
     def __str__(self):
         return self.name
 
+    def clean(self):
+        self._validate_revoked()
+
     def save(self, *args, **kwargs):
+        self._validate_revoked()
         # Keep the user that created the token, even if it's renamed or deleted later.
         if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
             self.created_by_username = self.created_by.username
         super().save(*args, **kwargs)
+        self._initial_revoked_at = self.revoked_at
+
+    def _validate_revoked(self):
+        if self._initial_revoked_at and not self.revoked_at:
+            raise ValidationError(_("The API token has been revoked, which can't be undone."))
+
+    def is_valid(self, key):
+        """
+        Check if the plain token matches the hashed token.
+
+        If the hashed token uses an outdated hasher, it's updated to use the preferred one.
+        """
+        key_generator = type(self).objects.key_generator
+        valid = key_generator.verify(key, self.hashed_key)
+        if valid and not key_generator.using_preferred_hasher(self.hashed_key):
+            self.hashed_key = key_generator.hash(key)
+            # Only update the hash, using the token shouldn't change its modified date.
+            self.save(update_fields=["hashed_key"])
+        return valid
 
     @property
     def has_expired(self):

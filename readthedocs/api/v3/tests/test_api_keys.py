@@ -1,5 +1,7 @@
 import pytest
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
@@ -166,6 +168,47 @@ class RTDTokenTests(TestCase):
         token.save()
         token.refresh_from_db()
         assert token.revoked_at == revoked_at
+
+    def test_revoked_token_cant_be_restored(self):
+        token, _ = self._create_key()
+        token.revoke()
+
+        token.revoked_at = None
+        with pytest.raises(ValidationError):
+            token.full_clean()
+        with pytest.raises(ValidationError):
+            token.save()
+
+        token = RTDToken.objects.get(pk=token.pk)
+        token.revoked_at = None
+        with pytest.raises(ValidationError):
+            token.save()
+        token.refresh_from_db()
+        assert token.is_revoked
+
+    def test_outdated_hash_is_updated(self):
+        token, key = self._create_key()
+        token.hashed_key = make_password(key)
+        token.save()
+        assert not token.hashed_key.startswith("sha512$$")
+        modified = token.modified
+
+        assert RTDToken.objects.get_from_key(key) == token
+        token.refresh_from_db()
+        assert token.hashed_key.startswith("sha512$$")
+        assert token.modified == modified
+        assert RTDToken.objects.get_from_key(key) == token
+
+    def test_outdated_hash_isnt_updated_with_an_invalid_token(self):
+        token, key = self._create_key()
+        hashed_key = make_password(key)
+        token.hashed_key = hashed_key
+        token.save()
+
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key + "x")
+        token.refresh_from_db()
+        assert token.hashed_key == hashed_key
 
     def test_modified_is_updated_on_save(self):
         token, _ = self._create_key()
