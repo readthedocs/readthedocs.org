@@ -211,9 +211,11 @@ class RTDToken(TimeStampedModel):
 
     def clean(self):
         self._validate_revoked()
+        self._validate_permissions()
 
     def save(self, *args, **kwargs):
         self._validate_revoked()
+        self._validate_permissions()
         # Keep the user that created the token, even if it's renamed or deleted later.
         if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
@@ -256,6 +258,21 @@ class RTDToken(TimeStampedModel):
     def _validate_revoked(self):
         if self._initial_revoked_at and not self.revoked_at:
             raise ValidationError(_("The API token has been revoked, which can't be undone."))
+
+    def _validate_permissions(self):
+        # Permissions are stored in a JSON field, so any JSON value can be saved (e.g. from the admin),
+        # but ``has_permission()`` expects a list of permission names.
+        permissions = self.permissions
+        if (
+            not isinstance(permissions, list)
+            or not permissions
+            or not all(isinstance(permission, str) for permission in permissions)
+        ):
+            raise ValidationError(
+                {"permissions": _("Permissions must be a non-empty list of permission names.")}
+            )
+        if not set(permissions) <= set(ProjectPermission.values):
+            raise ValidationError({"permissions": _("Some of the permissions aren't valid.")})
 
     def is_valid(self, key):
         """

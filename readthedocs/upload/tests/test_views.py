@@ -728,8 +728,9 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_key_without_upload_permission(self):
-        self.project_token.permissions = []
-        self.project_token.save()
+        # Upload is the only permission for now, and tokens without permissions
+        # can't be saved, use an update to simulate a token with other permissions.
+        RTDToken.objects.filter(pk=self.project_token.pk).update(permissions=[])
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 

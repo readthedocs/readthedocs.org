@@ -305,6 +305,44 @@ class RTDTokenTests(TestCase):
         key = message.split(" is: ")[1].split(". ")[0]
         assert RTDToken.objects.get_from_key(key) == token
 
+    def test_invalid_permissions(self):
+        for permissions in [
+            {ProjectPermission.UPLOAD: False},
+            True,
+            ProjectPermission.UPLOAD,
+            [1],
+            [],
+            ["project:unknown"],
+        ]:
+            with pytest.raises(ValidationError):
+                RTDToken.objects.create_key(
+                    name="key",
+                    project=self.project,
+                    permissions=permissions,
+                )
+
+            token = RTDToken(name="key", project=self.project, permissions=permissions)
+            with pytest.raises(ValidationError) as exc:
+                token.full_clean(exclude=["prefix", "hashed_key"])
+            assert "permissions" in exc.value.message_dict
+        assert not RTDToken.objects.exists()
+
+    def test_invalid_permissions_from_admin(self):
+        admin_user = get(User, is_staff=True, is_superuser=True)
+        self.client.force_login(admin_user)
+        response = self.client.post(
+            reverse("admin:v3_rtdtoken_add"),
+            {
+                "name": "admin key",
+                "project": self.project.pk,
+                "description": "",
+                "permissions": '{"project:upload": false}',
+            },
+        )
+        assert response.status_code == 200
+        assert "permissions" in response.context["adminform"].form.errors
+        assert not RTDToken.objects.exists()
+
     def test_revoke_from_admin(self):
         admin_user = get(User, is_staff=True, is_superuser=True)
         self.client.force_login(admin_user)
