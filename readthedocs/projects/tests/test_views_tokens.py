@@ -246,7 +246,7 @@ class ProjectTokenViewsTests(TestCase):
         content = response.content.decode()
         assert "Upload from GitHub Actions" in content
         # Fields that can't be changed are shown as read only.
-        assert f"{token.prefix}.****" in content
+        assert f"{token.prefix}_****" in content
 
     def test_edit_page_revoked_key(self):
         token, _ = self._create_key(revoked_at=timezone.now())
