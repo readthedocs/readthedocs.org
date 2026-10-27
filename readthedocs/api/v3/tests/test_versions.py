@@ -8,8 +8,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, TAG
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_VERSION_SLUG_CHANGED
 
 from .mixins import APIEndpointMixin
 
