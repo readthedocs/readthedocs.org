@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 (
                     "name",
                     models.CharField(
-                        help_text="A name to identify this API key",
+                        help_text="A name to identify this API token",
                         max_length=50,
                         verbose_name="Name",
                     ),
@@ -60,14 +60,14 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         default="",
-                        help_text="What this API key is used for",
+                        help_text="What this API token is used for",
                         max_length=255,
                         verbose_name="Description",
                     ),
                 ),
                 (
                     "permissions",
-                    models.JSONField(help_text="List of permissions granted to this API key"),
+                    models.JSONField(help_text="List of permissions granted to this API token"),
                 ),
                 (
                     "created_by_user_id",
@@ -92,7 +92,7 @@ class Migration(migrations.Migration):
                     "expires_at",
                     models.DateTimeField(
                         blank=True,
-                        help_text="When the API key expires, it can't be used after this date",
+                        help_text="When the API token expires, it can't be used after this date",
                         null=True,
                         verbose_name="Expires at",
                     ),
@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(
                         blank=True,
                         editable=False,
-                        help_text="When the API key was last used",
+                        help_text="When the API token was last used",
                         null=True,
                         verbose_name="Last used",
                     ),
@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
                     models.DateTimeField(
                         blank=True,
                         editable=False,
-                        help_text="When the API key was revoked",
+                        help_text="When the API token was revoked",
                         null=True,
                         verbose_name="Revoked at",
                     ),
@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
                     "created_by",
                     models.ForeignKey(
                         blank=True,
-                        help_text="User that created this API key",
+                        help_text="User that created this API token",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="created_tokens",
@@ -133,7 +133,7 @@ class Migration(migrations.Migration):
                     "project",
                     models.ForeignKey(
                         blank=True,
-                        help_text="Project that this API key grants access to",
+                        help_text="Project that this API token grants access to",
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="tokens",

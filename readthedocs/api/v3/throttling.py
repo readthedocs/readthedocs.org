@@ -4,7 +4,7 @@ from readthedocs.api.v3.models import RTDToken
 
 
 class RTDTokenRateThrottle(SimpleRateThrottle):
-    """Throttle requests authenticated with an API key, per key."""
+    """Throttle requests authenticated with an API token, per token."""
 
     scope = "rtd_token"
 

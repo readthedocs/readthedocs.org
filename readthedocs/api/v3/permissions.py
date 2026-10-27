@@ -62,10 +62,10 @@ class IsOrganizationAdminMember(BasePermission):
 
 class HasTokenPermission(BasePermission):
     """
-    Grant permission if the request was authenticated with an API key that has the required permission.
+    Grant permission if the request was authenticated with an API token that has the required permission.
 
     Views using this permission should define the ``token_permission`` attribute.
-    Checking that the key has access to the object being accessed is up to the view.
+    Checking that the token has access to the object being accessed is up to the view.
     """
 
     # TODO: views can only require a single permission for now.

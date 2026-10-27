@@ -12,7 +12,7 @@ from readthedocs.projects.models import Project
 
 class ProjectPermission(models.TextChoices):
     """
-    Permissions that can be granted to a project scoped API key.
+    Permissions that can be granted to a project scoped API token.
 
     Only upload is supported for now, read and write can be added later.
     """
@@ -22,9 +22,9 @@ class ProjectPermission(models.TextChoices):
 
 class APIKeyScope(StrEnum):
     """
-    Scope that an API key can have.
+    Scope that an API token can have.
 
-    Currently only project scoped keys are supported, but organization and user scoped keys
+    Currently only project scoped tokens are supported, but organization and user scoped tokens
     can be added in the future.
     """
 
@@ -32,26 +32,26 @@ class APIKeyScope(StrEnum):
 
 
 def get_platform_prefix():
-    """Prefix used to identify the platform (Community or Business) a key belongs to."""
+    """Prefix used to identify the platform (Community or Business) a token belongs to."""
     return "rtdcom" if settings.ALLOW_PRIVATE_REPOS else "rtdorg"
 
 
 def get_key_prefix(scope):
     """
-    Return the prefix used to identify the platform and scope of a key.
+    Return the prefix used to identify the platform and scope of a token.
 
-    For example, ``rtdorg_project_`` for a project scoped key in Read the Docs Community.
+    For example, ``rtdorg_project_`` for a project scoped token in Read the Docs Community.
     """
     return f"{get_platform_prefix()}_{scope}_"
 
 
 class RTDTokenGenerator(KeyGenerator):
     """
-    Generate keys prefixed with the platform and scope of the key.
+    Generate tokens prefixed with the platform and scope of the token.
 
-    Keys have the form ``rtdorg_project_<random>_<secret>``.
-    The ``rtdorg_project_<random>`` part is stored as the prefix to look up the key,
-    the full key is hashed.
+    Tokens have the form ``rtdorg_project_<random>_<secret>``.
+    The ``rtdorg_project_<random>`` part is stored as the prefix to look up the token,
+    the full token is hashed.
     The random part and the secret only contain letters and digits,
     so the secret is everything after the last ``_``.
     """
@@ -74,21 +74,21 @@ class RTDTokenManager(models.Manager):
     key_generator = RTDTokenGenerator()
 
     def assign_key(self, obj):
-        """Generate a key for the object, and return the plain key."""
+        """Generate a token for the object, and return the plain token."""
         key, prefix, hashed_key = self.key_generator.generate(scope=obj.scope)
         obj.prefix = prefix
         obj.hashed_key = hashed_key
         return key
 
     def create_key(self, **kwargs):
-        """Create a key, and return a ``(RTDToken, key)`` tuple."""
+        """Create a token, and return a ``(RTDToken, token)`` tuple."""
         obj = self.model(**kwargs)
         key = self.assign_key(obj)
         obj.save()
         return obj, key
 
     def get_scope_from_key(self, key):
-        """Return the scope of the key from its prefix, or ``None`` if it isn't one of our keys."""
+        """Return the scope of the token from its prefix, or ``None`` if it isn't one of our tokens."""
         for scope in APIKeyScope:
             if key.startswith(get_key_prefix(scope)):
                 return scope
@@ -100,34 +100,34 @@ class RTDTokenManager(models.Manager):
 
     def get_from_key(self, key):
         """
-        Return the key object from the plain key.
+        Return the token object from the plain token.
 
-        Raises ``DoesNotExist`` if the key doesn't exist, is revoked, or the secret doesn't match.
+        Raises ``DoesNotExist`` if the token doesn't exist, is revoked, or the secret doesn't match.
         Expiration isn't checked here, so callers can give a better error.
         """
         prefix = self.key_generator.get_prefix_from_key(key)
         obj = self.get_usable_keys().get(prefix=prefix)
         if not self.key_generator.verify(key, obj.hashed_key):
-            raise self.model.DoesNotExist("Key is not valid.")
+            raise self.model.DoesNotExist("Token is not valid.")
         return obj
 
 
 class RTDToken(TimeStampedModel):
     """
-    API key scoped to a project, with a set of permissions.
+    API token scoped to a project, with a set of permissions.
 
-    This is the model for all API keys that users can create,
+    This is the model for all API tokens that users can create,
     other scopes (like organization or user) will be added in the future.
     """
 
-    # Platform and scope part of the key, plus a random part (e.g. ``rtdorg_project_<random>``),
-    # used to look up the key.
+    # Platform and scope part of the token, plus a random part (e.g. ``rtdorg_project_<random>``),
+    # used to look up the token.
     prefix = models.CharField(max_length=32, unique=True, editable=False)
     hashed_key = models.CharField(max_length=150, editable=False)
     name = models.CharField(
         _("Name"),
         max_length=50,
-        help_text=_("A name to identify this API key"),
+        help_text=_("A name to identify this API token"),
     )
     project = models.ForeignKey(
         Project,
@@ -135,17 +135,17 @@ class RTDToken(TimeStampedModel):
         null=True,
         blank=True,
         related_name="tokens",
-        help_text=_("Project that this API key grants access to"),
+        help_text=_("Project that this API token grants access to"),
     )
     description = models.CharField(
         _("Description"),
         max_length=255,
         blank=True,
         default="",
-        help_text=_("What this API key is used for"),
+        help_text=_("What this API token is used for"),
     )
     permissions = models.JSONField(
-        help_text=_("List of permissions granted to this API key"),
+        help_text=_("List of permissions granted to this API token"),
     )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -154,7 +154,7 @@ class RTDToken(TimeStampedModel):
         null=True,
         blank=True,
         related_name="created_tokens",
-        help_text=_("User that created this API key"),
+        help_text=_("User that created this API token"),
     )
     # Extra information in case the user is deleted.
     created_by_user_id = models.PositiveBigIntegerField(
@@ -174,22 +174,22 @@ class RTDToken(TimeStampedModel):
         _("Expires at"),
         null=True,
         blank=True,
-        help_text=_("When the API key expires, it can't be used after this date"),
+        help_text=_("When the API token expires, it can't be used after this date"),
     )
     last_used_at = models.DateTimeField(
         _("Last used"),
         null=True,
         blank=True,
         editable=False,
-        help_text=_("When the API key was last used"),
+        help_text=_("When the API token was last used"),
     )
-    # A revoked key can't be used anymore, this can't be undone.
+    # A revoked token can't be used anymore, this can't be undone.
     revoked_at = models.DateTimeField(
         _("Revoked at"),
         null=True,
         blank=True,
         editable=False,
-        help_text=_("When the API key was revoked"),
+        help_text=_("When the API token was revoked"),
     )
 
     objects = RTDTokenManager()
@@ -203,7 +203,7 @@ class RTDToken(TimeStampedModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        # Keep the user that created the key, even if it's renamed or deleted later.
+        # Keep the user that created the token, even if it's renamed or deleted later.
         if self.created_by and not self.created_by_user_id:
             self.created_by_user_id = self.created_by.pk
             self.created_by_username = self.created_by.username
@@ -224,7 +224,7 @@ class RTDToken(TimeStampedModel):
 
     @property
     def scope(self):
-        # TODO: when adding organization and user scoped keys, return the correct scope here.
+        # TODO: when adding organization and user scoped tokens, return the correct scope here.
         return APIKeyScope.PROJECT
 
     @property
@@ -237,7 +237,7 @@ class RTDToken(TimeStampedModel):
         return permission in self.permissions
 
     def get_permissions_display(self):
-        """Return the human readable names of the permissions of this key."""
+        """Return the human readable names of the permissions of this token."""
         return [
             ProjectPermission(permission).label
             for permission in self.permissions

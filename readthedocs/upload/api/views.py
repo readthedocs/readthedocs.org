@@ -43,7 +43,7 @@ class UploadAPIMixin:
     Authentication and permissions shared by the upload API views.
 
     Requests can be authenticated with a user token,
-    or with a project API key with the ``project:upload`` permission.
+    or with a project API token with the ``project:upload`` permission.
     """
 
     authentication_classes = [RTDTokenAuthentication, TokenAuthentication]
@@ -51,8 +51,8 @@ class UploadAPIMixin:
     token_permission = ProjectPermission.UPLOAD
 
     def get_throttles(self):
-        # Requests authenticated with an API key don't have a user,
-        # throttle them by key instead of as anonymous requests.
+        # Requests authenticated with an API token don't have a user,
+        # throttle them by token instead of as anonymous requests.
         if self._get_token():
             return [RTDTokenRateThrottle()]
         return super().get_throttles()
