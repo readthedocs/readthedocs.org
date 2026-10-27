@@ -450,7 +450,7 @@ class Version(TimeStampedModel):
 
     def notify_slug_changed(self, from_slug):
         """Attach a notification to the project suggesting a redirect from the old slug."""
-        if self.project.versioning_scheme == SINGLE_VERSION_WITHOUT_TRANSLATIONS:
+        if not self.project.supports_multiple_versions:
             return
 
         resolver = Resolver()
@@ -470,8 +470,6 @@ class Version(TimeStampedModel):
             format_values={
                 "from_slug": from_slug,
                 "to_slug": self.slug,
-                "from_url": from_url,
-                "to_url": to_url,
                 "redirect_url": redirect_url,
             },
         )

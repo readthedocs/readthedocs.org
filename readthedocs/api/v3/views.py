@@ -392,7 +392,6 @@ class VersionsViewSet(
         # ``post_save`` trigger a new build under the new slug.
         if version.slug != previous_slug and was_active:
             version.clean_resources(version_slug=previous_slug)
-            version.notify_slug_changed(from_slug=previous_slug)
             was_active = False
 
         version.post_save(was_active=was_active, was_uploaded=was_uploaded)
