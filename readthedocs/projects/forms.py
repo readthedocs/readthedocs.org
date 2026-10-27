@@ -1464,9 +1464,6 @@ class ProjectTokenUpdateForm(forms.ModelForm):
     class Meta:
         model = RTDToken
         fields = ["name", "description", "permissions"]
-        help_texts = {
-            "description": _("Optional. What is this token used for?"),
-        }
 
     def __init__(self, *args, project, **kwargs):
         self.project = project
