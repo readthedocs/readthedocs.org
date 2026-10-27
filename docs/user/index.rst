@@ -54,8 +54,6 @@ Read the Docs: documentation simplified
    /reference/sitemaps
    /reference/404-not-found
    /reference/robots
-   /reference/llms-txt
-   /reference/markdown-for-agents
 
 .. toctree::
    :maxdepth: 2
@@ -73,6 +71,16 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
+   :caption: AI and agents
+
+   /reference/llms-txt
+   /reference/markdown-for-agents
+   /reference/agent-skills
+   /reference/main-content-detection
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
    :caption: Maintaining projects
 
    /user-defined-redirects
@@ -83,8 +91,6 @@ Read the Docs: documentation simplified
    /explanation/documentation-structure
    /guides/best-practice/links
    /security-implications
-   /reference/main-content-detection
-   /reference/agent-skills
    /custom-script
 
 .. toctree::
@@ -216,6 +222,23 @@ Learn more about our hosting features:
 
 :doc:`/custom-domains`
   Brand your documentation on your own domain.
+
+AI and agents
+-------------
+
+Make your documentation easy for AI assistants and coding agents to use:
+
+:doc:`/reference/llms-txt`
+  Serve an ``llms.txt`` file that gives AI models a structured view of your documentation.
+
+:doc:`/reference/markdown-for-agents`
+  Serve Markdown instead of HTML to agents that ask for it, with no configuration.
+
+:doc:`/reference/agent-skills`
+  Give your coding agent skills for the Read the Docs API and configuration file.
+
+:doc:`/reference/main-content-detection`
+  How Read the Docs finds the main content of a page for search, Markdown, and other features.
 
 Maintaining projects
 --------------------
