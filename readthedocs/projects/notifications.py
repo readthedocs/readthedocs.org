@@ -54,6 +54,20 @@ messages = [
         type=ERROR,
     ),
     Message(
+        id=RepositoryError.CLONE_ERROR_WITH_OUTPUT,
+        header=_("Error while cloning the repository"),
+        body=_(
+            textwrap.dedent(
+                """
+            There was a problem cloning your repository before the build could start.
+            Git reported the following error:
+            <pre>{{output}}</pre>
+            """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         header=_("Duplicated reserved versions"),
         body=_(

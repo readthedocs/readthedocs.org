@@ -20,6 +20,7 @@ class RepositoryError(BuildUserError):
 
     CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED = "project:repository:private-clone-error"
     CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED = "project:repository:public-clone-error"
+    CLONE_ERROR_WITH_OUTPUT = "project:repository:clone-error-with-output"
     DUPLICATED_RESERVED_VERSIONS = "project:repository:duplicated-reserved-versions"
     FAILED_TO_CHECKOUT = "project:repository:checkout-failed"
     GENERIC = "project:repository:generic-error"

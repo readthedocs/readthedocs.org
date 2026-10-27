@@ -1,5 +1,7 @@
 from readthedocs.notifications.constants import INFO
 from readthedocs.notifications.messages import Message
+from readthedocs.notifications.messages import registry
+from readthedocs.projects.exceptions import RepositoryError
 
 
 class TestMessage:
@@ -30,3 +32,12 @@ class TestMessage:
 
         assert message.get_rendered_header() == "Missing format value: "
         assert message.get_rendered_body() == "Missing format value: "
+
+    def test_clone_error_shows_the_git_output_escaped(self):
+        message = registry.get(
+            RepositoryError.CLONE_ERROR_WITH_OUTPUT,
+            format_values={"output": "fatal: couldn't find remote ref <pull/13/head>"},
+        )
+
+        body = message.get_rendered_body()
+        assert "<pre>fatal: couldn&#x27;t find remote ref &lt;pull/13/head&gt;</pre>" in body
