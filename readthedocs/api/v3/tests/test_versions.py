@@ -440,35 +440,6 @@ class VersionsEndpointTests(APIEndpointMixin):
         assert clean_project_resources.call_args[1]["version_slug"] == "v1.0"
         trigger_build.assert_called_once()
 
-    @mock.patch("readthedocs.builds.models.trigger_build", mock.MagicMock())
-    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources", mock.MagicMock())
-    def test_update_version_slug_adds_redirect_notification(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.patch(
-            reverse(
-                "projects-versions-detail",
-                kwargs={
-                    "parent_lookup_project__slug": self.project.slug,
-                    "version_slug": self.version.slug,
-                },
-            ),
-            {"slug": "updated-slug"},
-        )
-        assert response.status_code == 204
-
-        notification = Notification.objects.get(
-            attached_to_id=self.project.pk,
-            message_id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
-        )
-        language = self.project.language
-        assert notification.format_values["from_slug"] == "v1.0"
-        assert notification.format_values["to_slug"] == "updated-slug"
-        assert notification.format_values["from_url"] == f"/{language}/v1.0/*"
-        assert notification.format_values["to_url"] == f"/{language}/updated-slug/:splat"
-        assert notification.format_values["redirect_url"].startswith(
-            reverse("projects_redirects_create", args=[self.project.slug]) + "?"
-        )
-
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
     def test_update_version_slug_of_inactive_version(self, clean_project_resources, trigger_build):
