@@ -69,6 +69,17 @@ class BuildCancelled(BuildUserError):
     SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
 
 
+class BuildAlreadyFinished(Exception):
+    """
+    Exception raised when building a build that has already finished.
+
+    Needs to inherit from Exception to avoid the notifications.
+    We don't show any notifications for this exception.
+    """
+
+    pass
+
+
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = "build:user:mkdocs:yaml-parse"
     INVALID_DOCS_DIR_CONFIG = "build:user:mkdocs:invalid-dir-config"
