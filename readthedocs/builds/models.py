@@ -65,7 +65,6 @@ from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.constants import MKDOCS_HTML
 from readthedocs.projects.constants import PRIVACY_CHOICES
 from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.constants import SPHINX
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
