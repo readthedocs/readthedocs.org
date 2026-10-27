@@ -1,5 +1,7 @@
 from datetime import timedelta
+from unittest import mock
 
+import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test import override_settings
@@ -9,6 +11,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDToken
+from readthedocs.projects.forms import ProjectTokenUpdateForm
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
@@ -285,6 +288,32 @@ class ProjectTokenViewsTests(TestCase):
         assert token.description == "New description"
         assert token.expires_at == expires_at
         assert RTDToken.objects.get_from_key(key) == token
+
+    def test_update_doesnt_restore_a_token_revoked_while_saving(self):
+        token, key = self._create_key()
+        url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
+        save = ProjectTokenUpdateForm.save
+
+        def revoke_and_save(form, *args, **kwargs):
+            # Another request revokes the token after the edit view loaded it.
+            RTDToken.objects.get(pk=token.pk).revoke()
+            return save(form, *args, **kwargs)
+
+        with mock.patch.object(ProjectTokenUpdateForm, "save", revoke_and_save):
+            response = self.client.post(
+                url,
+                {
+                    "name": "New name",
+                    "description": "",
+                    "permissions": [ProjectPermission.UPLOAD],
+                },
+            )
+        assert response.status_code == 302
+        token.refresh_from_db()
+        assert token.is_revoked
+        assert token.name == "New name"
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key)
 
     def test_update_form_fields(self):
         token, _ = self._create_key()
