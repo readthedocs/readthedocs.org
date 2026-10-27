@@ -11,7 +11,7 @@ from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v3.authentication import RTDTokenAuthentication
 from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDToken
-from readthedocs.api.v3.permissions import HasTokenPermission
+from readthedocs.api.v3.permissions import HasRTDTokenPermission
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.throttling import RTDTokenRateThrottle
@@ -47,7 +47,7 @@ class UploadAPIMixin:
     """
 
     authentication_classes = [RTDTokenAuthentication, TokenAuthentication]
-    permission_classes = [IsAuthenticated | HasTokenPermission]
+    permission_classes = [IsAuthenticated | HasRTDTokenPermission]
     token_permission = ProjectPermission.UPLOAD
 
     def get_throttles(self):
