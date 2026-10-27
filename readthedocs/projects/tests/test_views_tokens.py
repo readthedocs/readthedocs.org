@@ -52,7 +52,7 @@ class ProjectTokenViewsTests(TestCase):
         assert token.name == "CI"
         assert token.description == "Upload from GitHub Actions"
         assert token.permissions == [ProjectPermission.UPLOAD]
-        assert token.expiry_date.date() == (timezone.now() + timedelta(days=30)).date()
+        assert token.expires_at.date() == (timezone.now() + timedelta(days=30)).date()
         assert token.created_by == self.user
 
         # The key is shown once.
@@ -157,7 +157,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 302
         token = RTDToken.objects.get(project=self.project)
-        assert token.expiry_date is None
+        assert token.expires_at is None
 
     def test_create_with_custom_expiration(self):
         expiration_date = timezone.now().date() + timedelta(days=10)
@@ -172,8 +172,8 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 302
         token = RTDToken.objects.get(project=self.project)
-        assert token.expiry_date.date() == expiration_date
-        assert token.expiry_date > timezone.now() + timedelta(days=10)
+        assert token.expires_at.date() == expiration_date
+        assert token.expires_at > timezone.now() + timedelta(days=10)
 
     def test_create_with_custom_expiration_requires_a_date(self):
         response = self.client.post(
@@ -213,13 +213,13 @@ class ProjectTokenViewsTests(TestCase):
         assert RTDToken.objects.filter(project=self.project).count() == 1
 
     def test_create_with_name_of_revoked_key(self):
-        self._create_key(revoked=True)
+        self._create_key(revoked_at=timezone.now())
         response = self.client.post(
             self.create_url,
             {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
         )
         assert response.status_code == 302
-        assert RTDToken.objects.filter(project=self.project, revoked=False).count() == 1
+        assert RTDToken.objects.filter(project=self.project, revoked_at__isnull=True).count() == 1
 
     def test_create_requires_a_permission(self):
         response = self.client.post(
@@ -232,7 +232,7 @@ class ProjectTokenViewsTests(TestCase):
 
     def test_list_excludes_revoked_keys(self):
         token, _ = self._create_key()
-        self._create_key(revoked=True)
+        self._create_key(revoked_at=timezone.now())
         response = self.client.get(self.list_url)
         assert list(response.context["object_list"]) == [token]
 
@@ -249,7 +249,7 @@ class ProjectTokenViewsTests(TestCase):
         assert f"{token.prefix}.****" in content
 
     def test_edit_page_revoked_key(self):
-        token, _ = self._create_key(revoked=True)
+        token, _ = self._create_key(revoked_at=timezone.now())
         response = self.client.get(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
         )
@@ -263,8 +263,8 @@ class ProjectTokenViewsTests(TestCase):
         assert reverse("projects_tokens_edit", args=[self.project.slug, token.pk]) in content
 
     def test_update(self):
-        token, key = self._create_key(expiry_date=timezone.now() + timedelta(days=7))
-        expiry_date = token.expiry_date
+        token, key = self._create_key(expires_at=timezone.now() + timedelta(days=7))
+        expires_at = token.expires_at
         url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
         response = self.client.post(
             url,
@@ -283,7 +283,7 @@ class ProjectTokenViewsTests(TestCase):
         token.refresh_from_db()
         assert token.name == "New name"
         assert token.description == "New description"
-        assert token.expiry_date == expiry_date
+        assert token.expires_at == expires_at
         assert RTDToken.objects.get_from_key(key) == token
 
     def test_update_form_fields(self):
@@ -334,7 +334,7 @@ class ProjectTokenViewsTests(TestCase):
         assert token.name == "key"
 
     def test_expired_key(self):
-        token, _ = self._create_key(expiry_date=timezone.now() - timedelta(days=1))
+        token, _ = self._create_key(expires_at=timezone.now() - timedelta(days=1))
         response = self.client.get(self.list_url)
         assert "This token has expired" in response.content.decode()
         response = self.client.get(
@@ -349,8 +349,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 302
         token.refresh_from_db()
-        assert token.revoked
-        assert token.revoked_at is not None
+        assert token.is_revoked
 
     def test_delete_key_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
@@ -364,7 +363,7 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 404
         token.refresh_from_db()
-        assert not token.revoked
+        assert not token.is_revoked
 
     def test_feature_flag_required(self):
         self.feature.projects.remove(self.project)
