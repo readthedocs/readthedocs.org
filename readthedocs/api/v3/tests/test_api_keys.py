@@ -1,7 +1,10 @@
 import pytest
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test import override_settings
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.api.v3.authentication import RTDTokenAuthentication
@@ -26,13 +29,27 @@ class RTDTokenTests(TestCase):
     def test_community_key_prefix(self):
         token, key = self._create_key()
         assert token.prefix.startswith("rtdorg_project_")
-        assert key.startswith(f"{token.prefix}.")
+        assert key.startswith(f"{token.prefix}_")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_business_key_prefix(self):
         token, key = self._create_key()
         assert token.prefix.startswith("rtdcom_project_")
-        assert key.startswith(f"{token.prefix}.")
+        assert key.startswith(f"{token.prefix}_")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_key_format(self):
+        token, key = self._create_key()
+        platform, scope, random, secret = key.split("_")
+        assert platform == "rtdorg"
+        assert scope == "project"
+        assert token.prefix == f"{platform}_{scope}_{random}"
+        assert len(secret) == 32
+
+    def test_get_from_key_with_dot_separator(self):
+        token, key = self._create_key()
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(f"{token.prefix}.{key.rpartition('_')[2]}")
 
     def test_pk_doesnt_include_the_hashed_key(self):
         token, _ = self._create_key()
@@ -68,8 +85,7 @@ class RTDTokenTests(TestCase):
 
     def test_get_from_key_revoked(self):
         token, key = self._create_key()
-        token.revoked = True
-        token.save()
+        token.revoke()
         with pytest.raises(RTDToken.DoesNotExist):
             RTDToken.objects.get_from_key(key)
 
@@ -142,8 +158,7 @@ class RTDTokenTests(TestCase):
         token, _ = self._create_key()
         assert token.revoked_at is None
 
-        token.revoked = True
-        token.save()
+        token.revoke()
         token.refresh_from_db()
         revoked_at = token.revoked_at
         assert revoked_at is not None
@@ -154,6 +169,47 @@ class RTDTokenTests(TestCase):
         token.refresh_from_db()
         assert token.revoked_at == revoked_at
 
+    def test_revoked_token_cant_be_restored(self):
+        token, _ = self._create_key()
+        token.revoke()
+
+        token.revoked_at = None
+        with pytest.raises(ValidationError):
+            token.full_clean()
+        with pytest.raises(ValidationError):
+            token.save()
+
+        token = RTDToken.objects.get(pk=token.pk)
+        token.revoked_at = None
+        with pytest.raises(ValidationError):
+            token.save()
+        token.refresh_from_db()
+        assert token.is_revoked
+
+    def test_outdated_hash_is_updated(self):
+        token, key = self._create_key()
+        token.hashed_key = make_password(key)
+        token.save()
+        assert not token.hashed_key.startswith("sha512$$")
+        modified = token.modified
+
+        assert RTDToken.objects.get_from_key(key) == token
+        token.refresh_from_db()
+        assert token.hashed_key.startswith("sha512$$")
+        assert token.modified == modified
+        assert RTDToken.objects.get_from_key(key) == token
+
+    def test_outdated_hash_isnt_updated_with_an_invalid_token(self):
+        token, key = self._create_key()
+        hashed_key = make_password(key)
+        token.hashed_key = hashed_key
+        token.save()
+
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key + "x")
+        token.refresh_from_db()
+        assert token.hashed_key == hashed_key
+
     def test_modified_is_updated_on_save(self):
         token, _ = self._create_key()
         modified = token.modified
@@ -163,3 +219,38 @@ class RTDTokenTests(TestCase):
         token.save()
         token.refresh_from_db()
         assert token.modified > modified
+
+    def test_create_from_admin(self):
+        admin_user = get(User, is_staff=True, is_superuser=True)
+        self.client.force_login(admin_user)
+        response = self.client.post(
+            reverse("admin:v3_rtdtoken_add"),
+            {
+                "name": "admin key",
+                "project": self.project.pk,
+                "description": "",
+                "permissions": '["project:upload"]',
+            },
+            follow=True,
+        )
+        assert response.status_code == 200
+        token = RTDToken.objects.get(name="admin key")
+        assert token.created_by == admin_user
+
+        # The key is shown once in a message.
+        [message] = [str(m) for m in response.context["messages"] if " is: " in str(m)]
+        key = message.split(" is: ")[1].split(". ")[0]
+        assert RTDToken.objects.get_from_key(key) == token
+
+    def test_revoke_from_admin(self):
+        admin_user = get(User, is_staff=True, is_superuser=True)
+        self.client.force_login(admin_user)
+        token, key = self._create_key()
+        self.client.post(
+            reverse("admin:v3_rtdtoken_changelist"),
+            {"action": "revoke", "_selected_action": [token.pk]},
+        )
+        token.refresh_from_db()
+        assert token.is_revoked
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key)
