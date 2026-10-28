@@ -473,9 +473,13 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(27):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
+
+    def test_dashboard_example_projects_announcement(self):
+        r = self.client.get(reverse("projects_dashboard"))
+        assert r.context["announcement"] == "projects/partials/announcements/example-projects.html"
 
     @override_settings(RTD_BLOG_FEED_URL="https://blog.example.com/atom.xml")
     @requests_mock.Mocker()

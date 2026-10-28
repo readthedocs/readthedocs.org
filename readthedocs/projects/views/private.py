@@ -36,6 +36,7 @@ from readthedocs.core.mixins import DeleteViewWithMessage
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.blog import get_blog_posts
 from readthedocs.core.utils.objects import cached_method
@@ -109,6 +110,13 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
         context["project_list"] = self.get_filtered_queryset()
         # Alternatively, dynamically override super()-derived `project_list` context_data
         # context[self.get_context_object_name(filter.qs)] = filter.qs
+
+        projects = AdminPermission.projects(user=self.request.user, admin=True)
+        n_projects = projects.count()
+        if n_projects == 0 or (
+            n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
+        ):
+            context["announcement"] = "projects/partials/announcements/example-projects.html"
 
         context["blog_posts"] = get_blog_posts()
 
