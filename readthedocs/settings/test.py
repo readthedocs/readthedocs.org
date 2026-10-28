@@ -30,6 +30,8 @@ class CommunityTestSettings(CommunityBaseSettings):
     # enables them explicitly.
     RTD_BUILD_ISOLATED_ASG_NAME = None
 
+    RTD_BLOG_FEED_URL = None
+
     # Skip automatic detection of Docker limits for testing
     BUILD_TIME_LIMIT = 600
     BUILD_MEMORY_LIMIT = "200m"
