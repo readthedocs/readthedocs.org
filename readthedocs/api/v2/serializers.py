@@ -7,6 +7,8 @@ from generic_relations.relations import GenericRelatedField
 from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.constants import BUILD_STATE_ORDER
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
@@ -282,6 +284,19 @@ class BuildAdminSerializer(BuildSerializer):
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
         # See https://github.com/readthedocs/readthedocs.org/issues/12474
         exclude = ("healthcheck",)
+
+    def validate_state(self, value):
+        """Only allow the state to move forward."""
+        current = self.instance.state if self.instance else None
+        if current is None or current == value:
+            return value
+        if current in BUILD_FINAL_STATES:
+            raise serializers.ValidationError(f"Build is already {current}.")
+        if value not in BUILD_FINAL_STATES and BUILD_STATE_ORDER.index(
+            value
+        ) < BUILD_STATE_ORDER.index(current):
+            raise serializers.ValidationError(f"Build can't go back from {current} to {value}.")
+        return value
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):

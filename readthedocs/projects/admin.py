@@ -14,6 +14,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.core.admin import ReadOnlyInlineMixin
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.utils import trigger_build
@@ -35,21 +36,6 @@ from .models import WebHook
 from .models import WebHookEvent
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
-
-
-class ReadOnlyInlineMixin:
-    """Make admin inlines read-only."""
-
-    show_change_link = True
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 class ProjectRelationshipInline(admin.TabularInline):

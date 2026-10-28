@@ -639,6 +639,16 @@ class CommunityBaseSettings(Settings):
     RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
 
+    # Auto Scaling group of the build-isolated fleet. A periodic task raises its
+    # desired capacity to dispatched builds + BUFFER.
+    RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
+    RTD_BUILD_ISOLATED_BUFFER = 20
+
+    # ``scalein`` IAM user used for Auto Scaling calls on behalf of builders.
+    RTD_AWS_SCALE_IN_ACCESS_KEY = None
+    RTD_AWS_SCALE_IN_SECRET_ACCESS_KEY = None
+    RTD_AWS_SCALE_IN_REGION_NAME = None
+
     @property
     def BUILD_MEMORY_LIMIT(self):
         """
@@ -789,6 +799,11 @@ class CommunityBaseSettings(Settings):
             "schedule": crontab(minute=22, hour="*"),
             "options": {"queue": "web"},
             "kwargs": {"days": 365 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 2_500},
+        },
+        "every-5s-build-isolated-desired-capacity": {
+            "task": "readthedocs.builds.tasks.set_build_isolated_desired_capacity",
+            "schedule": timedelta(seconds=5),
+            "options": {"queue": "autoscaling", "expires": 5},
         },
     }
 
@@ -1033,6 +1048,12 @@ class CommunityBaseSettings(Settings):
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
+    # Don't connect django-elasticsearch-dsl's receivers to every model's signals.
+    # All our documents use ``ignore_signals = True`` and have no related models,
+    # so its receivers are no-ops; we index from our own receivers
+    # (``readthedocs.search.signals``) and tasks instead.
+    # Receivers without a sender also disable Django's fast delete for every model.
+    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.BaseSignalProcessor"
 
     ALLOWED_HOSTS = ["*"]
 

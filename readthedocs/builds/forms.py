@@ -105,7 +105,7 @@ class VersionForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data["slug"]
-        validate_version_slug(slug, self.instance)
+        validate_version_slug(slug, self.instance, link_to_existing=True)
         return slug
 
     def clean_project(self):
@@ -118,6 +118,7 @@ class VersionForm(forms.ModelForm):
         # as all resources are associated with that slug.
         if "slug" in self.changed_data and self._was_active:
             self.instance.clean_resources(version_slug=self._previous_slug)
+            self.instance.notify_slug_changed(from_slug=self._previous_slug)
             # We need to set the flag to False,
             # so the post_save method triggers a new build.
             self._was_active = False
