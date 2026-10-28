@@ -1,8 +1,11 @@
 # Build Read the Docs for Anthropic's OSS Scanner.
+# Based on https://github.com/anthropics/oss-scanner/blob/main/templates/Dockerfile.
 # The scanner uses the repository root as the build context and audits /src offline, so everything the
 # tests need is installed here. This mirrors the "tests" job in .circleci/config.yml and the py314 env in tox.ini.
 FROM python:3.14-bookworm
 
+# Run RUN steps with bash instead of the default /bin/sh (dash on Debian),
+# with pipefail so a failing command inside a pipe fails the build (no RUN uses a pipe yet).
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -29,13 +32,11 @@ RUN uv venv /opt/venv --python python3.14 \
 ENV VIRTUAL_ENV=/opt/venv \
     PATH=/opt/venv/bin:$PATH \
     PYTHONPATH=/src/readthedocs:/src \
-    DJANGO_SETTINGS_MODULE=readthedocs.settings.test \
-    DJANGO_SETTINGS_SKIP_LOCAL=True
+    DJANGO_SETTINGS_MODULE=readthedocs.settings.test
 
 # Run a quick slice of the suite so the image is known to work; a failing test must not abort the build.
 # Tests use SQLite and eager Celery, so no database, Redis or Elasticsearch is needed (search tests are excluded).
 # Full suite:   pytest --pyargs readthedocs -m "not search and not proxito and not embed_api" --nomigrations
 # Proxito:      pytest --ds=readthedocs.settings.proxito.test --pyargs readthedocs -m "proxito and not search" --nomigrations
 RUN pytest --pyargs readthedocs.api readthedocs.oauth -m "not search and not proxito and not embed_api" \
-      --nomigrations -q -p no:cacheprovider --suppress-no-test-exit-code \
     || echo "WARNING: pytest reported failures"
