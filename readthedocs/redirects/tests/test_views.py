@@ -318,6 +318,42 @@ class TestViews(TestCase):
         )
         self.assertEqual(resp.status_code, 302)
 
+    def test_create_redirect_prefilled_from_query_params(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(
+            url,
+            {
+                "redirect_type": EXACT_REDIRECT,
+                "from_url": "/en/old-slug/*",
+                "to_url": "/en/new-slug/:splat",
+                "http_status": 301,
+                "description": "Version slug changed",
+                "force": "true",
+                "unknown": "ignored",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        initial = resp.context["form"].initial
+        self.assertEqual(initial["redirect_type"], EXACT_REDIRECT)
+        self.assertEqual(initial["from_url"], "/en/old-slug/*")
+        self.assertEqual(initial["to_url"], "/en/new-slug/:splat")
+        self.assertEqual(initial["http_status"], "301")
+        self.assertEqual(initial["description"], "Version slug changed")
+        self.assertIs(initial["force"], True)
+        self.assertNotIn("unknown", initial)
+
+    def test_create_redirect_without_query_params(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["form"].initial, {})
+
+    def test_create_redirect_prefilled_force_false(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(url, {"force": "false"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertIs(resp.context["form"].initial["force"], False)
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestViewsWithOrganizations(TestViews):

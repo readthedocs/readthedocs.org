@@ -105,7 +105,7 @@ and it generates a ``requirements.txt`` file with the full set of transitive dep
           # via sphinx
       babel==2.11.0
           # via sphinx
-      certifi==2022.12.7
+      certifi==2026.10.19
           # via requests
       charset-normalizer==2.1.1
           # via requests

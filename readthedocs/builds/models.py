@@ -49,6 +49,7 @@ from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.builds.utils import get_vcs_url
 from readthedocs.builds.version_slug import generate_unique_version_slug
 from readthedocs.builds.version_slug import version_slug_validator
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
@@ -69,8 +70,11 @@ from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_VERSION_SLUG_CHANGED
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import SPLAT_PLACEHOLDER
 from readthedocs.storage import build_commands_storage
 from readthedocs.storage import build_media_storage
 
@@ -442,6 +446,32 @@ class Version(TimeStampedModel):
         self.built = False
         self.save()
         self.purge_cdn(version_slug=version_slug)
+
+    def notify_slug_changed(self, from_slug):
+        """Attach a notification to the project suggesting a redirect from the old slug."""
+        if not self.project.supports_multiple_versions:
+            return
+
+        resolver = Resolver()
+        from_url = resolver.resolve_path(self.project, version_slug=from_slug) + "*"
+        to_url = resolver.resolve_path(self.project, version_slug=self.slug) + SPLAT_PLACEHOLDER
+        query = {
+            "redirect_type": EXACT_REDIRECT,
+            "from_url": from_url,
+            "to_url": to_url,
+            "http_status": 301,
+        }
+        redirect_url = reverse("projects_redirects_create", args=[self.project.slug], query=query)
+        Notification.objects.add(
+            attached_to=self.project,
+            message_id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
+            dismissable=True,
+            format_values={
+                "from_slug": from_slug,
+                "to_slug": self.slug,
+                "redirect_url": redirect_url,
+            },
+        )
 
     def save(self, *args, **kwargs):
         if not self.slug:
