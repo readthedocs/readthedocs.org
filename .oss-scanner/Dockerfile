@@ -22,10 +22,12 @@ RUN pip install --no-cache-dir uv
 COPY . /src
 WORKDIR /src
 
-# Same dependencies as tox.ini's testenv, installed into /opt/venv.
+# Same dependencies as tox.ini's testenv, plus sphinxcontrib-bibtex for the embed API tests (tox.embedapi.ini),
+# installed into /opt/venv.
 RUN uv venv /opt/venv --python python3.14 \
     && VIRTUAL_ENV=/opt/venv uv pip install \
       -r requirements/testing.txt \
+      sphinxcontrib-bibtex \
       "readthedocsext-theme@git+https://github.com/readthedocs/ext-theme.git@main"
 
 # Same environment as tox.ini, so `pytest` works directly from /src.
