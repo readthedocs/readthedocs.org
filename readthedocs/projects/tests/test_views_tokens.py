@@ -1,0 +1,421 @@
+from datetime import timedelta
+from unittest import mock
+
+import pytest
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test import override_settings
+from django.urls import reverse
+from django.utils import timezone
+from django_dynamic_fixture import get
+
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDToken
+from readthedocs.projects.forms import ProjectTokenUpdateForm
+from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Project
+
+
+class ProjectTokenViewsTests(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user])
+        self.feature = get(
+            Feature,
+            feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+            projects=[self.project],
+        )
+        self.client.force_login(self.user)
+        self.list_url = reverse("projects_tokens", args=[self.project.slug])
+        self.create_url = reverse("projects_tokens_create", args=[self.project.slug])
+
+    def _create_key(self, **kwargs):
+        return RTDToken.objects.create_key(
+            name="key",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+            **kwargs,
+        )
+
+    def test_create(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "description": "Upload from GitHub Actions",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "30",
+            },
+        )
+        assert response.status_code == 302
+        redirect_url = response["Location"]
+
+        token = RTDToken.objects.get(project=self.project)
+        assert redirect_url == reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
+        assert token.name == "CI"
+        assert token.description == "Upload from GitHub Actions"
+        assert token.permissions == [ProjectPermission.UPLOAD]
+        assert token.expires_at.date() == (timezone.now() + timedelta(days=30)).date()
+        assert token.created_by == self.user
+
+        # The key is shown once.
+        response = self.client.get(redirect_url)
+        key = response.context["created_token"]
+        assert RTDToken.objects.get_from_key(key) == token
+        assert key in response.content.decode()
+        response = self.client.get(redirect_url)
+        assert response.context["created_token"] is None
+        assert key not in response.content.decode()
+
+    def test_created_token_is_only_shown_in_the_same_session(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "30",
+            },
+        )
+        assert response.status_code == 302
+        redirect_url = response["Location"]
+
+        # Same user in another session.
+        other_client = self.client_class()
+        other_client.force_login(self.user)
+        response = other_client.get(redirect_url)
+        assert response.context["created_token"] is None
+
+        # Another admin of the project.
+        other_user = get(User)
+        self.project.users.add(other_user)
+        other_client = self.client_class()
+        other_client.force_login(other_user)
+        response = other_client.get(redirect_url)
+        assert response.context["created_token"] is None
+
+        # The edit page of another key.
+        other_token, _ = RTDToken.objects.create_key(
+            name="other",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, other_token.pk])
+        )
+        assert response.context["created_token"] is None
+
+        response = self.client.get(redirect_url)
+        assert response.context["created_token"] is not None
+
+    def test_create_several_tokens_before_following_the_redirects(self):
+        redirect_urls = []
+        for name in ["first", "second"]:
+            response = self.client.post(
+                self.create_url,
+                {
+                    "name": name,
+                    "permissions": [ProjectPermission.UPLOAD],
+                    "expires_in": "30",
+                },
+            )
+            assert response.status_code == 302
+            redirect_urls.append(response["Location"])
+        assert redirect_urls[0] != redirect_urls[1]
+
+        # Each redirect shows its own key.
+        for name, redirect_url in zip(["first", "second"], redirect_urls):
+            response = self.client.get(redirect_url)
+            key = response.context["created_token"]
+            assert RTDToken.objects.get_from_key(key).name == name
+
+    @override_settings(SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies")
+    def test_created_token_with_signed_cookie_sessions(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "30",
+            },
+        )
+        assert response.status_code == 302
+        redirect_url = response["Location"]
+
+        token = RTDToken.objects.get(project=self.project)
+        response = self.client.get(redirect_url)
+        key = response.context["created_token"]
+        assert RTDToken.objects.get_from_key(key) == token
+        response = self.client.get(redirect_url)
+        assert response.context["created_token"] is None
+
+    def test_create_without_expiration(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "never",
+            },
+        )
+        assert response.status_code == 302
+        token = RTDToken.objects.get(project=self.project)
+        assert token.expires_at is None
+
+    def test_create_with_custom_expiration(self):
+        expiration_date = timezone.now().date() + timedelta(days=10)
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+                "expiration_date": expiration_date.isoformat(),
+            },
+        )
+        assert response.status_code == 302
+        token = RTDToken.objects.get(project=self.project)
+        assert token.expires_at.date() == expiration_date
+        assert token.expires_at > timezone.now() + timedelta(days=10)
+
+    def test_create_with_custom_expiration_requires_a_date(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+            },
+        )
+        assert response.status_code == 200
+        assert "expiration_date" in response.context["form"].errors
+        assert not RTDToken.objects.exists()
+
+    def test_create_with_custom_expiration_today(self):
+        response = self.client.post(
+            self.create_url,
+            {
+                "name": "CI",
+                "permissions": [ProjectPermission.UPLOAD],
+                "expires_in": "custom",
+                "expiration_date": timezone.now().date().isoformat(),
+            },
+        )
+        assert response.status_code == 200
+        assert "expiration_date" in response.context["form"].errors
+        assert not RTDToken.objects.exists()
+
+    def test_create_with_existing_name(self):
+        self._create_key()
+        response = self.client.post(
+            self.create_url,
+            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+        )
+        assert response.status_code == 200
+        assert "name" in response.context["form"].errors
+        assert RTDToken.objects.filter(project=self.project).count() == 1
+
+    def test_create_with_name_of_revoked_key(self):
+        self._create_key(revoked_at=timezone.now())
+        response = self.client.post(
+            self.create_url,
+            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+        )
+        assert response.status_code == 302
+        assert RTDToken.objects.filter(project=self.project, revoked_at__isnull=True).count() == 1
+
+    def test_create_requires_a_permission(self):
+        response = self.client.post(
+            self.create_url,
+            {"name": "CI", "permissions": [], "expires_in": "30"},
+        )
+        assert response.status_code == 200
+        assert "permissions" in response.context["form"].errors
+        assert not RTDToken.objects.exists()
+
+    def test_list_excludes_revoked_keys(self):
+        token, _ = self._create_key()
+        self._create_key(revoked_at=timezone.now())
+        response = self.client.get(self.list_url)
+        assert list(response.context["object_list"]) == [token]
+
+    def test_edit_page(self):
+        token, _ = self._create_key(description="Upload from GitHub Actions")
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+        )
+        assert response.status_code == 200
+        assert response.context["object"] == token
+        content = response.content.decode()
+        assert "Upload from GitHub Actions" in content
+        # Fields that can't be changed are shown as read only.
+        assert f"{token.prefix}_****" in content
+
+    def test_edit_page_revoked_key(self):
+        token, _ = self._create_key(revoked_at=timezone.now())
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+        )
+        assert response.status_code == 404
+
+    def test_list_doesnt_show_description(self):
+        token, _ = self._create_key(description="Upload from GitHub Actions")
+        response = self.client.get(self.list_url)
+        content = response.content.decode()
+        assert "Upload from GitHub Actions" not in content
+        assert reverse("projects_tokens_edit", args=[self.project.slug, token.pk]) in content
+
+    def test_update(self):
+        token, key = self._create_key(expires_at=timezone.now() + timedelta(days=7))
+        expires_at = token.expires_at
+        url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
+        response = self.client.post(
+            url,
+            {
+                "name": "New name",
+                "description": "New description",
+                "permissions": [ProjectPermission.UPLOAD],
+                # Not part of the update form, ignored.
+                "expires_in": "never",
+            },
+        )
+        assert response.status_code == 302
+        assert response["Location"] == reverse(
+            "projects_tokens_edit", args=[self.project.slug, token.pk]
+        )
+        token.refresh_from_db()
+        assert token.name == "New name"
+        assert token.description == "New description"
+        assert token.expires_at == expires_at
+        assert RTDToken.objects.get_from_key(key) == token
+
+    def test_update_doesnt_restore_a_token_revoked_while_saving(self):
+        token, key = self._create_key()
+        url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
+        save = ProjectTokenUpdateForm.save
+
+        def revoke_and_save(form, *args, **kwargs):
+            # Another request revokes the token after the edit view loaded it.
+            RTDToken.objects.get(pk=token.pk).revoke()
+            return save(form, *args, **kwargs)
+
+        with mock.patch.object(ProjectTokenUpdateForm, "save", revoke_and_save):
+            response = self.client.post(
+                url,
+                {
+                    "name": "New name",
+                    "description": "",
+                    "permissions": [ProjectPermission.UPLOAD],
+                },
+            )
+        assert response.status_code == 302
+        token.refresh_from_db()
+        assert token.is_revoked
+        assert token.name == "New name"
+        with pytest.raises(RTDToken.DoesNotExist):
+            RTDToken.objects.get_from_key(key)
+
+    def test_update_form_fields(self):
+        token, _ = self._create_key()
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+        )
+        assert response.status_code == 200
+        assert list(response.context["form"].fields) == ["name", "description", "permissions"]
+
+    def test_update_keeps_its_own_name(self):
+        token, _ = self._create_key()
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 302
+
+    def test_update_with_existing_name(self):
+        self._create_key()
+        token, _ = RTDToken.objects.create_key(
+            name="other",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 200
+        assert "name" in response.context["form"].errors
+        token.refresh_from_db()
+        assert token.name == "other"
+
+    def test_update_key_from_another_project(self):
+        other_project = get(Project, slug="other", users=[self.user])
+        token, _ = RTDToken.objects.create_key(
+            name="key",
+            project=other_project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        response = self.client.post(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+            {"name": "New name", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+        )
+        assert response.status_code == 404
+        token.refresh_from_db()
+        assert token.name == "key"
+
+    def test_expired_key(self):
+        token, _ = self._create_key(expires_at=timezone.now() - timedelta(days=1))
+        response = self.client.get(self.list_url)
+        assert "This token has expired" in response.content.decode()
+        response = self.client.get(
+            reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
+        )
+        assert "This token has expired" in response.content.decode()
+
+    def test_delete(self):
+        token, _ = self._create_key()
+        response = self.client.post(
+            reverse("projects_tokens_delete", args=[self.project.slug, token.pk]),
+        )
+        assert response.status_code == 302
+        token.refresh_from_db()
+        assert token.is_revoked
+
+    def test_delete_key_from_another_project(self):
+        other_project = get(Project, slug="other", users=[self.user])
+        token, _ = RTDToken.objects.create_key(
+            name="key",
+            project=other_project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        response = self.client.post(
+            reverse("projects_tokens_delete", args=[self.project.slug, token.pk]),
+        )
+        assert response.status_code == 404
+        token.refresh_from_db()
+        assert not token.is_revoked
+
+    def test_feature_flag_required(self):
+        self.feature.projects.remove(self.project)
+        assert self.client.get(self.list_url).status_code == 404
+        assert self.client.get(self.create_url).status_code == 404
+
+    def test_direct_upload_project_without_feature_flag(self):
+        self.feature.projects.remove(self.project)
+        self.project.is_direct_upload = True
+        self.project.save()
+        assert self.client.get(self.list_url).status_code == 200
+        assert self.client.get(self.create_url).status_code == 200
+
+    def test_non_admin_user(self):
+        self.client.force_login(get(User))
+        assert self.client.get(self.list_url).status_code == 404
+
+    def test_sidebar_link(self):
+        edit_url = reverse("projects_edit", args=[self.project.slug])
+        assert not self.project.is_direct_upload
+        response = self.client.get(edit_url)
+        assert self.list_url in response.content.decode()
+
+        self.feature.projects.remove(self.project)
+        response = self.client.get(edit_url)
+        assert self.list_url not in response.content.decode()
