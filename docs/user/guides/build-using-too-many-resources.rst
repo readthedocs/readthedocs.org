@@ -54,3 +54,13 @@ Requests more resources
 If you still have problems building your documentation,
 we can increase build limits on a per-project basis,
 sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
+
+Using sphinx-autoapi to avoid installing dependencies
+------------------------------------------------------
+
+If your project fails due to memory or timeout issues, consider using
+`sphinx-autoapi`_ instead of ``autodoc``. It generates API documentation
+by statically analyzing your source code without importing it, which avoids
+installation and import overhead entirely.
+
+.. _sphinx-autoapi: https://sphinx-autoapi.readthedocs.io/
