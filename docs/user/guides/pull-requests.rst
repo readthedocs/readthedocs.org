@@ -68,49 +68,43 @@ Privacy levels work the same way as :ref:`normal versions <versions:Version stat
 Limitations
 -----------
 
-- Pull requests are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
+- Pull request builds are only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
 - To enable this feature, your Read the Docs project needs to be connected to a repository from a supported Git provider.
-- If your project is using our :ref:`reference/git-integration:GitHub App`, you don't need to configure a webhook.
-  For GitLab, and projects using our old GitHub integration, you need to make sure that your webhook is configured to send pull request events, not just push events.
+- If your project is using our :doc:`/projects/integrations/github-app` integration, you don't need to configure a webhook.
+  For GitLab, and projects using the :ref:`projects/integrations/webhook:Github incoming webhook` integration,
+  you may need to make sure that your webhook is configured to send pull request events, not just push events.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF aren't built in order to reduce build time.
 - Read the Docs doesn't index search on pull request builds. This means that Addons search and the Read the Docs Search API will return no results.
 - The built documentation is kept for 90 days after the pull request has been closed or merged.
-- The build overview comment is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
+- The build overview comment is only available for projects connected to a :doc:`/projects/integrations/github-app` integration.
 
 Troubleshooting
 ---------------
 
 No new builds are started when I open a pull request
-   The most common cause when using GitHub is that your Read the Docs project is not
-   :ref:`connected to the corresponding repository on GitHub <reference/git-integration:Connect a repository to an existing project>`.
+   When this happens, this usually indicates there is a problem with the project integration.
+   Some of the following steps may help.
 
-   If you are using our old GitHub integration,
-   make sure that your repository's webhook is configured to
-   send pull request events. You can re-sync your project's
-   webhook integration to reconfigure the Read the Docs webhook.
+   .. TODO link this to a connected repository page when it exists instead. We
+      don't have a good explanation of this anywhere yet.
 
-   To re-sync your project's webhook, go to your project's admin dashboard,
-   :guilabel:`Integrations`, and then select the webhook integration for your
-   provider. Follow the directions to re-sync the webhook, or create a new
-   webhook integration.
-
-   You may also notice this behavior if your Read the Docs account is not
-   connected to your Git provider account, or if it needs to be reconnected.
-   You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
-   :guilabel:`Settings`, then to :guilabel:`Connected Services`.
+   - Ensure the project is connected to your provider through either a :doc:`/projects/integrations/github-app`
+     or :doc:`webhook </projects/integrations/webhook>` integration.
+   - Ensure the project repository is using a connected repository to the correct repository.
+   - Projects using the :doc:`GitHub or GitLab webhook integration </projects/integrations/webhook>`
+     may need to update their integration and webhook.
+     You can try :ref:`repairing the webhook scopes <projects/integrations/guides/troubleshooting-webhooks:Repairing webhook scopes>`.
+   - Your connected service account is disconnected or needs to be repaired.
 
 Build status is not being reported to your Git provider
-   If opening a pull request does start a new build, but the build status is not
-   being updated with your Git provider, then your connected account may have out
-   dated or insufficient permissions.
-
-   Make sure that you have granted access to the Read the Docs `GitHub OAuth App`_ for
-   your personal or organization GitHub account.
+   When a pull request build for your project starts,
+   but the build status in the pull request is never updated,
+   this usually indicates a :ref:`a general problem with the repository webhook <projects/integrations/guides/troubleshooting-webhooks:Build status is not reported>`.
 
 .. seealso::
-   - :ref:`guides/setup/git-repo-manual:Debugging webhooks`
-   - :ref:`github-permission-troubleshooting`
+   :doc:`/projects/integrations/guides/troubleshooting-webhooks`
+      Debugging problems with webhook integrations
 
 .. _GitHub OAuth App: https://github.com/settings/applications

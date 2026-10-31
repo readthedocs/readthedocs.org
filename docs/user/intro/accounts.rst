@@ -21,7 +21,10 @@ You can also create an account on Read the Docs using a VCS authentication provi
 This method is more secure and convenient than using an email and password,
 and provides access to additional features like automatic repository syncing.
 
-VCS provider authentication is required for the following features:
+Signing in this way also creates a :term:`connected service`
+between your Read the Docs account and that provider.
+The connected service is what allows Read the Docs to configure your projects,
+which the following features require:
 
 * :doc:`/pull-requests`
 * Automatic repository syncing for easy project creation

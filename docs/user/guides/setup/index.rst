@@ -6,10 +6,6 @@ The following how-to guides help you solve common tasks and challenges in the se
 ⏩️ :doc:`Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>`
     Steps to connect an account on |git_providers_or| with your Read the Docs account.
 
-⏩️ :doc:`Configuring a Git repository manually </guides/setup/git-repo-manual>`
-    If you are connecting a Git repository from another provider (for instance Gitea or Codeberg),
-    this guide tells you how to add and configure the webhook **manually**.
-
 ⏩️ :doc:`Managing custom domains </guides/custom-domains>`
     Hosting your documentation using your own domain name, such as ``docs.example.com``.
 
@@ -33,6 +29,9 @@ The following how-to guides help you solve common tasks and challenges in the se
 
 .. seealso::
 
+   :doc:`/projects/integrations/index`
+      An overview of project integrations and how to manage them.
+
    :doc:`/tutorial/index`
       All you need to know to get started.
 
@@ -41,7 +40,6 @@ The following how-to guides help you solve common tasks and challenges in the se
    :hidden:
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
-   Configuring a Git repository manually </guides/setup/git-repo-manual>
    Managing custom domains </guides/custom-domains>
    /guides/subprojects
    Hiding a version </guides/hiding-a-version>
