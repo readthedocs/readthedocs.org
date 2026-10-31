@@ -7,7 +7,7 @@ from pathlib import Path
 
 import structlog
 from django.core.exceptions import SuspiciousFileOperation
-from selectolax.parser import HTMLParser
+from selectolax.lexbor import LexborHTMLParser
 
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
@@ -243,8 +243,7 @@ class GenericParser:
         dls = body.css("dl")
 
         for dl in dls:
-            # Hack: Since we cannot use '> dt' nor ':host' in selectolax/Modest,
-            # we use an iterator to select immediate descendants.
+            # Use an iterator to select immediate descendants.
             dts = (node for node in dl.iter() if node.tag == "dt" and node.id)
 
             # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
@@ -252,11 +251,7 @@ class GenericParser:
             # all defined by the immediate next <dd> element.
             for dt in dts:
                 title, _id = self._parse_dt(dt)
-                # Select the first adjacent <dd> using a "gamble" that seems to work.
-                # In this example, we cannot use the current <dt>'s ID because they contain invalid
-                # CSS selector syntax and there's no apparent way to fix that.
-                # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
-                dd = dt.css_first("dt ~ dd")
+                dd = self._get_next_dd(dt)
 
                 # We only index a dt with an id attribute and an accompanying dd
                 if not dd or not _id:
@@ -264,7 +259,7 @@ class GenericParser:
 
                 # Create a copy of the node to avoid manipulating the
                 # data structure that we're iterating over
-                dd_copy = HTMLParser(dd.html).body.child
+                dd_copy = LexborHTMLParser(dd.html).body.child
 
                 # Remove all nested domains from dd_copy.
                 # They are already parsed separately.
@@ -272,7 +267,7 @@ class GenericParser:
                     # Traverse all <dt>s with an ID (the ones we index!)
                     for _dt in node.css('dt[id]:not([id=""])'):
                         # Fetch adjacent <dd>s and remove them
-                        _dd_dt = _dt.css_first("dt ~ dd")
+                        _dd_dt = self._get_next_dd(_dt)
                         if _dd_dt:
                             _dd_dt.decompose()
                         # Remove the <dt> too
@@ -290,6 +285,15 @@ class GenericParser:
                         "content": content,
                     },
                 )
+
+    def _get_next_dd(self, dt):
+        """Get the first <dd> sibling that follows the given <dt>."""
+        node = dt.next
+        while node:
+            if node.tag == "dd":
+                return node
+            node = node.next
+        return None
 
     def _parse_dt(self, tag):
         """
@@ -492,7 +496,7 @@ class GenericParser:
 
     def _process_content(self, page, content):
         """Parses the content into a structured dict."""
-        html = HTMLParser(content)
+        html = LexborHTMLParser(content)
         body = self._get_main_node(html)
         title = ""
         sections = []
