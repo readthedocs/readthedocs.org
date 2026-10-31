@@ -8,6 +8,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff import get_base_version, get_diff, snapshot_base_manifest
+from readthedocs.filetreediff.dataclasses import HASHER_VERSION, FileTreeDiffManifest
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -26,6 +27,7 @@ def _mock_manifest(
     build_id: int,
     files: dict[str, str],
     text_hashes: dict[str, str] | None = None,
+    hasher_version: int | None = None,
 ):
     """
     Mock the manifest file of a version.
@@ -33,6 +35,8 @@ def _mock_manifest(
     ``files`` maps each path to the hash of its HTML, ``text_hashes`` to the
     hash of its content, defaulting to the same hash. Manifests written before
     the content hash was introduced don't have it, pass an empty dict for those.
+    Manifests written before ``hasher_version`` don't have that key either,
+    which is the default here.
     """
     if text_hashes is None:
         text_hashes = files
@@ -41,7 +45,10 @@ def _mock_manifest(
         manifest_files[path] = {"main_content_hash": main_content_hash}
         if path in text_hashes:
             manifest_files[path]["text_hash"] = text_hashes[path]
-    return _mock_open(json.dumps({"build": {"id": build_id}, "files": manifest_files}))
+    manifest = {"build": {"id": build_id}, "files": manifest_files}
+    if hasher_version is not None:
+        manifest["hasher_version"] = hasher_version
+    return _mock_open(json.dumps(manifest))
 
 
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
@@ -205,6 +212,31 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert diff.outdated
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_hasher_version_mismatch(self, storage_open):
+        """Hashes from different hasher versions aren't comparable."""
+        files_a = {
+            "index.html": "hash1",
+        }
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files_a, hasher_version=HASHER_VERSION + 1)(),
+            _mock_manifest(self.build_b.id, files_a)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.outdated
+
+    def test_manifest_hasher_version_round_trip(self):
+        manifest = FileTreeDiffManifest(build_id=1, files=[])
+        assert manifest.hasher_version == HASHER_VERSION
+
+        data = manifest.as_dict()
+        assert data["hasher_version"] == HASHER_VERSION
+        assert FileTreeDiffManifest.from_dict(data).hasher_version == HASHER_VERSION
+
+        # Manifests written before the field existed default to version 1.
+        del data["hasher_version"]
+        assert FileTreeDiffManifest.from_dict(data).hasher_version == 1
 
 
 @mock.patch(
