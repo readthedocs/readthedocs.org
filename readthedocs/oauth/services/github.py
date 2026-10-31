@@ -273,7 +273,7 @@ class GitHubService(UserService):
                         )
                         break
             else:
-                log.warning(
+                log.debug(
                     "GitHub project does not exist or user does not have permissions.",
                     https_status_code=resp.status_code,
                 )
@@ -326,7 +326,7 @@ class GitHubService(UserService):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.warning("GitHub project does not exist or user does not have permissions.")
+                log.debug("GitHub project does not exist or user does not have permissions.")
             else:
                 # Unknown response from GitHub
                 try:
@@ -522,7 +522,7 @@ class GitHubService(UserService):
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info("GitHub project does not exist or user does not have permissions.")
+                log.debug("GitHub project does not exist or user does not have permissions.")
                 return False
 
             if resp.status_code == 422 and "No commit found for SHA" in resp.json()["message"]:
