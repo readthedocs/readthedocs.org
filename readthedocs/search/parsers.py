@@ -490,6 +490,47 @@ class GenericParser:
             "markup_hash": None,
         }
 
+    def get_blocks(self, page):
+        """
+        Get the text of each block of the main content of a page, in order.
+
+        The file tree diff compares these to count how many blocks of a page changed.
+        """
+        content = self._get_page_content(page)
+        if not content:
+            return []
+        body = self._get_main_node(HTMLParser(content))
+        if not body:
+            return []
+        body = self._clean_body(body)
+        blocks = []
+        self._collect_blocks(body, blocks)
+        return blocks
+
+    def _collect_blocks(self, node, blocks):
+        """
+        Add the text of each block of ``node`` to ``blocks``.
+
+        If all children of a node are blocks, we look into each child.
+        Otherwise the node is a block on its own (a paragraph, a heading, etc).
+        Children without text, like the empty ``<span id>`` targets Sphinx
+        adds next to sections, are skipped.
+        """
+        children = []
+        only_blocks = True
+        for child in node.iter(include_text=True):
+            if not child.text().strip():
+                continue
+            children.append(child)
+            if child.tag not in self.block_level_elements:
+                only_blocks = False
+
+        if children and only_blocks:
+            for child in children:
+                self._collect_blocks(child, blocks)
+        else:
+            blocks.append(self._parse_content(node.text()))
+
     def _process_content(self, page, content):
         """Parses the content into a structured dict."""
         html = HTMLParser(content)
