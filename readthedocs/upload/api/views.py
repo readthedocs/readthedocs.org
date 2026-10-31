@@ -11,6 +11,8 @@ from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v3.serializers import BuildSerializer
 from readthedocs.api.v3.serializers import VersionSerializer
 from readthedocs.api.v3.views import APIv3Settings
+from readthedocs.audit.models import AuditLog
+from readthedocs.audit.serializers import UploadSerializer
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
@@ -33,7 +35,36 @@ from readthedocs.upload.api.serializers import UploadStatus
 log = structlog.get_logger(__name__)
 
 
-class UploadInitiateView(APIv3Settings, APIView):
+class UploadAuditMixin:
+    """
+    Record upload API calls in the security log.
+
+    Uploads are authenticated with API tokens, which never go through the dashboard login,
+    so these entries are the only record of who published to a project and from where.
+    """
+
+    def _audit_denied(self, project, reason):
+        AuditLog.objects.new(
+            action=AuditLog.UPLOAD_DENIED,
+            user=self.request.user,
+            request=self.request,
+            project=project,
+            data={"reason": reason},
+        )
+
+    def _audit_upload(self, action, build, **extra):
+        data = UploadSerializer(build).data
+        data.update(extra)
+        AuditLog.objects.new(
+            action=action,
+            user=self.request.user,
+            request=self.request,
+            project=build.project,
+            data=data,
+        )
+
+
+class UploadInitiateView(UploadAuditMixin, APIv3Settings, APIView):
     """
     Initiate a direct artifacts upload.
 
@@ -59,6 +90,7 @@ class UploadInitiateView(APIv3Settings, APIView):
             )
 
         if not AdminPermission.is_admin(request.user, project):
+            self._audit_denied(project, reason="not-admin")
             return Response(
                 {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -107,6 +139,8 @@ class UploadInitiateView(APIv3Settings, APIView):
         )
 
         upload_url = self._generate_upload_url(build)
+
+        self._audit_upload(AuditLog.UPLOAD_INITIATED, build, version_created=created)
 
         return Response(
             {
@@ -215,7 +249,7 @@ class UploadInitiateView(APIv3Settings, APIView):
         return response
 
 
-class UploadCompleteView(APIv3Settings, APIView):
+class UploadCompleteView(UploadAuditMixin, APIv3Settings, APIView):
     """
     Notify that the upload is complete and trigger build processing.
 
@@ -247,6 +281,7 @@ class UploadCompleteView(APIv3Settings, APIView):
         # Check permissions
         project = build.project
         if not AdminPermission.is_admin(request.user, project):
+            self._audit_denied(project, reason="not-admin")
             return Response(
                 {"detail": "You do not have admin permission for this project."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -269,6 +304,7 @@ class UploadCompleteView(APIv3Settings, APIView):
                 attached_to=build,
                 dismissable=False,
             )
+            self._audit_upload(AuditLog.UPLOAD_COMPLETED, build, status=upload_status)
             return Response(
                 {"build": BuildSerializer(build).data},
                 status=status.HTTP_200_OK,
@@ -284,6 +320,8 @@ class UploadCompleteView(APIv3Settings, APIView):
             )
 
         submit_to_build_isolated(project=project, build=build)
+
+        self._audit_upload(AuditLog.UPLOAD_COMPLETED, build, status=upload_status)
 
         return Response(
             {"build": BuildSerializer(build).data},

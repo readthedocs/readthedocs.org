@@ -10,6 +10,8 @@ Serializers used to save the corresponding data from a model in a log entry.
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.models import Team
@@ -73,3 +75,24 @@ class InvitationSerializer(serializers.ModelSerializer):
         }
         serializer = obj_serializers[obj.object_type]
         return serializer(obj.object).data
+
+
+class VersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Version
+        fields = ["id", "slug", "verbose_name", "type", "privacy_level"]
+
+
+class UploadSerializer(serializers.ModelSerializer):
+    """
+    Build created by the upload API.
+
+    The build is the unit of an upload: it is created when the upload is initiated,
+    and the same build is reported back when the upload finishes.
+    """
+
+    version = VersionSerializer()
+
+    class Meta:
+        model = Build
+        fields = ["id", "commit", "version"]
