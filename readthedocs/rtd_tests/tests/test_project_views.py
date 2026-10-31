@@ -1,5 +1,6 @@
 from unittest import mock
 
+import requests_mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
@@ -472,28 +473,32 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(28):
+        with self.assertNumQueries(27):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 
-    def test_dashboard_pull_request_previews_announcement(self):
-        announcement = "projects/partials/announcements/pull-request-previews.html"
-        # NOTE: create at least 3 projects, as the example projects
-        # announcement takes precedence for users with fewer than that.
-        projects = [
-            get(Project, slug=f"project-{index}", users=[self.user]) for index in range(0, 3)
-        ]
-        organization = get(Organization, projects=projects, owners=[self.user])
-
-        # Projects only have internal versions, so the announcement is shown.
+    def test_dashboard_example_projects_announcement(self):
         r = self.client.get(reverse("projects_dashboard"))
-        assert r.context["announcement"] == announcement
+        assert r.context["announcement"] == "projects/partials/announcements/example-projects.html"
 
-        # Once there is a pull request preview, the announcement is gone.
-        get(Version, project=projects[0], type=EXTERNAL)
+    @override_settings(RTD_BLOG_FEED_URL="https://blog.example.com/atom.xml")
+    @requests_mock.Mocker()
+    def test_dashboard_blog_posts(self, mocker):
+        mocker.get(
+            "https://blog.example.com/atom.xml",
+            text="""<?xml version="1.0" encoding="utf-8"?>
+            <feed xmlns="http://www.w3.org/2005/Atom">
+              <entry>
+                <title>New post</title>
+                <link href="https://blog.example.com/new/" rel="alternate"></link>
+                <published>2026-09-08T00:00:00-07:00</published>
+              </entry>
+            </feed>""",
+        )
 
         r = self.client.get(reverse("projects_dashboard"))
-        assert r.context["announcement"] != announcement
+        assert [post["title"] for post in r.context["blog_posts"]] == ["New post"]
+        assert r.context["blog_posts"][0]["url"] == "https://blog.example.com/new/"
 
     def test_versions_page(self):
         self.project.versions.create(verbose_name="1.0")
