@@ -1,4 +1,5 @@
 import os
+import subprocess
 import textwrap
 from readthedocs.core.utils.filesystem import safe_rmtree
 from os.path import exists
@@ -6,6 +7,7 @@ from unittest import mock
 from unittest.mock import Mock, patch
 
 import django_dynamic_fixture as fixture
+import pytest
 from django_dynamic_fixture import get
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -382,6 +384,52 @@ class TestGitBackend(TestCase):
         repo.update()
         code, _, _ = repo.fetch()
         self.assertEqual(code, 0)
+
+    def _external_version_repo(self):
+        """Return a cloned repo for pull request 1 and the path of its remote."""
+        remote = self.project.repo
+        version = fixture.get(
+            Version, project=self.project, type=EXTERNAL, active=True, verbose_name="1"
+        )
+        repo = self.project.vcs_repo(version=version, environment=self.build_environment)
+        repo.check_working_dir()
+        repo.clone()
+        # Pull request refs are only fetched for projects from a known provider.
+        self.project.repo = "https://github.com/readthedocs/test-project"
+        return repo, remote
+
+    def _fetch_commands(self):
+        return [
+            command
+            for command in self.build_environment.commands
+            if command.command[:2] == ("git", "fetch")
+        ]
+
+    def test_git_fetch_external_version_waits_for_ref(self):
+        """The pull request ref is created by the provider after the build starts."""
+        repo, remote = self._external_version_repo()
+
+        def create_ref(seconds):
+            subprocess.check_call(
+                ["git", "-C", remote, "update-ref", "refs/pull/1/head", "HEAD"]
+            )
+
+        with mock.patch("time.sleep", side_effect=create_ref):
+            code, _, _ = repo.fetch()
+
+        assert code == 0
+        assert [command.exit_code for command in self._fetch_commands()] == [128, 0]
+        assert repo.ref_exists("refs/heads/external-1")
+
+    def test_git_fetch_external_version_ref_never_created(self):
+        repo, _ = self._external_version_repo()
+        repo.fetch_retry_delays = (0, 0)
+
+        with pytest.raises(RepositoryError) as excinfo:
+            repo.fetch()
+
+        assert excinfo.value.message_id == RepositoryError.GENERIC
+        assert [command.exit_code for command in self._fetch_commands()] == [128, 128, 128]
 
     def test_update_without_branch_name(self):
         """
