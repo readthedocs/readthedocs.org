@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
 
+from readthedocs.api.v3.serializers import ProjectSerializer, VersionSerializer
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.filetreediff.dataclasses import (
@@ -120,6 +121,29 @@ class TestReadTheDocsConfigJson(TestCase):
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
             "v1"
         )
+
+    def test_addons_response_does_not_alter_api_v3_serializers(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert "_links" not in r.json()["versions"]["current"]
+        assert "_links" not in r.json()["projects"]["current"]
+
+        # The addons serializers remove these fields only from their own output.
+        assert "_links" in VersionSerializer(self.version).fields
+        project_fields = ProjectSerializer(self.project).fields
+        assert "_links" in project_fields
+        assert "users" in project_fields
+        assert "tags" in project_fields
 
     def test_get_config_v2(self):
         r = self.client.get(
