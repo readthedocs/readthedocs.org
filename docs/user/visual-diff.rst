@@ -15,9 +15,9 @@ Show diff menu in preview
 To enable or disable this feature for your project:
 
 #. Go to the :guilabel:`Settings` tab of your project.
-#. Click on :guilabel:`Addons`, and click on :guilabel:`Visual diff`.
+#. Click on :guilabel:`Pull request builds`.
 #. Check or uncheck the :guilabel:`Enable visual diff` option.
-#. Click on :guilabel:`Save`.
+#. Click on :guilabel:`Update`.
 
 When enabled, a new UI element appears at the top right of the page showing a dropdown selector containing all the files that have changed in that pull request build.
 
@@ -59,9 +59,9 @@ This is useful when you have files that have a date in them,
 or listing/archive files that show changes without content changes in those files.
 
 #. Go to the :guilabel:`Settings` tab of your project.
-#. Click on :guilabel:`Addons`, and click on :guilabel:`File tree diff`.
-#. In the :guilabel:`Ignored files` field, add one or more patterns to ignore, one per line.
-#. Click on :guilabel:`Save`.
+#. Click on :guilabel:`Pull request builds`.
+#. In the :guilabel:`Files ignored by file tree diff` field, add one or more patterns to ignore, one per line.
+#. Click on :guilabel:`Update`.
 
 Patterns are matched against the relative paths of the HTML files produced by the build,
 you should try to match ``index.html``, not ``docs/index.rst``, nor ``/en/latest/index.html``.

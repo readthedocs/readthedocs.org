@@ -50,7 +50,6 @@ If the automatic detection does not work for your project, you can explicitly se
 
 #. Go to your project's :guilabel:`Settings`.
 #. Click :guilabel:`Addons`.
-#. Open :guilabel:`Advanced`
 #. Fill in the :guilabel:`CSS main content selector` field (for example: ``div#main`` or ``.my-content``). Leave it blank to use automatic detection.
 #. Save the settings.
 

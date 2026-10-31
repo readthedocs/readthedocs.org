@@ -23,4 +23,7 @@ To manage notifications for your project:
 2. Click on a project name.
 3. Go to :guilabel:`Settings`.
 4. In the left bar, go to :guilabel:`Addons`.
-5. Configure each Addon in the :guilabel:`Notifications` section.
+5. Configure the version warnings in the :guilabel:`Notifications` section.
+
+The pull request warning is configured with the rest of the pull request options,
+under :guilabel:`Pull request builds` in the left bar.
