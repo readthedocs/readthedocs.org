@@ -135,6 +135,23 @@ You can also set your project documentation to install your Python project itsel
       * :ref:`faq:Why do I get import errors from libraries depending on C modules?`
 
 
+How do I install private dependencies if my package uses pyproject.toml?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pip does not support environment variable expansion in ``pyproject.toml`` files,
+so Git URLs that read a token from an environment variable don't work there.
+Use SSH URLs for your private dependencies instead,
+and give your project's SSH key read access to their repositories.
+
+.. seealso::
+
+   :ref:`guides/private-python-packages:From a Git repository using SSH`
+      How to install private dependencies listed in ``pyproject.toml`` with SSH URLs.
+
+   :doc:`/guides/private-python-packages`
+      Complete guide on installing private Python packages from Git repositories or repository managers.
+
+
 How do I change behavior when building with Read the Docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
