@@ -896,6 +896,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             if not self.data.version.is_external:
                 self.sync_versions(self.data.build_director.vcs_repository)
 
+            # Load the config file after syncing versions, so branches are
+            # synced even when the config file is missing from this version.
+            self.data.build_director.load_config()
+
             # SECURITY: don't run user code before sycing versions, so users can't manipulate
             # the output of the command to create/delete versions in our database.
             self.data.build_director.run_build_job("post_checkout")

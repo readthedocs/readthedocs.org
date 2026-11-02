@@ -347,6 +347,7 @@ BUILD_MESSAGES = [
                 """
             The configuration file required to build documentation is missing from your project.
             Add a configuration file to your project to make it build successfully.
+            If your documentation lives on another branch, choose it as the <strong>Default branch</strong> in your project settings.
             Read more in our <a href="https://docs.readthedocs.com/platform/stable/config-file/v2.html">configuration file documentation</a>.
             """
             ).strip(),
