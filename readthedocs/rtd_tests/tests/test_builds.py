@@ -61,14 +61,14 @@ class BuildModelTests(TestCase):
             project=self.project,
             version=self.version,
         )
-        build.config = {"version": 1}
-        self.assertEqual(BuildConfig.objects.count(), 0)
+        build.readthedocs_yaml_config = BuildConfig.objects.create(data={"version": 1})
+        self.assertEqual(BuildConfig.objects.count(), 1)
 
         build.save()
         self.assertEqual(BuildConfig.objects.count(), 1)
         self.assertEqual(build.readthedocs_yaml_config.data, {"version": 1})
 
-        build.config = {"version": 2}
+        build.readthedocs_yaml_config = BuildConfig.objects.create(data={"version": 2})
         build.save()
         self.assertEqual(BuildConfig.objects.count(), 2)
         self.assertEqual(build.readthedocs_yaml_config.data, {"version": 2})
@@ -79,7 +79,7 @@ class BuildModelTests(TestCase):
             project=self.project,
             version=self.version,
         )
-        build_one.config = {}
+        build_one.readthedocs_yaml_config = BuildConfig.objects.create(data={})
         build_one.save()
 
         build_two = get(
@@ -87,7 +87,7 @@ class BuildModelTests(TestCase):
             project=self.project,
             version=self.version,
         )
-        build_two.config = {"version": 2}
+        build_two.readthedocs_yaml_config = BuildConfig.objects.create(data={"version": 2})
         build_two.save()
 
         self.assertEqual(build_two.config, {"version": 2})
