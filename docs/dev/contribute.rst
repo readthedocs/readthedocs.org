@@ -79,19 +79,48 @@ Documentation for Read the Docs itself is hosted by Read the Docs at https://doc
 There are guidelines around writing and formatting documentation for the project.
 For full details, including how to build it, see :doc:`/docs`.
 
+.. _contributing-to-translations:
+
 Contributing to translations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We use Transifex to manage localization for all of our projects that we support
-localization on. If you are interested in contributing, we suggest joining a
-team on one of `our projects on Transifex`_. From there, you can suggest
-translations, and can even be added as a reviewer, so you can correct and
-approve suggestions.
+We use `Transifex`_ to manage localization for all of our projects. All
+translation contributions happen **on Transifex**, not through GitHub pull
+requests.
 
-If you don't see your language in our list of approved languages for any of our
-projects, feel free to suggest the language on Transifex to start the process.
+.. important::
 
+   Do **not** submit GitHub pull requests that directly edit ``.po`` locale
+   files in the ``readthedocs/locale/`` directory. Translation strings are
+   synchronized automatically between Transifex and the repository, so
+   manual edits to ``.po`` files would be overwritten during the next sync.
+
+**How to get started:**
+
+1. Go to `our projects on Transifex`_ and find the project you want to
+   contribute to (e.g. ``readthedocs`` for the application UI, or
+   ``readthedocs-docs`` for the documentation).
+2. Select your language from the list. If your language is not listed, you
+   can request a new language directly on Transifex.
+3. Click **"Join this project"** and create a Transifex account if you do not
+   already have one.
+4. Start suggesting translations for untranslated strings.
+
+**Becoming a reviewer:**
+
+Languages reach production only when their translations are reviewed and
+approved. Once you have contributed several translations, you can request
+reviewer status from a project coordinator on Transifex, which allows you to
+approve translation suggestions from other contributors.
+
+If you have questions about the translation process, feel free to open a
+discussion in `our community forum`_ or comment on `the translation tracking
+issue`_.
+
+.. _Transifex: https://explore.transifex.com/readthedocs/
 .. _our projects on Transifex: https://explore.transifex.com/readthedocs/
+.. _our community forum: https://github.com/readthedocs/readthedocs.org/discussions
+.. _the translation tracking issue: https://github.com/readthedocs/readthedocs.org/issues/4462
 
 Triaging issues
 ---------------
