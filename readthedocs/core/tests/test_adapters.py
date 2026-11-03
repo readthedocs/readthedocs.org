@@ -3,6 +3,7 @@ from unittest import mock
 from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
 from allauth.socialaccount.models import SocialAccount, SocialLogin
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
@@ -214,3 +215,71 @@ class SocialAdapterTest(TestCase):
         assert self.user.socialaccount_set.filter(
             provider=GitHubProvider.id
         ).exists()
+
+
+class BitbucketLegacyUidTest(TestCase):
+    def setUp(self):
+        self.user = get(User, username="test")
+        self.adapter = get_social_account_adapter()
+        self.request = mock.MagicMock(user=AnonymousUser())
+
+    def _sociallogin(self, account_id, username):
+        return SocialLogin(
+            user=User(email="me@example.com"),
+            account=SocialAccount(
+                provider=BitbucketOAuth2Provider.id,
+                uid=account_id,
+                extra_data={"account_id": account_id, "username": username},
+            ),
+        )
+
+    def test_migrate_legacy_uid_on_login(self):
+        legacy = get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="old-username",
+            extra_data={"account_id": "557058:abc", "username": "old-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+        self.adapter.pre_social_login(self.request, sociallogin)
+
+        legacy.refresh_from_db()
+        assert legacy.uid == "557058:abc"
+        assert legacy.extra_data["username"] == "new-username"
+        assert sociallogin.is_existing
+        assert sociallogin.user == self.user
+        assert sociallogin.account == legacy
+
+    def test_dont_match_by_username(self):
+        legacy = get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="claimed-username",
+            extra_data={"account_id": "557058:victim", "username": "claimed-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:attacker", "claimed-username")
+        self.adapter.pre_social_login(self.request, sociallogin)
+
+        legacy.refresh_from_db()
+        assert legacy.uid == "claimed-username"
+        assert not sociallogin.is_existing
+
+    def test_skip_duplicated_account_ids(self):
+        for username in ["first", "second"]:
+            get(
+                SocialAccount,
+                provider=BitbucketOAuth2Provider.id,
+                uid=username,
+                extra_data={"account_id": "557058:abc", "username": username},
+            )
+        sociallogin = self._sociallogin("557058:abc", "third")
+        self.adapter.pre_social_login(self.request, sociallogin)
+
+        assert set(
+            SocialAccount.objects.filter(provider=BitbucketOAuth2Provider.id).values_list(
+                "uid", flat=True
+            )
+        ) == {"first", "second"}
+        assert not sociallogin.is_existing

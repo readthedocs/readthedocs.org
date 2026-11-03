@@ -6,6 +6,7 @@ from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -64,8 +65,61 @@ class AccountAdapter(DefaultAccountAdapter):
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         self._filter_email_addresses(sociallogin)
+        self._migrate_legacy_bitbucket_uid(sociallogin)
         self._block_use_of_old_github_oauth_app(request, sociallogin)
         self._connect_github_app_to_existing_github_account(request, sociallogin)
+
+    def _migrate_legacy_bitbucket_uid(self, sociallogin):
+        """
+        Update the uid of Bitbucket accounts that still use the username as uid.
+
+        allauth used to identify Bitbucket accounts by their username,
+        which can change and be claimed by another user.
+        It now uses the ``account_id``, so accounts created before that change
+        won't be found on login until their uid is updated.
+
+        We match the legacy account by the ``account_id`` stored in ``extra_data``,
+        never by username, and update its uid so the login continues as usual.
+
+        This can be removed once all accounts have been migrated
+        (see ``oauth/migrations/0020_bitbucket_socialaccount_uid.py``).
+        """
+        if sociallogin.account.provider != BitbucketOAuth2Provider.id:
+            return
+
+        # The account was found by its uid, nothing to do.
+        if sociallogin.account.pk:
+            return
+
+        account_id = sociallogin.account.uid
+        if not account_id:
+            return
+
+        legacy_accounts = list(
+            SocialAccount.objects.filter(
+                provider=BitbucketOAuth2Provider.id,
+                extra_data__account_id=account_id,
+            ).exclude(uid=account_id)[:2]
+        )
+        # Accounts sharing the same account_id are handled manually.
+        if len(legacy_accounts) != 1:
+            return
+
+        legacy_account = legacy_accounts[0]
+
+        log.info(
+            "Migrating legacy Bitbucket account uid.",
+            social_account_id=legacy_account.pk,
+            old_uid=legacy_account.uid,
+            new_uid=account_id,
+        )
+        legacy_account.uid = account_id
+        legacy_account.save(update_fields=["uid"])
+
+        # Redo the lookup, so allauth logs in the existing user
+        # instead of creating a new one.
+        sociallogin.user = None
+        sociallogin.lookup()
 
     def _filter_email_addresses(self, sociallogin):
         """
