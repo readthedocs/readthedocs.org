@@ -22,7 +22,7 @@ class ProjectPermission(models.TextChoices):
     UPLOAD = "project:upload", _("Upload documentation")
 
 
-class APIKeyScope(StrEnum):
+class RTDTokenScope(StrEnum):
     """
     Scope that an API token can have.
 
@@ -38,7 +38,7 @@ def get_platform_prefix():
     return "rtdcom" if settings.ALLOW_PRIVATE_REPOS else "rtdorg"
 
 
-def get_key_prefix(scope):
+def get_token_prefix(scope):
     """
     Return the prefix used to identify the platform and scope of a token.
 
@@ -60,56 +60,56 @@ class RTDTokenGenerator(KeyGenerator):
 
     # pylint: disable=arguments-differ
     def generate(self, scope):
-        prefix = get_key_prefix(scope) + self.get_prefix()
-        secret_key = self.get_secret_key()
-        key = f"{prefix}_{secret_key}"
-        hashed_key = self.hash(key)
-        return key, prefix, hashed_key
+        prefix = get_token_prefix(scope) + self.get_prefix()
+        secret = self.get_secret_key()
+        plain_token = f"{prefix}_{secret}"
+        hashed_token = self.hash(plain_token)
+        return plain_token, prefix, hashed_token
 
     @staticmethod
-    def get_prefix_from_key(key):
-        prefix, _, _ = key.rpartition("_")
+    def get_prefix_from_token(plain_token):
+        prefix, _, _ = plain_token.rpartition("_")
         return prefix
 
 
 class RTDTokenManager(models.Manager):
-    key_generator = RTDTokenGenerator()
+    token_generator = RTDTokenGenerator()
 
-    def assign_key(self, obj):
+    def assign_token(self, obj):
         """Generate a token for the object, and return the plain token."""
-        key, prefix, hashed_key = self.key_generator.generate(scope=obj.scope)
+        plain_token, prefix, hashed_token = self.token_generator.generate(scope=obj.scope)
         obj.prefix = prefix
-        obj.hashed_key = hashed_key
-        return key
+        obj.hashed_token = hashed_token
+        return plain_token
 
-    def create_key(self, **kwargs):
+    def create_token(self, **kwargs):
         """Create a token, and return a ``(RTDToken, token)`` tuple."""
         obj = self.model(**kwargs)
-        key = self.assign_key(obj)
+        plain_token = self.assign_token(obj)
         obj.save()
-        return obj, key
+        return obj, plain_token
 
-    def get_scope_from_key(self, key):
+    def get_scope_from_token(self, plain_token):
         """Return the scope of the token from its prefix, or ``None`` if it isn't one of our tokens."""
-        for scope in APIKeyScope:
-            if key.startswith(get_key_prefix(scope)):
+        for scope in RTDTokenScope:
+            if plain_token.startswith(get_token_prefix(scope)):
                 return scope
         return None
 
-    def get_usable_keys(self):
+    def get_usable_tokens(self):
         # Select the project for performance when checking permissions.
         return self.filter(revoked_at__isnull=True).select_related("project")
 
-    def get_from_key(self, key):
+    def get_from_token(self, plain_token):
         """
         Return the token object from the plain token.
 
         Raises ``DoesNotExist`` if the token doesn't exist, is revoked, or the secret doesn't match.
         Expiration isn't checked here, so callers can give a better error.
         """
-        prefix = self.key_generator.get_prefix_from_key(key)
-        obj = self.get_usable_keys().get(prefix=prefix)
-        if not obj.is_valid(key):
+        prefix = self.token_generator.get_prefix_from_token(plain_token)
+        obj = self.get_usable_tokens().get(prefix=prefix)
+        if not obj.is_valid(plain_token):
             raise self.model.DoesNotExist("Token is not valid.")
         return obj
 
@@ -125,7 +125,7 @@ class RTDToken(TimeStampedModel):
     # Platform and scope part of the token, plus a random part (e.g. ``rtdorg_project_<random>``),
     # used to look up the token.
     prefix = models.CharField(max_length=32, unique=True, editable=False)
-    hashed_key = models.CharField(max_length=150, editable=False)
+    hashed_token = models.CharField(max_length=150, editable=False)
     name = models.CharField(
         _("Name"),
         max_length=50,
@@ -274,18 +274,18 @@ class RTDToken(TimeStampedModel):
         if not set(permissions) <= set(ProjectPermission.values):
             raise ValidationError({"permissions": _("Some of the permissions aren't valid.")})
 
-    def is_valid(self, key):
+    def is_valid(self, plain_token):
         """
         Check if the plain token matches the hashed token.
 
         If the hashed token uses an outdated hasher, it's updated to use the preferred one.
         """
-        key_generator = type(self).objects.key_generator
-        valid = key_generator.verify(key, self.hashed_key)
-        if valid and not key_generator.using_preferred_hasher(self.hashed_key):
-            self.hashed_key = key_generator.hash(key)
+        token_generator = type(self).objects.token_generator
+        valid = token_generator.verify(plain_token, self.hashed_token)
+        if valid and not token_generator.using_preferred_hasher(self.hashed_token):
+            self.hashed_token = token_generator.hash(plain_token)
             # Only update the hash, using the token shouldn't change its modified date.
-            self.save(update_fields=["hashed_key"])
+            self.save(update_fields=["hashed_token"])
         return valid
 
     @property
@@ -342,11 +342,11 @@ class RTDToken(TimeStampedModel):
     @property
     def scope(self):
         # TODO: when adding organization and user scoped tokens, return the correct scope here.
-        return APIKeyScope.PROJECT
+        return RTDTokenScope.PROJECT
 
     @property
     def is_project_scoped(self):
-        return self.scope == APIKeyScope.PROJECT and self.project_id is not None
+        return self.scope == RTDTokenScope.PROJECT and self.project_id is not None
 
     def has_permission(self, permission):
         # TODO: when adding read/write permissions, resolve implied permissions here

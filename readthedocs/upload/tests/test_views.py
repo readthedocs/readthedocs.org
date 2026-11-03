@@ -634,15 +634,15 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
 
 
 @override_settings(ALLOW_PRIVATE_REPOS=False)
-class UploadAPIKeyTests(UploadAPIEndpointMixin):
+class UploadRTDTokenTests(UploadAPIEndpointMixin):
     def setUp(self):
         super().setUp()
-        self.project_token, self.key = RTDToken.objects.create_key(
+        self.project_token, self.plain_token = RTDToken.objects.create_token(
             name="upload",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
         )
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.key}")
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.plain_token}")
         self.initiate_url = reverse("upload-api-initiate")
         self.complete_url = reverse("upload-api-complete")
         self.data = {
@@ -669,7 +669,7 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         self._mock_storage(storages_mock)
         app_mock.send_task.return_value = mock.Mock(id="task-id-123")
 
-        # The project is inferred from the key.
+        # The project is inferred from the token.
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         build = Build.objects.get(pk=response.data["build"]["id"])
@@ -714,44 +714,44 @@ class UploadAPIKeyTests(UploadAPIEndpointMixin):
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_key_without_project(self):
+    def test_token_without_project(self):
         self.project_token.project = None
         self.project_token.save()
 
-        # The project can't be inferred from the key.
+        # The project can't be inferred from the token.
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        # And the key doesn't have access to any project.
+        # And the token doesn't have access to any project.
         self.data["project"] = self.project.slug
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_key_without_upload_permission(self):
+    def test_token_without_upload_permission(self):
         # Upload is the only permission for now, and tokens without permissions
         # can't be saved, use an update to simulate a token with other permissions.
         RTDToken.objects.filter(pk=self.project_token.pk).update(permissions=[])
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_invalid_key(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.key}x")
+    def test_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.plain_token}x")
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_key_from_another_platform(self):
-        # The key isn't one of ours, it's left to the user token authentication.
+    def test_token_from_another_platform(self):
+        # The token isn't one of ours, it's left to the user token authentication.
         with override_settings(ALLOW_PRIVATE_REPOS=True):
             response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_expired_key(self):
+    def test_expired_token(self):
         self.project_token.expires_at = timezone.now() - timedelta(days=1)
         self.project_token.save()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_revoked_key(self):
+    def test_revoked_token(self):
         self.project_token.revoke()
         response = self.client.post(self.initiate_url, self.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

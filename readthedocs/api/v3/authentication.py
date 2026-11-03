@@ -21,12 +21,12 @@ class RTDTokenAuthentication(TokenAuthentication):
     model = RTDToken
 
     def authenticate_credentials(self, key):
-        if not self.model.objects.get_scope_from_key(key):
+        if not self.model.objects.get_scope_from_token(key):
             # Not one of our tokens, let other authentication classes handle it.
             return None
 
         try:
-            token = self.model.objects.get_from_key(key)
+            token = self.model.objects.get_from_token(key)
         except self.model.DoesNotExist:
             raise exceptions.AuthenticationFailed(_("Invalid token."))
 

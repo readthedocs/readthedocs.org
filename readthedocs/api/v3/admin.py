@@ -38,12 +38,12 @@ class RTDTokenAdmin(admin.ModelAdmin):
 
         if not obj.created_by:
             obj.created_by = request.user
-        key = RTDToken.objects.assign_key(obj)
+        plain_token = RTDToken.objects.assign_token(obj)
         super().save_model(request, obj, form, change)
         messages.warning(
             request,
             _(
-                "The API token for {name} is: {key}. "
+                "The API token for {name} is: {plain_token}. "
                 "Store it somewhere safe, you won't be able to see it again."
-            ).format(name=obj.name, key=key),
+            ).format(name=obj.name, plain_token=plain_token),
         )
