@@ -66,5 +66,7 @@ class TeamMemberManager(models.Manager):
             .annotate(
                 null_member=models.Count("member"),
             )
-            .order_by("-null_member", "member")
+            # All pending invites tie on a null ``member``; tie-break by
+            # ``pk`` to keep the paginated list deterministic.
+            .order_by("-null_member", "member", "pk")
         )
