@@ -125,6 +125,21 @@ class TestVersionModel(VersionMixin, TestCase):
     @override_settings(
         PRODUCTION_DOMAIN="readthedocs.org",
         PUBLIC_DOMAIN="readthedocs.io",
+        RTD_EXTERNAL_VERSION_DOMAIN="org.readthedocs.build",
+    )
+    def test_get_downloads_external_version(self):
+        version = self.external_version
+        version.has_pdf = True
+        version.save()
+
+        expected = {
+            "pdf": "//pip--pr-9999.org.readthedocs.build/_/downloads/en/pr-9999/pdf/",
+        }
+        self.assertDictEqual(version.get_downloads(), expected)
+
+    @override_settings(
+        PRODUCTION_DOMAIN="readthedocs.org",
+        PUBLIC_DOMAIN="readthedocs.io",
     )
     def test_get_downloads_subproject(self):
         version = self.subproject.versions.get(slug=LATEST)
