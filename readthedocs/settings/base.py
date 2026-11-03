@@ -46,7 +46,10 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = "replace-this-please"  # noqa
     ATOMIC_REQUESTS = True
 
-    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+    # New apps use BigAutoField by default.
+    # Apps created before this change pin ``default_auto_field = "django.db.models.AutoField"``
+    # in their AppConfig, so their existing models don't need a migration.
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
     # Debug settings
     DEBUG = True

@@ -209,7 +209,7 @@ class UploadInitiateView(APIv3Settings, APIView):
             max_size=build.project.max_build_media_size or settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE,
         )
         if settings.RTD_DOCKER_COMPOSE and not settings.USING_AWS:
-            # Overriden so we return the public URL for uploading artifacts,
+            # Overridden so we return the public URL for uploading artifacts,
             # instead of the internal hostname (http://storage), which is not accessible from the host machine.
             response["url"] = response["url"].replace("://storage", "://127.0.0.1", 1)
         return response
