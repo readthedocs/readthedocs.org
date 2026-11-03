@@ -1,0 +1,29 @@
+# Used instead of the root .dockerignore, which only allows requirements/ for the dev images.
+# The scanner needs the whole checkout, so only local environments, data and secrets are excluded.
+.env
+.envrc
+.venv
+.tox
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+*.db
+docker-compose.override.yml
+# Keep logs/.keep and the tracked media files; settings write logs/debug.log on startup.
+logs/*
+!logs/.keep
+media/dash
+media/epub
+media/export
+media/external
+media/html
+media/htmlzip
+media/json
+media/man
+media/pdf
+media/static
+media/usercontent
+media/*.prof
+myrustfs
+user_builds
