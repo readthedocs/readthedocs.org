@@ -29,9 +29,9 @@ class ProjectTokenViewsTests(TestCase):
         self.list_url = reverse("projects_tokens", args=[self.project.slug])
         self.create_url = reverse("projects_tokens_create", args=[self.project.slug])
 
-    def _create_key(self, **kwargs):
-        return RTDToken.objects.create_key(
-            name="key",
+    def _create_token(self, **kwargs):
+        return RTDToken.objects.create_token(
+            name="token",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
             **kwargs,
@@ -58,14 +58,14 @@ class ProjectTokenViewsTests(TestCase):
         assert token.expires_at.date() == (timezone.now() + timedelta(days=30)).date()
         assert token.created_by == self.user
 
-        # The key is shown once.
+        # The token is shown once.
         response = self.client.get(redirect_url)
-        key = response.context["created_token"]
-        assert RTDToken.objects.get_from_key(key) == token
-        assert key in response.content.decode()
+        plain_token = response.context["created_token"]
+        assert RTDToken.objects.get_from_token(plain_token) == token
+        assert plain_token in response.content.decode()
         response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
-        assert key not in response.content.decode()
+        assert plain_token not in response.content.decode()
 
     def test_created_token_is_only_shown_in_the_same_session(self):
         response = self.client.post(
@@ -93,8 +93,8 @@ class ProjectTokenViewsTests(TestCase):
         response = other_client.get(redirect_url)
         assert response.context["created_token"] is None
 
-        # The edit page of another key.
-        other_token, _ = RTDToken.objects.create_key(
+        # The edit page of another token.
+        other_token, _ = RTDToken.objects.create_token(
             name="other",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
@@ -122,11 +122,11 @@ class ProjectTokenViewsTests(TestCase):
             redirect_urls.append(response["Location"])
         assert redirect_urls[0] != redirect_urls[1]
 
-        # Each redirect shows its own key.
+        # Each redirect shows its own token.
         for name, redirect_url in zip(["first", "second"], redirect_urls):
             response = self.client.get(redirect_url)
-            key = response.context["created_token"]
-            assert RTDToken.objects.get_from_key(key).name == name
+            plain_token = response.context["created_token"]
+            assert RTDToken.objects.get_from_token(plain_token).name == name
 
     @override_settings(SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies")
     def test_created_token_with_signed_cookie_sessions(self):
@@ -144,8 +144,8 @@ class ProjectTokenViewsTests(TestCase):
 
         token = RTDToken.objects.get(project=self.project)
         response = self.client.get(redirect_url)
-        key = response.context["created_token"]
-        assert RTDToken.objects.get_from_key(key) == token
+        plain_token = response.context["created_token"]
+        assert RTDToken.objects.get_from_token(plain_token) == token
         response = self.client.get(redirect_url)
         assert response.context["created_token"] is None
 
@@ -206,20 +206,20 @@ class ProjectTokenViewsTests(TestCase):
         assert not RTDToken.objects.exists()
 
     def test_create_with_existing_name(self):
-        self._create_key()
+        self._create_token()
         response = self.client.post(
             self.create_url,
-            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+            {"name": "token", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
         )
         assert response.status_code == 200
         assert "name" in response.context["form"].errors
         assert RTDToken.objects.filter(project=self.project).count() == 1
 
-    def test_create_with_name_of_revoked_key(self):
-        self._create_key(revoked_at=timezone.now())
+    def test_create_with_name_of_revoked_token(self):
+        self._create_token(revoked_at=timezone.now())
         response = self.client.post(
             self.create_url,
-            {"name": "key", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
+            {"name": "token", "permissions": [ProjectPermission.UPLOAD], "expires_in": "30"},
         )
         assert response.status_code == 302
         assert RTDToken.objects.filter(project=self.project, revoked_at__isnull=True).count() == 1
@@ -233,14 +233,14 @@ class ProjectTokenViewsTests(TestCase):
         assert "permissions" in response.context["form"].errors
         assert not RTDToken.objects.exists()
 
-    def test_list_excludes_revoked_keys(self):
-        token, _ = self._create_key()
-        self._create_key(revoked_at=timezone.now())
+    def test_list_excludes_revoked_tokens(self):
+        token, _ = self._create_token()
+        self._create_token(revoked_at=timezone.now())
         response = self.client.get(self.list_url)
         assert list(response.context["object_list"]) == [token]
 
     def test_edit_page(self):
-        token, _ = self._create_key(description="Upload from GitHub Actions")
+        token, _ = self._create_token(description="Upload from GitHub Actions")
         response = self.client.get(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
         )
@@ -251,22 +251,22 @@ class ProjectTokenViewsTests(TestCase):
         # Fields that can't be changed are shown as read only.
         assert f"{token.prefix}_****" in content
 
-    def test_edit_page_revoked_key(self):
-        token, _ = self._create_key(revoked_at=timezone.now())
+    def test_edit_page_revoked_token(self):
+        token, _ = self._create_token(revoked_at=timezone.now())
         response = self.client.get(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
         )
         assert response.status_code == 404
 
     def test_list_doesnt_show_description(self):
-        token, _ = self._create_key(description="Upload from GitHub Actions")
+        token, _ = self._create_token(description="Upload from GitHub Actions")
         response = self.client.get(self.list_url)
         content = response.content.decode()
         assert "Upload from GitHub Actions" not in content
         assert reverse("projects_tokens_edit", args=[self.project.slug, token.pk]) in content
 
     def test_update(self):
-        token, key = self._create_key(expires_at=timezone.now() + timedelta(days=7))
+        token, plain_token = self._create_token(expires_at=timezone.now() + timedelta(days=7))
         expires_at = token.expires_at
         url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
         response = self.client.post(
@@ -287,10 +287,10 @@ class ProjectTokenViewsTests(TestCase):
         assert token.name == "New name"
         assert token.description == "New description"
         assert token.expires_at == expires_at
-        assert RTDToken.objects.get_from_key(key) == token
+        assert RTDToken.objects.get_from_token(plain_token) == token
 
     def test_update_doesnt_restore_a_token_revoked_while_saving(self):
-        token, key = self._create_key()
+        token, plain_token = self._create_token()
         url = reverse("projects_tokens_edit", args=[self.project.slug, token.pk])
         save = ProjectTokenUpdateForm.save
 
@@ -313,10 +313,10 @@ class ProjectTokenViewsTests(TestCase):
         assert token.is_revoked
         assert token.name == "New name"
         with pytest.raises(RTDToken.DoesNotExist):
-            RTDToken.objects.get_from_key(key)
+            RTDToken.objects.get_from_token(plain_token)
 
     def test_update_form_fields(self):
-        token, _ = self._create_key()
+        token, _ = self._create_token()
         response = self.client.get(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
         )
@@ -324,33 +324,33 @@ class ProjectTokenViewsTests(TestCase):
         assert list(response.context["form"].fields) == ["name", "description", "permissions"]
 
     def test_update_keeps_its_own_name(self):
-        token, _ = self._create_key()
+        token, _ = self._create_token()
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
-            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+            {"name": "token", "description": "", "permissions": [ProjectPermission.UPLOAD]},
         )
         assert response.status_code == 302
 
     def test_update_with_existing_name(self):
-        self._create_key()
-        token, _ = RTDToken.objects.create_key(
+        self._create_token()
+        token, _ = RTDToken.objects.create_token(
             name="other",
             project=self.project,
             permissions=[ProjectPermission.UPLOAD],
         )
         response = self.client.post(
             reverse("projects_tokens_edit", args=[self.project.slug, token.pk]),
-            {"name": "key", "description": "", "permissions": [ProjectPermission.UPLOAD]},
+            {"name": "token", "description": "", "permissions": [ProjectPermission.UPLOAD]},
         )
         assert response.status_code == 200
         assert "name" in response.context["form"].errors
         token.refresh_from_db()
         assert token.name == "other"
 
-    def test_update_key_from_another_project(self):
+    def test_update_token_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        token, _ = RTDToken.objects.create_key(
-            name="key",
+        token, _ = RTDToken.objects.create_token(
+            name="token",
             project=other_project,
             permissions=[ProjectPermission.UPLOAD],
         )
@@ -360,10 +360,10 @@ class ProjectTokenViewsTests(TestCase):
         )
         assert response.status_code == 404
         token.refresh_from_db()
-        assert token.name == "key"
+        assert token.name == "token"
 
-    def test_expired_key(self):
-        token, _ = self._create_key(expires_at=timezone.now() - timedelta(days=1))
+    def test_expired_token(self):
+        token, _ = self._create_token(expires_at=timezone.now() - timedelta(days=1))
         response = self.client.get(self.list_url)
         assert "This token has expired" in response.content.decode()
         response = self.client.get(
@@ -372,7 +372,7 @@ class ProjectTokenViewsTests(TestCase):
         assert "This token has expired" in response.content.decode()
 
     def test_delete(self):
-        token, _ = self._create_key()
+        token, _ = self._create_token()
         response = self.client.post(
             reverse("projects_tokens_delete", args=[self.project.slug, token.pk]),
         )
@@ -380,10 +380,10 @@ class ProjectTokenViewsTests(TestCase):
         token.refresh_from_db()
         assert token.is_revoked
 
-    def test_delete_key_from_another_project(self):
+    def test_delete_token_from_another_project(self):
         other_project = get(Project, slug="other", users=[self.user])
-        token, _ = RTDToken.objects.create_key(
-            name="key",
+        token, _ = RTDToken.objects.create_token(
+            name="token",
             project=other_project,
             permissions=[ProjectPermission.UPLOAD],
         )

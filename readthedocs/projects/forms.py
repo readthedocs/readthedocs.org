@@ -1449,10 +1449,10 @@ class EnvironmentVariableForm(forms.ModelForm):
 
 class ProjectTokenUpdateForm(forms.ModelForm):
     """
-    Form to update an API key scoped to a project.
+    Form to update an API token scoped to a project.
 
     Only the name, description, and permissions can be changed,
-    the key and its expiration are set when it's created.
+    the token and its expiration are set when it's created.
     """
 
     permissions = forms.MultipleChoiceField(
@@ -1481,9 +1481,9 @@ class ProjectTokenUpdateForm(forms.ModelForm):
 
 class ProjectTokenForm(ProjectTokenUpdateForm):
     """
-    Form to create an API key scoped to a project.
+    Form to create an API token scoped to a project.
 
-    The key is only available when it's created,
+    The token is only available when it's created,
     so ``save`` returns it together with the object for the view to show it once.
     """
 
@@ -1536,8 +1536,8 @@ class ProjectTokenForm(ProjectTokenUpdateForm):
         return cleaned_data
 
     def save(self, commit=True):
-        """Create the key and return the ``(RTDToken, key)`` tuple."""
-        return RTDToken.objects.create_key(
+        """Create the token and return the ``(RTDToken, token)`` tuple."""
+        return RTDToken.objects.create_token(
             project=self.project,
             name=self.cleaned_data["name"],
             description=self.cleaned_data["description"],

@@ -1167,22 +1167,22 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
 
 
 class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
-    """API keys scoped to a single project."""
+    """API tokens scoped to a single project."""
 
     model = RTDToken
     form_class = ProjectTokenForm
     lookup_url_kwarg = "token_pk"
 
-    # The key is only available when it's created,
+    # The token is only available when it's created,
     # so it's passed to the edit view in the cache to show it once
     # (this is a redirect after the create view, so the session is lost).
-    # The cache is used instead of the session, so the plain key
+    # The cache is used instead of the session, so the plain token
     # isn't stored for long if the redirect isn't followed.
     created_token_cache_timeout = 2 * 60
 
     @cached_method
     def get_project(self):
-        # API keys are only used by the upload API for now, which is behind a feature flag.
+        # API tokens are only used by the upload API for now, which is behind a feature flag.
         project = super().get_project()
         if project and not project.allows_direct_upload:
             raise Http404
@@ -1199,10 +1199,10 @@ class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
 
     def get_created_token_cache_key(self, token_id):
         # Keyed by the user and a random ID stored in their session,
-        # so the key is only shown to the user that created it, in the same session.
+        # so the token is only shown to the user that created it, in the same session.
         # The session key isn't used, since with signed cookies it's the session data itself,
         # and it changes when the session is modified.
-        # The ID of the key avoids overwriting it when creating several keys at the same time.
+        # The ID of the token avoids overwriting it when creating several tokens at the same time.
         session_id = self.request.session.setdefault(
             "project_token_session_id",
             secrets.token_urlsafe(16),
@@ -1225,10 +1225,10 @@ class ProjectTokenCreate(ProjectTokenMixin, CreateView):
         return super().get_form(data, files, **kwargs)
 
     def form_valid(self, form):
-        token, key = form.save()
+        token, plain_token = form.save()
         cache.set(
             self.get_created_token_cache_key(token.pk),
-            key,
+            plain_token,
             timeout=self.created_token_cache_timeout,
         )
         messages.success(self.request, self.success_message)
@@ -1262,7 +1262,7 @@ class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
 
 
 class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
-    """Mark the key as revoked instead of deleting it, to keep a record of it."""
+    """Mark the token as revoked instead of deleting it, to keep a record of it."""
 
     success_message = _("API token deleted")
     http_method_names = ["post"]

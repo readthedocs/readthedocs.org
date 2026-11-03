@@ -228,9 +228,9 @@ class ProjectMixin(URLAccessMixin):
             feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
             projects=[self.pip],
         )
-        self.token, _ = RTDToken.objects.create_key(
+        self.token, _ = RTDToken.objects.create_token(
             project=self.pip,
-            name="api key",
+            name="api token",
             permissions=[ProjectPermission.UPLOAD],
         )
         self.default_kwargs = {
