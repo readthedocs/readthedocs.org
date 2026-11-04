@@ -420,6 +420,25 @@ class TestParsers:
         assert first["text_hash"] != second["text_hash"]
         assert first["markup_hash"] != second["markup_hash"]
 
+    def test_get_blocks(self, tmp_path):
+        """Containers are looked into, each paragraph, heading, or item is a block."""
+        page = tmp_path / "index.html"
+        page.write_text(
+            """
+            <html><body><div role="main">
+                <section id="title">
+                    <span id="target"></span>
+                    <h1>Title</h1>
+                    <p>Some <strong>text</strong>.</p>
+                    <div class="note"><p>A note.</p></div>
+                    <ul><li>One</li><li>Two</li></ul>
+                </section>
+            </div></body></html>
+            """
+        )
+        parser = GenericParser(self.version, local_path=str(tmp_path))
+        assert parser.get_blocks("index.html") == ["Title", "Some text.", "A note.", "One", "Two"]
+
     def test_local_path_reads_from_the_local_copy(self, tmp_path):
         page = tmp_path / "index.html"
         page.write_text(

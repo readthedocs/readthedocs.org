@@ -17,6 +17,7 @@ The process is as follows:
 """
 
 import json
+from difflib import SequenceMatcher
 
 import structlog
 
@@ -27,6 +28,7 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiffFileStatus
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
 from readthedocs.projects.constants import MEDIA_TYPE_DIFF
 from readthedocs.projects.models import Project
+from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 
 
@@ -34,6 +36,7 @@ log = structlog.get_logger(__name__)
 
 MANIFEST_FILE_NAME = "manifest.json"
 BASE_MANIFEST_SNAPSHOT_FILE_NAME = "base_manifest_snapshot.json"
+MAX_FILES_TO_COUNT_CHANGED_BLOCKS = 25
 
 
 def get_base_version(project: Project) -> Version | None:
@@ -129,6 +132,7 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     base_version_build = Build.objects.get(id=base_version_manifest.build.id)
 
     files: list[tuple[str, FileTreeDiffFileStatus]] = []
+    changed_blocks: dict[str, int] = {}
     for file_path in current_version_file_paths - base_version_file_paths:
         files.append((file_path, FileTreeDiffFileStatus.added))
 
@@ -150,6 +154,8 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
             modified = file_a.main_content_hash != file_b.main_content_hash
         if modified:
             files.append((file_path, FileTreeDiffFileStatus.modified))
+            if file_a.changed_blocks is not None:
+                changed_blocks[file_path] = file_a.changed_blocks
 
     return FileTreeDiff(
         files=files,
@@ -158,7 +164,63 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
         base_version=base_version,
         base_version_build=base_version_build,
         outdated=outdated,
+        changed_blocks=changed_blocks,
     )
+
+
+def add_changed_blocks(manifest: FileTreeDiffManifest, version: Version, base_version: Version):
+    """
+    Set the number of changed blocks on each modified file of the manifest.
+
+    Only files whose text changed are parsed again, from both versions.
+    Nothing is counted when too many files changed, since each one is read
+    twice from storage. Files without a count keep their path order.
+    """
+    base_manifest = _get_base_manifest_snapshot(version) or get_manifest(base_version)
+    if not base_manifest:
+        return
+
+    modified_files = []
+    for path, file in manifest.files.items():
+        base_file = base_manifest.files.get(path)
+        if base_file and base_file.text_hash != file.text_hash:
+            modified_files.append(file)
+
+    if len(modified_files) > MAX_FILES_TO_COUNT_CHANGED_BLOCKS:
+        log.info(
+            "Too many modified files, not counting changed blocks.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+            modified_files=len(modified_files),
+        )
+        return
+
+    parser = GenericParser(version)
+    base_parser = GenericParser(base_version)
+    for file in modified_files:
+        try:
+            file.changed_blocks = count_changed_blocks(
+                base_parser.get_blocks(file.path),
+                parser.get_blocks(file.path),
+            )
+        except Exception:
+            # The count only sorts the list, never fail the manifest for it.
+            log.warning("Failed to count changed blocks.", path=file.path, exc_info=True)
+
+
+def count_changed_blocks(base_blocks: list[str], blocks: list[str]) -> int:
+    """
+    Count the blocks that changed between two versions of a file.
+
+    The blocks are aligned first, so adding a paragraph counts as one change,
+    instead of changing every block after it. A block edited in place counts once.
+    """
+    matcher = SequenceMatcher(a=base_blocks, b=blocks, autojunk=False)
+    changed = 0
+    for operation, base_start, base_end, start, end in matcher.get_opcodes():
+        if operation != "equal":
+            changed += max(base_end - base_start, end - start)
+    return changed
 
 
 def get_manifest(version: Version) -> FileTreeDiffManifest | None:
