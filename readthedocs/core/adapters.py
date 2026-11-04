@@ -9,7 +9,6 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib import messages
-from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
@@ -130,7 +129,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         Bitbucket accounts without an ``account_id`` saved can't be matched on login,
         so allauth would show the signup form instead.
-        If the email from Bitbucket belongs to a user with one of these accounts,
+        If the email from Bitbucket matches a verified email of a user with one of these accounts,
         we ask them to log in with their email and connect Bitbucket again.
 
         We don't connect the accounts by email, since Bitbucket doesn't
@@ -147,15 +146,15 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             return
 
         emails = {email.email.lower() for email in sociallogin.email_addresses if email.email}
-        user_email = getattr(sociallogin.user, "email", None)
-        if user_email:
-            emails.add(user_email.lower())
         if not emails:
             return
 
         has_accounts_without_account_id = (
             get_bitbucket_accounts_without_account_id()
-            .filter(Q(user__email__in=emails) | Q(user__emailaddress__email__in=emails))
+            .filter(
+                user__emailaddress__email__in=emails,
+                user__emailaddress__verified=True,
+            )
             .exists()
         )
         if not has_accounts_without_account_id:

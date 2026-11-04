@@ -233,6 +233,8 @@ class BitbucketLegacyUidTest(TestCase):
                 uid=account_id,
                 extra_data={"account_id": account_id, "username": username},
             ),
+            # Bitbucket doesn't tell us if the email is verified.
+            email_addresses=[EmailAddress(email="Me@example.com", primary=True, verified=False)],
         )
 
     def test_migrate_legacy_uid_on_login(self):
@@ -287,7 +289,7 @@ class BitbucketLegacyUidTest(TestCase):
         assert not sociallogin.is_existing
 
     def test_redirect_login_of_account_without_account_id(self):
-        get(EmailAddress, user=self.user, email="me@example.com", verified=False)
+        get(EmailAddress, user=self.user, email="me@example.com", verified=True)
         get(
             SocialAccount,
             provider=BitbucketOAuth2Provider.id,
@@ -296,15 +298,13 @@ class BitbucketLegacyUidTest(TestCase):
             user=self.user,
         )
         sociallogin = self._sociallogin("557058:abc", "new-username")
-        sociallogin.email_addresses = [EmailAddress(email="Me@example.com", verified=False)]
 
         with self.assertRaises(ImmediateHttpResponse) as exc:
             self.adapter.pre_social_login(self.request, sociallogin)
         assert exc.exception.response.url == reverse("account_login")
 
     def test_redirect_login_of_account_with_null_account_id(self):
-        self.user.email = "me@example.com"
-        self.user.save()
+        get(EmailAddress, user=self.user, email="me@example.com", verified=True)
         get(
             SocialAccount,
             provider=BitbucketOAuth2Provider.id,
@@ -317,9 +317,25 @@ class BitbucketLegacyUidTest(TestCase):
         with self.assertRaises(ImmediateHttpResponse):
             self.adapter.pre_social_login(self.request, sociallogin)
 
-    def test_dont_redirect_login_if_accounts_have_account_id(self):
+    def test_dont_redirect_login_if_email_isnt_verified(self):
+        get(EmailAddress, user=self.user, email="me@example.com", verified=False)
+        # The user's email field isn't used, only verified email addresses.
         self.user.email = "me@example.com"
         self.user.save()
+        get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="old-username",
+            extra_data={"username": "old-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+        # No exception raised, allauth continues with the signup.
+        self.adapter.pre_social_login(self.request, sociallogin)
+        assert not sociallogin.is_existing
+
+    def test_dont_redirect_login_if_accounts_have_account_id(self):
+        get(EmailAddress, user=self.user, email="me@example.com", verified=True)
         get(
             SocialAccount,
             provider=BitbucketOAuth2Provider.id,
@@ -333,8 +349,7 @@ class BitbucketLegacyUidTest(TestCase):
         assert not sociallogin.is_existing
 
     def test_dont_redirect_when_connecting_account(self):
-        self.user.email = "me@example.com"
-        self.user.save()
+        get(EmailAddress, user=self.user, email="me@example.com", verified=True)
         get(
             SocialAccount,
             provider=BitbucketOAuth2Provider.id,
