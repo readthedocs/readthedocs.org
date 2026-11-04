@@ -31,20 +31,20 @@ class RTDTokenTests(TestCase):
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_community_token_prefix(self):
         token, plain_token = self._create_token()
-        assert token.prefix.startswith("rtdorg_project_")
+        assert token.prefix.startswith("rtdcommunity_project_")
         assert plain_token.startswith(f"{token.prefix}_")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_business_token_prefix(self):
         token, plain_token = self._create_token()
-        assert token.prefix.startswith("rtdcom_project_")
+        assert token.prefix.startswith("rtdbusiness_project_")
         assert plain_token.startswith(f"{token.prefix}_")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_token_format(self):
         token, plain_token = self._create_token()
         platform, scope, random, secret = plain_token.split("_")
-        assert platform == "rtdorg"
+        assert platform == "rtdcommunity"
         assert scope == "project"
         assert token.prefix == f"{platform}_{scope}_{random}"
         assert len(secret) == 32
@@ -74,12 +74,12 @@ class RTDTokenTests(TestCase):
     def test_get_from_token_without_platform_prefix(self):
         token, plain_token = self._create_token()
         with pytest.raises(RTDToken.DoesNotExist):
-            RTDToken.objects.get_from_token(plain_token.removeprefix("rtdorg_project_"))
+            RTDToken.objects.get_from_token(plain_token.removeprefix("rtdcommunity_project_"))
 
     def test_get_from_token_with_another_platform_prefix(self):
         _, plain_token = self._create_token()
         with pytest.raises(RTDToken.DoesNotExist):
-            RTDToken.objects.get_from_token(plain_token.replace("rtdorg_", "rtdcom_", 1))
+            RTDToken.objects.get_from_token(plain_token.replace("rtdcommunity_", "rtdbusiness_", 1))
 
     def test_get_from_token_invalid_secret(self):
         _, plain_token = self._create_token()

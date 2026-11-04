@@ -35,14 +35,14 @@ class RTDTokenScope(StrEnum):
 
 def get_platform_prefix():
     """Prefix used to identify the platform (Community or Business) a token belongs to."""
-    return "rtdcom" if settings.ALLOW_PRIVATE_REPOS else "rtdorg"
+    return "rtdbusiness" if settings.ALLOW_PRIVATE_REPOS else "rtdcommunity"
 
 
 def get_token_prefix(scope):
     """
     Return the prefix used to identify the platform and scope of a token.
 
-    For example, ``rtdorg_project_`` for a project scoped token in Read the Docs Community.
+    For example, ``rtdcommunity_project_`` for a project scoped token in Read the Docs Community.
     """
     return f"{get_platform_prefix()}_{scope}_"
 
@@ -51,8 +51,8 @@ class RTDTokenGenerator(KeyGenerator):
     """
     Generate tokens prefixed with the platform and scope of the token.
 
-    Tokens have the form ``rtdorg_project_<random>_<secret>``.
-    The ``rtdorg_project_<random>`` part is stored as the prefix to look up the token,
+    Tokens have the form ``rtdcommunity_project_<random>_<secret>``.
+    The ``rtdcommunity_project_<random>`` part is stored as the prefix to look up the token,
     the full token is hashed.
     The random part and the secret only contain letters and digits,
     so the secret is everything after the last ``_``.
@@ -122,7 +122,7 @@ class RTDToken(TimeStampedModel):
     other scopes (like organization or user) will be added in the future.
     """
 
-    # Platform and scope part of the token, plus a random part (e.g. ``rtdorg_project_<random>``),
+    # Platform and scope part of the token, plus a random part (e.g. ``rtdcommunity_project_<random>``),
     # used to look up the token.
     prefix = models.CharField(max_length=32, unique=True, editable=False)
     hashed_token = models.CharField(max_length=150, editable=False)

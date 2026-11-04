@@ -11,7 +11,7 @@ class RTDTokenAuthentication(TokenAuthentication):
     Authenticate requests using an API token (``RTDToken``).
 
     Tokens are passed using the same format as user tokens (``Authorization: Token <token>``),
-    and are identified by their prefix (e.g. ``rtdorg_project_``).
+    and are identified by their prefix (e.g. ``rtdcommunity_project_``).
     Requests with a token without our prefix are left to other authentication classes.
 
     The request isn't attached to a user, ``request.user`` is an anonymous user
