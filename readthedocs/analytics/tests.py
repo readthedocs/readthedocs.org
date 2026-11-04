@@ -230,6 +230,40 @@ class AnalyticsPageViewsTests(TestCase):
                 PageView.objects.all().order_by("-date").first().view_count == 1
             ), f"'{self.absolute_uri}' has 1 view tomorrow"
 
+    def test_register_page_view_without_version(self):
+        for _ in range(2):
+            PageView.objects.register_page_view(
+                project=self.project,
+                version=None,
+                filename="missing.html",
+                path="/en/latest/missing.html",
+                status="404",
+            )
+
+        page_view = PageView.objects.get()
+        assert page_view.version is None
+        assert page_view.path == "/missing.html"
+        assert page_view.full_path == "/en/latest/missing.html"
+        assert page_view.view_count == 2
+        assert page_view.status == 404
+
+    def test_register_page_view_with_version(self):
+        for _ in range(2):
+            PageView.objects.register_page_view(
+                project=self.project,
+                version=self.version,
+                filename="index.html",
+                path="/en/1.8/index.html",
+                status="200",
+            )
+
+        page_view = PageView.objects.get()
+        assert page_view.version == self.version
+        assert page_view.path == "/index.html"
+        assert page_view.full_path == "/en/1.8/index.html"
+        assert page_view.view_count == 2
+        assert page_view.status == 200
+
     def test_dont_track_external_domains(self):
         self.assertEqual(PageView.objects.all().count(), 0)
         get(
