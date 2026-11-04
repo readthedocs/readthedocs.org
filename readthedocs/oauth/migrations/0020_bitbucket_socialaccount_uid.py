@@ -33,6 +33,7 @@ def forwards(apps, schema_editor):
     used_uids = SocialAccount.objects.filter(provider=BITBUCKET_PROVIDER_ID).values("uid")
     pks = list(
         accounts.filter(account_id__isnull=False)
+        .exclude(extra_data__account_id=None)
         .exclude(uid=F("account_id"))
         .exclude(account_id__in=duplicated_account_ids)
         .exclude(account_id__in=used_uids)
