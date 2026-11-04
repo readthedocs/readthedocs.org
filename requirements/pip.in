@@ -53,7 +53,7 @@ redis
 celery
 django-celery-beat
 
-django-allauth[socialaccount,saml,mfa]==65.17.0
+django-allauth[socialaccount,saml,mfa]
 
 requests-oauthlib
 
