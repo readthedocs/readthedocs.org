@@ -111,7 +111,8 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         log.info("Aborting login of unmigrated Bitbucket account.")
         messages.warning(
             request,
-            "We are updating Bitbucket accounts. Please try again in a few minutes.",
+            "We are updating Bitbucket accounts. "
+            "Please try again in a few minutes or log in with your email and password.",
         )
         raise ImmediateHttpResponse(HttpResponseRedirect(reverse("account_login")))
 
@@ -119,13 +120,28 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         """
         Redirect to the login page if the user has a Bitbucket account we can't match.
 
-        Bitbucket accounts without an ``account_id`` saved can't be matched on login,
-        so allauth would show the signup form instead.
+        Since allauth 65.19.6, Bitbucket accounts are identified by their ``account_id``
+        instead of their username, and existing accounts were migrated
+        using the ``account_id`` saved in ``extra_data``
+        (see ``oauth/migrations/0020_bitbucket_socialaccount_uid.py``).
+        Some accounts didn't have an ``account_id`` saved
+        (they hadn't logged in since Bitbucket started returning it),
+        and their tokens were no longer valid to fetch it from the API,
+        so they couldn't be migrated.
+
+        These accounts can't be matched on login, so allauth shows the signup form instead,
+        where the user would either get an "email already registered" error,
+        or create a new user without access to their projects.
         If the email from Bitbucket matches a verified email of a user with one of these accounts,
         we ask them to log in with their email and connect Bitbucket again.
+        When they do, the old account is removed by
+        ``readthedocs.oauth.signals.remove_bitbucket_accounts_without_account_id``.
 
         We don't connect the accounts by email, since Bitbucket doesn't
         tell us if the email is verified.
+
+        This can be removed once there are no Bitbucket accounts without an ``account_id``
+        (see ``readthedocs.oauth.utils.get_bitbucket_accounts_without_account_id``).
         """
         if sociallogin.account.provider != BitbucketOAuth2Provider.id:
             return
