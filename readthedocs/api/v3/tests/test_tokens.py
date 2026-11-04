@@ -13,6 +13,7 @@ from django_dynamic_fixture import get
 from readthedocs.api.v3.authentication import RTDTokenAuthentication
 from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDToken
+from readthedocs.api.v3.models import get_token_prefix
 from readthedocs.projects.models import Project
 
 
@@ -65,6 +66,14 @@ class RTDTokenTests(TestCase):
         for field in ("prefix", "hashed_token"):
             max_length = RTDToken._meta.get_field(field).max_length
             assert len(getattr(token, field)) <= max_length
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_prefix_fits_future_scopes(self):
+        # Organization and user scoped tokens will be added in the future,
+        # the longest prefix (Community and organization) must fit too.
+        max_length = RTDToken._meta.get_field("prefix").max_length
+        prefix = get_token_prefix("organization") + RTDToken.objects.token_generator.get_prefix()
+        assert len(prefix) <= max_length
 
     def test_get_from_token(self):
         token, plain_token = self._create_token()

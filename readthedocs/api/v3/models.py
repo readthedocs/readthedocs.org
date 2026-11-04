@@ -124,8 +124,8 @@ class RTDToken(TimeStampedModel):
 
     # Platform and scope part of the token, plus a random part (e.g. ``rtdcommunity_project_<random>``),
     # used to look up the token.
-    prefix = models.CharField(max_length=32, unique=True, editable=False)
-    hashed_token = models.CharField(max_length=150, editable=False)
+    prefix = models.CharField(max_length=64, unique=True, editable=False)
+    hashed_token = models.CharField(max_length=255, editable=False)
     name = models.CharField(
         _("Name"),
         max_length=50,

@@ -44,9 +44,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "prefix",
-                    models.CharField(editable=False, max_length=32, unique=True),
+                    models.CharField(editable=False, max_length=64, unique=True),
                 ),
-                ("hashed_token", models.CharField(editable=False, max_length=150)),
+                ("hashed_token", models.CharField(editable=False, max_length=255)),
                 (
                     "name",
                     models.CharField(
