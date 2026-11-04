@@ -84,8 +84,14 @@ Follow these steps:
 Granting access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Make the user a member of any team with *admin* permissions,
+Organization owners can import projects on any team.
+To let another user import projects,
+make them a member of any team with *admin* permissions,
 they will be granted access to import a project on that team.
+
+Only organization owners can import projects using the :doc:`API </api/v3>`.
+If your organization uses :ref:`single sign-on with a Git provider <sso_git_provider>`,
+teams aren't used, and only organization owners can import projects.
 
 Automating team management
 --------------------------
