@@ -1,5 +1,6 @@
 from unittest import mock
 
+from allauth.account.models import EmailAddress
 from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import get_adapter as get_social_account_adapter
 from allauth.socialaccount.models import SocialAccount, SocialLogin
@@ -7,6 +8,7 @@ from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketO
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
@@ -283,3 +285,63 @@ class BitbucketLegacyUidTest(TestCase):
             )
         ) == {"first", "second"}
         assert not sociallogin.is_existing
+
+    def test_redirect_login_of_account_without_account_id(self):
+        get(EmailAddress, user=self.user, email="me@example.com", verified=False)
+        get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="old-username",
+            extra_data={"username": "old-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+        sociallogin.email_addresses = [EmailAddress(email="Me@example.com", verified=False)]
+
+        with self.assertRaises(ImmediateHttpResponse) as exc:
+            self.adapter.pre_social_login(self.request, sociallogin)
+        assert exc.exception.response.url == reverse("account_login")
+
+    def test_redirect_login_of_account_with_null_account_id(self):
+        self.user.email = "me@example.com"
+        self.user.save()
+        get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="old-username",
+            extra_data={"account_id": None, "username": "old-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+
+        with self.assertRaises(ImmediateHttpResponse):
+            self.adapter.pre_social_login(self.request, sociallogin)
+
+    def test_dont_redirect_login_if_accounts_have_account_id(self):
+        self.user.email = "me@example.com"
+        self.user.save()
+        get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="557058:other",
+            extra_data={"account_id": "557058:other"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+        # No exception raised, allauth continues with the signup.
+        self.adapter.pre_social_login(self.request, sociallogin)
+        assert not sociallogin.is_existing
+
+    def test_dont_redirect_when_connecting_account(self):
+        self.user.email = "me@example.com"
+        self.user.save()
+        get(
+            SocialAccount,
+            provider=BitbucketOAuth2Provider.id,
+            uid="old-username",
+            extra_data={"username": "old-username"},
+            user=self.user,
+        )
+        sociallogin = self._sociallogin("557058:abc", "new-username")
+        request = mock.MagicMock(user=self.user)
+        self.adapter.pre_social_login(request, sociallogin)

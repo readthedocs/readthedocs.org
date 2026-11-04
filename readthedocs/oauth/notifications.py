@@ -22,6 +22,7 @@ MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
 MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
 MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES = "oauth:syncing-remote-repositories"
 MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:projects-to-migrate-to-github-app"
+MESSAGE_OAUTH_BITBUCKET_RECONNECT = "oauth:bitbucket:reconnect"
 
 messages = [
     Message(
@@ -174,6 +175,20 @@ messages = [
             ).strip(),
         ),
         type=INFO,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_BITBUCKET_RECONNECT,
+        header=_("Reconnect your Bitbucket account"),
+        body=_(
+            textwrap.dedent(
+                """
+                Your Bitbucket connection needs to be renewed.
+                <a href="{% url "socialaccount_connections" %}">Connect your Bitbucket account again</a>
+                to keep importing and syncing repositories.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)

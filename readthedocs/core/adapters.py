@@ -9,6 +9,7 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
@@ -16,6 +17,7 @@ from django.utils.encoding import force_str
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.utils import send_email_from_object
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.utils import get_bitbucket_accounts_without_account_id
 
 
 log = structlog.get_logger(__name__)
@@ -66,6 +68,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         self._filter_email_addresses(sociallogin)
         self._migrate_legacy_bitbucket_uid(sociallogin)
+        self._redirect_bitbucket_login_without_account_id(request, sociallogin)
         self._block_use_of_old_github_oauth_app(request, sociallogin)
         self._connect_github_app_to_existing_github_account(request, sociallogin)
 
@@ -120,6 +123,52 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         # instead of creating a new one.
         sociallogin.user = None
         sociallogin.lookup()
+
+    def _redirect_bitbucket_login_without_account_id(self, request, sociallogin):
+        """
+        Redirect to the login page if the user has a Bitbucket account we can't match.
+
+        Bitbucket accounts without an ``account_id`` saved can't be matched on login,
+        so allauth would show the signup form instead.
+        If the email from Bitbucket belongs to a user with one of these accounts,
+        we ask them to log in with their email and connect Bitbucket again.
+
+        We don't connect the accounts by email, since Bitbucket doesn't
+        tell us if the email is verified.
+        """
+        if sociallogin.account.provider != BitbucketOAuth2Provider.id:
+            return
+
+        if sociallogin.is_existing:
+            return
+
+        # The user is connecting a new account, nothing to do.
+        if request.user.is_authenticated:
+            return
+
+        emails = {email.email.lower() for email in sociallogin.email_addresses if email.email}
+        user_email = getattr(sociallogin.user, "email", None)
+        if user_email:
+            emails.add(user_email.lower())
+        if not emails:
+            return
+
+        has_accounts_without_account_id = (
+            get_bitbucket_accounts_without_account_id()
+            .filter(Q(user__email__in=emails) | Q(user__emailaddress__email__in=emails))
+            .exists()
+        )
+        if not has_accounts_without_account_id:
+            return
+
+        log.info("Redirecting Bitbucket login of account without account_id to login page.")
+        messages.info(
+            request,
+            "You already have a Read the Docs account. "
+            'Log in with your email (use "Forgot password" if you haven\'t set one), '
+            "then connect your Bitbucket account again.",
+        )
+        raise ImmediateHttpResponse(HttpResponseRedirect(reverse("account_login")))
 
     def _filter_email_addresses(self, sociallogin):
         """
