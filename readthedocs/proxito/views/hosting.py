@@ -236,15 +236,11 @@ class RemoveFieldsMixin:
 
     FIELDS_TO_REMOVE = []
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for field in self.FIELDS_TO_REMOVE:
-            if field in self.fields:
-                del self.fields[field]
-
-            if field in self.Meta.fields:
-                del self.Meta.fields[self.Meta.fields.index(field)]
+    def get_field_names(self, declared_fields, info):
+        # Filter a copy instead of editing ``Meta.fields``,
+        # which is shared with the parent serializer.
+        field_names = super().get_field_names(declared_fields, info)
+        return [field for field in field_names if field not in self.FIELDS_TO_REMOVE]
 
 
 # NOTE: the following serializers are required only to remove some fields we
