@@ -59,13 +59,14 @@ class BitbucketService(UserService):
                 workspace_base["slug"] for workspace_base in self._get_workspaces_base()
             ]
         except TypeError, ValueError, KeyError:
-            log.warning("Error syncing Bitbucket workspaces")
+            log.warning("Error syncing Bitbucket workspaces", exc_info=True)
             raise SyncServiceError(
                 SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
                     provider=self.allauth_provider.name
                 )
             )
 
+        has_error = False
         for workspace_slug in workspace_slugs:
             try:
                 repos = self.paginate(
@@ -77,15 +78,14 @@ class BitbucketService(UserService):
                     if remote_repository:
                         remote_ids.append(remote_repository.remote_id)
             except TypeError, ValueError:
+                # Keep syncing the other workspaces, but report the error at the end.
+                has_error = True
                 log.warning(
                     "Error syncing Bitbucket repositories for workspace.",
                     workspace=workspace_slug,
+                    exc_info=True,
                 )
-                raise SyncServiceError(
-                    SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
-                        provider=self.allauth_provider.name
-                    )
-                )
+                continue
 
             # Privileges aren't returned with repository data, so we query
             # again for repositories the user has the admin role on.
@@ -106,7 +106,17 @@ class BitbucketService(UserService):
                 log.warning(
                     "Error syncing Bitbucket admin repositories for workspace.",
                     workspace=workspace_slug,
+                    exc_info=True,
                 )
+
+        # Raise after syncing every workspace, so ``sync()`` doesn't delete
+        # relations of repositories from the workspaces that failed.
+        if has_error:
+            raise SyncServiceError(
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.allauth_provider.name
+                )
+            )
 
         return remote_ids
 

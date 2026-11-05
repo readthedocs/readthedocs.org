@@ -11,5 +11,5 @@ We are happy to raise limits on your project, but please consider donating to Re
 
 For more information on contributing, you can read more here:
 
-http://docs.readthedocs.io/page/contribute.html
+https://docs.readthedocs.com/dev/latest/contribute.html
 {% endblock %}

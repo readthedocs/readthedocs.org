@@ -44,9 +44,9 @@ class SearchAPI(APIv3Settings, GenericAPIView):
 
     Required query parameters:
 
-    - **q**: [Search term](https://docs.readthedocs.io/page/server-side-search/syntax.html).
+    - **q**: [Search term](https://docs.readthedocs.com/platform/stable/server-side-search/syntax.html).
 
-    Check our [docs](https://docs.readthedocs.io/page/server-side-search/api.html) for more information.
+    Check our [docs](https://docs.readthedocs.com/platform/stable/server-side-search/api.html) for more information.
     """  # noqa
 
     http_method_names = ["get"]

@@ -259,7 +259,7 @@ Removed virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds
 Creating virtual environment at: /home/docs/checkouts/readthedocs.org/user_builds/test-builds/envs/uv
 ```
 
-We are explicitly calling `uv sync` with `UV_PYTHON` on porpuse to avoid this behavior and make the build to fail if these versions mismatch.
+We are explicitly calling `uv sync` with `UV_PYTHON` on purpose to avoid this behavior and make the build to fail if these versions mismatch.
 Otherwise, it will conflict with `build.tools.python` version and it will be pretty confusing.
 
 ## Validation Rules

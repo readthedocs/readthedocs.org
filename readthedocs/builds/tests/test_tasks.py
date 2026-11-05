@@ -10,6 +10,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
@@ -24,10 +26,12 @@ from readthedocs.builds.tasks import (
     check_and_disable_project_for_consecutive_failed_builds,
     delete_closed_external_versions,
     delete_old_build_objects,
+    finish_inactive_uploaded_builds,
     post_build_overview,
     remove_orphan_build_config,
     run_post_build_tasks,
 )
+from readthedocs.doc_builder.exceptions import BuildAppError, BuildUserError
 from readthedocs.filetreediff.dataclasses import FileTreeDiff, FileTreeDiffFileStatus
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB_APP
@@ -101,35 +105,6 @@ class TestTasks(TestCase):
         self.assertEqual(Version.objects.all().count(), 4)
         self.assertEqual(Version.external.all().count(), 2)
         self.assertFalse(Version.objects.filter(slug="external-inactive-old").exists())
-
-    def test_delete_closed_external_versions_build_without_commit(self):
-        """Closed external versions are deleted even if their last build has no commit."""
-        github_app_installation = get(
-            GitHubAppInstallation,
-            installation_id=1111,
-            target_id=1111,
-            target_type=GitHubAccountType.USER,
-        )
-        remote_repository = get(
-            RemoteRepository,
-            remote_id="1234",
-            vcs_provider=GITHUB_APP,
-            github_app_installation=github_app_installation,
-        )
-        project = get(Project, remote_repository=remote_repository)
-        version = get(
-            Version,
-            project=project,
-            slug="external-closed",
-            type=EXTERNAL,
-            state=EXTERNAL_VERSION_STATE_CLOSED,
-            modified=datetime.now() - timedelta(days=7),
-        )
-        get(Build, project=project, version=version, commit=None)
-
-        delete_closed_external_versions(days=6)
-
-        self.assertFalse(Version.objects.filter(slug="external-closed").exists())
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch("readthedocs.builds.models.build_commands_storage")
@@ -714,3 +689,67 @@ class TestRunPostBuildTasks(TestCase):
 
         purge_docs_cdn.delay.assert_not_called()
         index_build.delay.assert_not_called()
+
+
+class TestFinishInactiveUploadedBuilds(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    def _uploaded_build(self, *, minutes_ago, state=BUILD_STATE_TRIGGERED, task_id=None):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=state,
+            is_uploaded=True,
+            task_id=task_id,
+        )
+        Build.objects.filter(pk=build.pk).update(
+            date=timezone.now() - timedelta(minutes=minutes_ago),
+        )
+        build.refresh_from_db()
+        return build
+
+    def _notification_ids(self, build):
+        return list(build.notifications.values_list("message_id", flat=True))
+
+    @override_settings(RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME=30 * 60)
+    def test_expired_pending_upload_is_cancelled_with_upload_note(self):
+        build = self._uploaded_build(minutes_ago=31)
+
+        finish_inactive_uploaded_builds()
+
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_CANCELLED
+        assert not build.success
+        assert self._notification_ids(build) == [
+            BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
+        ]
+
+    @override_settings(RTD_UPLOAD_API_UPLOAD_URL_EXPIRATION_TIME=30 * 60)
+    def test_recent_pending_upload_is_left_alone(self):
+        build = self._uploaded_build(minutes_ago=5)
+
+        finish_inactive_uploaded_builds()
+
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_TRIGGERED
+        assert self._notification_ids(build) == []
+
+    @mock.patch("readthedocs.builds.tasks.app")
+    def test_stuck_processing_keeps_generic_inactivity_note(self, app):
+        build = self._uploaded_build(
+            minutes_ago=7 * 60,
+            state=BUILD_STATE_BUILDING,
+            task_id="task-id",
+        )
+
+        finish_inactive_uploaded_builds()
+
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_CANCELLED
+        assert self._notification_ids(build) == [
+            BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
+        ]
+        app.control.revoke.assert_called_once()

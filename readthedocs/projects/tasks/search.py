@@ -1,3 +1,5 @@
+import os
+import tempfile
 from fnmatch import fnmatch
 
 import structlog
@@ -18,6 +20,7 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.parsers import GenericParser
 from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
@@ -266,7 +269,7 @@ def _get_indexers(
     return indexers
 
 
-def _process_files(*, version: Version, indexers: list[Indexer]):
+def _process_files(*, version: Version, indexers: list[Indexer], local_path: str):
     storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
@@ -284,15 +287,19 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
         sync_id=sync_id,
     )
 
-    for root, __, filenames in build_media_storage.walk(storage_path):
+    # A single bulk download is much faster than one or more storage
+    # requests per file. HTML is all the indexers consume.
+    build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
+
+    # The injected parser makes ``processed_json`` read from the local copy.
+    parser = GenericParser(version, local_path=local_path)
+    for root, __, filenames in os.walk(local_path):
         for filename in filenames:
             # We don't care about non-HTML files (for now?).
             if not filename.endswith(".html"):
                 continue
 
-            full_path = build_media_storage.join(root, filename)
-            # Generate a relative path for storage similar to os.path.relpath
-            relpath = full_path.removeprefix(storage_path).lstrip("/")
+            relpath = os.path.relpath(os.path.join(root, filename), local_path)
 
             html_file = HTMLFile(
                 project=version.project,
@@ -305,6 +312,7 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 commit="unknown",
                 build=sync_id,
             )
+            html_file.parser = parser
             for indexer in indexers:
                 try:
                     indexer.process(html_file, sync_id)
@@ -357,7 +365,8 @@ def index_build(build_id):
             version=version,
             build=build,
         )
-        return _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            return _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to index build")
 
@@ -401,7 +410,8 @@ def reindex_version(version_id, search_index_name=None):
             search_index_name=search_index_name,
             post_build_overview=False,
         )
-        _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to re-index version")
 

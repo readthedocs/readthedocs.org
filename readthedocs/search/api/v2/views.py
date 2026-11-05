@@ -31,7 +31,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
     - **project**: Project to search.
     - **version**: Version to search.
 
-    Check our [docs](https://docs.readthedocs.io/en/stable/server-side-search.html#api) for more information.
+    Check our [docs](https://docs.readthedocs.com/platform/stable/server-side-search/api.html#api-v2-deprecated) for more information.
     """  # noqa
 
     http_method_names = ["get"]

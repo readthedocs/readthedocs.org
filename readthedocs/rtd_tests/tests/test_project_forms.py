@@ -61,8 +61,8 @@ class TestProjectForms(TestCase):
             ("github.com/humitos/foo", False),
             ("https://github.com/|/foo", False),
             ("git://github.com/&&/foo", False),
+            ("git://github.com/humitos/foo", False),
             # Valid
-            ("git://github.com/humitos/foo", True),
             ("http://github.com/humitos/foo", True),
             ("https://github.com/humitos/foo", True),
             ("http://gitlab.com/humitos/foo", True),
@@ -109,6 +109,17 @@ class TestProjectForms(TestCase):
                 }
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
+
+    @override_settings(DEBUG=True)
+    def test_git_scheme_allowed_in_debug(self):
+        initial = {
+            "name": "foo",
+            "repo_type": "git",
+            "repo": "git://10.10.0.1/readthedocs.org",
+            "language": "en",
+        }
+        form = ProjectBasicsForm(initial)
+        assert form.is_valid(), form.errors
 
     def test_empty_slug(self):
         initial = {

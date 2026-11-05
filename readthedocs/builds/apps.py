@@ -10,6 +10,8 @@ log = structlog.get_logger(__name__)
 
 class Config(AppConfig):
     name = "readthedocs.builds"
+    # Existing models use AutoField, see DEFAULT_AUTO_FIELD in settings.
+    default_auto_field = "django.db.models.AutoField"
     label = "builds"
     verbose_name = _("Builds")
 

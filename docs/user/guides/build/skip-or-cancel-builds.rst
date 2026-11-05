@@ -127,7 +127,7 @@ compared to the ``main`` branch:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changes in the docs directory or YAML file.
@@ -157,7 +157,7 @@ This example cancels builds when the commit message contains ``[skip ci]`` or ``
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
@@ -180,7 +180,7 @@ such as personal development branches:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_checkout:
          # Cancel builds for branches starting with "dev/" or "experiment/"
@@ -202,7 +202,7 @@ such as only images or data files:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_checkout:
          # Cancel if only non-documentation files changed (e.g., only images or data files)

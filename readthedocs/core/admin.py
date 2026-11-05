@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -24,12 +26,67 @@ from readthedocs.projects.models import Project
 TokenAdmin.raw_id_fields = ["user"]
 
 
+class ReadOnlyInlineMixin:
+    """Make admin inlines read-only."""
+
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class UserProfileInline(admin.StackedInline):
+    """Edit the profile flags support usually needs, like banning, from the user page."""
+
+    model = UserProfile
+    fields = ("banned", "whitelisted", "mailing_list", "allow_ads", "homepage")
+    can_delete = False
+    show_change_link = True
+
+
+class EmailAddressInline(ReadOnlyInlineMixin, admin.TabularInline):
+    """Show the email addresses attached to a user and their verification state."""
+
+    model = EmailAddress
+    verbose_name = "Email address"
+    verbose_name_plural = "Email addresses"
+    fields = ("email", "verified", "primary")
+    extra = 0
+
+
 class UserProjectInline(admin.TabularInline):
     model = Project.users.through
     verbose_name = "User project"
     verbose_name_plural = "User projects"
     extra = 1
     raw_id_fields = ("project",)
+
+
+class SocialAccountInline(admin.TabularInline):
+    """
+    Show the social accounts connected to a user.
+
+    Connecting an account requires the OAuth flow, so new accounts can't be
+    added from here. Disconnecting one is allowed, since that's a common
+    support operation.
+    """
+
+    model = SocialAccount
+    verbose_name = "Social account"
+    verbose_name_plural = "Social accounts"
+    fields = ("provider", "uid", "date_joined", "last_login")
+    readonly_fields = fields
+    extra = 0
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class UserProjectFilter(admin.SimpleListFilter):
@@ -78,7 +135,12 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdminImpersonateMixin, UserAdm
     )
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
     actions = ["ban_user", "sync_remote_repositories_action"]
-    inlines = [UserProjectInline]
+    inlines = [
+        UserProfileInline,
+        EmailAddressInline,
+        SocialAccountInline,
+        UserProjectInline,
+    ]
 
     # Open a new tab when impersonating a user.
     open_new_window = True

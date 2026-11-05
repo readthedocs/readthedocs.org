@@ -384,7 +384,7 @@ For example, to see all targets from the Read the Docs documentation:
 
 .. prompt:: bash
 
-   python -m sphinx.ext.intersphinx https://docs.readthedocs.io/en/stable/objects.inv
+   python -m sphinx.ext.intersphinx https://docs.readthedocs.com/platform/stable/objects.inv
 
 Cross-referencing targets in other documentation sites
 ------------------------------------------------------
