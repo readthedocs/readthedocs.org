@@ -32,6 +32,9 @@ class CommunityProxitoSettingsMixin:
         # Use our new middleware instead of the old one
         classes = super().MIDDLEWARE
         classes = list(classes)
+        classes[classes.index("django.contrib.sessions.middleware.SessionMiddleware")] = (
+            "readthedocs.proxito.middleware.ProxitoSessionMiddleware"
+        )
         classes.append("readthedocs.proxito.middleware.ProxitoMiddleware")
 
         middleware_to_remove = (

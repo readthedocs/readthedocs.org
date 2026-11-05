@@ -240,6 +240,18 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
         self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
 
+    def test_session_ignored_without_organizations(self):
+        self.client.force_login(self.eric)
+
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        assert r.status_code == 200
+        assert not r.wsgi_request.user.is_authenticated
+        assert settings.SESSION_COOKIE_NAME not in r.cookies
+
     @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_ALLOW_ORGANIZATIONS=True)
     def test_cors_headers_private_version(self):
         get(Organization, owners=[self.eric], projects=[self.project])

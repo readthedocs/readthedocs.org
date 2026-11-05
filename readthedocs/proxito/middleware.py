@@ -13,6 +13,8 @@ import structlog
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_METHODS
 from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.conf import settings
+from django.contrib.sessions.backends.base import SessionBase
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
@@ -40,6 +42,26 @@ from .exceptions import ProjectHttp404
 
 
 log = structlog.get_logger(__name__)
+
+
+class ProxitoSessionMiddleware(SessionMiddleware):
+    """
+    Only use sessions on docs domains when organizations are enabled.
+
+    Sessions are only needed to authorize access to private docs.
+    Otherwise, every request gets an empty session that is never saved,
+    so users are always anonymous and no session cookie is set.
+    """
+
+    def process_request(self, request):
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            return super().process_request(request)
+        request.session = SessionBase()
+
+    def process_response(self, request, response):
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            return super().process_response(request, response)
+        return response
 
 
 class ProxitoMiddleware(MiddlewareMixin):
