@@ -28,10 +28,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.api.v2.permissions import ReadOnlyPermission
-from readthedocs.api.v2.utils import get_build_commands_from_storage
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.builds.utils import get_build_commands_from_storage
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import trigger_sync_versions
@@ -66,6 +66,7 @@ from .permissions import IsOrganizationAdmin
 from .permissions import IsOrganizationAdminMember
 from .permissions import IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
+from .serializers import BuildCommandSerializer
 from .serializers import BuildCreateSerializer
 from .serializers import BuildDetailSerializer
 from .serializers import BuildSerializer
@@ -452,7 +453,9 @@ class BuildsViewSet(
 
         commands = get_build_commands_from_storage(instance)
         if commands is not None:
-            data["commands"] = commands
+            # Storage holds the API v2 command fields, return only the v3 ones.
+            fields = BuildCommandSerializer.Meta.fields
+            data["commands"] = [{field: cmd.get(field) for field in fields} for cmd in commands]
 
         return Response(data)
 

@@ -15,7 +15,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
-from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -792,7 +792,7 @@ class APIBuildTests(TestCase):
         assert r.data["commands"][0]["command"] == command
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    @mock.patch("readthedocs.builds.utils.build_commands_storage")
     def test_build_detail_reads_commands_from_storage(self, build_commands_storage):
         build = get(
             Build,
@@ -825,7 +825,7 @@ class APIBuildTests(TestCase):
         build_commands_storage.exists.assert_called_once_with(build.storage_path)
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    @mock.patch("readthedocs.builds.utils.build_commands_storage")
     def test_build_list_does_not_read_commands_from_cold_storage(
         self,
         build_commands_storage,

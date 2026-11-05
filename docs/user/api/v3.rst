@@ -761,6 +761,7 @@ Build details
                 "code": "finished",
                 "name": "Finished"
             },
+            "state_display": "Finished",
             "success": true,
             "error": null,
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
@@ -803,7 +804,25 @@ Build details
                 "_self": "/api/v3/projects/pip/builds/8592686/",
                 "project": "/api/v3/projects/pip/",
                 "version": "/api/v3/projects/pip/versions/latest/"
-            }
+            },
+            "urls": {
+                "build": "https://app.readthedocs.org/projects/pip/builds/8592686/",
+                "project": "https://app.readthedocs.org/projects/pip/",
+                "version": "https://app.readthedocs.org/projects/pip/version/latest/edit/",
+                "documentation": "https://pip.readthedocs.io/en/latest/",
+                "commit": "https://github.com/pypa/pip/commit/6f808d743fd6f6907ad3e2e969c88a549e76db30"
+            },
+            "commands": [
+                {
+                    "id": 1,
+                    "command": "git clone --depth 1 https://github.com/pypa/pip .",
+                    "output": "Cloning into '.'...",
+                    "exit_code": 0,
+                    "start_time": "2018-06-19T15:16:00+00:00",
+                    "end_time": "2018-06-19T15:16:02+00:00",
+                    "run_time": 2
+                }
+            ]
         }
 
     :>json string created: The ISO-8601 datetime when the build was created.
@@ -812,6 +831,8 @@ Build details
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
     :>json object config: The configuration used by this build
+    :>json array commands: The commands run by this build, with their output.
+                           Only included on this endpoint, not on build listings.
 
 
 Builds listing

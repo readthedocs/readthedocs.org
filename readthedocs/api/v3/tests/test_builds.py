@@ -270,7 +270,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         )
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    @mock.patch("readthedocs.builds.utils.build_commands_storage")
     def test_projects_builds_list_does_not_include_commands(
         self,
         build_commands_storage,
@@ -350,7 +350,7 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(data["commands"][0]["command"], "python -m sphinx")
 
     @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
-    @mock.patch("readthedocs.api.v2.utils.build_commands_storage")
+    @mock.patch("readthedocs.builds.utils.build_commands_storage")
     def test_projects_builds_detail_reads_commands_from_cold_storage(
         self,
         build_commands_storage,
@@ -393,6 +393,8 @@ class BuildsEndpointTests(APIEndpointMixin):
         self.assertEqual(len(commands), 1)
         self.assertEqual(commands[0]["command"], "storage command")
         self.assertEqual(commands[0]["output"], "Storage output")
+        self.assertNotIn("build", commands[0])
+        self.assertNotIn("description", commands[0])
         build_commands_storage.exists.assert_called_once_with(self.build.storage_path)
 
     def test_projects_builds_detail_other_user(self):

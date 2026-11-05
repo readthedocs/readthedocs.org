@@ -12,12 +12,12 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer
 from taggit.serializers import TagListSerializerField
 
-from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
+from readthedocs.builds.utils import normalize_build_command
 from readthedocs.builds.version_slug import validate_version_slug
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
