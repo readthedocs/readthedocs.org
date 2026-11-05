@@ -447,14 +447,30 @@ class ProxiedSearchAPITest(SearchAPITest):
     def get(self, *args, **kwargs):
         return self.client.get(*args, HTTP_HOST=self.host, **kwargs)
 
+    def test_search_user_me_logged_in_user(self):
+        """Docs domains don't use sessions, so ``user:@me`` matches nothing."""
+        self.client.force_login(self.user)
+        resp = self.get(self.url, data={"q": "user:@me test"})
+        assert resp.data["projects"] == []
+        assert resp.data["results"] == []
+
+    def test_search_user_and_project(self):
+        """Docs domains don't use sessions, so only the explicit project is searched."""
+        self.client.force_login(self.user)
+        resp = self.get(self.url, data={"q": "user:@me project:another-project/latest test"})
+        assert resp.data["projects"] == [
+            {"slug": "another-project", "versions": [{"slug": "latest"}]}
+        ]
+        assert len(resp.data["results"]) == 1
+
     def test_search_project_number_of_queries(self):
         # Default version
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(9):
             resp = self.get(self.url, data={"q": "project:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(15):
             resp = self.get(
                 self.url, data={"q": "project:project project:another-project test"}
             )
@@ -462,12 +478,12 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.data["results"]
 
         # With explicit version
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(8):
             resp = self.get(self.url, data={"q": "project:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(14):
             resp = self.get(
                 self.url, data={"q": "project:project/latest project:another-project/latest test"}
             )
@@ -477,12 +493,12 @@ class ProxiedSearchAPITest(SearchAPITest):
     @mock.patch("readthedocs.search.api.v3.views.tasks.record_search_query_batch.delay", new=mock.MagicMock())
     def test_search_project_number_of_queries_without_search_recording(self):
         # Default version
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(6):
             resp = self.get(self.url, data={"q": "project:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(10):
             resp = self.get(
                 self.url, data={"q": "project:project project:another-project test"}
             )
@@ -490,12 +506,12 @@ class ProxiedSearchAPITest(SearchAPITest):
             assert resp.data["results"]
 
         # With explicit version
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(6):
             resp = self.get(self.url, data={"q": "project:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(10):
             resp = self.get(
                 self.url, data={"q": "project:project/latest project:another-project/latest test"}
             )
@@ -515,13 +531,13 @@ class ProxiedSearchAPITest(SearchAPITest):
         self.project.add_subproject(subproject)
 
         # Search on default version.
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(14):
             resp = self.get(self.url, data={"q": "subprojects:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
         # Search on explicit version.
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(12):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
@@ -539,13 +555,13 @@ class ProxiedSearchAPITest(SearchAPITest):
             self.project.add_subproject(subproject)
 
         # Search on default version.
-        with self.assertNumQueries(26):
+        with self.assertNumQueries(24):
             resp = self.get(self.url, data={"q": "subprojects:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
         # Search on explicit version.
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(21):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
@@ -563,13 +579,13 @@ class ProxiedSearchAPITest(SearchAPITest):
         self.project.add_subproject(subproject)
 
         # Search on default version.
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(8):
             resp = self.get(self.url, data={"q": "subprojects:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
         # Search on explicit version.
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(8):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
@@ -587,13 +603,13 @@ class ProxiedSearchAPITest(SearchAPITest):
             self.project.add_subproject(subproject)
 
         # Search on default version.
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(11):
             resp = self.get(self.url, data={"q": "subprojects:project test"})
             assert resp.status_code == 200
             assert resp.data["results"]
 
         # Search on explicit version.
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(11):
             resp = self.get(self.url, data={"q": "subprojects:project/latest test"})
             assert resp.status_code == 200
             assert resp.data["results"]
