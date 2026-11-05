@@ -1231,17 +1231,19 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         if not enabled:
             return context
 
-        # data for plotting the line-chart
-        query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
-            project.slug,
-        )
-
-        queries = []
         filterset = SearchAnalyticsFilterSet(
             data=self.request.GET,
             queryset=SearchQuery.objects.filter(project=project),
         )
         qs = filterset.qs if filterset.is_valid() else filterset.queryset.none()
+
+        # data for plotting the line-chart
+        query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
+            project.slug,
+            queryset=qs,
+        )
+
+        queries = []
         if qs.exists():
             qs = (
                 qs.values("query")
