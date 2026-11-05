@@ -28,10 +28,20 @@ class AuditLogManager(models.Manager):
             AuditLog.INVITATION_SENT,
             AuditLog.INVITATION_ACCEPTED,
             AuditLog.INVITATION_REVOKED,
+            AuditLog.UPLOAD_INITIATED,
+            AuditLog.UPLOAD_COMPLETED,
+            AuditLog.UPLOAD_DENIED,
+        )
+        actions_requiring_project = (
+            AuditLog.PAGEVIEW,
+            AuditLog.DOWNLOAD,
+            AuditLog.UPLOAD_INITIATED,
+            AuditLog.UPLOAD_COMPLETED,
+            AuditLog.UPLOAD_DENIED,
         )
         if action in actions_requiring_user and (not user or not request):
             raise TypeError(f"A user and a request are required for the {action} action.")
-        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and "project" not in kwargs:
+        if action in actions_requiring_project and "project" not in kwargs:
             raise TypeError(f"A project is required for the {action} action.")
 
         # Don't save anonymous users.
@@ -95,6 +105,17 @@ class AuditLog(TimeStampedModel):
     INVITATION_DECLINED = "invitation-declined"
     INVITATION_DECLINED_TEXT = _("Invitation declined")
 
+    # Direct upload: a token holder asked for an upload URL,
+    # reported the upload finished, or was refused.
+    UPLOAD_INITIATED = "upload-initiated"
+    UPLOAD_INITIATED_TEXT = _("Upload initiated")
+
+    UPLOAD_COMPLETED = "upload-completed"
+    UPLOAD_COMPLETED_TEXT = _("Upload completed")
+
+    UPLOAD_DENIED = "upload-denied"
+    UPLOAD_DENIED_TEXT = _("Upload denied")
+
     CHOICES = (
         (PAGEVIEW, PAGEVIEW_TEXT),
         (DOWNLOAD, DOWNLOAD_TEXT),
@@ -105,6 +126,9 @@ class AuditLog(TimeStampedModel):
         (INVITATION_REVOKED, INVITATION_REVOKED_TEXT),
         (INVITATION_ACCEPTED, INVITATION_ACCEPTED_TEXT),
         (INVITATION_DECLINED, INVITATION_DECLINED_TEXT),
+        (UPLOAD_INITIATED, UPLOAD_INITIATED_TEXT),
+        (UPLOAD_COMPLETED, UPLOAD_COMPLETED_TEXT),
+        (UPLOAD_DENIED, UPLOAD_DENIED_TEXT),
     )
 
     user = models.ForeignKey(

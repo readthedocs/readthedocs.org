@@ -26,6 +26,8 @@ The security log tracks the following events:
 - Authentication on the dashboard.
 - Authentication on documentation pages (:doc:`/commercial/index` only).
 - When invitations to manage a project are sent, accepted, revoked or declined.
+- When your API token is used to :doc:`upload documentation </guides/build/direct-upload>` to a project,
+  including attempts that were denied.
 
 Authentication failures and successes are both tracked.
 
@@ -46,6 +48,8 @@ Organization logs track the following events:
 - User accesses a documentation page from your organization (**Enterprise plans only**).
 - User accesses a documentation's downloadable formats (**Enterprise plans only**).
 - Invitations to organization teams are sent, revoked or accepted.
+- Documentation is :doc:`uploaded directly </guides/build/direct-upload>` to a project from your organization,
+  including attempts that were denied.
 
 Authentication failures and successes are both tracked.
 

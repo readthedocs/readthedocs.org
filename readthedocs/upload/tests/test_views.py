@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
@@ -174,6 +175,46 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
             max_size=mock.ANY,
         )
         send_build_status.delay.assert_not_called()
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_initiate_is_recorded_in_security_log(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        response = self.client.post(self.url, self.data, headers={"user-agent": "upload-action/1.0"})
+        assert response.status_code == status.HTTP_201_CREATED
+
+        log = AuditLog.objects.get(action=AuditLog.UPLOAD_INITIATED)
+        assert log.user == self.user
+        assert log.project == self.project
+        assert log.browser == "upload-action/1.0"
+        assert log.resource == self.url
+        assert log.data["id"] == response.data["build"]["id"]
+        assert log.data["commit"] == "a" * 40
+        assert log.data["version"]["slug"] == "main"
+        assert log.data["version"]["type"] == BRANCH
+        assert log.data["version_created"] is True
+
+    def test_denied_initiate_is_recorded_in_security_log(self):
+        other_project = get(
+            Project,
+            slug="other-project",
+            users=[self.other_user],
+        )
+        self.feature.projects.add(other_project)
+        self.data["project"] = other_project.slug
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        log = AuditLog.objects.get(action=AuditLog.UPLOAD_DENIED)
+        assert log.user == self.user
+        assert log.project == other_project
+        assert log.data == {"reason": "not-admin"}
+
+    def test_rejected_initiate_without_project_access_is_not_recorded(self):
+        self.project.feature_set.all().delete()
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert not AuditLog.objects.exists()
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
@@ -627,3 +668,52 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         app_mock.send_task.assert_called_once()
         call_kwargs = app_mock.send_task.call_args.kwargs
         assert call_kwargs["kwargs"]["build_pk"] == self.build.id
+
+        log = AuditLog.objects.get(action=AuditLog.UPLOAD_COMPLETED)
+        assert log.user == self.user
+        assert log.project == self.project
+        assert log.data["id"] == self.build.pk
+        assert log.data["version"]["slug"] == self.version.slug
+        assert log.data["status"] == UploadStatus.success.value
+
+    def test_failed_upload_is_recorded_in_security_log(self):
+        self.data["status"] = UploadStatus.failed.value
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_200_OK
+
+        log = AuditLog.objects.get(action=AuditLog.UPLOAD_COMPLETED)
+        assert log.project == self.project
+        assert log.data["id"] == self.build.pk
+        assert log.data["status"] == UploadStatus.failed.value
+
+    def test_denied_complete_is_recorded_in_security_log(self):
+        other_project = get(
+            Project,
+            slug="other-project",
+            users=[self.other_user],
+        )
+        other_version = get(Version, project=other_project)
+        other_build = get(
+            Build,
+            project=other_project,
+            version=other_version,
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+            task_id=None,
+        )
+        self.data["build"] = other_build.pk
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        log = AuditLog.objects.get(action=AuditLog.UPLOAD_DENIED)
+        assert log.user == self.user
+        assert log.project == other_project
+        assert log.data == {"reason": "not-admin"}
+
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_missing_artifacts_is_not_recorded_in_security_log(self, storages_mock):
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.exists.return_value = False
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert not AuditLog.objects.exists()
