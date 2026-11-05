@@ -12,6 +12,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
+from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -1271,23 +1272,16 @@ class TestAddonsConfigForm(TestCase):
         data = {
             "enabled": True,
             "options_root_selector": "main",
-            "analytics_enabled": False,
-            "doc_diff_enabled": False,
-            "filetreediff_enabled": True,
-            # Empty lines, lines with trailing spaces or lines full of spaces are ignored
-            "filetreediff_ignored_files": "user/index.html\n     \n\n\n   changelog.html    \n/normalized.html",
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "flyout_position": "bottom-left",
             "hotkeys_enabled": False,
-            "search_enabled": False,
             "linkpreviews_enabled": True,
             "notifications_enabled": True,
             "notifications_show_on_latest": True,
             "notifications_show_on_non_stable": True,
-            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -1295,21 +1289,6 @@ class TestAddonsConfigForm(TestCase):
 
         self.assertEqual(self.project.addons.enabled, True)
         self.assertEqual(self.project.addons.options_root_selector, "main")
-        self.assertEqual(self.project.addons.analytics_enabled, False)
-        self.assertEqual(self.project.addons.doc_diff_enabled, False)
-        self.assertEqual(self.project.addons.filetreediff_enabled, True)
-        self.assertEqual(
-            self.project.addons.filetreediff_ignored_files,
-            [
-                "user/index.html",
-                "changelog.html",
-                "normalized.html",
-            ],
-        )
-        self.assertEqual(self.project.addons.notifications_enabled, True)
-        self.assertEqual(self.project.addons.notifications_show_on_latest, True)
-        self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
-        self.assertEqual(self.project.addons.notifications_show_on_external, True)
         self.assertEqual(self.project.addons.flyout_enabled, True)
         self.assertEqual(
             self.project.addons.flyout_sorting,
@@ -1322,28 +1301,22 @@ class TestAddonsConfigForm(TestCase):
         self.assertEqual(self.project.addons.flyout_sorting_custom_pattern, None)
         self.assertEqual(self.project.addons.flyout_position, "bottom-left")
         self.assertEqual(self.project.addons.hotkeys_enabled, False)
-        self.assertEqual(self.project.addons.search_enabled, False)
         self.assertEqual(self.project.addons.linkpreviews_enabled, True)
         self.assertEqual(self.project.addons.notifications_enabled, True)
         self.assertEqual(self.project.addons.notifications_show_on_latest, True)
         self.assertEqual(self.project.addons.notifications_show_on_non_stable, True)
-        self.assertEqual(self.project.addons.notifications_show_on_external, True)
 
     def test_addonsconfig_form_invalid_sorting_custom_pattern(self):
         data = {
             "enabled": True,
-            "analytics_enabled": False,
-            "doc_diff_enabled": False,
             "flyout_enabled": True,
             "flyout_sorting": ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN,
             "flyout_sorting_latest_stable_at_beginning": True,
             "flyout_sorting_custom_pattern": None,
             "hotkeys_enabled": False,
-            "search_enabled": False,
             "notifications_enabled": True,
             "notifications_show_on_latest": True,
             "notifications_show_on_non_stable": True,
-            "notifications_show_on_external": True,
         }
         form = AddonsConfigForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
@@ -1353,7 +1326,7 @@ class TestAddonsConfigForm(TestCase):
         )
 
 
-class TestAddonsConfigFormOptionsBaseVersion(TestCase):
+class TestProjectPullRequestFormOptionsBaseVersion(TestCase):
     def setUp(self):
         self.project = get(Project)
         # DDF creates a single initial version; normalize to a known set.
@@ -1376,38 +1349,34 @@ class TestAddonsConfigFormOptionsBaseVersion(TestCase):
             type=EXTERNAL,
         )
         self.other_project_version = get(Version, slug="v1", type=BRANCH)
+        # The form's prevalidation requires an integration able to build
+        # pull requests.
+        get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data={"events": ["pull_request"]},
+        )
 
     def _base_data(self, **overrides):
         data = {
-            "enabled": True,
-            "options_root_selector": "main",
-            "analytics_enabled": False,
+            "external_builds_enabled": True,
+            "external_builds_privacy_level": PUBLIC,
             "doc_diff_enabled": False,
             "filetreediff_enabled": True,
             "filetreediff_ignored_files": "",
-            "flyout_enabled": True,
-            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
-            "flyout_sorting_latest_stable_at_beginning": True,
-            "flyout_sorting_custom_pattern": None,
-            "flyout_position": "bottom-left",
-            "hotkeys_enabled": False,
-            "search_enabled": False,
-            "linkpreviews_enabled": False,
-            "notifications_enabled": True,
-            "notifications_show_on_latest": True,
-            "notifications_show_on_non_stable": True,
-            "notifications_show_on_external": True,
         }
         data.update(overrides)
         return data
 
     def test_queryset_only_includes_project_internal_versions(self):
-        form = AddonsConfigForm(project=self.project)
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
         queryset = form.fields["options_base_version"].queryset
         assert set(queryset) == {self.internal_v1, self.internal_stable}
 
     def test_selecting_internal_version_saves(self):
-        form = AddonsConfigForm(
+        form = ProjectPullRequestForm(
+            instance=self.project,
             data=self._base_data(options_base_version=self.internal_v1.pk),
             project=self.project,
         )
@@ -1417,7 +1386,8 @@ class TestAddonsConfigFormOptionsBaseVersion(TestCase):
         assert self.project.addons.options_base_version == self.internal_v1
 
     def test_selecting_external_version_rejected(self):
-        form = AddonsConfigForm(
+        form = ProjectPullRequestForm(
+            instance=self.project,
             data=self._base_data(options_base_version=self.external_pr.pk),
             project=self.project,
         )
@@ -1425,7 +1395,8 @@ class TestAddonsConfigFormOptionsBaseVersion(TestCase):
         assert "options_base_version" in form.errors
 
     def test_selecting_other_project_version_rejected(self):
-        form = AddonsConfigForm(
+        form = ProjectPullRequestForm(
+            instance=self.project,
             data=self._base_data(options_base_version=self.other_project_version.pk),
             project=self.project,
         )
@@ -1433,7 +1404,8 @@ class TestAddonsConfigFormOptionsBaseVersion(TestCase):
         assert "options_base_version" in form.errors
 
     def test_blank_selection_allowed(self):
-        form = AddonsConfigForm(
+        form = ProjectPullRequestForm(
+            instance=self.project,
             data=self._base_data(options_base_version=""),
             project=self.project,
         )
@@ -1449,8 +1421,6 @@ class TestProjectPullRequestForm(TestCase):
         # Give the project a GitHub webhook integration so the form's
         # prevalidation (which requires a supported integration capable of
         # building external versions) passes.
-        from readthedocs.integrations.models import Integration
-
         get(
             Integration,
             project=self.project,
@@ -1467,9 +1437,45 @@ class TestProjectPullRequestForm(TestCase):
             "external_builds_enabled": True,
             "external_builds_privacy_level": PUBLIC,
             "notifications_show_on_external": False,
+            "doc_diff_enabled": True,
+            "filetreediff_enabled": True,
+            "filetreediff_ignored_files": "",
         }
         data.update(overrides)
         return data
+
+    def test_initial_diff_settings_reflect_addons_config(self):
+        self.project.addons.doc_diff_enabled = False
+        self.project.addons.filetreediff_ignored_files = ["changelog.html"]
+        self.project.addons.save()
+
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        assert form.fields["doc_diff_enabled"].initial is False
+        assert form.fields["filetreediff_enabled"].initial is True
+        assert form.fields["filetreediff_ignored_files"].initial == ["changelog.html"]
+
+    def test_saving_updates_diff_settings(self):
+        form = ProjectPullRequestForm(
+            data=self._base_data(
+                doc_diff_enabled=False,
+                filetreediff_enabled=False,
+                # Empty lines, surrounding spaces and leading slashes are normalized.
+                filetreediff_ignored_files="user/index.html\n     \n\n   changelog.html    \n/normalized.html",
+            ),
+            instance=self.project,
+            project=self.project,
+        )
+        assert form.is_valid(), form.errors
+        form.save()
+
+        self.project.addons.refresh_from_db()
+        assert self.project.addons.doc_diff_enabled is False
+        assert self.project.addons.filetreediff_enabled is False
+        assert self.project.addons.filetreediff_ignored_files == [
+            "user/index.html",
+            "changelog.html",
+            "normalized.html",
+        ]
 
     def test_initial_value_reflects_addons_config(self):
         """The form should seed the toggle from the related ``AddonsConfig``."""
@@ -1504,53 +1510,6 @@ class TestProjectPullRequestForm(TestCase):
         )
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
-
-        self.project.addons.refresh_from_db()
-        self.assertFalse(self.project.addons.notifications_show_on_external)
-
-    def test_addons_and_pr_forms_share_single_field(self):
-        """The Addons form and PR build form must update the same row."""
-        # Toggle via the AddonsConfigForm.
-        addons_data = {
-            "enabled": True,
-            "options_root_selector": "main",
-            "analytics_enabled": False,
-            "doc_diff_enabled": True,
-            "filetreediff_enabled": True,
-            "filetreediff_ignored_files": "",
-            "flyout_enabled": True,
-            "flyout_sorting": ADDONS_FLYOUT_SORTING_CALVER,
-            "flyout_sorting_latest_stable_at_beginning": True,
-            "flyout_sorting_custom_pattern": None,
-            "flyout_position": "bottom-left",
-            "hotkeys_enabled": False,
-            "search_enabled": False,
-            "linkpreviews_enabled": True,
-            "notifications_enabled": True,
-            "notifications_show_on_latest": True,
-            "notifications_show_on_non_stable": True,
-            "notifications_show_on_external": True,
-        }
-        addons_form = AddonsConfigForm(data=addons_data, project=self.project)
-        self.assertTrue(addons_form.is_valid(), addons_form.errors)
-        addons_form.save()
-
-        # The PR build form should now pick up the value via ``initial``.
-        pr_form = ProjectPullRequestForm(
-            instance=self.project, project=self.project
-        )
-        self.assertTrue(
-            pr_form.fields["notifications_show_on_external"].initial,
-        )
-
-        # Flipping it off on the PR build form updates the same row.
-        pr_form = ProjectPullRequestForm(
-            data=self._base_data(notifications_show_on_external=False),
-            instance=self.project,
-            project=self.project,
-        )
-        self.assertTrue(pr_form.is_valid(), pr_form.errors)
-        pr_form.save()
 
         self.project.addons.refresh_from_db()
         self.assertFalse(self.project.addons.notifications_show_on_external)
