@@ -23,12 +23,7 @@ try:
 except ImportError:
     ext = False
 
-try:
-    import readthedocsext.theme  # noqa
-
-    ext_theme = True
-except ImportError:
-    ext_theme = False
+import readthedocsext.theme  # noqa
 
 
 _ = gettext = lambda s: s
@@ -336,8 +331,7 @@ class CommunityBaseSettings(Settings):
         if self.SHOW_DEBUG_TOOLBAR:
             apps.append("debug_toolbar")
 
-        if ext_theme:
-            apps.append("readthedocsext.theme")
+        apps.append("readthedocsext.theme")
 
         return apps
 
@@ -549,16 +543,13 @@ class CommunityBaseSettings(Settings):
 
     @property
     def TEMPLATES(self):
-        dirs = [self.TEMPLATE_ROOT]
-
-        if ext_theme:
-            dirs.insert(
-                0,
-                os.path.join(
-                    os.path.dirname(readthedocsext.theme.__file__),
-                    "templates",
-                ),
-            )
+        dirs = [
+            os.path.join(
+                os.path.dirname(readthedocsext.theme.__file__),
+                "templates",
+            ),
+            self.TEMPLATE_ROOT,
+        ]
 
         # Disable ``cached.Loader`` on development
         # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
