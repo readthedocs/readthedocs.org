@@ -82,8 +82,8 @@ Having individual projects gives you the full flexibility of the Read the Docs p
 For each project, it's now possible to configure:
 
 * Sets of maintainers (or :doc:`organizations </commercial/organizations>` on |com_brand|)
-* :doc:`Custom redirect rules </guides/custom-domains>`
-* :doc:`Custom domains </guides/custom-domains>`
+* :doc:`Custom redirect rules </user-defined-redirects>`
+* :doc:`Custom domains </custom-domains>`
 * :doc:`Automation rules </automation-rules>`
 * :doc:`Traffic analytics </traffic-analytics>`
 * Additional documentation tools with individual :doc:`build processes </build-customization>`:
