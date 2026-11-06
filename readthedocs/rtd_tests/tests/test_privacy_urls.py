@@ -327,6 +327,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
             "status_code": 405
         },
+        "/dashboard/pip/domains/{domain_id}/delete/": {"status_code": 405},
         "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
         "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
         "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
@@ -344,6 +345,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
+            "domain_id": self.domain.pk,
             "steps": 1,
             "position": 0,
         }
@@ -378,6 +380,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             "automation_rule_id": self.automation_rule.id,
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
+            "domain_id": self.domain.pk,
             "steps": 1,
             "position": 0,
         }

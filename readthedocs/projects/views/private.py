@@ -971,6 +971,7 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 
 class DomainDelete(DomainMixin, DeleteViewWithMessage):
+    http_method_names = ["post"]
     success_message = _("Domain deleted")
 
 
