@@ -277,6 +277,21 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
         sync_versions.assert_not_called()
 
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sync_versions_called_when_config_file_is_missing(
+        self, load_yaml_config, sync_versions
+    ):
+        # Docs may live on a branch other than the default one, so the
+        # branches must be synced even when the build can't find a config.
+        load_yaml_config.side_effect = BuildUserError(
+            message_id=BuildUserError.NO_CONFIG_FILE_DEPRECATED
+        )
+
+        self._trigger_update_docs_task()
+
+        sync_versions.assert_called_once()
+
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.run_build_job")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
