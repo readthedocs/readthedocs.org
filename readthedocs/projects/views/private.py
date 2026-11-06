@@ -49,6 +49,7 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
+from readthedocs.projects.filters import SearchAnalyticsFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import AutomationRuleForm
@@ -1230,13 +1231,19 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         if not enabled:
             return context
 
+        filterset = SearchAnalyticsFilterSet(
+            data=self.request.GET,
+            queryset=SearchQuery.objects.filter(project=project),
+        )
+        qs = filterset.qs if filterset.is_valid() else filterset.queryset.none()
+
         # data for plotting the line-chart
         query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
             project.slug,
+            queryset=qs,
         )
 
         queries = []
-        qs = SearchQuery.objects.filter(project=project)
         if qs.exists():
             qs = (
                 qs.values("query")
@@ -1251,6 +1258,7 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         context.update(
             {
                 "queries": queries,
+                "filter": filterset,
                 "query_count_of_1_month": query_count_of_1_month,
             },
         )
