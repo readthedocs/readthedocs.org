@@ -17,14 +17,20 @@ Pip supports installing packages from a :ref:`Git repository <pip:vcs support>` 
 
 - ``git+https://gitprovider.com/user/project.git@{version}`` (public repository)
 - ``git+https://{token}@gitprovider.com/user/project.git@{version}`` (private repository)
+- ``git+ssh://git@gitprovider.com/user/project.git@{version}`` (private repository, :ref:`using SSH <guides/private-python-packages:From a Git repository using SSH>`)
 
 Where ``version`` can be a tag, a branch, or a commit, and ``token`` is a personal access token with read only permissions from your provider.
-
-.. TODO: We should add the git+ssh form when we support running the ssh-agent in the build step.
 
 To install a private package from a Git repositories, add the URI to your :ref:`requirements file <config-file/v2:Requirements file>`. Make sure to use an environment variable for the token, so you don't have to hard code it in the URI.
 
 `Pip automatically  expands <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__ environment variables in POSIX format: using only uppercase letters and ``_``, and including a dollar sign and curly brackets around the name, like ``${API_TOKEN}``.
+
+.. note::
+
+   Environment variable expansion is only supported in ``requirements.txt`` files.
+   If your project uses ``pyproject.toml``,
+   pip does not support expanding environment variables in that format.
+   Use :ref:`SSH URLs <guides/private-python-packages:From a Git repository using SSH>` for private dependencies listed there instead.
 
 See :doc:`using environment variables in Read the Docs </environment-variables>` for more information.
 
@@ -77,6 +83,25 @@ Here ``BITBUCKET_USER`` is your Bitbucket user.
    Bitbucket doesn't support app passwords per repository.
    An app password will grant read access to all repositories the user has access to.
    You can create a `machine user <https://confluence.atlassian.com/bitbucketserver/ssh-access-keys-for-system-use-776639781.html>`__ to give read access only to the repositories you need.
+
+From a Git repository using SSH
+-------------------------------
+
+SSH URLs don't need a token,
+so you can use them in ``pyproject.toml`` as well as in requirements files:
+
+.. code-block:: toml
+
+   [project]
+   dependencies = [
+       "project @ git+ssh://git@github.com/user/project.git@{version}",
+   ]
+
+During the build, Git uses your project's :ref:`SSH key <guides/creating-project-private-repository:Configuring your repository>` to clone these dependencies,
+so the key needs read access to each repository you install from.
+GitHub doesn't allow reusing a deploy key across repositories,
+so attach the key to a machine user with read access to those repositories instead.
+The steps for each Git provider are the same as for :doc:`private Git submodules </guides/private-submodules>`.
 
 From a repository manager other than PyPI
 -----------------------------------------
