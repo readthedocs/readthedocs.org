@@ -1,5 +1,5 @@
-Read the Docs documentation
-===========================
+Welcome to Read the Docs
+========================
 
 .. toctree::
    :maxdepth: 2
