@@ -46,9 +46,9 @@ Now your connection is ready and you will be able to import and configure Git re
 
 .. seealso::
 
-   :doc:`/reference/git-integration`
-     Learn how the connected account is used for automatically configuring Git repositories and Read the Docs projects
-     and which **permissions** that are required from your Git provider.
+   :doc:`/projects/integrations/index`
+      Learn more about project integrations, which use connected service accounts
+      to configure and interact with repositories.
 
 Removing a connection
 ---------------------

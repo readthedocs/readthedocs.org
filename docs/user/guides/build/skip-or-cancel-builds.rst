@@ -66,7 +66,7 @@ For example, to only build when documentation files change:
 .. note::
 
    Webhook filters are only available for projects connected through the
-   :doc:`GitHub App integration </reference/git-integration>`.
+   :doc:`GitHub App integration </projects/integrations/github-app>`.
 
 .. seealso::
 

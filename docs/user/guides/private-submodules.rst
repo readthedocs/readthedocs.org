@@ -36,8 +36,8 @@ to give read access to several repositories using only one SSH key.
 
    .. note::
 
-      If you are using our :ref:`reference/git-integration:GitHub App` to connect your repository to Read the Docs,
-      you can skip this step, because access to your repository is controlled through the App instead of a deploy key.
+      If you are using our :doc:`/projects/integrations/github-app` integration to connect your repository to Read the Docs,
+      you can skip this step, because access to your repository is controlled through a temporary token instead of a deploy key.
 
    #. Go to your project on GitHub
    #. Click on :guilabel:`Settings`
@@ -57,7 +57,7 @@ to give read access to several repositories using only one SSH key.
    #. Click on :guilabel:`SSH and GPG keys`
    #. Click on :guilabel:`New SSH key`
    #. Put a descriptive title and paste the
-      :ref:`public SSH key from your Read the Docs project <guides/creating-project-private-repository:Configuring your repository>`
+      :ref:`public SSH key from your Read the Docs project <projects/integrations/guides/creating:Configuring an SSH key>`
    #. Click on :guilabel:`Add SSH key`
 
 Azure DevOps
@@ -69,7 +69,9 @@ Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
 
-   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/creating-project-private-repository:Configuring your repository>`.
+   :ref:`Creating a manually configured integration <projects/integrations/guides/creating:Configuring an SSH key>`
+      All of the configuration steps needed to configure a repository,
+      including SSH configuration.
 
 Others
 ------
@@ -80,4 +82,10 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
+   :doc:`/projects/integrations/guides/creating`
+      All of the steps required to configure a project with an integration to
+      a repository provider, including SSH configuration.
+
    :doc:`/guides/creating-project-private-repository`
+      Creating a project from a private repository can sometimes require similar
+      set up steps to configuring a private submodule.
