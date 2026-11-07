@@ -1,5 +1,5 @@
-Read the Docs documentation
-===========================
+Your documentation infrastructure layer
+=======================================
 
 .. toctree::
    :maxdepth: 2
