@@ -23,7 +23,7 @@ A request with ``Accept: text/markdown`` returns a Markdown response:
 
    ---
    description: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
-   title: Read the Docs: documentation simplified
+   title: Read the Docs documentation
    ---
 
    ...

@@ -1,5 +1,5 @@
-Read the Docs: documentation simplified
-=======================================
+Read the Docs documentation
+===========================
 
 .. toctree::
    :maxdepth: 2
@@ -139,8 +139,8 @@ Read the Docs: documentation simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs builds, versions, and hosts your documentation from Git,
-so your docs stay up to date with your code.
+Connect your Git repository and treat docs like code.
+Read the Docs builds, versions, and hosts your documentation automatically.
 
 Get started
 -----------
