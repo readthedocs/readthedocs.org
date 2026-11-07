@@ -139,47 +139,36 @@ Read the Docs: documentation simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-Read the Docs simplifies managing software documentation
-by building and hosting your docs automatically,
-using the Git workflow you already use for code.
-Treating documentation like code lets your team use tools they already know,
-and makes keeping your docs updated easier.
+Read the Docs builds, versions, and hosts your documentation from Git,
+so your docs stay up to date with your code.
 
-Up to date documentation
-    Whenever you push code to Git,
-    Read the Docs will automatically build your docs
-    so your code and documentation are always up-to-date.
-    Get started with our :doc:`tutorial </tutorial/index>`.
+Get started
+-----------
 
-Documentation for every version
-    Read the Docs can host multiple versions of your docs.
-    Keep your 1.0 and 2.0 documentation online,
-    pulled directly from Git.
-    Start hosting all your :doc:`versions </versions>`.
+.. grid:: 1 1 3 3
+    :gutter: 3
 
-Open source and user focused
-    Our company is bootstrapped and 100% user-focused,
-    so our product gets better for our users instead of our investors.
-    |org_brand| hosts documentation for over 100,000 large
-    and small open source projects at no cost.
-    |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about these differences on `our pricing page <https://about.readthedocs.com/pricing/>`_.
+    .. grid-item-card:: Add your project
+        :link: /intro/add-project
+        :link-type: doc
 
-First time here?
-----------------
+        Already have documentation?
+        Connect your repository and get your first build.
 
-We have a few places for you to get started:
+    .. grid-item-card:: Choose your tool
+        :link: /intro/doctools
+        :link-type: doc
 
-.. descriptions here are active
+        Quick starts for Sphinx, MkDocs, Docusaurus, and more.
 
-:doc:`/tutorial/index`
-  Follow the Read the Docs tutorial.
+    .. grid-item-card:: Follow the tutorial
+        :link: /tutorial/index
+        :link-type: doc
 
-:doc:`/intro/doctools`
-  Quick start for MkDocs and Docusaurus.
+        Starting from nothing?
+        Build and host a Sphinx project step by step.
 
-:doc:`/examples`
-  Start your journey with an example project to learn how to use Read the Docs.
+Or browse :doc:`example projects </examples>` to see how other projects are configured.
 
 Project setup and configuration
 -------------------------------
