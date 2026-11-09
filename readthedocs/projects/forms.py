@@ -17,6 +17,7 @@ from django import forms
 from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import CUSTOM_MATCH
@@ -503,7 +504,6 @@ class UpdateProjectForm(
             "default_branch",
             "readthedocs_yaml_path",
             "git_checkout_command",
-            "search_indexing_enabled",
             "n_consecutive_failed_builds",
             # Meta data
             "programming_language",
@@ -545,8 +545,6 @@ class UpdateProjectForm(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.had_search_disabled = not self.instance.search_indexing_enabled
-
         # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
             (key, value) for key, value in self.fields["versioning_scheme"].choices if key
@@ -561,11 +559,6 @@ class UpdateProjectForm(
                 f'This setting is inherited from the <a href="{link}">parent translation</a>.',
             )
             self.fields["versioning_scheme"].disabled = True
-
-        # Only show this field if search is disabled for the project.
-        # We allow enabling it from the form, but not disabling it.
-        if self.instance.search_indexing_enabled:
-            self.fields.pop("search_indexing_enabled")
 
         # Only show this field if building for this project is disabled due to N+ consecutive builds failing
         # We allow disabling it from the form, but not enabling it.
@@ -711,17 +704,6 @@ class UpdateProjectForm(
             return None
         return [line.strip() for line in value.splitlines() if line.strip()]
 
-    def save(self, commit=True):
-        instance = super().save(commit)
-        # Trigger a reindex when enabling search from the form.
-        if self.had_search_disabled and instance.search_indexing_enabled:
-            index_project.delay(project_slug=instance.slug)
-            Notification.objects.cancel(
-                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
-                attached_to=instance,
-            )
-        return instance
-
 
 class ProjectRelationshipForm(forms.ModelForm):
     """Form to add/update project relationships."""
@@ -758,54 +740,40 @@ class ProjectRelationshipForm(forms.ModelForm):
         return alias
 
 
-class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
-    """Project pull requests configuration form."""
+class AddonsConfigFieldsMixin:
+    """
+    Mixin for project forms that expose settings stored on ``AddonsConfig``.
 
-    # The underlying field lives on ``AddonsConfig`` -- label, help text
-    # and initial value all come from that model field so there is a
-    # single source of truth.
-    notifications_show_on_external = forms.BooleanField(required=False)
+    Declare the fields on the form and list their names in ``addons_fields``.
+    Label and help text default to the ones from the model field, the initial
+    value is read from the project's ``AddonsConfig``, and ``save_addons_fields``
+    writes the submitted values back to it.
+    """
 
-    class Meta:
-        model = Project
-        fields = [
-            "external_builds_enabled",
-            "external_builds_privacy_level",
-            "show_build_overview_in_comment",
-        ]
+    addons_fields = []
 
-    def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project", None)
-        super().__init__(*args, **kwargs)
+    @property
+    def addons(self):
+        project = getattr(self, "instance", None) or self.project
+        return project.addons
 
-        self.setup_external_builds_option()
+    def setup_addons_fields(self):
+        for name in self.addons_fields:
+            model_field = AddonsConfig._meta.get_field(name)
+            form_field = self.fields[name]
+            if form_field.label is None:
+                form_field.label = capfirst(model_field.verbose_name)
+            if not form_field.help_text:
+                form_field.help_text = model_field.help_text
+            form_field.initial = getattr(self.addons, name)
 
-        if not self.instance.is_github_app_project:
-            self.fields.pop("show_build_overview_in_comment")
-
-        if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop("external_builds_privacy_level")
-
-        # Seed label, help text and initial value from the underlying
-        # ``AddonsConfig`` model field.
-        model_field = AddonsConfig._meta.get_field("notifications_show_on_external")
-        form_field = self.fields["notifications_show_on_external"]
-        form_field.label = model_field.verbose_name
-        form_field.help_text = model_field.help_text
-        addons = getattr(self.instance, "addons", None)
-        if addons is not None:
-            form_field.initial = addons.notifications_show_on_external
-
-    def save(self, commit=True):
-        project = super().save(commit=commit)
-        addons = getattr(project, "addons", None)
-        if addons is not None:
-            addons.notifications_show_on_external = self.cleaned_data.get(
-                "notifications_show_on_external", False
-            )
-            if commit:
-                addons.save()
-        return project
+    def save_addons_fields(self, commit=True):
+        addons = self.addons
+        for name in self.addons_fields:
+            setattr(addons, name, self.cleaned_data.get(name))
+        if commit:
+            addons.save()
+        return addons
 
 
 class OnePerLineList(forms.Field):
@@ -862,11 +830,88 @@ class CommaSeparatedMultipleChoiceField(forms.MultipleChoiceField):
         return super().prepare_value(value)
 
 
+class ProjectPullRequestForm(AddonsConfigFieldsMixin, forms.ModelForm, ProjectPRBuildsMixin):
+    """Project pull requests configuration form."""
+
+    # These settings live on ``AddonsConfig``, but they only apply to builds
+    # from pull requests, so they are configured from this form.
+    notifications_show_on_external = forms.BooleanField(
+        required=False,
+        label=_("Show a notification on builds from pull requests"),
+    )
+    doc_diff_enabled = forms.BooleanField(
+        required=False,
+        label=_("Enable visual diff"),
+        help_text=_("Highlight the changes from the pull request on each page."),
+    )
+    filetreediff_enabled = forms.BooleanField(
+        required=False,
+        label=_("Enable file tree diff"),
+        help_text=_("Show the list of pages that changed in the pull request."),
+    )
+    filetreediff_ignored_files = OnePerLineList(
+        required=False,
+        label=_("Files ignored by file tree diff"),
+    )
+
+    addons_fields = [
+        "notifications_show_on_external",
+        "doc_diff_enabled",
+        "filetreediff_enabled",
+        "filetreediff_ignored_files",
+        "options_base_version",
+    ]
+
+    class Meta:
+        model = Project
+        fields = [
+            "external_builds_enabled",
+            "external_builds_privacy_level",
+            "show_build_overview_in_comment",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+        self.setup_external_builds_option()
+
+        if not self.instance.is_github_app_project:
+            self.fields.pop("show_build_overview_in_comment")
+
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("external_builds_privacy_level")
+
+        # External (pull-request) versions are transient and not meaningful as a
+        # diff baseline; only show internal (branch/tag) versions for this project.
+        self.fields["options_base_version"] = forms.ModelChoiceField(
+            queryset=self.instance.versions(manager=INTERNAL),
+            required=False,
+            label=_("Base version for diffing"),
+            empty_label=_("Default (latest)"),
+            help_text=_(
+                "Visual diff and file tree diff compare the pull request against this version. "
+                "Defaults to the <code>latest</code> version."
+            ),
+        )
+        self.setup_addons_fields()
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        self.save_addons_fields(commit=commit)
+        return project
+
+
 class AddonsConfigForm(forms.ModelForm):
-    """Form to opt-in into new addons."""
+    """
+    Form to configure the addons injected on the documentation pages.
+
+    Settings that belong to a specific feature of the dashboard (search,
+    pull request builds, traffic analytics) are configured from their own
+    pages, see ``AddonsConfigFieldsMixin``.
+    """
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
-    filetreediff_ignored_files = OnePerLineList(required=False)
 
     class Meta:
         model = AddonsConfig
@@ -874,49 +919,29 @@ class AddonsConfigForm(forms.ModelForm):
             "enabled",
             "project",
             "options_root_selector",
-            "options_base_version",
-            "analytics_enabled",
             "customscript_enabled",
             "customscript_src",
-            "doc_diff_enabled",
-            "filetreediff_enabled",
-            "filetreediff_ignored_files",
             "flyout_enabled",
             "flyout_sorting",
             "flyout_sorting_latest_stable_at_beginning",
             "flyout_sorting_custom_pattern",
             "flyout_position",
             "hotkeys_enabled",
-            "search_enabled",
-            "search_show_subprojects_filter",
             "linkpreviews_enabled",
             "linkpreviews_selector",
             "notifications_enabled",
             "notifications_show_on_latest",
             "notifications_show_on_non_stable",
-            "notifications_show_on_external",
         )
         labels = {
             "enabled": _("Enable Addons"),
             "customscript_enabled": _("Custom script enabled"),
             "customscript_src": _("Source URL"),
-            "doc_diff_enabled": _("Visual diff enabled"),
-            "filetreediff_enabled": _("Enabled"),
-            "filetreediff_ignored_files": _("Ignored files"),
-            "notifications_show_on_external": _("Show a notification on builds from pull requests"),
             "notifications_show_on_non_stable": _("Show a notification on non-stable versions"),
             "notifications_show_on_latest": _("Show a notification on latest version"),
             "linkpreviews_enabled": _("Enabled"),
             "linkpreviews_selector": _("CSS link previews selector"),
             "options_root_selector": _("CSS main content selector"),
-            "options_base_version": _("Base version for diffing"),
-        }
-
-        help_texts = {
-            "options_base_version": _(
-                "Visual diff and File tree diff compare the current page against this version. "
-                "Defaults to the <code>latest</code> version."
-            ),
         }
 
         widgets = {
@@ -931,11 +956,6 @@ class AddonsConfigForm(forms.ModelForm):
         # Keep the ability to disable addons completely on Read the Docs Business
         if not settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields["enabled"].disabled = True
-
-        # External (pull-request) versions are transient and not meaningful as a
-        # diff baseline; only show internal (branch/tag) versions for this project.
-        self.fields["options_base_version"].queryset = self.project.versions(manager=INTERNAL)
-        self.fields["options_base_version"].empty_label = _("Default (latest)")
 
     def clean(self):
         if (
@@ -1440,21 +1460,75 @@ class EnvironmentVariableForm(forms.ModelForm):
         return name
 
 
-# TODO if you are extending this form or reusing this pattern for any similar views,
-# be advised we probably want this form to be a project form instead. This is
-# especially true if we want to mix addons and backend configuration options.
-# We won't want the form tightly tied to addons models in this case.
-class AddonsConfigSearchSettingsForm(forms.ModelForm):
-    """Form to configure addons search settings."""
+class ProjectSearchSettingsForm(AddonsConfigFieldsMixin, forms.ModelForm):
+    """
+    Form to configure the search settings of a project.
+
+    Mixes the project level ``search_indexing_enabled`` setting with the
+    search options from ``AddonsConfig``.
+    """
+
+    search_enabled = forms.BooleanField(required=False)
+    search_show_subprojects_filter = forms.BooleanField(required=False)
+
+    addons_fields = ["search_enabled", "search_show_subprojects_filter"]
 
     class Meta:
-        model = AddonsConfig
-        fields = ["search_enabled", "search_show_subprojects_filter"]
+        model = Project
+        fields = ["search_indexing_enabled"]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-        kwargs["instance"] = self.project.addons
+        kwargs.setdefault("instance", self.project)
         super().__init__(*args, **kwargs)
+
+        self.had_search_indexing_disabled = not self.instance.search_indexing_enabled
+
+        # Search indexing can be re-enabled from the dashboard, but not disabled.
+        # Indexing is only disabled automatically for projects without searches.
+        if self.instance.search_indexing_enabled:
+            field = self.fields["search_indexing_enabled"]
+            field.disabled = True
+            field.help_text = _(
+                "Search indexing is enabled for this project. "
+                "It's disabled automatically for projects that don't receive any searches."
+            )
+
+        self.setup_addons_fields()
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        self.save_addons_fields(commit=commit)
+
+        # Trigger a reindex when enabling search from the form.
+        if self.had_search_indexing_disabled and project.search_indexing_enabled:
+            index_project.delay(project_slug=project.slug)
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED,
+                attached_to=project,
+            )
+        return project
+
+
+class ProjectTrafficAnalyticsForm(AddonsConfigFieldsMixin, forms.Form):
+    """Form to enable traffic analytics for a project."""
+
+    analytics_enabled = forms.BooleanField(
+        required=False,
+        label=_("Enable traffic analytics"),
+        help_text=_("Record the page views of your documentation. No rebuild is required."),
+    )
+
+    addons_fields = ["analytics_enabled"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+        self.setup_addons_fields()
+
+    def save(self):
+        self.save_addons_fields()
+        return self.project
 
 
 class AutomationRuleForm(forms.ModelForm):

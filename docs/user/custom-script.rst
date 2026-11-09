@@ -10,7 +10,7 @@ Configure custom scripts
 To add or update a custom script for your project:
 
 #. Go to the :guilabel:`Settings` tab of your project.
-#. Click :guilabel:`Addons`, then :guilabel:`Custom Script`.
+#. Click :guilabel:`Addons`, and go to the :guilabel:`Custom script` section.
 #. Enter the URL of your JavaScript file.
 #. Click :guilabel:`Save`.
 
