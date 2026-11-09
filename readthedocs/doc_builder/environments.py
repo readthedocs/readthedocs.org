@@ -10,6 +10,7 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
@@ -648,6 +649,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
+        start_time = kwargs.pop("start_time", None)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
@@ -673,6 +675,12 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
         self.container_mem_limit = self.project.container_mem_limit or settings.BUILD_MEMORY_LIMIT
         self.container_time_limit = self.project.container_time_limit or settings.BUILD_TIME_LIMIT
+        # Count the time limit from the start of the build task, so the container
+        # stops before Celery's soft time limit. A stopped container makes the
+        # running command return, and its output is saved in the build.
+        if start_time:
+            elapsed = (timezone.now() - start_time).total_seconds()
+            self.container_time_limit = max(int(self.container_time_limit - elapsed), 1)
 
         structlog.contextvars.bind_contextvars(
             project_slug=self.project.slug,

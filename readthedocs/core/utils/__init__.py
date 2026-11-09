@@ -106,9 +106,11 @@ def prepare_build(
     # Set per-task time limit
     time_limit = project.container_time_limit or settings.BUILD_TIME_LIMIT
 
-    # Add 20% overhead to task, to ensure the build can timeout and the task
-    # will cleanly finish.
-    options["soft_time_limit"] = time_limit
+    # The build container stops itself at ``time_limit``, so the running
+    # command returns its partial output. Add 10% overhead to the soft limit,
+    # so it doesn't interrupt that command first and lose its output,
+    # and 20% to the hard limit, so the task can cleanly finish.
+    options["soft_time_limit"] = int(time_limit * 1.1)
     options["time_limit"] = int(time_limit * 1.2)
 
     if commit:

@@ -226,7 +226,7 @@ class CoreUtilTests(TestCase):
         kwargs = {"build_commit": None, "build_api_key": mock.ANY}
         options = {
             "time_limit": settings.BUILD_TIME_LIMIT * 1.2,
-            "soft_time_limit": settings.BUILD_TIME_LIMIT,
+            "soft_time_limit": settings.BUILD_TIME_LIMIT * 1.1,
             "countdown": 5 * 60,
             "max_retries": 25,
         }

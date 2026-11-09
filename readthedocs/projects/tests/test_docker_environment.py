@@ -1,3 +1,6 @@
+import datetime
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 import pytest
 
@@ -37,3 +40,19 @@ class TestDockerBuildEnvironmentNew:
             self.environment.container_id
             == f"build-{self.build.pk}-project-{self.project.pk}-{self.project.slug}"
         )
+
+    def test_container_time_limit(self, settings):
+        assert self.environment.container_time_limit == settings.BUILD_TIME_LIMIT
+
+    @mock.patch("django.utils.timezone.now")
+    def test_container_time_limit_counts_from_task_start(self, now, settings):
+        start_time = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
+        now.return_value = start_time + datetime.timedelta(seconds=100)
+        environment = DockerBuildEnvironment(
+            project=self.project,
+            version=self.version,
+            build={"id": self.build.pk},
+            api_client=setup_api("1234"),
+            start_time=start_time,
+        )
+        assert environment.container_time_limit == settings.BUILD_TIME_LIMIT - 100
