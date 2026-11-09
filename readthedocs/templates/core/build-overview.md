@@ -19,4 +19,4 @@ Markdown inside <details> requires a blank line after </summary>.
 {% else %}📖 No files changed — your changes didn't affect any published file.
 {% endif %}
 ---
-[Preview]({{ preview_url }}) · [{{ project.name }} build overview]({{ build_url }}) · built {{ built_at|date:"j M Y, H:i T" }}
+[Preview]({{ preview_url }}) · [{{ project.name }} build overview]({{ build_url }}) · built {{ built_at|date:"DATETIME_FORMAT" }} UTC

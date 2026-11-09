@@ -544,7 +544,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -598,7 +598,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -627,7 +627,7 @@ class TestPostBuildOverview(TestCase):
             📖 No files changed — your changes didn't affect any published file.
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -687,7 +687,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -724,7 +724,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
