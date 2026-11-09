@@ -125,6 +125,11 @@ def get_diff(current_version: Version, base_version: Version) -> FileTreeDiff | 
     current_version_file_paths = set(current_version_manifest.files.keys())
     base_version_file_paths = set(base_version_manifest.files.keys())
 
+    # Hashes from different hasher versions aren't comparable; diffing them
+    # would report every file as modified.
+    if current_version_manifest.hasher_version != base_version_manifest.hasher_version:
+        outdated = True
+
     current_version_build = Build.objects.get(id=current_version_manifest.build.id)
     base_version_build = Build.objects.get(id=base_version_manifest.build.id)
 

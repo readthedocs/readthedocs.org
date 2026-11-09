@@ -516,6 +516,7 @@ class TestBuildTask(BuildEnvironmentBase):
         S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
     )
     @mock.patch("readthedocs.projects.tasks.builds.shutil")
+    @mock.patch("readthedocs.projects.tasks.builds.process_builder_manifest")
     @mock.patch("readthedocs.projects.tasks.builds.purge_docs_cdn")
     @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
@@ -530,6 +531,7 @@ class TestBuildTask(BuildEnvironmentBase):
         send_external_build_status,
         index_build,
         purge_docs_cdn,
+        process_builder_manifest,
         shutilmock,
     ):
         load_yaml_config.return_value = get_build_config(
@@ -623,6 +625,8 @@ class TestBuildTask(BuildEnvironmentBase):
         index_build.delay.assert_called_once_with(build_id=self.build.pk)
 
         purge_docs_cdn.delay.assert_called_once_with(version_id=self.version.pk)
+
+        process_builder_manifest.delay.assert_called_once_with(build_id=self.build.pk)
 
         # TODO: assert the verb and the path for each API call as well
 
