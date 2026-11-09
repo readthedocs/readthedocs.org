@@ -38,6 +38,9 @@ class FileTreeDiffManifestFile:
     main_content_hash: str
     text_hash: str | None = None
     markup_hash: str | None = None
+    # Number of blocks that changed compared to the base version,
+    # only set on modified files of pull request builds.
+    changed_blocks: int | None = None
 
 
 @dataclass(slots=True)
@@ -66,6 +69,7 @@ class FileTreeDiffManifest:
                 main_content_hash=file["main_content_hash"],
                 text_hash=file.get("text_hash"),
                 markup_hash=file.get("markup_hash"),
+                changed_blocks=file.get("changed_blocks"),
             )
             for path, file in data["files"].items()
         ]
@@ -101,9 +105,11 @@ class FileTreeDiffFile:
         path: str,
         status: FileTreeDiffFileStatus,
         diff: "FileTreeDiff",
+        changed_blocks: int | None = None,
     ):
         self.path = path
         self.status = status
+        self.changed_blocks = changed_blocks
         self.current_version = diff.current_version
         self.current_version_build = diff.current_version_build
         self.base_version = diff.base_version
@@ -140,6 +146,7 @@ class FileTreeDiff:
         base_version_build: Build,
         files: list[tuple[str, FileTreeDiffFileStatus]],
         outdated: bool,
+        changed_blocks: dict[str, int] | None = None,
     ):
         self.project = current_version.project
         self.current_version = current_version
@@ -148,9 +155,16 @@ class FileTreeDiff:
         self.base_version_build = base_version_build
         self._resolver = Resolver()
         self.outdated = outdated
+        if changed_blocks is None:
+            changed_blocks = {}
         self.files = sorted(
             (
-                FileTreeDiffFile(path=path, status=status, diff=self)
+                FileTreeDiffFile(
+                    path=path,
+                    status=status,
+                    diff=self,
+                    changed_blocks=changed_blocks.get(path),
+                )
                 for path, status in self._filter_files(files)
             ),
             key=self._sortpath,
@@ -192,8 +206,19 @@ class FileTreeDiff:
 
     @cached_property
     def modified(self):
-        """List of modified files."""
-        return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
+        """List of modified files, the ones with more changed blocks first."""
+        modified = [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
+        return sorted(modified, key=self._sort_by_changed_blocks, reverse=True)
+
+    def _sort_by_changed_blocks(self, file: FileTreeDiffFile):
+        """
+        Function to use as `key=` argument for `sorted`.
+
+        Files without a count of changed blocks are sorted last.
+        """
+        if file.changed_blocks is None:
+            return 0
+        return file.changed_blocks
 
     @cached_property
     def should_auto_expand(self):
