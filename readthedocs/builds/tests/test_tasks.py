@@ -539,8 +539,8 @@ class TestPostBuildOverview(TestCase):
             <summary>📖 3 files changed · 1 added · 1 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             </details>
 
             ---
@@ -585,7 +585,6 @@ class TestPostBuildOverview(TestCase):
             <summary>📖 11 files changed · 1 added · 9 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [diff](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true)
             - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [diff](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true)
             - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [diff](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true)
@@ -595,6 +594,7 @@ class TestPostBuildOverview(TestCase):
             - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html) · [diff](http://my-project--1.readthedocs.build/en/1/six.html?readthedocs-diff=true)
             - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [diff](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true)
             - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [diff](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             </details>
 
             ---
