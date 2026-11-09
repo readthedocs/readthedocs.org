@@ -1,4 +1,6 @@
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.throttling import SimpleRateThrottle
+from rest_framework.throttling import UserRateThrottle
 
 from readthedocs.api.v3.models import RTDToken
 
@@ -18,21 +20,23 @@ class RTDTokenRateThrottle(SimpleRateThrottle):
         }
 
 
-class PollingRateThrottle(SimpleRateThrottle):
+class PollingUserRateThrottle(UserRateThrottle):
     """
     Looser throttle for endpoints the dashboard polls while a build runs.
 
     The build detail page requests the build and its notifications every
-    few seconds, which exceeds the default anonymous rate.
-    Limits are per user, or per IP for anonymous requests.
+    few seconds, which sits at the default authenticated rate.
     """
 
-    scope = "polling"
+    scope = "polling_user"
 
-    def get_cache_key(self, request, view):
-        if request.user.is_authenticated:
-            ident = request.user.pk
-        else:
-            ident = self.get_ident(request)
 
-        return self.cache_format % {"scope": self.scope, "ident": ident}
+class PollingAnonRateThrottle(AnonRateThrottle):
+    """
+    Looser throttle for endpoints the dashboard polls while a build runs.
+
+    Anonymous viewers poll less often than logged in users,
+    but still more than the default anonymous rate allows.
+    """
+
+    scope = "polling_anon"
