@@ -1115,6 +1115,7 @@ class CommunityBaseSettings(Settings):
             "anon": "5/minute",
             "user": "60/minute",
             "rtd_token": "60/minute",
+            "polling": "120/minute",
         },
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",
