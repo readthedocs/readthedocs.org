@@ -38,7 +38,9 @@ To create an API token for your project:
 #. Choose a name, the :guilabel:`Upload documentation` permission, and when the token expires.
 #. Copy the token. It's only shown once.
 
-A project API token only gives access to your project.
+A project API token only gives access to your project,
+and lets you leave out the project slug when uploading,
+since the token already identifies the project.
 You can also use your personal :ref:`API token <api/v3:Token>`,
 but it gives access to everything your user has access to.
 On |com_brand|, a personal API token also requires :ref:`setting the API URL <guides/build/direct-upload:Read the Docs Business>`.
