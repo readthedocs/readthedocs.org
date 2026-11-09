@@ -129,6 +129,20 @@ class FileTreeDiffFile:
         )
 
     @property
+    def redirect_from_url(self):
+        """
+        The path readers request for this file, for a page redirect's ``from_url``.
+
+        Redirects match the requested path, and readers reach ``foo/index.html``
+        as ``/foo/`` — which is every page of a MkDocs or ``dirhtml`` build — so
+        the ``index.html`` is dropped.
+        """
+        path = f"/{self.path}"
+        if path.endswith("/index.html"):
+            path = path[: -len("index.html")]
+        return path
+
+    @property
     def diff_url(self):
         """
         URL to the file in the current version with Visual diff switched on.
@@ -229,13 +243,27 @@ class FileTreeDiff:
         return None
 
     @cached_property
-    def should_auto_expand(self):
+    def headline(self):
         """
-        Whether the comment should list every file inline.
+        One line that says how much changed and of what kind.
+
+        ``3 files changed · 1 added · 1 modified · 1 deleted``, or when every file
+        is the same kind, just ``25 files deleted``.
+        """
+        count = len(self.files)
+        noun = "file" if count == 1 else "files"
+        if self.single_status:
+            return f"{count} {noun} {self.single_status}"
+        return f"{count} {noun} changed · {self.summary}"
+
+    @cached_property
+    def should_collapse(self):
+        """
+        Whether the comment should fold the file list behind a toggle.
 
         Ten lines is about what a pull request timeline absorbs before the comment
         dominates it. A handful of edited pages is the whole review and belongs in
         view; forty pages touched by a theme change is a sweep, and the count says
         enough on its own.
         """
-        return len(self.files) <= 10
+        return len(self.files) > 10

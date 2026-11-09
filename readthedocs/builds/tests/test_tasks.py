@@ -535,13 +535,11 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            <details open>
-            <summary>📖 3 files changed · 1 added · 1 modified · 1 deleted</summary>
+            📖 3 files changed · 1 added · 1 modified · 1 deleted
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
             - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
-            </details>
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
@@ -683,7 +681,7 @@ class TestPostBuildOverview(TestCase):
             - `±` [`page-08.html`](http://my-project--1.readthedocs.build/en/1/page-08.html)
             - `±` [`page-09.html`](http://my-project--1.readthedocs.build/en/1/page-09.html)
             - `±` [`page-10.html`](http://my-project--1.readthedocs.build/en/1/page-10.html)
-            - *and 2 more modified — see the [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/)*
+            - *and 2 more modified*
             </details>
 
             ---
@@ -716,12 +714,10 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            <details open>
-            <summary>📖 2 files deleted</summary>
+            📖 2 files deleted
 
             - `-` `legacy/old.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/old.html)
             - `-` `legacy/older.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/older.html)
-            </details>
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC

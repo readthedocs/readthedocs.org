@@ -6,17 +6,19 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-{% if diff.files %}<details{% if diff.should_auto_expand %} open{% endif %}>
-<summary>{% if diff.single_status %}📖 {{ diff.files|length }} file{{ diff.files|length|pluralize }} {{ diff.single_status }}{% else %}📖 {{ diff.files|length }} file{{ diff.files|length|pluralize }} changed · {{ diff.summary }}{% endif %}</summary>
+{% if diff.files %}{% if diff.should_collapse %}<details>
+<summary>📖 {{ diff.headline }}</summary>
 
-{% for file in diff.added|slice:":10" %}- `+` [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more added — see the [build overview]({{ build_url }})*
+{% else %}📖 {{ diff.headline }}
+
+{% endif %}{% for file in diff.added|slice:":10" %}- `+` [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more added*
 {% endif %}{% for file in diff.modified|slice:":10" %}- `±` [`{{ file.path }}`]({{ file.url }}){% if file.diff_url %} · [diff]({{ file.diff_url }}){% endif %}
-{% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more modified — see the [build overview]({{ build_url }})*
-{% endif %}{% for file in diff.deleted|slice:":10" %}- `-` `{{ file.path }}` · [add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url=/{{ file.path|urlencode }})
-{% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more deleted — see the [build overview]({{ build_url }})*
-{% endif %}</details>
-{% else %}📖 No files changed
+{% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more modified*
+{% endif %}{% for file in diff.deleted|slice:":10" %}- `-` `{{ file.path }}` · [add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url={{ file.redirect_from_url|urlencode }})
+{% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more deleted*
+{% endif %}{% if diff.should_collapse %}</details>
+{% endif %}{% else %}📖 No files changed
 {% endif %}
 ---
 [Preview]({{ preview_url }}) · [{{ project.name }} build overview]({{ build_url }}) · built {{ built_at|date:"DATETIME_FORMAT" }} UTC

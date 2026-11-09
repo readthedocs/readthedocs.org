@@ -147,6 +147,18 @@ class TestsFileTreeDiff(TestCase):
         assert diff.single_status == "added"
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_redirect_from_url_is_the_path_readers_request(self, storage_open):
+        """MkDocs and dirhtml write ``foo/index.html``; readers ask for ``/foo/``."""
+        files_a = {}
+        files_b = {"about.html": "h1", "index.html": "h2", "guides/index.html": "h3"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files_a)(),
+            _mock_manifest(self.build_b.id, files_b)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert [file.redirect_from_url for file in diff.deleted] == ["/about.html", "/", "/guides/"]
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_manifests_without_content_hashes(self, storage_open):
         """Manifests written before the content hash compare by their HTML hash."""
         storage_open.side_effect = [
