@@ -535,11 +535,13 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **3 files changed** · 1 added · 1 modified · 1 deleted
+            <details open>
+            <summary>📖 3 files changed · 1 added · 1 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
+            </details>
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
@@ -579,10 +581,8 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **11 files changed** · 1 added · 9 modified · 1 deleted
-
             <details>
-            <summary>Changed files</summary>
+            <summary>📖 11 files changed · 1 added · 9 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
@@ -624,7 +624,7 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **No files changed** — your changes didn't affect any published file.
+            📖 No files changed — your changes didn't affect any published file.
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
@@ -670,10 +670,8 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **12 files modified**
-
             <details>
-            <summary>Changed files</summary>
+            <summary>📖 12 files modified</summary>
 
             - `±` [`page-01.html`](http://my-project--1.readthedocs.build/en/1/page-01.html)
             - `±` [`page-02.html`](http://my-project--1.readthedocs.build/en/1/page-02.html)
@@ -718,10 +716,12 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **2 files deleted**
+            <details open>
+            <summary>📖 2 files deleted</summary>
 
             - `-` `legacy/old.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/old.html)
             - `-` `legacy/older.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/older.html)
+            </details>
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
