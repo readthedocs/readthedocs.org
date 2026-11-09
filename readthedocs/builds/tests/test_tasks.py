@@ -512,6 +512,8 @@ class TestPostBuildOverview(TestCase):
             state=BUILD_STATE_FINISHED,
             success=True,
         )
+        self.project.addons.doc_diff_enabled = True
+        self.project.addons.save()
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
@@ -533,18 +535,14 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **3 files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
+            📖 **3 files changed** · 1 added · 1 modified · 1 deleted
 
-            <details open>
-            <summary>1 added · 1 modified · 1 deleted</summary>
-            <br>
-            <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
-            <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
-            <code>-</code> <code>deleteme.html</code> (<a href="https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&amp;from_url=/deleteme.html">add redirect</a>)<br>
-            </details>
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
+            - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
 
             ---
-            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -576,28 +574,22 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **6 files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
+            📖 **6 files changed** · 1 added · 4 modified · 1 deleted
+
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
+            - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
 
             <details>
-            <summary>1 added · 4 modified · 1 deleted</summary>
-            <br>
+            <summary>Modified files</summary>
 
-            `+` **Added**
-            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-
-            `±` **Modified**
-            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
-            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
-            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
-            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
-
-            `-` **Deleted**
-            - `deleteme.html` ([add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html))
-
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
+            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [diff](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true)
+            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [diff](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true)
+            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [diff](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true)
             </details>
 
             ---
-            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
             """
         )
 
@@ -623,12 +615,10 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **No files changed** — [preview the docs](http://my-project--1.readthedocs.build/en/1/)
-
-            Your changes didn't affect any published file.
+            📖 **No files changed** — your changes didn't affect any published file.
 
             ---
-            [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · last updated 17 Sep 2026, 08:53 UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
             """
         )
 
@@ -636,6 +626,67 @@ class TestPostBuildOverview(TestCase):
             build=self.current_version_build,
             comment=expected_comment,
             create_new=False,
+        )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview_single_kind_truncated_without_visual_diff(
+        self, now, get_diff, post_comment
+    ):
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+        self.project.addons.doc_diff_enabled = False
+        self.project.addons.save()
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[
+                ("page-01.html", FileTreeDiffFileStatus.modified),
+                ("page-02.html", FileTreeDiffFileStatus.modified),
+                ("page-03.html", FileTreeDiffFileStatus.modified),
+                ("page-04.html", FileTreeDiffFileStatus.modified),
+                ("page-05.html", FileTreeDiffFileStatus.modified),
+                ("page-06.html", FileTreeDiffFileStatus.modified),
+                ("page-07.html", FileTreeDiffFileStatus.modified),
+                ("page-08.html", FileTreeDiffFileStatus.modified),
+                ("page-09.html", FileTreeDiffFileStatus.modified),
+                ("page-10.html", FileTreeDiffFileStatus.modified),
+                ("page-11.html", FileTreeDiffFileStatus.modified),
+                ("page-12.html", FileTreeDiffFileStatus.modified),
+            ],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        expected_comment = dedent(
+            f"""
+            📖 **12 files modified**
+
+            <details>
+            <summary>Modified files</summary>
+
+            - `±` [`page-01.html`](http://my-project--1.readthedocs.build/en/1/page-01.html)
+            - `±` [`page-02.html`](http://my-project--1.readthedocs.build/en/1/page-02.html)
+            - `±` [`page-03.html`](http://my-project--1.readthedocs.build/en/1/page-03.html)
+            - `±` [`page-04.html`](http://my-project--1.readthedocs.build/en/1/page-04.html)
+            - `±` [`page-05.html`](http://my-project--1.readthedocs.build/en/1/page-05.html)
+            - `±` [`page-06.html`](http://my-project--1.readthedocs.build/en/1/page-06.html)
+            - `±` [`page-07.html`](http://my-project--1.readthedocs.build/en/1/page-07.html)
+            - `±` [`page-08.html`](http://my-project--1.readthedocs.build/en/1/page-08.html)
+            - `±` [`page-09.html`](http://my-project--1.readthedocs.build/en/1/page-09.html)
+            - `±` [`page-10.html`](http://my-project--1.readthedocs.build/en/1/page-10.html)
+            - *and 2 more — see the [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/)*
+            </details>
+
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            """
+        )
+        post_comment.assert_called_once_with(
+            build=self.current_version_build,
+            comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")

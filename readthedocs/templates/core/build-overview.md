@@ -6,36 +6,20 @@ make sure to adjust the tags accordingly, as they introduce newlines.
 
 Markdown inside <details> requires a blank line after </summary>.
 {% endcomment %}
-{% if diff.files %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** — [preview the docs]({{ preview_url }})
-{% if diff.should_auto_expand %}
-<details open>
-<summary>{{ diff.summary }}</summary>
-<br>
-{% for file in diff.added %}<code>+</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
-{% endfor %}{% for file in diff.modified %}<code>±</code> <a href="{{ file.url }}"><code>{{ file.path }}</code></a><br>
-{% endfor %}{% for file in diff.deleted %}<code>-</code> <code>{{ file.path }}</code> (<a href="https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&amp;from_url=/{{ file.path|urlencode }}">add redirect</a>)<br>
-{% endfor %}</details>
-{% else %}
-<details>
-<summary>{{ diff.summary }}</summary>
-<br>
-{% if diff.added %}
-`+` **Added**
-{% for file in diff.added|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more...*
-{% endif %}{% endif %}{% if diff.modified %}
-`±` **Modified**
-{% for file in diff.modified|slice:":10" %}- [`{{ file.path }}`]({{ file.url }})
-{% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more...*
-{% endif %}{% endif %}{% if diff.deleted %}
-`-` **Deleted**
-{% for file in diff.deleted|slice:":10" %}- `{{ file.path }}` ([add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url=/{{ file.path|urlencode }}))
-{% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more...*
-{% endif %}{% endif %}
-</details>
-{% endif %}{% else %}📖 **No files changed** — [preview the docs]({{ preview_url }})
+{% if diff.files %}{% if diff.single_status %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} {{ diff.single_status }}**{% else %}📖 **{{ diff.files|length }} file{{ diff.files|length|pluralize }} changed** · {{ diff.summary }}{% endif %}
 
-Your changes didn't affect any published file.
+{% for file in diff.deleted|slice:":10" %}- `-` `{{ file.path }}` · [add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url=/{{ file.path|urlencode }})
+{% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more deleted — see the [build overview]({{ build_url }})*
+{% endif %}{% for file in diff.added|slice:":10" %}- `+` [`{{ file.path }}`]({{ file.url }})
+{% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more added — see the [build overview]({{ build_url }})*
+{% endif %}{% if diff.modified %}{% if not diff.should_auto_expand %}{% if diff.deleted or diff.added %}
+{% endif %}<details>
+<summary>Modified files</summary>
+
+{% endif %}{% for file in diff.modified|slice:":10" %}- `±` [`{{ file.path }}`]({{ file.url }}){% if file.diff_url %} · [diff]({{ file.diff_url }}){% endif %}
+{% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more — see the [build overview]({{ build_url }})*
+{% endif %}{% if not diff.should_auto_expand %}</details>
+{% endif %}{% endif %}{% else %}📖 **No files changed** — your changes didn't affect any published file.
 {% endif %}
 ---
-[{{ project.name }} build overview](https://{{ PRODUCTION_DOMAIN }}{% url "builds_detail" project.slug current_version_build.pk %}) · last updated {{ last_updated|date:"j M Y, H:i T" }}
+[Preview]({{ preview_url }}) · [{{ project.name }} build overview]({{ build_url }}) · built {{ built_at|date:"j M Y, H:i T" }}

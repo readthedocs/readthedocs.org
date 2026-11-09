@@ -128,6 +128,18 @@ class FileTreeDiffFile:
             filename=self.path,
         )
 
+    @property
+    def diff_url(self):
+        """
+        URL to the file in the current version with Visual diff switched on.
+
+        ``None`` when the project has the Visual diff addon disabled, since the
+        parameter would then do nothing.
+        """
+        if not self.current_version.project.addons.doc_diff_enabled:
+            return None
+        return f"{self.url}?readthedocs-diff=true"
+
 
 class FileTreeDiff:
     """Difference between two file tree manifests."""
@@ -207,6 +219,14 @@ class FileTreeDiff:
             if files:
                 parts.append(f"{len(files)} {label}")
         return " · ".join(parts)
+
+    @cached_property
+    def single_status(self):
+        """The one status every file shares (``added``, ``modified`` or ``deleted``), or ``None`` when mixed."""
+        statuses = {file.status for file in self.files}
+        if len(statuses) == 1:
+            return statuses.pop().value
+        return None
 
     @cached_property
     def should_auto_expand(self):

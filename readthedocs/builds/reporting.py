@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
@@ -38,17 +39,17 @@ def get_build_overview(build: Build) -> BuildOverview | None:
     if not diff:
         return None
 
-    preview_url = diff.current_version.get_absolute_url()
+    build_path = reverse("builds_detail", args=[project.slug, diff.current_version_build.pk])
     content = render_to_string(
         "core/build-overview.md",
         {
             "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
             "project": project,
-            "preview_url": preview_url,
-            "current_version_build": diff.current_version_build,
+            "preview_url": diff.current_version.get_absolute_url(),
+            "build_url": f"https://{settings.PRODUCTION_DOMAIN}{build_path}",
             # The comment is re-rendered and edited on every build,
-            # so render time is when its contents were last refreshed.
-            "last_updated": timezone.now(),
+            # so render time is when the content it shows was produced.
+            "built_at": timezone.now(),
             "diff": diff,
         },
     )

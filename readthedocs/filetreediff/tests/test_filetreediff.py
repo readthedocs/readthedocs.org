@@ -106,6 +106,7 @@ class TestsFileTreeDiff(TestCase):
         assert diff.deleted == []
         assert diff.modified == []
         assert diff.summary == ""
+        assert diff.single_status is None
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -130,6 +131,7 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
         assert diff.summary == "1 added · 1 modified · 1 deleted"
+        assert diff.single_status is None
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -142,6 +144,7 @@ class TestsFileTreeDiff(TestCase):
         ]
         diff = get_diff(self.version_a, self.version_b)
         assert diff.summary == "1 added"
+        assert diff.single_status == "added"
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_manifests_without_content_hashes(self, storage_open):
