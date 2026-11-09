@@ -8,8 +8,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, TAG
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_VERSION_SLUG_CHANGED
 
 from .mixins import APIEndpointMixin
 
@@ -29,8 +31,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         json_data = response.json()
         self.assertEqual(len(json_data["results"]), 2)
-        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
-        self.assertEqual(json_data["results"][1]["slug"], "latest")
+        self.assertEqual(json_data["results"][0]["slug"], "latest")
+        self.assertEqual(json_data["results"][1]["slug"], "v1.0")
 
         # Versions are private
         self.project.versions.update(privacy_level=PRIVATE)
@@ -55,16 +57,16 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
-        self.assertEqual(response["results"][0]["slug"], "v1.0")
-        self.assertEqual(response["results"][1]["slug"], "latest")
+        self.assertEqual(response["results"][0]["slug"], "latest")
+        self.assertEqual(response["results"][1]["slug"], "v1.0")
 
         # Versions are private
         Project.objects.filter(slug=self.project.slug).update(privacy_level=PRIVATE)
         response = self.client.get(url)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
-        self.assertEqual(response["results"][0]["slug"], "v1.0")
-        self.assertEqual(response["results"][1]["slug"], "latest")
+        self.assertEqual(response["results"][0]["slug"], "latest")
+        self.assertEqual(response["results"][1]["slug"], "v1.0")
 
     def test_projects_versions_list_other_user(self):
         url = reverse(
@@ -81,8 +83,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 200)
         json_data = response.json()
         self.assertEqual(len(json_data["results"]), 2)
-        self.assertEqual(json_data["results"][0]["slug"], "v1.0")
-        self.assertEqual(json_data["results"][1]["slug"], "latest")
+        self.assertEqual(json_data["results"][0]["slug"], "latest")
+        self.assertEqual(json_data["results"][1]["slug"], "v1.0")
 
         # Versions are private
         self.project.versions.update(privacy_level=PRIVATE)
@@ -522,32 +524,6 @@ class VersionsEndpointTests(APIEndpointMixin):
 
         latest.refresh_from_db()
         assert latest.slug == LATEST
-
-    def test_update_version_slug_errors_match_dashboard_form(self):
-        """The API rejects slugs with the same errors as the dashboard form."""
-        get(Version, project=self.project, slug="taken")
-
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        for slug in ("Release/1.0", "taken"):
-            form = VersionForm(
-                {"slug": slug, "active": self.version.active},
-                instance=self.version,
-                project=self.project,
-            )
-            assert not form.is_valid(), slug
-
-            response = self.client.patch(
-                reverse(
-                    "projects-versions-detail",
-                    kwargs={
-                        "parent_lookup_project__slug": self.project.slug,
-                        "version_slug": self.version.slug,
-                    },
-                ),
-                {"slug": slug},
-            )
-            assert response.status_code == 400, slug
-            assert response.json()["slug"] == form.errors["slug"], slug
 
     @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")

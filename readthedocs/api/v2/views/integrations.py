@@ -289,6 +289,19 @@ class WebhookMixin:
         :param project: Project instance
         :type project: readthedocs.projects.models.Project
         """
+        # Direct upload projects get their pull request previews from the upload API,
+        # creating the version here would leave it empty until the upload arrives.
+        if project.is_direct_upload:
+            log.info(
+                "Pull request previews come from uploads on this project, skipping.",
+                project_slug=project.slug,
+            )
+            return {
+                "build_triggered": False,
+                "project": project.slug,
+                "versions": [],
+            }
+
         version_data = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(

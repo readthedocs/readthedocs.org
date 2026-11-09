@@ -20,9 +20,11 @@ MESSAGE_PROJECT_ADDONS_BY_DEFAULT = "project:addons:by-default"
 MESSAGE_PROJECT_SSH_KEY_WITH_WRITE_ACCESS = "project:ssh-key-with-write-access"
 MESSAGE_PROJECT_DEPRECATED_WEBHOOK = "project:webhooks:deprecated"
 MESSAGE_PROJECT_SEARCH_INDEXING_DISABLED = "project:search:indexing-disabled"
+MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD = "project:direct-upload:default-version"
 MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES = (
     "project:builds:disabled-due-to-consecutive-failures"
 )
+MESSAGE_PROJECT_VERSION_SLUG_CHANGED = "project:versions:slug-changed"
 
 messages = [
     Message(
@@ -234,6 +236,33 @@ messages = [
                 """
                 Your project has been automatically disabled because the default version has failed to build {{consecutive_failed_builds}} times in a row.
                 Please fix the build issues and re-enable builds by unchecking "Disable builds for this project" option from <a href="{% url 'projects_edit' instance.slug %}">the project settings</a>.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD,
+        header=_("Default version set"),
+        body=_(
+            textwrap.dedent(
+                """
+                <code>{{version}}</code> is now the default version of this project, since it was the first one you uploaded.
+                The root of your documentation redirects to it.
+                If that is not what you want, change the default version from <a href="{% url 'projects_edit' instance.slug %}">the project settings</a>.
+                """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
+        header=_("Version slug changed"),
+        body=_(
+            textwrap.dedent(
+                """
+                The slug of version <code>{{from_slug}}</code> is now <code>{{to_slug}}</code>.
+                <a href="{{redirect_url}}">Create a redirect</a> to keep your old URLs working.
                 """
             ).strip(),
         ),

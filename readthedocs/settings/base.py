@@ -46,7 +46,10 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = "replace-this-please"  # noqa
     ATOMIC_REQUESTS = True
 
-    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+    # New apps use BigAutoField by default.
+    # Apps created before this change pin ``default_auto_field = "django.db.models.AutoField"``
+    # in their AppConfig, so their existing models don't need a migration.
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
     # Debug settings
     DEBUG = True
@@ -65,17 +68,15 @@ class CommunityBaseSettings(Settings):
 
         return {
             "SHOW_TOOLBAR_CALLBACK": _show_debug_toolbar,
-            "DISABLE_PANELS": [
-                # Default ones
+            "DISABLE_PANELS": {
+                # Default panels that are normally disabled
                 "debug_toolbar.panels.profiling.ProfilingPanel",
                 "debug_toolbar.panels.redirects.RedirectsPanel",
-                # Custome ones
-                # We are disabling these because they take a lot of time to execute in the new dashboard.
-                # We make an intensive usage of the ``include`` template tag there.
-                # It's a "known issue/bug" and there is no solution as far as we can tell.
-                "debug_toolbar.panels.sql.SQLPanel",
+                # Panels that are slow
                 "debug_toolbar.panels.templates.TemplatesPanel",
-            ],
+                "debug_toolbar.panels.sql.SQLPanel",
+            },
+            "TOOLBAR_STORE_CLASS": "debug_toolbar.store.CacheStore",
         }
 
     @property
@@ -536,7 +537,7 @@ class CommunityBaseSettings(Settings):
 
 
     # Django Storage subclass used to write build artifacts to cloud or local storage
-    # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
+    # https://docs.readthedocs.com/dev/latest/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     RTD_BUILD_TOOLS_STORAGE = "readthedocs.builds.storage.BuildMediaFileSystemStorage"
     RTD_BUILD_COMMANDS_STORAGE = (
@@ -637,6 +638,16 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ISOLATED_TASK_NAME = "worker.tasks.run_build"
     RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME = "worker.tasks.sync_repository"
     RTD_BUILD_ISOLATED_QUEUE = "build:isolated"
+
+    # Auto Scaling group of the build-isolated fleet. A periodic task raises its
+    # desired capacity to dispatched builds + BUFFER.
+    RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
+    RTD_BUILD_ISOLATED_BUFFER = 20
+
+    # ``scalein`` IAM user used for Auto Scaling calls on behalf of builders.
+    RTD_AWS_SCALE_IN_ACCESS_KEY = None
+    RTD_AWS_SCALE_IN_SECRET_ACCESS_KEY = None
+    RTD_AWS_SCALE_IN_REGION_NAME = None
 
     @property
     def BUILD_MEMORY_LIMIT(self):
@@ -789,6 +800,11 @@ class CommunityBaseSettings(Settings):
             "options": {"queue": "web"},
             "kwargs": {"days": 365 * 3, "keep_recent": 250, "limit": 10_000, "max_projects": 2_500},
         },
+        "every-5s-build-isolated-desired-capacity": {
+            "task": "readthedocs.builds.tasks.set_build_isolated_desired_capacity",
+            "schedule": timedelta(seconds=5),
+            "options": {"queue": "autoscaling", "expires": 5},
+        },
     }
 
     # Sentry
@@ -899,6 +915,9 @@ class CommunityBaseSettings(Settings):
                         "hidden": False,
                         "hidden_on_login": False,
                         "hidden_on_connect": False,
+                        # Log in with this provider directly, and keep the
+                        # other GitHub options behind the modal.
+                        "default": True,
                         "priority": 10,
                     },
                 },
@@ -1029,6 +1048,12 @@ class CommunityBaseSettings(Settings):
 
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
+    # Don't connect django-elasticsearch-dsl's receivers to every model's signals.
+    # All our documents use ``ignore_signals = True`` and have no related models,
+    # so its receivers are no-ops; we index from our own receivers
+    # (``readthedocs.search.signals``) and tasks instead.
+    # Receivers without a sender also disable Django's fast delete for every model.
+    ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = "django_elasticsearch_dsl.signals.BaseSignalProcessor"
 
     ALLOWED_HOSTS = ["*"]
 
@@ -1089,6 +1114,7 @@ class CommunityBaseSettings(Settings):
         "DEFAULT_THROTTLE_RATES": {
             "anon": "5/minute",
             "user": "60/minute",
+            "rtd_token": "60/minute",
         },
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -1115,16 +1141,6 @@ class CommunityBaseSettings(Settings):
                 "processors": [
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                     structlog.dev.ConsoleRenderer(colors=False),
-                ],
-                # Allows to add extra data to log entries generated via ``logging`` module
-                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
-                "foreign_pre_chain": shared_processors,
-            },
-            "colored_console": {
-                "()": structlog.stdlib.ProcessorFormatter,
-                "processors": [
-                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                    structlog.dev.ConsoleRenderer(colors=True),
                 ],
                 # Allows to add extra data to log entries generated via ``logging`` module
                 # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging

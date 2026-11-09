@@ -25,6 +25,8 @@ from operator import truediv
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from slugify import slugify as unicode_slugify
 
@@ -53,7 +55,7 @@ version_slug_validator = RegexValidator(
 )
 
 
-def validate_version_slug(slug, version):
+def validate_version_slug(slug, version, link_to_existing=False):
     """
     Validate a new slug for a given version.
 
@@ -62,6 +64,8 @@ def validate_version_slug(slug, version):
 
     :param slug: The new slug for the version.
     :param version: The version the slug is being assigned to.
+    :param link_to_existing: Include an HTML link to the version already using the slug.
+        Only for the dashboard, the API wants a plain message.
     :raises django.core.exceptions.ValidationError: If the slug isn't valid.
     """
     # We rely on the slug to identify versions managed by Read the Docs
@@ -85,7 +89,17 @@ def validate_version_slug(slug, version):
     # NOTE: Django already checks for unique slugs and raises a ValidationError,
     # but that message is attached to the whole form instead of the slug field.
     # So we do the check here to provide a better error message.
-    if version.project.versions.filter(slug=slug).exclude(pk=version.pk).exists():
+    existing = version.project.versions.filter(slug=slug).exclude(pk=version.pk).first()
+    if existing:
+        if link_to_existing:
+            url = reverse("project_version_detail", args=[existing.project.slug, existing.slug])
+            raise ValidationError(
+                format_html(
+                    _('A version with that slug already exists: <a href="{url}">{slug}</a>.'),
+                    url=url,
+                    slug=existing.slug,
+                )
+            )
         raise ValidationError(_("A version with that slug already exists."))
 
 

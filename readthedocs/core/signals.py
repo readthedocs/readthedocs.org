@@ -46,7 +46,7 @@ def process_email_confirmed(request, email_address, **kwargs):
         # TODO: Unsubscribe users if they unset `mailing_list`.
         structlog.contextvars.bind_contextvars(
             email=email_address.email,
-            username=user.username,
+            user_username=user.username,
         )
         log.info("Subscribing user to newsletter and onboarding group.")
 

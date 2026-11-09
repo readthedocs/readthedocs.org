@@ -19,7 +19,7 @@ and defining the location of the installation requirements:
     version: 2
 
     build:
-      os: ubuntu-24.04
+      os: ubuntu-26.04
       tools:
         python: "3"
 

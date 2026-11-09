@@ -442,12 +442,19 @@ class Project(models.Model):
         ),
     )
 
+    is_direct_upload = models.BooleanField(
+        _("Built externally and uploaded"),
+        default=False,
+        db_default=False,
+        help_text=_("Read the Docs never builds this project, every version comes from an upload."),
+    )
+
     # External versions
     external_builds_enabled = models.BooleanField(
         _("Build pull requests for this project"),
         default=True,
         help_text=_(
-            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
+            'More information in <a href="https://docs.readthedocs.com/platform/stable/pull-requests.html">our docs</a>.'  # noqa
         ),
     )
     external_builds_privacy_level = models.CharField(
@@ -519,6 +526,11 @@ class Project(models.Model):
     )
     max_concurrent_builds = models.IntegerField(
         _("Maximum concurrent builds allowed for this project"),
+        null=True,
+        blank=True,
+    )
+    max_build_media_size = models.PositiveBigIntegerField(
+        _("Maximum size (in bytes) allowed per media type when uploading build artifacts"),
         null=True,
         blank=True,
     )
@@ -1283,6 +1295,9 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
+            # Direct upload projects only get the versions they upload.
+            if self.is_direct_upload:
+                return
             latest = self.versions.create_latest()
         if not latest.machine:
             return
@@ -1733,8 +1748,11 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
+    # Optional parser override; the default reads from the build media storage.
+    parser = None
+
     def get_processed_json(self):
-        parser = GenericParser(self.version)
+        parser = self.parser or GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
@@ -1818,7 +1836,7 @@ class WebHook(Notification):
         _("JSON payload"),
         help_text=_(
             "JSON payload to send to the webhook. "
-            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
+            'Check <a href="https://docs.readthedocs.com/platform/stable/guides/build/webhooks.html#variable-substitutions">the docs</a> for available substitutions.',  # noqa
         ),
         blank=True,
         null=True,

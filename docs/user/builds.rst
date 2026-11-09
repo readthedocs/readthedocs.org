@@ -72,21 +72,46 @@ The build process includes the following jobs:
 
 .. seealso::
 
-    If you require additional build steps or customization,
-    it's possible to run user-defined commands and :doc:`customize the build process </build-customization>`.
+    :doc:`/build-customization`
+        Run user-defined commands if you require additional build steps or customization.
+
+    :doc:`/guides/build/direct-upload`
+        Build the documentation in your own continuous integration pipeline and upload the result to Read the Docs.
+
+Skipping builds
+---------------
+
+A *skipped* build is a build that is never triggered.
+Using :doc:`automation rules </automation-rules>` with webhook filters,
+you can tell Read the Docs to only trigger builds when something relevant has changed,
+for example when files under ``docs/`` were modified,
+or when the commit message doesn't contain ``[skip ci]``.
+
+Skipped builds don't appear in your build history and don't consume build time.
+This is the recommended way to avoid unnecessary builds.
+
+.. seealso::
+
+   :ref:`automation-rules:Webhook filters`
+     Filter builds by changed files, commit message, or pull request labels.
+
+   :doc:`/guides/build/skip-or-cancel-builds`
+     Examples of skipping and cancelling builds based on conditions.
 
 Cancelling builds
 -----------------
 
-There may be situations where you want to cancel a running build.
+A *cancelled* build is a build that was triggered as usual,
+but was stopped before it finished.
+Cancelled builds appear in your build history with the *Cancelled* state.
 Cancelling builds allows your team to speed up review times and also help us reduce server costs and our environmental footprint.
 
 A couple common reasons you might want to cancel builds are:
 
 * the build has an external dependency that hasn't been updated
-* there were no changes on the documentation files
+* your Git provider doesn't support webhook filters,
+  and you want to stop builds when there were no changes on the documentation files
 
-For these scenarios,
 Read the Docs supports three different mechanisms to cancel a running build:
 
 :Manually:
@@ -110,7 +135,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
 
    .. tip::
 
-      Take a look at :doc:`/guides/build/skip-build` page for some examples.
+      Take a look at the :doc:`/guides/build/skip-or-cancel-builds` page for some examples.
 
 Automatic disabling of builds
 -----------------------------

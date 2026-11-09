@@ -1,3 +1,5 @@
+import os
+import tempfile
 from fnmatch import fnmatch
 
 import structlog
@@ -9,6 +11,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.builds.tasks import post_build_overview
+from readthedocs.filetreediff import get_base_version
 from readthedocs.filetreediff import snapshot_base_manifest
 from readthedocs.filetreediff import write_manifest
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest
@@ -17,6 +20,7 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.parsers import GenericParser
 from readthedocs.search.signals import search_index_updated
 from readthedocs.search.utils import index_objects
 from readthedocs.search.utils import remove_indexed_files
@@ -53,7 +57,14 @@ class SearchIndexer(Indexer):
 
     If search_index_name is provided, it will be used as the search index name,
     otherwise the default one will be used.
+
+    Files are sent to Elasticsearch in batches of ``batch_size`` as they are
+    processed, so memory use is bounded by the batch size rather than by the
+    number of pages in the version. Each ``HTMLFile`` keeps its parsed content
+    (``processed_json``) alive until it is dropped here.
     """
+
+    batch_size = 500
 
     def __init__(
         self,
@@ -82,18 +93,25 @@ class SearchIndexer(Indexer):
                 break
 
         self._html_files_to_index.append(html_file)
+        if len(self._html_files_to_index) >= self.batch_size:
+            self._index_pending()
+
+    def _index_pending(self):
+        if not self._html_files_to_index:
+            return
+        index_objects(
+            document=PageDocument,
+            objects=self._html_files_to_index,
+            index_name=self.search_index_name,
+            # Pages are indexed in small chunks to avoid a
+            # large payload that will probably timeout ES.
+            chunk_size=100,
+        )
+        self._html_files_to_index = []
 
     def collect(self, sync_id: int):
-        # Index new files in ElasticSearch.
-        if self._html_files_to_index:
-            index_objects(
-                document=PageDocument,
-                objects=self._html_files_to_index,
-                index_name=self.search_index_name,
-                # Pages are indexed in small chunks to avoid a
-                # large payload that will probably timeout ES.
-                chunk_size=100,
-            )
+        # Index the files that haven't been sent yet.
+        self._index_pending()
 
         # Remove old HTMLFiles from ElasticSearch.
         remove_indexed_files(
@@ -181,10 +199,7 @@ class FileManifestIndexer(Indexer):
         # current state. This prevents false file changes when the base branch
         # moves forward (the "stale branch" problem).
         if self.version.is_external:
-            base_version = (
-                self.version.project.addons.options_base_version
-                or self.version.project.get_latest_version()
-            )
+            base_version = get_base_version(self.version.project)
             if base_version:
                 snapshot_base_manifest(self.version, base_version)
 
@@ -254,7 +269,7 @@ def _get_indexers(
     return indexers
 
 
-def _process_files(*, version: Version, indexers: list[Indexer]):
+def _process_files(*, version: Version, indexers: list[Indexer], local_path: str):
     storage_path = version.get_storage_path(media_type=MEDIA_TYPE_HTML)
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
@@ -272,15 +287,19 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
         sync_id=sync_id,
     )
 
-    for root, __, filenames in build_media_storage.walk(storage_path):
+    # A single bulk download is much faster than one or more storage
+    # requests per file. HTML is all the indexers consume.
+    build_media_storage.rclone_download_directory(storage_path, local_path, include="*.html")
+
+    # The injected parser makes ``processed_json`` read from the local copy.
+    parser = GenericParser(version, local_path=local_path)
+    for root, __, filenames in os.walk(local_path):
         for filename in filenames:
             # We don't care about non-HTML files (for now?).
             if not filename.endswith(".html"):
                 continue
 
-            full_path = build_media_storage.join(root, filename)
-            # Generate a relative path for storage similar to os.path.relpath
-            relpath = full_path.removeprefix(storage_path).lstrip("/")
+            relpath = os.path.relpath(os.path.join(root, filename), local_path)
 
             html_file = HTMLFile(
                 project=version.project,
@@ -293,6 +312,7 @@ def _process_files(*, version: Version, indexers: list[Indexer]):
                 commit="unknown",
                 build=sync_id,
             )
+            html_file.parser = parser
             for indexer in indexers:
                 try:
                     indexer.process(html_file, sync_id)
@@ -345,7 +365,8 @@ def index_build(build_id):
             version=version,
             build=build,
         )
-        return _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            return _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to index build")
 
@@ -389,7 +410,8 @@ def reindex_version(version_id, search_index_name=None):
             search_index_name=search_index_name,
             post_build_overview=False,
         )
-        _process_files(version=version, indexers=indexers)
+        with tempfile.TemporaryDirectory(prefix="index-build-") as tmp_dir:
+            _process_files(version=version, indexers=indexers, local_path=tmp_dir)
     except Exception:
         log.exception("Failed to re-index version")
 

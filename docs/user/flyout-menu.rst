@@ -21,7 +21,7 @@ The :doc:`addons` flyout provides a place for a number of Read the Docs features
 
 * A :doc:`version switcher </versions>` that shows users all of the active versions they have access to.
 * A :doc:`translation switcher </localization>` that shows all the documentation languages provided.
-* A list of :doc:`offline formats </downloadable-documentation>` for the current version, including HTML & PDF downloads.
+* A list of :doc:`offline formats </offline-formats>` for the current version, including HTML & PDF downloads.
 * Links to the Read the Docs dashboard for the project.
 * A search bar that gives users access to the :doc:`/server-side-search/index` of the current version.
 

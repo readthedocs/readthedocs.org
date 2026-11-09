@@ -18,6 +18,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 from vanilla import CreateView
@@ -192,6 +193,15 @@ class UserProfileDashboardPreferencesEdit(PrivateViewMixin, UpdateView):
 
     def get_object(self):
         return self.request.user.profile
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        language = form.cleaned_data.get("language")
+        if language:
+            # https://docs.djangoproject.com/en/5.2/topics/i18n/translation/#explicitly-setting-the-active-language
+            translation.activate(language)
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+        return response
 
     def get_success_url(self):
         return reverse(

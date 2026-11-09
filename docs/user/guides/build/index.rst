@@ -20,9 +20,14 @@ How-to guides: build process
     Learn how to define rules to automate creation of new versions on Read the Docs,
     entirely using your Git repository's version logic.
 
-⏩️ :doc:`Skip builds based on conditions </guides/build/skip-build>`
-    Use the special exit code 183 to programmatically cancel builds based on custom conditions.
+⏩️ :doc:`Skip or cancel builds based on conditions </guides/build/skip-or-cancel-builds>`
+    Skip builds before they are triggered using automation rules,
+    or cancel a running build from your own commands using the special exit code 183.
     This helps save resources by avoiding unnecessary documentation builds.
+
+⏩️ :doc:`Direct upload </guides/build/direct-upload>`
+    Build your documentation in GitHub Actions or any other continuous integration service,
+    and upload the result to Read the Docs for hosting.
 
 
 .. seealso:
@@ -39,4 +44,5 @@ How-to guides: build process
    Configuring pull request builds </guides/pull-requests>
    Using custom environment variables </guides/environment-variables>
    Managing versions automatically </guides/automation-rules>
-   Skip builds based on conditions </guides/build/skip-build>
+   Skip or cancel builds based on conditions </guides/build/skip-or-cancel-builds>
+   Direct upload </guides/build/direct-upload>

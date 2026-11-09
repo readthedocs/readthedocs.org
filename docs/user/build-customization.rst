@@ -62,7 +62,7 @@ and also overrides the default build command for the ``htmlzip`` format, while k
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        pre_install:
          - bash ./scripts/pre_install.sh
@@ -84,7 +84,7 @@ Features and limitations
 * Environment variables are expanded for each individual command (see :doc:`/reference/environment-variables`).
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands.
 * Any command returning non-zero exit code will cause the build to fail immediately
-  (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_).
+  (note there is a special exit code to :doc:`cancel the build </guides/build/skip-or-cancel-builds>`).
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``.
 * If the :ref:`config-file/v2:sphinx` or :ref:`config-file/v2:mkdocs` configuration is defined,
   the ``create_environment``, ``install``, and ``build`` jobs will use the default commands for the selected tool.
@@ -100,7 +100,7 @@ The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted a
 
 We store the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
-Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
+Supported :ref:`formats <offline-formats:accessing offline formats>` are published if they exist in the following directories:
 
 * ``$READTHEDOCS_OUTPUT/html/`` (required)
 * ``$READTHEDOCS_OUTPUT/htmlzip/``
@@ -142,7 +142,7 @@ Alternatively, you can use the :ref:`config-file/v2:build.commands` key to compl
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
@@ -156,7 +156,7 @@ But we recommend using :ref:`config-file/v2:build.jobs` instead:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        install:
          - pip install pelican
@@ -232,9 +232,9 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        post_checkout:
          - git fetch --unshallow || true
@@ -246,9 +246,9 @@ If your build also relies on the contents of other branches, it may also be nece
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        post_checkout:
          - git fetch --unshallow || true
@@ -266,9 +266,9 @@ It's possible to run Doxygen as part of the build process to generate documentat
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        pre_build:
        # Note that this HTML won't be automatically uploaded,
@@ -289,9 +289,9 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
    mkdocs:
      configuration: mkdocs.yml
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        pre_build:
          - pydoc-markdown --build --site-dir "$READTHEDOCS_OUTPUT/html"
@@ -311,9 +311,9 @@ In that case, the Git index can be updated to ignore the files that Read the Doc
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        pre_install:
          - git update-index --assume-unchanged environment.yml docs/conf.py
@@ -331,9 +331,9 @@ This helps ensure that all external links are still valid and readers aren't lin
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        pre_build:
          - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ $READTHEDOCS_OUTPUT/linkcheck
@@ -351,9 +351,9 @@ It's possible to use ``post_checkout`` user-defined job for this.
 
    version: 2
    build:
-     os: "ubuntu-24.04"
+     os: "ubuntu-26.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        post_checkout:
          # Download and uncompress the binary
@@ -410,7 +410,7 @@ Take a look at the following example:
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        post_install:
          # Install poetry
@@ -443,9 +443,9 @@ If a ``uv.lock`` file exists, it is respected.
    version: 2
 
    build:
-     os: ubuntu-24.04
+     os: ubuntu-26.04
      tools:
-       python: "3.13"
+       python: "3.14"
 
    python:
      install:
@@ -475,9 +475,9 @@ This example uses ``pip`` and installs from a group named ``docs``:
    version: 2
 
    build:
-      os: ubuntu-24.04
+      os: ubuntu-26.04
       tools:
-         python: "3.13"
+         python: "3.14"
       jobs:
          install:
             # Since the install step is overridden, pip is no longer updated automatically.
@@ -501,7 +501,7 @@ Take a look at the following example:
    version: 2
 
    build:
-      os: ubuntu-24.04
+      os: ubuntu-26.04
       tools:
           python: "latest"
       jobs:
@@ -559,7 +559,7 @@ If you are building your project with Pelican you could use a configuration file
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.10"
+       python: "3.14"
      jobs:
        install:
          - pip install pelican[markdown]
@@ -659,9 +659,9 @@ configuration are highlighted/emphasized:
      - requirements: docs/requirements.txt
 
    build:
-     os: ubuntu-22.04
+     os: ubuntu-26.04
      tools:
-       python: "3.12"
+       python: "3.14"
      jobs:
        post_build:
          - mkdir -p $READTHEDOCS_OUTPUT/html/

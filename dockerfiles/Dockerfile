@@ -43,12 +43,15 @@ RUN apt-get -y install \
       libxmlsec1-dev \
       libxmlsec1-openssl1
 
-# Gets the mc (MinIO Client) used to add buckets upon initialization in RustFS (S3 emulator).
-# The mc client is compatible with any S3-compatible storage, including RustFS.
-# If this client should have issues running inside this image, it is also
-# fine to defer it to a separate image.
-RUN curl --disable --location https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
-    chmod +x /usr/bin/mc
+# Gets the rc (RustFS Client) used to add buckets upon initialization in RustFS (S3 emulator).
+ARG RUSTFS_CLI_VERSION=v0.1.36
+RUN RC_TARBALL="rustfs-cli-linux-$(dpkg --print-architecture)-gnu-${RUSTFS_CLI_VERSION}.tar.gz" && \
+    cd /tmp && \
+    curl --disable --fail --location -O "https://github.com/rustfs/cli/releases/download/${RUSTFS_CLI_VERSION}/${RC_TARBALL}" && \
+    curl --disable --fail --location -O "https://github.com/rustfs/cli/releases/download/${RUSTFS_CLI_VERSION}/${RC_TARBALL}.sha256" && \
+    sha256sum --check "${RC_TARBALL}.sha256" && \
+    tar -xzf "${RC_TARBALL}" -C /usr/local/bin rc && \
+    rm "${RC_TARBALL}" "${RC_TARBALL}.sha256"
 
 RUN npm install -g nodemon
 

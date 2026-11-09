@@ -63,6 +63,9 @@ class BuildCommand(BuildCommandResultMixin):
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
+    :param extra_env: additional environment variables used only for this
+        command. Their values are obfuscated from the output.
+    :type extra_env: dict
     :param str user: User used to execute the command, it can be in form of ``user:group``
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
@@ -82,6 +85,7 @@ class BuildCommand(BuildCommandResultMixin):
         bin_path=None,
         record_as_success=False,
         demux=False,
+        extra_env=None,
         **kwargs,
     ):
         self.id = None
@@ -90,6 +94,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
         self.user = user or settings.RTD_DOCKER_USER
         self._environment = environment.copy() if environment else {}
+        self._extra_env = extra_env.copy() if extra_env else {}
+        self._environment.update(self._extra_env)
         if "PATH" in self._environment:
             raise BuildAppError(
                 BuildAppError.GENERIC_WITH_BUILD_ID,
@@ -159,7 +165,8 @@ class BuildCommand(BuildCommandResultMixin):
             "Running build command.",
             command=self.get_command(),
             cwd=self.cwd,
-            environment=environment,
+            # Only log the names, values may contain secrets.
+            environment=sorted(environment.keys()),
         )
 
         try:
@@ -214,11 +221,13 @@ class BuildCommand(BuildCommandResultMixin):
 
         :returns: sanitized output as string
         """
-        sanitized = ""
+        # Obfuscate before chunking to avoid leaking secrets in the logs if the output is too big.
+        sanitized = self.obfuscate_output(output or "")
+
         try:
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
-            sanitized = output.replace("\x00", "")
+            sanitized = sanitized.replace("\x00", "")
         except TypeError, AttributeError:
             pass
 
@@ -242,18 +251,26 @@ class BuildCommand(BuildCommandResultMixin):
                 f"{truncated_output}"
             )
 
-        # Obfuscate private environment variables.
-        if self.build_env:
-            # NOTE: we can't use `self._environment` here because we don't know
-            # which variable is public/private since it's just a name/value
-            # dictionary. We need to check with the APIProject object (`self.build_env.project`).
-            for name, spec in self.build_env.project._environment_variables.items():
-                if not spec["public"]:
-                    value = spec["value"]
-                    obfuscated_value = f"{value[:4]}****"
-                    sanitized = sanitized.replace(value, obfuscated_value)
-
         return sanitized
+
+    def obfuscate_output(self, output: str) -> str:
+        """Obfuscate private environment variables and ``extra_env`` values from ``output``."""
+        if not output:
+            return output
+
+        # NOTE: we can't use `self._environment` here because we don't know
+        # which variable is public/private since it's just a name/value
+        # dictionary. We need to check with the APIProject object (`self.build_env.project`).
+        secrets = list(self._extra_env.values())
+        if self.build_env and self.build_env.project:
+            for _, spec in self.build_env.project._environment_variables.items():
+                if not spec["public"]:
+                    secrets.append(spec["value"])
+
+        for value in secrets:
+            if value:
+                output = output.replace(value, f"{value[:4]}****")
+        return output
 
     def get_command(self):
         """Flatten command."""
@@ -506,7 +523,13 @@ class BaseBuildEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-        self, cls, cmd, warn_only=False, record=True, record_as_success=False, **kwargs
+        self,
+        cls,
+        cmd,
+        warn_only=False,
+        record=True,
+        record_as_success=False,
+        **kwargs,
     ):
         """
         Run command from this environment.
@@ -518,6 +541,9 @@ class BaseBuildEnvironment:
         :param warn_only: don't raise an exception on command failure
         :param record_as_success: force command ``exit_code`` to be saved as
             ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
+        :param extra_env: additional environment variables used only for this
+            command. They are not persisted in the build environment, and their
+            values are obfuscated from the output.
         """
         if not record:
             warn_only = True
@@ -566,8 +592,8 @@ class BaseBuildEnvironment:
                 log.warning(
                     msg,
                     command=build_cmd.get_command(),
-                    output=_truncate_output(build_cmd.output),
-                    stderr=_truncate_output(build_cmd.error),
+                    output=_truncate_output(build_cmd.obfuscate_output(build_cmd.output)),
+                    stderr=_truncate_output(build_cmd.obfuscate_output(build_cmd.error)),
                     exit_code=build_cmd.exit_code,
                     project_slug=self.project.slug if self.project else "",
                     version_slug=self.version.slug if self.version else "",

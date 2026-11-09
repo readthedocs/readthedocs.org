@@ -44,32 +44,6 @@ class TestViews(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.project.redirects.all().count(), 2)
 
-    def test_create_redirect_form_prefilled_from_query_string(self):
-        """The build overview comment links here with the deleted file pre-filled."""
-        resp = self.client.get(
-            reverse("projects_redirects_create", args=[self.project.slug]),
-            data={"redirect_type": PAGE_REDIRECT, "from_url": "/legacy/timing-deprecated.html"},
-        )
-        form = resp.context["form"]
-        assert form.initial["redirect_type"] == PAGE_REDIRECT
-        assert form.initial["from_url"] == "/legacy/timing-deprecated.html"
-        # Only the author knows where the file went.
-        assert not form.initial.get("to_url")
-
-    def test_create_redirect_form_ignores_unknown_redirect_type(self):
-        resp = self.client.get(
-            reverse("projects_redirects_create", args=[self.project.slug]),
-            data={"redirect_type": "not-a-type", "from_url": "/config.html"},
-        )
-        form = resp.context["form"]
-        assert form.initial["from_url"] == "/config.html"
-        assert form.initial.get("redirect_type") != "not-a-type"
-
-    def test_create_redirect_form_without_query_string(self):
-        resp = self.client.get(reverse("projects_redirects_create", args=[self.project.slug]))
-        form = resp.context["form"]
-        assert not form.initial.get("from_url")
-
     def test_update_redirect(self):
         self.assertEqual(self.project.redirects.all().count(), 1)
         resp = self.client.post(
@@ -343,6 +317,42 @@ class TestViews(TestCase):
             ),
         )
         self.assertEqual(resp.status_code, 302)
+
+    def test_create_redirect_prefilled_from_query_params(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(
+            url,
+            {
+                "redirect_type": EXACT_REDIRECT,
+                "from_url": "/en/old-slug/*",
+                "to_url": "/en/new-slug/:splat",
+                "http_status": 301,
+                "description": "Version slug changed",
+                "force": "true",
+                "unknown": "ignored",
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        initial = resp.context["form"].initial
+        self.assertEqual(initial["redirect_type"], EXACT_REDIRECT)
+        self.assertEqual(initial["from_url"], "/en/old-slug/*")
+        self.assertEqual(initial["to_url"], "/en/new-slug/:splat")
+        self.assertEqual(initial["http_status"], "301")
+        self.assertEqual(initial["description"], "Version slug changed")
+        self.assertIs(initial["force"], True)
+        self.assertNotIn("unknown", initial)
+
+    def test_create_redirect_without_query_params(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["form"].initial, {})
+
+    def test_create_redirect_prefilled_force_false(self):
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.get(url, {"force": "false"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertIs(resp.context["form"].initial["force"], False)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

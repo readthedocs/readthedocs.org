@@ -346,9 +346,9 @@ class BaseTestDocumentSearch:
         # Add another project as subproject of the project
         project.add_subproject(subproject)
 
+        # Hide all versions of the subproject
+        subproject.versions.update(hidden=True)
         version_subproject = subproject.versions.first()
-        version_subproject.hidden = True
-        version_subproject.save()
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
@@ -398,7 +398,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/support.html"
+        assert result["path"] == f"/en/{version.slug}/support.html"
 
     @pytest.mark.parametrize("doctype", [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_html_projects(
@@ -423,7 +423,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/index.html"
+        assert result["path"] == f"/en/{version.slug}/index.html"
 
     @pytest.mark.parametrize("doctype", [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_subdirectory_html_projects(
@@ -448,7 +448,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/guides/index.html"
+        assert result["path"] == f"/en/{version.slug}/guides/index.html"
 
     @pytest.mark.parametrize("doctype", [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_normal_page_htmldir_projects(
@@ -473,7 +473,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/support.html"
+        assert result["path"] == f"/en/{version.slug}/support.html"
 
     @pytest.mark.parametrize("doctype", [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_htmldir_projects(
@@ -498,7 +498,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/"
+        assert result["path"] == f"/en/{version.slug}/"
 
     @pytest.mark.parametrize("doctype", [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(
@@ -523,7 +523,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data["results"][0]
         assert result["project"] == project.slug
-        assert result["path"] == "/en/latest/guides/"
+        assert result["path"] == f"/en/{version.slug}/guides/"
 
     def test_search_advanced_query_detection(self, api_client):
         project = Project.objects.get(slug="docs")
@@ -652,8 +652,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data["results"]
         assert len(results) == 2
-        assert results[0]["path"] == "/en/latest/index.html"
-        assert results[1]["path"] == "/en/latest/guides/index.html"
+        assert results[0]["path"] == f"/en/{version.slug}/index.html"
+        assert results[1]["path"] == f"/en/{version.slug}/guides/index.html"
 
         # Query with a higher rank over guides/index.html
         page_guides.rank = 5
@@ -670,8 +670,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data["results"]
         assert len(results) == 2
-        assert results[0]["path"] == "/en/latest/guides/index.html"
-        assert results[1]["path"] == "/en/latest/index.html"
+        assert results[0]["path"] == f"/en/{version.slug}/guides/index.html"
+        assert results[1]["path"] == f"/en/{version.slug}/index.html"
 
         # Query with a lower rank over index.html
         page_index.rank = -2
@@ -691,8 +691,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data["results"]
         assert len(results) == 2
-        assert results[0]["path"] == "/en/latest/guides/index.html"
-        assert results[1]["path"] == "/en/latest/index.html"
+        assert results[0]["path"] == f"/en/{version.slug}/guides/index.html"
+        assert results[1]["path"] == f"/en/{version.slug}/index.html"
 
         # Query with a lower rank over index.html
         page_index.rank = 3
@@ -712,8 +712,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data["results"]
         assert len(results) == 2
-        assert results[0]["path"] == "/en/latest/guides/index.html"
-        assert results[1]["path"] == "/en/latest/index.html"
+        assert results[0]["path"] == f"/en/{version.slug}/guides/index.html"
+        assert results[1]["path"] == f"/en/{version.slug}/index.html"
 
         # Query with a same rank over guides/index.html and index.html
         page_index.rank = -10
@@ -733,8 +733,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data["results"]
         assert len(results) == 2
-        assert results[0]["path"] == "/en/latest/index.html"
-        assert results[1]["path"] == "/en/latest/guides/index.html"
+        assert results[0]["path"] == f"/en/{version.slug}/index.html"
+        assert results[1]["path"] == f"/en/{version.slug}/guides/index.html"
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):

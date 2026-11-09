@@ -26,6 +26,10 @@ class CommunityTestSettings(CommunityBaseSettings):
 
     CELERY_TASK_ALWAYS_EAGER = True
 
+    # No Auto Scaling calls from dispatch in tests; ``builds/tests/test_ec2.py``
+    # enables them explicitly.
+    RTD_BUILD_ISOLATED_ASG_NAME = None
+
     # Skip automatic detection of Docker limits for testing
     BUILD_TIME_LIMIT = 600
     BUILD_MEMORY_LIMIT = "200m"

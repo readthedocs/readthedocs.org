@@ -14,6 +14,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.api.v2.views.integrations import (
     BITBUCKET_EVENT_HEADER,
     BITBUCKET_SIGNATURE_HEADER,
@@ -43,6 +44,8 @@ from readthedocs.api.v2.views.integrations import (
 )
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
@@ -186,6 +189,29 @@ class APIBuildTests(TestCase):
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
         self.assertEqual(build.notifications.count(), 0)
+
+    def test_reset_finished_build_is_rejected(self):
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        for state in [BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED]:
+            build = get(
+                Build,
+                project=self.project,
+                version=self.version,
+                state=state,
+                builder="Builder",
+            )
+            build.commands.add(get(BuildCommandResult, build=build))
+
+            r = client.post(reverse("build-reset", args=(build.pk,)))
+
+            self.assertEqual(r.status_code, 409)
+            build.refresh_from_db()
+            self.assertEqual(build.state, state)
+            self.assertEqual(build.builder, "Builder")
+            self.assertEqual(build.commands.count(), 1)
 
     @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_tools_scoped_credentials")
     @mock.patch("readthedocs.api.v2.views.model_views.get_s3_build_media_scoped_credentials")
@@ -339,6 +365,70 @@ class APIBuildTests(TestCase):
         assert resp.status_code == status.HTTP_200_OK
         run_post_build_tasks.delay.assert_called_once_with(build_pk=build.pk)
 
+    def test_build_state_can_move_forward(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_CLONING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_BUILDING}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_BUILDING
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_FINISHED}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_FINISHED
+
+    def test_build_state_can_stay_the_same(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_BUILDING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_BUILDING}, format="json")
+        assert resp.status_code == status.HTTP_200_OK
+
+    def test_build_state_cannot_move_backward(self):
+        project = Project.objects.get(pk=1)
+        build = Build.objects.create(
+            project=project, version=project.versions.first(), state=BUILD_STATE_BUILDING
+        )
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": BUILD_STATE_CLONING}, format="json")
+        assert resp.status_code == status.HTTP_400_BAD_REQUEST
+        assert "state" in resp.data
+        build.refresh_from_db()
+        assert build.state == BUILD_STATE_BUILDING
+
+    def test_build_state_cannot_leave_a_final_state(self):
+        project = Project.objects.get(pk=1)
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        for current, new in [
+            (BUILD_STATE_FINISHED, BUILD_STATE_BUILDING),
+            (BUILD_STATE_FINISHED, BUILD_STATE_CANCELLED),
+            (BUILD_STATE_CANCELLED, BUILD_STATE_FINISHED),
+        ]:
+            build = Build.objects.create(
+                project=project, version=project.versions.first(), state=current
+            )
+            resp = client.patch(f"/api/v2/build/{build.pk}/", {"state": new}, format="json")
+            assert resp.status_code == status.HTTP_400_BAD_REQUEST
+            build.refresh_from_db()
+            assert build.state == current
+
     def test_response_building(self):
         """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
@@ -417,6 +507,22 @@ class APIBuildTests(TestCase):
             build["commands"][0]["command"],
             "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
         )
+
+    def test_normalize_build_command_strips_leading_usr_bin(self):
+        command = normalize_build_command(
+            "/usr/bin/apt-get install --assume-yes -- vim",
+            "myproject",
+            "myversion",
+        )
+        assert command == "apt-get install --assume-yes -- vim"
+
+    def test_normalize_build_command_keeps_usr_bin_in_arguments(self):
+        command = normalize_build_command(
+            "cat /usr/bin/foo",
+            "myproject",
+            "myversion",
+        )
+        assert command == "cat /usr/bin/foo"
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
@@ -2259,9 +2365,35 @@ class IntegrationsTests(TestCase):
         self.assertTrue(external_version)
 
     @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
-    def test_github_pull_request_reopened_event(
+    def test_github_pull_request_opened_event_direct_upload_project(
         self, trigger_build, core_trigger_build
     ):
+        self.project.is_direct_upload = True
+        self.project.save()
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_pull_request_payload
+            ),
+        }
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_pull_request_payload,
+            format="json",
+            headers=headers,
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data["build_triggered"])
+        self.assertEqual(resp.data["versions"], [])
+        # The preview is created by the upload API, not by the webhook.
+        self.assertFalse(self.project.versions(manager=EXTERNAL).filter(verbose_name="2").exists())
+        trigger_build.assert_not_called()
+
+    @mock.patch("readthedocs.api.v2.views.integrations.trigger_build")
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         # Update the payload for `reopened` webhook event
@@ -3584,6 +3716,7 @@ class APIVersionTests(TestCase):
                 "id": 6,
                 "language": "en",
                 "max_concurrent_builds": None,
+                "max_build_media_size": None,
                 "name": "Pip",
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",

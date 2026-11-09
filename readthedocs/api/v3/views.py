@@ -377,6 +377,7 @@ class VersionsViewSet(
         # Get the current values before updating.
         version = self.get_object()
         was_active = version.active
+        was_uploaded = version.is_uploaded
         previous_slug = version.slug
 
         result = super().update(request, *args, **kwargs)
@@ -393,12 +394,23 @@ class VersionsViewSet(
             version.clean_resources(version_slug=previous_slug)
             was_active = False
 
-        version.post_save(was_active=was_active)
+        version.post_save(was_active=was_active, was_uploaded=was_uploaded)
         return result
 
     def get_queryset(self):
-        """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        """Overridden to allow internal versions only.
+
+        Orders results with "latest" first, "stable" second,
+        then remaining versions in ascending alphabetical order.
+        """
+        # The serializer reads ``version.project`` for every URL it builds.
+        return (
+            super()
+            .get_queryset()
+            .exclude(type=EXTERNAL)
+            .select_related("project")
+            .sort_version_aware_naive()
+        )
 
 
 class BuildsViewSet(
@@ -417,6 +429,11 @@ class BuildsViewSet(
     permit_list_expands = [
         "config",
     ]
+
+    def get_queryset(self):
+        # The serializer reads ``build.version`` and ``build.project``
+        # for every build in the list.
+        return super().get_queryset().select_related("version", "project")
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):

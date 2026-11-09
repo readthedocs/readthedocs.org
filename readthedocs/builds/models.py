@@ -4,6 +4,7 @@ import datetime
 import json
 import os.path
 import re
+from functools import cached_property
 from functools import partial
 from io import BytesIO
 
@@ -48,6 +49,7 @@ from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.builds.utils import get_vcs_url
 from readthedocs.builds.version_slug import generate_unique_version_slug
 from readthedocs.builds.version_slug import version_slug_validator
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.models import Notification
@@ -68,8 +70,11 @@ from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.constants import SPHINX_SINGLEHTML
 from readthedocs.projects.models import APIProject
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_VERSION_SLUG_CHANGED
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.redirects.constants import EXACT_REDIRECT
+from readthedocs.redirects.constants import SPLAT_PLACEHOLDER
 from readthedocs.storage import build_commands_storage
 from readthedocs.storage import build_media_storage
 
@@ -195,7 +200,7 @@ class Version(TimeStampedModel):
 
     class Meta:
         unique_together = [("project", "slug")]
-        ordering = ["-verbose_name"]
+        ordering = ["verbose_name"]
 
     def __str__(self):
         return self.verbose_name
@@ -281,11 +286,13 @@ class Version(TimeStampedModel):
         # the Project model
         return self.latest_build
 
-    @property
+    @cached_property
     def latest_build(self):
+        # Cached on the instance: the version list template reads this several
+        # times per row, and each read was a query.
         return self.builds.order_by("-date").first()
 
-    @property
+    @cached_property
     def latest_successful_build(self):
         return (
             self.builds.filter(
@@ -440,12 +447,38 @@ class Version(TimeStampedModel):
         self.save()
         self.purge_cdn(version_slug=version_slug)
 
+    def notify_slug_changed(self, from_slug):
+        """Attach a notification to the project suggesting a redirect from the old slug."""
+        if not self.project.supports_multiple_versions:
+            return
+
+        resolver = Resolver()
+        from_url = resolver.resolve_path(self.project, version_slug=from_slug) + "*"
+        to_url = resolver.resolve_path(self.project, version_slug=self.slug) + SPLAT_PLACEHOLDER
+        query = {
+            "redirect_type": EXACT_REDIRECT,
+            "from_url": from_url,
+            "to_url": to_url,
+            "http_status": 301,
+        }
+        redirect_url = reverse("projects_redirects_create", args=[self.project.slug], query=query)
+        Notification.objects.add(
+            attached_to=self.project,
+            message_id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
+            dismissable=True,
+            format_values={
+                "from_slug": from_slug,
+                "to_slug": self.slug,
+                "redirect_url": redirect_url,
+            },
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = generate_unique_version_slug(self.verbose_name, self)
         super().save(*args, **kwargs)
 
-    def post_save(self, was_active=False):
+    def post_save(self, was_active=False, was_uploaded=False):
         """
         Run extra steps after updating a version.
 
@@ -457,17 +490,39 @@ class Version(TimeStampedModel):
 
         - When a version is deactivated, we need to clean up its
           files from storage, and search index.
+          Uploaded versions are deleted instead, a new upload recreates them.
         - When a version is activated, we need to trigger a build.
+        - When an uploaded version is handed back to Read the Docs builds,
+          its uploaded files are removed and a build is triggered.
         - We also need to purge the cache from the CDN,
           since the version could have been activated/deactivated,
           or its privacy level could have changed.
+
+        :param was_active: whether the version was active before the save.
+        :param was_uploaded: whether the version was uploaded before the save.
         """
         # If the version is deactivated, we need to clean up the files.
         if was_active and not self.active:
+            # Uploaded versions have no inactive state: they are deleted,
+            # and a new upload recreates them.
+            if self.is_uploaded:
+                log.info(
+                    "Deleting deactivated uploaded version.",
+                    project_slug=self.project.slug,
+                    version_slug=self.slug,
+                )
+                self.delete()
+                return
             self.clean_resources()
             return
         # If the version is activated, we need to trigger a build.
         if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Handing an uploaded version back to Read the Docs: the uploaded files go away
+        # and a build is triggered, so a failed build never leaves them being served.
+        # A version activated at the same time has no files and was built above.
+        elif was_uploaded and not self.is_uploaded and self.active:
+            self.clean_resources()
             trigger_build(project=self.project, version=self)
         # Purge the cache from the CDN for any other changes.
         self.purge_cdn()

@@ -1,13 +1,12 @@
 """Mix-in classes for project views."""
 
-from functools import lru_cache
-
 import structlog
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.projects.models import Project
 
 
@@ -95,7 +94,7 @@ class ProjectAdminMixin(ProjectSpamMixin, SuccessMessageMixin):
         self.project = self.get_project()
         return self.model.objects.filter(project=self.project)
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_project(self):
         """Return project determined by url kwarg."""
         if self.project_url_field not in self.kwargs:

@@ -34,7 +34,7 @@ messages = [
             textwrap.dedent(
                 """
             The required <code>.readthedocs.yaml</code> configuration file was not found at repository's root.
-            Learn how to use this file in our <a href="https://docs.readthedocs.io/en/stable/config-file/index.html">configuration file tutorial</a>.
+            Learn how to use this file in our <a href="https://docs.readthedocs.com/platform/stable/config-file/index.html">configuration file tutorial</a>.
             """
             ).strip(),
         ),

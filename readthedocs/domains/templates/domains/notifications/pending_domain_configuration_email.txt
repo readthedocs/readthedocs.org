@@ -2,7 +2,7 @@
 {% block content %}
 {% url "projects_domains_edit" domain.project.slug domain.pk as domain_url %}
 The configuration of your custom domain {{ domain.domain }} ({{ production_uri }}{{ domain_url }}) is pending.
-Make sure to follow the step from our documentation at https://docs.readthedocs.io/page/custom-domains.html to complete the process.
+Make sure to follow the step from our documentation at https://docs.readthedocs.com/platform/stable/custom-domains.html to complete the process.
 
 {% if not domain.validation_process_expired %}
 If you don't complete the configuration,

@@ -3,8 +3,10 @@
 import hashlib
 import itertools
 import re
+from pathlib import Path
 
 import structlog
+from django.core.exceptions import SuspiciousFileOperation
 from selectolax.parser import HTMLParser
 
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
@@ -63,24 +65,39 @@ class GenericParser:
         "video",
     ]
 
-    def __init__(self, version):
+    def __init__(self, version, local_path=None):
         self.version = version
         self.project = self.version.project
-        self.storage = build_media_storage
+        # When set, pages are read from this local directory
+        # (a downloaded copy of the version's HTML) instead of from storage.
+        self.local_path = local_path
 
     def _get_page_content(self, page):
-        """Gets the page content from storage."""
+        """Gets the page content from the local copy or from storage."""
         content = None
         try:
-            file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
-            with self.storage.open(file_path, mode="r") as f:
-                content = f.read()
+            if self.local_path:
+                content = self._get_local_page_content(page)
+            else:
+                file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
+                with build_media_storage.open(file_path, mode="r") as f:
+                    content = f.read()
         except Exception:
             log.warning(
                 "Failed to get page content.",
                 page=page,
             )
         return content
+
+    def _get_local_page_content(self, page):
+        """Read a page from the local copy, refusing paths that escape it."""
+        # Page names originate in user-uploaded files,
+        # so keep the read inside the downloaded copy.
+        root = Path(self.local_path).resolve()
+        path = (root / page).resolve()
+        if not path.is_relative_to(root):
+            raise SuspiciousFileOperation(f"Page escapes the local copy: {page}")
+        return path.read_text(encoding="utf-8")
 
     def _get_page_title(self, body, html):
         """

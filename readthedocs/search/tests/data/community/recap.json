@@ -1,0 +1,7 @@
+{
+  "path": "recap",
+  "title": "Conference recap",
+  "sections": [
+    {"id": "slack", "title": "Slack", "content": "Our Slack has grown this year."}
+  ]
+}

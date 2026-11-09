@@ -108,7 +108,8 @@ but you should take the following into account:
 - Changing the slug of an active version will result on its previous documentation being deleted, and a new build being triggered.
   Be careful when renaming active versions, specially old ones that might not build anymore.
 - Any URL referencing your version with the old slug will return a ``404 Not Found`` page.
-  You can use :ref:`an exact redirect <user-defined-redirects:Redirecting an old version to a new one>` to redirect users to the new URL,
+  You can use :ref:`an exact redirect <user-defined-redirects:Redirecting an old version to a new one>` to redirect users to the new URL.
+  After changing the slug of an active version, the :term:`dashboard` shows a notification with a link to create that redirect, with the form already filled in.
 - You may still see the original name of the version in some places,
   as changing the slug only affects the URL used in your documentation and how the APIs identify that version.
   `We are considering adding another field to be used for display in the future <https://github.com/readthedocs/readthedocs.org/issues/11979>`__.

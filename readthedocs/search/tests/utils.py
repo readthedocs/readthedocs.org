@@ -1,6 +1,10 @@
 import random
 
+from django.core.management import call_command
+
 from readthedocs.projects.models import HTMLFile
+from readthedocs.search.documents import PageDocument
+
 
 SECTION_FIELDS = ["section.title", "section.content"]
 DATA_TYPES_VALUES = ["title"] + SECTION_FIELDS
@@ -52,3 +56,27 @@ def get_search_query_from_project_file(
         query = " ".join(query)
 
     return query
+
+
+class SearchIndexTestMixin:
+    """
+    Create the search indexes once per test class, and clear their documents after each test.
+
+    Creating and deleting indexes are cluster state changes,
+    doing them around every test can stall ES for longer than the client's timeout on CI.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        call_command("search_index", "--delete", "-f")
+        call_command("search_index", "--create")
+
+    @classmethod
+    def tearDownClass(cls):
+        call_command("search_index", "--delete", "-f")
+        super().tearDownClass()
+
+    def tearDown(self):
+        super().tearDown()
+        PageDocument.search().query("match_all").params(refresh=True).delete()
