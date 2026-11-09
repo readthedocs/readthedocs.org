@@ -99,6 +99,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_API_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
+    RTD_BLOG_FEED_URL = "https://about.readthedocs.com/feeds/atom.xml"
 
     @property
     def RTD_RESTRICTED_DOMAINS(self):

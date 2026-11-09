@@ -26,7 +26,6 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -39,6 +38,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.blog import get_blog_posts
 from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
@@ -111,30 +111,14 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
         # Alternatively, dynamically override super()-derived `project_list` context_data
         # context[self.get_context_object_name(filter.qs)] = filter.qs
 
-        template_name = None
         projects = AdminPermission.projects(user=self.request.user, admin=True)
         n_projects = projects.count()
-
-        # We can't yet back down to another announcement as we don't have
-        # the ability to evaluate local storage. Until we add the ability to
-        # dynamically change the announcement, the first matching branch
-        # below is the only announcement a user will see.
         if n_projects == 0 or (
             n_projects < 3 and (timezone.now() - projects.first().pub_date).days < 7
         ):
-            template_name = "example-projects.html"
-        elif n_projects and not projects.filter(versions__type=EXTERNAL).exists():
-            template_name = "pull-request-previews.html"
-        elif n_projects and not projects.filter(addons__analytics_enabled=True).exists():
-            template_name = "traffic-analytics.html"
-        elif AdminPermission.organizations(
-            user=self.request.user,
-            owner=True,
-        ).exists():
-            template_name = "security-logs.html"
+            context["announcement"] = "projects/partials/announcements/example-projects.html"
 
-        if template_name:
-            context["announcement"] = f"projects/partials/announcements/{template_name}"
+        context["blog_posts"] = get_blog_posts()
 
         return context
 
