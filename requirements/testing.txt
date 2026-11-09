@@ -130,7 +130,7 @@ django==5.2.18
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.21.1
+django-allauth[mfa,saml,socialaccount]==65.17.0
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
@@ -260,7 +260,7 @@ markdown==3.11
     # via -r requirements/pip.txt
 markupsafe==3.0.4
     # via jinja2
-oauthlib==4.0.1
+oauthlib==3.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
