@@ -624,7 +624,7 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 No files changed — your changes didn't affect any published file.
+            📖 No files changed
 
             ---
             [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC

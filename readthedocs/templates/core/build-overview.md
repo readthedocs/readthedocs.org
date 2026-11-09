@@ -16,7 +16,7 @@ Markdown inside <details> requires a blank line after </summary>.
 {% endif %}{% for file in diff.deleted|slice:":10" %}- `-` `{{ file.path }}` · [add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url=/{{ file.path|urlencode }})
 {% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more deleted — see the [build overview]({{ build_url }})*
 {% endif %}</details>
-{% else %}📖 No files changed — your changes didn't affect any published file.
+{% else %}📖 No files changed
 {% endif %}
 ---
 [Preview]({{ preview_url }}) · [{{ project.name }} build overview]({{ build_url }}) · built {{ built_at|date:"DATETIME_FORMAT" }} UTC
