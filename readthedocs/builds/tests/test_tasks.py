@@ -581,12 +581,11 @@ class TestPostBuildOverview(TestCase):
             f"""
             📖 **11 files changed** · 1 added · 9 modified · 1 deleted
 
+            <details>
+            <summary>Changed files</summary>
+
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
-
-            <details>
-            <summary>Modified files</summary>
-
             - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [diff](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true)
             - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [diff](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true)
             - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [diff](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true)
@@ -674,7 +673,7 @@ class TestPostBuildOverview(TestCase):
             📖 **12 files modified**
 
             <details>
-            <summary>Modified files</summary>
+            <summary>Changed files</summary>
 
             - `±` [`page-01.html`](http://my-project--1.readthedocs.build/en/1/page-01.html)
             - `±` [`page-02.html`](http://my-project--1.readthedocs.build/en/1/page-02.html)
@@ -686,7 +685,7 @@ class TestPostBuildOverview(TestCase):
             - `±` [`page-08.html`](http://my-project--1.readthedocs.build/en/1/page-08.html)
             - `±` [`page-09.html`](http://my-project--1.readthedocs.build/en/1/page-09.html)
             - `±` [`page-10.html`](http://my-project--1.readthedocs.build/en/1/page-10.html)
-            - *and 2 more — see the [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/)*
+            - *and 2 more modified — see the [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/)*
             </details>
 
             ---
