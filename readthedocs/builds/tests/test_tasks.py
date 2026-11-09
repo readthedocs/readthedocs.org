@@ -699,6 +699,41 @@ class TestPostBuildOverview(TestCase):
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    @mock.patch("readthedocs.builds.reporting.timezone.now")
+    def test_post_build_overview_single_kind_inline(self, now, get_diff, post_comment):
+        """One kind of change under the limit: the headline names it, rows stay unwrapped."""
+        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[
+                ("legacy/old.html", FileTreeDiffFileStatus.deleted),
+                ("legacy/older.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        expected_comment = dedent(
+            f"""
+            📖 **2 files deleted**
+
+            - `-` `legacy/old.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/old.html)
+            - `-` `legacy/older.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/older.html)
+
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built 17 Sep 2026, 08:53 UTC
+            """
+        )
+        post_comment.assert_called_once_with(
+            build=self.current_version_build,
+            comment=expected_comment,
+            create_new=True,
+        )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
     def test_post_build_overview_no_external_version(self, post_comment):
         assert not self.base_version.is_external
         post_build_overview(build_pk=self.base_version_build.pk)
