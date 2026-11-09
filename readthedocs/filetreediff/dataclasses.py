@@ -230,5 +230,12 @@ class FileTreeDiff:
 
     @cached_property
     def should_auto_expand(self):
-        """Auto-expand the details view when there are few files."""
-        return len(self.files) < 5
+        """
+        Whether the comment should list every file inline.
+
+        Ten lines is about what a pull request timeline absorbs before the comment
+        dominates it. A handful of edited pages is the whole review and belongs in
+        view; forty pages touched by a theme change is a sweep, and the count says
+        enough on its own.
+        """
+        return len(self.files) <= 10

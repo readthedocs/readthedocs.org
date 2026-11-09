@@ -537,8 +537,8 @@ class TestPostBuildOverview(TestCase):
             f"""
             📖 **3 files changed** · 1 added · 1 modified · 1 deleted
 
-            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
 
             ---
@@ -554,7 +554,7 @@ class TestPostBuildOverview(TestCase):
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
     @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview_more_than_5_files(self, now, get_diff, post_comment):
+    def test_post_build_overview_more_than_10_files(self, now, get_diff, post_comment):
         now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
@@ -563,27 +563,37 @@ class TestPostBuildOverview(TestCase):
             base_version_build=self.base_version_build,
             files=[
                 ("index.html", FileTreeDiffFileStatus.modified),
+                ("one.html", FileTreeDiffFileStatus.modified),
+                ("two.html", FileTreeDiffFileStatus.modified),
+                ("three.html", FileTreeDiffFileStatus.modified),
+                ("four.html", FileTreeDiffFileStatus.modified),
+                ("five.html", FileTreeDiffFileStatus.modified),
+                ("six.html", FileTreeDiffFileStatus.modified),
+                ("seven.html", FileTreeDiffFileStatus.modified),
+                ("eight.html", FileTreeDiffFileStatus.modified),
                 ("changes.html", FileTreeDiffFileStatus.added),
                 ("deleteme.html", FileTreeDiffFileStatus.deleted),
-                ("one.html", FileTreeDiffFileStatus.modified),
-                ("three.html", FileTreeDiffFileStatus.modified),
-                ("two.html", FileTreeDiffFileStatus.modified),
             ],
             outdated=False,
         )
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            📖 **6 files changed** · 1 added · 4 modified · 1 deleted
+            📖 **11 files changed** · 1 added · 9 modified · 1 deleted
 
-            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
 
             <details>
             <summary>Modified files</summary>
 
+            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [diff](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true)
+            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [diff](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true)
+            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [diff](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true)
             - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
             - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [diff](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true)
+            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html) · [diff](http://my-project--1.readthedocs.build/en/1/seven.html?readthedocs-diff=true)
+            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html) · [diff](http://my-project--1.readthedocs.build/en/1/six.html?readthedocs-diff=true)
             - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [diff](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true)
             - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [diff](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true)
             </details>
