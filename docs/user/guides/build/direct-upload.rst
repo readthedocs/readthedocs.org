@@ -38,9 +38,12 @@ To create an API token for your project:
 #. Choose a name, the :guilabel:`Upload documentation` permission, and when the token expires.
 #. Copy the token. It's only shown once.
 
-A project API token only gives access to your project.
+A project API token only gives access to your project,
+and lets you leave out the project slug when uploading,
+since the token already identifies the project.
 You can also use your personal :ref:`API token <api/v3:Token>`,
 but it gives access to everything your user has access to.
+On |com_brand|, a personal API token also requires :ref:`setting the API URL <guides/build/direct-upload:Read the Docs Business>`.
 
 Uploading from GitHub Actions
 -----------------------------
@@ -165,6 +168,64 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
           --html _build/html \
           --pdf _build/latex/documentation.pdf \
           --epub _build/epub/documentation.epub
+
+Read the Docs Business
+----------------------
+
+Direct upload works the same way on |com_brand|.
+Project API tokens identify the platform they belong to,
+so the upload action and the command line client send your upload to |com_brand| without any extra configuration.
+
+If you use your personal API token instead,
+set the API URL to ``https://app.readthedocs.com``:
+
+.. tabs::
+
+   .. code-tab:: yaml GitHub Actions
+
+      - uses: readthedocs/upload-action@v1
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          api-url: https://app.readthedocs.com
+          project-slug: <your-project-slug>
+          html: _build/html
+
+   .. code-tab:: console Command line
+
+      $ readthedocs --api-url https://app.readthedocs.com upload \
+          --project-slug <your-project-slug> \
+          --html _build/html
+
+The command line client also reads the API URL from the ``READTHEDOCS_API_URL`` environment variable.
+
+Privacy levels
+~~~~~~~~~~~~~~
+
+Uploaded versions are private by default.
+To publish a public version, set the :doc:`privacy level </commercial/privacy-level>` when uploading:
+
+.. tabs::
+
+   .. code-tab:: yaml GitHub Actions
+
+      - uses: readthedocs/upload-action@v1
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          project-slug: <your-project-slug>
+          html: _build/html
+          privacy-level: public
+
+   .. code-tab:: console Command line
+
+      $ readthedocs upload \
+          --project-slug <your-project-slug> \
+          --html _build/html \
+          --privacy-level public
+
+Every upload sets the privacy level of the version,
+so an upload without it makes the version private again,
+even if you made it public from the version settings.
+Set the privacy level on every upload of a public version.
 
 Versions
 --------
