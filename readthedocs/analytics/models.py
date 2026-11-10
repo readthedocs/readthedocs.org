@@ -114,11 +114,14 @@ class PageView(models.Model):
         ]
 
     @classmethod
-    def top_viewed_pages(cls, project, since=None, limit=10, status=200, per_version=False):
+    def top_viewed_pages(
+        cls, project, since=None, limit=10, status=200, per_version=False, queryset=None
+    ):
         """
         Returns top pages according to view counts.
 
         :param per_version: If `True`, group the results per version.
+        :param queryset: Optional queryset (e.g. already filtered) to count from.
 
         :returns: A list of named tuples ordered by the number of views.
          Each tuple contains: path, url, and count.
@@ -127,9 +130,12 @@ class PageView(models.Model):
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
+        if queryset is None:
+            queryset = cls.objects.all()
+
         group_by = "full_path" if per_version else "path"
         queryset = (
-            cls.objects.filter(project=project, date__gte=since, status=status)
+            queryset.filter(project=project, date__gte=since, status=status)
             .values_list(group_by)
             .annotate(count=Sum("view_count"))
             .values_list(group_by, "count", named=True)
@@ -164,7 +170,7 @@ class PageView(models.Model):
         return result
 
     @classmethod
-    def page_views_by_date(cls, project_slug, since=None, status=200):
+    def page_views_by_date(cls, project_slug, since=None, status=200, queryset=None):
         """
         Returns the total page views count for last 30 days for a particular project.
 
@@ -176,12 +182,17 @@ class PageView(models.Model):
             }
         This data shows that there were 150 page views on 01 July,
         200 page views on 02 July and 143 page views on 03 July.
+
+        :param queryset: Optional queryset (e.g. already filtered) to count from.
         """
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
+        if queryset is None:
+            queryset = cls.objects.all()
+
         queryset = (
-            cls.objects.filter(
+            queryset.filter(
                 project__slug=project_slug,
                 date__gte=since,
                 status=status,
