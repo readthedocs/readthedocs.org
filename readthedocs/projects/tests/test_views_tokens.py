@@ -11,11 +11,13 @@ from django_dynamic_fixture import get
 
 from readthedocs.api.v3.models import ProjectPermission
 from readthedocs.api.v3.models import RTDToken
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.forms import ProjectTokenUpdateForm
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class ProjectTokenViewsTests(TestCase):
     def setUp(self):
         self.user = get(User)
@@ -28,6 +30,9 @@ class ProjectTokenViewsTests(TestCase):
         self.client.force_login(self.user)
         self.list_url = reverse("projects_tokens", args=[self.project.slug])
         self.create_url = reverse("projects_tokens_create", args=[self.project.slug])
+
+    def add_project_admin(self, user):
+        self.project.users.add(user)
 
     def _create_token(self, **kwargs):
         return RTDToken.objects.create_token(
@@ -87,7 +92,7 @@ class ProjectTokenViewsTests(TestCase):
 
         # Another admin of the project.
         other_user = get(User)
-        self.project.users.add(other_user)
+        self.add_project_admin(other_user)
         other_client = self.client_class()
         other_client.force_login(other_user)
         response = other_client.get(redirect_url)
@@ -419,3 +424,17 @@ class ProjectTokenViewsTests(TestCase):
         self.feature.projects.remove(self.project)
         response = self.client.get(edit_url)
         assert self.list_url not in response.content.decode()
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class ProjectTokenViewsTestsWithOrganizations(ProjectTokenViewsTests):
+    def setUp(self):
+        super().setUp()
+        self.organization = get(
+            Organization,
+            projects=[self.project],
+            owners=[self.user],
+        )
+
+    def add_project_admin(self, user):
+        self.organization.owners.add(user)
