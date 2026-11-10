@@ -14,6 +14,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.lexbor import LexborHTMLParser
+from selectolax.lexbor import SelectolaxError
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.mixins import EmbedAPIMixin
@@ -136,7 +137,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if selector:
             try:
                 return html.css_first(selector)
-            except ValueError:
+            except SelectolaxError:
                 log.warning("Invalid CSS selector provided.", selector=selector)
                 return None
 
@@ -176,7 +177,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             selector = f'[id="{fragment}"]'
             try:
                 node = LexborHTMLParser(page_content, encoding=True).css_first(selector)
-            except ValueError:
+            except SelectolaxError:
                 log.warning("Invalid CSS selector from fragment.", fragment=fragment)
                 node = None
         else:

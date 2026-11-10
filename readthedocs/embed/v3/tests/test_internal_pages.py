@@ -124,3 +124,24 @@ class TestEmbedAPIv3InternalPages:
         assert response.status_code == 200
 
         storage_open.assert_called_once_with("html/project/latest/My Spaced File.html")
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            # Fragment that breaks the ``[id="..."]`` selector.
+            {"url": 'https://project.readthedocs.io/en/latest/#foo"bar'},
+            {
+                "url": "https://project.readthedocs.io/en/latest/",
+                "maincontent": "div[",
+            },
+        ],
+    )
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_invalid_selector(self, storage_exists, storage_open, client, params):
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open('<div id="section">content</div>')
+
+        response = client.get(self.api_url, params)
+        assert response.status_code == 404
+        assert "Can't find content for section" in response.json()["error"]
