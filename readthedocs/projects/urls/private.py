@@ -41,6 +41,10 @@ from readthedocs.projects.views.private import ProjectRedirectsInsert
 from readthedocs.projects.views.private import ProjectRedirectsList
 from readthedocs.projects.views.private import ProjectRedirectsUpdate
 from readthedocs.projects.views.private import ProjectSearchSettingsUpdate
+from readthedocs.projects.views.private import ProjectTokenCreate
+from readthedocs.projects.views.private import ProjectTokenDelete
+from readthedocs.projects.views.private import ProjectTokenList
+from readthedocs.projects.views.private import ProjectTokenUpdate
 from readthedocs.projects.views.private import ProjectTranslationsCreate
 from readthedocs.projects.views.private import ProjectTranslationsDelete
 from readthedocs.projects.views.private import ProjectTranslationsList
@@ -345,6 +349,31 @@ environmentvariable_urls = [
 ]
 
 urlpatterns += environmentvariable_urls
+
+api_token_urls = [
+    path(
+        "<slug:project_slug>/tokens/",
+        ProjectTokenList.as_view(),
+        name="projects_tokens",
+    ),
+    path(
+        "<slug:project_slug>/tokens/create/",
+        ProjectTokenCreate.as_view(),
+        name="projects_tokens_create",
+    ),
+    path(
+        "<slug:project_slug>/tokens/<int:token_pk>/edit/",
+        ProjectTokenUpdate.as_view(),
+        name="projects_tokens_edit",
+    ),
+    path(
+        "<slug:project_slug>/tokens/<int:token_pk>/delete/",
+        ProjectTokenDelete.as_view(),
+        name="projects_tokens_delete",
+    ),
+]
+
+urlpatterns += api_token_urls
 
 automation_rule_urls = [
     path(
