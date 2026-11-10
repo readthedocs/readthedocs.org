@@ -25,11 +25,40 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import WebHook
 from readthedocs.projects.models import WebHookEvent
+from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.base import WizardTestCase
+
+
+@mock.patch("readthedocs.projects.views.mixins.chain")
+@mock.patch("readthedocs.projects.views.mixins.prepare_build")
+class TestFinishImportProject(RequestFactoryTestMixin, TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.request = self.request(method="post", path="/")
+        self.request.user = self.user
+
+    def test_legacy_build_is_dispatched(self, prepare_build, chain):
+        update_docs = mock.MagicMock()
+        prepare_build.return_value = (update_docs, get(Build, project=self.project))
+
+        ProjectImportMixin().finish_import_project(self.request, self.project)
+
+        chain.assert_called_once_with(update_docs)
+
+    def test_build_isolated_build_is_not_dispatched(self, prepare_build, chain):
+        feature = get(Feature, feature_id=Feature.USE_BUILD_ISOLATED)
+        feature.projects.add(self.project)
+        prepare_build.return_value = (mock.MagicMock(), get(Build, project=self.project))
+
+        ProjectImportMixin().finish_import_project(self.request, self.project)
+
+        # ``admit_queued_builds`` dispatches it instead.
+        chain.assert_not_called()
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
