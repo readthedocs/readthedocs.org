@@ -127,7 +127,7 @@ django==5.2.18
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.17.0
+django-allauth[mfa,saml,socialaccount]==65.21.1
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
@@ -255,7 +255,7 @@ matplotlib-inline==0.2.2
     # via ipython
 newrelic==13.6.1
     # via -r requirements/deploy.in
-oauthlib==3.3.1
+oauthlib==4.0.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -383,7 +383,7 @@ s3transfer==0.19.2
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.4.12
+selectolax==1.0.1
     # via -r requirements/pip.txt
 sentry-sdk==2.71.0
     # via structlog-sentry

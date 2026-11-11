@@ -92,7 +92,7 @@ django==5.2.18
     #   djangorestframework
     #   drf-extensions
     #   jsonfield
-django-allauth[mfa,saml,socialaccount]==65.17.0
+django-allauth[mfa,saml,socialaccount]==65.21.1
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
@@ -191,7 +191,7 @@ lxml==6.0.1
     #   xmlsec
 markdown==3.11
     # via -r requirements/pip.in
-oauthlib==3.3.1
+oauthlib==4.0.1
     # via
     #   django-allauth
     #   requests-oauthlib
@@ -277,7 +277,7 @@ rest-framework-generic-relations==2.2.0
     # via -r requirements/pip.in
 s3transfer==0.19.2
     # via boto3
-selectolax==0.4.12
+selectolax==1.0.1
     # via -r requirements/pip.in
 six==1.17.0
     # via
