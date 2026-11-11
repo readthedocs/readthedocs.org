@@ -1,5 +1,9 @@
 {% extends "core/email/common.html" %}
 
+{% load i18n %}
+
+{% block salutation %}{% trans "No account found" %}{% endblock %}
+
 {% block content %}
 <p>
   You are receiving this email because you or someone else has requested a

@@ -1,20 +1,17 @@
 {% extends "core/email/common.txt" %}
+
+{% block salutation %}Your trial is ending{% endblock %}
+
 {% block content %}
-This is just a reminder that the trial period for "{{ organization.name }}"
-will end in under 7 days. We hope your trial has gone smoothly!
+{% autoescape off %}
+The trial for "{{ organization.name }}" ends in less than 7 days.
 
-Be sure to add a subscription to your organization before your trial period
-is over if you wish to continue using Read the Docs. If you don't upgrade your account,
-your builds will be disabled, and documentation serving will be disabled.
+Add a subscription before your trial ends to continue using Read the Docs.
+Without a subscription, your builds and documentation serving will be disabled.
 
-You can add a subscription to your organization here:
+Choose a subscription: {{ production_uri }}{% url 'subscription_detail' organization.slug %}
 
-{{ production_uri }}{% url 'subscription_detail' organization.slug %}
-
-If you'd like more information on the various plan options available to you,
-see our pricing page at {{ production_uri }}{% url 'pricing' %})
-or always feel free to get in touch with us at {{ production_uri }}{% url 'support' %}.
-
-We hope you've enjoyed Read the Docs so far! If you have any questions,
-don't hesitate to contact us!
+Plans and pricing: {{ production_uri }}{% url 'pricing' %}
+Contact us: {{ production_uri }}{% url 'support' %}
+{% endautoescape %}
 {% endblock %}

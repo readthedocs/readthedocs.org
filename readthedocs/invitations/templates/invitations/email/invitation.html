@@ -1,4 +1,5 @@
 {% extends 'core/email/common.html' %}
+{% block salutation %}You're invited to Read the Docs{% endblock %}
 {% block content %}
 <p>
   {{ from_name }} has invited you to join the {{ object_description }}.

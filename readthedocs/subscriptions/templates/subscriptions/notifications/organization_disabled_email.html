@@ -1,12 +1,11 @@
 {% extends "core/email/common.html" %}
+{% block salutation %}Your subscription needs renewing{% endblock %}
 {% block content %}
-<p>Your subscription period for <b>{{ organization.name }}<b> has ended and you haven't yet renewed. If
+<p>Your subscription period for <b>{{ organization.name }}</b> has ended and you haven't yet renewed. If
 you'd like to continue using Read the Docs to manage your
 documentation, please renew the subscription for your organization now.</p>
 
-<p>You can renew it here:</p>
-
-<p><a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}">{{ production_uri }}{% url 'subscription_detail' organization.slug %}</a></p>
+<p><a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}"><strong>Renew your subscription</strong></a></p>
 
 <p><b>Your builds will soon be disabled and access to your documentation will be removed.</b></p>
 
