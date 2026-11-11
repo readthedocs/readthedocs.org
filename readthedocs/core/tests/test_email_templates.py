@@ -47,7 +47,12 @@ class EmailTemplateTests(SimpleTestCase):
         assert "Your trial is ending" in html
         assert "Example &lt;Docs&gt;" in html
         assert "Example <Docs>" in text
+        assert 'alt="Read the Docs"' in html
+        assert 'bgcolor="#155e9b"' in html
+        assert "Choose a subscription" in html
         for content in (html, text):
+            assert "The Read the Docs team" in content
+            assert "https://about.readthedocs.com" in content
             assert "less than 7 days" in content
             assert "builds and documentation serving will be disabled" in content
             assert (
@@ -55,6 +60,38 @@ class EmailTemplateTests(SimpleTestCase):
             )
             assert "https://readthedocs.com/pricing/" in content
             assert "https://readthedocs.com/support/" in content
+
+    def test_subscription_emails_have_primary_action(self):
+        context = {
+            "organization": SimpleNamespace(name="Example", slug="example"),
+            "production_uri": "https://readthedocs.com",
+        }
+        for name, label in (
+            ("trial_ending", "Choose a subscription"),
+            ("subscription_required", "Choose a subscription"),
+            ("subscription_ended", "Renew your subscription"),
+            ("organization_disabled", "Renew your subscription"),
+        ):
+            html = render_to_string(
+                f"subscriptions/notifications/{name}_email.html", context
+            )
+            assert 'bgcolor="#155e9b"' in html
+            assert label in html
+            assert (
+                'href="https://readthedocs.com/organizations/example/subscription/"'
+                in html
+            )
+
+    def test_button_escapes_url_and_label(self):
+        html = render_to_string(
+            "core/email/button.html",
+            {
+                "action_url": 'https://example.com/?a=1&b="2"',
+                "action_label": "Choose <plan>",
+            },
+        )
+        assert 'href="https://example.com/?a=1&amp;b=&quot;2&quot;"' in html
+        assert "Choose &lt;plan&gt;" in html
 
     def test_confirmation_email_escapes_dynamic_url(self):
         html = render_to_string(

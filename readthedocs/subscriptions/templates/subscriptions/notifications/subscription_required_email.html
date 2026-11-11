@@ -6,7 +6,8 @@ you'd like to continue using Read the Docs to host and manage your
 documentation, please sign up for a subscription soon.
 </p>
 
-<p><a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}"><strong>Choose a subscription</strong></a></p>
+{% url 'subscription_detail' organization.slug as subscription_path %}
+{% include "core/email/button.html" with action_url=production_uri|add:subscription_path action_label="Choose a subscription" only %}
 
 <p><b>If you don't upgrade your account, your builds will be disabled,
 and access to your documentation will be removed.</b></p>

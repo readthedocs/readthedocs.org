@@ -10,9 +10,8 @@
   Without a subscription, your builds and documentation serving will be disabled.
 </p>
 
-<p>
-  <a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}"><strong>Choose a subscription</strong></a>
-</p>
+{% url 'subscription_detail' organization.slug as subscription_path %}
+{% include "core/email/button.html" with action_url=production_uri|add:subscription_path action_label="Choose a subscription" only %}
 
 <p>
   Explore our <a href="{{ production_uri }}{% url 'pricing' %}">plans and pricing</a>

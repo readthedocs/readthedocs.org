@@ -5,7 +5,8 @@
 you'd like to continue using Read the Docs to manage your
 documentation, please renew the subscription for your organization soon.</p>
 
-<p><a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}"><strong>Renew your subscription</strong></a></p>
+{% url 'subscription_detail' organization.slug as subscription_path %}
+{% include "core/email/button.html" with action_url=production_uri|add:subscription_path action_label="Renew your subscription" only %}
 
 <p><b>If you don't upgrade your account, your builds will soon be disabled
     and access to your documentation will be removed.</b></p>
