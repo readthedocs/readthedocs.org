@@ -50,3 +50,28 @@ class TestNewsletterSignup(TestCase):
             },
             timeout=3,
         )
+
+    @override_settings(
+        MAILERLITE_API_ONBOARDING_GROUP_URL="https://mailerlite.example/group",
+        MAILERLITE_API_KEY="mlkey",
+    )
+    @patch("readthedocs.core.signals.requests.post")
+    def test_signup_adds_to_onboarding_group(self, mock_requests_post):
+        self.client.post("/accounts/signup/", data=self.form_data_plus_checkbox)
+        email_confirmed.send(
+            sender=None,
+            request=None,
+            email_address=EmailAddress.objects.get(email=self.form_data["email"]),
+        )
+
+        mock_requests_post.assert_called_with(
+            "https://mailerlite.example/group",
+            json={
+                "email": self.form_data["email"],
+                "resubscribe": True,
+                "type": "active",
+            },
+            headers={"X-MailerLite-ApiKey": "mlkey"},
+            timeout=3,
+        )
+        assert mock_requests_post.call_count == 2

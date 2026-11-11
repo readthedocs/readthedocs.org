@@ -1212,8 +1212,9 @@ class CommunityBaseSettings(Settings):
     BUTTONDOWN_API_SUBSCRIBERS_URL = "https://api.buttondown.com/v1/subscribers"
     BUTTONDOWN_API_KEY = None
 
-    # MailerLite API, still used by .com
+    # MailerLite API for the onboarding drip campaign
     MAILERLITE_API_ONBOARDING_GROUP_ID = None
+    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
