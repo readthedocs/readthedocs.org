@@ -1,9 +1,11 @@
 """Extended classes for django-filter."""
 
 import structlog
+from django_filters import ChoiceFilter
 from django_filters import FilterSet
 from django_filters import ModelChoiceFilter
 from django_filters import views
+from django_filters.fields import ChoiceField
 from django_filters.fields import ModelChoiceField
 
 
@@ -87,6 +89,16 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
                 raise ValueError(f"Method {self.queryset_method} is not callable")
             return fn()
         return super().get_queryset(request)
+
+
+class SearchableChoiceField(ChoiceField):
+    """Choice field displayed as a searchable dropdown."""
+
+    has_search = True
+
+
+class SearchableChoiceFilter(ChoiceFilter):
+    field_class = SearchableChoiceField
 
 
 class FilterContextMixin(views.FilterMixin):

@@ -53,6 +53,7 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
+from readthedocs.projects.filters import TrafficAnalyticsFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import AutomationRuleForm
@@ -1434,22 +1435,31 @@ class TrafficAnalyticsView(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         if not enabled:
             return context
 
+        filterset = TrafficAnalyticsFilterSet(
+            data=self.request.GET,
+            queryset=PageView.objects.filter(project=project),
+        )
+        qs = filterset.qs if filterset.is_valid() else filterset.queryset.none()
+
         # Count of views for top pages over the month
-        top_pages_200 = PageView.top_viewed_pages(project, limit=25)
+        top_pages_200 = PageView.top_viewed_pages(project, limit=25, queryset=qs)
         top_pages_404 = PageView.top_viewed_pages(
             project,
             limit=25,
             status=404,
             per_version=True,
+            queryset=qs,
         )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
             project_slug=project.slug,
+            queryset=qs,
         )
 
         context.update(
             {
+                "filter": filterset,
                 "top_pages_200": top_pages_200,
                 "page_data": page_data,
                 "top_pages_404": top_pages_404,
