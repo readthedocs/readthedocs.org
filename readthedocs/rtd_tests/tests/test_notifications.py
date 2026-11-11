@@ -61,6 +61,7 @@ class NotificationTests(TestCase):
                 "SUPPORT_EMAIL": "support@readthedocs.org",
                 "TEMPLATE_ROOT": mock.ANY,
                 "USE_PROMOS": mock.ANY,
+                "USE_BRANDING": mock.ANY,
                 "USE_ORGANIZATIONS": mock.ANY,
                 "GITHUB_APP_NAME": mock.ANY,
             },
