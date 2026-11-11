@@ -124,3 +124,76 @@ class TestEmbedAPIv3InternalPages:
         assert response.status_code == 200
 
         storage_open.assert_called_once_with("html/project/latest/My Spaced File.html")
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            # Fragment that breaks the ``[id="..."]`` selector.
+            {"url": 'https://project.readthedocs.io/en/latest/#foo"bar'},
+            {
+                "url": "https://project.readthedocs.io/en/latest/",
+                "maincontent": "div[",
+            },
+        ],
+    )
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_invalid_selector(self, storage_exists, storage_open, client, params):
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open('<div id="section">content</div>')
+
+        response = client.get(self.api_url, params)
+        assert response.status_code == 404
+        assert "Can't find content for section" in response.json()["error"]
+
+    @pytest.mark.parametrize(
+        "term",
+        [
+            # The term's markup adds more than 5 nodes before the ``dd``.
+            '<dt id="term-config"><code class="docutils literal"><span class="pre">config</span></code> <em>file</em><a class="headerlink" href="#term-config">¶</a></dt>',
+            # Several terms sharing the same description.
+            """
+            <dt id="term-config">config<a class="headerlink" href="#term-config">¶</a></dt>
+            <dt id="term-cfg">cfg<a class="headerlink" href="#term-cfg">¶</a></dt>
+            <dt id="term-conf">conf<a class="headerlink" href="#term-conf">¶</a></dt>
+            <dt id="term-configuration">configuration<a class="headerlink" href="#term-configuration">¶</a></dt>
+            """.strip(),
+        ],
+    )
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_glossary_term_description_far_from_term(
+        self, storage_exists, storage_open, client, term
+    ):
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open(
+            f"""
+            <dl class="simple glossary">
+            {term}
+            <dd><p>The configuration file.</p></dd>
+            <dt id="term-other">other<a class="headerlink" href="#term-other">¶</a></dt>
+            <dd><p>Other term.</p></dd>
+            </dl>
+            """
+        )
+
+        params = {
+            "url": "https://project.readthedocs.io/en/latest/glossary.html#term-config",
+            "doctool": "sphinx",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+
+        # Only the requested term and its description are kept.
+        term = term.split("\n")[0].replace(
+            'href="#', 'href="https://project.readthedocs.io/en/latest/glossary.html#'
+        )
+        compare_content_without_blank_lines(
+            response.json()["content"],
+            f"""
+            <dl class="simple glossary">
+            {term}
+            <dd><p>The configuration file.</p></dd>
+            </dl>
+            """,
+        )
