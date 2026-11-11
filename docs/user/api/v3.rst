@@ -412,7 +412,7 @@ Project create
       :Request JSON Object:
 
          * **organization** (*string*) -- required organization's slug under the project will be imported.
-           You must be an owner of this organization, and the organization can't be disabled.
+           You must be an owner of this organization.
          * **teams** (*string*) -- teams' slugs the project will belong to.
            Required, unless the organization uses :ref:`single sign-on with a Git provider <sso_git_provider>`,
            where teams aren't used.
