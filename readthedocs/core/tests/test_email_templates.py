@@ -48,7 +48,7 @@ class EmailTemplateTests(SimpleTestCase):
         assert "Example &lt;Docs&gt;" in html
         assert "Example <Docs>" in text
         assert 'alt="Read the Docs"' in html
-        assert 'bgcolor="#155e9b"' in html
+        assert 'bgcolor="#00778e"' in html
         assert "Choose a subscription" in html
         for content in (html, text):
             assert "The Read the Docs team" in content
@@ -75,7 +75,7 @@ class EmailTemplateTests(SimpleTestCase):
             html = render_to_string(
                 f"subscriptions/notifications/{name}_email.html", context
             )
-            assert 'bgcolor="#155e9b"' in html
+            assert 'bgcolor="#00778e"' in html
             assert label in html
             assert (
                 'href="https://readthedocs.com/organizations/example/subscription/"'
