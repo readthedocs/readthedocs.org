@@ -754,14 +754,14 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
             form = form_class(user=user)
             with self.assertRaises(RichValidationError) as cm:
                 form.clean_prevalidation()
-            self.assertEqual(cm.exception.header, header)
-            self.assertFalse(form.is_valid())
+            assert cm.exception.header == header
+            assert not form.is_valid()
 
     def _assert_prevalidation_valid(self, user):
         for form_class in (ProjectAutomaticForm, ProjectManualForm):
             form = form_class(user=user)
             form.clean_prevalidation()
-            self.assertTrue(form.is_valid())
+            assert form.is_valid()
 
     @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_admin_user_with_vcs_sso(self, has_sso_enabled):
@@ -789,13 +789,13 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         # Projects can only be imported from a connected repository.
         form_auto = ProjectAutomaticForm(user=self.user_owner)
         form_auto.clean_prevalidation()
-        self.assertTrue(form_auto.is_valid())
+        assert form_auto.is_valid()
 
         form_manual = ProjectManualForm(user=self.user_owner)
         with self.assertRaises(RichValidationError) as cm:
             form_manual.clean_prevalidation()
-        self.assertEqual(cm.exception.header, "Organization single sign-on enabled")
-        self.assertFalse(form_manual.is_valid())
+        assert cm.exception.header == "Organization single sign-on enabled"
+        assert not form_manual.is_valid()
 
     @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_owner_user_with_vcs_sso_and_other_organization(
