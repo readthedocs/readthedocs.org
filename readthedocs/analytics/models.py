@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 
 from django.db import connections
 from django.db import models
+from django.db import router
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -47,7 +48,9 @@ class PageViewManager(models.Manager):
         else:
             conflict_target = "(project_id, version_id, path, date, status)"
 
-        connection = connections[self.db]
+        # Explicitly route to the write database, ``self.db`` is the read database.
+        db = self._db or router.db_for_write(self.model, **self._hints)
+        connection = connections[db]
         table = connection.ops.quote_name(self.model._meta.db_table)
         with connection.cursor() as cursor:
             cursor.execute(
