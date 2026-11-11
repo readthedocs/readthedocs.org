@@ -1208,10 +1208,12 @@ class CommunityBaseSettings(Settings):
         },
     }
 
-    # MailerLite API for newsletter signups
-    MAILERLITE_API_SUBSCRIBERS_URL = "https://api.mailerlite.com/api/v2/subscribers"
+    # Buttondown API for newsletter signups
+    BUTTONDOWN_API_SUBSCRIBERS_URL = "https://api.buttondown.com/v1/subscribers"
+    BUTTONDOWN_API_KEY = None
+
+    # MailerLite API, still used by .com
     MAILERLITE_API_ONBOARDING_GROUP_ID = None
-    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [

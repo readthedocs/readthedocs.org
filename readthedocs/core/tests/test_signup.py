@@ -4,8 +4,10 @@ from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
 from django.conf import settings
 from django.test import TestCase
+from django.test import override_settings
 
 
+@override_settings(BUTTONDOWN_API_KEY="key")
 class TestNewsletterSignup(TestCase):
     def setUp(self):
         self.form_data = {
@@ -40,15 +42,11 @@ class TestNewsletterSignup(TestCase):
         )
 
         mock_requests_post.assert_called_with(
-            settings.MAILERLITE_API_SUBSCRIBERS_URL,
-            json={
-                "email": self.form_data["email"],
-                "resubscribe": True,
-                "type": "active",
-            },
+            settings.BUTTONDOWN_API_SUBSCRIBERS_URL,
+            json={"email_address": self.form_data["email"], "type": "regular"},
             headers={
-                "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
-                "Content-Type": "application/json",
+                "Authorization": "Token key",
+                "X-Buttondown-Collision-Behavior": "add",
             },
             timeout=3,
         )
