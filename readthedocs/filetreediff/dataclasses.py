@@ -128,6 +128,32 @@ class FileTreeDiffFile:
             filename=self.path,
         )
 
+    @property
+    def redirect_from_url(self):
+        """
+        The path readers request for this file, for a page redirect's ``from_url``.
+
+        Redirects match the requested path, and readers reach ``foo/index.html``
+        as ``/foo/`` — which is every page of a MkDocs or ``dirhtml`` build — so
+        the ``index.html`` is dropped.
+        """
+        path = f"/{self.path}"
+        if path.endswith("/index.html"):
+            path = path[: -len("index.html")]
+        return path
+
+    @property
+    def diff_url(self):
+        """
+        URL to the file in the current version with Visual diff switched on.
+
+        ``None`` when the project has the Visual diff addon disabled, since the
+        parameter would then do nothing.
+        """
+        if not self.current_version.project.addons.doc_diff_enabled:
+            return None
+        return f"{self.url}?readthedocs-diff=true"
+
 
 class FileTreeDiff:
     """Difference between two file tree manifests."""
@@ -196,6 +222,48 @@ class FileTreeDiff:
         return [file for file in self.files if file.status == FileTreeDiffFileStatus.modified]
 
     @cached_property
-    def should_auto_expand(self):
-        """Auto-expand the details view when there are few files."""
-        return len(self.files) < 5
+    def summary(self):
+        """Breakdown of the changed files, e.g. ``2 added · 8 modified · 1 deleted``."""
+        parts = []
+        for label, files in (
+            ("added", self.added),
+            ("modified", self.modified),
+            ("deleted", self.deleted),
+        ):
+            if files:
+                parts.append(f"{len(files)} {label}")
+        return " · ".join(parts)
+
+    @cached_property
+    def single_status(self):
+        """The one status every file shares (``added``, ``modified`` or ``deleted``), or ``None`` when mixed."""
+        statuses = {file.status for file in self.files}
+        if len(statuses) == 1:
+            return statuses.pop().value
+        return None
+
+    @cached_property
+    def headline(self):
+        """
+        One line that says how much changed and of what kind.
+
+        ``3 files changed · 1 added · 1 modified · 1 deleted``, or when every file
+        is the same kind, just ``25 files deleted``.
+        """
+        count = len(self.files)
+        noun = "file" if count == 1 else "files"
+        if self.single_status:
+            return f"{count} {noun} {self.single_status}"
+        return f"{count} {noun} changed · {self.summary}"
+
+    @cached_property
+    def should_collapse(self):
+        """
+        Whether the comment should fold the file list behind a toggle.
+
+        Ten lines is about what a pull request timeline absorbs before the comment
+        dominates it. A handful of edited pages is the whole review and belongs in
+        view; forty pages touched by a theme change is a sweep, and the count says
+        enough on its own.
+        """
+        return len(self.files) > 10
