@@ -84,6 +84,8 @@ from .serializers import TeamSerializer
 from .serializers import UserSerializer
 from .serializers import VersionSerializer
 from .serializers import VersionUpdateSerializer
+from .throttling import PollingAnonRateThrottle
+from .throttling import PollingUserRateThrottle
 
 
 class APIv3Settings:
@@ -426,6 +428,7 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    throttle_classes = (PollingUserRateThrottle, PollingAnonRateThrottle)
     permit_list_expands = [
         "config",
     ]
@@ -564,6 +567,7 @@ class NotificationsBuildViewSet(
     # on public builds (the queryset will filter them out).
     # We allow project admins to edit notifications.
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    throttle_classes = (PollingUserRateThrottle, PollingAnonRateThrottle)
 
     def get_queryset(self):
         build = self._get_parent_build()

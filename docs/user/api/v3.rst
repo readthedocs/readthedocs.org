@@ -51,6 +51,8 @@ Rate limiting
 ~~~~~~~~~~~~~
 
 The API limits unauthenticated requests to 5 per minute and authenticated requests to 60 per minute.
+The :ref:`build <api/v3:Builds>` and build notification endpoints allow 120 authenticated
+and 30 unauthenticated requests per minute, so the build page can poll them while a build runs.
 
 .. note::
 
