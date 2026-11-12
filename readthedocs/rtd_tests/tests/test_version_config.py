@@ -45,13 +45,15 @@ class VersionConfigTests(TestCase):
         self.assertEqual(self.version.config, {"version": 2})
 
     def test_get_correct_config_when_same_config(self):
+        config_one, _ = BuildConfig.objects.get_or_create(data={"version": 1})
+        config_three, _ = BuildConfig.objects.get_or_create(data={"version": 3})
         build_old = get(
             Build,
             project=self.project,
             version=self.version,
             state=BUILD_STATE_FINISHED,
         )
-        build_old.config = {"version": 1}
+        build_old.readthedocs_yaml_config = config_one
         build_old.save()
 
         build_new = get(
@@ -60,7 +62,7 @@ class VersionConfigTests(TestCase):
             version=self.version,
             state=BUILD_STATE_FINISHED,
         )
-        build_new.config = {"version": 1}
+        build_new.readthedocs_yaml_config = config_one
         build_new.save()
 
         build_new_error = get(
@@ -70,7 +72,7 @@ class VersionConfigTests(TestCase):
             success=False,
             state=BUILD_STATE_FINISHED,
         )
-        build_new_error.config = {"version": 3}
+        build_new_error.readthedocs_yaml_config = config_three
         build_new_error.save()
 
         build_new_unfinish = get(
@@ -79,7 +81,7 @@ class VersionConfigTests(TestCase):
             version=self.version,
             state=BUILD_STATE_BUILDING,
         )
-        build_new_unfinish.config = {"version": 1}
+        build_new_unfinish.readthedocs_yaml_config = config_one
         build_new_unfinish.save()
 
         config = self.version.config

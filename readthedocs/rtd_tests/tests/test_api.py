@@ -55,7 +55,7 @@ from readthedocs.builds.constants import (
     LATEST,
     TAG,
 )
-from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
+from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, BuildConfig, Version
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
 from readthedocs.integrations.models import GenericAPIWebhook, Integration
 from readthedocs.notifications.constants import READ, UNREAD
@@ -316,6 +316,20 @@ class APIBuildTests(TestCase):
             format="json",
         )
         self.assertEqual(resp.data["config"], {"one": "two"})
+        self.assertEqual(BuildConfig.objects.count(), 1)
+        build_config_id = Build.objects.get(pk=build_one.pk).readthedocs_yaml_config_id
+
+        # A patch without config leaves the existing reference alone.
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build_one.pk),
+            {"state": BUILD_STATE_BUILDING},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config_id,
+            build_config_id,
+        )
 
         build_two = Build.objects.create(project=project, version=version)
         resp = client.patch(
@@ -340,6 +354,28 @@ class APIBuildTests(TestCase):
             Build.objects.get(pk=build_one.pk).readthedocs_yaml_config.pk,
             Build.objects.get(pk=build_two.pk).readthedocs_yaml_config.pk,
         )
+        self.assertEqual(BuildConfig.objects.count(), 1)
+
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build_one.pk),
+            {"config": {"one": "updated"}},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["config"], {"one": "updated"})
+        self.assertEqual(BuildConfig.objects.count(), 2)
+        self.assertNotEqual(
+            Build.objects.get(pk=build_one.pk).readthedocs_yaml_config_id,
+            Build.objects.get(pk=build_two.pk).readthedocs_yaml_config_id,
+        )
+
+        resp = client.patch(
+            "/api/v2/build/{}/".format(build_one.pk),
+            {"config": None},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIsNone(Build.objects.get(pk=build_one.pk).readthedocs_yaml_config)
 
     @mock.patch("readthedocs.api.v2.views.model_views.run_post_build_tasks")
     def test_finishing_uploaded_build_runs_post_build_tasks(self, run_post_build_tasks):
