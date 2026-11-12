@@ -4,8 +4,10 @@ from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed
 from django.conf import settings
 from django.test import TestCase
+from django.test import override_settings
 
 
+@override_settings(BUTTONDOWN_API_KEY="key")
 class TestNewsletterSignup(TestCase):
     def setUp(self):
         self.form_data = {
@@ -40,15 +42,36 @@ class TestNewsletterSignup(TestCase):
         )
 
         mock_requests_post.assert_called_with(
-            settings.MAILERLITE_API_SUBSCRIBERS_URL,
+            settings.BUTTONDOWN_API_SUBSCRIBERS_URL,
+            json={"email_address": self.form_data["email"], "type": "regular"},
+            headers={
+                "Authorization": "Token key",
+                "X-Buttondown-Collision-Behavior": "add",
+            },
+            timeout=3,
+        )
+
+    @override_settings(
+        MAILERLITE_API_ONBOARDING_GROUP_URL="https://mailerlite.example/group",
+        MAILERLITE_API_KEY="mlkey",
+    )
+    @patch("readthedocs.core.signals.requests.post")
+    def test_signup_adds_to_onboarding_group(self, mock_requests_post):
+        self.client.post("/accounts/signup/", data=self.form_data_plus_checkbox)
+        email_confirmed.send(
+            sender=None,
+            request=None,
+            email_address=EmailAddress.objects.get(email=self.form_data["email"]),
+        )
+
+        mock_requests_post.assert_called_with(
+            "https://mailerlite.example/group",
             json={
                 "email": self.form_data["email"],
                 "resubscribe": True,
                 "type": "active",
             },
-            headers={
-                "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
-                "Content-Type": "application/json",
-            },
+            headers={"X-MailerLite-ApiKey": "mlkey"},
             timeout=3,
         )
+        assert mock_requests_post.call_count == 2
