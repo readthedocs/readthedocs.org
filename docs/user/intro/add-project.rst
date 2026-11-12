@@ -16,8 +16,8 @@ Automatically add your project
 #. Go to your :term:`dashboard`.
 #. Click on :guilabel:`Add project`.
 #. Type the name of the repository you want to add and click on it.
-   If you are using our :ref:`reference/git-integration:GitHub App`,
-   make sure you have installed the :ref:`Read the Docs GitHub App <reference/git-integration:Troubleshooting>` in your repository.
+   If you are using our :doc:`/projects/integrations/github-app` integration,
+   make sure you have :ref:`installed our GitHub App <projects/integrations/guides/managing-github-app:Installing the GitHub App>` in your repository.
 #. Click on :guilabel:`Continue`.
 #. Edit any of the pre-filled fields with information of the repository.
 #. Click on :guilabel:`Next`.
@@ -26,9 +26,9 @@ Automatically add your project
 
 .. seealso::
 
-   :doc:`/reference/git-integration`
-      Your project will be automatically configured with a Git integration.
-      Learn more about all the features enabled by that integration on this page.
+   :doc:`/projects/integrations/index`
+      Your project will be automatically configured with an integration,
+      learn more about all the features enabled by that integration.
 
 Manually add your project
 -------------------------
@@ -42,12 +42,9 @@ Manually add your project
 #. Add a :term:`configuration file` to your repository if it doesn't exist yet.
 #. Click on :guilabel:`This file exists`.
 
-Once your project is created, you'll need to manually configure the repository webhook if you would like to have new changes trigger builds for your project on Read the Docs.
-
-.. seealso::
-
-   :doc:`/guides/setup/git-repo-manual`
-      Additional setup steps required for manually created projects. This guide covers setting up SSH keys and webhook integrations.
+Once your project is created,
+you'll need to :ref:`manually configure the project integration <integration-create-manual>`
+if you would like to have new changes trigger builds for your project on Read the Docs.
 
 What's next
 -----------

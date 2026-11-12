@@ -32,7 +32,7 @@ Build overview with changed files
 
     .. note::
 
-       This feature is only available for projects connected to a :ref:`reference/git-integration:GitHub App`.
+       This feature is only available for projects connected to a :doc:`/projects/integrations/github-app` integration.
 
 Pull request notifications
     A pull request notification can be shown at the top of preview pages,
