@@ -2,6 +2,7 @@ import os
 import textwrap
 from readthedocs.core.utils.filesystem import safe_rmtree
 from os.path import exists
+from subprocess import check_output
 from unittest import mock
 from unittest.mock import Mock, patch
 
@@ -194,6 +195,28 @@ class TestGitBackend(TestCase):
         self.assertIsNone(repo.checkout())
 
         self.assertTrue(exists(repo.working_dir))
+
+    def test_has_ssh_key_with_write_access(self):
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+
+        assert repo.has_ssh_key_with_write_access() is True
+        refs = check_output(["git", "-C", self.project.repo, "for-each-ref"], text=True)
+        assert "rtd-write-access-probe" not in refs
+
+    def test_has_ssh_key_with_write_access_rejected_on_push(self):
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+
+        # Like GitCode, accept the dry-run but reject the actual push.
+        hook = os.path.join(self.project.repo, ".git", "hooks", "pre-receive")
+        with open(hook, "w") as f:
+            f.write("#!/bin/sh\necho 'Read-only deploy key' >&2\nexit 1\n")
+        os.chmod(hook, 0o755)
+
+        assert repo.has_ssh_key_with_write_access() is False
 
     def test_git_checkout_invalid_revision(self):
         version = self.project.versions.first()

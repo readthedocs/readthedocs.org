@@ -200,7 +200,18 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd, record=False, demux=True)
 
             if code == 0:
-                return True
+                # These hosts reject read-only keys before the dry-run push,
+                # other hosts may only reject them once refs are pushed.
+                hosts_with_reliable_dry_run = (
+                    "github.com",
+                    "gitlab.com",
+                    "bitbucket.org",
+                    "ssh.dev.azure.com",
+                )
+                host = re.match(r"(?:ssh://)?(?:[^@/]+@)?([^:/]*)", ssh_url).group(1)
+                if host in hosts_with_reliable_dry_run:
+                    return True
+                return self._push_probe_has_write_access(remote_name)
 
             # NOTE: if the command fails, it doesn't necessarily mean the key
             # doesn't have write access, there are a couple of other reasons
@@ -270,6 +281,42 @@ class Backend(BaseVCS):
         finally:
             # Always remove the temporary remote.
             self.run("git", "remote", "remove", remote_name, record=False)
+
+    def _push_probe_has_write_access(self, remote_name):
+        """
+        Confirm write access with a push that can never update any refs.
+
+        ``git push --dry-run`` doesn't send any ref updates,
+        so hosts that only check permissions when refs are updated (like GitCode)
+        accept it even for read-only keys.
+        Instead, we push two refs that conflict with each other in one atomic push.
+        The host checks permissions first, then the conflict fails the whole push,
+        so nothing is written even if the key has write access.
+        """
+        probe_ref = "refs/heads/rtd-write-access-probe"
+        cmd = [
+            "timeout",
+            "10s",
+            "git",
+            "push",
+            "--atomic",
+            remote_name,
+            f"HEAD:{probe_ref}",
+            f"HEAD:{probe_ref}/conflict",
+        ]
+        code, stdout, stderr = self.run(*cmd, record=False, demux=True)
+        rejections = re.findall(r"\[remote rejected\] .* \((.*)\)", stderr)
+        if rejections and "atomic transaction failed" not in rejections:
+            return False
+        if "atomic transaction failed" not in rejections:
+            log.warning(
+                "Unexpected output when probing SSH key write access.",
+                project_slug=self.project.slug,
+                exit_code=code,
+                stdout=stdout,
+                stderr=stderr,
+            )
+        return True
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
