@@ -40,6 +40,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.12": "3.12.13",
             "3.13": "3.13.14",
             "3.14": "3.14.6",
+            "3.15": "3.15.2",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "miniconda3-3.12-24.1": "miniconda3-3.12-24.1.2-0",
             "miniconda3-3.12-24.9": "miniconda3-3.12-24.9.2-0",
@@ -99,7 +100,7 @@ _TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
 
 _OS["ubuntu-lts-latest"] = _OS["ubuntu-26.04"]
 
-_TOOLS["python"]["3"] = _TOOLS["python"]["3.14"]
+_TOOLS["python"]["3"] = _TOOLS["python"]["3.15"]
 _TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
 _TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-3.12-24.9"]
 _TOOLS["python"]["mambaforge-latest"] = _TOOLS["python"]["mambaforge-23.11"]
