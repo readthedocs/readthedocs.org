@@ -152,6 +152,20 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
             healthcheck=None,
             dispatched_date=timezone.now() - datetime.timedelta(minutes=10),
+            task_executed_at=None,
+        )
+
+        # Picked up by an instance that is still preparing it -> not lost.
+        # It stays ``triggered`` until the runner starts, and has no healthcheck
+        # until the container is up.
+        claimed = get(
+            Build,
+            project=project,
+            version=project.get_stable_version(),
+            state=BUILD_STATE_TRIGGERED,
+            healthcheck=None,
+            dispatched_date=timezone.now() - datetime.timedelta(minutes=10),
+            task_executed_at=timezone.now() - datetime.timedelta(minutes=1),
         )
 
         # Dispatched recently, still within the timeout -> keep waiting.
@@ -180,6 +194,10 @@ class TestFinishInactiveBuildsTask(TestCase):
         assert lost.state == BUILD_STATE_CANCELLED
         assert lost.success is False
         assert lost.notifications.count() == 1
+
+        claimed.refresh_from_db()
+        assert claimed.state == BUILD_STATE_TRIGGERED
+        assert claimed.notifications.count() == 0
 
         recent.refresh_from_db()
         assert recent.state == BUILD_STATE_TRIGGERED

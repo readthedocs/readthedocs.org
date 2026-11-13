@@ -67,6 +67,7 @@ class BuildIsolatedInstanceTests(TestCase):
 
     def test_protect_claims_the_build_and_protects_the_instance(self, boto3_client):
         self.build.builder = ""
+        self.build.task_executed_at = None
         self.build.save()
 
         resp = self.client.post(self.protect_url, {"builder": BUILDER})
@@ -74,6 +75,8 @@ class BuildIsolatedInstanceTests(TestCase):
         assert resp.status_code == 204
         self.build.refresh_from_db()
         assert self.build.builder == BUILDER
+        # Marks the build as picked up, so it isn't reaped as lost.
+        assert self.build.task_executed_at is not None
         boto3_client.return_value.set_instance_protection.assert_called_once_with(
             InstanceIds=[INSTANCE_ID],
             AutoScalingGroupName="build-isolated",

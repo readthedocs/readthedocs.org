@@ -350,7 +350,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
             raise Http404()
 
         build.healthcheck = timezone.now()
-        build.save()
+        # Only save this field: a full save could revert a state the builder
+        # PATCHed in the meantime (e.g. ``finished``).
+        build.save(update_fields=["healthcheck"])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, *args, **kwargs):
@@ -419,6 +421,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
         Called by the worker before the build starts, so the hostname comes in
         the body since it's not in the Build object yet.
+
+        Also records when the instance picked up the build, so it isn't reaped
+        as lost while the worker prepares it (see ``finish_unhealthy_builds``).
         """
         build = self.get_object()
         builder = request.data.get("builder", "")
@@ -431,7 +436,8 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
             )
 
         build.builder = builder
-        build.save()
+        build.task_executed_at = timezone.now()
+        build.save(update_fields=["builder", "task_executed_at"])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @decorators.action(

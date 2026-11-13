@@ -245,6 +245,12 @@ def finish_unhealthy_builds():
       than ``RTD_BUILD_DISPATCH_TIMEOUT`` seconds ago but no builder ever picked
       it up (still ``triggered``). ``dispatched_date`` is only set on the
       isolated path, so this never touches legacy builds.
+
+      A build an instance has claimed (``task_executed_at`` set by the
+      ``instance/protect`` endpoint) isn't lost, even though it stays
+      ``triggered`` until the runner moves it to ``cloning``: the worker syncs
+      versions and starts the container first, which can take minutes.
+      From then on the healthcheck covers it.
     """
     log.debug("Running task to finish unhealthy builds.")
     healthcheck_delta = datetime.timedelta(seconds=settings.RTD_BUILD_HEALTHCHECK_TIMEOUT)
@@ -254,7 +260,11 @@ def finish_unhealthy_builds():
     inactive = ~Q(state__in=BUILD_FINAL_STATES) & Q(
         healthcheck__lt=timezone.now() - healthcheck_delta
     )
-    lost = Q(state=BUILD_STATE_TRIGGERED) & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
+    lost = (
+        Q(state=BUILD_STATE_TRIGGERED)
+        & Q(dispatched_date__lt=timezone.now() - dispatch_delta)
+        & Q(task_executed_at__isnull=True)
+    )
     # NOTE: Builds created using the upload API are omitted from this query since they don't have healthchecks.
     # They are terminated in a different task (finish_inactive_uploaded_builds).
     not_upload = ~Q(is_uploaded=True)
