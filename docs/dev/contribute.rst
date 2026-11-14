@@ -50,6 +50,9 @@ suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
 
+Before you commit, :ref:`set up the pre-commit hooks <install:Set up pre-commit hooks>`
+so your changes pass the same linting checks that run in CI.
+
 If you are up to more challenging tasks with a bigger scope,
 then there are a set of tickets with a `Feature`_ or `Improvement`_ tag.
 These tickets have a general overview and description of the work required to finish.
