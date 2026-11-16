@@ -386,20 +386,15 @@ class TestDirectUploadImport(TestCase):
         self.user = get(User)
         self.client.force_login(self.user)
 
-    def _import_project(self, direct_upload_query, direct_upload):
+    def _import_project(self, direct_upload):
         # The "Configure automatically" tab posts here and seeds the wizard session.
         seed = {"name": "foobar", "repo": "http://example.com/foobar", "repo_type": "git"}
-        seed.update(direct_upload_query)
         resp = self.client.post(reverse("projects_import"), seed)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.client.post(reverse("projects_import_manual"), self.step_data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context_data["wizard"]["steps"].current, "config")
-        self.assertEqual(
-            resp.context_data["direct_upload_available"],
-            bool(direct_upload_query),
-        )
 
         resp = self.client.post(
             reverse("projects_import_manual"),
@@ -412,9 +407,8 @@ class TestDirectUploadImport(TestCase):
         return Project.objects.get(slug="foobar")
 
     def test_direct_upload_project(self):
-        project = self._import_project({"direct_upload": "1"}, True)
+        project = self._import_project(True)
 
-        self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         # No build, and no versions: they all come from uploads.
@@ -423,15 +417,8 @@ class TestDirectUploadImport(TestCase):
         # Pull request builds are blocked by the build method, the setting is left alone.
         self.assertTrue(project.external_builds_enabled)
 
-    def test_direct_upload_ignored_when_not_available(self):
-        project = self._import_project({}, True)
-
-        self.assertFalse(project.is_direct_upload)
-        self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
-        self.assertIsNotNone(project.get_latest_version())
-
-    def test_build_on_readthedocs_when_available(self):
-        project = self._import_project({"direct_upload": "1"}, False)
+    def test_build_on_readthedocs(self):
+        project = self._import_project(False)
 
         self.assertFalse(project.is_direct_upload)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
