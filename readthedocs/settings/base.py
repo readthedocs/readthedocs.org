@@ -634,7 +634,7 @@ class CommunityBaseSettings(Settings):
     # Auto Scaling group of the build-isolated fleet. A periodic task raises its
     # desired capacity to dispatched builds + BUFFER.
     RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
-    RTD_BUILD_ISOLATED_BUFFER = 20
+    RTD_BUILD_ISOLATED_BUFFER = 30
 
     # ``scalein`` IAM user used for Auto Scaling calls on behalf of builders.
     RTD_AWS_SCALE_IN_ACCESS_KEY = None
