@@ -72,8 +72,12 @@ It supports multiple documentation tools (Sphinx, MkDocs, etc.) and automaticall
 
 ## Testing
 
-- Use `pytest` with the `assert foo == bar` assertion style
-- Keep the test DB warm with `pytest --reuse-db` to speed up runs
+- Write assertions as plain `assert foo == bar`, `assert foo`, `assert not foo`, and `with pytest.raises(...)`.
+- This applies inside `TestCase` classes too, and even when the existing tests in the file use `self.assertEqual`.
+  Don't copy that style into new tests.
+- Keep `self.assert*` only for helpers with no plain-`assert` equivalent,
+  like `assertRedirects`, `assertContains`, `assertNumQueries`, or our own helpers such as `assertWizardFailure`.
+- Keep the test DB warm with `pytest --reuse-db` to speed up runs.
 
 ### Running tests locally
 
