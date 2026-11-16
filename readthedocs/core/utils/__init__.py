@@ -212,10 +212,11 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     When the project has ``Feature.USE_BUILD_ISOLATED`` enabled,
     the build is sent directly to the ``build:isolated`` Celery queue
     (via :func:`submit_to_build_isolated` below). A worker on a
-    dedicated EC2 instance picks it up, fetches build/project data from
-    the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
-    runs the build inside a ``readthedocs/build:<os>`` container. See
-    ``readthedocs-builder/docs/architecture.md`` for the broader design.
+    dedicated EC2 instance picks it up and fetches build/project data from
+    the API. Like the legacy builder, it runs the build code on the host and
+    ``docker exec``s each command into a build container: one to clone the
+    repository, then a ``readthedocs/build:<build.os>`` one to build the docs.
+    See the ``readthedocs-builder`` repository for the broader design.
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
@@ -279,7 +280,7 @@ def build_isolated_environment():
     }
     if settings.RTD_DOCKER_COMPOSE:
         # Local dev: rustfs endpoint for storage boto3 calls, and an
-        # API-via-nginx override so the build container can reach us on the
+        # API-via-nginx override so the worker can reach us on the
         # compose network. The build user defaults to ``docs`` (like
         # production) — the isolated builder has no bind-mounted docroot, so
         # there's no host-uid mismatch to work around.
