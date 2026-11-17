@@ -120,6 +120,43 @@ Check that everything works
 #. Click on the "View docs" button to browse the documentation, and verify that it shows the Read the Docs documentation page.
 
 
+Set up pre-commit hooks
+-----------------------
+
+We use `pre-commit <https://pre-commit.com/>`__ to run linting and formatting checks before each commit.
+The same hooks run in CI and fail the build if any check fails,
+so install them locally to catch problems before you push.
+
+#. From your ``readthedocs.org`` directory, install ``pre-commit`` and ``docutils``, and enable the Git hook:
+
+   .. prompt:: bash
+
+      pip install pre-commit docutils
+      pre-commit install
+
+   The Vale hook needs the ``rst2html`` command from ``docutils`` to lint reStructuredText files,
+   so make sure it's on your ``PATH`` when you commit.
+
+#. Run all hooks against every file in the repository, as CI does:
+
+   .. prompt:: bash
+
+      pre-commit run --all-files
+
+Once installed, the hooks run on your staged files each time you run ``git commit``.
+If a hook changes a file, for example to fix formatting, the commit stops so you can review the change,
+stage it with ``git add``, and commit again.
+
+The hooks are configured in ``.pre-commit-config.yaml``,
+a symbolic link to ``common/pre-commit-config.yaml`` in the ``common`` submodule.
+They include Ruff for Python code, sphinx-lint and Vale for documentation,
+and checks for common problems like trailing whitespace and merge conflict markers.
+
+CI runs the hooks with ``tox -e pre-commit``, which you can also run locally.
+See :doc:`/tests` for the other ``tox`` environments,
+and :ref:`style-guide:Linting` for linting documentation changes.
+
+
 Working with Docker Compose
 ---------------------------
 
