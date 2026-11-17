@@ -80,11 +80,13 @@ class RTDTokenTests(TestCase):
         assert RTDToken.objects.get_from_token(plain_token) == token
         assert token.has_permission(ProjectPermission.UPLOAD)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_get_from_token_without_platform_prefix(self):
         token, plain_token = self._create_token()
         with pytest.raises(RTDToken.DoesNotExist):
             RTDToken.objects.get_from_token(plain_token.removeprefix("rtdcommunity_project_"))
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_get_from_token_with_another_platform_prefix(self):
         _, plain_token = self._create_token()
         with pytest.raises(RTDToken.DoesNotExist):

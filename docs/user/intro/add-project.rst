@@ -49,6 +49,15 @@ Once your project is created, you'll need to manually configure the repository w
    :doc:`/guides/setup/git-repo-manual`
       Additional setup steps required for manually created projects. This guide covers setting up SSH keys and webhook integrations.
 
+Build your documentation outside Read the Docs
+----------------------------------------------
+
+If you build your documentation in your own pipeline, for example in GitHub Actions,
+choose :guilabel:`Build externally and upload` instead of adding a configuration file,
+and click on :guilabel:`I will upload my documentation`.
+Read the Docs won't build your project, and your pipeline uploads the documentation instead.
+See :doc:`/guides/build/direct-upload` for the complete setup.
+
 What's next
 -----------
 
