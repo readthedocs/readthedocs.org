@@ -1,7 +1,7 @@
 # CI Pipeline
 #
 # Stage 1 (parallel):   checks, tests, tests-proxito
-# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (2 Sphinx versions)
+# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (4 Sphinx versions)
 # Stage 3:              coverage-report (combines and uploads to codecov)
 #
 # Stage 2 runs after tests and tests-proxito pass (but not checks,
@@ -176,7 +176,7 @@ jobs:
             - .coverage.proxito
 
   tests-embedapi:
-    # Embed API tests — tests against 2 Sphinx versions.
+    # Embed API tests — tests against 4 Sphinx versions.
     # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
       - image: 'cimg/python:3.14'
