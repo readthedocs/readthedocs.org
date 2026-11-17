@@ -36,7 +36,7 @@ from readthedocs.projects.models import EnvironmentVariable, Feature, Project, W
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
-from .mockers import BuildEnvironmentMocker
+from .mockers import PROJECT_REPOSITORY_PATH, BuildEnvironmentMocker
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -315,7 +315,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
-    @override_settings(DOCROOT="/tmp/readthedocs-tests/git-repository/")
+    @override_settings(DOCROOT=f"{PROJECT_REPOSITORY_PATH}/")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_updates_documentation_type(self, load_yaml_config):
         assert self.version.documentation_type == "sphinx"
@@ -511,7 +511,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert build_env_vars["UV_PROJECT_ENVIRONMENT"] == venv_path
 
     @override_settings(
-        DOCROOT="/tmp/readthedocs-tests/git-repository/",
+        DOCROOT=f"{PROJECT_REPOSITORY_PATH}/",
         RTD_BUILD_MEDIA_STORAGE = "readthedocs.storage.s3_storage.S3BuildMediaStorage",
         S3_MEDIA_STORAGE_BUCKET="readthedocs-test",
     )
@@ -575,26 +575,26 @@ class TestBuildTask(BuildEnvironmentBase):
             [
                 mock.call(
                     Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{filename}.zip"
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/htmlzip/{filename}.zip"
                     ),
                     Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/htmlzip/{self.project.slug}.zip"
-                    ),
-                ),
-                mock.call(
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{filename}.pdf"
-                    ),
-                    Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/pdf/{self.project.slug}.pdf"
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/htmlzip/{self.project.slug}.zip"
                     ),
                 ),
                 mock.call(
                     Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{filename}.epub"
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/pdf/{filename}.pdf"
                     ),
                     Path(
-                        f"/tmp/readthedocs-tests/git-repository/_readthedocs/epub/{self.project.slug}.epub"
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/pdf/{self.project.slug}.pdf"
+                    ),
+                ),
+                mock.call(
+                    Path(
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/epub/{filename}.epub"
+                    ),
+                    Path(
+                        f"{PROJECT_REPOSITORY_PATH}/_readthedocs/epub/{self.project.slug}.epub"
                     ),
                 ),
             ]
