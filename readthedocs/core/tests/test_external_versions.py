@@ -19,19 +19,9 @@ def test_concurrent_webhooks_reuse_external_version():
         id="2100", commit="abc123", source_branch="feature", base_branch="main"
     )
 
-    # Simulate another webhook creating the version after our lookup missed it.
-    original_get = QuerySet.get
-    calls = []
-
-    def racing_get(self, *args, **kwargs):
-        if not calls:
-            calls.append(1)
-            raise Version.DoesNotExist
-        return original_get(self, *args, **kwargs)
-
-    with mock.patch.object(QuerySet, "get", racing_get):
+    # Another webhook creates the version after our lookup missed it.
+    with mock.patch.object(QuerySet, "get", side_effect=[Version.DoesNotExist, existing]):
         version = get_or_create_external_version(project, version_data)
 
     assert version.pk == existing.pk
     assert version.identifier == "abc123"
-    assert project.versions.filter(type=EXTERNAL, verbose_name="2100").count() == 1

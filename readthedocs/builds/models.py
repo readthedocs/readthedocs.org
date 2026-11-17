@@ -202,6 +202,8 @@ class Version(TimeStampedModel):
         unique_together = [("project", "slug")]
         ordering = ["verbose_name"]
         constraints = [
+            # One version per pull request: ``verbose_name`` is the PR number.
+            # Stops concurrent webhooks from creating the same version twice.
             models.UniqueConstraint(
                 fields=["project", "verbose_name"],
                 condition=models.Q(type=EXTERNAL),

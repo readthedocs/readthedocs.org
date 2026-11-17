@@ -21,7 +21,6 @@ from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
 from readthedocs.builds.models import Build
-from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import prepare_build
 from readthedocs.core.utils import submit_to_build_isolated
@@ -195,17 +194,17 @@ class UploadInitiateView(UploadAPIMixin, APIv3Settings, APIView):
 
         # A version that only exists because of an upload is uploaded from the start,
         # so nothing (automation rules included) builds it on Read the Docs meanwhile.
-        version = Version.objects.create(
-            project=project,
+        return project.versions.get_or_create(
             verbose_name=name,
             type=version_type,
-            identifier=name,
-            privacy_level=privacy_level,
-            state=EXTERNAL_VERSION_STATE_OPEN,
-            active=True,
-            is_uploaded=True,
+            defaults={
+                "identifier": name,
+                "privacy_level": privacy_level,
+                "state": EXTERNAL_VERSION_STATE_OPEN,
+                "active": True,
+                "is_uploaded": True,
+            },
         )
-        return version, True
 
     def _on_version_created(self, *, project, version):
         """
