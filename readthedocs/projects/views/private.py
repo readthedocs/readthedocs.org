@@ -297,26 +297,13 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-def direct_upload_available(request):
-    """
-    Whether the "Add project" wizard offers direct upload.
-
-    Beta gate: the wizard has to be opened with ``?direct_upload=1``.
-    """
-    return request.GET.get("direct_upload") == "1" or request.POST.get("direct_upload") == "1"
-
-
 def show_config_step(wizard):
     """
     Decide whether or not show the config step on "Add project" wizard.
 
     If the `.readthedocs.yaml` file already exist in the default branch, we
-    don't show this step, unless direct upload is available, since the user
-    still has to choose how the documentation will be built.
+    don't show this step, since the project is built on Read the Docs.
     """
-    if wizard.initial_dict.get("direct_upload"):
-        return True
-
     # Try to get the cleaned data from the "basics" step only if
     # we are in a step after it, otherwise, return True since we don't
     # have the data yet, and django-forms calls this function multiple times.
@@ -433,7 +420,6 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
-        context["direct_upload_available"] = bool(self.initial_dict.get("direct_upload"))
         if self.steps.current == "config":
             context["project_slug"] = self._get_project_slug_preview()
         return context
@@ -450,16 +436,14 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
 
     def _uses_direct_upload(self, form_list):
-        """Whether direct upload was chosen in the config step, only possible when the beta gate allows it."""
-        if not self.initial_dict.get("direct_upload"):
-            return False
+        """Whether direct upload was chosen in the config step."""
         for form in form_list:
             if isinstance(form, self.form_list.get("config")):
                 return bool(form.cleaned_data.get("is_direct_upload"))
         return False
 
     def _setup_direct_upload(self, project):
-        """Enable the upload API on a new direct upload project (beta gate)."""
+        """Enable the upload API on a new direct upload project."""
         feature, _ = Feature.objects.get_or_create(
             feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
         )
@@ -520,15 +504,12 @@ class ImportView(PrivateViewMixin, TemplateView):
         initial_data["extra"] = {}
         for key in ["description", "project_url"]:
             initial_data["extra"][key] = request.POST.get(key)
-        initial_data["direct_upload"] = direct_upload_available(request)
         request.method = "GET"
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["view_csrf_token"] = get_token(self.request)
-        context["direct_upload_available"] = direct_upload_available(self.request)
-
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
