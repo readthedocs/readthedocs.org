@@ -10,34 +10,23 @@ Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
 
 {% block content %}
   <p>
-    <a href="{{ build_url }}">
-      build #{{ build.pk }} -&nbsp; <span style="color: #ff7040;">failed</span>
-    </a>
+    Build #{{ build.pk }} <span style="color: #ff7040;">failed</span>.
+    The build log shows the commands that ran and the error that stopped the build.
+    You can also see the <a href="{{ build_raw }}">raw build log</a>.
   </p>
 
   <p>
-    You can find out more about this failure in the build log:
-
-    <ul>
-      <li>
-        <a href="{{ build_url }}">
-          Build log page
-        </a>
-      </li>
-      <li>
-        <a href="{{ build_raw }}">
-          Raw build log
-        </a>
-      </li>
-    </ul>
+    Our <a href="https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html">build troubleshooting guide</a> covers the most common errors,
+    and the <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> explains how builds run.
   </p>
+{% endblock %}
 
-  <p>
-    A good place to start debugging this error is our <a href="https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html">build troubleshooting guide</a>.
-    We also suggest reading our <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> to get a better sense for how the builds are executed.
-  </p>
+{% block action %}
+  {% with action_url=build_url action_label="View build log" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
-  <p>
-    You can manage your email preferences in the project's <a href="{{ unsubscribe_url }}">notification settings</a>.
-  </p>
+{% block footer %}
+  {{ block.super }}
+  <br />
+  <a href="{{ unsubscribe_url }}">Manage notification settings</a>
 {% endblock %}
