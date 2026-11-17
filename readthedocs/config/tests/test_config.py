@@ -222,8 +222,8 @@ def test_load_non_yaml_extension(tmpdir):
     "correct_config_filename",
     [
         prefix + "readthedocs." + extension
-        for prefix in {"", "."}
-        for extension in {"yml", "yaml"}
+        for prefix in ("", ".")
+        for extension in ("yml", "yaml")
     ],
 )
 def test_config_filenames_regex(correct_config_filename):
