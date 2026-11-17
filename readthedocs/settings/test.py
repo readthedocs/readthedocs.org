@@ -20,7 +20,6 @@ class CommunityTestSettings(CommunityBaseSettings):
     AUTH_PASSWORD_VALIDATORS = []
 
     DEBUG = False
-    TEMPLATE_DEBUG = False
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 

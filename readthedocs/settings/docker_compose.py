@@ -55,21 +55,8 @@ class DockerBaseSettings(CommunityBaseSettings):
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
-    # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
-    HOSTIP = os.environ.get("HOSTIP")
-
-    # If the host IP is not specified, try to get it from the socket address list
-    _, __, ips = socket.gethostbyname_ex(socket.gethostname())
-    if ips and not HOSTIP:
-        HOSTIP = ips[0][:-1] + "1"
-
     # Turn this on to test ads
     USE_PROMOS = os.environ.get("RTD_USE_PROMOS") is not None
-    ADSERVER_API_BASE = f"http://{HOSTIP}:5000"
-    # Create a Token for an admin User and set it here.
-    ADSERVER_API_KEY = None
-    ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     # OpenAI-backed spam rules (readthedocsext.spamfighting) read the key
     # from settings only; docker-compose passes this variable through.
@@ -93,7 +80,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = "SEARCH" in os.environ
 
-    RTD_CLEAN_AFTER_BUILD = True
 
     # Disable password validators on development
     AUTH_PASSWORD_VALIDATORS = []
@@ -265,14 +251,12 @@ class DockerBaseSettings(CommunityBaseSettings):
                 pass
         return providers
 
-    GITHUB_APP_ID = os.environ.get("RTD_GITHUB_APP_ID")
     GITHUB_APP_NAME = os.environ.get("RTD_GITHUB_APP_NAME")
     GITHUB_APP_WEBHOOK_SECRET = os.environ.get("RTD_GITHUB_APP_WEBHOOK_SECRET")
     GITHUB_APP_PRIVATE_KEY = os.environ.get("RTD_GITHUB_APP_PRIVATE_KEY")
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
-    BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
 
     STATICFILES_DIRS = [
         os.path.join(CommunityBaseSettings.SITE_ROOT, "media"),

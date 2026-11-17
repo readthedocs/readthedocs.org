@@ -37,7 +37,6 @@ class CommunityBaseSettings(Settings):
     SITE_ID = 1
     ROOT_URLCONF = "readthedocs.urls"
     LOGIN_REDIRECT_URL = "/dashboard/"
-    FORCE_WWW = False
     SECRET_KEY = "replace-this-please"  # noqa
     ATOMIC_REQUESTS = True
 
@@ -92,7 +91,6 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     PUBLIC_API_URL = "https://{}".format(PRODUCTION_DOMAIN)
-    RTD_INTERSPHINX_URL = "https://{}".format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = "external-builds.readthedocs.io"
 
     @property
@@ -169,7 +167,6 @@ class CommunityBaseSettings(Settings):
     RTD_LATEST_VERBOSE_NAME = "latest"
     RTD_STABLE = "stable"
     RTD_STABLE_VERBOSE_NAME = "stable"
-    RTD_CLEAN_AFTER_BUILD = False
     RTD_BUILD_HEALTHCHECK_TIMEOUT = 60 # seconds
     RTD_BUILD_HEALTHCHECK_DELAY = 15 # seconds
     # How long a build may sit dispatched to the build-isolated fleet before
@@ -244,8 +241,6 @@ class CommunityBaseSettings(Settings):
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ["readthedocs.core.db.MapAppsRouter"]
-
-    USER_MATURITY_DAYS = 7
 
     # override classes
     CLASS_OVERRIDES = {}
@@ -949,7 +944,6 @@ class CommunityBaseSettings(Settings):
         "signup": "readthedocs.forms.SignupFormWithNewsletter",
     }
 
-    GITHUB_APP_ID = 1234
     GITHUB_APP_NAME = "readthedocs"
     GITHUB_APP_PRIVATE_KEY = ""
     GITHUB_APP_WEBHOOK_SECRET = ""
@@ -1084,11 +1078,6 @@ class CommunityBaseSettings(Settings):
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
-
-    # Advertising configuration defaults
-    ADSERVER_API_BASE = None
-    ADSERVER_API_KEY = None
-    ADSERVER_API_TIMEOUT = 0.35  # seconds
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None

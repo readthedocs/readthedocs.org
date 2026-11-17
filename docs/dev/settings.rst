@@ -20,12 +20,6 @@ PRODUCTION_DOMAIN
 
 This is the domain that is used by the main application dashboard (not documentation pages).
 
-RTD_INTERSPHINX_URL
--------------------
-
-This is the domain that is used to fetch the intersphinx inventory file.
-If not set explicitly this is the ``PRODUCTION_DOMAIN``.
-
 DEFAULT_PRIVACY_LEVEL
 ---------------------
 
