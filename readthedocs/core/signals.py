@@ -32,17 +32,16 @@ def process_email_confirmed(request, email_address, **kwargs):
     """
     Steps to take after a users email address is confirmed.
 
-    If they opted in at signup, we:
-
-    * Subscribe the user to the Buttondown newsletter.
-    * Add them to the MailerLite onboarding group for the drip campaign.
+    Add the user to the MailerLite onboarding group for the drip campaign,
+    if they opted in at signup.
+    Newsletter subscriptions happen later, see ``subscribe_active_users_to_newsletter``.
     """
 
     # email_address is an object
     # https://github.com/pennersr/django-allauth/blob/6315e25/allauth/account/models.py#L15
     user = email_address.user
     profile = UserProfile.objects.filter(user=user).first()
-    if not profile or not profile.mailing_list:
+    if not profile or not profile.mailing_list or not settings.MAILERLITE_API_ONBOARDING_GROUP_URL:
         return
 
     # TODO: Unsubscribe users if they unset `mailing_list`.
@@ -51,37 +50,20 @@ def process_email_confirmed(request, email_address, **kwargs):
         user_username=user.username,
     )
 
-    if settings.BUTTONDOWN_API_KEY:
-        log.info("Subscribing user to newsletter.")
-        _subscribe(
-            settings.BUTTONDOWN_API_SUBSCRIBERS_URL,
-            # The email is already confirmed, so skip Buttondown's double opt-in.
-            json={"email_address": email_address.email, "type": "regular"},
-            headers={
-                "Authorization": f"Token {settings.BUTTONDOWN_API_KEY}",
-                # Resubscribe the user if they already exist.
-                "X-Buttondown-Collision-Behavior": "add",
-            },
-        )
-
-    if settings.MAILERLITE_API_ONBOARDING_GROUP_URL:
-        log.info("Adding user to onboarding group.")
-        _subscribe(
+    log.info("Adding user to onboarding group.")
+    try:
+        # TODO: migrate this signal to a Celery task since it has a `requests.post` on it.
+        resp = requests.post(
             settings.MAILERLITE_API_ONBOARDING_GROUP_URL,
             json={"email": email_address.email, "resubscribe": True, "type": "active"},
             headers={"X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY},
+            timeout=3,  # seconds
         )
-
-
-def _subscribe(url, json, headers):
-    try:
-        # TODO: migrate this signal to a Celery task since it has a `requests.post` on it.
-        resp = requests.post(url, json=json, headers=headers, timeout=3)
         resp.raise_for_status()
     except requests.Timeout:
-        log.warning("Timeout subscribing user.", url=url)
+        log.warning("Timeout adding user to onboarding group.")
     except Exception:  # noqa
-        log.exception("Unknown error subscribing user.", url=url)
+        log.exception("Unknown error adding user to onboarding group.")
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

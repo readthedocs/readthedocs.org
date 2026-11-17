@@ -1,16 +1,25 @@
 """Basic tasks."""
 
 import math
+from datetime import timedelta
 
 import redis
+import requests
 import structlog
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Exists
+from django.db.models import F
+from django.db.models import OuterRef
+from django.utils import timezone
 
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.models import Build
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.history import set_change_reason
+from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
 
@@ -123,3 +132,60 @@ def delete_object(self, model_name: str, pk: int, user_id: int | None = None):
             task_log.info("Object deleted.")
         else:
             task_log.info("Object does not exist.")
+
+
+@app.task(queue="web")
+def subscribe_active_users_to_newsletter(days=1):
+    """
+    Subscribe users to the newsletter once they've had their first successful build.
+
+    Only users who opted in at signup, aren't banned,
+    and have an active (non-spam) project are subscribed.
+    This keeps spam signups off the newsletter list.
+    """
+    if not settings.BUTTONDOWN_API_KEY:
+        return
+
+    since = timezone.now() - timedelta(days=days)
+    successful_builds = Build.objects.filter(state=BUILD_STATE_FINISHED, success=True)
+    recent_user_ids = successful_builds.filter(date__gte=since).values("project__users")
+    earlier_builds = successful_builds.filter(project__users=OuterRef("pk"), date__lt=since)
+    users = (
+        User.objects.filter(
+            pk__in=recent_user_ids,
+            profile__mailing_list=True,
+            profile__banned=False,
+            emailaddress__email=F("email"),
+            emailaddress__verified=True,
+        )
+        .exclude(Exists(earlier_builds))
+        .distinct()
+    )
+    for user in users:
+        projects = Project.objects.filter(
+            users=user,
+            builds__success=True,
+            builds__date__gte=since,
+        ).distinct()
+        if not any(Project.objects.is_active(project) for project in projects):
+            continue
+
+        log.info("Subscribing user to newsletter.", user_username=user.username)
+        try:
+            resp = requests.post(
+                settings.BUTTONDOWN_API_SUBSCRIBERS_URL,
+                # The email is already verified, so skip Buttondown's double opt-in.
+                # Existing subscribers return an error instead of being resubscribed.
+                json={"email_address": user.email, "type": "regular"},
+                headers={"Authorization": f"Token {settings.BUTTONDOWN_API_KEY}"},
+                timeout=5,
+            )
+            if not resp.ok:
+                log.warning(
+                    "Error subscribing user to newsletter.",
+                    user_username=user.username,
+                    status_code=resp.status_code,
+                    response=resp.text,
+                )
+        except requests.RequestException:
+            log.exception("Error subscribing user to newsletter.", user_username=user.username)

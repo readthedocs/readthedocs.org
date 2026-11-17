@@ -707,6 +707,11 @@ class CommunityBaseSettings(Settings):
             "schedule": timedelta(seconds=5),
             "options": {"queue": "web"},
         },
+        "every-day-subscribe-active-users-to-newsletter": {
+            "task": "readthedocs.core.tasks.subscribe_active_users_to_newsletter",
+            "schedule": crontab(minute=0, hour=3),
+            "options": {"queue": "web"},
+        },
         "every-day-delete-old-search-queries": {
             "task": "readthedocs.search.tasks.delete_old_search_queries_from_db",
             "schedule": crontab(minute=0, hour=0),
