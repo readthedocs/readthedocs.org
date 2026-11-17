@@ -37,6 +37,9 @@ To run a subset of tests:
 
    tox -e py314 -- -k test_celery
 
+Test databases are created from the models, not by applying migrations.
+The ``migrations`` environment checks that all migrations apply.
+
 .. tip::
 
    Install ``tox-uv`` alongside tox for faster virtualenv creation
@@ -65,7 +68,7 @@ pre-commit
     Run linting and formatting checks via pre-commit.
 
 migrations
-    Check for missing Django migrations.
+    Check for missing Django migrations, and that all migrations apply.
 
 docs
     Build user documentation with Sphinx.
