@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
-from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
@@ -30,10 +29,6 @@ class PageViewManager(models.Manager):
 
     def register_page_view(self, project, version, filename, path, status):
         """Track page view with the given parameters."""
-        # TODO: remove after the migration of duplicate records has been completed.
-        if project.has_feature(Feature.DISABLE_PAGEVIEWS):
-            return
-
         # Normalize paths to avoid duplicates.
         filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")

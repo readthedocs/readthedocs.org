@@ -2104,7 +2104,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
@@ -2134,10 +2133,6 @@ class Feature(models.Model):
     ALLOW_DIRECT_ARTIFACTS_UPLOAD = "allow_direct_artifacts_upload"
 
     FEATURES = (
-        (
-            DISABLE_PAGEVIEWS,
-            _("Proxito: Disable all page views"),
-        ),
         (
             RESOLVE_PROJECT_FROM_HEADER,
             _("Proxito: Allow usage of the X-RTD-Slug header"),
