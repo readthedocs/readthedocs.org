@@ -48,7 +48,7 @@ class SearchQuery(TimeStampedModel):
         return self.query
 
     @classmethod
-    def generate_queries_count_of_one_month(cls, project_slug):
+    def generate_queries_count_of_one_month(cls, project_slug, queryset=None):
         """
         Returns the total queries performed each day of the last 30 days (including today).
 
@@ -60,11 +60,17 @@ class SearchQuery(TimeStampedModel):
             }
         This data shows that there were 150 searches were made on 01 July,
         200 searches on 02 July and 143 searches on 03 July.
+
+        :param queryset: Optional queryset (e.g. already filtered) to count from,
+            instead of all the queries of the project.
         """
         today = timezone.now().date()
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
 
-        qs = cls.objects.filter(
+        if queryset is None:
+            queryset = cls.objects.all()
+
+        qs = queryset.filter(
             project__slug=project_slug,
             created__date__lte=today,
             created__date__gte=last_30th_day,

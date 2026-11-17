@@ -281,6 +281,31 @@ class RedirectListFilterSet(ModelFilterSet):
         return queryset.filter(from_url=redirect.from_url)
 
 
+class SearchAnalyticsFilterSet(ModelFilterSet):
+    """Filter for the search analytics page."""
+
+    RESULTS_ZERO = "zero"
+    RESULTS_WITH = "with"
+    RESULTS_CHOICES = (
+        (RESULTS_ZERO, _("Zero results")),
+        (RESULTS_WITH, _("With results")),
+    )
+
+    results = ChoiceFilter(
+        label=_("Results"),
+        choices=RESULTS_CHOICES,
+        empty_label=_("All queries"),
+        method="filter_results",
+    )
+
+    def filter_results(self, queryset, field_name, value):
+        if value == self.RESULTS_ZERO:
+            return queryset.filter(total_results=0)
+        if value == self.RESULTS_WITH:
+            return queryset.filter(total_results__gt=0)
+        return queryset
+
+
 class TrafficAnalyticsFilterSet(ModelFilterSet):
     """Filter for the traffic analytics page."""
 
