@@ -1,7 +1,7 @@
 # CI Pipeline
 #
 # Stage 1 (parallel):   checks, tests, tests-proxito
-# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
+# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (2 Sphinx versions)
 # Stage 3:              coverage-report (combines and uploads to codecov)
 #
 # Stage 2 runs after tests and tests-proxito pass (but not checks,
@@ -27,7 +27,7 @@
 #     the ES sidecar AND proxito Django settings, so they run in
 #     tests-search with --ds=readthedocs.settings.proxito.test.
 #   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
-#     tox 4), so it can't use tox-uv.
+#     tox 4), so it can't use tox-uv. tox.embedapi.ini calls uv directly.
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
@@ -176,7 +176,7 @@ jobs:
             - .coverage.proxito
 
   tests-embedapi:
-    # Embed API tests — tests against 6 Sphinx versions.
+    # Embed API tests — tests against 2 Sphinx versions.
     # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
     docker:
       - image: 'cimg/python:3.14'
@@ -186,7 +186,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: pip install --user 'tox<4'
+      - run: pip install --user 'tox<4' uv
       - run: tox --version
       - run: tox -c tox.embedapi.ini
       - save_cache:
