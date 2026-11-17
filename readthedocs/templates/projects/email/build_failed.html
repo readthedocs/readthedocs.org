@@ -1,23 +1,41 @@
 {% extends "core/email/common.html" %}
 
-{% block top-right %}
-  {{ project.name }}: build #{{ build.pk }}
-{% endblock %}
-
 {% block salutation %}
-Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
+We couldn't build your documentation
 {% endblock %}
 
 {% block content %}
   <p>
-    Build #{{ build.pk }} <span style="color: #ff7040;">failed</span>.
-    The build log shows the commands that ran and the error that stopped the build.
+    We ran into a problem while building your documentation.
+    Your currently published documentation hasn't changed.
+  </p>
+
+  <ul style="margin: 0 0 16px; padding-left: 24px;">
+    <li><strong>Project:</strong> {{ project.name }}</li>
+    <li><strong>Version:</strong> {{ version.verbose_name }}</li>
+    <li><strong>Build:</strong> <a href="{{ build_url }}">#{{ build.pk }}</a></li>
+    {% if build.commit %}
+      <li>
+        <strong>Commit:</strong>
+        {% if build.commit_url %}<a href="{{ build.commit_url }}">{{ build.commit }}</a>{% else %}{{ build.commit }}{% endif %}
+      </li>
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block callout %}
+  {% with callout_header=error.header callout_body=error.body %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block content-after %}
+  <p>
+    The build log shows the commands we ran and where the build stopped.
     You can also see the <a href="{{ build_raw }}">raw build log</a>.
   </p>
 
   <p>
-    Our <a href="https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html">build troubleshooting guide</a> covers the most common errors,
-    and the <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> explains how builds run.
+    A good place to start debugging this error is our <a href="https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html">build troubleshooting guide</a>.
+    We also suggest reading our <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> to get a better sense of how builds are run.
   </p>
 {% endblock %}
 

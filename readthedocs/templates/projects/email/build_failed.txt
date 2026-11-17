@@ -1,14 +1,24 @@
 {% extends "core/email/common.txt" %}
-{% block salutation %}Build failed on {{ project.name }}: {{ version.verbose_name }}{% endblock %}
+{% block salutation %}We couldn't build your documentation{% endblock %}
 {% block content %}
-Build #{{ build.pk }} failed. The build log shows the commands that ran and the error that stopped the build:
+We ran into a problem while building your documentation. Your currently published documentation hasn't changed.
+
+Project: {{ project.name }}
+Version: {{ version.verbose_name }}
+Build: #{{ build.pk }}{% if build.commit %}
+Commit: {{ build.commit }}{% endif %}
+{% if error %}
+{{ error.header|striptags }}
+{{ error.body|striptags }}
+{% endif %}
+The build log shows the commands we ran and where the build stopped:
 {{ build_url }}
 
 Raw build log: {{ build_raw }}
 
-Our build troubleshooting guide covers the most common errors: https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html
+A good place to start debugging this error is our build troubleshooting guide: https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html
 
-The build process overview explains how builds run: https://docs.readthedocs.com/platform/stable/builds.html
+We also suggest reading our build process overview to get a better sense of how builds are run: https://docs.readthedocs.com/platform/stable/builds.html
 
 Manage notification settings: {{ unsubscribe_url }}
 {% endblock %}
