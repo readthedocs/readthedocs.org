@@ -11,9 +11,11 @@ from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.tasks.builds import UpdateDocsTask
 
 
-# Unique per process, so parallel test workers don't wipe each other's checkout.
+# One per pytest-xdist worker, so parallel workers don't wipe each other's checkout.
 PROJECT_REPOSITORY_PATH = os.path.join(
-    tempfile.mkdtemp(prefix="readthedocs-tests-"), "git-repository"
+    tempfile.gettempdir(),
+    f"readthedocs-tests-{os.environ.get('PYTEST_XDIST_WORKER', 'main')}",
+    "git-repository",
 )
 
 

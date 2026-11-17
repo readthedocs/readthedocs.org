@@ -1,3 +1,5 @@
+import copy
+
 import django_dynamic_fixture as fixture
 import requests_mock
 from allauth.socialaccount.models import SocialAccount, SocialToken
@@ -60,6 +62,8 @@ class GitHubOAuthSyncTests(TestCase):
     ]
 
     def setUp(self):
+        # Tests modify this, so each test gets its own copy.
+        self.payload_user_repos = copy.deepcopy(self.payload_user_repos)
         self.user = fixture.get(User)
         self.socialaccount = fixture.get(
             SocialAccount,
