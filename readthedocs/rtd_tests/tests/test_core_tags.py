@@ -92,17 +92,3 @@ class CoreTagsTests(TestCase):
         proj = Project.objects.get(slug="pip")
         url = core_tags.make_document_url(proj, LATEST, "index", "index.html")
         self.assertEqual(url, self.pip_latest_url_index)
-
-    def test_escapejson(self):
-        tests = (
-            ({}, "{}"),
-            ({"a": "b"}, '{"a": "b"}'),
-            ({"'; //": '""'}, '{"\'; //": "\\"\\""}'),
-            (
-                {"<script>alert('hi')</script>": ""},
-                '{"\\u003Cscript\\u003Ealert(\'hi\')\\u003C/script\\u003E": ""}',
-            ),
-        )
-
-        for in_value, out_value in tests:
-            self.assertEqual(core_tags.escapejson(in_value), out_value)

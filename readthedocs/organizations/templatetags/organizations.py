@@ -64,12 +64,6 @@ def owner_organizations(user):
     return user.owner_organizations.all()
 
 
-@register.filter
-def admin_teams(user):
-    """Return admin teams across all orgs for a user."""
-    return Team.objects.admin(user)
-
-
 @register.filter(name="has_sso_enabled")
 def has_sso_enabled_filter(obj, provider=None):
     """Check if `obj` has sso enabled for `provider`."""

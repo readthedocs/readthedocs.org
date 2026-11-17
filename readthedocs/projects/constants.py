@@ -53,11 +53,6 @@ MEDIA_TYPES = (
 BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
 BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path.join(BUILD_COMMANDS_OUTPUT_PATH, "html")
 
-SAMPLE_FILES = (
-    ("Installation", "projects/samples/installation.rst.html"),
-    ("Getting started", "projects/samples/getting_started.rst.html"),
-)
-
 SCRAPE_CONF_SETTINGS = [
     "copyright",
     "project",
