@@ -34,7 +34,7 @@ class VersionInfo:
 
 log = structlog.get_logger(__name__)
 
-SYNC_DELAY_SECONDS = 10
+SYNC_DELAY_SECONDS = 3
 # Longer than the delay, so a lost task doesn't block syncs for the project.
 SYNC_PENDING_TIMEOUT = 60
 

@@ -58,7 +58,7 @@ class TestTriggerSyncVersions(TestCase):
         slugs = [trigger_sync_versions(self.project) for _ in range(5)]
 
         assert slugs == [self.version.slug] * 5
-        dispatch_task.apply_async.assert_called_once_with(args=[self.project.pk], countdown=10)
+        dispatch_task.apply_async.assert_called_once_with(args=[self.project.pk], countdown=3)
         app.send_task.assert_not_called()
 
     @mock.patch("readthedocs.core.views.hooks.dispatch_sync_versions_isolated_task")
