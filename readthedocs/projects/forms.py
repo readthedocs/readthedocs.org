@@ -787,7 +787,9 @@ class ProjectPullRequestForm(forms.ModelForm, ProjectPRBuildsMixin):
 
         self.setup_external_builds_option()
 
-        if not self.instance.is_github_app_project:
+        if self.instance.is_legacy_github_project:
+            self.fields["show_build_overview_in_comment"].disabled = True
+        elif not self.instance.is_github_app_project:
             self.fields.pop("show_build_overview_in_comment")
 
         if not settings.ALLOW_PRIVATE_REPOS:
@@ -1619,6 +1621,15 @@ class AutomationRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
+
+        # Webhook filters are only checked on GitHub App webhooks.
+        if self.project and self.project.is_legacy_github_project:
+            for field_name in (
+                "webhook_files_match_pattern",
+                "webhook_labels_match_pattern",
+                "webhook_commit_message_match_pattern",
+            ):
+                self.fields[field_name].disabled = True
 
         if self.instance and self.instance.pk and self.instance.webhook_files_match_pattern:
             self.initial["webhook_files_match_pattern"] = "\n".join(

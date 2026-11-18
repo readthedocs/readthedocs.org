@@ -12,7 +12,8 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.constants import GITHUB, GITHUB_APP, GITLAB
+from readthedocs.oauth.models import GitHubAppInstallation, RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     ADDONS_FLYOUT_SORTING_CALVER,
@@ -26,6 +27,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.forms import (
     AddonsConfigForm,
+    AutomationRuleForm,
     EmailHookForm,
     EnvironmentVariableForm,
     ProjectAutomaticForm,
@@ -1554,3 +1556,41 @@ class TestProjectPullRequestForm(TestCase):
 
         self.project.addons.refresh_from_db()
         self.assertFalse(self.project.addons.notifications_show_on_external)
+
+
+class TestGitHubAppMigrationPrompts(TestCase):
+    def setUp(self):
+        self.project = get(Project)
+
+    def _connect(self, vcs_provider):
+        self.project.remote_repository = get(
+            RemoteRepository,
+            vcs_provider=vcs_provider,
+            github_app_installation=get(GitHubAppInstallation),
+        )
+        self.project.save()
+
+    def test_build_overview_prompts_legacy_github_projects(self):
+        self._connect(GITHUB)
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        assert form.fields["show_build_overview_in_comment"].disabled
+
+    def test_build_overview_on_github_app_projects(self):
+        self._connect(GITHUB_APP)
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        assert not form.fields["show_build_overview_in_comment"].disabled
+
+    def test_build_overview_hidden_on_other_providers(self):
+        self._connect(GITLAB)
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        assert "show_build_overview_in_comment" not in form.fields
+
+    def test_webhook_filters_prompt_legacy_github_projects(self):
+        self._connect(GITHUB)
+        form = AutomationRuleForm(project=self.project)
+        assert form.fields["webhook_labels_match_pattern"].disabled
+
+    def test_webhook_filters_on_github_app_projects(self):
+        self._connect(GITHUB_APP)
+        form = AutomationRuleForm(project=self.project)
+        assert not form.fields["webhook_labels_match_pattern"].disabled

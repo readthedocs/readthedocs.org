@@ -1158,6 +1158,11 @@ class Project(models.Model):
         return self.remote_repository and self.remote_repository.vcs_provider == GITHUB_APP
 
     @property
+    def is_legacy_github_project(self):
+        """Project connected through our old GitHub OAuth app, instead of the GitHub App."""
+        return self.remote_repository and self.remote_repository.vcs_provider == GITHUB
+
+    @property
     def old_github_remote_repository(self):
         """
         Get the old GitHub OAuth repository for GitHub App projects.
