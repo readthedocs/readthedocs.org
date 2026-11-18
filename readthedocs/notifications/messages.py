@@ -167,6 +167,18 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
+        id=BuildCancelled.CANCELLED_BY_NEWER_BUILD,
+        header=_("Build cancelled."),
+        body=_(
+            textwrap.dedent(
+                """
+            This build was cancelled because a newer build was triggered for the same version.
+            """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    Message(
         id=BuildCancelled.SKIPPED_EXIT_CODE_183,
         header=_("Build cancelled."),
         body=_(

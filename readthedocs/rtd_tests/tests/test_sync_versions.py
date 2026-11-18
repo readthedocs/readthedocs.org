@@ -1,7 +1,10 @@
 from unittest import mock
 
+import pytest
+from celery.exceptions import Retry
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -53,6 +56,20 @@ class TestSyncVersions(TestCase):
         )
         self.pip.update_stable_version()
         self.pip.save()
+
+    def test_concurrent_sync_is_retried(self):
+        lock_id = f"{sync_versions_task.name}-lock-{self.pip.pk}"
+        cache.add(lock_id, "other-worker", 60)
+        self.addCleanup(cache.delete, lock_id)
+
+        with pytest.raises(Retry):
+            sync_versions_task(
+                self.pip.pk,
+                tags_data=[{"identifier": "abc", "verbose_name": "1.0"}],
+                branches_data=[],
+            )
+
+        assert not self.pip.versions.filter(verbose_name="1.0").exists()
 
     def test_proper_url_no_slash(self):
         branches_data = [

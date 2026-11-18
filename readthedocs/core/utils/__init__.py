@@ -131,7 +131,8 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
+    # Only older builds, so builds triggered at the same time don't cancel each other.
+    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).filter(pk__lt=build.pk)
     if running_builds.count() > 0:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
@@ -141,7 +142,7 @@ def prepare_build(
     # If there are builds triggered/running for this particular project and version,
     # we cancel all of them and trigger a new one for the latest commit received.
     for running_build in running_builds:
-        cancel_build(running_build)
+        cancel_build(running_build, message_id=BuildCancelled.CANCELLED_BY_NEWER_BUILD)
 
     # Start the build in X minutes and mark it as limited.
     # The build-isolated path enforces concurrency on the web side instead
@@ -427,7 +428,7 @@ def admit_project_builds(project):
                     )
 
 
-def cancel_build(build):
+def cancel_build(build, message_id=BuildCancelled.CANCELLED_BY_USER):
     """
     Cancel a triggered/running build.
 
@@ -454,7 +455,7 @@ def cancel_build(build):
 
         # Add a notification for this build
         Notification.objects.add(
-            message_id=BuildCancelled.CANCELLED_BY_USER,
+            message_id=message_id,
             attached_to=build,
             dismissable=False,
         )
