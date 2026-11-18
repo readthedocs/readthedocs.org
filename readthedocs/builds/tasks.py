@@ -195,8 +195,8 @@ def finish_inactive_uploaded_builds():
         finish_inactive_build(build)
 
 
-@app.task(bind=True, max_retries=6, default_retry_delay=10, queue="web")
-def sync_versions_task(self, project_pk, tags_data, branches_data, **kwargs):
+@app.task(max_retries=1, default_retry_delay=60, queue="web")
+def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
     Sync the version data in the repo (from build server) into our database.
 
@@ -215,15 +215,6 @@ def sync_versions_task(self, project_pk, tags_data, branches_data, **kwargs):
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
-    # Concurrent syncs create duplicate versions and trigger the stable build twice.
-    lock_id = f"{self.name}-lock-{project_pk}"
-    with memcache_lock(lock_id, 60, self.app.oid) as acquired:
-        if not acquired:
-            raise self.retry()
-        return _sync_versions(project_pk, tags_data, branches_data)
-
-
-def _sync_versions(project_pk, tags_data, branches_data):
     project = Project.objects.get(pk=project_pk)
 
     # If the currently highest non-prerelease version is active, then make
