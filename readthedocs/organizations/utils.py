@@ -17,7 +17,7 @@ def send_team_add_email(team_member, request):
     )
     send_email(
         team_member.member.email,
-        subject="Join your team at Read the Docs",
+        subject="You've been added to a team on Read the Docs",
         template="organizations/email/team_add.txt",
         template_html="organizations/email/team_add.html",
         context={
