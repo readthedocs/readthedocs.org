@@ -117,23 +117,6 @@ class HttpExchangeManager(models.Manager):
         self.delete_limit(related_object)
         return obj
 
-    def from_github_app_event(self, integration, event, event_id, payload, detail):
-        """
-        Create an exchange from a GitHub App webhook event.
-
-        GitHub App events are handled in a task, after we already replied to GitHub,
-        so the response body describes what we did with the event instead.
-        """
-        obj = self.create(
-            related_object=integration,
-            request_headers={"X-GitHub-Event": event, "X-GitHub-Delivery": event_id},
-            request_body=json.dumps(payload, sort_keys=True),
-            response_headers={},
-            response_body=json.dumps({"detail": detail}),
-        )
-        self.delete_limit(integration)
-        return obj
-
     def delete_limit(self, related_object, limit=10):
         # If the related_object is an instance of Integration,
         # it could be a proxy model, so we force it to always be the "real" model.

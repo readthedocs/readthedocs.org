@@ -1,6 +1,7 @@
 """Tasks for OAuth services."""
 
 import datetime
+import json
 from functools import cached_property
 
 import structlog
@@ -636,24 +637,17 @@ class GitHubAppWebhookHandler:
                 if rule_triggered_for_project:
                     self._record_event(project, "Automation rule matched, triggering build.")
                 else:
-                    log.info(
-                        "No automation rule matched, skipping build.",
-                        project_slug=project.slug,
-                    )
                     self._record_event(project, "No automation rule matched, skipping build.")
             else:
-                to_build, not_building = build_versions_from_names(
+                to_build, _ = build_versions_from_names(
                     project, [VersionInfo(name=version_name, type=version_type)]
                 )
                 if to_build:
-                    detail = f"Triggering build for: {', '.join(sorted(to_build))}."
-                elif not_building:
-                    detail = (
-                        f"Not building, version is not active: {', '.join(sorted(not_building))}."
+                    self._record_event(
+                        project, f"Triggering build for: {', '.join(sorted(to_build))}."
                     )
                 else:
-                    detail = "Not building, no version matches the pushed branch or tag."
-                self._record_event(project, detail)
+                    self._record_event(project, "Not building, no active version matches.")
 
     def _handle_pull_request_event(self):
         """
@@ -679,17 +673,9 @@ class GitHubAppWebhookHandler:
             # Closed events are still handled below, so uploaded previews get cleaned up.
             for project in self._get_projects():
                 if project.is_direct_upload:
-                    log.info(
-                        "Skipping pull request event, project uses direct upload.",
-                        project_slug=project.slug,
-                    )
                     self._record_event(project, "Skipping, project uses direct upload.")
                     continue
                 if not project.external_builds_enabled:
-                    log.info(
-                        "Skipping pull request event, pull request previews are disabled.",
-                        project_slug=project.slug,
-                    )
                     self._record_event(project, "Skipping, pull request previews are disabled.")
                     continue
 
@@ -747,10 +733,6 @@ class GitHubAppWebhookHandler:
                     if rule_triggered:
                         self._record_event(project, "Automation rule matched, triggering build.")
                     else:
-                        log.info(
-                            "No automation rule matched, skipping build.",
-                            project_slug=project.slug,
-                        )
                         self._record_event(project, "No automation rule matched, skipping build.")
                 else:
                     _, build = trigger_build(
@@ -759,10 +741,10 @@ class GitHubAppWebhookHandler:
                         commit=external_version.identifier,
                         from_webhook=True,
                     )
-                    if build:
-                        self._record_event(project, f"Triggered build {build.pk}.")
-                    else:
-                        self._record_event(project, "Build not triggered.")
+                    self._record_event(
+                        project,
+                        f"Triggered build {build.pk}." if build else "Build not triggered.",
+                    )
             return
 
         if action == "closed":
@@ -865,16 +847,17 @@ class GitHubAppWebhookHandler:
         # We don't need to do anything here for now.
 
     def _record_event(self, project, detail):
-        """Save the event and what we did with it on the project's GitHub App integration."""
+        """Log what we did with the event, and save it on the project's GitHub App integration."""
+        log.info(detail, project_slug=project.slug)
         integration = project.integrations.filter(integration_type=Integration.GITHUBAPP).first()
         if integration:
-            HttpExchange.objects.from_github_app_event(
-                integration=integration,
-                event=self.event,
-                event_id=self.event_id,
-                payload=self.data,
-                detail=detail,
+            HttpExchange.objects.create(
+                related_object=integration,
+                request_headers={"X-GitHub-Event": self.event, "X-GitHub-Delivery": self.event_id},
+                request_body=json.dumps(self.data),
+                response_body=json.dumps({"detail": detail}),
             )
+            HttpExchange.objects.delete_limit(integration)
 
     def _get_projects(self):
         """
