@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils import timezone
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_base_version
@@ -15,6 +14,20 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiff
 class BuildOverview:
     content: str
     diff: FileTreeDiff
+
+
+def _build_finished_at(build: Build):
+    """
+    When the build finished, as closely as we can tell.
+
+    The build's own ``length`` is saved after the task that posts the comment
+    is queued, so the end of its last command is the finish time; a build
+    without recorded commands falls back to when it started.
+    """
+    last_command = build.commands.last()
+    if last_command and last_command.end_time:
+        return last_command.end_time
+    return build.date
 
 
 def get_build_overview(build: Build) -> BuildOverview | None:
@@ -47,9 +60,7 @@ def get_build_overview(build: Build) -> BuildOverview | None:
             "project": project,
             "preview_url": diff.current_version.get_absolute_url(),
             "build_url": f"https://{settings.PRODUCTION_DOMAIN}{build_path}",
-            # The comment is re-rendered and edited on every build,
-            # so render time is when the content it shows was produced.
-            "built_at": timezone.now(),
+            "built_at": _build_finished_at(diff.current_version_build),
             "diff": diff,
         },
     )

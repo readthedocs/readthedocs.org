@@ -514,12 +514,16 @@ class TestPostBuildOverview(TestCase):
         )
         self.project.addons.doc_diff_enabled = True
         self.project.addons.save()
+        get(
+            BuildCommandResult,
+            build=self.current_version_build,
+            start_time=datetime(2026, 9, 17, 8, 50, tzinfo=UTC),
+            end_time=datetime(2026, 9, 17, 8, 53, tzinfo=UTC),
+        )
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview(self, now, get_diff, post_comment):
-        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+    def test_post_build_overview(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -538,11 +542,11 @@ class TestPostBuildOverview(TestCase):
             📖 3 files changed · 1 added · 1 modified · 1 deleted
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [🔍](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true "Visual diff")
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -553,9 +557,7 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview_more_than_10_files(self, now, get_diff, post_comment):
-        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+    def test_post_build_overview_more_than_10_files(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -583,20 +585,20 @@ class TestPostBuildOverview(TestCase):
             <summary>📖 11 files changed · 1 added · 9 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [diff](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true)
-            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [diff](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true)
-            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [diff](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true)
-            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [diff](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true)
-            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [diff](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true)
-            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html) · [diff](http://my-project--1.readthedocs.build/en/1/seven.html?readthedocs-diff=true)
-            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html) · [diff](http://my-project--1.readthedocs.build/en/1/six.html?readthedocs-diff=true)
-            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [diff](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true)
-            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [diff](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true)
+            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [🔍](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true "Visual diff")
+            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [🔍](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true "Visual diff")
+            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [🔍](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true "Visual diff")
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [🔍](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true "Visual diff")
+            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [🔍](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true "Visual diff")
+            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html) · [🔍](http://my-project--1.readthedocs.build/en/1/seven.html?readthedocs-diff=true "Visual diff")
+            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html) · [🔍](http://my-project--1.readthedocs.build/en/1/six.html?readthedocs-diff=true "Visual diff")
+            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [🔍](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true "Visual diff")
+            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [🔍](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true "Visual diff")
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -608,9 +610,25 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview_no_files_changed(self, now, get_diff, post_comment):
-        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+    def test_post_build_overview_without_commands_uses_build_date(self, get_diff, post_comment):
+        self.current_version_build.commands.all().delete()
+        self.current_version_build.date = datetime(2026, 9, 17, 9, 12, tzinfo=UTC)
+        self.current_version_build.save()
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[("index.html", FileTreeDiffFileStatus.modified)],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        comment = post_comment.call_args.kwargs["comment"]
+        assert comment.endswith("· My project · built Sept. 17, 2026, 9:12 a.m. UTC\n")
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    def test_post_build_overview_no_files_changed(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -625,7 +643,7 @@ class TestPostBuildOverview(TestCase):
             📖 No files changed
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -637,11 +655,7 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview_single_kind_truncated_without_visual_diff(
-        self, now, get_diff, post_comment
-    ):
-        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
+    def test_post_build_overview_single_kind_truncated_without_visual_diff(self, get_diff, post_comment):
         self.project.addons.doc_diff_enabled = False
         self.project.addons.save()
         get_diff.return_value = FileTreeDiff(
@@ -685,7 +699,7 @@ class TestPostBuildOverview(TestCase):
             </details>
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -696,10 +710,8 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    @mock.patch("readthedocs.builds.reporting.timezone.now")
-    def test_post_build_overview_single_kind_inline(self, now, get_diff, post_comment):
+    def test_post_build_overview_single_kind_inline(self, get_diff, post_comment):
         """One kind of change under the limit: the headline names it, rows stay unwrapped."""
-        now.return_value = datetime(2026, 9, 17, 8, 53, tzinfo=UTC)
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -720,7 +732,7 @@ class TestPostBuildOverview(TestCase):
             - `-` `legacy/older.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/older.html)
 
             ---
-            [Preview](http://my-project--1.readthedocs.build/en/1/) · [My project build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · built Sept. 17, 2026, 8:53 a.m. UTC
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
