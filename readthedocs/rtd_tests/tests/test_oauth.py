@@ -1452,10 +1452,10 @@ class GitHubAppTests(TestCase):
 
     def test_integration_attributes(self):
         assert self.integration.is_active
-        assert self.integration.installation_url == "https://github.com/apps/readthedocs/installations/1111"
+        assert self.integration.get_absolute_url() == "https://github.com/apps/readthedocs/installations/1111"
         self.project.remote_repository = None
         assert not self.integration.is_active
-        assert self.integration.installation_url is None
+        assert self.integration.get_absolute_url() is None
 
     @requests_mock.Mocker(kw="request")
     def test_update_remote_repository(self, request):
