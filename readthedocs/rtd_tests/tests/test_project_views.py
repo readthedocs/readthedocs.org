@@ -15,6 +15,7 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.integrations.models import GenericAPIWebhook
 from readthedocs.integrations.models import GitHubWebhook
+from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.models import RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization
@@ -633,6 +634,24 @@ class TestPrivateViews(TestCase):
             user_pk=self.user.pk,
             integration=None,
         )
+
+    def test_integration_detail_github_app(self):
+        integration = get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.GITHUBAPP,
+        )
+        response = self.client.get(
+            reverse("projects_integrations_detail", args=[self.project.slug, integration.pk])
+        )
+        assert response.status_code == 200
+
+        # The integration is managed by GitHub and can't be removed.
+        response = self.client.post(
+            reverse("projects_integrations_delete", args=[self.project.slug, integration.pk])
+        )
+        assert response.status_code == 404
+        assert Integration.objects.filter(pk=integration.pk).exists()
 
     def test_remove_user(self):
         user = get(User, username="test")

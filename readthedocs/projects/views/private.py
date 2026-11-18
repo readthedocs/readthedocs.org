@@ -1040,6 +1040,11 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 class IntegrationDetail(IntegrationMixin, DetailView):
     template_name = "projects/integration_webhook_detail.html"
 
+    def get_object(self):
+        # Remote only integrations can't be configured,
+        # but we still show their recent activity.
+        return self.get_integration()
+
 
 class IntegrationDelete(IntegrationMixin, DeleteViewWithMessage):
     success_message = _("Integration deleted")

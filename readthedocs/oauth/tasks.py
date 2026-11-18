@@ -20,6 +20,8 @@ from readthedocs.core.views.hooks import build_versions_from_names
 from readthedocs.core.views.hooks import close_external_version
 from readthedocs.core.views.hooks import get_or_create_external_version
 from readthedocs.core.views.hooks import trigger_sync_versions
+from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import Integration
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.clients import get_gh_app_client
 from readthedocs.oauth.constants import GITHUB_APP
@@ -284,9 +286,10 @@ class GitHubAppWebhookHandler:
     in case our application or GitHub were down.
     """
 
-    def __init__(self, data: dict, event: str):
+    def __init__(self, data: dict, event: str, event_id: str = "unknown"):
         self.data = data
         self.event = event
+        self.event_id = event_id
         self.event_handlers = {
             "installation": self._handle_installation_event,
             "installation_repositories": self._handle_installation_repositories_event,
@@ -580,6 +583,7 @@ class GitHubAppWebhookHandler:
         if created or deleted:
             for project in self._get_projects():
                 trigger_sync_versions(project)
+                self._record_event(project, "Branch or tag created or deleted, syncing versions.")
             return
 
         version_name, version_type = parse_version_from_ref(self.data["ref"])
@@ -629,15 +633,27 @@ class GitHubAppWebhookHandler:
                             # to avoid triggering multiple builds for the same tag/branches.
                             break
 
-                if not rule_triggered_for_project:
+                if rule_triggered_for_project:
+                    self._record_event(project, "Automation rule matched, triggering build.")
+                else:
                     log.info(
                         "No automation rule matched, skipping build.",
                         project_slug=project.slug,
                     )
+                    self._record_event(project, "No automation rule matched, skipping build.")
             else:
-                build_versions_from_names(
+                to_build, not_building = build_versions_from_names(
                     project, [VersionInfo(name=version_name, type=version_type)]
                 )
+                if to_build:
+                    detail = f"Triggering build for: {', '.join(sorted(to_build))}."
+                elif not_building:
+                    detail = (
+                        f"Not building, version is not active: {', '.join(sorted(not_building))}."
+                    )
+                else:
+                    detail = "Not building, no version matches the pushed branch or tag."
+                self._record_event(project, detail)
 
     def _handle_pull_request_event(self):
         """
@@ -667,12 +683,14 @@ class GitHubAppWebhookHandler:
                         "Skipping pull request event, project uses direct upload.",
                         project_slug=project.slug,
                     )
+                    self._record_event(project, "Skipping, project uses direct upload.")
                     continue
                 if not project.external_builds_enabled:
                     log.info(
                         "Skipping pull request event, pull request previews are disabled.",
                         project_slug=project.slug,
                     )
+                    self._record_event(project, "Skipping, pull request previews are disabled.")
                     continue
 
                 external_version = get_or_create_external_version(
@@ -726,18 +744,25 @@ class GitHubAppWebhookHandler:
                             # We only trigger the first matching rule, to avoid triggering multiple builds for the same PR.
                             break
 
-                    if not rule_triggered:
+                    if rule_triggered:
+                        self._record_event(project, "Automation rule matched, triggering build.")
+                    else:
                         log.info(
                             "No automation rule matched, skipping build.",
                             project_slug=project.slug,
                         )
+                        self._record_event(project, "No automation rule matched, skipping build.")
                 else:
-                    trigger_build(
+                    _, build = trigger_build(
                         project=project,
                         version=external_version,
                         commit=external_version.identifier,
                         from_webhook=True,
                     )
+                    if build:
+                        self._record_event(project, f"Triggered build {build.pk}.")
+                    else:
+                        self._record_event(project, "Build not triggered.")
             return
 
         if action == "closed":
@@ -747,6 +772,7 @@ class GitHubAppWebhookHandler:
                     project=project,
                     version_data=external_version_data,
                 )
+                self._record_event(project, "Pull request closed, deleting its version.")
             return
 
         # We don't care about the other actions.
@@ -837,6 +863,18 @@ class GitHubAppWebhookHandler:
         """
         # A GitHub App receives this webhook by default and cannot unsubscribe from this event.
         # We don't need to do anything here for now.
+
+    def _record_event(self, project, detail):
+        """Save the event and what we did with it on the project's GitHub App integration."""
+        integration = project.integrations.filter(integration_type=Integration.GITHUBAPP).first()
+        if integration:
+            HttpExchange.objects.from_github_app_event(
+                integration=integration,
+                event=self.event,
+                event_id=self.event_id,
+                payload=self.data,
+                detail=detail,
+            )
 
     def _get_projects(self):
         """
@@ -1001,5 +1039,5 @@ def handle_github_app_webhook(data: dict, event: str, event_id: str = "unknown")
         event_id=event_id,
     )
     log.info("Handling GitHub App webhook from Celery task.")
-    handler = GitHubAppWebhookHandler(data, event)
+    handler = GitHubAppWebhookHandler(data, event, event_id)
     handler.handle()

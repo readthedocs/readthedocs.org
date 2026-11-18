@@ -26,7 +26,9 @@ from readthedocs.builds.constants import (
     LATEST,
     TAG,
 )
+from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
+from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     GitHubAccountType,
     GitHubAppInstallation,
@@ -475,6 +477,14 @@ class TestGitHubAppWebhook(TestCase):
             any_order=True,
         )
 
+        integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
+        exchange = integration.exchanges.get()
+        assert exchange.request_headers["X-GitHub-Event"] == "push"
+        version_slugs = ", ".join(sorted([self.version_main.slug, self.version_latest.slug]))
+        assert json.loads(exchange.response_body) == {
+            "detail": f"Triggering build for: {version_slugs}."
+        }
+
     @mock.patch("readthedocs.core.views.hooks.trigger_build")
     def test_push_tag(self, trigger_build):
         payload = {
@@ -503,6 +513,8 @@ class TestGitHubAppWebhook(TestCase):
     def test_pull_request_opened(self, trigger_build):
         self.project.external_builds_enabled = True
         self.project.save()
+        build = get(Build, project=self.project)
+        trigger_build.return_value = (None, build)
         payload = {
             "installation": {
                 "id": self.installation.installation_id,
@@ -538,6 +550,12 @@ class TestGitHubAppWebhook(TestCase):
             from_webhook=True,
         )
 
+        integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
+        exchange = integration.exchanges.get()
+        assert exchange.request_headers["X-GitHub-Event"] == "pull_request"
+        assert json.loads(exchange.request_body) == payload
+        assert json.loads(exchange.response_body) == {"detail": f"Triggered build {build.pk}."}
+
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_pr_previews_disabled(self, trigger_build):
         self.project.external_builds_enabled = False
@@ -568,6 +586,12 @@ class TestGitHubAppWebhook(TestCase):
         assert r.status_code == 200
         assert not self.project.versions.filter(verbose_name="1", type=EXTERNAL).exists()
         trigger_build.assert_not_called()
+
+        integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
+        exchange = integration.exchanges.get()
+        assert json.loads(exchange.response_body) == {
+            "detail": "Skipping, pull request previews are disabled."
+        }
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_direct_upload_project(self, trigger_build):
