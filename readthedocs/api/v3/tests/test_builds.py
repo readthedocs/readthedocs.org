@@ -675,3 +675,18 @@ class BuildsEndpointTests(APIEndpointMixin):
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.build.notifications.first().state, "read")
+
+    def test_projects_builds_detail_polling_is_not_throttled_as_anonymous(self):
+        url = reverse(
+            "projects-builds-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "build_pk": self.build.pk,
+            },
+        )
+        self.client.logout()
+
+        # The default anonymous rate is 5/minute, polling allows more.
+        for _ in range(10):
+            response = self.client.get(url)
+            assert response.status_code == 200
