@@ -4,12 +4,15 @@ import structlog
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
+from django.db.models import Sum
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_filters import ChoiceFilter
 from django_filters import OrderingFilter
 
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
+from readthedocs.core.filters import SearchableChoiceFilter
 from readthedocs.projects.models import Project
 from readthedocs.redirects.constants import TYPE_CHOICES
 
@@ -301,3 +304,25 @@ class SearchAnalyticsFilterSet(ModelFilterSet):
         if value == self.RESULTS_WITH:
             return queryset.filter(total_results__gt=0)
         return queryset
+
+
+class TrafficAnalyticsFilterSet(ModelFilterSet):
+    """Filter for the traffic analytics page."""
+
+    url = SearchableChoiceFilter(
+        field_name="path",
+        label=_("URL"),
+        empty_label=_("All URLs"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        since = timezone.now().date() - timezone.timedelta(days=30)
+        paths = (
+            self.queryset.filter(date__gte=since, status=200)
+            .values("path")
+            .annotate(count=Sum("view_count"))
+            .order_by("-count")
+            .values_list("path", flat=True)[:250]
+        )
+        self.filters["url"].extra["choices"] = [(path, path) for path in paths]

@@ -610,6 +610,37 @@ class TestTrafficAnalyticsView(TestCase):
         # Only header row, no data rows
         self.assertEqual(len(csv_data), 1)
 
+    def test_filter_by_url(self):
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/index.html",
+            view_count=10,
+            status=200,
+        )
+        PageView.objects.create(
+            project=self.project,
+            version=self.version,
+            path="/install.html",
+            view_count=3,
+            status=200,
+        )
+
+        resp = self.client.get(self.url)
+        assert [page.path for page in resp.context["top_pages_200"]] == [
+            "/index.html",
+            "/install.html",
+        ]
+        assert resp.context["filter"].form.fields["url"].choices == [
+            ("", "All URLs"),
+            ("/index.html", "/index.html"),
+            ("/install.html", "/install.html"),
+        ]
+
+        resp = self.client.get(self.url, {"url": "/install.html"})
+        assert [page.path for page in resp.context["top_pages_200"]] == ["/install.html"]
+        assert resp.context["page_data"]["int_data"][-1] == 3
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class TestProjectSearchSettingsUpdate(TestCase):
