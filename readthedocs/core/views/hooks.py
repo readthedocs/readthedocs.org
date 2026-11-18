@@ -11,7 +11,7 @@ from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.core.tasks import trigger_sync_versions_task
+from readthedocs.core.tasks import dispatch_sync_versions_isolated_task
 from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
@@ -34,7 +34,9 @@ class VersionInfo:
 
 log = structlog.get_logger(__name__)
 
-SYNC_DEBOUNCE_SECONDS = 60
+SYNC_DELAY_SECONDS = 10
+# Longer than the delay, so a lost task doesn't block syncs for the project.
+SYNC_PENDING_TIMEOUT = 60
 
 
 def build_versions_from_names(project, versions_info: list[VersionInfo]):
@@ -146,19 +148,28 @@ def trigger_sync_versions(project):
     return None
 
 
+def _sync_pending_cache_key(project):
+    return f"rtd-sync-repository-isolated:{project.slug}"
+
+
 def _trigger_sync_versions_isolated(project):
+    """
+    Schedule a version sync on the build-isolated fleet.
+
+    The sync is dispatched a few seconds later,
+    so one sync covers every event that arrives before it starts.
+    """
+    if cache.add(_sync_pending_cache_key(project), True, SYNC_PENDING_TIMEOUT):
+        dispatch_sync_versions_isolated_task.apply_async(
+            args=[project.pk],
+            countdown=SYNC_DELAY_SECONDS,
+        )
+
+
+def dispatch_sync_versions_isolated(project):
     """Dispatch the version sync to the build-isolated fleet."""
-    cache_key = f"rtd-sync-repository-isolated:{project.slug}"
-    if not cache.add(cache_key, True, SYNC_DEBOUNCE_SECONDS):
-        # A sync for this project was dispatched moments ago, and it may have
-        # read the repository before this event. Run one more when the window ends.
-        if cache.add(f"{cache_key}:pending", True, SYNC_DEBOUNCE_SECONDS):
-            trigger_sync_versions_task.apply_async(
-                args=[project.pk],
-                countdown=SYNC_DEBOUNCE_SECONDS,
-            )
-        log.info("Delaying sync, one was dispatched recently.")
-        return
+    # This sync may read the repository before later events, so they schedule their own.
+    cache.delete(_sync_pending_cache_key(project))
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
     app.send_task(

@@ -49,14 +49,14 @@ def send_email_task(recipient, subject, content, content_html=None, from_email=N
 
 
 @app.task(queue="web")
-def trigger_sync_versions_task(project_pk):
-    """Sync the versions of a project, used to run a sync after a delay."""
-    from readthedocs.core.views.hooks import trigger_sync_versions
+def dispatch_sync_versions_isolated_task(project_pk):
+    """Dispatch a version sync that was scheduled by a webhook a few seconds ago."""
+    from readthedocs.core.views.hooks import dispatch_sync_versions_isolated
     from readthedocs.projects.models import Project
 
     project = Project.objects.filter(pk=project_pk).first()
     if project:
-        trigger_sync_versions(project)
+        dispatch_sync_versions_isolated(project)
 
 
 @app.task(queue="web")

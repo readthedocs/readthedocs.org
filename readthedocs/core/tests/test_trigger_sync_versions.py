@@ -7,7 +7,7 @@ from django.test import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.core.tasks import trigger_sync_versions_task
+from readthedocs.core.tasks import dispatch_sync_versions_isolated_task
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
@@ -50,42 +50,29 @@ class TestTriggerSyncVersions(TestCase):
         assert kwargs["kwargs"]["build_api_key"]
         assert kwargs["kwargs"]["environment"]["RTD_PRODUCTION_DOMAIN"]
 
-    def test_a_burst_dispatches_a_single_sync(self, sync_repository_task, app):
+    @mock.patch("readthedocs.core.views.hooks.dispatch_sync_versions_isolated_task")
+    def test_a_burst_schedules_a_single_sync(self, dispatch_task, sync_repository_task, app):
         # A tag push sends one webhook per ref; they all ask for the same sync.
         self._enable_build_isolated()
 
         slugs = [trigger_sync_versions(self.project) for _ in range(5)]
 
         assert slugs == [self.version.slug] * 5
-        assert app.send_task.call_count == 1
+        dispatch_task.apply_async.assert_called_once_with(args=[self.project.pk], countdown=10)
+        app.send_task.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_sync_versions_task")
-    def test_a_burst_schedules_one_sync_after_the_window(
-        self, sync_task, sync_repository_task, app
+    @mock.patch("readthedocs.core.views.hooks.dispatch_sync_versions_isolated_task")
+    def test_an_event_after_the_sync_started_schedules_another(
+        self, dispatch_task, sync_repository_task, app
     ):
         self._enable_build_isolated()
-
-        for _ in range(5):
-            trigger_sync_versions(self.project)
-
-        sync_task.apply_async.assert_called_once_with(args=[self.project.pk], countdown=60)
-
-    @mock.patch("readthedocs.core.views.hooks.trigger_sync_versions_task")
-    def test_a_single_event_schedules_no_extra_sync(self, sync_task, sync_repository_task, app):
-        self._enable_build_isolated()
-
         trigger_sync_versions(self.project)
 
-        sync_task.apply_async.assert_not_called()
-
-    def test_the_delayed_sync_dispatches_once_the_window_ends(self, sync_repository_task, app):
-        self._enable_build_isolated()
+        dispatch_sync_versions_isolated_task(self.project.pk)
         trigger_sync_versions(self.project)
-        cache.clear()
 
-        trigger_sync_versions_task(self.project.pk)
-
-        assert app.send_task.call_count == 2
+        assert app.send_task.call_count == 1
+        assert dispatch_task.apply_async.call_count == 2
 
     def test_the_debounce_is_per_project(self, sync_repository_task, app):
         self._enable_build_isolated()
