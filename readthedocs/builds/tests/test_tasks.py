@@ -512,8 +512,6 @@ class TestPostBuildOverview(TestCase):
             state=BUILD_STATE_FINISHED,
             success=True,
         )
-        self.project.addons.doc_diff_enabled = True
-        self.project.addons.save()
         get(
             BuildCommandResult,
             build=self.current_version_build,
@@ -542,7 +540,7 @@ class TestPostBuildOverview(TestCase):
             📖 3 files changed · 1 added · 1 modified · 1 deleted
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [🔍](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true "Visual diff")
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
 
             ---
@@ -585,15 +583,15 @@ class TestPostBuildOverview(TestCase):
             <summary>📖 11 files changed · 1 added · 9 modified · 1 deleted</summary>
 
             - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html) · [🔍](http://my-project--1.readthedocs.build/en/1/eight.html?readthedocs-diff=true "Visual diff")
-            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html) · [🔍](http://my-project--1.readthedocs.build/en/1/five.html?readthedocs-diff=true "Visual diff")
-            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html) · [🔍](http://my-project--1.readthedocs.build/en/1/four.html?readthedocs-diff=true "Visual diff")
-            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html) · [🔍](http://my-project--1.readthedocs.build/en/1/index.html?readthedocs-diff=true "Visual diff")
-            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html) · [🔍](http://my-project--1.readthedocs.build/en/1/one.html?readthedocs-diff=true "Visual diff")
-            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html) · [🔍](http://my-project--1.readthedocs.build/en/1/seven.html?readthedocs-diff=true "Visual diff")
-            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html) · [🔍](http://my-project--1.readthedocs.build/en/1/six.html?readthedocs-diff=true "Visual diff")
-            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html) · [🔍](http://my-project--1.readthedocs.build/en/1/three.html?readthedocs-diff=true "Visual diff")
-            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html) · [🔍](http://my-project--1.readthedocs.build/en/1/two.html?readthedocs-diff=true "Visual diff")
+            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html)
+            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html)
+            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html)
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
+            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html)
+            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html)
+            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
+            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
             - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             </details>
 
@@ -655,9 +653,7 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_single_kind_truncated_without_visual_diff(self, get_diff, post_comment):
-        self.project.addons.doc_diff_enabled = False
-        self.project.addons.save()
+    def test_post_build_overview_single_kind_truncated(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,

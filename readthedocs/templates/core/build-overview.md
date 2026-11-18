@@ -13,7 +13,7 @@ Markdown inside <details> requires a blank line after </summary>.
 
 {% endif %}{% for file in diff.added|slice:":10" %}- `+` [`{{ file.path }}`]({{ file.url }})
 {% endfor %}{% if diff.added|length > 10 %}- *and {{ diff.added|length|add:"-10" }} more added*
-{% endif %}{% for file in diff.modified|slice:":10" %}- `±` [`{{ file.path }}`]({{ file.url }}){% if file.diff_url %} · [🔍]({{ file.diff_url }} "Visual diff"){% endif %}
+{% endif %}{% for file in diff.modified|slice:":10" %}- `±` [`{{ file.path }}`]({{ file.url }})
 {% endfor %}{% if diff.modified|length > 10 %}- *and {{ diff.modified|length|add:"-10" }} more modified*
 {% endif %}{% for file in diff.deleted|slice:":10" %}- `-` `{{ file.path }}` · [add redirect](https://{{ PRODUCTION_DOMAIN }}{% url "projects_redirects_create" project.slug %}?redirect_type=page&from_url={{ file.redirect_from_url|urlencode }})
 {% endfor %}{% if diff.deleted|length > 10 %}- *and {{ diff.deleted|length|add:"-10" }} more deleted*

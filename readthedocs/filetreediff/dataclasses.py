@@ -142,18 +142,6 @@ class FileTreeDiffFile:
             path = path[: -len("index.html")]
         return path
 
-    @property
-    def diff_url(self):
-        """
-        URL to the file in the current version with Visual diff switched on.
-
-        ``None`` when the project has the Visual diff addon disabled, since the
-        parameter would then do nothing.
-        """
-        if not self.current_version.project.addons.doc_diff_enabled:
-            return None
-        return f"{self.url}?readthedocs-diff=true"
-
 
 class FileTreeDiff:
     """Difference between two file tree manifests."""
