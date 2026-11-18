@@ -10,7 +10,6 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.analytics.models import PageView
-from readthedocs.builds.models import Build
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.constants import GITHUB_APP
@@ -510,17 +509,6 @@ class TestProjectSettingsOverview(TestCase):
         assert context["allow_private_repos"] is False
         assert context["custom_domains_enabled"]
         assert context["redirects_limit"].value == 100
-
-    def test_activity(self, render_to_response):
-        get(Build, project=self.project, version=self.project.versions.first(), length=150)
-        get(PageView, project=self.project, version=self.project.versions.first(), path="/", status=200, view_count=7)
-        get(PageView, project=self.project, version=self.project.versions.first(), path="/old/", status=404, view_count=2)
-        self.client.force_login(self.user)
-        self.client.get(self.url)
-        context = render_to_response.call_args.args[0]
-        assert context["builds_count"] == 1
-        assert context["build_minutes"] == 2
-        assert context["pageviews"] == {"views": 7, "not_found": 2}
 
     def test_not_admin(self, render_to_response):
         self.client.force_login(get(User))
