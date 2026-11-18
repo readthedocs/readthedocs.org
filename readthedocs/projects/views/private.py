@@ -196,6 +196,15 @@ class ProjectMixin(PrivateViewMixin, SuccessMessageMixin, ProjectSpamMixin):
         return self.get_object()
 
 
+class ProjectSettingsOverview(ProjectMixin, DetailView):
+    template_name = "projects/project_settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
+        return context
+
+
 class ProjectUpdate(ProjectMixin, UpdateView):
     form_class = UpdateProjectForm
     success_message = _("Project settings updated")

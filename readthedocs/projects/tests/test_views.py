@@ -4,6 +4,7 @@ from unittest import mock
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
+from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -20,6 +21,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
 )
 from readthedocs.projects.models import Project
+from readthedocs.projects.views.private import ProjectSettingsOverview
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
@@ -489,6 +491,27 @@ class TestGitCheckoutCommandField(TestCase):
         initial = resp.context["form"].initial["git_checkout_command"]
         expected_json = "\n".join(commands)
         self.assertEqual(initial, expected_json)
+
+
+@mock.patch.object(ProjectSettingsOverview, "render_to_response", return_value=HttpResponse())
+class TestProjectSettingsOverview(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user])
+        self.url = reverse("projects_settings", args=[self.project.slug])
+
+    def test_admin(self, render_to_response):
+        self.client.force_login(self.user)
+        resp = self.client.get(self.url)
+        assert resp.status_code == 200
+        context = render_to_response.call_args.args[0]
+        assert context["project"] == self.project
+        assert context["allow_private_repos"] is False
+
+    def test_not_admin(self, render_to_response):
+        self.client.force_login(get(User))
+        resp = self.client.get(self.url)
+        assert resp.status_code == 404
 
 
 class TestProjectDetailView(TestCase):
