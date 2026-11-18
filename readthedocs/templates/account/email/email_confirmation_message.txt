@@ -2,8 +2,10 @@
 
 {% load i18n %}
 
+{% block salutation %}{% trans "Verify your email address" %}{% endblock %}
+
 {% block content %}
-{% trans "To verify your email address and finish setting up your account, please go to:" %}
+{% trans "To finish setting up your Read the Docs account, please verify your email address:" %}
 
 {{ activate_url }}
 

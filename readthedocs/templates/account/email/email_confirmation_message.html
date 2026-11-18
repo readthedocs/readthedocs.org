@@ -2,15 +2,19 @@
 
 {% load i18n %}
 
+{% block salutation %}{% trans "Verify your email address" %}{% endblock %}
+
 {% block content %}
     <p>
-      {% trans "To verify your email address and finish setting up your account, please go to:" %}
+      {% trans "To finish setting up your Read the Docs account, please verify your email address." %}
     </p>
+{% endblock %}
 
-    <p>
-      <a href="{{ activate_url }}">{{ activate_url }}</a>
-    </p>
+{% block action %}
+  {% with action_url=activate_url action_label=_("Verify email address") %}{{ block.super }}{% endwith %}
+{% endblock %}
 
+{% block content-after %}
     <p>
       {% trans "If you did not sign up for an account with Read the Docs, you can disregard this email." %}
     </p>

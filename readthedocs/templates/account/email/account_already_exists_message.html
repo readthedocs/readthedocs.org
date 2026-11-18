@@ -1,23 +1,24 @@
 {% extends "core/email/common.html" %}
 
+{% block salutation %}You already have an account{% endblock %}
+
 {% block content %}
 <p>
-  You are receiving this email because you or someone else tried to signup for
-  an account using email address: {{ email}}.
+  Someone, possibly you, tried to sign up for Read the Docs using <strong>{{ email }}</strong>.
+  An account with this email address already exists.
 </p>
 
 <p>
-  However, an account using that email address already exists. In case you have
-  forgotten about this, please use the password forgotten procedure to recover
-  your account:
+  If you forgot your password, you can reset it to recover your account.
 </p>
+{% endblock %}
 
-<p>
-  <a href="{{ password_reset_url }}">{{ password_reset_url }}</a>
-</p>
+{% block action %}
+  {% with action_url=password_reset_url action_label="Reset password" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
+{% block content-after %}
 <p>
   If you did not sign up for an account with Read the Docs, you can disregard this email.
 </p>
-
 {% endblock %}
