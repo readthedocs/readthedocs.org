@@ -9,6 +9,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
+from django.db.models import Sum
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -202,6 +203,18 @@ class ProjectSettingsOverview(ProjectMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        since = timezone.now() - timezone.timedelta(days=30)
+        builds = self.object.builds.filter(date__gte=since).aggregate(
+            count=Count("id"), seconds=Sum("length")
+        )
+        context["builds_count"] = builds["count"]
+        context["build_minutes"] = (builds["seconds"] or 0) // 60
+        context["pageviews"] = PageView.objects.filter(
+            project=self.object, date__gte=since.date()
+        ).aggregate(
+            views=Sum("view_count", filter=Q(status=200)),
+            not_found=Sum("view_count", filter=Q(status=404)),
+        )
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["custom_domains_enabled"] = bool(get_feature(self.object, TYPE_CNAME))
         context["redirects_limit"] = get_feature(self.object, TYPE_REDIRECTS_LIMIT)
