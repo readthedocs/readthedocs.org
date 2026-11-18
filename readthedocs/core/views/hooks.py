@@ -5,13 +5,12 @@ from typing import Literal
 
 import structlog
 from django.conf import settings
-from django.core.cache import cache
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.core.tasks import dispatch_sync_versions_isolated_task
+from readthedocs.builds.utils import request_run
 from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
@@ -33,10 +32,6 @@ class VersionInfo:
 
 
 log = structlog.get_logger(__name__)
-
-SYNC_DELAY_SECONDS = 3
-# Longer than the delay, so a lost task doesn't block syncs for the project.
-SYNC_PENDING_TIMEOUT = 60
 
 
 def build_versions_from_names(project, versions_info: list[VersionInfo]):
@@ -148,28 +143,17 @@ def trigger_sync_versions(project):
     return None
 
 
-def _sync_pending_cache_key(project):
-    return f"rtd-sync-repository-isolated:{project.slug}"
+def sync_versions_run_key(project):
+    return f"rtd-sync-repository-isolated:{project.pk}"
 
 
 def _trigger_sync_versions_isolated(project):
-    """
-    Schedule a version sync on the build-isolated fleet.
-
-    The sync is dispatched a few seconds later,
-    so one sync covers every event that arrives before it starts.
-    """
-    if cache.add(_sync_pending_cache_key(project), True, SYNC_PENDING_TIMEOUT):
-        dispatch_sync_versions_isolated_task.apply_async(
-            args=[project.pk],
-            countdown=SYNC_DELAY_SECONDS,
-        )
-
-
-def dispatch_sync_versions_isolated(project):
     """Dispatch the version sync to the build-isolated fleet."""
-    # This sync may read the repository before later events, so they schedule their own.
-    cache.delete(_sync_pending_cache_key(project))
+    if not request_run(sync_versions_run_key(project)):
+        # A sync is already running and may have read the repository before
+        # this event, ``sync_versions_task`` runs one more when it finishes.
+        log.info("Sync already running, it will run again when it finishes.")
+        return
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
     app.send_task(

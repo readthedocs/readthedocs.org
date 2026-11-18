@@ -116,3 +116,30 @@ def memcache_lock(lock_id, lock_expire, app_identifier):
             # owned by someone else
             # also don't release the lock if we didn't acquire it
             cache.delete(lock_id)
+
+
+def request_run(key, timeout=60):
+    """
+    Ask to run a job that recomputes everything from scratch, like a version sync.
+
+    Returns ``True`` if the caller should start the job now.
+    If the job is already running it returns ``False`` and marks it as dirty,
+    so ``finish_run`` asks for one more run that covers this request.
+
+    ``timeout`` is how long a job that never calls ``finish_run`` blocks new runs.
+    """
+    if cache.add(f"{key}:running", True, timeout):
+        return True
+    cache.set(f"{key}:dirty", True, timeout * 10)
+    return False
+
+
+def finish_run(key):
+    """
+    Mark the job as finished.
+
+    Returns ``True`` if it was requested again while running,
+    and the caller should request another run.
+    """
+    cache.delete(f"{key}:running")
+    return cache.delete(f"{key}:dirty")

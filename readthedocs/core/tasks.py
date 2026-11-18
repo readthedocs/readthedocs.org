@@ -49,17 +49,6 @@ def send_email_task(recipient, subject, content, content_html=None, from_email=N
 
 
 @app.task(queue="web")
-def dispatch_sync_versions_isolated_task(project_pk):
-    """Dispatch a version sync that was scheduled by a webhook a few seconds ago."""
-    from readthedocs.core.views.hooks import dispatch_sync_versions_isolated
-    from readthedocs.projects.models import Project
-
-    project = Project.objects.filter(pk=project_pk).first()
-    if project:
-        dispatch_sync_versions_isolated(project)
-
-
-@app.task(queue="web")
 def cleanup_pidbox_keys():
     """
     Remove "pidbox" reply lists from Redis.
