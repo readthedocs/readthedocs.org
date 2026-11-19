@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildConfig, Version
 from readthedocs.filetreediff.dataclasses import FileTreeDiffManifest, FileTreeDiffManifestFile
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
@@ -53,6 +53,10 @@ class ImportedFileTests(TestCase):
         except Exception:
             # If the index already exists, the init fails.
             pass
+
+    def set_build_config(self, data):
+        self.build.readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=data)
+        self.build.save()
 
     def tearDown(self):
         # Delete index
@@ -170,14 +174,13 @@ class ImportedFileTests(TestCase):
             self.assertEqual(result.rank, 0)
 
     def test_page_custom_rank_glob(self):
-        self.build.config = {
+        self.set_build_config({
             "search": {
                 "ranking": {
                     "*index.html": 5,
                 }
             }
-        }
-        self.build.save()
+        })
         sync_id = index_build(self.build.pk)
 
         results = (
@@ -198,15 +201,14 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 0, result.path)
 
     def test_page_custom_rank_several(self):
-        self.build.config = {
+        self.set_build_config({
             "search": {
                 "ranking": {
                     "test.html": 5,
                     "api/index.html": 2,
                 }
             }
-        }
-        self.build.save()
+        })
         sync_id = index_build(self.build.pk)
 
         results = (
@@ -229,15 +231,14 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 0)
 
     def test_page_custom_rank_precedence(self):
-        self.build.config = {
+        self.set_build_config({
             "search": {
                 "ranking": {
                     "*.html": 5,
                     "api/index.html": 2,
                 }
             }
-        }
-        self.build.save()
+        })
         sync_id = index_build(self.build.pk)
 
         results = (
@@ -258,15 +259,14 @@ class ImportedFileTests(TestCase):
                 self.assertEqual(result.rank, 5, result.path)
 
     def test_page_custom_rank_precedence_inverted(self):
-        self.build.config = {
+        self.set_build_config({
             "search": {
                 "ranking": {
                     "api/index.html": 2,
                     "*.html": 5,
                 }
             }
-        }
-        self.build.save()
+        })
         sync_id = index_build(self.build.pk)
 
         results = (
@@ -284,12 +284,11 @@ class ImportedFileTests(TestCase):
             self.assertEqual(result.rank, 5)
 
     def test_search_page_ignore(self):
-        self.build.config = {
+        self.set_build_config({
             "search": {
                 "ignore": ["api/index.html"],
             }
-        }
-        self.build.save()
+        })
         index_build(self.build.pk)
 
         self.assertEqual(
