@@ -2009,7 +2009,7 @@ class APIImportTests(TestCase):
         self.assertEqual(len(repos), 0)
 
 
-@mock.patch("readthedocs.core.views.hooks.trigger_build")
+@mock.patch("readthedocs.core.views.hooks.trigger_build", return_value=(None, mock.sentinel.build))
 class IntegrationsTests(TestCase):
 
     """Integration for webhooks, etc."""

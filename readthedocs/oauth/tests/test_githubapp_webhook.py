@@ -451,7 +451,9 @@ class TestGitHubAppWebhook(TestCase):
             kwargs={"build_api_key": mock.ANY},
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch(
+        "readthedocs.core.views.hooks.trigger_build", return_value=(None, mock.sentinel.build)
+    )
     def test_push_branch(self, trigger_build):
         payload = {
             "installation": {
@@ -481,11 +483,60 @@ class TestGitHubAppWebhook(TestCase):
         exchange = integration.exchanges.get()
         assert exchange.request_headers["X-GitHub-Event"] == "push"
         version_slugs = ", ".join(sorted([self.version_main.slug, self.version_latest.slug]))
-        assert json.loads(exchange.response_body) == {
-            "detail": f"Triggering build for: {version_slugs}."
-        }
+        assert exchange.response_detail == f"Push to main: Triggered builds: {version_slugs}."
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch("readthedocs.core.views.hooks.trigger_build", return_value=(None, None))
+    def test_push_branch_build_skipped(self, trigger_build):
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        r = self.post_webhook("push", payload)
+        assert r.status_code == 200
+
+        integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
+        version_slugs = ", ".join(sorted([self.version_main.slug, self.version_latest.slug]))
+        assert (
+            integration.exchanges.get().response_detail
+            == f"Push to main: Not built (inactive or skipped): {version_slugs}."
+        )
+
+    @mock.patch("readthedocs.core.views.hooks.trigger_build", side_effect=Exception)
+    def test_push_branch_failed(self, trigger_build):
+        payload = {
+            "installation": {
+                "id": self.installation.installation_id,
+                "target_id": self.installation.target_id,
+                "target_type": self.installation.target_type,
+            },
+            "created": False,
+            "deleted": False,
+            "ref": "refs/heads/main",
+            "repository": {
+                "id": self.remote_repository.remote_id,
+                "full_name": self.remote_repository.full_name,
+            },
+        }
+        self.post_webhook("push", payload)
+
+        integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
+        exchange = integration.exchanges.get()
+        assert exchange.status_code == 500
+        assert exchange.response_detail == "Push to main: Failed to handle event."
+
+    @mock.patch(
+        "readthedocs.core.views.hooks.trigger_build", return_value=(None, mock.sentinel.build)
+    )
     def test_push_tag(self, trigger_build):
         payload = {
             "installation": {
@@ -554,7 +605,7 @@ class TestGitHubAppWebhook(TestCase):
         exchange = integration.exchanges.get()
         assert exchange.request_headers["X-GitHub-Event"] == "pull_request"
         assert json.loads(exchange.request_body) == payload
-        assert exchange.response_detail == f"Triggered build {build.pk} for pull request 1."
+        assert exchange.response_detail == f"Pull request #1: Triggered build {build.pk}."
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_pr_previews_disabled(self, trigger_build):
@@ -589,9 +640,9 @@ class TestGitHubAppWebhook(TestCase):
 
         integration = self.project.integrations.get(integration_type=Integration.GITHUBAPP)
         exchange = integration.exchanges.get()
-        assert json.loads(exchange.response_body) == {
-            "detail": "Skipping, pull request previews are disabled."
-        }
+        assert (
+            exchange.response_detail == "Pull request #1: Skipped, pull request previews are disabled."
+        )
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_direct_upload_project(self, trigger_build):
@@ -1331,7 +1382,9 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
         # Should NOT trigger because branch 'main' doesn't match '^release-.*$'
         trigger_build.assert_not_called()
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch(
+        "readthedocs.core.views.hooks.trigger_build", return_value=(None, mock.sentinel.build)
+    )
     def test_push_branch_without_webhook_rules(self, trigger_build):
         """Test that push triggers build normally when no AutomationRules exist."""
         # No automation rules - should trigger build as usual
@@ -1738,7 +1791,9 @@ class TestGitHubAppWebhookWithAutomationRules(TestCase):
             from_webhook=True,
         )
 
-    @mock.patch("readthedocs.core.views.hooks.trigger_build")
+    @mock.patch(
+        "readthedocs.core.views.hooks.trigger_build", return_value=(None, mock.sentinel.build)
+    )
     def test_push_branch_with_pr_only_webhook_rule(self, trigger_build):
         """Test that a rule for PRs (EXTERNAL) doesn't skip push builds for branches."""
         # Create a webhook automation rule that only matches PRs (EXTERNAL),
