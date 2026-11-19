@@ -95,6 +95,7 @@ from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.search.models import SearchQuery
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.constants import TYPE_PAGEVIEW_ANALYTICS
+from readthedocs.subscriptions.constants import TYPE_REDIRECTS_LIMIT
 from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 from readthedocs.subscriptions.products import get_feature
 
@@ -195,6 +196,17 @@ class ProjectMixin(PrivateViewMixin, SuccessMessageMixin, ProjectSpamMixin):
         Used by the ProjectSpamMixin class.
         """
         return self.get_object()
+
+
+class ProjectSettingsOverview(ProjectMixin, DetailView):
+    template_name = "projects/project_settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
+        context["custom_domains_enabled"] = bool(get_feature(self.object, TYPE_CNAME))
+        context["redirects_limit"] = get_feature(self.object, TYPE_REDIRECTS_LIMIT)
+        return context
 
 
 class ProjectUpdate(ProjectMixin, UpdateView):
