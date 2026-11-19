@@ -1,16 +1,19 @@
 {% extends 'core/email/common.html' %}
+
+{% block salutation %}You've been invited{% endblock %}
+
 {% block content %}
 <p>
-  {{ from_name }} has invited you to join the {{ object_description }}.
-  You can accept or decline this invitation using the following link:
+  {{ from_name }} has invited you to join the <strong>{{ object_description }}</strong>.
+  You can accept or decline this invitation using the button below.
 </p>
+{% endblock %}
 
-<p>
-  <a href="{{ uri }}{{ invite_url }}">
-    {{ uri }}{{ invite_url }}
-  </a>
-</p>
+{% block action %}
+  {% with action_url=uri|add:invite_url action_label="View invitation" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
+{% block content-after %}
 <p>
   This invitation will expire in <span title="{{ expiration_date }}">{{ valid_until }}</span>.
 </p>

@@ -74,7 +74,7 @@ class TestTasks(TestCase):
 
     @mock.patch("readthedocs.notifications.email.send_email")
     def test_email_pending_emails(self, send_email):
-        subject = "Pending configuration of custom domain"
+        subject = "Custom domain validation has ended"
         email_pending_custom_domains.delay(number_of_emails=3)
         self.assertEqual(send_email.call_count, 2)
 

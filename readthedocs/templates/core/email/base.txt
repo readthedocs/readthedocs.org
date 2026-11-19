@@ -3,7 +3,8 @@
 
 {% block content %}{% endblock %}
 
-{% block signature %}Keep documenting,
-Read the Docs{% endblock %}
+{% block signature %}{% trans "Keep documenting," %}
+{% trans "The Read the Docs team" %}{% endblock %}
 --
-{% block footer %}http://readthedocs.org{% endblock %}
+{% block footer %}Read the Docs Community
+https://about.readthedocs.com{% endblock %}

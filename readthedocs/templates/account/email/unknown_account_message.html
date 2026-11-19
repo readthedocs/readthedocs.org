@@ -1,21 +1,24 @@
 {% extends "core/email/common.html" %}
 
+{% block salutation %}No account found{% endblock %}
+
 {% block content %}
 <p>
-  You are receiving this email because you or someone else has requested a
-  password for your user account. However, we do not have any record of a user
-  with email {{ email }} in our database.
+  Someone, possibly you, requested a password reset for <strong>{{ email }}</strong>,
+  but there is no Read the Docs account with this email address.
 </p>
 
 <p>
-  This mail can be safely ignored if you did not request a password reset.
+  If it was you, you can sign up for an account instead.
 </p>
+{% endblock %}
 
-<p>
-  If it was you, you can sign up for an account using the link below.
-</p>
+{% block action %}
+  {% with action_url=signup_url action_label="Sign up" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
+{% block content-after %}
 <p>
-  <a href="{{ signup_url }}">{{ signup_url }}</a>
+  If you did not request a password reset, you can safely ignore this email.
 </p>
 {% endblock %}
