@@ -893,6 +893,7 @@ class GitHubAppWebhookHandler:
         for project in remote_repository.projects.all():
             structlog.contextvars.bind_contextvars(project_slug=project.slug)
             yield project
+        structlog.contextvars.unbind_contextvars("project_slug")
 
     def _get_remote_repository(self):
         """
