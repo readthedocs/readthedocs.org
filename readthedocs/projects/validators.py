@@ -44,13 +44,15 @@ class RepositoryURLValidator:
     re_git_user = re.compile(r"^[\w]+@.+")
 
     def __call__(self, value):
-        public_schemes = ["https", "http", "git"]
+        public_schemes = ["https", "http"]
         private_schemes = ["ssh", "ssh+git"]
-        local_schemes = ["file"]
-        valid_schemes = public_schemes
+        # ``git://`` is unauthenticated and unencrypted, only allow it in dev
+        # so a local repository can be served with ``git daemon``.
+        local_schemes = ["file", "git"]
+        valid_schemes = list(public_schemes)
         if settings.ALLOW_PRIVATE_REPOS:
             valid_schemes += private_schemes
-        if settings.DEBUG:  # allow `file://` urls in dev
+        if settings.DEBUG:
             valid_schemes += local_schemes
         url = urlparse(value)
 

@@ -1,33 +1,41 @@
+from datetime import timedelta
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDToken
+from readthedocs.builds.constants import ALL_VERSIONS
 from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATE_BUILDING
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import AutomationRule
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
 from readthedocs.upload.api.serializers import UploadStatus
 
 
@@ -173,6 +181,29 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
 
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_url_max_size(self, storages_mock, send_build_status):
+        storage_mock = self._mock_storage(storages_mock)
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        max_size = storage_mock.generate_presigned_post.call_args.kwargs["max_size"]
+        assert max_size == settings.RTD_UPLOAD_API_MAX_UPLOAD_SIZE
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload_url_max_size_project_override(self, storages_mock, send_build_status):
+        storage_mock = self._mock_storage(storages_mock)
+        self.project.max_build_media_size = 5 * 1024 * 1024 * 1024
+        self.project.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        max_size = storage_mock.generate_presigned_post.call_args.kwargs["max_size"]
+        assert max_size == 5 * 1024 * 1024 * 1024
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
     def test_reuses_existing_version(self, storages_mock, send_build_status):
         self._mock_storage(storages_mock)
         version = get(
@@ -255,7 +286,9 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
     @mock.patch("readthedocs.core.utils.app")
     @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
     @mock.patch("readthedocs.upload.api.views.storages")
-    def test_cancels_running_builds_for_same_version(self, storages_mock, send_build_status, app_mock):
+    def test_cancels_running_builds_for_same_version(
+        self, storages_mock, send_build_status, app_mock
+    ):
         self._mock_storage(storages_mock)
         version = get(
             Version,
@@ -293,6 +326,198 @@ class UploadInitiateViewTests(UploadAPIEndpointMixin):
         response = self.client.post(self.url, self.data)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["upload_url"]["url"] == "http://127.0.0.1/build-uploads"
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_goes_to_latest(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        self.project.default_branch = "main"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        latest.active = False
+        latest.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        assert response.data["version"]["id"] == latest.pk
+        assert not self.project.versions.filter(verbose_name="main", type=BRANCH).exists()
+
+        latest.refresh_from_db()
+        assert latest.active
+        assert latest.machine
+        assert latest.privacy_level == PUBLIC
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_tag_upload_goes_to_latest(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        # "latest" can track a tag: the default branch setting accepts tag names.
+        get(Version, project=self.project, verbose_name="v1.0", identifier="v1.0", type=TAG)
+        self.project.default_branch = "v1.0"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        assert latest.type == TAG
+
+        self.data["version"] = {"name": "v1.0", "type": TAG, "commit": "a" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["version"]["id"] == latest.pk
+
+        # A branch with the same name is a different version.
+        self.data["version"]["type"] = BRANCH
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["version"]["id"] != latest.pk
+        assert self.project.versions.filter(verbose_name="v1.0", type=BRANCH).exists()
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_keeps_user_managed_latest(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        self.project.default_branch = "main"
+        self.project.save()
+        latest = self.project.get_latest_version()
+        latest.machine = False
+        latest.save()
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        version = self.project.versions.get(verbose_name="main", type=BRANCH)
+        assert response.data["version"]["id"] == version.pk
+        assert version.pk != latest.pk
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_default_branch_upload_has_no_alias_on_direct_upload_project(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            is_direct_upload=True,
+            default_branch="main",
+        )
+        self.feature.projects.add(project)
+        self.organization.projects.add(project)
+        # Even with a machine-managed "latest" around, the uploaded name is the version.
+        latest = project.versions.create_latest(identifier="main")
+        self.data["project"] = project.slug
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        version = project.versions.get(verbose_name="main", type=BRANCH)
+        assert response.data["version"]["id"] == version.pk
+        assert version.pk != latest.pk
+        latest.refresh_from_db()
+        assert latest.machine
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_first_upload_is_default_version_on_direct_upload_project(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            is_direct_upload=True,
+        )
+        self.feature.projects.add(project)
+        self.organization.projects.add(project)
+        # Direct upload projects don't get "latest" on creation.
+        assert not project.versions.exists()
+        self.data["project"] = project.slug
+
+        # A pull request preview uploaded first never becomes the default.
+        self.data["version"] = {"name": "123", "type": EXTERNAL, "commit": "b" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        project.refresh_from_db()
+        assert project.default_version == LATEST
+        assert not project.notifications.filter(
+            message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+        ).exists()
+
+        # The first branch or tag does, and the user is told.
+        self.data["version"] = {"name": "main", "type": BRANCH, "commit": "a" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        project.refresh_from_db()
+        assert project.default_version == "main"
+        notification = project.notifications.get(
+            message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+        )
+        assert notification.format_values == {"version": "main"}
+
+        # A second version doesn't change the default.
+        self.data["version"] = {"name": "v1", "type": TAG, "commit": "c" * 40}
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        project.refresh_from_db()
+        assert project.default_version == "main"
+        assert (
+            project.notifications.filter(
+                message_id=MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD
+            ).count()
+            == 1
+        )
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_automation_rules_run_on_projects_built_by_readthedocs(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        get(
+            AutomationRule,
+            project=self.project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.HIDE_VERSION_ACTION,
+            version_types=[BRANCH],
+        )
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        version = self.project.versions.get(verbose_name="main", type=BRANCH)
+        assert version.hidden
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_automation_rules_dont_run_on_direct_upload_projects(
+        self, storages_mock, send_build_status
+    ):
+        self._mock_storage(storages_mock)
+        project = get(
+            Project,
+            slug="direct-upload",
+            users=[self.user],
+            is_direct_upload=True,
+        )
+        self.feature.projects.add(project)
+        self.organization.projects.add(project)
+        get(
+            AutomationRule,
+            project=project,
+            priority=0,
+            version_predefined_match_pattern=ALL_VERSIONS,
+            action=AutomationRule.HIDE_VERSION_ACTION,
+            version_types=[BRANCH],
+        )
+        self.data["project"] = project.slug
+
+        response = self.client.post(self.url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        version = project.versions.get(verbose_name="main", type=BRANCH)
+        assert not version.hidden
 
 
 class UploadCompleteViewTests(UploadAPIEndpointMixin):
@@ -406,3 +631,143 @@ class UploadCompleteViewTests(UploadAPIEndpointMixin):
         app_mock.send_task.assert_called_once()
         call_kwargs = app_mock.send_task.call_args.kwargs
         assert call_kwargs["kwargs"]["build_pk"] == self.build.id
+
+
+@override_settings(ALLOW_PRIVATE_REPOS=False)
+class UploadRTDTokenTests(UploadAPIEndpointMixin):
+    def setUp(self):
+        super().setUp()
+        self.project_token, self.plain_token = RTDToken.objects.create_token(
+            name="upload",
+            project=self.project,
+            permissions=[ProjectPermission.UPLOAD],
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.plain_token}")
+        self.initiate_url = reverse("upload-api-initiate")
+        self.complete_url = reverse("upload-api-complete")
+        self.data = {
+            "version": {
+                "name": "main",
+                "type": BRANCH,
+                "commit": "a" * 40,
+            },
+        }
+
+    def _mock_storage(self, storages_mock):
+        storage_mock = storages_mock.__getitem__.return_value
+        storage_mock.generate_presigned_post.return_value = {
+            "url": "https://storage.example.com/build-uploads",
+            "fields": {"key": "project/1/artifacts.zip"},
+        }
+        storage_mock.exists.return_value = True
+        return storage_mock
+
+    @mock.patch("readthedocs.core.utils.app")
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_upload(self, storages_mock, send_build_status, app_mock):
+        self._mock_storage(storages_mock)
+        app_mock.send_task.return_value = mock.Mock(id="task-id-123")
+
+        # The project is inferred from the token.
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+        build = Build.objects.get(pk=response.data["build"]["id"])
+        assert build.project == self.project
+
+        response = self.client.post(
+            self.complete_url,
+            {"build": build.pk, "status": UploadStatus.success.value},
+        )
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        build.refresh_from_db()
+        assert build.task_id == "task-id-123"
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_initiate_with_project(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        self.data["project"] = self.project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_initiate_with_another_project(self):
+        other_project = get(Project, slug="other-project", users=[self.user])
+        self.feature.projects.add(other_project)
+        self.data["project"] = other_project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_complete_build_from_another_project(self):
+        other_project = get(Project, slug="other-project", users=[self.user])
+        other_build = get(
+            Build,
+            project=other_project,
+            version=get(Version, project=other_project),
+            state=BUILD_STATE_TRIGGERED,
+            is_uploaded=True,
+            task_id=None,
+        )
+        response = self.client.post(
+            self.complete_url,
+            {"build": other_build.pk, "status": UploadStatus.success.value},
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_token_without_project(self):
+        self.project_token.project = None
+        self.project_token.save()
+
+        # The project can't be inferred from the token.
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # And the token doesn't have access to any project.
+        self.data["project"] = self.project.slug
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_token_without_upload_permission(self):
+        # Upload is the only permission for now, and tokens without permissions
+        # can't be saved, use an update to simulate a token with other permissions.
+        RTDToken.objects.filter(pk=self.project_token.pk).update(permissions=[])
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.plain_token}x")
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_token_from_another_platform(self):
+        # The token isn't one of ours, it's left to the user token authentication.
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
+            response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_expired_token(self):
+        self.project_token.expires_at = timezone.now() - timedelta(days=1)
+        self.project_token.save()
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_revoked_token(self):
+        self.project_token.revoke()
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_user_token_requires_project(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(self.initiate_url, self.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "project" in response.data
+
+    @mock.patch("readthedocs.projects.tasks.utils.send_build_status")
+    @mock.patch("readthedocs.upload.api.views.storages")
+    def test_not_throttled_as_anonymous(self, storages_mock, send_build_status):
+        self._mock_storage(storages_mock)
+        # The anonymous rate is 5/minute, the user rate is 60/minute.
+        for i in range(10):
+            self.data["version"]["name"] = f"v{i}"
+            response = self.client.post(self.initiate_url, self.data)
+            assert response.status_code == status.HTTP_201_CREATED

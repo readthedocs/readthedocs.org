@@ -20,21 +20,32 @@ Direct upload is useful when:
 
 .. note::
 
-   **Direct upload is currently a beta testing feature.** It has to be enabled on your project, and we ask that you give us feedback on it.
-   :doc:`Contact support </support>` to enable it on your project.
+   **Direct upload is currently a beta feature.** We'd love to hear your feedback on it.
 
 Prerequisites
 -------------
 
-* A project on Read the Docs, with direct upload enabled by our support team.
-* An :ref:`API token <api/v3:Token>` belonging to a user with admin access to the project.
+* A project on Read the Docs that uses direct upload.
+  When :doc:`adding your project </intro/add-project>`,
+  choose :guilabel:`Build externally and upload` in the configuration step.
+  To enable direct upload on an existing project, :doc:`contact support </support>`.
+* An API token for your project.
   Store it as a secret in your continuous integration service.
 
-.. note::
+To create an API token for your project:
 
-   We are working on project-scoped tokens,
-   which give access to a single project instead of everything the user can access.
-   They will be released soon, and we recommend switching to them once available.
+#. Go to the :guilabel:`Settings` of your project.
+#. Click on :guilabel:`API tokens`.
+#. Click on :guilabel:`Add API token`.
+#. Choose a name, the :guilabel:`Upload documentation` permission, and when the token expires.
+#. Copy the token. It's only shown once.
+
+A project API token only gives access to your project,
+and lets you leave out the project slug when uploading,
+since the token already identifies the project.
+You can also use your personal :ref:`API token <api/v3:Token>`,
+but it gives access to everything your user has access to.
+On |com_brand|, a personal API token also requires :ref:`setting the API URL <guides/build/direct-upload:Read the Docs Business>`.
 
 Uploading from GitHub Actions
 -----------------------------
@@ -47,11 +58,16 @@ after the step that builds your documentation:
 
    name: Docs
 
+   # Adapt these triggers to the branches, tags and paths you want to publish.
    on:
      push:
        branches: [main]
        tags: ["v*"]
+       paths:
+         - "docs/**"
      pull_request:
+       paths:
+         - "docs/**"
 
    jobs:
      docs:
@@ -59,15 +75,15 @@ after the step that builds your documentation:
        # Pull requests from forks don't have access to secrets.
        # Do not use ``pull_request_target`` to work around this because it would run
        # the pull request's code with access to your token.
-       if: github.event.pull_request.head.repo.full_name == github.repository
+       if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
        steps:
-         - uses: actions/checkout@v5
+         - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
          # Build your documentation using the tool you are already using
          #
          # Building with Sphinx as example:
          #
-         # - uses: actions/setup-python@v6
+         # - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
          #   with:
          #     python-version: "3.14"
          # - run: pip install -r docs/requirements.txt
@@ -87,6 +103,15 @@ The upload action detects the branch, tag or pull request from the workflow even
 so a push to ``main`` updates the ``main`` version,
 a new tag creates a new version,
 and a pull request creates a :doc:`pull request preview </pull-requests>`.
+See :ref:`guides/build/direct-upload:Versions` for how uploaded versions behave.
+
+The ``paths`` filters make the workflow run only when the documentation or its dependencies change.
+Adjust them to match your repository layout,
+or remove them to upload on every push and pull request.
+
+The example pins the third-party actions to a commit hash, as GitHub recommends.
+Do the same for the upload action by replacing ``@v1`` with the full commit hash of a release,
+as described in the `action's README <https://github.com/readthedocs/upload-action#versioning>`__.
 
 
 Uploading from any other environment
@@ -145,6 +170,126 @@ They are shown in the :term:`flyout menu` like any other :doc:`downloadable form
           --html _build/html \
           --pdf _build/latex/documentation.pdf \
           --epub _build/epub/documentation.epub
+
+Read the Docs Business
+----------------------
+
+Direct upload works the same way on |com_brand|.
+Project API tokens identify the platform they belong to,
+so the upload action and the command line client send your upload to |com_brand| without any extra configuration.
+
+If you use your personal API token instead,
+set the API URL to ``https://app.readthedocs.com``:
+
+.. tabs::
+
+   .. code-tab:: yaml GitHub Actions
+
+      - uses: readthedocs/upload-action@v1
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          api-url: https://app.readthedocs.com
+          project-slug: <your-project-slug>
+          html: _build/html
+
+   .. code-tab:: console Command line
+
+      $ readthedocs --api-url https://app.readthedocs.com upload \
+          --project-slug <your-project-slug> \
+          --html _build/html
+
+The command line client also reads the API URL from the ``READTHEDOCS_API_URL`` environment variable.
+
+Privacy levels
+~~~~~~~~~~~~~~
+
+Uploaded versions are private by default.
+To publish a public version, set the :doc:`privacy level </commercial/privacy-level>` when uploading:
+
+.. tabs::
+
+   .. code-tab:: yaml GitHub Actions
+
+      - uses: readthedocs/upload-action@v1
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          project-slug: <your-project-slug>
+          html: _build/html
+          privacy-level: public
+
+   .. code-tab:: console Command line
+
+      $ readthedocs upload \
+          --project-slug <your-project-slug> \
+          --html _build/html \
+          --privacy-level public
+
+Every upload sets the privacy level of the version,
+so an upload without it makes the version private again,
+even if you made it public from the version settings.
+Set the privacy level on every upload of a public version.
+
+Versions
+--------
+
+Uploaded versions behave differently depending on whether the project is built by Read the Docs or not.
+
+Projects that only use direct upload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On a project that only uses direct upload, every version comes from an upload,
+and the name you upload is the version you get:
+uploading ``main`` publishes ``main``, uploading ``v1.0`` publishes ``v1.0``.
+Read the Docs does not create versions from your repository, and it does not create the ``latest`` and ``stable`` aliases.
+
+Default version
+   The first branch or tag you upload becomes the :term:`default version`,
+   so the root of your documentation works right away.
+   Pull request previews never become the default.
+
+``latest`` and ``stable``
+   If you want these names, upload them from your pipeline.
+   For example, to publish ``stable`` from every tag in addition to the tag itself,
+   add a second upload step that only runs on tags:
+
+   .. code-block:: yaml
+
+      - uses: readthedocs/upload-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.READTHEDOCS_TOKEN }}
+          project-slug: <your-project-slug>
+          html: _build/html
+          version-name: stable
+
+Deactivating a version
+   Deactivating an uploaded version deletes it, together with its documentation.
+   Upload it again to publish it again.
+
+Automation rules
+   :doc:`Automation rules </automation-rules>` do not run on projects that only use direct upload.
+   Hide, activate or set the default version from the project settings,
+   or from your pipeline through the :doc:`API </api/v3>`.
+   On a project built by Read the Docs, uploading a version runs the automation rules as usual.
+
+Projects built by Read the Docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On a project that Read the Docs builds from your repository, you can upload any single version
+while the rest of the project keeps being built as before.
+
+The version doesn't need to exist before the first upload.
+A branch, tag or pull request that Read the Docs doesn't know yet is created by the upload.
+Uploading the branch that ``latest`` tracks updates ``latest`` version.
+
+Once a version has been uploaded, Read the Docs stops building it.
+Pushes to the branch, new commits on the pull request and manual builds don't trigger anything for that version,
+so every later update has to come through an upload as well.
+
+To have Read the Docs build an uploaded version again,
+uncheck :guilabel:`Uploaded` in the version settings.
+The uploaded files are removed, a build is triggered,
+and the version is available again when that build succeeds.
 
 Limits
 ------

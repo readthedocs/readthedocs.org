@@ -4,9 +4,9 @@
 You can find out more about this failure here:
 {{ build_url }}
 
-A good place to start debugging this error is our build troubleshooting guide: https://docs.readthedocs.io/page/guides/build-troubleshooting.html
+A good place to start debugging this error is our build troubleshooting guide: https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html
 
-We also suggest reading our build process overview to get a better sense for how the builds are executed: https://docs.readthedocs.io/page/builds.html
+We also suggest reading our build process overview to get a better sense for how the builds are executed: https://docs.readthedocs.com/platform/stable/builds.html
 
 You can unsubscribe from these emails in your notification settings: {{ unsubscribe_url }}.
 

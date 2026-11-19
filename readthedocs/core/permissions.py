@@ -65,7 +65,7 @@ class AdminPermissionBase:
 
             # SECURITY: don't chain filters when filtering by related models
             # (query.filter(teams__members=user).filter(teams__access='admin')),
-            # that produces two seprate joins and will return projects where the user is a member,
+            # that produces two separate joins and will return projects where the user is a member,
             # as long as the project belongs to a team with admin access, even if the user is not
             # a member of that team.
             projects_from_teams = Project.objects.filter(team_filters).exclude(

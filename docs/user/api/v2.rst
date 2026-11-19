@@ -42,7 +42,7 @@ Projects are built when there are changes to the code
 and the resulting documentation is hosted and served by Read the Docs.
 
 As an example, this documentation is part of the `Docs project`_
-which has documentation at https://docs.readthedocs.io.
+which has documentation at https://docs.readthedocs.com/platform/stable/.
 
 You can always view your Read the Docs projects in your `project dashboard`_.
 

@@ -157,7 +157,7 @@ def do_not_track(request):
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response
         {
-            "policy": "https://docs.readthedocs.io/en/latest/privacy-policy.html",
+            "policy": "https://docs.readthedocs.com/platform/stable/privacy-policy.html",
             "same-party": [
                 "readthedocs.org",
                 "readthedocs.com",

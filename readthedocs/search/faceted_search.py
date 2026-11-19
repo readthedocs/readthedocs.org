@@ -345,6 +345,9 @@ class PageSearch(RTDFacetedSearch):
 
         return Nested(
             path=path,
+            # Score the page by its best matching section,
+            # the default (avg) penalizes pages whose other sections match weakly.
+            score_mode="max",
             inner_hits={"highlight": highlight, "size": limit},
             query=bool_query,
         )

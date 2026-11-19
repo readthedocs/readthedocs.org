@@ -84,6 +84,8 @@ from .serializers import TeamSerializer
 from .serializers import UserSerializer
 from .serializers import VersionSerializer
 from .serializers import VersionUpdateSerializer
+from .throttling import PollingAnonRateThrottle
+from .throttling import PollingUserRateThrottle
 
 
 class APIv3Settings:
@@ -377,6 +379,7 @@ class VersionsViewSet(
         # Get the current values before updating.
         version = self.get_object()
         was_active = version.active
+        was_uploaded = version.is_uploaded
         previous_slug = version.slug
 
         result = super().update(request, *args, **kwargs)
@@ -393,12 +396,23 @@ class VersionsViewSet(
             version.clean_resources(version_slug=previous_slug)
             was_active = False
 
-        version.post_save(was_active=was_active)
+        version.post_save(was_active=was_active, was_uploaded=was_uploaded)
         return result
 
     def get_queryset(self):
-        """Overridden to allow internal versions only."""
-        return super().get_queryset().exclude(type=EXTERNAL)
+        """Overridden to allow internal versions only.
+
+        Orders results with "latest" first, "stable" second,
+        then remaining versions in ascending alphabetical order.
+        """
+        # The serializer reads ``version.project`` for every URL it builds.
+        return (
+            super()
+            .get_queryset()
+            .exclude(type=EXTERNAL)
+            .select_related("project")
+            .sort_version_aware_naive()
+        )
 
 
 class BuildsViewSet(
@@ -414,9 +428,15 @@ class BuildsViewSet(
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    throttle_classes = (PollingUserRateThrottle, PollingAnonRateThrottle)
     permit_list_expands = [
         "config",
     ]
+
+    def get_queryset(self):
+        # The serializer reads ``build.version`` and ``build.project``
+        # for every build in the list.
+        return super().get_queryset().select_related("version", "project")
 
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
@@ -547,6 +567,7 @@ class NotificationsBuildViewSet(
     # on public builds (the queryset will filter them out).
     # We allow project admins to edit notifications.
     permission_classes = [ReadOnlyPermission | (IsAuthenticated & IsProjectAdmin)]
+    throttle_classes = (PollingUserRateThrottle, PollingAnonRateThrottle)
 
     def get_queryset(self):
         build = self._get_parent_build()

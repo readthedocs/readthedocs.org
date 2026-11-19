@@ -1,6 +1,5 @@
 """Analytics views that are served from the same domain as the docs."""
 
-from functools import lru_cache
 from urllib.parse import urlparse
 
 import structlog
@@ -17,6 +16,7 @@ from readthedocs.core.unresolver import InvalidPathForVersionedProjectError
 from readthedocs.core.unresolver import UnresolverError
 from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.models import Project
 from readthedocs.proxito.views.hosting import IsAuthorizedToViewProject
@@ -42,13 +42,13 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     http_method_names = ["get"]
     permission_classes = [IsAuthorizedToViewProject | IsAuthorizedToViewVersion]
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _get_project(self):
         project_slug = self.request.GET.get("project")
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
-    @lru_cache(maxsize=1)
+    @cached_method
     def _get_version(self):
         version_slug = self.request.GET.get("version")
         project = self._get_project()

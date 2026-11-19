@@ -1238,6 +1238,46 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         }
 
+    @mock.patch("readthedocs.filetreediff.get_manifest")
+    def test_file_tree_diff_base_version_not_built(self, get_manifest):
+        self.project.addons.filetreediff_enabled = True
+        self.project.addons.save()
+        # ``latest`` exists but was never built, so there is nothing to diff against.
+        self.version.built = False
+        self.version.save()
+        pr_version = get(
+            Version,
+            project=self.project,
+            slug="123",
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+        get(
+            Build,
+            project=self.project,
+            version=pr_version,
+            commit="a1b2c3",
+            state=BUILD_STATE_FINISHED,
+            success=True,
+        )
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project--123.dev.readthedocs.build/en/123/",
+                "client-version": "0.6.0",
+                "api-version": "1.0.0",
+            },
+            secure=True,
+            headers={
+                "host": "project--123.dev.readthedocs.build",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["addons"]["filetreediff"] == {"enabled": True}
+        get_manifest.assert_not_called()
+
     def test_version_ordering(self):
         for slug in ["1.0", "1.2", "1.12", "2.0", "2020.01.05", "a-slug", "z-slug"]:
             fixture.get(

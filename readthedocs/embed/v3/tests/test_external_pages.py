@@ -374,3 +374,23 @@ class TestEmbedAPIv3ExternalPages:
             "fragment": fragment,
             "external": True,
         }
+
+    def test_non_utf8_page(self, client, requests_mock):
+        # Real pages have several meta tags before the charset declaration.
+        content = (
+            '<html><head><meta name="viewport" content="width=device-width">'
+            '<meta name="generator" content="Docutils">'
+            '<meta charset="iso-8859-1"></head>'
+            '<body><p id="title">Café</p></body></html>'
+        )
+        requests_mock.get("https://docs.project.com/", content=content.encode("iso-8859-1"))
+
+        url = "https://docs.project.com/#title"
+        response = client.get(self.api_url, {"url": url})
+        assert response.status_code == 200
+        assert response.json() == {
+            "url": url,
+            "fragment": "title",
+            "content": '<p id="title">Café</p>',
+            "external": True,
+        }

@@ -19,7 +19,7 @@ Minimal configuration is required to build an existing Zensical project on Read 
     version: 2
 
     build:
-      os: ubuntu-24.04
+      os: ubuntu-26.04
       tools:
         python: latest
       jobs:

@@ -1,5 +1,11 @@
 import pytest
+from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import HTMLFile
+from readthedocs.projects.models import Project
+from readthedocs.search.documents import PageDocument
 from readthedocs.search.faceted_search import PageSearch
 
 
@@ -55,3 +61,20 @@ class TestPageSearch:
 
         assert result_paths_latest == expected_paths
         assert result_paths_stable == expected_paths
+
+
+@pytest.mark.django_db
+@pytest.mark.search
+def test_page_scored_by_best_matching_section(es_index, mock_processed_json):
+    project = get(Project, slug="community", privacy_level=PUBLIC, versions=[])
+    version = project.versions.get(slug=LATEST)
+    html_files = [
+        get(HTMLFile, project=project, version=version, name=name, path=name, build=1)
+        for name in ("slack.html", "recap.html")
+    ]
+    PageDocument().update(html_files)
+
+    page_search = PageSearch(query="slack", projects={"community": LATEST})
+    paths = [result.path for result in page_search.execute()]
+
+    assert paths == ["slack", "recap"]

@@ -9,6 +9,8 @@ log = structlog.get_logger(__name__)
 
 class CoreAppConfig(AppConfig):
     name = "readthedocs.core"
+    # Existing models use AutoField, see DEFAULT_AUTO_FIELD in settings.
+    default_auto_field = "django.db.models.AutoField"
     verbose_name = "Core"
 
     def ready(self):

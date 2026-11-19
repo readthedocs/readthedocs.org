@@ -226,7 +226,7 @@ def subscription_canceled(event, **kwargs):
         notification.send()
         log.info(
             "Notification sent.",
-            username=owner.username,
+            user_username=owner.username,
             organization_slug=organization.slug,
         )
 

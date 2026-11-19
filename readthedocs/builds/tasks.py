@@ -9,26 +9,25 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
-from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.utils import delete_versions_from_db
 from readthedocs.api.v2.utils import get_deleted_active_versions
 from readthedocs.api.v2.utils import run_version_automation_rules
 from readthedocs.api.v2.utils import sync_versions_to_db
+from readthedocs.builds.constants import ADMIT_LOCK_EXPIRE
+from readthedocs.builds.constants import ARCHIVE_LOCK_EXPIRE
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.builds.constants import BUILD_STATUS_FAILURE
-from readthedocs.builds.constants import BUILD_STATUS_PENDING
 from readthedocs.builds.constants import BUILD_STATUS_SKIPPED
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
-from readthedocs.builds.constants import LOCK_EXPIRE
 from readthedocs.builds.constants import TAG
+from readthedocs.builds.ec2 import ensure_warm_buffer
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
@@ -39,6 +38,7 @@ from readthedocs.core.utils import send_email
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
@@ -49,6 +49,22 @@ from readthedocs.worker import app
 
 
 log = structlog.get_logger(__name__)
+
+
+@app.task(queue="autoscaling", bind=True)
+def set_build_isolated_desired_capacity(self):
+    """
+    Keep the build-isolated fleet's desired capacity at "dispatched builds + buffer".
+
+    Runs every few seconds from beat.
+    """
+    lock_id = f"{self.name}-lock"
+    with memcache_lock(lock_id, lock_expire=10, app_identifier=self.app.oid) as acquired:
+        if not acquired:
+            log.warning("Build-isolated desired capacity task still locked.")
+            return False
+        ensure_warm_buffer()
+    return True
 
 
 @app.task(queue="web", bind=True)
@@ -63,7 +79,7 @@ def archive_builds_task(self, days=14, limit=200):
         return
 
     lock_id = "{0}-lock".format(self.name)
-    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+    with memcache_lock(lock_id, ARCHIVE_LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             log.warning("Archive Builds Task still locked")
             return False
@@ -87,7 +103,12 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as closed after ``days``.
 
-    The commit status is updated to link to the build page, as the docs are removed.
+    The commit status is not re-sent. GitHub statuses belong to the commit, not
+    the PR, and are immutable once created, so the original one stays after the
+    PR is closed. Re-sending it months later only re-triggers other integrations.
+
+    See https://github.com/readthedocs/readthedocs.org/issues/13372 and
+    https://github.blog/news-insights/the-library/commit-status-api/
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
@@ -95,34 +116,12 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
         modified__lte=days_ago,
     ).order_by("modified")[:limit]
     for version in queryset:
-        try:
-            last_build = version.last_build
-            # Builds without a commit failed before checking out the
-            # repository, so there is no commit to report the status on.
-            if last_build and last_build.commit:
-                status = BUILD_STATUS_PENDING
-                if last_build.finished:
-                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
-                send_build_status(
-                    build_pk=last_build.pk,
-                    commit=last_build.commit,
-                    status=status,
-                )
-        except TokenExpiredError, InvalidGrantError:
-            log.info("Failed to send status due to expired/invalid token.")
-        except Exception:
-            log.exception(
-                "Failed to send status",
-                project_slug=version.project.slug,
-                version_slug=version.slug,
-            )
-        else:
-            log.info(
-                "Removing external version.",
-                project_slug=version.project.slug,
-                version_slug=version.slug,
-            )
-            version.delete()
+        log.info(
+            "Removing external version.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
+        )
+        version.delete()
 
 
 def finish_inactive_build(build):
@@ -130,10 +129,17 @@ def finish_inactive_build(build):
     Finish a build that has been detected as inactive.
 
     The state of the build is set to cancelled, and a notification is attached
-    to the build to inform the user that it was terminated due to inactivity.
+    to the build to inform the user why it was terminated.
 
     In case the build is still running, we also revoke the Celery task to cancel it.
     """
+    # Decide the message before touching the build, since cancelling changes its state.
+    # An uploaded build still in the triggered state with no task is one whose
+    # complete call never came (see ``BuildQuerySet.pending_upload``),
+    # so the upload is what went missing, not the build.
+    message_id = BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY
+    if build.is_uploaded and build.state == BUILD_STATE_TRIGGERED and not build.task_id:
+        message_id = BuildUserError.BUILD_ARTIFACTS_ZIP_NEVER_UPLOADED
     log.info(
         "Finishing inactive build.",
         build_id=build.pk,
@@ -149,7 +155,7 @@ def finish_inactive_build(build):
         app.control.revoke(build.task_id, signal="SIGINT", terminate=True)
 
     Notification.objects.add(
-        message_id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+        message_id=message_id,
         attached_to=build,
     )
 
@@ -875,13 +881,15 @@ def admit_queued_builds(self):
     """
     Admit queued isolated builds as concurrency slots free up.
 
-    Runs periodically (see the ``admit-queued-builds`` beat schedule). For every
-    project with builds waiting in ``triggered``, it runs the admission routine
+    Runs periodically (every 5s; see the ``admit-queued-builds`` beat schedule).
+    For every project with builds waiting in ``triggered``, it runs the admission routine
     (:func:`readthedocs.core.utils.admit_project_builds`), which dispatches as
     many as there are free concurrency slots.
     """
     lock_id = "{0}-lock".format(self.name)
-    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+    # Short expiry: a sweep killed mid-run (instance terminated, OOM) must not
+    # block admission for long.
+    with memcache_lock(lock_id, ADMIT_LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             # A previous sweep is still running; skip this tick.
             log.warning("Admit queued builds task still locked")

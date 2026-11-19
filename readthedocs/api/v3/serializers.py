@@ -330,7 +330,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(
             project=obj.project,
             version=obj,
@@ -488,7 +488,7 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_documentation(self, obj):
         version = getattr(self.parent, "version", None)
-        resolver = getattr(self.parent, "resolver", Resolver())
+        resolver = getattr(self.parent, "resolver", None) or Resolver()
         return resolver.resolve_version(project=obj, version=version)
 
 
@@ -644,7 +644,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, serializers.ModelSerializer)
         Validate connection between `Project` and `RemoteRepository`.
 
         We don't do anything in community, but we do ensure this relationship
-        is posible before creating the `Project` on commercial when the
+        is possible before creating the `Project` on commercial when the
         organization has VCS SSO enabled.
 
         If we cannot ensure the relationship here, this method should raise a

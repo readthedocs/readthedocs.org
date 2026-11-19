@@ -4,6 +4,8 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.db.models import OuterRef
+from django.db.models import Subquery
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -13,6 +15,7 @@ from django.views import View
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.builds.models import Build
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import InvalidExternalVersionError
@@ -645,16 +648,18 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
+        version = project.versions.filter(slug=version_slug).first()
 
         no_serve_robots_txt = any(
             [
-                # If the default version is private or,
-                version.privacy_level == PRIVATE,
+                # If the default version doesn't exist yet (direct upload project before its first upload) or,
+                version is None,
+                # the default version is private or,
+                version and version.privacy_level == PRIVATE,
                 # default version is not active or,
-                not version.active,
+                version and not version.active,
                 # default version is not built
-                not version.built,
+                version and not version.built,
             ]
         )
 
@@ -844,8 +849,9 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
         # Serve custom sitemap.xml from the default version when available.
         # If it doesn't exist, we fallback to the generated sitemap.
         version_slug = project.get_default_version()
-        version = project.versions.get(slug=version_slug)
-        serve_custom_sitemap = all(
+        version = project.versions.filter(slug=version_slug).first()
+        # The default version may not exist yet (direct upload project before its first upload).
+        serve_custom_sitemap = version is not None and all(
             [
                 version.is_public,
                 version.active,
@@ -878,7 +884,16 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
         if not public_versions.exists():
             raise Http404()
 
+        # One query for the date of every version's latest build,
+        # instead of one query per version inside the loop.
+        public_versions = public_versions.annotate(
+            latest_build_date=Subquery(
+                Build.objects.filter(version=OuterRef("pk")).order_by("-date").values("date")[:1]
+            )
+        )
         sorted_versions = sort_version_aware(public_versions)
+        translations = list(project.translations.all())
+        resolver = Resolver()
 
         versions = []
         for version in sorted_versions:
@@ -889,13 +904,11 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixi
 
             # Version can be enabled, but not ``built`` yet. We want to show the
             # link without a ``lastmod`` attribute
-            last_build = version.builds.order_by("-date").first()
-            if last_build:
-                element["lastmod"] = last_build.date.isoformat()
+            if version.latest_build_date:
+                element["lastmod"] = version.latest_build_date.isoformat()
 
-            resolver = Resolver()
-            if project.translations.exists():
-                for translation in project.translations.all():
+            if translations:
+                for translation in translations:
                     translated_version = (
                         translation.versions(manager=INTERNAL)
                         .public()

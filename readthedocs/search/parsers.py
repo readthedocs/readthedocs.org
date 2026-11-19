@@ -3,9 +3,11 @@
 import hashlib
 import itertools
 import re
+from pathlib import Path
 
 import structlog
-from selectolax.parser import HTMLParser
+from django.core.exceptions import SuspiciousFileOperation
+from selectolax.lexbor import LexborHTMLParser
 
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.storage import build_media_storage
@@ -63,24 +65,39 @@ class GenericParser:
         "video",
     ]
 
-    def __init__(self, version):
+    def __init__(self, version, local_path=None):
         self.version = version
         self.project = self.version.project
-        self.storage = build_media_storage
+        # When set, pages are read from this local directory
+        # (a downloaded copy of the version's HTML) instead of from storage.
+        self.local_path = local_path
 
     def _get_page_content(self, page):
-        """Gets the page content from storage."""
+        """Gets the page content from the local copy or from storage."""
         content = None
         try:
-            file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
-            with self.storage.open(file_path, mode="r") as f:
-                content = f.read()
+            if self.local_path:
+                content = self._get_local_page_content(page)
+            else:
+                file_path = self.version.get_storage_path(media_type=MEDIA_TYPE_HTML, filename=page)
+                with build_media_storage.open(file_path, mode="r") as f:
+                    content = f.read()
         except Exception:
             log.warning(
                 "Failed to get page content.",
                 page=page,
             )
         return content
+
+    def _get_local_page_content(self, page):
+        """Read a page from the local copy, refusing paths that escape it."""
+        # Page names originate in user-uploaded files,
+        # so keep the read inside the downloaded copy.
+        root = Path(self.local_path).resolve()
+        path = (root / page).resolve()
+        if not path.is_relative_to(root):
+            raise SuspiciousFileOperation(f"Page escapes the local copy: {page}")
+        return path.read_text(encoding="utf-8")
 
     def _get_page_title(self, body, html):
         """
@@ -226,8 +243,7 @@ class GenericParser:
         dls = body.css("dl")
 
         for dl in dls:
-            # Hack: Since we cannot use '> dt' nor ':host' in selectolax/Modest,
-            # we use an iterator to select immediate descendants.
+            # Use an iterator to select immediate descendants.
             dts = (node for node in dl.iter() if node.tag == "dt" and node.id)
 
             # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
@@ -235,11 +251,7 @@ class GenericParser:
             # all defined by the immediate next <dd> element.
             for dt in dts:
                 title, _id = self._parse_dt(dt)
-                # Select the first adjacent <dd> using a "gamble" that seems to work.
-                # In this example, we cannot use the current <dt>'s ID because they contain invalid
-                # CSS selector syntax and there's no apparent way to fix that.
-                # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
-                dd = dt.css_first("dt ~ dd")
+                dd = self._get_next_dd(dt)
 
                 # We only index a dt with an id attribute and an accompanying dd
                 if not dd or not _id:
@@ -247,7 +259,7 @@ class GenericParser:
 
                 # Create a copy of the node to avoid manipulating the
                 # data structure that we're iterating over
-                dd_copy = HTMLParser(dd.html).body.child
+                dd_copy = LexborHTMLParser(dd.html).body.child
 
                 # Remove all nested domains from dd_copy.
                 # They are already parsed separately.
@@ -255,7 +267,7 @@ class GenericParser:
                     # Traverse all <dt>s with an ID (the ones we index!)
                     for _dt in node.css('dt[id]:not([id=""])'):
                         # Fetch adjacent <dd>s and remove them
-                        _dd_dt = _dt.css_first("dt ~ dd")
+                        _dd_dt = self._get_next_dd(_dt)
                         if _dd_dt:
                             _dd_dt.decompose()
                         # Remove the <dt> too
@@ -273,6 +285,15 @@ class GenericParser:
                         "content": content,
                     },
                 )
+
+    def _get_next_dd(self, dt):
+        """Get the first <dd> sibling that follows the given <dt>."""
+        node = dt.next
+        while node:
+            if node.tag == "dd":
+                return node
+            node = node.next
+        return None
 
     def _parse_dt(self, tag):
         """
@@ -475,7 +496,7 @@ class GenericParser:
 
     def _process_content(self, page, content):
         """Parses the content into a structured dict."""
-        html = HTMLParser(content)
+        html = LexborHTMLParser(content)
         body = self._get_main_node(html)
         title = ""
         sections = []

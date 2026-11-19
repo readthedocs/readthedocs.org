@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import prepare_build
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
@@ -103,6 +104,9 @@ class ProjectImportMixin:
         - Run extra tasks that are needed before building the project
         - Trigger the initial build
 
+        Direct upload projects skip the last two steps:
+        Read the Docs never builds them, and the webhook and SSH key are not needed.
+
         It requires the Project was already saved into the DB.
 
         :param request: Django Request object
@@ -115,14 +119,20 @@ class ProjectImportMixin:
             user_username=request.user.username,
         )
 
+        if project.is_direct_upload:
+            return None
+
         update_docs, build = prepare_build(project)
         if (update_docs, build) == (None, None):
             return None
 
         tasks = self._get_post_import_tasks(project, request.user)
-        tasks.append(update_docs)
-        task_promise = chain(*tasks)
-        task_promise.apply_async()
+        # Build-isolated builds are dispatched by ``admit_queued_builds``,
+        # running ``update_docs`` too would build it twice on two builders.
+        if not project.has_feature(Feature.USE_BUILD_ISOLATED):
+            tasks.append(update_docs)
+        if tasks:
+            chain(*tasks).apply_async()
 
     def _get_post_import_tasks(self, project, user):
         """

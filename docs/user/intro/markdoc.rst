@@ -15,7 +15,7 @@ Minimal configuration is required to build an existing Markdoc project on Read t
     version: 2
 
     build:
-      os: ubuntu-24.04
+      os: ubuntu-26.04
       tools:
         nodejs: "22"
       jobs:

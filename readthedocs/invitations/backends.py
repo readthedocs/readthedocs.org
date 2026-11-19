@@ -64,10 +64,10 @@ class Backend:
         log.info(
             "Emailing invitation",
             email=email,
-            invitation_pk=self.invitation.pk,
+            invitation_id=self.invitation.pk,
             object_type=self.invitation.object_type,
             object_name=self.invitation.object_name,
-            object_pk=self.invitation.object.pk,
+            object_id=self.invitation.object.pk,
         )
         send_email(
             recipient=email,

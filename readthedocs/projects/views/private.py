@@ -1,11 +1,12 @@
 """Project views for authenticated users."""
 
-from functools import lru_cache
+import secrets
 
 import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.cache import cache
 from django.db.models import Count
 from django.db.models import Q
 from django.http import Http404
@@ -28,6 +29,7 @@ from vanilla import GenericView
 from vanilla import UpdateView
 
 from readthedocs.analytics.models import PageView
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.forms import VersionForm
@@ -40,6 +42,8 @@ from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils import slugify
+from readthedocs.core.utils.objects import cached_method
 from readthedocs.integrations.models import HttpExchange
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
@@ -49,6 +53,8 @@ from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.filters import RedirectListFilterSet
+from readthedocs.projects.filters import SearchAnalyticsFilterSet
+from readthedocs.projects.filters import TrafficAnalyticsFilterSet
 from readthedocs.projects.forms import AddonsConfigForm
 from readthedocs.projects.forms import AddonsConfigSearchSettingsForm
 from readthedocs.projects.forms import AutomationRuleForm
@@ -63,6 +69,8 @@ from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
 from readthedocs.projects.forms import ProjectRelationshipForm
+from readthedocs.projects.forms import ProjectTokenForm
+from readthedocs.projects.forms import ProjectTokenUpdateForm
 from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.forms import TranslationForm
 from readthedocs.projects.forms import UpdateProjectForm
@@ -73,6 +81,7 @@ from readthedocs.projects.models import AutomationRuleMatch
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import EmailHook
 from readthedocs.projects.models import EnvironmentVariable
+from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import ProjectRelationship
 from readthedocs.projects.models import WebHook
@@ -157,7 +166,7 @@ class ProjectDashboard(PrivateViewMixin, FilterContextMixin, ListView):
     # NOTE: This method is called twice, on .org it doesn't matter,
     # as the queryset is straightforward, but on .com it
     # does some extra work that results in several queries.
-    @lru_cache(maxsize=1)
+    @cached_method
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
@@ -294,9 +303,8 @@ def show_config_step(wizard):
     Decide whether or not show the config step on "Add project" wizard.
 
     If the `.readthedocs.yaml` file already exist in the default branch, we
-    don't show this step.
+    don't show this step, since the project is built on Read the Docs.
     """
-
     # Try to get the cleaned data from the "basics" step only if
     # we are in a step after it, otherwise, return True since we don't
     # have the data yet, and django-forms calls this function multiple times.
@@ -411,6 +419,38 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
         """Return template names based on step name."""
         return f"projects/import_{self.steps.current}.html"
 
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        if self.steps.current == "config":
+            context["project_slug"] = self._get_project_slug_preview()
+        return context
+
+    def _get_project_slug_preview(self):
+        """Slug the project will get, derived from the "basics" step, for the upload examples."""
+        data = self.storage.get_step_data("basics")
+        if not data:
+            return ""
+        form = self.get_form(step="basics", data=data, files=self.storage.get_step_files("basics"))
+        if not form.is_valid():
+            return ""
+        # .com sets the slug on the instance while cleaning (organization prefix).
+        return form.instance.slug or slugify(form.cleaned_data.get("name", ""))
+
+    def _uses_direct_upload(self, form_list):
+        """Whether direct upload was chosen in the config step."""
+        for form in form_list:
+            if isinstance(form, self.form_list.get("config")):
+                return bool(form.cleaned_data.get("is_direct_upload"))
+        return False
+
+    def _setup_direct_upload(self, project):
+        """Enable the upload API on a new direct upload project."""
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD,
+        )
+        feature.projects.add(project)
+        log.info("Project configured for direct upload.", project_slug=project.slug)
+
     def done(self, form_list, **kwargs):
         """
         Save form data as object instance.
@@ -429,8 +469,14 @@ class ImportWizardView(PrivateViewMixin, ProjectImportMixin, SessionWizardView):
                 break
 
         # Save the basics form to create the project instance, then alter
-        # attributes directly from other forms
+        # attributes directly from other forms.
+        # Has to be set before saving: `Project.save` creates `latest`
+        # for projects built by Read the Docs, and direct upload projects don't get one.
+        basics_form.instance.is_direct_upload = self._uses_direct_upload(form_list)
         project = basics_form.save()
+
+        if project.is_direct_upload:
+            self._setup_direct_upload(project)
 
         self.finish_import_project(self.request, project)
 
@@ -465,7 +511,6 @@ class ImportView(PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["view_csrf_token"] = get_token(self.request)
-
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
         context["form_manual"] = ProjectManualForm(user=self.request.user)
@@ -798,6 +843,24 @@ class ProjectRedirectsList(FilterContextMixin, ProjectRedirectsMixin, ListView):
 class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
     success_message = _("Redirect created")
 
+    # Query params accepted to pre-fill the form (e.g. from a notification link).
+    prefill_fields = ["redirect_type", "from_url", "to_url", "http_status", "description"]
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self._get_initial_from_query_params()
+        return kwargs
+
+    def _get_initial_from_query_params(self):
+        initial = {
+            field: self.request.GET[field]
+            for field in self.prefill_fields
+            if field in self.request.GET
+        }
+        if "force" in self.request.GET:
+            initial["force"] = self.request.GET["force"].lower() in ("true", "1")
+        return initial
+
 
 class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
     success_message = _("Redirect updated")
@@ -897,6 +960,7 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 
 class DomainDelete(DomainMixin, DeleteViewWithMessage):
+    http_method_names = ["post"]
     success_message = _("Domain deleted")
 
 
@@ -1086,6 +1150,114 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteViewWithMessage)
     http_method_names = ["post"]
 
 
+class ProjectTokenMixin(PrivateViewMixin, ProjectAdminMixin):
+    """API tokens scoped to a single project."""
+
+    model = RTDToken
+    form_class = ProjectTokenForm
+    lookup_url_kwarg = "token_pk"
+
+    # The token is only available when it's created,
+    # so it's passed to the edit view in the cache to show it once
+    # (this is a redirect after the create view, so the session is lost).
+    # The cache is used instead of the session, so the plain token
+    # isn't stored for long if the redirect isn't followed.
+    created_token_cache_timeout = 2 * 60
+
+    @cached_method
+    def get_project(self):
+        # API tokens are only used by the upload API for now, which is behind a feature flag.
+        project = super().get_project()
+        if project and not project.allows_direct_upload:
+            raise Http404
+        return project
+
+    def get_queryset(self):
+        return super().get_queryset().filter(revoked_at__isnull=True)
+
+    def get_success_url(self):
+        return reverse(
+            "projects_tokens",
+            args=[self.get_project().slug],
+        )
+
+    def get_created_token_cache_key(self, token_id):
+        # Keyed by the user and a random ID stored in their session,
+        # so the token is only shown to the user that created it, in the same session.
+        # The session key isn't used, since with signed cookies it's the session data itself,
+        # and it changes when the session is modified.
+        # The ID of the token avoids overwriting it when creating several tokens at the same time.
+        session_id = self.request.session.setdefault(
+            "project_token_session_id",
+            secrets.token_urlsafe(16),
+        )
+        return f"rtd:project-token:{self.request.user.pk}:{session_id}:{self.get_project().id}:{token_id}"
+
+
+class ProjectTokenList(ProjectTokenMixin, ListView):
+    # The model lives in the ``v3`` app,
+    # the default template name doesn't match the other project settings templates.
+    template_name = "projects/token_list.html"
+
+
+class ProjectTokenCreate(ProjectTokenMixin, CreateView):
+    template_name = "projects/token_form.html"
+    success_message = _("API token created")
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
+
+    def form_valid(self, form):
+        token, plain_token = form.save()
+        cache.set(
+            self.get_created_token_cache_key(token.pk),
+            plain_token,
+            timeout=self.created_token_cache_timeout,
+        )
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(
+            reverse(
+                "projects_tokens_edit",
+                args=[self.get_project().slug, token.pk],
+            )
+        )
+
+
+class ProjectTokenUpdate(ProjectTokenMixin, UpdateView):
+    form_class = ProjectTokenUpdateForm
+    template_name = "projects/token_form.html"
+    success_message = _("API token updated")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_token"] = None
+        if self.request.method == "GET":
+            cache_key = self.get_created_token_cache_key(self.object.pk)
+            context["created_token"] = cache.get(cache_key)
+            cache.delete(cache_key)
+        return context
+
+    def get_success_url(self):
+        return reverse(
+            "projects_tokens_edit",
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class ProjectTokenDelete(ProjectTokenMixin, GenericModelView):
+    """Mark the token as revoked instead of deleting it, to keep a record of it."""
+
+    success_message = _("API token deleted")
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        token = self.get_object()
+        token.revoke()
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(self.get_success_url())
+
+
 class AutomationRuleMixin(PrivateViewMixin, ProjectAdminMixin):
     model = AutomationRule
     lookup_url_kwarg = "automation_rule_pk"
@@ -1156,13 +1328,19 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         if not enabled:
             return context
 
+        filterset = SearchAnalyticsFilterSet(
+            data=self.request.GET,
+            queryset=SearchQuery.objects.filter(project=project),
+        )
+        qs = filterset.qs if filterset.is_valid() else filterset.queryset.none()
+
         # data for plotting the line-chart
         query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
             project.slug,
+            queryset=qs,
         )
 
         queries = []
-        qs = SearchQuery.objects.filter(project=project)
         if qs.exists():
             qs = (
                 qs.values("query")
@@ -1177,6 +1355,7 @@ class SearchAnalytics(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         context.update(
             {
                 "queries": queries,
+                "filter": filterset,
                 "query_count_of_1_month": query_count_of_1_month,
             },
         )
@@ -1246,22 +1425,31 @@ class TrafficAnalyticsView(PrivateViewMixin, ProjectAdminMixin, TemplateView):
         if not enabled:
             return context
 
+        filterset = TrafficAnalyticsFilterSet(
+            data=self.request.GET,
+            queryset=PageView.objects.filter(project=project),
+        )
+        qs = filterset.qs if filterset.is_valid() else filterset.queryset.none()
+
         # Count of views for top pages over the month
-        top_pages_200 = PageView.top_viewed_pages(project, limit=25)
+        top_pages_200 = PageView.top_viewed_pages(project, limit=25, queryset=qs)
         top_pages_404 = PageView.top_viewed_pages(
             project,
             limit=25,
             status=404,
             per_version=True,
+            queryset=qs,
         )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
             project_slug=project.slug,
+            queryset=qs,
         )
 
         context.update(
             {
+                "filter": filterset,
                 "top_pages_200": top_pages_200,
                 "page_data": page_data,
                 "top_pages_404": top_pages_404,

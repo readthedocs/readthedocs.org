@@ -130,6 +130,11 @@ class ProjectDetailViewBase(
         versions = self.get_filtered_queryset()
         context["versions"] = versions
 
+        # Direct upload projects point to the upload docs until something is uploaded.
+        context["direct_upload_waiting"] = (
+            project.is_direct_upload and not project.versions.filter(active=True).exists()
+        )
+
         protocol = "http"
         if self.request.is_secure():
             protocol = "https"

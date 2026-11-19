@@ -6,6 +6,7 @@ from allauth.account.adapter import get_adapter as get_account_adapter
 from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -15,6 +16,7 @@ from django.utils.encoding import force_str
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.utils import send_email_from_object
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.utils import get_bitbucket_accounts_without_account_id
 
 
 log = structlog.get_logger(__name__)
@@ -54,18 +56,126 @@ class AccountAdapter(DefaultAccountAdapter):
         if invitation_pk:
             invitation = Invitation.objects.pending().filter(pk=invitation_pk).first()
             if invitation:
-                log.info("Redeeming invitation at sign-up", invitation_pk=invitation_pk)
+                log.info("Redeeming invitation at sign-up", invitation_id=invitation_pk)
                 invitation.redeem(user, request=request)
                 invitation.delete()
             else:
-                log.info("Invitation not found", invitation_pk=invitation_pk)
+                log.info("Invitation not found", invitation_id=invitation_pk)
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         self._filter_email_addresses(sociallogin)
+        self._abort_login_of_unmigrated_bitbucket_account(request, sociallogin)
+        self._redirect_bitbucket_login_without_account_id(request, sociallogin)
         self._block_use_of_old_github_oauth_app(request, sociallogin)
         self._connect_github_app_to_existing_github_account(request, sociallogin)
+
+    def _abort_login_of_unmigrated_bitbucket_account(self, request, sociallogin):
+        """
+        Abort the login if the Bitbucket account hasn't been migrated to use the ``account_id`` yet.
+
+        allauth used to identify Bitbucket accounts by their username,
+        it now uses the ``account_id``.
+        Accounts are migrated after deploy
+        (see ``oauth/migrations/0020_bitbucket_socialaccount_uid.py``),
+        until then, allauth won't find them on login and would show the signup form.
+
+        We match the account by the ``account_id`` stored in ``extra_data``,
+        never by username, and ask the user to try again later.
+
+        This can be removed once all accounts have been migrated.
+        """
+        if sociallogin.account.provider != BitbucketOAuth2Provider.id:
+            return
+
+        # The account was found by its uid, nothing to do.
+        if sociallogin.account.pk:
+            return
+
+        account_id = sociallogin.account.uid
+        if not account_id:
+            return
+
+        is_unmigrated = (
+            SocialAccount.objects.filter(
+                provider=BitbucketOAuth2Provider.id,
+                extra_data__account_id=account_id,
+            )
+            .exclude(uid=account_id)
+            .exists()
+        )
+        if not is_unmigrated:
+            return
+
+        log.info("Aborting login of unmigrated Bitbucket account.")
+        messages.warning(
+            request,
+            "We are updating Bitbucket accounts. "
+            "Please try again in a few minutes or log in with your email and password.",
+        )
+        raise ImmediateHttpResponse(HttpResponseRedirect(reverse("account_login")))
+
+    def _redirect_bitbucket_login_without_account_id(self, request, sociallogin):
+        """
+        Redirect to the login page if the user has a Bitbucket account we can't match.
+
+        Since allauth 65.19.6, Bitbucket accounts are identified by their ``account_id``
+        instead of their username, and existing accounts were migrated
+        using the ``account_id`` saved in ``extra_data``
+        (see ``oauth/migrations/0020_bitbucket_socialaccount_uid.py``).
+        Some accounts didn't have an ``account_id`` saved
+        (they hadn't logged in since Bitbucket started returning it),
+        and their tokens were no longer valid to fetch it from the API,
+        so they couldn't be migrated.
+
+        These accounts can't be matched on login, so allauth shows the signup form instead,
+        where the user would either get an "email already registered" error,
+        or create a new user without access to their projects.
+        If the email from Bitbucket matches a verified email of a user with one of these accounts,
+        we ask them to log in with their email and connect Bitbucket again.
+        When they do, the old account is removed by
+        ``readthedocs.oauth.signals.remove_bitbucket_accounts_without_account_id``.
+
+        We don't connect the accounts by email, since Bitbucket doesn't
+        tell us if the email is verified.
+
+        This can be removed once there are no Bitbucket accounts without an ``account_id``
+        (see ``readthedocs.oauth.utils.get_bitbucket_accounts_without_account_id``).
+        """
+        if sociallogin.account.provider != BitbucketOAuth2Provider.id:
+            return
+
+        if sociallogin.is_existing:
+            return
+
+        # The user is connecting a new account, nothing to do.
+        if request.user.is_authenticated:
+            return
+
+        emails = {email.email.lower() for email in sociallogin.email_addresses if email.email}
+        if not emails:
+            return
+
+        has_accounts_without_account_id = (
+            get_bitbucket_accounts_without_account_id()
+            .filter(
+                user__emailaddress__email__in=emails,
+                user__emailaddress__verified=True,
+            )
+            .exists()
+        )
+        if not has_accounts_without_account_id:
+            return
+
+        log.info("Redirecting Bitbucket login of account without account_id to login page.")
+        messages.info(
+            request,
+            "You already have a Read the Docs account. "
+            'Log in with your email (use "Forgot password" if you haven\'t set one), '
+            "then connect your Bitbucket account again.",
+        )
+        raise ImmediateHttpResponse(HttpResponseRedirect(reverse("account_login")))
 
     def _filter_email_addresses(self, sociallogin):
         """

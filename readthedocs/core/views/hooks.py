@@ -57,8 +57,19 @@ def build_versions_from_names(project, versions_info: list[VersionInfo]):
                 trigger_build(project=project, version=version, from_webhook=True)
                 to_build.add(version.slug)
             else:
-                log.info("Not building.", version_slug=version.slug)
+                log.info(
+                    "Not building, version is not active.",
+                    project_slug=project.slug,
+                    version_slug=version.slug,
+                )
                 not_building.add(version.slug)
+    if not to_build and not not_building:
+        # Only a count: a push can carry many refs, and the names are in the webhook payload.
+        log.info(
+            "Not building, no version matches the pushed branches or tags.",
+            project_slug=project.slug,
+            versions_count=len(versions_info),
+        )
     return to_build, not_building
 
 
@@ -81,6 +92,14 @@ def trigger_sync_versions(project):
     if not Project.objects.is_active(project):
         log.warning(
             "Sync not triggered because project is not active.",
+            project_slug=project.slug,
+        )
+        return None
+
+    # Direct upload projects only get the versions they upload.
+    if project.is_direct_upload:
+        log.info(
+            "Sync not triggered because project uses direct upload.",
             project_slug=project.slug,
         )
         return None
