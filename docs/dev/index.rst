@@ -21,6 +21,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    guides/index
    design
    docs
+   screenshots
    style-guide
    front-end
    i18n
