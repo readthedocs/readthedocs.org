@@ -756,11 +756,10 @@ class GitHubAppWebhookHandler:
         if action == "closed":
             # Queue the external version for deletion.
             for project in self._get_projects():
-                close_external_version(
-                    project=project,
-                    version_data=external_version_data,
-                )
-                self._record_event(project, "Closed, deleting its version.")
+                if close_external_version(project=project, version_data=external_version_data):
+                    self._record_event(project, "Closed, deleting its version.")
+                else:
+                    self._record_event(project, "Closed, no version to delete.")
             return
 
         # We don't care about the other actions.
