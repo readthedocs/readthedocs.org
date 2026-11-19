@@ -857,7 +857,7 @@ class GitHubAppWebhookHandler:
                 request_body=json.dumps(self.data),
                 response_body=json.dumps({"detail": detail}),
             )
-            HttpExchange.objects.delete_limit(integration, limit=25)
+            HttpExchange.objects.delete_limit(integration)
 
     def _get_projects(self):
         """
