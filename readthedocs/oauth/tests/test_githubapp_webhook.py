@@ -554,7 +554,7 @@ class TestGitHubAppWebhook(TestCase):
         exchange = integration.exchanges.get()
         assert exchange.request_headers["X-GitHub-Event"] == "pull_request"
         assert json.loads(exchange.request_body) == payload
-        assert json.loads(exchange.response_body) == {"detail": f"Triggered build {build.pk}."}
+        assert exchange.response_detail == f"Triggered build {build.pk} for pull request 1."
 
     @mock.patch("readthedocs.oauth.tasks.trigger_build")
     def test_pull_request_opened_pr_previews_disabled(self, trigger_build):

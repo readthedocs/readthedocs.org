@@ -743,7 +743,9 @@ class GitHubAppWebhookHandler:
                     )
                     self._record_event(
                         project,
-                        f"Triggered build {build.pk}." if build else "Build not triggered.",
+                        f"Triggered build {build.pk} for pull request {pr['number']}."
+                        if build
+                        else "Build not triggered.",
                     )
             return
 
