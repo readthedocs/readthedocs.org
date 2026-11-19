@@ -12,6 +12,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
+from readthedocs.core.permissions import AdminPermissionBase
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -43,6 +44,7 @@ from readthedocs.projects.models import (
     WebHookEvent,
 )
 from readthedocs.projects.validators import MAX_SIZE_ENV_VARS_PER_PROJECT
+from readthedocs.sso.models import SSOIntegration
 
 
 class TestProjectForms(TestCase):
@@ -738,6 +740,90 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         self.assertEqual(form_auto.errors, {})
         self.assertTrue(form_manual.is_valid())
         self.assertEqual(form_manual.errors, {})
+
+    def _enable_sso(self, provider):
+        get(
+            SSOIntegration,
+            organization=self.organization,
+            provider=provider,
+            saml_app=None,
+        )
+
+    def _assert_prevalidation_error(self, user, header):
+        for form_class in (ProjectAutomaticForm, ProjectManualForm):
+            form = form_class(user=user)
+            with self.assertRaises(RichValidationError) as cm:
+                form.clean_prevalidation()
+            assert cm.exception.header == header
+            assert not form.is_valid()
+
+    def _assert_prevalidation_valid(self, user):
+        for form_class in (ProjectAutomaticForm, ProjectManualForm):
+            form = form_class(user=user)
+            form.clean_prevalidation()
+            assert form.is_valid()
+
+    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    def test_form_prevalidation_admin_user_with_vcs_sso(self, has_sso_enabled):
+        self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
+        self._assert_prevalidation_error(
+            self.user_admin,
+            "Organization single sign-on enabled",
+        )
+        has_sso_enabled.assert_called_with(
+            self.user_admin,
+            provider=SSOIntegration.PROVIDER_ALLAUTH,
+        )
+
+    def test_form_prevalidation_admin_user_with_vcs_sso_without_sso_message(self):
+        self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
+        self._assert_prevalidation_error(
+            self.user_admin,
+            "Admin permission required",
+        )
+
+    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    def test_form_prevalidation_owner_user_with_vcs_sso(self, has_sso_enabled):
+        self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
+
+        # Projects can only be imported from a connected repository.
+        form_auto = ProjectAutomaticForm(user=self.user_owner)
+        form_auto.clean_prevalidation()
+        assert form_auto.is_valid()
+
+        form_manual = ProjectManualForm(user=self.user_owner)
+        with self.assertRaises(RichValidationError) as cm:
+            form_manual.clean_prevalidation()
+        assert cm.exception.header == "Organization single sign-on enabled"
+        assert not form_manual.is_valid()
+
+    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    def test_form_prevalidation_owner_user_with_vcs_sso_and_other_organization(
+        self, has_sso_enabled
+    ):
+        self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
+        get(Organization, owners=[self.user_owner], projects=[])
+        self._assert_prevalidation_valid(self.user_owner)
+
+    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    def test_form_prevalidation_admin_user_with_vcs_sso_and_other_organization(
+        self, has_sso_enabled
+    ):
+        self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
+        other_organization = get(Organization, projects=[])
+        get(
+            Team,
+            access="admin",
+            organization=other_organization,
+            members=[self.user_admin],
+        )
+        self._assert_prevalidation_valid(self.user_admin)
+
+    def test_form_prevalidation_admin_user_with_non_vcs_sso(self):
+        for provider in (SSOIntegration.PROVIDER_EMAIL, SSOIntegration.PROVIDER_SAML):
+            SSOIntegration.objects.filter(organization=self.organization).delete()
+            self._enable_sso(provider)
+            self._assert_prevalidation_valid(self.user_admin)
 
 
 class TestTranslationForms(TestCase):

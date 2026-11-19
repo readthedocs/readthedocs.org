@@ -59,6 +59,7 @@ from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_D
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
+from readthedocs.sso.models import SSOIntegration
 
 
 class ProjectRemoteRepositorySelect(RichSelect):
@@ -363,34 +364,42 @@ class ProjectFormPrevalidateMixin:
             user=self.user,
         ).exists()
         self.user_is_nonowner_with_sso = None
-        self.user_missing_admin_permission = None
+        self.user_has_admin_permission = None
+        self.user_can_configure_manually = None
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            # TODO there should be some way to initially select the organization
-            # and maybe the team too. It's mostly safe to automatically select
-            # the first organization, but explicit would be better. Reusing the
-            # organization selection UI works, we only really need a query param
-            # here.
-            self.user_is_nonowner_with_sso = all(
-                [
-                    AdminPermission.has_sso_enabled(self.user),
-                    AdminPermission.organizations(
-                        user=self.user,
-                        owner=False,
-                    ).exists(),
-                ]
-            )
-
+            # Owners can add projects to any of their organizations. Team
+            # admins can only add projects to organizations without VCS SSO,
+            # since those organizations don't use teams.
+            #
             # TODO this logic should be possible from AdminPermission
             # AdminPermssion.is_admin only inspects organization owners, so the
             # additional team check is necessary
-            self.user_has_admin_permission = any(
-                [
-                    AdminPermission.organizations(
-                        user=self.user,
-                        owner=True,
-                    ).exists(),
-                    Team.objects.admin(self.user).exists(),
-                ]
+            owner_organizations = AdminPermission.organizations(
+                user=self.user,
+                owner=True,
+            )
+            has_admin_teams = (
+                Team.objects.admin(self.user)
+                .exclude(
+                    organization__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+                )
+                .exists()
+            )
+            self.user_has_admin_permission = owner_organizations.exists() or has_admin_teams
+            # Projects from organizations with VCS SSO must be linked to a remote repository,
+            # so they can't be manually configured.
+            self.user_can_configure_manually = (
+                has_admin_teams
+                or owner_organizations.exclude(
+                    ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+                ).exists()
+            )
+            self.user_is_nonowner_with_sso = (
+                not self.user_has_admin_permission
+                and AdminPermission.has_sso_enabled(
+                    self.user,
+                    provider=SSOIntegration.PROVIDER_ALLAUTH,
+                )
             )
 
 
@@ -440,21 +449,22 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
     def clean_prevalidation(self):
         super().clean_prevalidation()
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            if self.user_is_nonowner_with_sso:
-                raise RichValidationError(
-                    _(
-                        "Projects cannot be manually configured when "
-                        "single sign-on is enabled for your organization."
-                    ),
-                    header=_("Organization single sign-on enabled"),
-                )
-            if not self.user_has_admin_permission:
+            if not self.user_has_admin_permission and not self.user_is_nonowner_with_sso:
                 raise RichValidationError(
                     _(
                         "You must be on a team with admin permissions "
                         "in order to add a new project to your organization."
                     ),
                     header=_("Admin permission required"),
+                )
+            # This also covers non-owners of organizations with VCS SSO.
+            if not self.user_can_configure_manually:
+                raise RichValidationError(
+                    _(
+                        "Projects cannot be manually configured when "
+                        "single sign-on is enabled for your organization."
+                    ),
+                    header=_("Organization single sign-on enabled"),
                 )
 
 
