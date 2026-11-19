@@ -230,19 +230,39 @@ class TestMigrateToGitHubAppView(TestCase):
             )
         return new_remote_repository
 
+    def _legacy_projects(self):
+        return Project.objects.filter(users=self.user, remote_repository__vcs_provider=GITHUB)
+
     def test_user_without_github_account(self):
         self.user.socialaccount_set.all().delete()
+        self._legacy_projects().update(remote_repository=None)
         response = self.client.get(self.url)
         assert response.status_code == 302
         response = self.client.get(reverse("projects_dashboard"))
         content = response.content.decode()
-        print(content)
         assert (
             "You don\\u0026#x27\\u003Bt have any GitHub account connected." in content
         )
 
+    def test_user_without_github_account_with_legacy_projects(self):
+        self.user.socialaccount_set.all().delete()
+        connect_url = self.url + "?step=connect"
+
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+        assert response["Location"] == connect_url
+
+        response = self.client.get(self.url + "?step=install")
+        assert response.status_code == 302
+        assert response["Location"] == connect_url
+
+        response = self.client.get(connect_url)
+        assert response.status_code == 200
+        assert response.context["step_connect_completed"] is False
+
     def test_user_without_github_account_but_with_github_app_account(self):
         self.user.socialaccount_set.exclude(provider=GitHubAppProvider.id).delete()
+        self._legacy_projects().update(remote_repository=None)
         response = self.client.get(self.url)
         assert response.status_code == 302
         response = self.client.get(reverse("projects_dashboard"))
@@ -250,6 +270,24 @@ class TestMigrateToGitHubAppView(TestCase):
             "You have already migrated your account to the new GitHub App"
             in response.content.decode()
         )
+
+    def test_github_app_account_with_legacy_projects_goes_to_install(self):
+        self.user.socialaccount_set.exclude(provider=GitHubAppProvider.id).delete()
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+        assert response["Location"] == self.url + "?step=install"
+
+        response = self.client.get(self.url + "?step=install")
+        assert response.status_code == 200
+        assert response.context["step_connect_completed"] is True
+
+    def test_github_app_account_with_legacy_projects_installed_goes_to_migrate(self):
+        for project in self._legacy_projects():
+            self._create_github_app_remote_repository(project.remote_repository)
+        self.user.socialaccount_set.exclude(provider=GitHubAppProvider.id).delete()
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+        assert response["Location"] == self.url + "?step=migrate"
 
     @requests_mock.Mocker(kw="request")
     def test_migration_page_initial_state(self, request):
