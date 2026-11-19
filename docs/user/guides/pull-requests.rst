@@ -58,7 +58,7 @@ while private previews are only available to users with access to the Read the D
 To change the privacy level:
 
 #. Go to your project's :menuselection:`Settings --> Pull request builds`.
-#. Select your option in :guilabel:`Privacy level of builds from pull requests`
+#. Select your option in :guilabel:`Privacy level of Pull Requests`
 #. Click on :guilabel:`Update`
 
 Privacy levels work the same way as :ref:`normal versions <versions:Version states>`.

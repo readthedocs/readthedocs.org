@@ -33,7 +33,7 @@ This allows you to control who can see the documentation for a specific version.
   They will not display on any list view, and will 404 when visited by people without viewing permissions.
   If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
-You can set the privacy level for each version in your :term:`dashboard` by navigating to :menuselection:`Versions --> $version ... Drop down --> Configure version` and changing :guilabel:`Privacy level` to `Public`.
+You can set the privacy level for each version in your project's :menuselection:`Versions` tab: open the dot menu for the version, select :guilabel:`Configure version`, and change :guilabel:`Privacy Level` to `Public`.
 
 Recommended workflow
 ~~~~~~~~~~~~~~~~~~~~

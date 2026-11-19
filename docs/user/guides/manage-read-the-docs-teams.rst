@@ -43,7 +43,7 @@ Follow these steps:
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
 3. Go to :menuselection:`Settings --> Owners`.
-4. Click :guilabel:`Remove` next to the owner you want to remove.
+4. Click :guilabel:`Remove owner` next to the owner you want to remove.
 
 .. note::
 
