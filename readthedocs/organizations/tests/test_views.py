@@ -4,6 +4,7 @@ import io
 import itertools
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -20,7 +21,7 @@ from readthedocs.core.utils import slugify
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.organizations.views.private import OrganizationSettingsOverview
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Domain, Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 from readthedocs.subscriptions.products import RTDProduct
@@ -334,6 +335,8 @@ class OrganizationSettingsOverviewTests(TestCase):
         assert context["stripe_subscription"] is None
         assert context["plan_name"] is None
         assert not context["sso_enabled"]
+        assert context["custom_domains"] == 0
+        assert context["concurrent_builds"] == settings.RTD_MAX_CONCURRENT_BUILDS
 
     def test_subscription(self, render_to_response):
         subscription = get(djstripe.Subscription, customer=get(djstripe.Customer))
@@ -349,6 +352,20 @@ class OrganizationSettingsOverviewTests(TestCase):
         assert context["stripe_subscription"] == subscription
         assert context["plan_name"] == "Advanced"
         assert context["audit_logs"].value == 90
+
+    def test_custom_domains_and_concurrent_builds(self, render_to_response):
+        project = get(Project)
+        self.organization.projects.add(project)
+        get(Domain, project=project)
+        get(Domain, project=get(Project))
+        self.organization.max_concurrent_builds = 4
+        self.organization.save()
+
+        self.client.get(self.url)
+        context = render_to_response.call_args.args[0]
+        assert context["custom_domains_enabled"]
+        assert context["custom_domains"] == 1
+        assert context["concurrent_builds"] == 4
 
     def test_not_owner(self, render_to_response):
         self.client.force_login(get(User))
