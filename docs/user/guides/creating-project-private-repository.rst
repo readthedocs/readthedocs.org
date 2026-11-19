@@ -67,8 +67,10 @@ In the next form page you will manually configure your project's repository deta
 
 4. In the :guilabel:`Repository URL` field, provide the repository's SSH or Git URL.
    This URL usually starts with ``git@...``, for example ``git@github.com:readthedocs/readthedocs.org.git``.
-#. In the :guilabel:`Default branch` field, provide the name of the default remote branch.
-   This is usually ``main`` or ``master``.
+#. Click :guilabel:`Next`, select :guilabel:`Build on Read the Docs`,
+   and follow the instructions to add a :doc:`configuration file </config-file/index>` to your repository.
+   The project uses your repository's default branch,
+   you can change it later in the :guilabel:`Default branch` field of your project's :menuselection:`Settings`.
 #. The project's first build should fail to clone your repository.
    This is expected, your repository is not configured to allow access yet.
 
