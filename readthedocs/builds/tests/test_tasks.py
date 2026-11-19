@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from textwrap import dedent
 from unittest import mock
 
@@ -512,6 +512,12 @@ class TestPostBuildOverview(TestCase):
             state=BUILD_STATE_FINISHED,
             success=True,
         )
+        get(
+            BuildCommandResult,
+            build=self.current_version_build,
+            start_time=datetime(2026, 9, 17, 8, 50, tzinfo=UTC),
+            end_time=datetime(2026, 9, 17, 8, 53, tzinfo=UTC),
+        )
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
@@ -531,21 +537,14 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
+            📖 3 files changed · 1 added · 1 modified · 1 deleted
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
+            - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
 
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
-
-            <details open>
-            <summary>3 files changed</summary>
-            <br>
-            <code>+</code> <a href="http://my-project--1.readthedocs.build/en/1/changes.html"><code>changes.html</code></a><br>
-            <code>±</code> <a href="http://my-project--1.readthedocs.build/en/1/index.html"><code>index.html</code></a><br>
-            <code>-</code> <a href="http://my-project--1.readthedocs.build/en/1/deleteme.html"><code>deleteme.html</code></a><br>
-            </details>
-
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
         post_comment.assert_called_once_with(
@@ -556,7 +555,7 @@ class TestPostBuildOverview(TestCase):
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
-    def test_post_build_overview_more_than_5_files(self, get_diff, post_comment):
+    def test_post_build_overview_more_than_10_files(self, get_diff, post_comment):
         get_diff.return_value = FileTreeDiff(
             current_version=self.current_version,
             current_version_build=self.current_version_build,
@@ -564,42 +563,40 @@ class TestPostBuildOverview(TestCase):
             base_version_build=self.base_version_build,
             files=[
                 ("index.html", FileTreeDiffFileStatus.modified),
+                ("one.html", FileTreeDiffFileStatus.modified),
+                ("two.html", FileTreeDiffFileStatus.modified),
+                ("three.html", FileTreeDiffFileStatus.modified),
+                ("four.html", FileTreeDiffFileStatus.modified),
+                ("five.html", FileTreeDiffFileStatus.modified),
+                ("six.html", FileTreeDiffFileStatus.modified),
+                ("seven.html", FileTreeDiffFileStatus.modified),
+                ("eight.html", FileTreeDiffFileStatus.modified),
                 ("changes.html", FileTreeDiffFileStatus.added),
                 ("deleteme.html", FileTreeDiffFileStatus.deleted),
-                ("one.html", FileTreeDiffFileStatus.modified),
-                ("three.html", FileTreeDiffFileStatus.modified),
-                ("two.html", FileTreeDiffFileStatus.modified),
             ],
             outdated=False,
         )
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
-
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
-
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
-
             <details>
-            <summary>6 files changed · <code>+</code> 1 added · <code>±</code> 4 modified · <code>-</code> 1 deleted</summary>
-            <br>
+            <summary>📖 11 files changed · 1 added · 9 modified · 1 deleted</summary>
 
-            `+` **Added**
-            - [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
-
-            `±` **Modified**
-            - [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
-            - [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
-            - [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
-            - [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
-
-            `-` **Deleted**
-            - [`deleteme.html`](http://my-project--1.readthedocs.build/en/1/deleteme.html)
-
+            - `+` [`changes.html`](http://my-project--1.readthedocs.build/en/1/changes.html)
+            - `±` [`eight.html`](http://my-project--1.readthedocs.build/en/1/eight.html)
+            - `±` [`five.html`](http://my-project--1.readthedocs.build/en/1/five.html)
+            - `±` [`four.html`](http://my-project--1.readthedocs.build/en/1/four.html)
+            - `±` [`index.html`](http://my-project--1.readthedocs.build/en/1/index.html)
+            - `±` [`one.html`](http://my-project--1.readthedocs.build/en/1/one.html)
+            - `±` [`seven.html`](http://my-project--1.readthedocs.build/en/1/seven.html)
+            - `±` [`six.html`](http://my-project--1.readthedocs.build/en/1/six.html)
+            - `±` [`three.html`](http://my-project--1.readthedocs.build/en/1/three.html)
+            - `±` [`two.html`](http://my-project--1.readthedocs.build/en/1/two.html)
+            - `-` `deleteme.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/deleteme.html)
             </details>
 
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -608,6 +605,24 @@ class TestPostBuildOverview(TestCase):
             comment=expected_comment,
             create_new=True,
         )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    def test_post_build_overview_without_commands_uses_build_date(self, get_diff, post_comment):
+        self.current_version_build.commands.all().delete()
+        self.current_version_build.date = datetime(2026, 9, 17, 9, 12, tzinfo=UTC)
+        self.current_version_build.save()
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[("index.html", FileTreeDiffFileStatus.modified)],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        comment = post_comment.call_args.kwargs["comment"]
+        assert comment.endswith("· My project · built Sept. 17, 2026, 9:12 a.m. UTC\n")
 
     @mock.patch.object(GitHubAppService, "post_comment")
     @mock.patch("readthedocs.builds.reporting.get_diff")
@@ -623,15 +638,10 @@ class TestPostBuildOverview(TestCase):
         post_build_overview(build_pk=self.current_version_build.pk)
         expected_comment = dedent(
             f"""
-            ### Documentation build overview
+            📖 No files changed
 
-            > 📚 [My project](https://readthedocs.org/projects/my-project/) | 🛠️ Build [#{self.current_version_build.id}](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) | 📁 Comparing 5678abcd against [latest](http://my-project.readthedocs.io/en/latest/) (1234abcd)
-
-            [<kbd> &nbsp; 🔍 Preview build &nbsp; </kbd>](http://my-project--1.readthedocs.build/en/1/)
-
-
-            No files changed.
-
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
             """
         )
 
@@ -639,6 +649,92 @@ class TestPostBuildOverview(TestCase):
             build=self.current_version_build,
             comment=expected_comment,
             create_new=False,
+        )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    def test_post_build_overview_single_kind_truncated(self, get_diff, post_comment):
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[
+                ("page-01.html", FileTreeDiffFileStatus.modified),
+                ("page-02.html", FileTreeDiffFileStatus.modified),
+                ("page-03.html", FileTreeDiffFileStatus.modified),
+                ("page-04.html", FileTreeDiffFileStatus.modified),
+                ("page-05.html", FileTreeDiffFileStatus.modified),
+                ("page-06.html", FileTreeDiffFileStatus.modified),
+                ("page-07.html", FileTreeDiffFileStatus.modified),
+                ("page-08.html", FileTreeDiffFileStatus.modified),
+                ("page-09.html", FileTreeDiffFileStatus.modified),
+                ("page-10.html", FileTreeDiffFileStatus.modified),
+                ("page-11.html", FileTreeDiffFileStatus.modified),
+                ("page-12.html", FileTreeDiffFileStatus.modified),
+            ],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        expected_comment = dedent(
+            f"""
+            <details>
+            <summary>📖 12 files modified</summary>
+
+            - `±` [`page-01.html`](http://my-project--1.readthedocs.build/en/1/page-01.html)
+            - `±` [`page-02.html`](http://my-project--1.readthedocs.build/en/1/page-02.html)
+            - `±` [`page-03.html`](http://my-project--1.readthedocs.build/en/1/page-03.html)
+            - `±` [`page-04.html`](http://my-project--1.readthedocs.build/en/1/page-04.html)
+            - `±` [`page-05.html`](http://my-project--1.readthedocs.build/en/1/page-05.html)
+            - `±` [`page-06.html`](http://my-project--1.readthedocs.build/en/1/page-06.html)
+            - `±` [`page-07.html`](http://my-project--1.readthedocs.build/en/1/page-07.html)
+            - `±` [`page-08.html`](http://my-project--1.readthedocs.build/en/1/page-08.html)
+            - `±` [`page-09.html`](http://my-project--1.readthedocs.build/en/1/page-09.html)
+            - `±` [`page-10.html`](http://my-project--1.readthedocs.build/en/1/page-10.html)
+            - *and 2 more modified*
+            </details>
+
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
+            """
+        )
+        post_comment.assert_called_once_with(
+            build=self.current_version_build,
+            comment=expected_comment,
+            create_new=True,
+        )
+
+    @mock.patch.object(GitHubAppService, "post_comment")
+    @mock.patch("readthedocs.builds.reporting.get_diff")
+    def test_post_build_overview_single_kind_inline(self, get_diff, post_comment):
+        """One kind of change under the limit: the headline names it, rows stay unwrapped."""
+        get_diff.return_value = FileTreeDiff(
+            current_version=self.current_version,
+            current_version_build=self.current_version_build,
+            base_version=self.base_version,
+            base_version_build=self.base_version_build,
+            files=[
+                ("legacy/old.html", FileTreeDiffFileStatus.deleted),
+                ("legacy/older.html", FileTreeDiffFileStatus.deleted),
+            ],
+            outdated=False,
+        )
+        post_build_overview(build_pk=self.current_version_build.pk)
+        expected_comment = dedent(
+            f"""
+            📖 2 files deleted
+
+            - `-` `legacy/old.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/old.html)
+            - `-` `legacy/older.html` · [add redirect](https://readthedocs.org/dashboard/my-project/redirects/create/?redirect_type=page&from_url=/legacy/older.html)
+
+            ---
+            [Preview](http://my-project--1.readthedocs.build/en/1/) · [build overview](https://readthedocs.org/projects/my-project/builds/{self.current_version_build.id}/) · My project · built Sept. 17, 2026, 8:53 a.m. UTC
+            """
+        )
+        post_comment.assert_called_once_with(
+            build=self.current_version_build,
+            comment=expected_comment,
+            create_new=True,
         )
 
     @mock.patch.object(GitHubAppService, "post_comment")

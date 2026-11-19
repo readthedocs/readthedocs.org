@@ -105,6 +105,8 @@ class TestsFileTreeDiff(TestCase):
         assert diff.added == []
         assert diff.deleted == []
         assert diff.modified == []
+        assert diff.summary == ""
+        assert diff.single_status is None
         assert not diff.outdated
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
@@ -128,7 +130,33 @@ class TestsFileTreeDiff(TestCase):
         assert [file.path for file in diff.added] == ["new-file.html"]
         assert [file.path for file in diff.deleted] == ["deleted.html"]
         assert [file.path for file in diff.modified] == ["tutorials/index.html"]
+        assert diff.summary == "1 added · 1 modified · 1 deleted"
+        assert diff.single_status is None
         assert not diff.outdated
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_diff_summary_omits_empty_categories(self, storage_open):
+        files_a = {"index.html": "hash1", "new-file.html": "hash-new"}
+        files_b = {"index.html": "hash1"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files_a)(),
+            _mock_manifest(self.build_b.id, files_b)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert diff.summary == "1 added"
+        assert diff.single_status == "added"
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_redirect_from_url_is_the_path_readers_request(self, storage_open):
+        """MkDocs and dirhtml write ``foo/index.html``; readers ask for ``/foo/``."""
+        files_a = {}
+        files_b = {"about.html": "h1", "index.html": "h2", "guides/index.html": "h3"}
+        storage_open.side_effect = [
+            _mock_manifest(self.build_a.id, files_a)(),
+            _mock_manifest(self.build_b.id, files_b)(),
+        ]
+        diff = get_diff(self.version_a, self.version_b)
+        assert [file.redirect_from_url for file in diff.deleted] == ["/about.html", "/", "/guides/"]
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_diff_manifests_without_content_hashes(self, storage_open):

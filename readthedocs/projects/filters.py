@@ -4,12 +4,15 @@ import structlog
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import Max
+from django.db.models import Sum
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_filters import ChoiceFilter
 from django_filters import OrderingFilter
 
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.core.filters import ModelFilterSet
+from readthedocs.core.filters import SearchableChoiceFilter
 from readthedocs.projects.models import Project
 from readthedocs.redirects.constants import TYPE_CHOICES
 
@@ -276,3 +279,50 @@ class RedirectListFilterSet(ModelFilterSet):
 
     def get_redirect(self, queryset, field_name, redirect):
         return queryset.filter(from_url=redirect.from_url)
+
+
+class SearchAnalyticsFilterSet(ModelFilterSet):
+    """Filter for the search analytics page."""
+
+    RESULTS_ZERO = "zero"
+    RESULTS_WITH = "with"
+    RESULTS_CHOICES = (
+        (RESULTS_ZERO, _("Zero results")),
+        (RESULTS_WITH, _("With results")),
+    )
+
+    results = ChoiceFilter(
+        label=_("Results"),
+        choices=RESULTS_CHOICES,
+        empty_label=_("All queries"),
+        method="filter_results",
+    )
+
+    def filter_results(self, queryset, field_name, value):
+        if value == self.RESULTS_ZERO:
+            return queryset.filter(total_results=0)
+        if value == self.RESULTS_WITH:
+            return queryset.filter(total_results__gt=0)
+        return queryset
+
+
+class TrafficAnalyticsFilterSet(ModelFilterSet):
+    """Filter for the traffic analytics page."""
+
+    url = SearchableChoiceFilter(
+        field_name="path",
+        label=_("URL"),
+        empty_label=_("All URLs"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        since = timezone.now().date() - timezone.timedelta(days=30)
+        paths = (
+            self.queryset.filter(date__gte=since, status=200)
+            .values("path")
+            .annotate(count=Sum("view_count"))
+            .order_by("-count")
+            .values_list("path", flat=True)[:250]
+        )
+        self.filters["url"].extra["choices"] = [(path, path) for path in paths]
