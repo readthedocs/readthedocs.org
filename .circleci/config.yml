@@ -54,6 +54,18 @@ commands:
           command: |
             git ls-remote https://github.com/readthedocs/ext-theme.git HEAD >> requirements-cache-key.txt
 
+  install-rclone:
+    description: Install the rclone version from the Ubuntu package production uses
+    steps:
+      # A pinned binary skips `apt update`, which took up to a minute.
+      - run:
+          name: Install rclone
+          command: |
+            curl -sSfL -o /tmp/rclone.zip https://downloads.rclone.org/v1.60.1/rclone-v1.60.1-linux-amd64.zip
+            unzip -qj /tmp/rclone.zip '*/rclone' -d /tmp
+            sudo install /tmp/rclone /usr/local/bin/rclone
+            rclone version
+
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
     steps:
@@ -93,8 +105,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - install-rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
       - run: tox -e py314
@@ -131,8 +142,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - install-rclone
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
