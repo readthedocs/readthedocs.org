@@ -63,13 +63,6 @@ navigate to the `Sign Up page <https://app.readthedocs.org/accounts/signup/>`_
 and choose the option :guilabel:`Sign up using GitHub App`.
 On the authorization page, click the green :guilabel:`Authorize Read the Docs Community` button.
 
-.. figure:: /_static/images/tutorial/github-authorization.png
-   :width: 60%
-   :align: center
-   :alt: GitHub authorization page
-
-   GitHub authorization page
-
 .. note::
 
    Read the Docs needs some permissions to read your repositories
@@ -96,6 +89,13 @@ To import your GitHub project to Read the Docs:
 
 #. `Install the Read the Docs Community GitHub App <https://github.com/apps/read-the-docs-community/installations/new/>`__
    and grant it access to your ``tutorial`` repository.
+
+   .. figure:: /_static/images/tutorial/github-app-install.png
+      :width: 60%
+      :align: center
+      :alt: Installing the Read the Docs Community GitHub App
+
+      Installing the Read the Docs Community GitHub App
 
 #. Click the :guilabel:`Add project` button on your `dashboard <https://app.readthedocs.org/dashboard/>`_.
 
