@@ -20,13 +20,15 @@ Direct upload is useful when:
 
 .. note::
 
-   **Direct upload is currently a beta testing feature.** It has to be enabled on your project, and we ask that you give us feedback on it.
-   :doc:`Contact support </support>` to enable it on your project.
+   **Direct upload is currently a beta feature.** We'd love to hear your feedback on it.
 
 Prerequisites
 -------------
 
-* A project on Read the Docs, with direct upload enabled by our support team.
+* A project on Read the Docs that uses direct upload.
+  When :doc:`adding your project </intro/add-project>`,
+  choose :guilabel:`Build externally and upload` in the configuration step.
+  To enable direct upload on an existing project, :doc:`contact support </support>`.
 * An API token for your project.
   Store it as a secret in your continuous integration service.
 
