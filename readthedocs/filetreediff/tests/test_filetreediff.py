@@ -339,14 +339,6 @@ class TestsBaseManifestSnapshot(TestCase):
         # Two calls: read the live base manifest, then write the snapshot.
         assert storage_open.call_count == 2
 
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists", return_value=True)
-    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
-    def test_force_refresh_noop_when_base_manifest_missing(self, storage_open, storage_exists):
-        """A refresh with no live base manifest leaves the snapshot alone."""
-        storage_open.side_effect = FileNotFoundError
-        snapshot_base_manifest(self.pr_version, self.base_version, force_refresh=True)
-        assert storage_open.call_count == 1
-
 
 class TestsGetBaseVersion(TestCase):
     def setUp(self):

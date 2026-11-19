@@ -213,10 +213,9 @@ def snapshot_base_manifest(
     """
     Snapshot the base version's current manifest for a PR version.
 
-    By default only writes if no snapshot exists yet (first build of the PR).
-    With ``force_refresh=True`` the snapshot is rewritten from the base
-    version's current manifest; the indexer passes it once the builder has
-    reported that the PR merged in the base branch (``Build.base_commit``).
+    Only writes if no snapshot exists yet (first build of the PR),
+    unless ``force_refresh`` is set, which the indexer does when the build
+    reports that the PR has merged in the base branch (``Build.base_commit``).
 
     This stores a full copy of the base manifest per PR. If many PRs branch
     from the same base commit, the same content is duplicated. This is a
