@@ -6,20 +6,24 @@ from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.http import HttpResponse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
+from djstripe import models as djstripe
 from PIL import Image
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.utils import slugify
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.views.private import OrganizationSettingsOverview
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
+from readthedocs.subscriptions.products import RTDProduct
 from readthedocs.subscriptions.products import RTDProductFeature
 
 
@@ -297,6 +301,59 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         assert not form.is_valid()
         assert "does not exist" in form.errors["username_or_email"][0]
         assert not Invitation.objects.for_object(self.organization).exists()
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_PRODUCTS=dict(
+        [
+            RTDProduct(
+                stripe_id="prod_plan",
+                features=dict([RTDProductFeature(type=TYPE_AUDIT_LOGS, value=90).to_item()]),
+            ).to_item(),
+            RTDProduct(stripe_id="prod_extra", extra=True, features={}).to_item(),
+        ]
+    ),
+)
+# The template lives in ext-theme, the view is tested without rendering it.
+@mock.patch.object(
+    OrganizationSettingsOverview, "render_to_response", return_value=HttpResponse()
+)
+class OrganizationSettingsOverviewTests(TestCase):
+    def setUp(self):
+        self.owner = get(User)
+        self.organization = get(Organization, owners=[self.owner])
+        self.url = reverse("organization_settings", args=[self.organization.slug])
+        self.client.force_login(self.owner)
+
+    def test_no_subscription(self, render_to_response):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        context = render_to_response.call_args.args[0]
+        assert context["organization"] == self.organization
+        assert context["stripe_subscription"] is None
+        assert context["plan_name"] is None
+        assert not context["sso_enabled"]
+
+    def test_subscription(self, render_to_response):
+        subscription = get(djstripe.Subscription, customer=get(djstripe.Customer))
+        for product_id, name in [("prod_extra", "Extra builder"), ("prod_plan", "Advanced")]:
+            price = get(djstripe.Price, product=get(djstripe.Product, id=product_id, name=name))
+            get(djstripe.SubscriptionItem, subscription=subscription, price=price, quantity=1)
+        self.organization.stripe_subscription = subscription
+        self.organization.save()
+
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        context = render_to_response.call_args.args[0]
+        assert context["stripe_subscription"] == subscription
+        assert context["plan_name"] == "Advanced"
+        assert context["audit_logs"].value == 90
+
+    def test_not_owner(self, render_to_response):
+        self.client.force_login(get(User))
+        response = self.client.get(self.url)
+        assert response.status_code == 404
 
 
 @override_settings(

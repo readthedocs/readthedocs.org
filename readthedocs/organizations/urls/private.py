@@ -24,6 +24,11 @@ urlpatterns = [
         name="organization_create",
     ),
     re_path(
+        r"^(?P<slug>[\w.-]+)/settings/$",
+        views.OrganizationSettingsOverview.as_view(),
+        name="organization_settings",
+    ),
+    re_path(
         r"^(?P<slug>[\w.-]+)/edit/$",
         views.EditOrganization.as_view(),
         name="organization_edit",

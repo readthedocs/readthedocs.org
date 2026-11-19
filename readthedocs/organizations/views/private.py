@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from vanilla import CreateView
+from vanilla import DetailView
 from vanilla import FormView
 from vanilla import ListView
 from vanilla import UpdateView
@@ -35,7 +36,9 @@ from readthedocs.organizations.views.base import OrganizationTeamView
 from readthedocs.organizations.views.base import OrganizationView
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
+from readthedocs.subscriptions.constants import TYPE_SSO
 from readthedocs.subscriptions.products import get_feature
+from readthedocs.subscriptions.products import get_product
 
 
 # Organization views
@@ -105,6 +108,28 @@ class ChooseOrganization(ListOrganization):
         c["next_name"] = self.next_name
         c["next_querystring"] = self.next_querystring
         return c
+
+
+class OrganizationSettingsOverview(PrivateViewMixin, OrganizationView, DetailView):
+    template_name = "organizations/settings/organization_settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subscription = self.object.stripe_subscription
+        context["stripe_subscription"] = subscription
+        context["plan_name"] = self._get_plan_name(subscription)
+        context["sso_enabled"] = bool(get_feature(self.object, TYPE_SSO))
+        context["audit_logs"] = get_feature(self.object, TYPE_AUDIT_LOGS)
+        return context
+
+    def _get_plan_name(self, subscription):
+        if not subscription:
+            return None
+        for item in subscription.items.select_related("price__product"):
+            product = get_product(item.price.product.id)
+            if product and not product.extra:
+                return item.price.product.name
+        return None
 
 
 class EditOrganization(
