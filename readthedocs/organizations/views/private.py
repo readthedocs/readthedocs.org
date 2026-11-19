@@ -34,10 +34,8 @@ from readthedocs.organizations.views.base import OrganizationOwnerView
 from readthedocs.organizations.views.base import OrganizationTeamMemberView
 from readthedocs.organizations.views.base import OrganizationTeamView
 from readthedocs.organizations.views.base import OrganizationView
-from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
-from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.constants import TYPE_SSO
 from readthedocs.subscriptions.products import get_feature
@@ -123,10 +121,6 @@ class OrganizationSettingsOverview(PrivateViewMixin, OrganizationView, DetailVie
         context["plan_name"] = self._get_plan_name(subscription)
         context["sso_enabled"] = bool(get_feature(self.object, TYPE_SSO))
         context["audit_logs"] = get_feature(self.object, TYPE_AUDIT_LOGS)
-        context["custom_domains_enabled"] = bool(get_feature(self.object, TYPE_CNAME))
-        context["custom_domains"] = Domain.objects.filter(
-            project__organizations=self.object
-        ).count()
         concurrent_builds = get_feature(self.object, TYPE_CONCURRENT_BUILDS)
         context["concurrent_builds"] = self.object.max_concurrent_builds or (
             concurrent_builds.value if concurrent_builds else None
