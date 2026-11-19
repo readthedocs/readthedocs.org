@@ -88,6 +88,13 @@ Read the Docs: documentation simplified
    /custom-script
 
 .. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Account management
+
+   /account/user/connected-services
+
+.. toctree::
    :maxdepth: 1
    :hidden:
    :caption: Business features
