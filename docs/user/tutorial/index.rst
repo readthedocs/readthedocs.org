@@ -318,12 +318,14 @@ and you will see several warnings:
 
 .. code-block:: text
 
-   WARNING: [autosummary] failed to import 'lumache': no module named lumache
+   WARNING: [autosummary] failed to import lumache.
    ...
-   WARNING: autodoc: failed to import function 'get_random_ingredients' from module 'lumache'; the following exception was raised:
-   No module named 'lumache'
-   WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
-   No module named 'lumache'
+   WARNING: autodoc: failed to import 'get_random_ingredients' from module 'lumache'; the following exception was raised:
+   ...
+   ModuleNotFoundError: No module named 'lumache'
+   WARNING: autodoc: failed to import 'InvalidKindError' from module 'lumache'; the following exception was raised:
+   ...
+   ModuleNotFoundError: No module named 'lumache'
 
 To spot these warnings more easily and help you to address them,
 add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
