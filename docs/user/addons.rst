@@ -38,12 +38,9 @@ and can be accessed via hotkeys or on screen UI elements.
 Configuring Read the Docs Addons
 --------------------------------
 
-Individual configuration options for each addon are available in :guilabel:`Settings`.
+Individual configuration options for each addon are available in your project's settings.
 
-#. Go to the new :term:`dashboard`.
-#. Click on a project name.
-#. Go to :guilabel:`Settings`.
-#. In the left bar, go to :guilabel:`Addons`.
+#. Go to your project's :menuselection:`Settings --> Addons`.
 #. Configure each Addon individually.
 
 Integrating with Addons

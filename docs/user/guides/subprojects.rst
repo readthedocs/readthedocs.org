@@ -15,7 +15,7 @@ Adding a subproject
 
 The following steps can be used to connect two existing projects together:
 
-* Go to :menuselection:`Settings --> Subprojects` for the project that will act
+* Go to :menuselection:`Settings --> Subprojects` of the project that will act
   as your **parent project**.
 * Click :guilabel:`Add subproject`
 

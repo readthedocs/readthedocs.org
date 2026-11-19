@@ -20,8 +20,8 @@ Common sharing use cases include:
 Creating a shared item
 ----------------------
 
-* Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
-* Click on :guilabel:`New Share`
+* Go to your project's :menuselection:`Settings --> Sharing`.
+* Click on :guilabel:`Add share`.
 * Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* to help with managing access in the future.
 * Check ``Allow access to all versions?`` if you want to grant access to all versions,

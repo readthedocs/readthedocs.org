@@ -48,9 +48,7 @@ Configuring a custom selector
 
 If the automatic detection does not work for your project, you can explicitly set the CSS selector for the main content node in your project settings:
 
-#. Go to your project's :guilabel:`Settings`.
-#. Click :guilabel:`Addons`.
-#. Open :guilabel:`Advanced`
+#. Go to your project's :menuselection:`Settings --> Addons --> Advanced`.
 #. Fill in the :guilabel:`CSS main content selector` field (for example: ``div#main`` or ``.my-content``). Leave it blank to use automatic detection.
 #. Save the settings.
 

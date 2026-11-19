@@ -26,11 +26,10 @@ Follow these steps:
 
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
-3. Click on :guilabel:`Settings`.
-4. In the sidebar, click on :guilabel:`Owners`.
-5. Click :guilabel:`Invite owner`.
-6. Enter the user's Read the Docs username or email address.
-7. Click :guilabel:`Invite owner`.
+3. Go to :menuselection:`Settings --> Owners`.
+4. Click :guilabel:`Invite owner`.
+5. Enter the user's Read the Docs username or email address.
+6. Click :guilabel:`Invite owner`.
 
 The user will receive an invitation and must accept it to become an owner.
 
@@ -43,9 +42,8 @@ Follow these steps:
 
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
-3. Click on :guilabel:`Settings`.
-4. In the sidebar, click on :guilabel:`Owners`.
-5. Click :guilabel:`Remove` next to the owner you want to remove.
+3. Go to :menuselection:`Settings --> Owners`.
+4. Click :guilabel:`Remove` next to the owner you want to remove.
 
 .. note::
 

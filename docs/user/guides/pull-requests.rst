@@ -9,8 +9,7 @@ See `Limitations`_ for more information.
 
 To enable or disable pull request builds:
 
-#. Go to your project dashboard
-#. Go to :guilabel:`Settings`, then :guilabel:`Pull request builds`
+#. Go to your project's :menuselection:`Settings --> Pull request builds`.
 #. Enable or disable the :guilabel:`Build pull requests for this project` option
 #. Click on :guilabel:`Update`
 
@@ -58,8 +57,7 @@ while private previews are only available to users with access to the Read the D
 
 To change the privacy level:
 
-#. Go to your project dashboard
-#. Go to :guilabel:`Settings`, then :guilabel:`Pull request builds`
+#. Go to your project's :menuselection:`Settings --> Pull request builds`.
 #. Select your option in :guilabel:`Privacy level of builds from pull requests`
 #. Click on :guilabel:`Update`
 
@@ -91,15 +89,13 @@ No new builds are started when I open a pull request
    send pull request events. You can re-sync your project's
    webhook integration to reconfigure the Read the Docs webhook.
 
-   To re-sync your project's webhook, go to your project's admin dashboard,
-   :guilabel:`Integrations`, and then select the webhook integration for your
-   provider. Follow the directions to re-sync the webhook, or create a new
-   webhook integration.
+   To re-sync your project's webhook, go to your project's :menuselection:`Settings --> Integrations`,
+   and then select the webhook integration for your provider.
+   Follow the directions to re-sync the webhook, or create a new webhook integration.
 
    You may also notice this behavior if your Read the Docs account is not
    connected to your Git provider account, or if it needs to be reconnected.
-   You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
-   :guilabel:`Settings`, then to :guilabel:`Connected Services`.
+   You can (re)connect your account by going to :menuselection:`<Username dropdown> --> Settings --> Connected services`.
 
 Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
