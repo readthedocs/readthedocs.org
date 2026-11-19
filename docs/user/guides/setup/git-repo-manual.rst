@@ -55,7 +55,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
    .. tab:: GitLab
 
-      * Go to :menuselection:`Settings --> Webhooks` of your **GitLab project**
+      * Go to :menuselection:`Settings --> Webhooks` of your **GitLab repository**
       * For **URL**, use the URL of the integration on **Read the Docs project**,
         found on your project's :menuselection:`Settings --> Integrations` page
       * Fill the **Secret token** field with the value from the integration on Read the Docs
@@ -91,7 +91,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
       On your Gitea instance:
 
-      * Go to :menuselection:`Settings --> Webhooks` of your project on your Gitea instance
+      * Go to :menuselection:`Settings --> Webhooks` of your **Gitea repository**
       * Create a new webhook of type "Gitea"
       * For **URL**, use the URL of the integration on Read the Docs,
         found on your project's :menuselection:`Settings --> Integrations` page
