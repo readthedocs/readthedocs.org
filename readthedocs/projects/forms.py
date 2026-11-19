@@ -336,6 +336,19 @@ class ProjectPRBuildsMixin(PrevalidatedForm):
                 url=url,
             )
 
+        if msg and self.instance.is_legacy_github_project:
+            msg = format_html(
+                "{} {}",
+                msg,
+                format_html(
+                    _(
+                        'Or <a href="{url}">migrate this project to the GitHub App</a>, '
+                        "which needs no webhook and adds build overview comments."
+                    ),
+                    url=reverse("migrate_to_github_app"),
+                ),
+            )
+
         if msg:
             # TODO use a proper error/warning instead of help text for error states
             field = self.fields["external_builds_enabled"]

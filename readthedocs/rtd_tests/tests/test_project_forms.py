@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.safestring import SafeString
 from django_dynamic_fixture import get
 
@@ -1584,6 +1585,14 @@ class TestGitHubAppMigrationPrompts(TestCase):
         self._connect(GITLAB)
         form = ProjectPullRequestForm(instance=self.project, project=self.project)
         assert "show_build_overview_in_comment" not in form.fields
+
+    def test_pull_request_builds_error_suggests_migration(self):
+        self._connect(GITHUB)
+        form = ProjectPullRequestForm(instance=self.project, project=self.project)
+        form.full_clean()
+        field = form.fields["external_builds_enabled"]
+        assert field.disabled
+        assert reverse("migrate_to_github_app") in field.help_text
 
     def test_webhook_filters_prompt_legacy_github_projects(self):
         self._connect(GITHUB)
