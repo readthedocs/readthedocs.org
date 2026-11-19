@@ -1,3 +1,7 @@
+# These screenshots are created using the rtfd-qa user. This users only has read
+# access to select repositories, invite the user again if it is missing from the
+# test-builds project.
+
 # Webhook creation
 - url: https://app.readthedocs.org/dashboard/test-builds/webhooks/create/
   selector_all: |-
@@ -8,6 +12,7 @@
   padding: 20
   output: community-project-webhook-create.png
 
+# Webhook activity
 - url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
   javascript: |-
     document

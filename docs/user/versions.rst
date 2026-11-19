@@ -32,8 +32,8 @@ create either a tag or branch in your project with that name.
    The comparison uses the tag or branch name from your Git repository,
    not the version slug shown in URLs.
 
-When you have :doc:`/reference/git-integration` configured for your repository,
-we will automatically build each version when you push a commit.
+When a project has :doc:`an integration </projects/integrations/index>` configured,
+we will automatically build each version when you push a commit to its associated branch or tag.
 
 Version states
 --------------
@@ -74,10 +74,10 @@ Version syncing
 
 Versions are automatically synced when the following events happen:
 
-* A commit is pushed to your Git repository and you have a :doc:`Git integration </reference/git-integration>` configured.
-* A build for any of your version is triggered.
+* A commit is pushed to your Git repository and your project has :doc:`an integration </projects/integrations/index>` configured.
+* A build for any of the project's versions is triggered.
 
-If you find that your versions are out of date,
+If you find that the project's versions are out of date,
 triggering a build is the best approach to ensuring they are synced again.
 
 Managing your versions

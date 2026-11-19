@@ -56,10 +56,10 @@ and can be integrated in your documentation with :doc:`/addons`.
 
 .. seealso::
 
-    :doc:`/guides/setup/git-repo-manual`
-        Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
+    :doc:`/projects/integrations/guides/creating`
+        Creating a project integration so that repository changes trigger new builds.
     :doc:`/automation-rules`
-        Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
+        Automating changes to your project based on changes to the repository.
     :doc:`/flyout-menu`
         Discover the functionality of the Flyout menu and the ways that it can be customized.
     :doc:`/guides/build/direct-upload`

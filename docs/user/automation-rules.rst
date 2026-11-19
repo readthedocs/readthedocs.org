@@ -119,8 +119,8 @@ When more than one filter is configured, **all** of them must match for the rule
 .. note::
 
    Webhook filters are only available for projects connected through the
-   :doc:`GitHub App integration </reference/git-integration>`.
-   Rules that don't use webhook filters keep working with every Git provider.
+   :doc:`GitHub App integration </projects/integrations/github-app>`.
+   Rules that don't use webhook filters keep working with every integration type.
 
 .. note::
 

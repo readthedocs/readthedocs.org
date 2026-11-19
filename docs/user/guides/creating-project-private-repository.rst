@@ -3,6 +3,10 @@ Creating a project from a private repository
 
 .. include:: /shared/admonition-rtd-business.rst
 
+.. TODO roll most of this page into a single creating a project guide. There
+   should be a guide for creating a project from a public repository too, but no
+   need to keep these separate.
+
 On |com_brand|, projects can be connected to both private and public repositories.
 There are two methods you can use to create a project from a private repository:
 
@@ -39,12 +43,6 @@ projects may be able to be manually created and configured.
 You can still clone the repository with SSH but you will have to manually
 configure the repository SSH keys and webhooks.
 
-.. seealso::
-
-    :doc:`/guides/setup/git-repo-manual`
-        An overview of all of the steps required to manually add a project.
-        This guide is useful for both projects using public and private repositories.
-
 Creating a project manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,82 +70,13 @@ In the next form page you will manually configure your project's repository deta
 #. The project's first build should fail to clone your repository.
    This is expected, your repository is not configured to allow access yet.
 
-Configuring your repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring an integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Each project is configured with an SSH key pair consisting of a public and private key.
-Your repository will need to be configured with the public SSH key
-in order to allow builds to clone your repository.
+Finally, you will need to :doc:`create an integration </projects/integrations/guides/creating>`
+in order to configure your repository and project to work together.
+This will create the repository webhook and SSH keys needed to clone the repository.
 
-.. figure:: /img/screenshots/business-project-ssh-key.png
-   :scale: 40%
-   :align: right
-   :alt: Project SSH key details.
-
-#. Go to the :menuselection:`Settings --> SSH keys` page for your project.
-#. Click on the fingerprint of the SSH key.
-#. Copy the text from the :guilabel:`Public SSH key` field
-#. Next, configure your repository with this key,
-   we've provided instructions for common Git providers:
-
-.. tabs::
-
-   .. tab:: GitHub
-
-      For GitHub, you can use
-      `deploy keys with read only access <https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys>`__.
-
-      #. Go to your project on GitHub
-      #. Click on :guilabel:`Settings`
-      #. Click on :guilabel:`Deploy Keys`
-      #. Click on :guilabel:`Add deploy key`
-      #. Put a descriptive title and paste the public key you copied above.
-      #. Click on :guilabel:`Add key`
-
-   .. tab:: GitLab
-
-      For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.com/ee/user/project/deploy_keys/index.html>`__.
-
-      #. Go to your project on GitLab
-      #. Click on :guilabel:`Settings`
-      #. Click on :guilabel:`Repository`
-      #. Expand the :guilabel:`Deploy Keys` section
-      #. Put a descriptive title and paste the public key you copied above.
-      #. Click on :guilabel:`Add key`
-
-   .. tab:: Bitbucket
-
-      For Bitbucket, you can use `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__.
-
-      #. Go your project on Bitbucket
-      #. Click on :guilabel:`Repository Settings`
-      #. Click on :guilabel:`Access keys`
-      #. Click on :guilabel:`Add key`
-      #. Put a descriptive label and paste the public key you copied above.
-      #. Click on :guilabel:`Add SSH key`
-
-   .. tab:: Azure DevOps
-
-      For Azure DevOps, you can use `SSH key authentication <https://docs.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate?view=azure-devops>`__.
-
-      #. Go your Azure DevOps page
-      #. Click on :guilabel:`User settings`
-      #. Click on :guilabel:`SSH public keys`
-      #. Click on :guilabel:`New key`
-      #. Put a descriptive name and paste the public key you copied above.
-      #. Click on :guilabel:`Add`
-
-   .. tab:: Others
-
-      If you are using a provider not listed here,
-      you should still be able to configure your repository with your project's SSH key.
-      Refer to your provider's documentation for managing SSH keys on private repositories.
-
-Configuring repository webhooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Your repository will also need to be configured to push updates via webhooks to Read the Docs on repository events.
-Webhook updates are used to automatically trigger new builds for your project and synchronize your repository's branches and tags.
-
-This step is the same for public repositories,
-follow the directions for :doc:`manually configuring a Git repository integration </guides/setup/git-repo-manual>`.
+.. seealso::
+   :doc:`/projects/integrations/guides/creating`
+      All of the steps needed to connect your project to a repository and start building.

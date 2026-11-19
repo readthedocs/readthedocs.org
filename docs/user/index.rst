@@ -20,6 +20,7 @@ Welcome to Read the Docs
    /config-file/v2
    /addons
    /intro/accounts
+   /projects/integrations/index
    /automation-rules
    /guides/reproducible-builds
 
@@ -31,7 +32,6 @@ Welcome to Read the Docs
    /builds
    /build-customization
    /guides/build/direct-upload
-   /reference/git-integration
    /pull-requests
    /build-notifications
    /environment-variables
