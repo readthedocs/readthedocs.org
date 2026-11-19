@@ -182,6 +182,14 @@ class HttpExchange(models.Model):
         # Assume anything that isn't 2xx level status code is an error
         return not (200 <= self.status_code < 300)
 
+    @property
+    def response_detail(self):
+        """Short description of the response, if it has one."""
+        try:
+            return json.loads(self.response_body).get("detail", "")
+        except ValueError, AttributeError:
+            return ""
+
     def formatted_json(self, field):
         """Try to return pretty printed and Pygment highlighted code."""
         value = getattr(self, field) or ""
