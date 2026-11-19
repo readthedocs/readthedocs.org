@@ -628,7 +628,6 @@ class GitHubAppWebhookHandler:
                         ):
                             log.info(
                                 "Automation rule matched, triggering build.",
-                                project_slug=project.slug,
                                 rule_id=rule.pk,
                                 rule_version_types=rule.version_types,
                                 version_slug=version.slug,
@@ -727,7 +726,6 @@ class GitHubAppWebhookHandler:
                         ):
                             log.info(
                                 "Automation rule matched, triggering build.",
-                                project_slug=project.slug,
                                 rule_id=rule.pk,
                                 rule_version_types=rule.version_types,
                                 version_slug=external_version.slug,
@@ -861,7 +859,7 @@ class GitHubAppWebhookHandler:
         else:
             version_name, _ = parse_version_from_ref(self.data["ref"])
             detail = f"Push to {version_name}: {detail}"
-        log.info("Recorded GitHub App event.", project_slug=project.slug, event_detail=detail)
+        log.info("Recorded GitHub App event.", event_detail=detail)
         integration = project.integrations.filter(integration_type=Integration.GITHUBAPP).first()
         if integration:
             HttpExchange.objects.create(
@@ -877,6 +875,8 @@ class GitHubAppWebhookHandler:
         """
         Get all projects linked to the repository that triggered the event.
 
+        Each project's slug is bound to the logger while it's being handled.
+
         .. note::
 
            This should only be used for events that have a repository object.
@@ -889,8 +889,10 @@ class GitHubAppWebhookHandler:
                 "Repository not found in installation, skipping event.",
                 repository_id=self.data.get("repository", {}).get("id"),
             )
-            return Project.objects.none()
-        return remote_repository.projects.all()
+            return
+        for project in remote_repository.projects.all():
+            structlog.contextvars.bind_contextvars(project_slug=project.slug)
+            yield project
 
     def _get_remote_repository(self):
         """
