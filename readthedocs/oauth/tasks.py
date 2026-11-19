@@ -859,7 +859,8 @@ class GitHubAppWebhookHandler:
         if self.event == "pull_request":
             detail = f"Pull request #{self.data['pull_request']['number']}: {detail}"
         else:
-            detail = f"Push to {self.data['ref'].split('/', 2)[-1]}: {detail}"
+            version_name, _ = parse_version_from_ref(self.data["ref"])
+            detail = f"Push to {version_name}: {detail}"
         log.info("Recorded GitHub App event.", project_slug=project.slug, event_detail=detail)
         integration = project.integrations.filter(integration_type=Integration.GITHUBAPP).first()
         if integration:
