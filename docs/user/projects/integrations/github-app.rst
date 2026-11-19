@@ -31,12 +31,6 @@ and differs in how projects operate and features supported on GitHub:
 Permissions
 -----------
 
-Read the Docs requests the following account level permissions when you install
-our GitHub App:
-
-Account email addresses (read only)
-   We ask for this so we can verify your email address and create a Read the Docs account.
-
 When you install the GitHub App on a repository, you are asked to grant the following
 repository permissions:
 

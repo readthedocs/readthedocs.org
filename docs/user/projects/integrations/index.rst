@@ -3,7 +3,10 @@ Integrations
 
 Project integrations are how Git hosting providers, like GitHub and GitLab,
 interact directly with projects on Read the Docs.
-They are responsible for repository configuration, synchronization, and performing actions on your Read the Docs project.
+They are responsible for repository configuration, synchronization,
+and performing actions on your Read the Docs project.
+Project can use more than one integration,
+using any mix of `supported integration types <Integration types_>`_.
 
 How they work
 -------------
@@ -23,7 +26,7 @@ the integration can perform actions such as:
 * Synchronizing your :doc:`versions </versions>` from the latest branch and tag data in Git.
 * Creating a :doc:`pull request build </pull-requests>`.
 * Running your :doc:`automation rules </automation-rules>`.
-* :ref:`Synchronizing user permissions <sso_git_provider>` from your repository (|com_brand| only)
+* :ref:`Synchronizing user permissions <sso_git_provider>` from your repository (|com_brand| only).
 
 Configuration methods
 ---------------------
@@ -31,38 +34,39 @@ Configuration methods
 There are two ways that integrations can be configured for a project:
 
 `Automatically configured`_
-    The repository and project are automatically configured, no manual set up is
-    required.
+    All of the configuration steps required to clone and interact with the
+    repository are handled by the integration.
 
 `Manually configured`_
-    All configuration of the project and repository will be managed by project
-    maintainers
+    No configuration steps are managed by the integration, project maintainers
+    are responsible for setting up the project and repository.
 
 Automatically configured
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-For projects using a :term:`connected repository` with a supported Git provider,
+For projects using a :term:`connected repository`,
 integrations can be automatically configured for the project.
+Projects *created* using a connected repository will start off with an integration already.
+The integration will handle all of the configuration steps required for
+the project and repository to interact.
 
-This will set up the provider repository with everything that is needed and **no
-further configuration steps will be required**. This is the recommended
-configuration method for most projects.
+This method requires a project maintainer (or organization admin on |com_brand|) to have a
+:doc:`connected service account </account/user/connected-services>`,
+which a project integration may use to interact with the project's repository.
+Where a connected service account links a Read the Docs user to a remote service account,
+project integrations link a *project to a repository*.
 
-This method requires a maintainer of the project *to have a connected service
-account with the repository provider* so that the project can be configured with
-a connected repository.
-
+**This is the recommended configuration method for most projects.**
 Projects using a manual repository URL must use
-`a manually configured integration <Manually configured>`_ instead.
+`a manually configured integration <Manually configured_>`_ instead.
 
 .. seealso::
 
    :doc:`/intro/add-project`
-      Add your project and create its Git integration.
+      Add your project and create a project integration.
 
    :doc:`/guides/connecting-git-account`
-      Create or remove a connected service, which is what lets Read the Docs
-      configure new Git integrations for you.
+      How to manage connected services for your user.
 
 Manually configured
 ~~~~~~~~~~~~~~~~~~~
@@ -81,15 +85,21 @@ Integration types
    explicit for now.
 
 There are multiple integration types available for projects,
-each supporting different services and APIs:
+each supporting different services and APIs.
+Integrations can all be created automatically or manually,
+with the exception of our GitHub App integration.
+The supported integration types are:
 
 :doc:`./github-app`
    Our GitHub App integration provides granular permissions and several features not
-   supported by other integrations or providers.
+   supported by other integrations or providers, like GitHub pull request commenting.
    This integration is the recommended type for repositories hosted on GitHub.
+   These integrations are only ever automatically configured,
+   it's not possible to create a GitHub App integration manually.
 
 :ref:`projects/integrations/webhook:GitHub incoming webhook`
-   Our legacy GitHub integration, best for projects not yet using our GitHub App integration.
+   Our legacy GitHub integration, best for projects not yet using our GitHub App integration
+   or users using a GitHub OAuth :doc:`connected service account </account/user/connected-services>`.
    Several other providers use an identical API and can reuse this integration.
 
 :ref:`projects/integrations/webhook:GitLab incoming webhook`
@@ -112,24 +122,23 @@ each supporting different services and APIs:
 Using integrations
 ------------------
 
-.. TODO tune this copy, it's sloppy.
-
-To start using an integration, you may only need to create a project.
-However if you need to configure an integration manually at all,
-the following guides will help you understand how to manage your project's
-integration.
+Most project integrations should be created and used seamlessly,
+without maintenance required after initial setup.
+However, if your project is manually configured
+or you encounter any problems with the integration or your repository,
+the following guides will help explain how to manage project integrations.
 
 :doc:`./guides/creating`
-    How to create an integration and configure a repository to use the
-    integration.
+    How to create an integration
+    and configure a repository to use the integration.
 
 :doc:`./guides/creating-generic`
-    How to create a generic API integration and configure a repository to use
-    the integration.
+    How to create a generic API integration
+    and configure a repository to use the integration.
 
 :doc:`./guides/managing-github-app`
-    How to manage a GitHub App integration, including how to accept permissions
-    and install the application for your repository and organization.
+    How to manage a GitHub App integration,
+    including how to accept permissions and install the application for your repository and organization.
 
 .. toctree::
    :glob:
@@ -146,10 +155,10 @@ If you run into any trouble or errors with your integration or project,
 follow some of the troubleshooting steps for your integration:
 
 :doc:`./guides/troubleshooting-webhooks`
-    Troubleshooting problems with any of the :doc:`./webhook`,
+    How to troubleshoot problems with :doc:`webhook integrations <./webhook>`.
 
 :doc:`./guides/troubleshooting-github-app`
-    Troubleshooting problems with :doc:`./github-app` integrations.
+    How to troubleshoot problems with :doc:`GitHub App integrations <./github-app>`.
 
 .. toctree::
    :glob:
