@@ -6,6 +6,7 @@ import structlog
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -215,7 +216,14 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
-    project = Project.objects.get(pk=project_pk)
+    # Concurrent syncs create duplicate versions and trigger the stable build twice,
+    # so each sync waits on the project row until the previous one finishes.
+    with transaction.atomic():
+        project = Project.objects.select_for_update().get(pk=project_pk)
+        return _sync_versions(project, tags_data, branches_data)
+
+
+def _sync_versions(project, tags_data, branches_data):
 
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
@@ -260,7 +268,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         # The order of added_versions isn't deterministic.
         # We don't track the commit time or any other metadata.
         # We usually have one version added per webhook.
-        run_version_automation_rules(project, added_versions, deleted_active_versions)
+        with transaction.atomic():
+            run_version_automation_rules(project, added_versions, deleted_active_versions)
     except Exception:
         # Don't interrupt the request if something goes wrong
         # in the automation rules.
