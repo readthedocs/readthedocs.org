@@ -10,7 +10,7 @@ The following how-to guides help you solve common tasks and challenges in the se
     If you are connecting a Git repository from another provider (for instance Gitea or Codeberg),
     this guide tells you how to add and configure the webhook **manually**.
 
-⏩️ :doc:`Managing custom domains </guides/custom-domains>`
+⏩️ :doc:`Managing custom domains </custom-domains>`
     Hosting your documentation using your own domain name, such as ``docs.example.com``.
 
 ⏩️ :doc:`Using custom URL redirects in documentation projects </guides/redirects>`
@@ -42,7 +42,7 @@ The following how-to guides help you solve common tasks and challenges in the se
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
    Configuring a Git repository manually </guides/setup/git-repo-manual>
-   Managing custom domains </guides/custom-domains>
+   Managing custom domains </custom-domains>
    /guides/subprojects
    Hiding a version </guides/hiding-a-version>
    Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>
