@@ -253,6 +253,8 @@ class CommunityBaseSettings(Settings):
     DOC_PATH_PREFIX = "_/"
 
     RTD_EXT_THEME_DEV_SERVER = None
+    # Show the Read the Docs logo, favicon and footer links in the dashboard
+    RTD_USE_BRANDING = False
 
     # Application classes
     @property
