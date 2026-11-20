@@ -91,6 +91,9 @@ moment.
 This prevents unrelated files from appearing as changed when the base branch
 moves forward while the pull request is open.
 
+If you later merge the base branch into your pull request,
+the snapshot is refreshed on the next build so the diff reflects the new baseline.
+
 How main content is detected
 ----------------------------
 
@@ -110,8 +113,9 @@ Limitations and known issues
 
 - The diff considers HTML files only.
 - The diff is done between the files from the latest successful build of the pull request and the default base version (latest by default).
-  A snapshot of the base version's manifest is saved on the first successful build of the pull request, so the diff stays stable as the base branch moves forward.
-  If the pull request is later updated against a newer base, the snapshot is not currently refreshed automatically, and the diff may show stale differences until this is addressed in a future update.
+- If the base branch has moved further than the commits you merged into your pull request,
+  a few files that only changed on the base branch can still appear in the diff.
+  The gap is small for active projects and closes when you merge the base branch in again.
 - Invisible changes. Some sections may be highlighted as changed, even when they haven't actually visually changed.
   This can happen when the underlying HTML changes without a corresponding visual change, for example, if a link's URL is updated.
 - Tables may be shown to have changes when they have not actually changed.

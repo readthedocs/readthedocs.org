@@ -1,4 +1,5 @@
 import os
+import subprocess
 import textwrap
 from readthedocs.core.utils.filesystem import safe_rmtree
 from os.path import exists
@@ -194,6 +195,31 @@ class TestGitBackend(TestCase):
         self.assertIsNone(repo.checkout())
 
         self.assertTrue(exists(repo.working_dir))
+
+    def test_git_contains_commit(self):
+        # ``submodule`` branched off before master's tip, so a checkout of it
+        # doesn't hold that commit until master is merged in.
+        base_commit = get_git_latest_commit_hash(self.project.repo, "master")
+        version = fixture.get(
+            Version,
+            project=self.project,
+            slug="submodule",
+            identifier="submodule",
+            verbose_name="submodule",
+            type=BRANCH,
+        )
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+        repo.checkout("submodule")
+        self.assertFalse(repo.contains_commit(base_commit))
+        # A commit the clone has never seen is "no", not an error.
+        self.assertFalse(repo.contains_commit("0" * 40))
+
+        subprocess.check_output(["git", "-C", self.project.repo, "checkout", "submodule"])
+        subprocess.check_output(["git", "-C", self.project.repo, "merge", "--no-edit", "master"])
+        repo.fetch()
+        repo.checkout("submodule")
+        self.assertTrue(repo.contains_commit(base_commit))
 
     def test_git_checkout_invalid_revision(self):
         version = self.project.versions.first()

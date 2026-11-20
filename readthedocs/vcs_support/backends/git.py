@@ -468,6 +468,17 @@ class Backend(BaseVCS):
         _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
         return stdout.strip()
 
+    def contains_commit(self, commit):
+        """
+        Whether ``commit`` is an ancestor of ``HEAD``.
+
+        A commit missing from the shallow clone is reported as not contained.
+        """
+        exit_code, _, _ = self.run(
+            "git", "merge-base", "--is-ancestor", commit, "HEAD", record=False
+        )
+        return exit_code == 0
+
     @property
     def submodules(self) -> Iterable[str]:
         r"""

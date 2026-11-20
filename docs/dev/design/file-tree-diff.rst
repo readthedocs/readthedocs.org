@@ -322,6 +322,39 @@ Other features that are not mentioned here, like exposing the number of lines th
 or a public API, will not be implemented in the initial version,
 and may be considered in the future (and their implementation is subject to change).
 
+Base snapshot for pull requests
+-------------------------------
+
+The first successful build of a pull request stores a copy of the base version's manifest
+(``base_manifest_snapshot.json``), and diffs compare against that copy.
+This keeps changes that land on the base branch later from showing up as changes made by the pull request.
+
+The snapshot is refreshed once the pull request merges the base branch in,
+otherwise the base's own changes would show up as added by the pull request.
+Only the build has the git clone needed to know that:
+
+- The API sends the build the commit of the base version's latest successful build (``version.base_commit``).
+- After checkout, the build runs ``git merge-base --is-ancestor <base_commit> HEAD``,
+  and reports the commit back as ``Build.base_commit`` when it is an ancestor.
+  No extra fetch is needed, a commit that isn't in the pull request's history is not an ancestor.
+- When the build is indexed, the snapshot is rewritten from the base version's current manifest if ``Build.base_commit`` is set.
+
+Every step is best effort.
+A build that isn't sent a commit, doesn't report one, or fails to check for it keeps the snapshot it has.
+
+The snapshot is not refreshed when:
+
+- The base version was built again after the point the pull request merged in.
+  The commit the build is asked about is then newer than what the pull request contains.
+- The base commit is more than 50 commits behind the pull request's head,
+  since that is as much history as the build fetches.
+  This happens when a pull request with more commits than that is rebased.
+
+In both cases the pull request catches up the next time it merges the base branch in.
+If the base version finishes a build while the pull request is building,
+the snapshot is one build newer than the commit that was checked.
+Closing these gaps needs a manifest per build instead of one per version.
+
 Possible issues
 ---------------
 

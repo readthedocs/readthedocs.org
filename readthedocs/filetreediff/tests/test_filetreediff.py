@@ -327,6 +327,18 @@ class TestsBaseManifestSnapshot(TestCase):
         snapshot_base_manifest(self.pr_version, self.base_version)
         storage_open.assert_not_called()
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists", return_value=True)
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_force_refresh_overwrites_existing_snapshot(self, storage_open, storage_exists):
+        """``force_refresh=True`` rewrites the snapshot from the live base manifest."""
+        storage_open.side_effect = [
+            _mock_manifest(self.base_build.id, {"index.html": "fresh-hash"})(),
+            mock.MagicMock(),
+        ]
+        snapshot_base_manifest(self.pr_version, self.base_version, force_refresh=True)
+        # Two calls: read the live base manifest, then write the snapshot.
+        assert storage_open.call_count == 2
+
 
 class TestsGetBaseVersion(TestCase):
     def setUp(self):
