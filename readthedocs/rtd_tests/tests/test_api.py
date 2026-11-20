@@ -3768,6 +3768,22 @@ class APIVersionTests(TestCase):
             assert resp.status_code == 200
             assert resp.data["base_commit"] == base_commit
 
+    def test_get_version_survives_a_failing_base_commit(self):
+        pip = Project.objects.get(slug="pip")
+        external_version = get(Version, project=pip, slug="42", type=EXTERNAL, active=True)
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+
+        with mock.patch(
+            "readthedocs.api.v2.serializers.get_base_version", side_effect=Exception("boom")
+        ):
+            resp = self.client.get(
+                reverse("version-detail", kwargs={"pk": external_version.pk}),
+                headers={"authorization": f"Token {build_api_key}"},
+            )
+
+        assert resp.status_code == 200
+        assert resp.data["base_commit"] is None
+
     def test_get_active_versions(self):
         """Test the full response of
         ``/api/v2/version/?project__slug=pip&active=true``"""

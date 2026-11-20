@@ -303,6 +303,24 @@ class TestBuildTask(BuildEnvironmentBase):
 
         assert all("base_commit" not in payload for payload in self._build_patch_payloads())
 
+    @mock.patch("readthedocs.vcs_support.backends.git.Backend.contains_commit")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
+    def test_build_survives_a_failing_base_commit_check(
+        self, build_docs_class, load_yaml_config, contains_commit
+    ):
+        load_yaml_config.return_value = get_build_config({"version": 2}, validate=True)
+        build_docs_class.return_value = True
+        self._mock_external_version_with_base_commit()
+        contains_commit.side_effect = Exception("boom")
+
+        self._trigger_update_docs_task()
+
+        # The build got past the checkout, without a base commit.
+        payloads = self._build_patch_payloads()
+        assert "installing" in [payload["state"] for payload in payloads]
+        assert all("base_commit" not in payload for payload in payloads)
+
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.sync_versions")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_sync_versions_called_for_internal_versions(self, load_yaml_config, sync_versions):

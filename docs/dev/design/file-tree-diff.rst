@@ -336,12 +336,24 @@ Only the build has the git clone needed to know that:
 - The API sends the build the commit of the base version's latest successful build (``version.base_commit``).
 - After checkout, the build runs ``git merge-base --is-ancestor <base_commit> HEAD``,
   and reports the commit back as ``Build.base_commit`` when it is an ancestor.
-  No extra fetch is needed, the clone only has that commit when the pull request contains it.
+  No extra fetch is needed, a commit that isn't in the pull request's history is not an ancestor.
 - When the build is indexed, the snapshot is rewritten from the base version's current manifest if ``Build.base_commit`` is set.
 
-If the base branch moved further than what the pull request merged in,
-the refreshed snapshot is a few commits too new.
-Closing that gap needs a manifest per build instead of one per version.
+Every step is best effort.
+A build that isn't sent a commit, doesn't report one, or fails to check for it keeps the snapshot it has.
+
+The snapshot is not refreshed when:
+
+- The base version was built again after the point the pull request merged in.
+  The commit the build is asked about is then newer than what the pull request contains.
+- The base commit is more than 50 commits behind the pull request's head,
+  since that is as much history as the build fetches.
+  This happens when a pull request with more commits than that is rebased.
+
+In both cases the pull request catches up the next time it merges the base branch in.
+If the base version finishes a build while the pull request is building,
+the snapshot is one build newer than the commit that was checked.
+Closing these gaps needs a manifest per build instead of one per version.
 
 Possible issues
 ---------------

@@ -1,5 +1,6 @@
 """Defines serializers for each of our models."""
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
@@ -19,6 +20,9 @@ from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
+
+
+log = structlog.get_logger(__name__)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -181,9 +185,19 @@ class VersionAdminSerializer(VersionSerializer):
         """Commit of the base version's latest build, so pull request builds can report if they contain it."""
         if not obj.is_external:
             return None
-        base_version = get_base_version(obj.project)
-        base_build = base_version.latest_successful_build if base_version else None
-        return base_build.commit if base_build else None
+        # Every build fetches its version through this serializer,
+        # so this optional field must never make the response fail.
+        try:
+            base_version = get_base_version(obj.project)
+            base_build = base_version.latest_successful_build if base_version else None
+            return base_build.commit if base_build else None
+        except Exception:
+            log.exception(
+                "Failed to resolve the base commit.",
+                project_slug=obj.project.slug,
+                version_slug=obj.slug,
+            )
+            return None
 
     def get_canonical_url(self, obj):
         # Use the cached object, since it has some
