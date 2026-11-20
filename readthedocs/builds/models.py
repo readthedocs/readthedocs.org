@@ -201,6 +201,15 @@ class Version(TimeStampedModel):
     class Meta:
         unique_together = [("project", "slug")]
         ordering = ["verbose_name"]
+        constraints = [
+            # One version per pull request: ``verbose_name`` is the PR number.
+            # Stops concurrent webhooks from creating the same version twice.
+            models.UniqueConstraint(
+                fields=["project", "verbose_name"],
+                condition=models.Q(type=EXTERNAL),
+                name="builds_version_unique_external_verbose_name",
+            ),
+        ]
 
     def __str__(self):
         return self.verbose_name
