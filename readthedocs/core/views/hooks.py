@@ -5,12 +5,12 @@ from typing import Literal
 
 import structlog
 from django.conf import settings
-from django.core.cache import cache
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
+from readthedocs.builds.utils import request_run
 from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
@@ -143,13 +143,16 @@ def trigger_sync_versions(project):
     return None
 
 
+def sync_versions_run_key(project):
+    return f"rtd-sync-repository-isolated:{project.pk}"
+
+
 def _trigger_sync_versions_isolated(project):
     """Dispatch the version sync to the build-isolated fleet."""
-    cache_key = f"rtd-sync-repository-isolated:{project.slug}"
-    if not cache.add(cache_key, True, 60):
-        # A sync for this project was dispatched moments ago so
-        # we skip dispatching another one.
-        log.info("Skipping sync, one was dispatched recently.")
+    if not request_run(sync_versions_run_key(project)):
+        # A sync is already running and may have read the repository before
+        # this event, ``sync_versions_task`` runs one more when it finishes.
+        log.info("Sync already running, it will run again when it finishes.")
         return
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)

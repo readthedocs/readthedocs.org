@@ -32,6 +32,7 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.builds.reporting import get_build_overview
+from readthedocs.builds.utils import finish_run
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import send_email
@@ -215,7 +216,14 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
+    from readthedocs.core.views.hooks import sync_versions_run_key
+    from readthedocs.core.views.hooks import trigger_sync_versions
+
     project = Project.objects.get(pk=project_pk)
+
+    # Events that arrived while this sync was running may not be in its data.
+    if finish_run(sync_versions_run_key(project)):
+        trigger_sync_versions(project)
 
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
