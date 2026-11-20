@@ -78,6 +78,7 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         self.project_with_remote_repository = get(
             Project,
+            slug="project-a",
             users=[self.user],
             remote_repository=self.remote_repository_a,
         )
@@ -100,6 +101,7 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         self.project_with_remote_repository_no_admin = get(
             Project,
+            slug="project-b",
             users=[self.user],
             remote_repository=self.remote_repository_b,
         )
@@ -122,6 +124,7 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         self.project_with_remote_repository_no_member = get(
             Project,
+            slug="project-c",
             users=[self.user],
             remote_repository=self.remote_repository_c,
         )
@@ -156,6 +159,7 @@ class TestMigrateToGitHubAppView(TestCase):
         )
         self.project_with_remote_organization = get(
             Project,
+            slug="project-d",
             users=[self.user],
             remote_repository=self.remote_repository_d,
         )
@@ -169,11 +173,13 @@ class TestMigrateToGitHubAppView(TestCase):
         # Project without a remote repository.
         self.project_without_remote_repository = get(
             Project,
+            slug="project-e",
             users=[self.user],
             repo="https://github.com/user/repo-e",
         )
         self.project_without_remote_repository_bitbucket = get(
             Project,
+            slug="project-f",
             users=[self.user],
             repo="https://bitbucket.org/user/repo-f",
         )

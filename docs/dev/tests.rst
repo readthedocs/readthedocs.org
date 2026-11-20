@@ -37,6 +37,14 @@ To run a subset of tests:
 
    tox -e py314 -- -k test_celery
 
+The ``py314`` and ``proxito`` environments run tests in parallel on all CPU cores
+with `pytest-xdist`_. Pass ``-n 0`` to run them in a single process,
+for example when using a debugger:
+
+.. prompt:: bash
+
+   tox -e py314 -- -n 0 -k test_celery
+
 Test databases are created from the models, not by applying migrations.
 The ``migrations`` environment checks that all migrations apply.
 
@@ -77,6 +85,7 @@ docs-dev
     Build developer documentation with Sphinx.
 
 .. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
+.. _`pytest-xdist`: https://pytest-xdist.readthedocs.io/
 
 
 Debug logging

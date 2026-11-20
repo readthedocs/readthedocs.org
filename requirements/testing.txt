@@ -209,6 +209,8 @@ elasticsearch==9.3.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
+execnet==2.1.2
+    # via pytest-xdist
 fido2==2.2.1
     # via
     #   -r requirements/pip.txt
@@ -336,6 +338,7 @@ pytest==9.1.1
     #   pytest-custom-exit-code
     #   pytest-django
     #   pytest-mock
+    #   pytest-xdist
 pytest-cov==7.1.0
     # via -r requirements/testing.in
 pytest-custom-exit-code==0.3.0
@@ -343,6 +346,8 @@ pytest-custom-exit-code==0.3.0
 pytest-django==4.14.0
     # via -r requirements/testing.in
 pytest-mock==3.16.0
+    # via -r requirements/testing.in
+pytest-xdist==3.8.0
     # via -r requirements/testing.in
 python-crontab==3.4.0
     # via

@@ -3127,6 +3127,9 @@ class GitLabOAuthTests(TestCase):
     }
 
     def setUp(self):
+        # Tests modify these, so each test gets its own copy.
+        self.repo_response_data = copy.deepcopy(self.repo_response_data)
+        self.group_response_data = copy.deepcopy(self.group_response_data)
         self.client.login(username="eric", password="test")
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug="pip")
