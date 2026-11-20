@@ -46,6 +46,7 @@ from readthedocs.oauth.migrate import get_installation_target_groups_for_user
 from readthedocs.oauth.migrate import get_migrated_projects
 from readthedocs.oauth.migrate import get_migration_targets
 from readthedocs.oauth.migrate import get_old_app_link
+from readthedocs.oauth.migrate import get_projects_missing_migration
 from readthedocs.oauth.migrate import get_projects_requiring_manual_migration
 from readthedocs.oauth.migrate import get_valid_projects_missing_migration
 from readthedocs.oauth.migrate import has_projects_pending_migration
@@ -379,16 +380,32 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if not self._get_old_github_accounts().exists():
-            if self._get_new_github_account():
-                # NOTE: TBD what to do when the user has already migrated his account,
-                # but still has projects connected to the old integration.
-                msg = _("You have already migrated your account to the new GitHub App.")
-            else:
-                msg = _("You don't have any GitHub account connected.")
-            messages.info(request, msg)
-            return HttpResponseRedirect(reverse("homepage"))
+            # Users without the old GitHub account can still have projects on the old
+            # integration, e.g. co-maintainers or users that already migrated their account.
+            pending = list(get_projects_missing_migration(request.user))
+            has_new_account = self._get_new_github_account() is not None
+            if not pending:
+                if has_new_account:
+                    msg = _("You have already migrated your account to the new GitHub App.")
+                else:
+                    msg = _("You don't have any GitHub account connected.")
+                messages.info(request, msg)
+                return HttpResponseRedirect(reverse("homepage"))
+
+            step = request.GET.get("step")
+            if not has_new_account:
+                # The other steps need a GitHub App account.
+                if step not in (MigrationSteps.overview, MigrationSteps.connect):
+                    return self._redirect_to_step(MigrationSteps.connect)
+            elif step is None:
+                if all(has_installation for _, has_installation, _ in pending):
+                    return self._redirect_to_step(MigrationSteps.migrate)
+                return self._redirect_to_step(MigrationSteps.install)
 
         return super().get(request, *args, **kwargs)
+
+    def _redirect_to_step(self, step):
+        return HttpResponseRedirect(reverse("migrate_to_github_app") + f"?step={step}")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -429,6 +446,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
 
         The new connected account must the same as the old one.
         """
+        if not self._get_new_github_account():
+            return False
+
         old_accounts_uid = self._get_old_github_accounts().values_list("uid", flat=True)
         number_of_new_accounts_for_old_accounts = (
             self.request.user.socialaccount_set.filter(
