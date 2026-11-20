@@ -211,12 +211,6 @@ source_file = _build/locale/subprojects.pot
 source_lang = en
 type = PO
 
-[readthedocs-docs.privacy-policy]
-file_filter = locale/<lang>/LC_MESSAGES/privacy-policy.po
-source_file = _build/locale/privacy-policy.pot
-source_lang = en
-type = PO
-
 [readthedocs-docs.faq]
 file_filter = locale/<lang>/LC_MESSAGES/faq.po
 source_file = _build/locale/faq.pot
