@@ -12,7 +12,12 @@ from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
 from readthedocs.subscriptions.products import RTDProductFeature
 
-from .utils import compare_content_without_blank_lines, get_anchor_link_title, srcdir
+from .utils import (
+    compare_content_without_blank_lines,
+    get_anchor_link_title,
+    get_clearer_div,
+    srcdir,
+)
 
 
 @pytest.mark.django_db
@@ -78,7 +83,7 @@ class TestEmbedAPIv3InternalPages:
                             <p>This is a reference to a manual reference <a class="reference internal" href="https://project.readthedocs.io/en/latest/#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>
                         </section>
                     </section>
-                    <div class="clearer"></div>
+                    {get_clearer_div()}
                 </div>
             """
         else:
