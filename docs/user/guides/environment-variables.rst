@@ -9,7 +9,7 @@ you can define them from the project's :term:`dashboard`.
    :doc:`/environment-variables`
      Learn more about how Read the Docs applies environment variables in your builds.
 
-Go to your project's :menuselection:`Admin --> Environment Variables` and click on :guilabel:`Add Environment Variable`.
+Go to your project's :menuselection:`Settings --> Environment variables` and click on :guilabel:`Add variable`.
 You will then see the form for adding an environment variable:
 
 .. image:: /img/screenshot_environment_variables.png
@@ -27,7 +27,7 @@ You will then see the form for adding an environment variable:
       In other words,
       **do not use this option if your environment variable is a secret.**
 
-Finally, click on :guilabel:`Save`.
+Finally, click on :guilabel:`Add variable`.
 Your custom environment variable is immediately active for all future builds
 and you are ready to start using it.
 

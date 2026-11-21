@@ -214,8 +214,7 @@ your documentation is even if you have multiple versions on the internet
 
 Read the Docs supports :doc:`setting the canonical URL </canonical-urls>`
 if you are using a :doc:`custom domain </custom-domains>`
-under :guilabel:`Admin` > :guilabel:`Domains`
-in the Read the Docs dashboard.
+in your project's :menuselection:`Settings --> Domains`.
 
 
 .. _seo_robots.txt:

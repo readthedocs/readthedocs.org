@@ -21,12 +21,12 @@ Adding a redirect rule
 ----------------------
 
 Redirects are configured in the project dashboard,
-go to :menuselection:`Admin > Redirects`.
+go to your project's :menuselection:`Settings --> Redirects`.
 
 .. figure:: /img/screenshot_redirects.png
-   :alt: Screenshot of the Redirect admin page
+   :alt: Screenshot of the Redirects settings page
 
-After clicking :guilabel:`Add Redirect`,
+After clicking :guilabel:`Add redirect`,
 you need to select a :guilabel:`Redirect Type`.
 This is where things get a bit more complicated you need to fill in specific information according to that choice.
 
@@ -35,10 +35,10 @@ Choosing a :guilabel:`Redirect Type`
 
 There are different types of redirect rules targeting different needs.
 For each choice in :guilabel:`Redirect Type`,
-you can mark the choice in order to experiment and **preview** the final rule generated.
+the form shows a **preview** of the final rule generated as you fill in the fields.
 
 .. figure:: /img/screenshot_redirects_preview.png
-   :alt: Screenshot of the Redirect "Add Redirect" form
+   :alt: Screenshot of the "Add redirect" form with the redirect preview
 
 Here is a quick overview of the options available in :guilabel:`Redirect Type`:
 
@@ -76,7 +76,7 @@ HTML to clean URL
    By default, redirects are followed only if the requested page doesn't exist
    (*404 File Not Found* error).
    If you need to apply a redirect for files that exist,
-   you can have a :guilabel:`Apply even if the page exists` option visible.
+   you can have a :guilabel:`Force redirect` option visible.
    **This option is only available on some plan levels**.
    Please ask support to enable it for you.
 
@@ -103,7 +103,7 @@ There are no immediate upper bounds to how many redirect rules a project may def
 Editing and deleting redirect rules
 -----------------------------------
 
-You can always revisit :menuselection:`Admin > Redirects`.
+You can always revisit your project's :menuselection:`Settings --> Redirects`
 in order to delete a rule or edit it.
 
 When editing a rule,
@@ -116,7 +116,7 @@ The order of redirects is important,
 if you have multiple rules that match the same URL,
 the first redirect in the list will be used.
 
-You can change the order of the redirect from the :menuselection:`Admin > Redirects` page,
+You can change the order of the redirect from your project's :menuselection:`Settings --> Redirects`,
 by using the up and down arrow buttons.
 
 New redirects are added at the start of the list (i.e. they have the highest priority).

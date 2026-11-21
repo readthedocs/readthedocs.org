@@ -33,7 +33,7 @@ The :doc:`addons` flyout provides a place for a number of Read the Docs features
 Customizing the flyout menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In your dashboard, you can configure flyout menu options in :guilabel:`Settings > Addons > Flyout Menu`.
+You can configure flyout menu options in your project's :menuselection:`Settings --> Addons --> Flyout menu`.
 
 Version sorting
 ^^^^^^^^^^^^^^^

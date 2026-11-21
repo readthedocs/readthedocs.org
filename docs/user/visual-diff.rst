@@ -14,9 +14,8 @@ Show diff menu in preview
 
 To enable or disable this feature for your project:
 
-#. Go to the :guilabel:`Settings` tab of your project.
-#. Click on :guilabel:`Addons`, and click on :guilabel:`Visual diff`.
-#. Check or uncheck the :guilabel:`Enable visual diff` option.
+#. Go to your project's :menuselection:`Settings --> Addons --> Visual diff`.
+#. Check or uncheck the :guilabel:`Visual diff enabled` option.
 #. Click on :guilabel:`Save`.
 
 When enabled, a new UI element appears at the top right of the page showing a dropdown selector containing all the files that have changed in that pull request build.
@@ -39,8 +38,7 @@ Show build overview in pull requests
 
 To enable or disable this feature for your project:
 
-#. Go to the :guilabel:`Settings` tab of your project.
-#. Click on :guilabel:`Pull request builds`.
+#. Go to your project's :menuselection:`Settings --> Pull request builds`.
 #. Check or uncheck the :guilabel:`Show build overview in a comment` option.
 #. Click on :guilabel:`Update`.
 
@@ -58,8 +56,7 @@ You can configure a list of files or patterns to be ignored when listing the fil
 This is useful when you have files that have a date in them,
 or listing/archive files that show changes without content changes in those files.
 
-#. Go to the :guilabel:`Settings` tab of your project.
-#. Click on :guilabel:`Addons`, and click on :guilabel:`File tree diff`.
+#. Go to your project's :menuselection:`Settings --> Addons --> File tree diff`.
 #. In the :guilabel:`Ignored files` field, add one or more patterns to ignore, one per line.
 #. Click on :guilabel:`Save`.
 
@@ -103,7 +100,7 @@ see :ref:`reference/main-content-detection:detection logic`.
 
 .. tip::
 
-  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` under :guilabel:`Settings > Addons`. Visual Diff honors this override; other features like Server Side Search do not.
+  If the heuristic root element picked by Visual Diff is wrong for your project theme, set the :guilabel:`CSS main content selector` in your project's :menuselection:`Settings --> Addons --> Advanced`. Visual Diff honors this override; other features like Server Side Search do not.
 
 Limitations and known issues
 ----------------------------
