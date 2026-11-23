@@ -15,6 +15,7 @@ import dns.resolver
 from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field
+from crispy_forms.layout import Fieldset
 from crispy_forms.layout import Layout
 from crispy_forms.layout import MultiField
 from django import forms
@@ -502,7 +503,6 @@ class ProjectConfigForm(forms.Form):
 class UpdateProjectForm(
     ProjectTriggerBuildMixin,
     ProjectForm,
-    ProjectPRBuildsMixin,
 ):
     """Main project settings form."""
 
@@ -527,9 +527,6 @@ class UpdateProjectForm(
             "project_url",
             "description",
             "tags",
-            # Booleans
-            "external_builds_privacy_level",
-            "external_builds_enabled",
             "show_version_warning",
         )
 
@@ -596,8 +593,7 @@ class UpdateProjectForm(
             self.fields.pop("show_version_warning")
 
         if not settings.ALLOW_PRIVATE_REPOS:
-            for field in ["privacy_level", "external_builds_privacy_level"]:
-                self.fields.pop(field)
+            self.fields.pop("privacy_level")
 
         default_choice = (None, "-" * 9)
         versions_choices = (
@@ -623,8 +619,6 @@ class UpdateProjectForm(
         if self.instance.git_checkout_command:
             self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
 
-        self.setup_external_builds_option()
-
         # Direct upload projects are never built by Read the Docs,
         # so the build settings have nothing to configure.
         if self.instance.is_direct_upload:
@@ -633,8 +627,6 @@ class UpdateProjectForm(
                 "readthedocs_yaml_path",
                 "git_checkout_command",
                 "n_consecutive_failed_builds",
-                "external_builds_enabled",
-                "external_builds_privacy_level",
             ]:
                 self.fields.pop(field, None)
 
@@ -657,14 +649,42 @@ class UpdateProjectForm(
             **multifield_attrs,
         )
 
-        # We only care about the order of the first fields, the rest of the
-        # fields are dictated by Meta class configuration.
-        fields_other = [
-            field
-            for field in self.fields.keys()
-            if field not in ["name", "repo", "remote_repository"]
-        ]
-        self.helper.layout = Layout("name", multifield, *fields_other)
+        self.helper.layout = Layout(
+            self._fieldset(
+                _("Project"),
+                "name",
+                "description",
+                "project_url",
+                "tags",
+                "language",
+                "programming_language",
+            ),
+            Fieldset(
+                _("Repository"),
+                multifield,
+                *self._existing_fields(
+                    "default_branch",
+                    "readthedocs_yaml_path",
+                    "git_checkout_command",
+                    "n_consecutive_failed_builds",
+                ),
+            ),
+            self._fieldset(
+                _("Hosting"),
+                "default_version",
+                "versioning_scheme",
+                "privacy_level",
+                "search_indexing_enabled",
+                "show_version_warning",
+            ),
+        )
+
+    def _existing_fields(self, *names):
+        """Some fields are removed in ``__init__``, only lay out the ones left."""
+        return [name for name in names if name in self.fields]
+
+    def _fieldset(self, legend, *names):
+        return Fieldset(legend, *self._existing_fields(*names))
 
     def get_all_active_versions(self):
         """
