@@ -12,7 +12,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, TAG, BRANCH
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import RichValidationError
-from readthedocs.core.permissions import AdminPermissionBase
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -763,7 +763,7 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
             form.clean_prevalidation()
             assert form.is_valid()
 
-    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    @mock.patch.object(AdminPermission, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_admin_user_with_vcs_sso(self, has_sso_enabled):
         self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
         self._assert_prevalidation_error(
@@ -782,7 +782,7 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
             "Admin permission required",
         )
 
-    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    @mock.patch.object(AdminPermission, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_owner_user_with_vcs_sso(self, has_sso_enabled):
         self._enable_sso(SSOIntegration.PROVIDER_ALLAUTH)
 
@@ -797,7 +797,7 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         assert cm.exception.header == "Organization single sign-on enabled"
         assert not form_manual.is_valid()
 
-    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    @mock.patch.object(AdminPermission, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_owner_user_with_vcs_sso_and_other_organization(
         self, has_sso_enabled
     ):
@@ -805,7 +805,7 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         get(Organization, owners=[self.user_owner], projects=[])
         self._assert_prevalidation_valid(self.user_owner)
 
-    @mock.patch.object(AdminPermissionBase, "has_sso_enabled", return_value=True)
+    @mock.patch.object(AdminPermission, "has_sso_enabled", return_value=True)
     def test_form_prevalidation_admin_user_with_vcs_sso_and_other_organization(
         self, has_sso_enabled
     ):
