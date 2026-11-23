@@ -162,8 +162,6 @@ def _trigger_sync_versions_isolated(project):
     but that sync may have read the repository before the webhook's change,
     so ``sync_again_if_webhook_was_skipped`` syncs again when it is done.
     """
-    # ``cache.add`` writes the key only if it isn't there, and returns whether it wrote it.
-    # The key expires so a sync that never reports back can't block the project.
     sync_already_running = not cache.add(_sync_running_cache_key(project), True, 60)
     if sync_already_running:
         cache.set(_webhook_skipped_cache_key(project), True, 60 * 10)
