@@ -143,6 +143,16 @@ def trigger_sync_versions(project):
     return None
 
 
+def _sync_running_cache_key(project):
+    """Set while a sync dispatched to the builders is running."""
+    return f"sync-versions-isolated:{project.pk}:running"
+
+
+def _webhook_skipped_cache_key(project):
+    """Set when a webhook didn't dispatch a sync because one was running."""
+    return f"sync-versions-isolated:{project.pk}:webhook-skipped"
+
+
 def _trigger_sync_versions_isolated(project):
     """
     Dispatch the version sync to the build-isolated fleet.
@@ -152,13 +162,11 @@ def _trigger_sync_versions_isolated(project):
     but that sync may have read the repository before the webhook's change,
     so ``sync_again_if_webhook_was_skipped`` syncs again when it is done.
     """
-    sync_running = f"sync-versions-isolated:{project.pk}:running"
-    webhook_skipped = f"sync-versions-isolated:{project.pk}:webhook-skipped"
-
-    # ``cache.add`` only sets the key if no sync is running.
-    # It expires so a sync that never reports back can't block the project.
-    if not cache.add(sync_running, True, 60):
-        cache.set(webhook_skipped, True, 60 * 10)
+    # ``cache.add`` writes the key only if it isn't there, and returns whether it wrote it.
+    # The key expires so a sync that never reports back can't block the project.
+    sync_already_running = not cache.add(_sync_running_cache_key(project), True, 60)
+    if sync_already_running:
+        cache.set(_webhook_skipped_cache_key(project), True, 60 * 10)
         log.info("Sync already running, skipping. It will sync again when it is done.")
         return
 
@@ -181,9 +189,10 @@ def sync_again_if_webhook_was_skipped(project):
     Called from ``sync_versions_task``, which is where the builder
     reports the result of a sync dispatched by ``_trigger_sync_versions_isolated``.
     """
-    cache.delete(f"sync-versions-isolated:{project.pk}:running")
-    # ``cache.delete`` returns whether the key was set.
-    if cache.delete(f"sync-versions-isolated:{project.pk}:webhook-skipped"):
+    webhook_was_skipped = cache.get(_webhook_skipped_cache_key(project))
+    cache.delete(_webhook_skipped_cache_key(project))
+    cache.delete(_sync_running_cache_key(project))
+    if webhook_was_skipped:
         trigger_sync_versions(project)
 
 
