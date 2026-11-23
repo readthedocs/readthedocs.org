@@ -498,7 +498,7 @@ class TestProjectSettingsOverview(TestCase):
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, slug="project", users=[self.user])
-        self.url = reverse("projects_settings", args=[self.project.slug])
+        self.url = reverse("projects_overview_settings", args=[self.project.slug])
 
     def test_admin(self, render_to_response):
         self.client.force_login(self.user)

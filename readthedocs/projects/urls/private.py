@@ -88,7 +88,7 @@ urlpatterns = [
     path(
         "<slug:project_slug>/settings/",
         ProjectSettingsOverview.as_view(),
-        name="projects_settings",
+        name="projects_overview_settings",
     ),
     path(
         "<slug:project_slug>/edit/",
