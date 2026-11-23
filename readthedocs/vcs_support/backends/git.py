@@ -190,8 +190,7 @@ class Backend(BaseVCS):
 
         # GitCode accepts ``git push --dry-run`` with read-only keys,
         # so the check below would always report write access.
-        host = ssh_url.split("@", 1)[-1].split(":", 1)[0].split("/", 1)[0]
-        if host.lower() == "gitcode.com":
+        if ssh_url.startswith(("git@gitcode.com:", "ssh://git@gitcode.com/")):
             return False
 
         try:
