@@ -215,15 +215,11 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
                       ].
     :returns: `True` or `False` if the task succeeded.
     """
-    from readthedocs.core.views.hooks import isolated_sync_tracker
-    from readthedocs.core.views.hooks import trigger_sync_versions
+    from readthedocs.core.views.hooks import sync_again_if_webhook_was_skipped
 
     project = Project.objects.get(pk=project_pk)
 
-    # A sync started by a webhook (``trigger_sync_versions``) ends here.
-    # Webhooks that arrived while it ran may not be in its data, so sync again.
-    if isolated_sync_tracker(project).finish():
-        trigger_sync_versions(project)
+    sync_again_if_webhook_was_skipped(project)
 
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.

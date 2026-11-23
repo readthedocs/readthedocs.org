@@ -5,12 +5,12 @@ from typing import Literal
 
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.builds.utils import RunTracker
 from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
@@ -143,17 +143,23 @@ def trigger_sync_versions(project):
     return None
 
 
-def isolated_sync_tracker(project):
-    """Tracks the version sync that runs on the builders for this project."""
-    return RunTracker(f"sync-versions-isolated:{project.pk}")
-
-
 def _trigger_sync_versions_isolated(project):
-    """Dispatch the version sync to the build-isolated fleet."""
-    if not isolated_sync_tracker(project).start():
-        # A sync is running and may have read the repository before this event.
-        # ``sync_versions_task`` triggers one more when that sync reports back.
-        log.info("Sync already running, it will run again when it finishes.")
+    """
+    Dispatch the version sync to the build-isolated fleet.
+
+    Only one sync per project is dispatched at a time.
+    A webhook that arrives while a sync is running doesn't dispatch another,
+    but that sync may have read the repository before the webhook's change,
+    so ``sync_again_if_webhook_was_skipped`` syncs again when it is done.
+    """
+    sync_running = f"sync-versions-isolated:{project.pk}:running"
+    webhook_skipped = f"sync-versions-isolated:{project.pk}:webhook-skipped"
+
+    # ``cache.add`` only sets the key if no sync is running.
+    # It expires so a sync that never reports back can't block the project.
+    if not cache.add(sync_running, True, 60):
+        cache.set(webhook_skipped, True, 60 * 10)
+        log.info("Sync already running, skipping. It will sync again when it is done.")
         return
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
@@ -166,6 +172,19 @@ def _trigger_sync_versions_isolated(project):
         },
         queue=settings.RTD_BUILD_ISOLATED_QUEUE,
     )
+
+
+def sync_again_if_webhook_was_skipped(project):
+    """
+    Sync versions again if a webhook was skipped while the last sync was running.
+
+    Called from ``sync_versions_task``, which is where the builder
+    reports the result of a sync dispatched by ``_trigger_sync_versions_isolated``.
+    """
+    cache.delete(f"sync-versions-isolated:{project.pk}:running")
+    # ``cache.delete`` returns whether the key was set.
+    if cache.delete(f"sync-versions-isolated:{project.pk}:webhook-skipped"):
+        trigger_sync_versions(project)
 
 
 def get_or_create_external_version(project, version_data):
