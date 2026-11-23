@@ -44,11 +44,14 @@ Every screenshot should look like it was taken by the same person on the same da
 
 Look
    * Light theme, regardless of your profile's theme.
-   * 1280 pixels wide, at 1x scale.
+   * A 1280 pixels wide browser window, at 1x scale.
      Small inline images, like icon buttons, use 2x scale.
-   * Forms and lists show the whole page without the footer.
-     Details, like a single field or a list of activity, are cropped to that element.
-     Images shown at a small scale in the docs are cropped to the content column.
+   * Crop to the main content column, from the page heading to the end of the form or list,
+     without the header, project bar, or sidebar (``main_column()``).
+     Full width screenshots take more space on the page and are harder to read.
+   * Show the whole page (``above_footer()``) only when the navigation around it matters,
+     like in the tutorial.
+   * Details, like a single field or a list of activity, are cropped to that element.
    * Highlight an element with a 3 pixel outline in ``#2185d0`` with rounded corners.
 
 Names
@@ -131,7 +134,7 @@ Adding a screenshot
       @shot("img/screenshot_domains.png")
       def domains(page):
           goto(page, f"{COMMUNITY_URL}/dashboard/{SOURCES['project']}/domains/")
-          return above_footer(page)
+          return main_column(page)
 
    ``goto()`` already applies the conventions above.
    Use ``instance="business"`` for Business pages, and ``scale=2`` for small inline images.

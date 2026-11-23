@@ -34,6 +34,7 @@ import random
 import sys
 from pathlib import Path
 
+from playwright.sync_api import Error
 from playwright.sync_api import sync_playwright
 
 
@@ -253,15 +254,31 @@ def content_column(page, top_selector, bottom_selector):
     }
 
 
-def sidebar_and_content(page, bottom_selector):
-    """The sidebar plus content column, without the top navigation."""
-    menu = box(page, ".ui.vertical.menu")
-    bottom = box(page, bottom_selector)
+def main_column(page):
+    """The main content column: from its heading to the end of its content."""
+    b = page.evaluate(
+        """() => {
+          // The content column is the one with a heading and without the sidebar menu
+          const heading = [...document.querySelectorAll('h2')].find(h => {
+            const column = h.closest('.column');
+            return column && !column.querySelector('.ui.vertical.menu') && h.offsetHeight;
+          });
+          const column = heading.closest('.column');
+          const rects = [...column.children].map(c => c.getBoundingClientRect()).filter(r => r.height);
+          return {
+            top: heading.getBoundingClientRect().top + window.scrollY,
+            bottom: Math.max(...rects.map(r => r.bottom)) + window.scrollY,
+            left: Math.min(...rects.map(r => r.left)),
+            right: Math.max(...rects.map(r => r.right)),
+          };
+        }"""
+    )
     return {
-        "x": CONTAINER_X[0] - PAD,
-        "y": menu["top"] - PAD,
-        "width": CONTAINER_X[1] - CONTAINER_X[0] + 2 * PAD,
-        "height": max(menu["bottom"], bottom["bottom"]) - menu["top"] + 2 * PAD,
+        "x": b["left"] - PAD,
+        # Less padding on top, to leave out the project header border
+        "y": b["top"] - 12,
+        "width": b["right"] - b["left"] + 2 * PAD,
+        "height": b["bottom"] - b["top"] + 12 + PAD,
     }
 
 
@@ -304,13 +321,13 @@ def integration_webhook(page):
 @shot("img/screenshot_automation_rules_add.png")
 def automation_rules(page):
     goto(page, f"{COMMUNITY_URL}/dashboard/{SOURCES['project']}/rules/create/")
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshot_environment_variables.png")
 def environment_variables(page):
     goto(page, f"{COMMUNITY_URL}/dashboard/{SOURCES['project']}/environmentvariables/create/")
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshot_redirects.png")
@@ -326,7 +343,7 @@ def redirects(page):
             ["https://www.google.com", "/en/latest/help/faq.html"],
         ],
     )
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshot_redirects_preview.png")
@@ -338,7 +355,7 @@ def redirects_preview(page):
     page.locator("#id_from_url").fill("/old.html")
     page.locator("#id_to_url").fill("/new.html")
     page.locator("#id_to_url").blur()
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshot-howto-build-configuration-file.png")
@@ -455,7 +472,7 @@ def webhook_page(page):
 @shot("img/screenshots/community-project-webhook-create.png")
 def webhook_create(page):
     goto(page, f"{COMMUNITY_URL}/dashboard/{SOURCES['project']}/webhooks/create/")
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshots/community-project-webhook-activity.png")
@@ -501,13 +518,13 @@ def subproject_page(page):
 @shot("img/screenshots/community-project-subproject-create.png")
 def subproject_create(page):
     goto(page, f"{COMMUNITY_URL}/dashboard/{SOURCES['project']}/subprojects/create/")
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshots/community-project-subproject-list.png")
 def subproject_list(page):
     subproject_page(page)
-    return above_footer(page)
+    return main_column(page)
 
 
 @shot("img/screenshots/community-edit-button.png", scale=2)
@@ -559,7 +576,7 @@ def connected_services(page):
         [AVATAR, USERNAME],
     )
     page.wait_for_load_state("networkidle")
-    return sidebar_and_content(page, "table")
+    return main_column(page)
 
 
 # --- Business -------------------------------------------------------------------
@@ -944,13 +961,15 @@ def instance_is_up(context, instance):
     if not SESSIONS[instance]:
         print(f"skipping {instance}: set RTD_{instance.upper()}_SESSIONID", file=sys.stderr)
         return False
-    response = context.request.get(
-        f"{base(instance)}/dashboard/", max_redirects=0, fail_on_status_code=False
-    )
+    try:
+        response = context.request.get(
+            f"{base(instance)}/dashboard/", max_redirects=0, fail_on_status_code=False
+        )
+        page = response.text().replace(" ", "").replace("\n", "")
+    except Error:
+        response, page = None, ""
     badge = "Community" if instance == "community" else "Business"
-    if response.status != 200 or f">{badge}<" not in response.text().replace(" ", "").replace(
-        "\n", ""
-    ):
+    if not response or response.status != 200 or f">{badge}<" not in page:
         print(
             f"skipping {instance}: {base(instance)} isn't running or isn't logged in",
             file=sys.stderr,
