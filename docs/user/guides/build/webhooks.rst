@@ -24,7 +24,7 @@ Creating a new webhook
 
 To create a new outgoing webhook for your project:
 
-* Go to :menuselection:`Settings --> Outgoing webhooks` in your project.
+* Go to your project's :menuselection:`Settings --> Outgoing webhooks`.
 * Click :guilabel:`Add webhook`.
 * Fill in the :guilabel:`URL` field with the target URL for your endpoint.
 * Select the which events will trigger the webhook.

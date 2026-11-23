@@ -34,8 +34,7 @@ Prerequisites
 
 To create an API token for your project:
 
-#. Go to the :guilabel:`Settings` of your project.
-#. Click on :guilabel:`API tokens`.
+#. Go to your project's :menuselection:`Settings --> API tokens`.
 #. Click on :guilabel:`Add API token`.
 #. Choose a name, the :guilabel:`Upload documentation` permission, and when the token expires.
 #. Copy the token. It's only shown once.

@@ -19,7 +19,7 @@ Adding a connection
 -------------------
 
 To connect your Read the Docs account with a Git provider,
-go to the main login menu: :guilabel:`<Username dropdown>` > :guilabel:`Settings` > :guilabel:`Connected Services`.
+go to :menuselection:`<Username dropdown> --> Settings --> Connected services`.
 
 From here, you'll be able to connect to your |git_providers_or|
 account. This process will ask you to authorize an integration with Read the Docs.

@@ -29,7 +29,7 @@ The security log tracks the following events:
 
 Authentication failures and successes are both tracked.
 
-Logs are available in :menuselection:`<Username dropdown> --> Settings --> Security Log`.
+Logs are available in :menuselection:`<Username dropdown> --> Settings --> Security log`.
 
 Organization security log
 -------------------------
@@ -49,7 +49,7 @@ Organization logs track the following events:
 
 Authentication failures and successes are both tracked.
 
-Logs are available in :menuselection:`<Username dropdown> --> Organizations --> <Organization name> --> Settings --> Security Log`.
+Logs are available in :menuselection:`<Username dropdown> --> Organizations --> <Organization name> --> Settings --> Security log`.
 
 If you have any additional information that you wished the security log was capturing,
 you can always reach out to :doc:`/support`.
