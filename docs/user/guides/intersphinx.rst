@@ -133,11 +133,11 @@ Intersphinx supports `URLs with Basic Authorization <https://www.sphinx-doc.org/
 which Read the Docs supports :ref:`using a token <commercial/sharing:Basic Authorization>`.
 You need to generate a token for each project you want to use with Intersphinx.
 
-#. Go the project you want to use with Intersphinx
-#. Click :guilabel:`Admin` > :guilabel:`Sharing`
-#. Select ``HTTP Header Token``
-#. Set an expiration date long enough to use the token when building your project
-#. Click on ``Share!``.
+#. Go to :menuselection:`Settings --> Sharing` of the project you want to use with Intersphinx.
+#. Click on :guilabel:`Add share`.
+#. Select :guilabel:`HTTP header token` as the :guilabel:`Access type`.
+#. Set an :guilabel:`Expires` date long enough to use the token when building your project.
+#. Click on :guilabel:`Save`.
 
 Now we can add the link to the private project with the token like:
 
