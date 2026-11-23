@@ -205,6 +205,9 @@ class ProjectSettingsOverview(ProjectMixin, DetailView):
         context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
         context["custom_domains_enabled"] = bool(get_feature(self.object, TYPE_CNAME))
         context["redirects_limit"] = get_feature(self.object, TYPE_REDIRECTS_LIMIT)
+        context["active_versions_count"] = (
+            self.object.versions(manager=INTERNAL).filter(active=True).count()
+        )
         return context
 
 

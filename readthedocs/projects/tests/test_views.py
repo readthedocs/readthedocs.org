@@ -509,6 +509,7 @@ class TestProjectSettingsOverview(TestCase):
         assert context["allow_private_repos"] is False
         assert context["custom_domains_enabled"]
         assert context["redirects_limit"].value == 100
+        assert context["active_versions_count"] == 1
 
     def test_not_admin(self, render_to_response):
         self.client.force_login(get(User))
