@@ -19,8 +19,5 @@ Manage notifications
 
 To manage notifications for your project:
 
-1. Go to the :term:`dashboard`.
-2. Click on a project name.
-3. Go to :guilabel:`Settings`.
-4. In the left bar, go to :guilabel:`Addons`.
-5. Configure each Addon in the :guilabel:`Notifications` section.
+1. Go to your project's :menuselection:`Settings --> Addons --> Notifications`.
+2. Configure each notification.

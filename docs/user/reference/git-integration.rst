@@ -330,7 +330,7 @@ and select the repository from your **project settings on Read the Docs**.
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
-Once you have installed the GitHub App, go to the :guilabel:`Settings` page of the project in Read the Docs,
+Once you have installed the GitHub App, go to your project's :menuselection:`Settings` in Read the Docs,
 and select the repository you want to connect from the :guilabel:`Connected repository` dropdown.
 
 Manually migrating a project
@@ -344,8 +344,8 @@ We recommend using the migration page to migrate your projects from the old OAut
 But in case you need to manually migrate a project,
 you can follow these steps:
 
-- Go to the :guilabel:`Settings` page of your Read the Docs project,
-  and click on the :guilabel:`Integrations` tab in Read the Docs, and delete all the integrations that are listed there.
+- Go to your Read the Docs project's :menuselection:`Settings --> Integrations`,
+  and delete all the integrations that are listed there.
 - Go to the settings page of your GitHub repository,
   click on the GitHub :guilabel:`Webhooks` tab, and delete all the webhooks with URLs that start with:
 

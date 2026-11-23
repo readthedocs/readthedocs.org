@@ -10,8 +10,7 @@ This allows you to understand how your documentation is being used,
 so you can focus on expanding and updating parts people are reading most.
 
 To see a list of the top pages from the last month,
-go to the :guilabel:`Settings` tab of your project,
-and then click on :guilabel:`Traffic analytics` under :guilabel:`Maintaining`.
+go to your project's :menuselection:`Settings --> Traffic analytics`.
 
 .. figure:: /_static/images/addons-analytics.png
    :width: 50%
@@ -23,10 +22,8 @@ and then click on :guilabel:`Traffic analytics` under :guilabel:`Maintaining`.
 Enabling traffic analytics
 --------------------------
 
-#. Go to the new :term:`dashboard`.
-#. Click on a project name.
-#. Go to :guilabel:`Settings`, then in the left bar, go to :guilabel:`Addons`.
-#. Go to :guilabel:`Analytics` and check :guilabel:`Analytics enabled`.
+#. Go to your project's :menuselection:`Settings --> Addons --> Analytics`.
+#. Check :guilabel:`Analytics enabled`.
 
 Data storage
 ------------
