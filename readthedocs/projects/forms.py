@@ -651,31 +651,32 @@ class UpdateProjectForm(
 
         self.helper.layout = Layout(
             Fieldset(
-                _("Repository"),
+                _("Basics"),
+                "name",
                 multifield,
-                *self._existing_fields(
-                    "default_branch",
-                    "readthedocs_yaml_path",
-                    "git_checkout_command",
-                    "n_consecutive_failed_builds",
-                ),
+                "language",
             ),
             self._fieldset(
                 _("Hosting"),
                 "default_version",
-                "versioning_scheme",
                 "privacy_level",
+                "versioning_scheme",
                 "search_indexing_enabled",
                 "show_version_warning",
             ),
             self._fieldset(
-                _("Project"),
-                "name",
-                "description",
-                "project_url",
-                "tags",
-                "language",
+                _("Building"),
+                "default_branch",
+                "readthedocs_yaml_path",
+                "git_checkout_command",
+                "n_consecutive_failed_builds",
+            ),
+            self._fieldset(
+                _("Metadata"),
                 "programming_language",
+                "project_url",
+                "description",
+                "tags",
             ),
         )
 
