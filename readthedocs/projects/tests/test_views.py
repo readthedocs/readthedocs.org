@@ -32,7 +32,7 @@ class TestExternalBuildOption(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             project=self.project,
         )
-        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.url = reverse("projects_pull_requests", args=[self.project.slug])
         self.client.force_login(self.user)
 
     def test_unsuported_integration(self):
@@ -423,7 +423,7 @@ class TestGitCheckoutCommandField(TestCase):
             users=[self.user],
             repo="https://github.com/user/repo"
         )
-        self.url = reverse("projects_edit", args=[self.project.slug])
+        self.url = reverse("projects_build_settings", args=[self.project.slug])
         self.client.force_login(self.user)
 
     def test_git_checkout_command_field_appears_in_form(self):

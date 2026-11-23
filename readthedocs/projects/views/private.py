@@ -65,6 +65,7 @@ from readthedocs.projects.forms import IntegrationForm
 from readthedocs.projects.forms import ProjectAdvertisingForm
 from readthedocs.projects.forms import ProjectAutomaticForm
 from readthedocs.projects.forms import ProjectBasicsForm
+from readthedocs.projects.forms import ProjectBuildSettingsForm
 from readthedocs.projects.forms import ProjectConfigForm
 from readthedocs.projects.forms import ProjectManualForm
 from readthedocs.projects.forms import ProjectPullRequestForm
@@ -201,6 +202,19 @@ class ProjectUpdate(ProjectMixin, UpdateView):
     form_class = UpdateProjectForm
     success_message = _("Project settings updated")
     template_name = "projects/project_edit.html"
+
+    def get_success_url(self):
+        return reverse("projects_detail", args=[self.object.slug])
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs["user"] = self.request.user
+        return super().get_form(data, files, **kwargs)
+
+
+class ProjectBuildSettingsUpdate(ProjectMixin, UpdateView):
+    form_class = ProjectBuildSettingsForm
+    success_message = _("Build settings updated")
+    template_name = "projects/project_build_settings.html"
 
     def get_success_url(self):
         return reverse("projects_detail", args=[self.object.slug])

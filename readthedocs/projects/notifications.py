@@ -235,7 +235,7 @@ messages = [
             textwrap.dedent(
                 """
                 Your project has been automatically disabled because the default version has failed to build {{consecutive_failed_builds}} times in a row.
-                Please fix the build issues and re-enable builds by unchecking "Disable builds for this project" option from <a href="{% url 'projects_edit' instance.slug %}">the project settings</a>.
+                Please fix the build issues and re-enable builds by unchecking "Disable builds for this project" option from <a href="{% url 'projects_build_settings' instance.slug %}">the build settings</a>.
                 """
             ).strip(),
         ),

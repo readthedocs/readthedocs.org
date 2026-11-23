@@ -29,6 +29,7 @@ from readthedocs.projects.views.private import IntegrationExchangeDetail
 from readthedocs.projects.views.private import IntegrationList
 from readthedocs.projects.views.private import IntegrationWebhookSync
 from readthedocs.projects.views.private import ProjectAdvertisingUpdate
+from readthedocs.projects.views.private import ProjectBuildSettingsUpdate
 from readthedocs.projects.views.private import ProjectDashboard
 from readthedocs.projects.views.private import ProjectDelete
 from readthedocs.projects.views.private import ProjectEmailNotificationsCreate
@@ -88,6 +89,11 @@ urlpatterns = [
         "<slug:project_slug>/edit/",
         ProjectUpdate.as_view(),
         name="projects_edit",
+    ),
+    path(
+        "<slug:project_slug>/build-settings/",
+        ProjectBuildSettingsUpdate.as_view(),
+        name="projects_build_settings",
     ),
     path(
         "<slug:project_slug>/advanced/",

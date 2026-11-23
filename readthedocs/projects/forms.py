@@ -499,37 +499,26 @@ class ProjectConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
 
-class UpdateProjectForm(
-    ProjectTriggerBuildMixin,
-    ProjectForm,
-    ProjectPRBuildsMixin,
-):
-    """Main project settings form."""
+class UpdateProjectForm(ProjectTriggerBuildMixin, SimpleHistoryModelForm):
+    """General project settings form."""
+
+    required_css_class = "required"
 
     class Meta:
         model = Project
         fields = (
-            # Basics and repo settings
             "name",
-            "repo",
-            "remote_repository",
             "language",
             "default_version",
             "privacy_level",
             "versioning_scheme",
-            "default_branch",
-            "readthedocs_yaml_path",
-            "git_checkout_command",
             "search_indexing_enabled",
-            "n_consecutive_failed_builds",
             # Meta data
             "programming_language",
             "project_url",
             "description",
             "tags",
             # Booleans
-            "external_builds_privacy_level",
-            "external_builds_enabled",
             "show_version_warning",
         )
 
@@ -540,26 +529,8 @@ class UpdateProjectForm(
         help_text=_("Short description of this project"),
     )
 
-    # Custom field for git_checkout_command to provide help text
-    git_checkout_command = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                "rows": 5,
-                "placeholder": "\n".join(
-                    [
-                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
-                        "git sparse-checkout init --cone",
-                        "git sparse-checkout set projects/$READTHEDOCS_PROJECT_SLUG",
-                        "git checkout $READTHEDOCS_GIT_IDENTIFIER",
-                    ],
-                ),
-            }
-        ),
-        help_text=_("Custom Git checkout commands (one command per line)."),
-    )
-
     def __init__(self, *args, **kwargs):
+        kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
         self.had_search_disabled = not self.instance.search_indexing_enabled
@@ -584,11 +555,6 @@ class UpdateProjectForm(
         if self.instance.search_indexing_enabled:
             self.fields.pop("search_indexing_enabled")
 
-        # Only show this field if building for this project is disabled due to N+ consecutive builds failing
-        # We allow disabling it from the form, but not enabling it.
-        if not self.instance.n_consecutive_failed_builds:
-            self.fields.pop("n_consecutive_failed_builds")
-
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
         # Old projects not using it already or new projects won't be able to enable.
@@ -596,19 +562,7 @@ class UpdateProjectForm(
             self.fields.pop("show_version_warning")
 
         if not settings.ALLOW_PRIVATE_REPOS:
-            for field in ["privacy_level", "external_builds_privacy_level"]:
-                self.fields.pop(field)
-
-        default_choice = (None, "-" * 9)
-        versions_choices = (
-            self.instance.versions(manager=INTERNAL)
-            .filter(machine=False)
-            .values_list("verbose_name", flat=True)
-        )
-
-        self.fields["default_branch"].widget = forms.Select(
-            choices=[default_choice] + list(zip(versions_choices, versions_choices)),
-        )
+            self.fields.pop("privacy_level")
 
         active_versions = self.get_all_active_versions()
 
@@ -619,52 +573,9 @@ class UpdateProjectForm(
         else:
             self.fields["default_version"].widget.attrs["readonly"] = True
 
-        # Represent the JSON field as a textarea with one command per line.
-        if self.instance.git_checkout_command:
-            self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
-
-        self.setup_external_builds_option()
-
-        # Direct upload projects are never built by Read the Docs,
-        # so the build settings have nothing to configure.
-        if self.instance.is_direct_upload:
-            for field in [
-                "default_branch",
-                "readthedocs_yaml_path",
-                "git_checkout_command",
-                "n_consecutive_failed_builds",
-                "external_builds_enabled",
-                "external_builds_privacy_level",
-            ]:
-                self.fields.pop(field, None)
-
-        # We use crispy layout here strictly for multifield and field ordering,
-        # There's no HTML in Python, it's all in templates and web components.
-        self.helper = FormHelper()
         # Let templates close form tag and add submit button
+        self.helper = FormHelper()
         self.helper.form_tag = False
-
-        multifield_attrs = {}
-        if not SocialAccount.objects.filter(user=self.user).exists():
-            multifield_attrs["show_connected_service_warning"] = True
-        if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
-            multifield_attrs["dont_sync"] = True
-        multifield = MultiField(
-            _("Repository"),
-            Field("remote_repository"),
-            Field("repo"),
-            template="projects/includes/crispy/repository.html",
-            **multifield_attrs,
-        )
-
-        # We only care about the order of the first fields, the rest of the
-        # fields are dictated by Meta class configuration.
-        fields_other = [
-            field
-            for field in self.fields.keys()
-            if field not in ["name", "repo", "remote_repository"]
-        ]
-        self.helper.layout = Layout("name", multifield, *fields_other)
 
     def get_all_active_versions(self):
         """
@@ -721,13 +632,6 @@ class UpdateProjectForm(
                 )
         return tags
 
-    def clean_git_checkout_command(self):
-        """Parse and validate git_checkout_command as a JSON array."""
-        value = self.cleaned_data.get("git_checkout_command")
-        if not value:
-            return None
-        return [line.strip() for line in value.splitlines() if line.strip()]
-
     def save(self, commit=True):
         instance = super().save(commit)
         # Trigger a reindex when enabling search from the form.
@@ -738,6 +642,105 @@ class UpdateProjectForm(
                 attached_to=instance,
             )
         return instance
+
+
+class ProjectBuildSettingsForm(ProjectTriggerBuildMixin, ProjectForm):
+    """Project settings for the repository and how it is built."""
+
+    class Meta:
+        model = Project
+        fields = (
+            "repo",
+            "remote_repository",
+            "default_branch",
+            "readthedocs_yaml_path",
+            "git_checkout_command",
+            "n_consecutive_failed_builds",
+        )
+
+    # Custom field for git_checkout_command to provide help text
+    git_checkout_command = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 5,
+                "placeholder": "\n".join(
+                    [
+                        "git clone --no-checkout --no-tag --filter=blob:none --depth 1 $READTHEDOCS_GIT_CLONE_URL",
+                        "git sparse-checkout init --cone",
+                        "git sparse-checkout set projects/$READTHEDOCS_PROJECT_SLUG",
+                        "git checkout $READTHEDOCS_GIT_IDENTIFIER",
+                    ],
+                ),
+            }
+        ),
+        help_text=_("Custom Git checkout commands (one command per line)."),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Only show this field if building for this project is disabled due to N+ consecutive builds failing
+        # We allow disabling it from the form, but not enabling it.
+        if not self.instance.n_consecutive_failed_builds:
+            self.fields.pop("n_consecutive_failed_builds")
+
+        default_choice = (None, "-" * 9)
+        versions_choices = (
+            self.instance.versions(manager=INTERNAL)
+            .filter(machine=False)
+            .values_list("verbose_name", flat=True)
+        )
+
+        self.fields["default_branch"].widget = forms.Select(
+            choices=[default_choice] + list(zip(versions_choices, versions_choices)),
+        )
+
+        # Represent the JSON field as a textarea with one command per line.
+        if self.instance.git_checkout_command:
+            self.initial["git_checkout_command"] = "\n".join(self.instance.git_checkout_command)
+
+        # Direct upload projects are never built by Read the Docs,
+        # so the build settings have nothing to configure.
+        if self.instance.is_direct_upload:
+            for field in [
+                "default_branch",
+                "readthedocs_yaml_path",
+                "git_checkout_command",
+                "n_consecutive_failed_builds",
+            ]:
+                self.fields.pop(field, None)
+
+        # We use crispy layout here strictly for multifield and field ordering,
+        # There's no HTML in Python, it's all in templates and web components.
+        self.helper = FormHelper()
+        # Let templates close form tag and add submit button
+        self.helper.form_tag = False
+
+        multifield_attrs = {}
+        if not SocialAccount.objects.filter(user=self.user).exists():
+            multifield_attrs["show_connected_service_warning"] = True
+        if self.instance.has_feature(Feature.DONT_SYNC_WITH_REMOTE_REPO):
+            multifield_attrs["dont_sync"] = True
+        multifield = MultiField(
+            _("Repository"),
+            Field("remote_repository"),
+            Field("repo"),
+            template="projects/includes/crispy/repository.html",
+            **multifield_attrs,
+        )
+
+        fields_other = [
+            field for field in self.fields.keys() if field not in ["repo", "remote_repository"]
+        ]
+        self.helper.layout = Layout(multifield, *fields_other)
+
+    def clean_git_checkout_command(self):
+        """Parse and validate git_checkout_command as a JSON array."""
+        value = self.cleaned_data.get("git_checkout_command")
+        if not value:
+            return None
+        return [line.strip() for line in value.splitlines() if line.strip()]
 
 
 class ProjectRelationshipForm(forms.ModelForm):

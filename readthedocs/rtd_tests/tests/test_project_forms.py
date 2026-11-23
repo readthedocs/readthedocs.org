@@ -34,6 +34,7 @@ from readthedocs.projects.forms import (
     ProjectManualForm,
     ProjectPullRequestForm,
     TranslationForm,
+    ProjectBuildSettingsForm,
     UpdateProjectForm,
     WebHookForm,
 )
@@ -290,7 +291,7 @@ class TestProjectAdvancedForm(TestCase):
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_custom_readthedocs_yaml(self, trigger_build):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
-        form = UpdateProjectForm(
+        form = ProjectBuildSettingsForm(
             {
                 "name": "Project",
                 "repo": "https://github.com/readthedocs/readthedocs.org/",
@@ -385,7 +386,7 @@ class TestProjectAdvancedForm(TestCase):
         self.assertNotEqual(remote_repository.clone_url, data["repo"])
 
         # No remote repository attached.
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
         form.save()
         self.project.refresh_from_db()
@@ -393,12 +394,12 @@ class TestProjectAdvancedForm(TestCase):
         self.assertEqual(self.project.repo, data["repo"])
 
         # Since there is no remote repository attached, the repo field should be enabled.
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertFalse(form.fields["repo"].disabled)
 
         # Remote repository attached, but it doesn't belong to the user.
         data["remote_repository"] = remote_repository.pk
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertFalse(form.is_valid())
         self.assertIn("remote_repository", form.errors)
 
@@ -410,7 +411,7 @@ class TestProjectAdvancedForm(TestCase):
             admin=True,
         )
         data["remote_repository"] = remote_repository.pk
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
         form.save()
         self.project.refresh_from_db()
@@ -419,14 +420,14 @@ class TestProjectAdvancedForm(TestCase):
 
         # Since a remote repository is attached, we used to disable the repo
         # field. This is now handled more on the front end instead.
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertFalse(form.fields["repo"].disabled)
 
         # This project has the don't sync with remote repository feature enabled,
         # so the repo field should be enabled.
         feature = get(Feature, feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO)
         self.project.feature_set.add(feature)
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertFalse(form.fields["repo"].disabled)
         self.project.feature_set.remove(feature)
 
@@ -436,7 +437,7 @@ class TestProjectAdvancedForm(TestCase):
         self.project.save()
         remote_repository_rel.delete()
         data["remote_repository"] = remote_repository.pk
-        form = UpdateProjectForm(data, instance=self.project, user=self.user)
+        form = ProjectBuildSettingsForm(data, instance=self.project, user=self.user)
         self.assertTrue(form.is_valid())
 
 
@@ -475,7 +476,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
-        form = UpdateProjectForm(instance=self.project)
+        form = ProjectBuildSettingsForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
         self.assertTrue(latest.exists())
@@ -514,7 +515,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier="ab96cbff71a8f40a4240aaf9d12e6c10",
             verbose_name="latest",
         )
-        form = UpdateProjectForm(instance=self.project)
+        form = ProjectBuildSettingsForm(instance=self.project)
         # This version is created by the user
         latest = self.project.versions.filter(slug=LATEST)
         # This version is created by the user
@@ -546,7 +547,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             type=EXTERNAL,
             privacy_level=PUBLIC,
         )
-        form = UpdateProjectForm(instance=self.project)
+        form = ProjectBuildSettingsForm(instance=self.project)
 
         self.assertNotIn(
             external_version.verbose_name,
@@ -586,7 +587,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             "privacy_level": self.project.privacy_level,
             "external_builds_privacy_level": self.project.external_builds_privacy_level,
         }
-        form = UpdateProjectForm(data, instance=self.project)
+        form = ProjectBuildSettingsForm(data, instance=self.project)
         assert form.is_valid()
         form.save()
 
@@ -598,7 +599,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         assert latest.type == BRANCH
 
         data["default_branch"] = tag.verbose_name
-        form = UpdateProjectForm(data, instance=self.project)
+        form = ProjectBuildSettingsForm(data, instance=self.project)
         assert form.is_valid()
         form.save()
 
