@@ -650,15 +650,6 @@ class UpdateProjectForm(
         )
 
         self.helper.layout = Layout(
-            self._fieldset(
-                _("Project"),
-                "name",
-                "description",
-                "project_url",
-                "tags",
-                "language",
-                "programming_language",
-            ),
             Fieldset(
                 _("Repository"),
                 multifield,
@@ -676,6 +667,15 @@ class UpdateProjectForm(
                 "privacy_level",
                 "search_indexing_enabled",
                 "show_version_warning",
+            ),
+            self._fieldset(
+                _("Project"),
+                "name",
+                "description",
+                "project_url",
+                "tags",
+                "language",
+                "programming_language",
             ),
         )
 
