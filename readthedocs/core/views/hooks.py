@@ -10,7 +10,7 @@ from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.builds.utils import request_run
+from readthedocs.builds.utils import RunTracker
 from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature
@@ -143,15 +143,16 @@ def trigger_sync_versions(project):
     return None
 
 
-def sync_versions_run_key(project):
-    return f"rtd-sync-repository-isolated:{project.pk}"
+def isolated_sync_tracker(project):
+    """Tracks the version sync that runs on the builders for this project."""
+    return RunTracker(f"sync-versions-isolated:{project.pk}")
 
 
 def _trigger_sync_versions_isolated(project):
     """Dispatch the version sync to the build-isolated fleet."""
-    if not request_run(sync_versions_run_key(project)):
-        # A sync is already running and may have read the repository before
-        # this event, ``sync_versions_task`` runs one more when it finishes.
+    if not isolated_sync_tracker(project).start():
+        # A sync is running and may have read the repository before this event.
+        # ``sync_versions_task`` triggers one more when that sync reports back.
         log.info("Sync already running, it will run again when it finishes.")
         return
 

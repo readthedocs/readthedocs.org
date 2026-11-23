@@ -118,28 +118,39 @@ def memcache_lock(lock_id, lock_expire, app_identifier):
             cache.delete(lock_id)
 
 
-def request_run(key, timeout=60):
+class RunTracker:
     """
-    Ask to run a job that recomputes everything from scratch, like a version sync.
+    Run a job one at a time without losing requests made while it runs.
 
-    Returns ``True`` if the caller should start the job now.
-    If the job is already running it returns ``False`` and marks it as dirty,
-    so ``finish_run`` asks for one more run that covers this request.
+    A request made while the job is running can't start a second run,
+    and the running one may have started too early to cover it.
+    So the request is remembered, and the job runs once more when it finishes.
 
-    ``timeout`` is how long a job that never calls ``finish_run`` blocks new runs.
+    Only for jobs that redo all their work on each run, like a version sync:
+    one extra run then covers every request made during the previous one.
+
+    The state is two cache keys:
+
+    - ``running_key`` is set from ``start()`` until ``finish()``.
+      It expires after ``expire`` seconds so a job that never finishes can't block new runs.
+    - ``run_again_key`` is set when ``start()`` is called while the job is running.
     """
-    if cache.add(f"{key}:running", True, timeout):
-        return True
-    cache.set(f"{key}:dirty", True, timeout * 10)
-    return False
 
+    def __init__(self, name, expire=60):
+        self.running_key = f"run-tracker:{name}:running"
+        self.run_again_key = f"run-tracker:{name}:run-again"
+        self.expire = expire
 
-def finish_run(key):
-    """
-    Mark the job as finished.
+    def start(self):
+        """Return ``True`` if the caller should run the job now."""
+        if cache.add(self.running_key, True, self.expire):
+            return True
+        cache.set(self.run_again_key, True, self.expire * 10)
+        return False
 
-    Returns ``True`` if it was requested again while running,
-    and the caller should request another run.
-    """
-    cache.delete(f"{key}:running")
-    return cache.delete(f"{key}:dirty")
+    def finish(self):
+        """Return ``True`` if the caller should run the job again."""
+        cache.delete(self.running_key)
+        run_again = cache.get(self.run_again_key, False)
+        cache.delete(self.run_again_key)
+        return run_again
