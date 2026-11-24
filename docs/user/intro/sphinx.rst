@@ -105,7 +105,7 @@ The :ref:`flyout-menu:Addons flyout menu` displays differently depending on whic
 
 - If you're using another theme, the flyout menu displays in the bottom right of the docs.
 
-In either case, you can configure the flyout menu sorting and display options in :guilabel:`Settings`, under :guilabel:`Addons`.
+In either case, you can configure the flyout menu sorting and display options in your project's :menuselection:`Settings --> Addons --> Flyout menu`.
 
 Using Markdown with Sphinx
 --------------------------

@@ -89,7 +89,7 @@ a :doc:`build </builds>` will be triggered to automatically deploy your document
 When you deactivate a version,
 all of the artifacts of your version will be deleted and a ``404 Not Found`` page will be served for it.
 
-You can change the state for each version of your documentation in the :guilabel:`Versions` tab of your project.
+You can change the state for each version of your documentation in your project's :menuselection:`Versions` tab.
 
 Version URL identifier (slug)
 -----------------------------

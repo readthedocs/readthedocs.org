@@ -22,9 +22,9 @@ Projects with one language
 If your documentation isn't in English (the default),
 you should indicate which language you have written it in.
 
-It is easy to set the *Language* of your project.
-On the project *Admin* page (or *Import* page),
-simply select your desired *Language* from the dropdown.
+It is easy to set the language of your project.
+In your project's :menuselection:`Settings` (or when adding the project),
+simply select your desired :guilabel:`Language` from the dropdown.
 This will tell Read the Docs that your project is in the language.
 The language will be represented in the URL for your project.
 

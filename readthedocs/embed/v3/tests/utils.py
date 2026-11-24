@@ -23,6 +23,13 @@ def get_anchor_link_title(thing):
     return title
 
 
+def get_clearer_div():
+    # Sphinx 8.1 added a "clearer" div at the end of the page body.
+    if sphinx.version_info >= (8, 1, 0):
+        return '<div class="clearer"></div>'
+    return ""
+
+
 def compare_content_without_blank_lines(text_a, text_b):
     lines_a = _split_lines_without_blank_lines(text_a)
     lines_b = _split_lines_without_blank_lines(text_b)

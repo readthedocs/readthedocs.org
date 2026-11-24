@@ -14,6 +14,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.projects.models import Project
 
 
@@ -53,11 +54,28 @@ class TestCancelOldBuilds:
         triggered_build = Build.objects.first()
         builds_count_after = Build.objects.count()
 
-        cancel_build.assert_called_once_with(build)
+        cancel_build.assert_called_once_with(
+            build, message_id=BuildCancelled.CANCELLED_BY_NEWER_BUILD
+        )
         assert result == (mock.ANY, triggered_build)
         assert builds_count_before == builds_count_after - 1
         assert update_docs_task.signature.called
         assert update_docs_task.signature().apply_async.called
+
+    @mock.patch("readthedocs.core.utils.cancel_build")
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    def test_not_cancel_newer_build(self, update_docs_task, cancel_build):
+        create = Build.objects.create
+
+        def create_with_concurrent_build(**kwargs):
+            build = create(**kwargs)
+            create(project=self.project, version=self.version)
+            return build
+
+        with mock.patch.object(Build.objects, "create", create_with_concurrent_build):
+            trigger_build(project=self.project, version=self.version)
+
+        cancel_build.assert_not_called()
 
     @pytest.mark.parametrize(
         "state",

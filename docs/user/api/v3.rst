@@ -51,6 +51,8 @@ Rate limiting
 ~~~~~~~~~~~~~
 
 The API limits unauthenticated requests to 5 per minute and authenticated requests to 60 per minute.
+The :ref:`build <api/v3:Builds>` and build notification endpoints allow 120 authenticated
+and 30 unauthenticated requests per minute, so the build page can poll them while a build runs.
 
 .. note::
 
@@ -412,7 +414,10 @@ Project create
       :Request JSON Object:
 
          * **organization** (*string*) -- required organization's slug under the project will be imported.
-         * **teams** (*string*) -- optional teams' slugs the project will belong to.
+           You must be an owner of this organization.
+         * **teams** (*string*) -- teams' slugs the project will belong to.
+           Required, unless the organization uses :ref:`single sign-on with a Git provider <sso_git_provider>`,
+           where teams aren't used.
 
       .. note::
 

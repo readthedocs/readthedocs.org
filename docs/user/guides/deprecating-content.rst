@@ -33,7 +33,7 @@ and they will be listed in a :doc:`robots.txt file </reference/robots>`
 to stop search engines of showing results for that version.
 
 Users can still see all versions in the dashboard of your project.
-To hide a version go to your project and click on :guilabel:`Versions` > :guilabel:`Edit`,
+To hide a version, go to your project's :menuselection:`Versions` tab, open the dot menu for the version, select :guilabel:`Configure version`,
 and mark the :guilabel:`Hidden` option. Check :ref:`versions:Version States` for more information.
 
 .. note::

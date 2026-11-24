@@ -39,9 +39,7 @@ to give read access to several repositories using only one SSH key.
       If you are using our :ref:`reference/git-integration:GitHub App` to connect your repository to Read the Docs,
       you can skip this step, because access to your repository is controlled through the App instead of a deploy key.
 
-   #. Go to your project on GitHub
-   #. Click on :guilabel:`Settings`
-   #. Click on :guilabel:`Deploy Keys`
+   #. Go to :menuselection:`Settings --> Deploy keys` of your repository on GitHub
    #. Delete the key added by ``Read the Docs Commercial (readthedocs.com)``
 
 #. Create a GitHub user and give it read only permissions to all the necessary repositories.

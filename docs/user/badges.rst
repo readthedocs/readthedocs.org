@@ -24,9 +24,6 @@ An example of each is shown here:
 Automatically generated
 -----------------------
 
-On the dashboard of a project, an example badge is displayed
-together with code snippets for reStructuredText, Markdown, and HTML.
-
 Badges are generated on-demand for all Read the Docs projects, using the following URL syntax:
 
 .. code-block:: text
@@ -75,13 +72,36 @@ The badge URL looks like this:
     https://app.readthedocs.org/projects/<project-slug>/badge/?version=latest
 
 
-Badges on dashboard pages
--------------------------
+Embedding a badge
+-----------------
 
-On each :term:`project home` page there is a badge that communicates the status of the default version.
-If you click on the badge icon,
-you will be given snippets for reStructuredText, Markdown, and HTML
-to make embedding it easier.
+Use one of the following snippets to embed a badge in your README or documentation pages.
+Replace ``<project-slug>`` with your project's slug,
+and ``<project-url>`` with the URL of your documentation.
+
+.. tabs::
+
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         .. image:: https://app.readthedocs.org/projects/<project-slug>/badge/?version=latest
+            :target: <project-url>
+            :alt: Documentation Status
+
+   .. tab:: Markdown
+
+      .. code-block:: markdown
+
+         [![Documentation Status](https://app.readthedocs.org/projects/<project-slug>/badge/?version=latest)](<project-url>)
+
+   .. tab:: HTML
+
+      .. code-block:: html
+
+         <a href="<project-url>">
+           <img src="https://app.readthedocs.org/projects/<project-slug>/badge/?version=latest" alt="Documentation Status" />
+         </a>
 
 .. _Read the Docs README: https://github.com/readthedocs/readthedocs.org/blob/main/README.rst
 .. |green| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
@@ -98,4 +118,4 @@ Badges for private projects
 
 For private projects, a badge URL cannot be guessed.
 A token is needed to display it.
-Private badge URLs are displayed on a private project's dashboard in place of public URLs.
+Please :doc:`contact support </support>` to get the badge URL for your private project.

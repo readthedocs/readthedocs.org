@@ -132,7 +132,7 @@ make sure to verify and potentially recreate all Git integrations for the projec
 .. note::
 
    When using our :ref:`reference/git-integration:GitHub App`,
-   If the original user who connected the repository to Read the Docs loses access to the project or repository,
+   if the original user who connected the repository to Read the Docs loses access to the project or repository,
    the GitHub App will still have access to the repository, and the integrations will continue to work.
 
 Permissions for connected accounts
@@ -286,6 +286,21 @@ Read the Docs provides two GitHub Apps, one for each of our platforms:
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business>`__
 
+Connecting your account and installing the app
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using the GitHub App takes two separate steps:
+
+Connect your GitHub account
+  Happens when you sign up or log in to Read the Docs with GitHub.
+  This identifies you on Read the Docs, but doesn't give Read the Docs access to any repository.
+Install the GitHub App
+  Happens on GitHub, on your personal account or on an organization.
+  This is what gives Read the Docs access to the repositories you select.
+
+If you connected your account but your repositories don't show up when adding a project,
+the app is probably not installed yet, or it doesn't have access to those repositories.
+
 Features
 ~~~~~~~~
 
@@ -297,12 +312,19 @@ This has the following benefits over using an OAuth application:
 - No need to create webhooks on your repositories.
   The GitHub App subscribes to all required events when you install it.
 - No need to create a deploy key on your repository (|com_brand| only).
-  The GitHub App can clone your private repositories using a temporal token.
+  The GitHub App can clone your private repositories using a temporary token.
 - If the original user who connected the repository to Read the Docs loses access to the project or repository,
   the GitHub App will still have access to the repository.
 - You can revoke access to the GitHub App at any time from your GitHub settings.
 - Never out of sync with changes on your repository.
   The GitHub App subscribes to all required events and will always keep your project up to date with your repository.
+
+The following features are only available for projects connected through the GitHub App:
+
+- :ref:`Build overview comment on pull requests <visual-diff:Show build overview in pull requests>`,
+  with a link to the preview and the list of files changed.
+- :ref:`Webhook filters <automation-rules:Webhook filters>` in automation rules,
+  for example to :doc:`skip builds </guides/build/skip-or-cancel-builds>` when no documentation files changed.
 
 Adding a project from a repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -330,7 +352,7 @@ and select the repository from your **project settings on Read the Docs**.
 - `Read the Docs Community <https://github.com/apps/read-the-docs-community/installations/new/>`__
 - `Read the Docs Business <https://github.com/apps/read-the-docs-business/installations/new/>`__
 
-Once you have installed the GitHub App, go to the :guilabel:`Settings` page of the project in Read the Docs,
+Once you have installed the GitHub App, go to your project's :menuselection:`Settings` in Read the Docs,
 and select the repository you want to connect from the :guilabel:`Connected repository` dropdown.
 
 Manually migrating a project
@@ -344,8 +366,8 @@ We recommend using the migration page to migrate your projects from the old OAut
 But in case you need to manually migrate a project,
 you can follow these steps:
 
-- Go to the :guilabel:`Settings` page of your Read the Docs project,
-  and click on the :guilabel:`Integrations` tab in Read the Docs, and delete all the integrations that are listed there.
+- Go to your Read the Docs project's :menuselection:`Settings --> Integrations`,
+  and delete all the integrations that are listed there.
 - Go to the settings page of your GitHub repository,
   click on the GitHub :guilabel:`Webhooks` tab, and delete all the webhooks with URLs that start with:
 
@@ -354,7 +376,7 @@ you can follow these steps:
 
 - For projects using Read the Docs Business,
   go to the settings page of your GitHub repository,
-  click on the GitHub :guilabel:`Deploy keys` tab, and delete the deploy with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
+  click on the GitHub :guilabel:`Deploy keys` tab, and delete the deploy key with a title matching the format ``support@readthedocs.com (<your-project-slug>)``.
 - :ref:`Connect the project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
 Revoking access
@@ -364,7 +386,7 @@ Revoking access
 
    If you revoke access to the GitHub App with any of the methods below,
    all projects linked to that repository will stop working,
-   but the projects and its documentation will still be available.
+   but the projects and their documentation will still be available.
    If you grant access to the repository again,
    you will need to :ref:`manually connect your project to the repository <reference/git-integration:Connect a repository to an existing project>`.
 
@@ -424,6 +446,12 @@ Repository not found in the repository list
    If you still can't see the repository in the list,
    you may need to wait a couple of minutes and refresh the page,
    or click on the "Refresh your repositories" button on the project creation page.
+
+Installation on an organization is pending
+   If you aren't an owner of the GitHub organization,
+   GitHub sends an installation request to the organization owners instead of installing the app.
+   Read the Docs can't access the organization's repositories until an owner approves the request.
+   See GitHub's docs on `requesting a GitHub App for your organization <https://docs.github.com/en/apps/using-github-apps/requesting-a-github-app-from-your-organization-owner>`__.
 
 Repository is in the list, but isn't usable
    Make sure you have admin access to the repository you are trying to use for your project.
