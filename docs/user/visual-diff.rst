@@ -88,7 +88,7 @@ moment.
 This prevents unrelated files from appearing as changed when the base branch
 moves forward while the pull request is open.
 
-If you later merge the base branch into your pull request,
+If you later merge the base branch (usually ``main``) into your pull request,
 the snapshot is refreshed on the next build so the diff reflects the new baseline.
 
 How main content is detected
