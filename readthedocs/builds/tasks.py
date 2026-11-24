@@ -219,9 +219,13 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     from readthedocs.core.views.hooks import sync_again_if_webhook_was_skipped
 
     project = Project.objects.get(pk=project_pk)
+    try:
+        return _sync_versions(project, tags_data, branches_data)
+    finally:
+        sync_again_if_webhook_was_skipped(project)
 
-    sync_again_if_webhook_was_skipped(project)
 
+def _sync_versions(project, tags_data, branches_data):
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
     current_stable = project.get_original_stable_version()
