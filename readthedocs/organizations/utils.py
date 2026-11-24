@@ -25,6 +25,8 @@ def send_team_add_email(team_member, request):
             "sender_username": request.user.username,
             "organization_name": team_member.team.organization.name,
             "organization_slug": team_member.team.organization.slug,
+            "team_name": team_member.team.name,
+            "team_url": team_member.team.get_absolute_url(),
         },
         request=request,
     )
