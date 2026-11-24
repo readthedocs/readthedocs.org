@@ -8,16 +8,23 @@ from urllib.parse import urlencode
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
+from readthedocs.notifications.constants import READ
+from readthedocs.notifications.constants import UNREAD
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.constants import GITHUB_APP
 from readthedocs.oauth.models import GitHubAccountType
 from readthedocs.oauth.models import GitHubAppInstallation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP
+from readthedocs.oauth.notifications import PROJECT_MIGRATION_MESSAGE_IDS
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
@@ -409,3 +416,23 @@ def migrate_project_to_github_app(project, user) -> MigrationResult:
         webhook_removed=webhook_removed,
         ssh_key_removed=ssh_key_removed,
     )
+
+
+def cancel_migration_notifications(project):
+    """Cancel the migration notifications that no longer apply once ``project`` is migrated."""
+    for message_id in PROJECT_MIGRATION_MESSAGE_IDS:
+        Notification.objects.cancel(message_id=message_id, attached_to=project)
+
+    # Admins of this project may still have other projects to migrate.
+    notified_admin_ids = Notification.objects.filter(
+        attached_to_content_type=ContentType.objects.get_for_model(User),
+        attached_to_id__in=AdminPermission.admins(project).values("pk"),
+        message_id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,
+        state__in=(UNREAD, READ),
+    ).values("attached_to_id")
+    for user in User.objects.filter(pk__in=notified_admin_ids):
+        if not has_projects_pending_migration(user):
+            Notification.objects.cancel(
+                message_id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,
+                attached_to=user,
+            )

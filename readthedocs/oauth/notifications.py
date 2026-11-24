@@ -22,6 +22,14 @@ MESSAGE_OAUTH_WEBHOOK_NOT_REMOVED = "oauth:migration:webhook-not-removed"
 MESSAGE_OAUTH_DEPLOY_KEY_NOT_REMOVED = "oauth:migration:ssh-key-not-removed"
 MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES = "oauth:syncing-remote-repositories"
 MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:projects-to-migrate-to-github-app"
+MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP = "oauth:migration:project-to-migrate-to-github-app"
+MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP_PULL_REQUESTS = (
+    "oauth:migration:project-to-migrate-to-github-app-pull-requests"
+)
+PROJECT_MIGRATION_MESSAGE_IDS = (
+    MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP,
+    MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP_PULL_REQUESTS,
+)
 MESSAGE_OAUTH_BITBUCKET_RECONNECT = "oauth:bitbucket:reconnect"
 
 messages = [
@@ -166,11 +174,45 @@ messages = [
     ),
     Message(
         id=MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP,
-        header=_("You have projects that need to be migrated to the new GitHub App"),
+        header=_("Finish migrating your projects to our GitHub App"),
         body=_(
             textwrap.dedent(
                 """
-                Migrate your projects automatically using the <a href="{% url "migrate_to_github_app" %}">migration page</a>.
+                Some of your projects are still connected to our old GitHub integration.
+                <a href="{% url "migrate_to_github_app" %}">Continue the migration</a> where you left off.
+                """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP_PULL_REQUESTS,
+        header=_("Get a build overview on your pull requests"),
+        body=_(
+            textwrap.dedent(
+                """
+                This project builds pull requests, but it's connected to our old GitHub integration.
+                Migrate it to our GitHub App to get a comment on each pull request with a link to the preview
+                and the list of files that changed.
+                <a href="{% url "migrate_to_github_app" %}">Migrate this project</a>.
+                If the repository belongs to a GitHub organization, an owner of the organization needs to install the app.
+                """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_TO_MIGRATE_TO_GITHUB_APP,
+        header=_("Migrate this project to our GitHub App"),
+        body=_(
+            textwrap.dedent(
+                """
+                This project is connected to our old GitHub integration.
+                With our GitHub App, you choose which repositories Read the Docs can access,
+                you don't need a webhook on your repository,
+                and the project keeps working if the person who connected it leaves.
+                <a href="{% url "migrate_to_github_app" %}">Migrate this project</a>.
+                If the repository belongs to a GitHub organization, an owner of the organization needs to install the app.
                 """
             ).strip(),
         ),
