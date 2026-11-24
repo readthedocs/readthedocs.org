@@ -219,6 +219,16 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     from readthedocs.core.views.hooks import sync_again_if_webhook_was_skipped
 
     project = Project.objects.get(pk=project_pk)
+    # Syncs for a project run one at a time, and webhooks that arrive
+    # while one is running share a single follow-up sync:
+    #
+    # 1. A webhook arrives and no sync is running: a sync is dispatched.
+    # 2. More webhooks arrive while it runs: nothing is dispatched,
+    #    they are only noted as skipped.
+    # 3. The sync ends here. If a webhook was skipped, start again from step 1.
+    #
+    # The running sync may have read the repository before a skipped webhook's change,
+    # the follow-up sync reads it after, so the last webhook is always covered.
     try:
         return _sync_versions(project, tags_data, branches_data)
     finally:

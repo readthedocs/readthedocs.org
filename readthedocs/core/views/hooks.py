@@ -157,17 +157,8 @@ def _trigger_sync_versions_isolated(project):
     """
     Dispatch the version sync to the build-isolated fleet.
 
-    Syncs for a project run one at a time, and webhooks that arrive
-    while one is running share a single follow-up sync:
-
-    1. A webhook arrives and no sync is running: a sync is dispatched.
-    2. More webhooks arrive while it runs: nothing is dispatched,
-       they are only noted as skipped.
-    3. The sync ends in ``sync_versions_task``. If a webhook was skipped,
-       ``sync_again_if_webhook_was_skipped`` starts again from step 1.
-
-    The running sync may have read the repository before a skipped webhook's change,
-    the follow-up sync reads it after, so the last webhook is always covered.
+    Only one sync per project runs at a time. A webhook that arrives while
+    one is running is noted as skipped, see ``sync_versions_task``.
     """
     sync_already_running = not cache.add(_sync_running_cache_key(project), True, 60)
     if sync_already_running:
