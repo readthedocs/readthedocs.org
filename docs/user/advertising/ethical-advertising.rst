@@ -163,8 +163,9 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
 
 2. You can opt out of seeing paid advertisements on documentation pages:
 
-   * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking :guilabel:`Settings` (https://app.readthedocs.org/accounts/edit/).
-   * On the :guilabel:`Advertising` tab, you can deselect **See paid advertising**.
+   * Go to :menuselection:`<Username dropdown> --> Settings --> Advertising`.
+   * Uncheck :guilabel:`See paid advertising`.
+   * Click :guilabel:`Update advertisement preference`.
 
    You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`
    for open source projects and conferences.
@@ -172,9 +173,9 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
 3. Project owners can also opt out of paid advertisements for their projects.
    You can change these options:
 
-   * Go to your **project** page (`/projects/<slug>/`)
-   * Go to :guilabel:`Admin` > :guilabel:`Advertising`
-   * Change your advertising settings
+   * Go to your project's :menuselection:`Settings --> Advertising`.
+   * Change your advertising settings.
+   * Click :guilabel:`Update advertising preference`.
 
 4. If you are part of a company that uses Read the Docs to host documentation for a commercial product,
    we offer :doc:`Read the Docs Business </commercial/index>` that offers a completely ad-free experience,

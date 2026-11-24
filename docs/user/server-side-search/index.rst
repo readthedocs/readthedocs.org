@@ -49,7 +49,7 @@ Configurable
    :ref:`configuration file <config-file/v2:search>`.
    You can also enable or disable the search modal,
    and toggle the subprojects filter shown inside it,
-   from your project's :guilabel:`Settings`, in the left bar, under :guilabel:`Search`.
+   from your project's :menuselection:`Settings --> Search`.
 
 Ready to use
    We override the default search engine of your Sphinx project with ours
@@ -90,11 +90,7 @@ Configuring search
 
 You can configure search options for your project from the :term:`dashboard`:
 
-#. Go to the :term:`dashboard`.
-#. Click on a project name.
-#. Go to :guilabel:`Settings`.
-#. In the left bar, go to :guilabel:`Search`.
-
+Go to your project's :menuselection:`Settings --> Search`.
 From there you can toggle :guilabel:`Enable search modal`,
 which controls whether the Read the Docs search modal is shown in your documentation,
 and :guilabel:`Show subprojects filter in search modal`,

@@ -44,7 +44,8 @@ Trusted: site settings and staff/admin users.
    storage path, from a build or through the upload API.
    Builds are moving to a new builder (github.com/readthedocs/readthedocs-builder). It works like the
    current one, but runs as its own Celery task instead of depending on the whole application, so the
-   same concerns apply.
+   same concerns apply. The build code runs on the host and runs each command inside the build container
+   with `docker exec`; the container never holds the build's credentials.
 5. **Embed, search and addons APIs**: the addons API lives in `readthedocs/proxito/views/hosting.py`.
    Of interest: SSRF, leaking private projects through search or embed, XSS in returned content.
 6. **Dashboard templates**: the dashboard's templates, template tags and JavaScript come from

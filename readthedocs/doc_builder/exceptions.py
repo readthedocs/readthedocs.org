@@ -66,6 +66,7 @@ class BuildMaxConcurrencyError(BuildUserError):
 
 class BuildCancelled(BuildUserError):
     CANCELLED_BY_USER = "build:user:cancelled"
+    CANCELLED_BY_NEWER_BUILD = "build:user:cancelled-by-newer-build"
     SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
 
 

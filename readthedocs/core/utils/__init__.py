@@ -131,7 +131,8 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).exclude(pk=build.pk)
+    # Only older builds, so builds triggered at the same time don't cancel each other.
+    running_builds = version.builds.exclude(state__in=BUILD_FINAL_STATES).filter(pk__lt=build.pk)
     if running_builds.count() > 0:
         log.warning(
             "Canceling running builds automatically due a new one arrived.",
@@ -141,7 +142,7 @@ def prepare_build(
     # If there are builds triggered/running for this particular project and version,
     # we cancel all of them and trigger a new one for the latest commit received.
     for running_build in running_builds:
-        cancel_build(running_build)
+        cancel_build(running_build, message_id=BuildCancelled.CANCELLED_BY_NEWER_BUILD)
 
     # Start the build in X minutes and mark it as limited.
     # The build-isolated path enforces concurrency on the web side instead
@@ -212,10 +213,11 @@ def trigger_build(project, version=None, commit=None, from_webhook=False):
     When the project has ``Feature.USE_BUILD_ISOLATED`` enabled,
     the build is sent directly to the ``build:isolated`` Celery queue
     (via :func:`submit_to_build_isolated` below). A worker on a
-    dedicated EC2 instance picks it up, fetches build/project data from
-    the API, sparse-clones ``.readthedocs.yaml`` for ``build.os``, and
-    runs the build inside a ``readthedocs/build:<os>`` container. See
-    ``readthedocs-builder/docs/architecture.md`` for the broader design.
+    dedicated EC2 instance picks it up and fetches build/project data from
+    the API. Like the legacy builder, it runs the build code on the host and
+    ``docker exec``s each command into a build container: one to clone the
+    repository, then a ``readthedocs/build:<build.os>`` one to build the docs.
+    See the ``readthedocs-builder`` repository for the broader design.
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
@@ -279,7 +281,7 @@ def build_isolated_environment():
     }
     if settings.RTD_DOCKER_COMPOSE:
         # Local dev: rustfs endpoint for storage boto3 calls, and an
-        # API-via-nginx override so the build container can reach us on the
+        # API-via-nginx override so the worker can reach us on the
         # compose network. The build user defaults to ``docs`` (like
         # production) — the isolated builder has no bind-mounted docroot, so
         # there's no host-uid mismatch to work around.
@@ -426,7 +428,7 @@ def admit_project_builds(project):
                     )
 
 
-def cancel_build(build):
+def cancel_build(build, message_id=BuildCancelled.CANCELLED_BY_USER):
     """
     Cancel a triggered/running build.
 
@@ -453,7 +455,7 @@ def cancel_build(build):
 
         # Add a notification for this build
         Notification.objects.add(
-            message_id=BuildCancelled.CANCELLED_BY_USER,
+            message_id=message_id,
             attached_to=build,
             dismissable=False,
         )

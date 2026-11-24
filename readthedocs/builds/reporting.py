@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from readthedocs.builds.models import Build
 from readthedocs.filetreediff import get_base_version
@@ -13,6 +14,20 @@ from readthedocs.filetreediff.dataclasses import FileTreeDiff
 class BuildOverview:
     content: str
     diff: FileTreeDiff
+
+
+def _build_finished_at(build: Build):
+    """
+    When the build finished, as closely as we can tell.
+
+    The build's own ``length`` is saved after the task that posts the comment
+    is queued, so the end of its last command is the finish time; a build
+    without recorded commands falls back to when it started.
+    """
+    last_command = build.commands.last()
+    if last_command and last_command.end_time:
+        return last_command.end_time
+    return build.date
 
 
 def get_build_overview(build: Build) -> BuildOverview | None:
@@ -37,15 +52,15 @@ def get_build_overview(build: Build) -> BuildOverview | None:
     if not diff:
         return None
 
+    build_path = reverse("builds_detail", args=[project.slug, diff.current_version_build.pk])
     content = render_to_string(
         "core/build-overview.md",
         {
             "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
             "project": project,
-            "current_version": diff.current_version,
-            "current_version_build": diff.current_version_build,
-            "base_version": diff.base_version,
-            "base_version_build": diff.base_version_build,
+            "preview_url": diff.current_version.get_absolute_url(),
+            "build_url": f"https://{settings.PRODUCTION_DOMAIN}{build_path}",
+            "built_at": _build_finished_at(diff.current_version_build),
             "diff": diff,
         },
     )

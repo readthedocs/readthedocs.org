@@ -18,8 +18,7 @@ Adding a maintainer gives them admin access to your project.
 
 Follow these steps:
 
-* Navigate to the :guilabel:`Settings` tab of your project.
-* Under :guilabel:`Setup`, click on the :guilabel:`Maintainers` tab.
+* Go to your project's :menuselection:`Settings --> Maintainers`.
 * Click the :guilabel:`Add maintainer` button.
 * Fill out the form with the new maintainer's username or email address.
 * Click :guilabel:`Invite`.
@@ -31,8 +30,7 @@ Removing a maintainer revokes their admin access to your project.
 
 Follow these steps:
 
-* Navigate to the :guilabel:`Settings` tab of your project.
-* Under :guilabel:`Setup`, click on the :guilabel:`Maintainers` tab.
+* Go to your project's :menuselection:`Settings --> Maintainers`.
 * Find the maintainer you want to remove in the list.
 * Click the :guilabel:`Remove` button next to their name.
 * Confirm the removal in the dialog that appears.

@@ -19,40 +19,45 @@ Adding a new automation rule
 
 First you need to go to the automation rule creation page:
 
-#. Navigate to :menuselection:`Admin --> Automation Rules`.
-#. Click on :guilabel:`Add Rule` and you will see the following form.
+#. Go to your project's :menuselection:`Settings --> Automation rules`.
+#. Click on :guilabel:`Add automation rule` and you will see the following form.
 
 .. image:: /img/screenshot_automation_rules_add.png
-   :alt: Screenshot of the "Add Rule" form
+   :alt: Screenshot of the "Add rule" form
 
-In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
+In the :guilabel:`Add rule` form, fill in the following fields:
 
 #. Enter a :guilabel:`Description` that you can refer to later.
    For example, entering "Create new stable version" is a good title,
    as it explains the intention of the rule.
 
-#. Choose a :guilabel:`Match`,
-   which is the pattern you wish to detect in either a Git branch or tag.
+#. Choose one or more :guilabel:`Version types`:
+   *Branch*, *Tag*, or *Pull request*.
+
+#. Choose a :guilabel:`Version predefined match pattern`,
+   which is the pattern you wish to detect in the version name.
 
    * :ref:`Any version <automation-rules:Predefined matches>` matches all values.
    * :ref:`SemVer versions <automation-rules:Predefined matches>` matches only values that have the `SemVer`_ format.
-   * :ref:`Custom match <automation-rules:Custom matches>` matches your own pattern (entered below).
+   * :ref:`Custom match <automation-rules:Custom matches>` matches your own pattern.
      If you choose this option,
-     a field :guilabel:`Custom match` will automatically appear below the drop-down where you can add a regular expression in `Python regex format`_.
+     enter a regular expression in `Python regex format`_ in the :guilabel:`Version match pattern` field.
 
-#. Choose a :guilabel:`Version type`.
-   You can choose between *Tag* or *Branch*,
-   denoting *Git tag* or *Git branch*.
+#. Optionally, fill in the webhook match patterns to only match on specific files, pull request labels, or commit messages.
+   See :ref:`automation-rules:Webhook filters`.
 
 #. Finally, choose the :guilabel:`Action`:
 
    * :ref:`Activate version <automation-rules:Version actions>`
    * :ref:`Hide version <automation-rules:Version actions>`
+   * :ref:`Make version public <automation-rules:Version actions>`
+   * :ref:`Make version private <automation-rules:Version actions>`
    * :ref:`Set version as default <automation-rules:Version actions>`
-   * :ref:`Delete version (on branch/tag deletion) <automation-rules:Version actions>`
+   * :ref:`Delete version <automation-rules:Version actions>`
+   * :ref:`Trigger build for version <automation-rules:Build actions>`
 
 
-Now your rule is ready and you can press :guilabel:`Save`.
+Now your rule is ready and you can press :guilabel:`Add rule`.
 The rule takes effect immediately when a new version is created,
 but does not apply to old versions.
 
@@ -73,7 +78,7 @@ but does not apply to old versions.
 Ordering your rules
 -------------------
 
-The order your rules are listed in  :menuselection:`Admin --> Automation Rules` matters.
+The order your rules are listed in your project's :menuselection:`Settings --> Automation rules` matters.
 Each action will be performed in that order,
 so earlier rules have a higher priority.
 
