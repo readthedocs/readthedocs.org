@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dynamic_fixture import get
@@ -281,5 +282,7 @@ class TestURLPatternsUtils(TestCase):
                 get(SearchQuery, project=self.project, version=version)
                 get(Build, project=self.project, version=version)
 
+        # Warm the content type cache, so the count doesn't depend on which tests ran before.
+        ContentType.objects.get_for_model(Build)
         with self.assertNumQueries(50):
             self.project.delete()

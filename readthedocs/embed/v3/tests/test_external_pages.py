@@ -7,7 +7,12 @@ from django.core.cache import cache
 from django.urls import reverse
 from packaging.version import Version
 
-from .utils import compare_content_without_blank_lines, get_anchor_link_title, srcdir
+from .utils import (
+    compare_content_without_blank_lines,
+    get_anchor_link_title,
+    get_clearer_div,
+    srcdir,
+)
 
 
 @pytest.mark.django_db
@@ -56,7 +61,7 @@ class TestEmbedAPIv3ExternalPages:
                             <p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>
                         </section>
                     </section>
-                    <div class="clearer"></div>
+                    {get_clearer_div()}
                 </div>
             """
         else:

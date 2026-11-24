@@ -20,11 +20,11 @@ Common sharing use cases include:
 Creating a shared item
 ----------------------
 
-* Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
-* Click on :guilabel:`New Share`
-* Select access type (secret link, password, or HTTP header token),
-  add an expiration date and a *Description* to help with managing access in the future.
-* Check ``Allow access to all versions?`` if you want to grant access to all versions,
+* Go to your project's :menuselection:`Settings --> Sharing`.
+* Click on :guilabel:`Add share`.
+* Select the :guilabel:`Access type` (secret link, password, or HTTP header token),
+  set the :guilabel:`Expires` date, and add a :guilabel:`Description` to help with managing access in the future.
+* Check :guilabel:`Allow access to all versions?` if you want to grant access to all versions,
   or uncheck that option and select the specific versions you want to grant access to.
 * Click :guilabel:`Save`.
 * Get the info needed to share your documentation with other users:

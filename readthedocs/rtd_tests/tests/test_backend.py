@@ -221,6 +221,16 @@ class TestGitBackend(TestCase):
         repo.checkout("submodule")
         self.assertTrue(repo.contains_commit(base_commit))
 
+    def test_has_ssh_key_with_write_access_skipped_for_gitcode(self):
+        version = self.project.versions.first()
+        repo = self.project.vcs_repo(environment=self.build_environment, version=version)
+        repo.update()
+        repo.project.repo = "git@gitcode.com:readthedocs/test.git"
+
+        with patch.object(repo, "run") as run:
+            assert repo.has_ssh_key_with_write_access() is False
+        run.assert_not_called()
+
     def test_git_checkout_invalid_revision(self):
         version = self.project.versions.first()
         repo = self.project.vcs_repo(environment=self.build_environment, version=version)

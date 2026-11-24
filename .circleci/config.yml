@@ -1,7 +1,7 @@
 # CI Pipeline
 #
 # Stage 1 (parallel):   checks, tests, tests-proxito
-# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (6 Sphinx versions)
+# Stage 2 (parallel):   tests-search (needs ES), tests-embedapi (4 Sphinx versions)
 # Stage 3:              coverage-report (combines and uploads to codecov)
 #
 # Stage 2 runs after tests and tests-proxito pass (but not checks,
@@ -26,8 +26,6 @@
 #     both "search" and "proxito" (e.g. test_proxied_api.py). These need
 #     the ES sidecar AND proxito Django settings, so they run in
 #     tests-search with --ds=readthedocs.settings.proxito.test.
-#   - tests-embedapi uses tox<4 (tox.embedapi.ini isn't compatible with
-#     tox 4), so it can't use tox-uv.
 #   - Coverage files are copied to unique names (cp .coverage .coverage.tests)
 #     after each tox run because tox doesn't pass COVERAGE_FILE through to
 #     the test env. The coverage-report job combines them.
@@ -53,6 +51,18 @@ commands:
           name: Include ext-theme commit hash in cache key
           command: |
             git ls-remote https://github.com/readthedocs/ext-theme.git HEAD >> requirements-cache-key.txt
+
+  install-rclone:
+    description: Install the rclone version from the Ubuntu package production uses
+    steps:
+      # A pinned binary skips `apt update`, which took up to a minute.
+      - run:
+          name: Install rclone
+          command: |
+            curl -sSfL -o /tmp/rclone.zip https://downloads.rclone.org/v1.60.1/rclone-v1.60.1-linux-amd64.zip
+            unzip -qj /tmp/rclone.zip '*/rclone' -d /tmp
+            sudo install /tmp/rclone /usr/local/bin/rclone
+            rclone version
 
   skip-if-docs-only:
     description: Halt the job if only docs/ files changed
@@ -86,6 +96,9 @@ jobs:
       - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+          # Docker reports the host's CPUs, so pytest-xdist's `-n auto` needs
+          # the job's vCPU count.
+          PYTEST_XDIST_AUTO_NUM_WORKERS: 4
     resource_class: large.gen2
     steps:
       - setup-checkout
@@ -93,8 +106,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-tests-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - install-rclone
       # tox-uv makes tox use uv for virtualenv creation and dep resolution.
       - run: pip install --user tox tox-uv
       - run: tox -e py314
@@ -131,8 +143,7 @@ jobs:
       - restore_cache:
           keys:
             - pip-search-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: sudo apt update
-      - run: sudo apt install -y rclone
+      - install-rclone
       - run: pip install --user tox tox-uv
       - run: tox -e search
       - run: cp .coverage .coverage.search
@@ -154,6 +165,7 @@ jobs:
       - image: 'cimg/python:3.14'
         environment:
           PYTEST_COVERAGE: --cov-config .coveragerc --cov --no-cov-on-fail
+          PYTEST_XDIST_AUTO_NUM_WORKERS: 4
     resource_class: large.gen2
     steps:
       - setup-checkout
@@ -176,8 +188,7 @@ jobs:
             - .coverage.proxito
 
   tests-embedapi:
-    # Embed API tests — tests against 6 Sphinx versions.
-    # Requires tox<4 (tox.embedapi.ini is not compatible with tox 4).
+    # Embed API tests — tests against 4 Sphinx versions.
     docker:
       - image: 'cimg/python:3.14'
     steps:
@@ -185,12 +196,11 @@ jobs:
       - skip-if-docs-only
       - restore_cache:
           keys:
-            - pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
-      - run: pip install --user 'tox<4'
-      - run: tox --version
+            - pip-embedapi-v3-{{ checksum "requirements-cache-key.txt" }}
+      - run: pip install --user tox tox-uv
       - run: tox -c tox.embedapi.ini
       - save_cache:
-          key: pip-embedapi-v2-{{ checksum "requirements-cache-key.txt" }}
+          key: pip-embedapi-v3-{{ checksum "requirements-cache-key.txt" }}
           paths:
             - ~/.local/lib
             - ~/.local/bin

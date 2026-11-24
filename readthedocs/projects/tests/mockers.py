@@ -1,5 +1,6 @@
 import os
 import shutil
+import tempfile
 from unittest import mock
 
 from django.conf import settings
@@ -8,6 +9,14 @@ from readthedocs.api.v2.serializers import VersionAdminSerializer
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.tasks.builds import UpdateDocsTask
+
+
+# One per pytest-xdist worker, so parallel workers don't wipe each other's checkout.
+PROJECT_REPOSITORY_PATH = os.path.join(
+    tempfile.gettempdir(),
+    f"readthedocs-tests-{os.environ.get('PYTEST_XDIST_WORKER', 'main')}",
+    "git-repository",
+)
 
 
 class BuildEnvironmentMocker:
@@ -115,11 +124,7 @@ class BuildEnvironmentMocker:
         # TODO: improve this
         self._counter = 0
 
-        # The tmp project repository should be at a unique location, but we need
-        # to hook into test setup and teardown such that we can clean up nicely.
-        # This probably means that the tmp dir should be handed to the mocker from
-        # outside.
-        self.project_repository_path = "/tmp/readthedocs-tests/git-repository"
+        self.project_repository_path = PROJECT_REPOSITORY_PATH
         shutil.rmtree(self.project_repository_path, ignore_errors=True)
         os.makedirs(self.project_repository_path)
 

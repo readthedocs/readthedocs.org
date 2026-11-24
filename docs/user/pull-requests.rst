@@ -5,7 +5,7 @@ Read the Docs builds your documentation for every new pull request.
 Previewing changes during review makes it easier to catch formatting and display issues before they go live.
 
 Pull request previews are enabled by default on new projects.
-You can configure them from a project under :guilabel:`Settings` → :guilabel:`Pull request builds`.
+You can configure them from your project's :menuselection:`Settings --> Pull request builds`.
 
 Features
 --------
@@ -38,7 +38,7 @@ Pull request notifications
     A pull request notification can be shown at the top of preview pages,
     which lets readers know they aren't viewing an active version of the project.
     New projects have this notification disabled by default;
-    enable it from :guilabel:`Settings` → :guilabel:`Addons` → :guilabel:`Notifications`.
+    enable it from your project's :menuselection:`Settings --> Addons --> Notifications`.
 
 :doc:`Visual diff </visual-diff>`
     Visual diff shows proposed changes by visually highlighting the differences between the current pull request and the latest version of the project's documentation.
