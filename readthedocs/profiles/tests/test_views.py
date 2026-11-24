@@ -289,6 +289,18 @@ class TestMigrateToGitHubAppView(TestCase):
         assert response.status_code == 302
         assert response["Location"] == self.url + "?step=migrate"
 
+    def test_old_and_github_app_accounts_go_to_install(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+        assert response["Location"] == self.url + "?step=install"
+
+    def test_old_and_github_app_accounts_installed_go_to_migrate(self):
+        for project in self._legacy_projects():
+            self._create_github_app_remote_repository(project.remote_repository)
+        response = self.client.get(self.url)
+        assert response.status_code == 302
+        assert response["Location"] == self.url + "?step=migrate"
+
     @requests_mock.Mocker(kw="request")
     def test_migration_page_initial_state(self, request):
         request.get("https://api.github.com/user", status_code=200)
@@ -382,7 +394,7 @@ class TestMigrateToGitHubAppView(TestCase):
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_connect_done(self, request):
         request.get("https://api.github.com/user", status_code=200)
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         assert response.status_code == 200
         context = response.context
 
@@ -475,7 +487,7 @@ class TestMigrateToGitHubAppView(TestCase):
         self._create_github_app_remote_repository(self.remote_repository_b)
         self._create_github_app_remote_repository(self.remote_repository_d)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         assert response.status_code == 200
         context = response.context
 
@@ -579,7 +591,7 @@ class TestMigrateToGitHubAppView(TestCase):
             self.url, data={"project": self.project_with_remote_repository.slug}
         )
         assert response.status_code == 302
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         assert response.status_code == 200
         context = response.context
 
@@ -677,7 +689,7 @@ class TestMigrateToGitHubAppView(TestCase):
 
         response = self.client.post(self.url)
         assert response.status_code == 302
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         context = response.context
 
         assert context["step"] == "overview"
@@ -770,7 +782,7 @@ class TestMigrateToGitHubAppView(TestCase):
             self.url, data={"project": self.project_with_remote_repository.slug}
         )
         assert response.status_code == 302
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         context = response.context
 
         assert context["step"] == "overview"
@@ -862,7 +874,7 @@ class TestMigrateToGitHubAppView(TestCase):
     @requests_mock.Mocker(kw="request")
     def test_migration_page_step_revoke_done(self, request):
         request.get("https://api.github.com/user", status_code=401)
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data={"step": "overview"})
         assert response.status_code == 200
         context = response.context
 

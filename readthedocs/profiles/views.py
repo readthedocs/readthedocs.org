@@ -379,12 +379,14 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
     template_name = "profiles/private/migrate_to_gh_app.html"
 
     def get(self, request, *args, **kwargs):
-        if not self._get_old_github_accounts().exists():
-            # Users without the old GitHub account can still have projects on the old
-            # integration, e.g. co-maintainers or users that already migrated their account.
-            pending = list(get_projects_missing_migration(request.user))
-            has_new_account = self._get_new_github_account() is not None
-            if not pending:
+        step = request.GET.get("step")
+        has_old_accounts = self._get_old_github_accounts().exists()
+        has_new_account = self._get_new_github_account() is not None
+
+        # Users without the old GitHub account can still have projects on the old
+        # integration, e.g. co-maintainers or users that already migrated their account.
+        if not has_old_accounts:
+            if not has_projects_pending_migration(request.user):
                 if has_new_account:
                     msg = _("You have already migrated your account to the new GitHub App.")
                 else:
@@ -392,17 +394,31 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
                 messages.info(request, msg)
                 return HttpResponseRedirect(reverse("homepage"))
 
-            step = request.GET.get("step")
-            if not has_new_account:
-                # The other steps need a GitHub App account.
-                if step not in (MigrationSteps.overview, MigrationSteps.connect):
-                    return self._redirect_to_step(MigrationSteps.connect)
-            elif step is None:
-                if all(has_installation for _, has_installation, _ in pending):
-                    return self._redirect_to_step(MigrationSteps.migrate)
-                return self._redirect_to_step(MigrationSteps.install)
+            # The other steps need a GitHub App account.
+            if not has_new_account and step not in (
+                MigrationSteps.overview,
+                MigrationSteps.connect,
+            ):
+                return self._redirect_to_step(MigrationSteps.connect)
+
+        # Users coming back continue from the step they need to complete next.
+        if step is None:
+            next_step = self._get_next_step()
+            if next_step:
+                return self._redirect_to_step(next_step)
 
         return super().get(request, *args, **kwargs)
+
+    def _get_next_step(self):
+        if not self._has_new_accounts_for_old_accounts():
+            return None
+
+        pending = list(get_projects_missing_migration(self.request.user))
+        if not pending:
+            return None
+        if all(has_installation for _, has_installation, _ in pending):
+            return MigrationSteps.migrate
+        return MigrationSteps.install
 
     def _redirect_to_step(self, step):
         return HttpResponseRedirect(reverse("migrate_to_github_app") + f"?step={step}")

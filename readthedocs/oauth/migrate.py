@@ -330,8 +330,9 @@ def has_projects_pending_migration(user) -> bool:
     """
     Check if the user has any projects pending migration to the GitHub App.
 
-    This includes all projects that are connected to the old GitHub OAuth App,
-    where the user has admin permissions and the GitHub App is installed.
+    This includes all projects where the user is admin that are still connected
+    to the old GitHub OAuth App, doesn't matter if the GitHub App is installed
+    or the user has admin permissions on the repository.
     """
     return any(get_projects_missing_migration(user))
 
