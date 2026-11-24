@@ -92,7 +92,7 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Account management
 
-   /account/user/connected-services
+   /account/user/index
 
 .. toctree::
    :maxdepth: 1
