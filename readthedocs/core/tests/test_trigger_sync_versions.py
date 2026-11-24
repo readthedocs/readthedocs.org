@@ -13,7 +13,7 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
-@mock.patch("readthedocs.core.views.hooks.app")
+@mock.patch("readthedocs.core.utils.app")
 @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
 class TestTriggerSyncVersions(TestCase):
     def setUp(self):

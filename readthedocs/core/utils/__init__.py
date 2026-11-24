@@ -5,6 +5,7 @@ import re
 
 import structlog
 from django.conf import settings
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -291,6 +292,44 @@ def build_isolated_environment():
         # are fully migrated and remove this override here.
         environment["RTD_API_URL"] = "http://nginx"
     return environment
+
+
+def sync_running_cache_key(project):
+    """Set while a sync dispatched to the builders is running."""
+    return f"sync-versions-isolated:{project.pk}:running"
+
+
+def webhook_skipped_cache_key(project):
+    """Set when a webhook didn't dispatch a sync because one was running."""
+    return f"sync-versions-isolated:{project.pk}:webhook-skipped"
+
+
+def trigger_sync_versions_isolated(project):
+    """
+    Dispatch the version sync to the build-isolated fleet.
+
+    Only one sync per project runs at a time. A webhook that arrives while
+    one is running is noted as skipped, see ``sync_versions_task``.
+    """
+    # Avoid circular import
+    from readthedocs.api.v2.models import BuildAPIKey
+
+    sync_already_running = not cache.add(sync_running_cache_key(project), True, 60)
+    if sync_already_running:
+        cache.set(webhook_skipped_cache_key(project), True, 60 * 10)
+        log.info("Sync already running, skipping. It will sync again when it is done.")
+        return
+
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+    app.send_task(
+        settings.RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME,
+        kwargs={
+            "project_pk": project.pk,
+            "build_api_key": build_api_key,
+            "environment": build_isolated_environment(),
+        },
+        queue=settings.RTD_BUILD_ISOLATED_QUEUE,
+    )
 
 
 def submit_to_build_isolated(*, project, build):
