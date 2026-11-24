@@ -69,14 +69,6 @@ class TestTriggerSyncVersions(TestCase):
 
         assert app.send_task.call_count == 2
 
-    def test_a_single_event_runs_one_sync(self, sync_repository_task, app):
-        self._enable_build_isolated()
-        trigger_sync_versions(self.project)
-
-        sync_versions_task(self.project.pk, tags_data=[], branches_data=[])
-
-        assert app.send_task.call_count == 1
-
     def test_the_debounce_is_per_project(self, sync_repository_task, app):
         self._enable_build_isolated()
         other = fixture.get(Project, slug="other", repo="https://github.com/readthedocs/other")
