@@ -143,12 +143,12 @@ def trigger_sync_versions(project):
     return None
 
 
-def _sync_running_cache_key(project):
+def sync_running_cache_key(project):
     """Set while a sync dispatched to the builders is running."""
     return f"sync-versions-isolated:{project.pk}:running"
 
 
-def _webhook_skipped_cache_key(project):
+def webhook_skipped_cache_key(project):
     """Set when a webhook didn't dispatch a sync because one was running."""
     return f"sync-versions-isolated:{project.pk}:webhook-skipped"
 
@@ -160,9 +160,9 @@ def _trigger_sync_versions_isolated(project):
     Only one sync per project runs at a time. A webhook that arrives while
     one is running is noted as skipped, see ``sync_versions_task``.
     """
-    sync_already_running = not cache.add(_sync_running_cache_key(project), True, 60)
+    sync_already_running = not cache.add(sync_running_cache_key(project), True, 60)
     if sync_already_running:
-        cache.set(_webhook_skipped_cache_key(project), True, 60 * 10)
+        cache.set(webhook_skipped_cache_key(project), True, 60 * 10)
         log.info("Sync already running, skipping. It will sync again when it is done.")
         return
 
@@ -176,20 +176,6 @@ def _trigger_sync_versions_isolated(project):
         },
         queue=settings.RTD_BUILD_ISOLATED_QUEUE,
     )
-
-
-def sync_again_if_webhook_was_skipped(project):
-    """
-    Sync versions again if a webhook was skipped while the last sync was running.
-
-    Called from ``sync_versions_task``, which is where the builder
-    reports the result of a sync dispatched by ``_trigger_sync_versions_isolated``.
-    """
-    webhook_was_skipped = cache.get(_webhook_skipped_cache_key(project))
-    cache.delete(_webhook_skipped_cache_key(project))
-    cache.delete(_sync_running_cache_key(project))
-    if webhook_was_skipped:
-        trigger_sync_versions(project)
 
 
 def get_or_create_external_version(project, version_data):

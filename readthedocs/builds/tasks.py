@@ -216,7 +216,9 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     :returns: `True` or `False` if the task succeeded.
     """
     # Avoid circular import: hooks imports the build tasks, which import this module.
-    from readthedocs.core.views.hooks import sync_again_if_webhook_was_skipped
+    from readthedocs.core.views.hooks import sync_running_cache_key
+    from readthedocs.core.views.hooks import trigger_sync_versions
+    from readthedocs.core.views.hooks import webhook_skipped_cache_key
 
     project = Project.objects.get(pk=project_pk)
     # Syncs for a project run one at a time, and webhooks that arrive
@@ -232,7 +234,11 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     try:
         return _sync_versions(project, tags_data, branches_data)
     finally:
-        sync_again_if_webhook_was_skipped(project)
+        webhook_was_skipped = cache.get(webhook_skipped_cache_key(project))
+        cache.delete(webhook_skipped_cache_key(project))
+        cache.delete(sync_running_cache_key(project))
+        if webhook_was_skipped:
+            trigger_sync_versions(project)
 
 
 def _sync_versions(project, tags_data, branches_data):
