@@ -9,6 +9,8 @@ from django.core.checks.registry import registry
 
 class ProjectsConfig(AppConfig):
     name = "readthedocs.projects"
+    # Existing models use AutoField, see DEFAULT_AUTO_FIELD in settings.
+    default_auto_field = "django.db.models.AutoField"
 
     def ready(self):
         # Load and register notification messages for this application

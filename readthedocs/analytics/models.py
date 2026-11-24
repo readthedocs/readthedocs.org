@@ -4,7 +4,9 @@ import datetime
 from collections import namedtuple
 from urllib.parse import urlparse
 
+from django.db import connections
 from django.db import models
+from django.db import router
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -36,21 +38,38 @@ class PageViewManager(models.Manager):
         filename = "/" + filename.lstrip("/")
         path = "/" + path.lstrip("/")
 
-        page_view, created = self.get_or_create(
-            project=project,
-            version=version,
-            path=filename,
-            date=timezone.now().date(),
-            status=status,
-            defaults={
-                "view_count": 1,
-                "full_path": path,
-            },
-        )
-        if not created:
-            page_view.view_count = models.F("view_count") + 1
-            page_view.save(update_fields=["view_count"])
-        return page_view
+        # A single upsert instead of ``get_or_create`` + ``save``: the lookup
+        # by ``date`` picked a bad plan until the day's statistics caught up,
+        # and the ORM can't express an increment on conflict.
+        # Rows without a version are covered by a partial unique index,
+        # which only matches if the conflict target repeats its condition.
+        if version is None:
+            conflict_target = "(project_id, path, date, status) WHERE version_id IS NULL"
+        else:
+            conflict_target = "(project_id, version_id, path, date, status)"
+
+        # Explicitly route to the write database, ``self.db`` is the read database.
+        db = self._db or router.db_for_write(self.model, **self._hints)
+        connection = connections[db]
+        table = connection.ops.quote_name(self.model._meta.db_table)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"""
+                INSERT INTO {table}
+                    (project_id, version_id, path, full_path, view_count, date, status)
+                VALUES (%s, %s, %s, %s, 1, %s, %s)
+                ON CONFLICT {conflict_target}
+                DO UPDATE SET view_count = {table}.view_count + 1
+                """,
+                [
+                    project.pk,
+                    version.pk if version else None,
+                    filename,
+                    path,
+                    timezone.now().date(),
+                    int(status),
+                ],
+            )
 
 
 class PageView(models.Model):
@@ -114,11 +133,14 @@ class PageView(models.Model):
         ]
 
     @classmethod
-    def top_viewed_pages(cls, project, since=None, limit=10, status=200, per_version=False):
+    def top_viewed_pages(
+        cls, project, since=None, limit=10, status=200, per_version=False, queryset=None
+    ):
         """
         Returns top pages according to view counts.
 
         :param per_version: If `True`, group the results per version.
+        :param queryset: Optional queryset (e.g. already filtered) to count from.
 
         :returns: A list of named tuples ordered by the number of views.
          Each tuple contains: path, url, and count.
@@ -127,9 +149,12 @@ class PageView(models.Model):
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
+        if queryset is None:
+            queryset = cls.objects.all()
+
         group_by = "full_path" if per_version else "path"
         queryset = (
-            cls.objects.filter(project=project, date__gte=since, status=status)
+            queryset.filter(project=project, date__gte=since, status=status)
             .values_list(group_by)
             .annotate(count=Sum("view_count"))
             .values_list(group_by, "count", named=True)
@@ -164,7 +189,7 @@ class PageView(models.Model):
         return result
 
     @classmethod
-    def page_views_by_date(cls, project_slug, since=None, status=200):
+    def page_views_by_date(cls, project_slug, since=None, status=200, queryset=None):
         """
         Returns the total page views count for last 30 days for a particular project.
 
@@ -176,12 +201,17 @@ class PageView(models.Model):
             }
         This data shows that there were 150 page views on 01 July,
         200 page views on 02 July and 143 page views on 03 July.
+
+        :param queryset: Optional queryset (e.g. already filtered) to count from.
         """
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
+        if queryset is None:
+            queryset = cls.objects.all()
+
         queryset = (
-            cls.objects.filter(
+            queryset.filter(
                 project__slug=project_slug,
                 date__gte=since,
                 status=status,

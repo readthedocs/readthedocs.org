@@ -23,12 +23,7 @@ try:
 except ImportError:
     ext = False
 
-try:
-    import readthedocsext.theme  # noqa
-
-    ext_theme = True
-except ImportError:
-    ext_theme = False
+import readthedocsext.theme  # noqa
 
 
 _ = gettext = lambda s: s
@@ -46,7 +41,10 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = "replace-this-please"  # noqa
     ATOMIC_REQUESTS = True
 
-    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+    # New apps use BigAutoField by default.
+    # Apps created before this change pin ``default_auto_field = "django.db.models.AutoField"``
+    # in their AppConfig, so their existing models don't need a migration.
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
     # Debug settings
     DEBUG = True
@@ -141,6 +139,8 @@ class CommunityBaseSettings(Settings):
     SUPPORT_FORM_ENDPOINT = None
 
     # Sessions
+    # We use cache backend for sessions in production, so we use the same here.
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
     SESSION_COOKIE_DOMAIN = "readthedocs.org"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
@@ -261,7 +261,6 @@ class CommunityBaseSettings(Settings):
             "django.contrib.auth",
             "django.contrib.admin",
             "django.contrib.contenttypes",
-            "django.contrib.sessions",
             "django.contrib.sites",
             "django.contrib.messages",
             "django.contrib.humanize",
@@ -333,8 +332,7 @@ class CommunityBaseSettings(Settings):
         if self.SHOW_DEBUG_TOOLBAR:
             apps.append("debug_toolbar")
 
-        if ext_theme:
-            apps.append("readthedocsext.theme")
+        apps.append("readthedocsext.theme")
 
         return apps
 
@@ -546,16 +544,13 @@ class CommunityBaseSettings(Settings):
 
     @property
     def TEMPLATES(self):
-        dirs = [self.TEMPLATE_ROOT]
-
-        if ext_theme:
-            dirs.insert(
-                0,
-                os.path.join(
-                    os.path.dirname(readthedocsext.theme.__file__),
-                    "templates",
-                ),
-            )
+        dirs = [
+            os.path.join(
+                os.path.dirname(readthedocsext.theme.__file__),
+                "templates",
+            ),
+            self.TEMPLATE_ROOT,
+        ]
 
         # Disable ``cached.Loader`` on development
         # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
@@ -639,7 +634,7 @@ class CommunityBaseSettings(Settings):
     # Auto Scaling group of the build-isolated fleet. A periodic task raises its
     # desired capacity to dispatched builds + BUFFER.
     RTD_BUILD_ISOLATED_ASG_NAME = "build-isolated"
-    RTD_BUILD_ISOLATED_BUFFER = 20
+    RTD_BUILD_ISOLATED_BUFFER = 30
 
     # ``scalein`` IAM user used for Auto Scaling calls on behalf of builders.
     RTD_AWS_SCALE_IN_ACCESS_KEY = None
@@ -1111,6 +1106,9 @@ class CommunityBaseSettings(Settings):
         "DEFAULT_THROTTLE_RATES": {
             "anon": "5/minute",
             "user": "60/minute",
+            "rtd_token": "60/minute",
+            "polling_user": "120/minute",
+            "polling_anon": "30/minute",
         },
         "PAGE_SIZE": 10,
         "TEST_REQUEST_DEFAULT_FORMAT": "json",

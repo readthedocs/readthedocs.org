@@ -36,10 +36,10 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
    .. tab:: GitHub
 
-      * Go to the :guilabel:`Settings` page for your **GitHub project**
-      * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
+      * Go to :menuselection:`Settings --> Webhooks` of your **GitHub repository**
+      * Click :guilabel:`Add webhook`
       * For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
-        found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
+        found on your project's :menuselection:`Settings --> Integrations` page.
         You may need to prepend *https://* to the URL.
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
@@ -47,7 +47,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
       * Select **Let me select individual events**,
         and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events
       * Ensure **Active** is enabled; it is by default
-      * Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
+      * Finish by clicking :guilabel:`Add webhook`.  You may be prompted to enter your GitHub password to confirm your action.
 
       You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
       If you see a Response 200, then the webhook is correctly configured.
@@ -55,22 +55,23 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
    .. tab:: GitLab
 
-      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
+      * Go to :menuselection:`Settings --> Webhooks` of your **GitLab repository**
       * For **URL**, use the URL of the integration on **Read the Docs project**,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+        found on your project's :menuselection:`Settings --> Integrations` page
       * Fill the **Secret token** field with the value from the integration on Read the Docs
       * Leave the default **Push events** selected,
         additionally mark **Tag push events** and **Merge request events**.
-      * Finish by clicking **Add Webhook**
+      * Finish by clicking :guilabel:`Add Webhook`
 
    .. tab:: Bitbucket
 
-      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
+      * Go to :menuselection:`Settings --> Webhooks` of your **Bitbucket repository**
+      * Click :guilabel:`Add webhook`
       * For **URL**, use the URL of the integration on Read the Docs,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+        found on your project's :menuselection:`Settings --> Integrations` page
       * Under **Triggers**, **Repository push** should be selected
       * Fill the **Secret** field with the value from the integration on Read the Docs
-      * Finish by clicking **Save**
+      * Finish by clicking :guilabel:`Save`
 
    .. tab:: Gitea
 
@@ -90,10 +91,10 @@ Read the Docs will sync versions and build your documentation whenever a Git com
 
       On your Gitea instance:
 
-      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
+      * Go to :menuselection:`Settings --> Webhooks` of your **Gitea repository**
       * Create a new webhook of type "Gitea"
       * For **URL**, use the URL of the integration on Read the Docs,
-        found on the :guilabel:`Admin` > :guilabel:`Integrations` page
+        found on your project's :menuselection:`Settings --> Integrations` page
       * Leave the default **HTTP Method** as POST
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
@@ -101,7 +102,7 @@ Read the Docs will sync versions and build your documentation whenever a Git com
       * Select **Choose events**,
         and mark **Branch or tag creation**, **Branch or tag deletion** and **Push** events
       * Ensure **Active** is enabled; it is by default
-      * Finish by clicking **Add Webhook**
+      * Finish by clicking :guilabel:`Add Webhook`
       * Test the webhook with :guilabel:`Delivery test`
 
       Finally, on Read the Docs, check that the warnings have disappeared
@@ -129,8 +130,8 @@ This validation is done according to each provider:
 Managing Integrations
 ---------------------
 
-To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
-dashboard page and select the integration type you'd like to add.
+To manually set up an integration, go to your project's :menuselection:`Settings --> Integrations`,
+click on :guilabel:`Add integration`, and select the integration type you'd like to add.
 
 As an example, the URL pattern looks like this: ``https://app.readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
 Use this URL when setting up a new integration with your provider.
@@ -143,7 +144,7 @@ Using the generic API integration
 For repositories that are not hosted with a supported provider, we also offer a
 generic API endpoint for triggering project builds. Similar to webhook integrations,
 this integration has a specific URL, which can be found on the project's **Integrations** dashboard page
-(:guilabel:`Admin` > :guilabel:`Integrations`).
+(:menuselection:`Settings --> Integrations`).
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -162,7 +163,7 @@ branches
 
 token
     The integration token found on the project's **Integrations** dashboard page
-    (:guilabel:`Admin` > :guilabel:`Integrations`).
+    (:menuselection:`Settings --> Integrations`).
 
 
 default_branch

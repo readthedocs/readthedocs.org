@@ -56,12 +56,12 @@ Adding a custom domain
 
 To set up a custom domain, follow these steps:
 
-#. Go to the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Domains`.
+#. Go to your project's :menuselection:`Settings --> Domains`.
+#. Click on :guilabel:`Add domain`.
 #. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
 #. Mark the :guilabel:`Canonical` option if you want to use this domain
    as your :doc:`canonical domain </canonical-urls>`.
-#. Click on :guilabel:`Add`.
+#. Click on :guilabel:`Add domain`.
 #. At the top of the next page you'll find the value of the DNS record that you need to point your domain to.
    For |org_brand| this is ``readthedocs.io``, and for :doc:`/commercial/index`
    the record is in the form of ``<hash>.domains.readthedocs.com``.
@@ -104,10 +104,9 @@ Removing a custom domain
 
 To remove a custom domain:
 
-#. Go to the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Domains`.
-#. Click the :guilabel:`Remove` button next to the domain.
-#. Click :guilabel:`Confirm` on the confirmation page.
+#. Go to your project's :menuselection:`Settings --> Domains`.
+#. Click the :guilabel:`Remove domain` button next to the domain.
+#. Click :guilabel:`Remove domain` in the confirmation dialog.
 #. Remove the DNS record for the domain from your DNS provider.
 
 .. warning::
@@ -174,8 +173,8 @@ To fix this, you need to:
 SSL certificate issue delays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The status of your domain validation and certificate can always be seen on the details page for your domain
-under :guilabel:`Admin` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
+The status of your domain validation and certificate can always be seen on the details page for your domain.
+Go to your project's :menuselection:`Settings --> Domains` and click on your domain.
 
 Domains are usually validated and a certificate issued within minutes.
 However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes

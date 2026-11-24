@@ -25,11 +25,40 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.models import WebHook
 from readthedocs.projects.models import WebHookEvent
+from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.base import WizardTestCase
+
+
+@mock.patch("readthedocs.projects.views.mixins.chain")
+@mock.patch("readthedocs.projects.views.mixins.prepare_build")
+class TestFinishImportProject(RequestFactoryTestMixin, TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, users=[self.user])
+        self.request = self.request(method="post", path="/")
+        self.request.user = self.user
+
+    def test_legacy_build_is_dispatched(self, prepare_build, chain):
+        update_docs = mock.MagicMock()
+        prepare_build.return_value = (update_docs, get(Build, project=self.project))
+
+        ProjectImportMixin().finish_import_project(self.request, self.project)
+
+        chain.assert_called_once_with(update_docs)
+
+    def test_build_isolated_build_is_not_dispatched(self, prepare_build, chain):
+        feature = get(Feature, feature_id=Feature.USE_BUILD_ISOLATED)
+        feature.projects.add(self.project)
+        prepare_build.return_value = (mock.MagicMock(), get(Build, project=self.project))
+
+        ProjectImportMixin().finish_import_project(self.request, self.project)
+
+        # ``admit_queued_builds`` dispatches it instead.
+        chain.assert_not_called()
 
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
@@ -357,20 +386,15 @@ class TestDirectUploadImport(TestCase):
         self.user = get(User)
         self.client.force_login(self.user)
 
-    def _import_project(self, direct_upload_query, direct_upload):
+    def _import_project(self, direct_upload):
         # The "Configure automatically" tab posts here and seeds the wizard session.
         seed = {"name": "foobar", "repo": "http://example.com/foobar", "repo_type": "git"}
-        seed.update(direct_upload_query)
         resp = self.client.post(reverse("projects_import"), seed)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.client.post(reverse("projects_import_manual"), self.step_data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context_data["wizard"]["steps"].current, "config")
-        self.assertEqual(
-            resp.context_data["direct_upload_available"],
-            bool(direct_upload_query),
-        )
 
         resp = self.client.post(
             reverse("projects_import_manual"),
@@ -383,9 +407,8 @@ class TestDirectUploadImport(TestCase):
         return Project.objects.get(slug="foobar")
 
     def test_direct_upload_project(self):
-        project = self._import_project({"direct_upload": "1"}, True)
+        project = self._import_project(True)
 
-        self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.is_direct_upload)
         self.assertTrue(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
         # No build, and no versions: they all come from uploads.
@@ -394,15 +417,8 @@ class TestDirectUploadImport(TestCase):
         # Pull request builds are blocked by the build method, the setting is left alone.
         self.assertTrue(project.external_builds_enabled)
 
-    def test_direct_upload_ignored_when_not_available(self):
-        project = self._import_project({}, True)
-
-        self.assertFalse(project.is_direct_upload)
-        self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
-        self.assertIsNotNone(project.get_latest_version())
-
-    def test_build_on_readthedocs_when_available(self):
-        project = self._import_project({"direct_upload": "1"}, False)
+    def test_build_on_readthedocs(self):
+        project = self._import_project(False)
 
         self.assertFalse(project.is_direct_upload)
         self.assertFalse(project.has_feature(Feature.ALLOW_DIRECT_ARTIFACTS_UPLOAD))
@@ -472,7 +488,7 @@ class TestPrivateViews(TestCase):
         # This number is bit higher, but for projects with lots of builds
         # is better to have more queries than optimizing with a prefetch,
         # see comment in annotate_has_successful_build.
-        with self.assertNumQueries(28):
+        with self.assertNumQueries(27):
             r = self.client.get(reverse(("projects_dashboard")))
         assert r.status_code == 200
 

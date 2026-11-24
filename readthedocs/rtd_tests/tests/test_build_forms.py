@@ -266,7 +266,9 @@ class TestVersionForm(TestCase):
         )
         assert not form.is_valid()
         assert "slug" in form.errors
-        assert "A version with that slug already exists." in form.errors["slug"][0]
+        error = form.errors["slug"][0]
+        assert "A version with that slug already exists" in error
+        assert f"/dashboard/{self.project.slug}/version/{version_two.slug}/edit/" in error
 
     def test_cant_change_slug_machine_created_versions(self):
         version = self.project.versions.get(slug="latest")

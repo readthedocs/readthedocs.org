@@ -457,7 +457,7 @@ class GitHubAppService(Service):
             # return False, so the caller can handle it.
             if e.status in [404, 403]:
                 return False
-            # Anythin else, we raise the exception, since it may be a temporary error.
+            # Anything else, we raise the exception, since it may be a temporary error.
             raise
 
     def get_clone_token(self, project):

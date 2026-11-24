@@ -2,6 +2,10 @@
 
 import json
 import re
+from datetime import datetime
+from datetime import time
+from datetime import timedelta
+from datetime import timezone as dt_timezone
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -16,9 +20,12 @@ from crispy_forms.layout import MultiField
 from django import forms
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.api.v3.models import ProjectPermission
+from readthedocs.api.v3.models import RTDToken
 from readthedocs.builds.constants import CUSTOM_MATCH
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.constants import UNKNOWN
@@ -52,6 +59,7 @@ from readthedocs.projects.notifications import MESSAGE_PROJECT_SEARCH_INDEXING_D
 from readthedocs.projects.tasks.search import index_project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
+from readthedocs.sso.models import SSOIntegration
 
 
 class ProjectRemoteRepositorySelect(RichSelect):
@@ -356,34 +364,42 @@ class ProjectFormPrevalidateMixin:
             user=self.user,
         ).exists()
         self.user_is_nonowner_with_sso = None
-        self.user_missing_admin_permission = None
+        self.user_has_admin_permission = None
+        self.user_can_configure_manually = None
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            # TODO there should be some way to initially select the organization
-            # and maybe the team too. It's mostly safe to automatically select
-            # the first organization, but explicit would be better. Reusing the
-            # organization selection UI works, we only really need a query param
-            # here.
-            self.user_is_nonowner_with_sso = all(
-                [
-                    AdminPermission.has_sso_enabled(self.user),
-                    AdminPermission.organizations(
-                        user=self.user,
-                        owner=False,
-                    ).exists(),
-                ]
-            )
-
+            # Owners can add projects to any of their organizations. Team
+            # admins can only add projects to organizations without VCS SSO,
+            # since those organizations don't use teams.
+            #
             # TODO this logic should be possible from AdminPermission
             # AdminPermssion.is_admin only inspects organization owners, so the
             # additional team check is necessary
-            self.user_has_admin_permission = any(
-                [
-                    AdminPermission.organizations(
-                        user=self.user,
-                        owner=True,
-                    ).exists(),
-                    Team.objects.admin(self.user).exists(),
-                ]
+            owner_organizations = AdminPermission.organizations(
+                user=self.user,
+                owner=True,
+            )
+            has_admin_teams = (
+                Team.objects.admin(self.user)
+                .exclude(
+                    organization__ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+                )
+                .exists()
+            )
+            self.user_has_admin_permission = owner_organizations.exists() or has_admin_teams
+            # Projects from organizations with VCS SSO must be linked to a remote repository,
+            # so they can't be manually configured.
+            self.user_can_configure_manually = (
+                has_admin_teams
+                or owner_organizations.exclude(
+                    ssointegration__provider=SSOIntegration.PROVIDER_ALLAUTH,
+                ).exists()
+            )
+            self.user_is_nonowner_with_sso = (
+                not self.user_has_admin_permission
+                and AdminPermission.has_sso_enabled(
+                    self.user,
+                    provider=SSOIntegration.PROVIDER_ALLAUTH,
+                )
             )
 
 
@@ -433,21 +449,22 @@ class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
     def clean_prevalidation(self):
         super().clean_prevalidation()
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            if self.user_is_nonowner_with_sso:
-                raise RichValidationError(
-                    _(
-                        "Projects cannot be manually configured when "
-                        "single sign-on is enabled for your organization."
-                    ),
-                    header=_("Organization single sign-on enabled"),
-                )
-            if not self.user_has_admin_permission:
+            if not self.user_has_admin_permission and not self.user_is_nonowner_with_sso:
                 raise RichValidationError(
                     _(
                         "You must be on a team with admin permissions "
                         "in order to add a new project to your organization."
                     ),
                     header=_("Admin permission required"),
+                )
+            # This also covers non-owners of organizations with VCS SSO.
+            if not self.user_can_configure_manually:
+                raise RichValidationError(
+                    _(
+                        "Projects cannot be manually configured when "
+                        "single sign-on is enabled for your organization."
+                    ),
+                    header=_("Organization single sign-on enabled"),
                 )
 
 
@@ -1438,6 +1455,106 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _("Only letters, numbers and underscore are allowed"),
             )
         return name
+
+
+class ProjectTokenUpdateForm(forms.ModelForm):
+    """
+    Form to update an API token scoped to a project.
+
+    Only the name, description, and permissions can be changed,
+    the token and its expiration are set when it's created.
+    """
+
+    permissions = forms.MultipleChoiceField(
+        label=_("Permissions"),
+        choices=ProjectPermission.choices,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = RTDToken
+        fields = ["name", "description", "permissions"]
+
+    def __init__(self, *args, project, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        tokens = RTDToken.objects.filter(project=self.project, name=name, revoked_at__isnull=True)
+        if self.instance.pk:
+            tokens = tokens.exclude(pk=self.instance.pk)
+        if tokens.exists():
+            raise forms.ValidationError(_("A token with this name already exists."))
+        return name
+
+
+class ProjectTokenForm(ProjectTokenUpdateForm):
+    """
+    Form to create an API token scoped to a project.
+
+    The token is only available when it's created,
+    so ``save`` returns it together with the object for the view to show it once.
+    """
+
+    CUSTOM = "custom"
+    NEVER = "never"
+    EXPIRATION_CHOICES = (
+        ("30", _("30 days")),
+        ("90", _("90 days")),
+        ("365", _("1 year")),
+        (CUSTOM, _("Custom")),
+        (NEVER, _("No expiration")),
+    )
+
+    expires_in = forms.ChoiceField(
+        label=_("Expiration"),
+        choices=EXPIRATION_CHOICES,
+        initial="30",
+        help_text=_("The expiration can't be changed after the token is created"),
+    )
+    expiration_date = forms.DateField(
+        label=_("Expiration date"),
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text=_("The token expires at the end of this day (UTC)"),
+    )
+
+    def __init__(self, *args, user, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        expires_in = cleaned_data.get("expires_in")
+        if expires_in == self.NEVER:
+            cleaned_data["expires_at"] = None
+        elif expires_in == self.CUSTOM:
+            expiration_date = cleaned_data.get("expiration_date")
+            if not expiration_date:
+                self.add_error("expiration_date", _("Choose an expiration date."))
+            elif expiration_date <= timezone.now().date():
+                self.add_error("expiration_date", _("Choose a date in the future."))
+            else:
+                cleaned_data["expires_at"] = datetime.combine(
+                    expiration_date,
+                    time.max,
+                    tzinfo=dt_timezone.utc,
+                )
+        elif expires_in:
+            cleaned_data["expires_at"] = timezone.now() + timedelta(days=int(expires_in))
+        return cleaned_data
+
+    def save(self, commit=True):
+        """Create the token and return the ``(RTDToken, token)`` tuple."""
+        return RTDToken.objects.create_token(
+            project=self.project,
+            name=self.cleaned_data["name"],
+            description=self.cleaned_data["description"],
+            permissions=self.cleaned_data["permissions"],
+            expires_at=self.cleaned_data["expires_at"],
+            created_by=self.user,
+        )
 
 
 # TODO if you are extending this form or reusing this pattern for any similar views,

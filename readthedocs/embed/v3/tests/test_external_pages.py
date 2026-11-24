@@ -7,7 +7,12 @@ from django.core.cache import cache
 from django.urls import reverse
 from packaging.version import Version
 
-from .utils import compare_content_without_blank_lines, get_anchor_link_title, srcdir
+from .utils import (
+    compare_content_without_blank_lines,
+    get_anchor_link_title,
+    get_clearer_div,
+    srcdir,
+)
 
 
 @pytest.mark.django_db
@@ -56,7 +61,7 @@ class TestEmbedAPIv3ExternalPages:
                             <p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>
                         </section>
                     </section>
-                    <div class="clearer"></div>
+                    {get_clearer_div()}
                 </div>
             """
         else:
@@ -372,5 +377,25 @@ class TestEmbedAPIv3ExternalPages:
             "url": url,
             "content": content,
             "fragment": fragment,
+            "external": True,
+        }
+
+    def test_non_utf8_page(self, client, requests_mock):
+        # Real pages have several meta tags before the charset declaration.
+        content = (
+            '<html><head><meta name="viewport" content="width=device-width">'
+            '<meta name="generator" content="Docutils">'
+            '<meta charset="iso-8859-1"></head>'
+            '<body><p id="title">Café</p></body></html>'
+        )
+        requests_mock.get("https://docs.project.com/", content=content.encode("iso-8859-1"))
+
+        url = "https://docs.project.com/#title"
+        response = client.get(self.api_url, {"url": url})
+        assert response.status_code == 200
+        assert response.json() == {
+            "url": url,
+            "fragment": "title",
+            "content": '<p id="title">Café</p>',
             "external": True,
         }

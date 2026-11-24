@@ -1,6 +1,7 @@
 import structlog
 from allauth.account.signals import user_logged_in
 from allauth.socialaccount.models import SocialLogin
+from allauth.socialaccount.providers.bitbucket_oauth2.provider import BitbucketOAuth2Provider
 from allauth.socialaccount.signals import social_account_added
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -10,9 +11,11 @@ from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.migrate import has_projects_pending_migration
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import MESSAGE_OAUTH_BITBUCKET_RECONNECT
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_SYNCING_REMOTE_REPOSITORIES
 from readthedocs.oauth.notifications import MESSAGE_PROJECTS_TO_MIGRATE_TO_GITHUB_APP
 from readthedocs.oauth.tasks import sync_remote_repositories
+from readthedocs.oauth.utils import get_bitbucket_accounts_without_account_id
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
@@ -64,6 +67,34 @@ def sync_remote_repositories_on_social_account_added(sender, request, sociallogi
         user_username=sociallogin.user.username,
     )
     _sync_remote_repositories(sociallogin.user)
+
+
+@receiver(social_account_added, sender=SocialLogin)
+def remove_bitbucket_accounts_without_account_id(sender, request, sociallogin, **kwargs):
+    """
+    Remove the user's Bitbucket accounts without an ``account_id`` when they connect a new one.
+
+    These accounts can't be used to log in anymore,
+    and their remote repository relations are re-created from the new account
+    by ``sync_remote_repositories_on_social_account_added``.
+    """
+    account = sociallogin.account
+    if account.provider != BitbucketOAuth2Provider.id:
+        return
+
+    user = sociallogin.user
+    accounts = get_bitbucket_accounts_without_account_id().filter(user=user).exclude(pk=account.pk)
+    if accounts.exists():
+        log.info(
+            "Removing Bitbucket accounts without account_id.",
+            social_account_ids=list(accounts.values_list("pk", flat=True)),
+        )
+        accounts.delete()
+
+    Notification.objects.cancel(
+        message_id=MESSAGE_OAUTH_BITBUCKET_RECONNECT,
+        attached_to=user,
+    )
 
 
 @receiver(post_save, sender=RemoteRepository)

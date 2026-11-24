@@ -175,8 +175,8 @@ Read the Docs supports overriding the default :term:`checkout job <pre-defined b
 with a custom sequence of :program:`git` commands.
 This is useful for advanced workflows like sparse checkouts or custom cloning strategies.
 
-To enable this feature, go to your project's :term:`dashboard` and update
-:menuselection:`Settings --> Custom Git checkout commands`.
+To enable this feature, go to your project's :menuselection:`Settings`
+and update the :guilabel:`Git checkout command` field.
 Enter one command per line.
 
 .. note::

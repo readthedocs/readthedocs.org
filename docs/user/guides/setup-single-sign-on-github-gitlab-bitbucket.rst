@@ -61,6 +61,10 @@ a user must have:
 #. **admin** permissions in the associated Git repository.
 #. Ownership rights to the Read the Docs organization
 
+Projects must be imported from a repository in a connected Git provider account,
+since access to the project is granted from the permissions in that repository.
+You can't manually configure a project when SSO with a Git provider is enabled.
+
 Revoke access to a project
 --------------------------
 

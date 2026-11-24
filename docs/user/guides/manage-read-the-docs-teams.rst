@@ -26,11 +26,10 @@ Follow these steps:
 
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
-3. Click on :guilabel:`Settings`.
-4. In the sidebar, click on :guilabel:`Owners`.
-5. Click :guilabel:`Invite owner`.
-6. Enter the user's Read the Docs username or email address.
-7. Click :guilabel:`Invite owner`.
+3. Go to :menuselection:`Settings --> Owners`.
+4. Click :guilabel:`Invite owner`.
+5. Enter the user's Read the Docs username or email address.
+6. Click :guilabel:`Invite owner`.
 
 The user will receive an invitation and must accept it to become an owner.
 
@@ -43,9 +42,8 @@ Follow these steps:
 
 1. Navigate to the `organization management page <https://app.readthedocs.com/organizations/choose/organization_detail/>`__.
 2. Select your organization from the list.
-3. Click on :guilabel:`Settings`.
-4. In the sidebar, click on :guilabel:`Owners`.
-5. Click :guilabel:`Remove` next to the owner you want to remove.
+3. Go to :menuselection:`Settings --> Owners`.
+4. Click :guilabel:`Remove owner` next to the owner you want to remove.
 
 .. note::
 
@@ -84,8 +82,13 @@ Follow these steps:
 Granting access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Make the user a member of any team with *admin* permissions,
+Organization owners can import projects on any team.
+To let another user import projects,
+make them a member of any team with *admin* permissions,
 they will be granted access to import a project on that team.
+
+If your organization uses :ref:`single sign-on with a Git provider <sso_git_provider>`,
+teams aren't used, and only organization owners can import projects.
 
 Automating team management
 --------------------------

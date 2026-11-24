@@ -24,6 +24,7 @@ MESSAGE_PROJECT_DEFAULT_VERSION_FROM_UPLOAD = "project:direct-upload:default-ver
 MESSAGE_PROJECT_BUILDS_DISABLED_DUE_TO_CONSECUTIVE_FAILURES = (
     "project:builds:disabled-due-to-consecutive-failures"
 )
+MESSAGE_PROJECT_VERSION_SLUG_CHANGED = "project:versions:slug-changed"
 
 messages = [
     Message(
@@ -253,6 +254,19 @@ messages = [
             ).strip(),
         ),
         type=INFO,
+    ),
+    Message(
+        id=MESSAGE_PROJECT_VERSION_SLUG_CHANGED,
+        header=_("Version slug changed"),
+        body=_(
+            textwrap.dedent(
+                """
+                The slug of version <code>{{from_slug}}</code> is now <code>{{to_slug}}</code>.
+                <a href="{{redirect_url}}">Create a redirect</a> to keep your old URLs working.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)

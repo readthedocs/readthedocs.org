@@ -58,10 +58,10 @@ Setting the custom build configuration file
 -------------------------------------------
 
 Once you have added a Git repository to a project that needs a custom configuration file path,
-navigate to :menuselection:`Admin --> Settings` and add the path to the :guilabel:`Build configuration file` field.
+go to your project's :menuselection:`Settings` and add the path to the :guilabel:`Path for .readthedocs.yaml` field.
 
 .. image:: /img/screenshot-howto-build-configuration-file.png
-   :alt: Screenshot of where to find the :guilabel:`Build configuration file` setting.
+   :alt: Screenshot of where to find the :guilabel:`Path for .readthedocs.yaml` setting.
 
 After pressing :guilabel:`Save`,
 you need to ensure that relevant versions of your documentation are built again.

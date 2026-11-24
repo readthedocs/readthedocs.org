@@ -67,8 +67,10 @@ In the next form page you will manually configure your project's repository deta
 
 4. In the :guilabel:`Repository URL` field, provide the repository's SSH or Git URL.
    This URL usually starts with ``git@...``, for example ``git@github.com:readthedocs/readthedocs.org.git``.
-#. In the :guilabel:`Default branch` field, provide the name of the default remote branch.
-   This is usually ``main`` or ``master``.
+#. Click :guilabel:`Next`, select :guilabel:`Build on Read the Docs`,
+   and follow the instructions to add a :doc:`configuration file </config-file/index>` to your repository.
+   The project uses your repository's default branch,
+   you can change it later in the :guilabel:`Default branch` field of your project's :menuselection:`Settings`.
 #. The project's first build should fail to clone your repository.
    This is expected, your repository is not configured to allow access yet.
 
@@ -84,7 +86,7 @@ in order to allow builds to clone your repository.
    :align: right
    :alt: Project SSH key details.
 
-#. Go to the :menuselection:`Settings --> SSH keys` page for your project.
+#. Go to your project's :menuselection:`Settings --> SSH keys`.
 #. Click on the fingerprint of the SSH key.
 #. Copy the text from the :guilabel:`Public SSH key` field
 #. Next, configure your repository with this key,
@@ -97,9 +99,7 @@ in order to allow builds to clone your repository.
       For GitHub, you can use
       `deploy keys with read only access <https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys>`__.
 
-      #. Go to your project on GitHub
-      #. Click on :guilabel:`Settings`
-      #. Click on :guilabel:`Deploy Keys`
+      #. Go to :menuselection:`Settings --> Deploy keys` of your repository on GitHub
       #. Click on :guilabel:`Add deploy key`
       #. Put a descriptive title and paste the public key you copied above.
       #. Click on :guilabel:`Add key`
@@ -108,9 +108,7 @@ in order to allow builds to clone your repository.
 
       For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.com/ee/user/project/deploy_keys/index.html>`__.
 
-      #. Go to your project on GitLab
-      #. Click on :guilabel:`Settings`
-      #. Click on :guilabel:`Repository`
+      #. Go to :menuselection:`Settings --> Repository` of your project on GitLab
       #. Expand the :guilabel:`Deploy Keys` section
       #. Put a descriptive title and paste the public key you copied above.
       #. Click on :guilabel:`Add key`
