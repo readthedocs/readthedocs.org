@@ -34,8 +34,8 @@ class TestEmbedAPIV3Access(TestCase):
         self.version = self.project.versions.get(slug=LATEST)
         self.version.privacy_level = PUBLIC
         self.version.save()
-        self.url = (
-            reverse("embed_api_v3") + "?url=https://docs.readthedocs.io/en/latest/"
+        self.url = reverse(
+            "embed_api_v3", query={"url": "https://docs.readthedocs.io/en/latest/"}
         )
         self.content = """
         <html>
@@ -107,14 +107,16 @@ class TestEmbedAPIV3Access(TestCase):
         download_page_content.return_value = self.content
 
         resp = self.get(
-            reverse("embed_api_v3") + "?url=https://docs.python.org/en/latest/"
+            reverse("embed_api_v3"), data={"url": "https://docs.python.org/en/latest/"}
         )
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Content", resp.json()["content"])
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
 
     def test_get_content_not_allowed_external_page(self, storage_mock):
-        resp = self.get(reverse("embed_api_v3") + "?url=https://example.com/en/latest/")
+        resp = self.get(
+            reverse("embed_api_v3"), data={"url": "https://example.com/en/latest/"}
+        )
         self.assertEqual(resp.status_code, 400)
 
 

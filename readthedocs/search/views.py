@@ -1,7 +1,6 @@
 """Search views."""
 
 import collections
-from urllib.parse import urlencode
 
 import structlog
 from django.conf import settings
@@ -45,7 +44,7 @@ class ProjectSearchView(View):
 
     def get(self, request, project_slug):
         query = request.GET.get("q", "")
-        url = reverse("search") + "?" + urlencode({"q": f"project:{project_slug} {query}"})
+        url = reverse("search", query={"q": f"project:{project_slug} {query}"})
         return HttpResponseRedirect(url)
 
 

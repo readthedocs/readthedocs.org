@@ -139,14 +139,13 @@ class RedeemInvitation(DetailView):
                 "account_verified_email": invitation.to_email,
             }
         )
-        url = reverse("account_signup")
-
         obj = invitation.object
         organization = None
         if isinstance(obj, Team):
             organization = obj.organization
         elif isinstance(obj, Organization):
             organization = obj
+        query = None
         if organization and AdminPermission.has_sso_enabled(organization):
-            url += f"?organization={organization.slug}"
-        return HttpResponseRedirect(url)
+            query = {"organization": organization.slug}
+        return HttpResponseRedirect(reverse("account_signup", query=query))

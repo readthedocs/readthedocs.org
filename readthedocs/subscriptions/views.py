@@ -64,8 +64,15 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
         stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["plan"])
 
-        url = self.request.build_absolute_uri(self.get_success_url())
         organization = self.get_organization()
+        url = self.request.build_absolute_uri(self.get_success_url())
+        success_url = self.request.build_absolute_uri(
+            reverse(
+                "subscription_detail",
+                args=[organization.slug],
+                query={"upgraded": "true"},
+            )
+        )
         # pylint: disable=broad-except
         try:
             stripe_customer = get_or_create_stripe_customer(organization)
@@ -80,7 +87,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
                         }
                     ],
                     "mode": "subscription",
-                    "success_url": url + "?upgraded: true",
+                    "success_url": success_url,
                     "cancel_url": url,
                 }
             )
