@@ -41,6 +41,7 @@ from readthedocs.projects.views.private import ProjectRedirectsInsert
 from readthedocs.projects.views.private import ProjectRedirectsList
 from readthedocs.projects.views.private import ProjectRedirectsUpdate
 from readthedocs.projects.views.private import ProjectSearchSettingsUpdate
+from readthedocs.projects.views.private import ProjectSettingsOverview
 from readthedocs.projects.views.private import ProjectTokenCreate
 from readthedocs.projects.views.private import ProjectTokenDelete
 from readthedocs.projects.views.private import ProjectTokenList
@@ -83,6 +84,11 @@ urlpatterns = [
             RedirectView.as_view(pattern_name="projects_detail", permanent=True),
         ),
         name="projects_manage",
+    ),
+    path(
+        "<slug:project_slug>/settings/",
+        ProjectSettingsOverview.as_view(),
+        name="projects_overview_settings",
     ),
     path(
         "<slug:project_slug>/edit/",
