@@ -10,10 +10,16 @@ clean:
 	-rm auth-*.json
 
 install:
-	$(SHOTSCRAPER) install
+	$(SHOTSCRAPER) install -b chromium
 auth-business.json:
+	@echo "###################################################################"
+	@echo "Authenticate as the rtfd-qa user on with a GitHub connected account"
+	@echo "###################################################################"
 	$(SHOTSCRAPER) auth https://app.readthedocs.com/accounts/login/ $@
 auth-community.json:
+	@echo "###################################################################"
+	@echo "Authenticate as the rtfd-qa user on with a GitHub connected account"
+	@echo "###################################################################"
 	$(SHOTSCRAPER) auth https://app.readthedocs.org/accounts/login/ $@
 
 business: business.yml auth-business.json

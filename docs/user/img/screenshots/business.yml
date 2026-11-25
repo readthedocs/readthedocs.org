@@ -1,3 +1,7 @@
+# These screenshots are created using the rtfd-qa user. This user only has read
+# access to select repositories, invite the user again if it is missing from the
+# Read the Docs QA organization and QA team.
+
 # Team select on project manual creation form, mock select value
 - url: https://app.readthedocs.com/dashboard/import/manual/
   javascript: |-
@@ -12,7 +16,7 @@
   output: business-project-manual-team-select.png
 
 # Project manual creation form, have to submit with a team first. The JS looks
-# funny because Playwright needs to wait for the page to load before submitting.
+# funny becuase Playwright needs to wait for the page to load before submitting.
 - url: https://app.readthedocs.com/dashboard/import/manual/
   javascript: |-
     const _submit = () => {

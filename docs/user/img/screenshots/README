@@ -1,0 +1,26 @@
+# Screenshot automation
+
+To update screenshots used in our documentation, we script shot-scraper to grab
+screenshots of small chunks of our UI. This uses a QA user with minimal
+permissions to projects that are benign enough to exist in public documentation.
+For any place we deal with sensitive information, shot-scraper can use DOM
+manipulation to replace the sensitive content.
+
+To run, simply run:
+
+    % make
+
+This runs the following steps:
+
+- Creates the auth files that will contain the session information so that
+  following screenshots use an authenticated request.
+- Runs shot-scraper against the YAML configuration files with all the
+  screenshots to generate.
+
+Creating the auth file will open a browser so you can log in. Log in as the
+directed user. This will create a file that will be reused by shot-scraper to
+generate authenticated requests to the production dashboard.
+
+To add a screenshot, select a good element that you can target to keep the
+screenshot clear and helpful. Refer to the existing screenshots and the shot-scraper
+documentation for usage and help configuring.
