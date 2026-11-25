@@ -22,7 +22,9 @@ write the draft for the user to paste, or review the one they point you to
   Append ` on Read the Docs Business` when only Business is affected.
   Examples: "Untrusted search path on builders",
   "Exposure of private SSH key on Read the Docs Business".
-- **Ecosystem**: pip (`python` in the API).
+- **Ecosystem**: `pip` — GitHub's canonical name for the Python ecosystem (PyPI);
+  For an app not published on PyPI this field is nominal (no dependency matching),
+  and the package name is a free-text label.
 - **Package**: `Read the Docs` if the community code is affected (even if Business is too),
   `Read the Docs Business` if only the private code is affected.
 - **Affected versions**: `<YYYY.MM.DD`, the release that ships the fix.
