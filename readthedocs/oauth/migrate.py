@@ -145,7 +145,7 @@ def get_installation_target_groups_for_user(user) -> list[InstallationTargetGrou
     default_target_account = _get_default_github_account_target(user)
 
     targets = {}
-    for project, has_intallation, _ in _get_projects_missing_migration(user):
+    for project, has_intallation, _ in get_projects_missing_migration(user):
         remote_repository = project.remote_repository
         target_account = _get_github_account_target(remote_repository) or default_target_account
         if target_account.id not in targets:
@@ -230,7 +230,7 @@ def _get_github_account_target(remote_repository) -> GitHubAccountTarget | None:
     return None
 
 
-def _get_projects_missing_migration(user) -> Iterator[tuple[Project, bool, bool]]:
+def get_projects_missing_migration(user) -> Iterator[tuple[Project, bool, bool]]:
     """
     Get all projects where the user has access that are still connected to the old GitHub OAuth App.
 
@@ -298,7 +298,7 @@ def get_valid_projects_missing_migration(user) -> Iterator[Project]:
     This includes all projects that are connected to the old GitHub OAuth App,
     where the user has admin permissions and the GitHub App is installed.
     """
-    for project, has_installation, is_admin in _get_projects_missing_migration(user):
+    for project, has_installation, is_admin in get_projects_missing_migration(user):
         if has_installation and is_admin:
             yield project
 
@@ -312,7 +312,7 @@ def get_migration_targets(user) -> list[MigrationTarget]:
     """
     targets = []
     default_target_account = _get_default_github_account_target(user)
-    for project, has_installation, is_admin in _get_projects_missing_migration(user):
+    for project, has_installation, is_admin in get_projects_missing_migration(user):
         remote_repository = project.remote_repository
         target_account = _get_github_account_target(remote_repository) or default_target_account
         targets.append(
@@ -330,10 +330,11 @@ def has_projects_pending_migration(user) -> bool:
     """
     Check if the user has any projects pending migration to the GitHub App.
 
-    This includes all projects that are connected to the old GitHub OAuth App,
-    where the user has admin permissions and the GitHub App is installed.
+    This includes all projects where the user is admin that are still connected
+    to the old GitHub OAuth App, doesn't matter if the GitHub App is installed
+    or the user has admin permissions on the repository.
     """
-    return any(_get_projects_missing_migration(user))
+    return any(get_projects_missing_migration(user))
 
 
 def get_old_app_link() -> str:
