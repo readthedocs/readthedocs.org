@@ -913,65 +913,23 @@ class Build(models.Model):
             models.Index(fields=["version", "state", "type"]),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._readthedocs_yaml_config = None
-        self._readthedocs_yaml_config_changed = False
-
     @property
     def config(self):
         """
-        Helper to get the build config data as a dict.
+        Return the build config data as a dict.
 
         Keeping it for backwards compatibility for now.
         We could use `readthedocs_yaml_config` directly instead if we want.
         """
         return self.readthedocs_yaml_config.data if self.readthedocs_yaml_config else {}
 
-    @config.setter
-    def config(self, value):
-        """
-        Helper to create a `BuildConfig` from a dict.
-
-        Keeping it for backwards compatibility for now. We are using it as:
-
-          build.config = {
-            "search": {
-                "ranking": {
-                    "*index.html": 5,
-                }
-            }
-          }
-
-        We could remove this and create `BuildConfig` objects directly instead if we want.
-        """
-        self._readthedocs_yaml_config = value
-        self._readthedocs_yaml_config_changed = True
-
     def save(self, *args, **kwargs):  # noqa
-        if self._readthedocs_yaml_config_changed:
-            if self._readthedocs_yaml_config is None:
-                self.readthedocs_yaml_config = None
-            else:
-                build_config, _ = BuildConfig.objects.get_or_create(
-                    data=self._readthedocs_yaml_config
-                )
-                self.readthedocs_yaml_config = build_config
-                log.warning(
-                    "Creating BuildConfig using `build.config` setter.",
-                    build_id=self.id,
-                    build_config_data=self._readthedocs_yaml_config,
-                    build_config_id=build_config.id,
-                )
-
         if self.version:
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
 
         super().save(*args, **kwargs)
-        self._readthedocs_yaml_config = None
-        self._readthedocs_yaml_config_changed = False
 
     def delete(self, *args, **kwargs):
         # Delete from storage if the build steps are stored outside the database.

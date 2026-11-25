@@ -11,6 +11,7 @@ from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.constants import BUILD_STATE_ORDER
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
+from readthedocs.builds.models import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.notifications.models import Notification
@@ -284,6 +285,15 @@ class BuildAdminSerializer(BuildSerializer):
         # `healthcheck` is excluded to avoid updating it to `None` again during building.
         # See https://github.com/readthedocs/readthedocs.org/issues/12474
         exclude = ("healthcheck",)
+
+    def update(self, instance, validated_data):
+        config = validated_data.pop("config", serializers.empty)
+        if config is not serializers.empty:
+            if config is None:
+                instance.readthedocs_yaml_config = None
+            else:
+                instance.readthedocs_yaml_config, _ = BuildConfig.objects.get_or_create(data=config)
+        return super().update(instance, validated_data)
 
     def validate_state(self, value):
         """Only allow the state to move forward."""
