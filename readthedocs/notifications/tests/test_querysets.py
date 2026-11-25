@@ -145,9 +145,10 @@ class TestNotificationQuerySet:
             state=CANCELLED,
         )
 
+        # Notifications are returned newest first.
         assert [
             n.message_id for n in Notification.objects.for_user(user, resource="all")
         ] == [
-            "user:notification:read",
             "user:notification:unread",
+            "user:notification:read",
         ]

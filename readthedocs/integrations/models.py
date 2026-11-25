@@ -319,6 +319,12 @@ class Integration(TimeStampedModel):
 
     objects = IntegrationQuerySet.as_manager()
 
+    # Inherit the Meta to keep ``get_latest_by`` from ``TimeStampedModel``.
+    class Meta(TimeStampedModel.Meta):
+        # The dashboard lists this model paginated; an unordered queryset
+        # returns rows in a database-dependent order across pages.
+        ordering = ("pk",)
+
     # Integration attributes
     has_sync = False
     is_remote_only = False
