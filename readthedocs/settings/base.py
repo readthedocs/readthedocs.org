@@ -708,6 +708,11 @@ class CommunityBaseSettings(Settings):
             "schedule": timedelta(seconds=5),
             "options": {"queue": "web"},
         },
+        "every-day-subscribe-active-users-to-newsletter": {
+            "task": "readthedocs.core.tasks.subscribe_active_users_to_newsletter",
+            "schedule": crontab(minute=0, hour=3),
+            "options": {"queue": "web"},
+        },
         "every-day-delete-old-search-queries": {
             "task": "readthedocs.search.tasks.delete_old_search_queries_from_db",
             "schedule": crontab(minute=0, hour=0),
@@ -1211,8 +1216,11 @@ class CommunityBaseSettings(Settings):
         },
     }
 
-    # MailerLite API for newsletter signups
-    MAILERLITE_API_SUBSCRIBERS_URL = "https://api.mailerlite.com/api/v2/subscribers"
+    # Buttondown API for newsletter signups
+    BUTTONDOWN_API_SUBSCRIBERS_URL = "https://api.buttondown.com/v1/subscribers"
+    BUTTONDOWN_API_KEY = None
+
+    # MailerLite API for the onboarding drip campaign
     MAILERLITE_API_ONBOARDING_GROUP_ID = None
     MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
