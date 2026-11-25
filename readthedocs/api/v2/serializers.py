@@ -1,5 +1,6 @@
 """Defines serializers for each of our models."""
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
@@ -13,11 +14,15 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import BuildCommandResult
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
+from readthedocs.filetreediff import get_base_version
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Domain
 from readthedocs.projects.models import Project
+
+
+log = structlog.get_logger(__name__)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -173,7 +178,26 @@ class VersionAdminSerializer(VersionSerializer):
 
     project_serializer_class = ProjectAdminSerializer
     canonical_url = serializers.SerializerMethodField()
+    base_commit = serializers.SerializerMethodField()
     build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+
+    def get_base_commit(self, obj):
+        """Commit of the base version's latest build, so pull request builds can report if they contain it."""
+        if not obj.is_external:
+            return None
+        # Every build fetches its version through this serializer,
+        # so this optional field must never make the response fail.
+        try:
+            base_version = get_base_version(obj.project)
+            base_build = base_version.latest_successful_build if base_version else None
+            return base_build.commit if base_build else None
+        except Exception:
+            log.exception(
+                "Failed to resolve the base commit.",
+                project_slug=obj.project.slug,
+                version_slug=obj.slug,
+            )
+            return None
 
     def get_canonical_url(self, obj):
         # Use the cached object, since it has some
@@ -187,6 +211,7 @@ class VersionAdminSerializer(VersionSerializer):
 
     class Meta(VersionSerializer.Meta):
         fields = VersionSerializer.Meta.fields + [
+            "base_commit",
             "build_data",
             "canonical_url",
             "machine",

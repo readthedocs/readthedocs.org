@@ -71,6 +71,7 @@ from readthedocs.oauth.models import (
 from readthedocs.oauth.services import GitHubAppService
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
+    AddonsConfig,
     APIProject,
     Domain,
     EnvironmentVariable,
@@ -3740,12 +3741,48 @@ class APIVersionTests(TestCase):
             "has_pdf": False,
             "documentation_type": "sphinx",
             "machine": False,
+            "base_commit": None,
         }
 
         self.assertDictEqual(
             resp.data,
             version_data,
         )
+
+    def test_get_version_base_commit(self):
+        pip = Project.objects.get(slug="pip")
+        # Fixture projects skip ``Project.save``, which creates the addons config.
+        AddonsConfig.objects.get_or_create(project=pip)
+        latest = get(Version, project=pip, slug=LATEST, type=BRANCH, active=True, built=True)
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=True, commit="old")
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=True, commit="new")
+        get(Build, project=pip, version=latest, state=BUILD_STATE_FINISHED, success=False, commit="bad")
+        external_version = get(Version, project=pip, slug="42", type=EXTERNAL, active=True)
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+
+        for version, base_commit in [(external_version, "new"), (latest, None)]:
+            resp = self.client.get(
+                reverse("version-detail", kwargs={"pk": version.pk}),
+                headers={"authorization": f"Token {build_api_key}"},
+            )
+            assert resp.status_code == 200
+            assert resp.data["base_commit"] == base_commit
+
+    def test_get_version_survives_a_failing_base_commit(self):
+        pip = Project.objects.get(slug="pip")
+        external_version = get(Version, project=pip, slug="42", type=EXTERNAL, active=True)
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
+
+        with mock.patch(
+            "readthedocs.api.v2.serializers.get_base_version", side_effect=Exception("boom")
+        ):
+            resp = self.client.get(
+                reverse("version-detail", kwargs={"pk": external_version.pk}),
+                headers={"authorization": f"Token {build_api_key}"},
+            )
+
+        assert resp.status_code == 200
+        assert resp.data["base_commit"] is None
 
     def test_get_active_versions(self):
         """Test the full response of

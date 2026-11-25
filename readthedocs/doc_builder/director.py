@@ -22,6 +22,7 @@ from readthedocs.config.find import find_one
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.core.utils.objects import get_dotted_attribute
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.exceptions import BuildCancelled
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda
@@ -113,6 +114,26 @@ class BuildDirector:
         commit = self.data.build_commit or self.vcs_repository.commit
         if commit:
             self.data.build["commit"] = commit
+
+        self.record_base_commit()
+
+    def record_base_commit(self):
+        """
+        Report the base commit once the PR has merged it in.
+
+        The file tree diff refreshes its base snapshot from it.
+        Best effort: a failing check never fails the build.
+        """
+        base_commit = self.data.version.base_commit
+        if not self.data.version.is_external or not base_commit:
+            return
+        try:
+            if self.vcs_repository.contains_commit(base_commit):
+                self.data.build["base_commit"] = base_commit
+        except BuildCancelled:
+            raise
+        except Exception:
+            log.exception("Failed to check for the base commit.")
 
     def create_vcs_environment(self):
         self.vcs_environment = self.data.environment_class(
