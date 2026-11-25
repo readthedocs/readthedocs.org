@@ -26,6 +26,11 @@ class RTDFacetedSearch(FacetedSearch):
     # The score of and should be higher as it satisfies both or and and.
     operators = ["and", "or"]
 
+    # Share of the words that a page must contain to match with the "or" operator.
+    # Without it, a page matches with a single common word (like "the").
+    # ES rounds down, so queries of one or two words still match with any word.
+    minimum_should_match = "75%"
+
     # Sources to be excluded from results.
     excludes = []
 
@@ -110,6 +115,7 @@ class RTDFacetedSearch(FacetedSearch):
                     query=query,
                     fields=fields,
                     default_operator=operator,
+                    minimum_should_match=self.minimum_should_match,
                     # Restrict fuzziness to avoid timeouts with complex queries.
                     fuzzy_prefix_length=1,
                     fuzzy_max_expansions=15,
@@ -166,6 +172,7 @@ class RTDFacetedSearch(FacetedSearch):
             query=query,
             fields=fields,
             operator=operator,
+            minimum_should_match=self.minimum_should_match,
             fuzziness="AUTO:4,6",
             prefix_length=1,
         )

@@ -78,3 +78,21 @@ def test_page_scored_by_best_matching_section(es_index, mock_processed_json):
     paths = [result.path for result in page_search.execute()]
 
     assert paths == ["slack", "recap"]
+
+
+@pytest.mark.django_db
+@pytest.mark.search
+def test_page_with_a_single_common_word_doesnt_match(es_index, mock_processed_json):
+    project = get(Project, slug="community", privacy_level=PUBLIC, versions=[])
+    version = project.versions.get(slug=LATEST)
+    html_files = [
+        get(HTMLFile, project=project, version=version, name=name, path=name, build=1)
+        for name in ("slack.html", "recap.html")
+    ]
+    PageDocument().update(html_files)
+
+    # The recap page only contains "slack".
+    page_search = PageSearch(query="slack code of conduct", projects={"community": LATEST})
+    paths = [result.path for result in page_search.execute()]
+
+    assert paths == ["slack"]
