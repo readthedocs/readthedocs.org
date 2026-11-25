@@ -70,6 +70,7 @@ from ..models import WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import index_build
+from .search import process_builder_manifest
 from .utils import BuildRequest
 from .utils import clean_build
 from .utils import purge_docs_cdn
@@ -735,6 +736,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Purge the CDN now that the new files are in storage.
         purge_docs_cdn.delay(version_id=self.data.version.pk)
+
+        # Post the pull request comment from the manifest the build uploaded, if any.
+        process_builder_manifest.delay(build_id=self.data.build_pk)
 
         # Index search data
         index_build.delay(build_id=self.data.build_pk)
