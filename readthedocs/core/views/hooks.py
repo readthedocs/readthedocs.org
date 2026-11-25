@@ -4,19 +4,16 @@ from dataclasses import dataclass
 from typing import Literal
 
 import structlog
-from django.conf import settings
-from django.core.cache import cache
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_CLOSED
 from readthedocs.builds.constants import EXTERNAL_VERSION_STATE_OPEN
-from readthedocs.core.utils import build_isolated_environment
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_sync_versions_isolated
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.builds import sync_repository_task
-from readthedocs.worker import app
 
 
 @dataclass
@@ -121,7 +118,7 @@ def trigger_sync_versions(project):
         )
 
         if project.has_feature(Feature.USE_BUILD_ISOLATED):
-            _trigger_sync_versions_isolated(project)
+            trigger_sync_versions_isolated(project)
             return version.slug
 
         _, build_api_key = BuildAPIKey.objects.create_key(project=project)
@@ -141,27 +138,6 @@ def trigger_sync_versions(project):
     except Exception:
         log.exception("Unknown sync versions exception")
     return None
-
-
-def _trigger_sync_versions_isolated(project):
-    """Dispatch the version sync to the build-isolated fleet."""
-    cache_key = f"rtd-sync-repository-isolated:{project.slug}"
-    if not cache.add(cache_key, True, 60):
-        # A sync for this project was dispatched moments ago so
-        # we skip dispatching another one.
-        log.info("Skipping sync, one was dispatched recently.")
-        return
-
-    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
-    app.send_task(
-        settings.RTD_SYNC_REPOSITORY_ISOLATED_TASK_NAME,
-        kwargs={
-            "project_pk": project.pk,
-            "build_api_key": build_api_key,
-            "environment": build_isolated_environment(),
-        },
-        queue=settings.RTD_BUILD_ISOLATED_QUEUE,
-    )
 
 
 def get_or_create_external_version(project, version_data):

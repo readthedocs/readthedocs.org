@@ -7,12 +7,13 @@ from django.test import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.core.views.hooks import trigger_sync_versions
 from readthedocs.projects.models import Feature
 from readthedocs.projects.models import Project
 
 
-@mock.patch("readthedocs.core.views.hooks.app")
+@mock.patch("readthedocs.core.utils.app")
 @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
 class TestTriggerSyncVersions(TestCase):
     def setUp(self):
@@ -57,6 +58,16 @@ class TestTriggerSyncVersions(TestCase):
 
         assert slugs == [self.version.slug] * 5
         assert app.send_task.call_count == 1
+
+    def test_an_event_during_a_sync_runs_one_more_when_it_finishes(self, sync_repository_task, app):
+        self._enable_build_isolated()
+        for _ in range(3):
+            trigger_sync_versions(self.project)
+        assert app.send_task.call_count == 1
+
+        sync_versions_task(self.project.pk, tags_data=[], branches_data=[])
+
+        assert app.send_task.call_count == 2
 
     def test_the_debounce_is_per_project(self, sync_repository_task, app):
         self._enable_build_isolated()

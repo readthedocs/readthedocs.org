@@ -35,7 +35,10 @@ from readthedocs.builds.reporting import get_build_overview
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import admit_project_builds
 from readthedocs.core.utils import send_email
+from readthedocs.core.utils import sync_running_cache_key
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_sync_versions_isolated
+from readthedocs.core.utils import webhook_skipped_cache_key
 from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildUserError
@@ -216,7 +219,27 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     :returns: `True` or `False` if the task succeeded.
     """
     project = Project.objects.get(pk=project_pk)
+    # Syncs for a project run one at a time, and webhooks that arrive
+    # while one is running share a single follow-up sync:
+    #
+    # 1. A webhook arrives and no sync is running: a sync is dispatched.
+    # 2. More webhooks arrive while it runs: nothing is dispatched,
+    #    they are only noted as skipped.
+    # 3. The sync ends here. If a webhook was skipped, start again from step 1.
+    #
+    # The running sync may have read the repository before a skipped webhook's change,
+    # the follow-up sync reads it after, so the last webhook is always covered.
+    try:
+        return _sync_versions(project, tags_data, branches_data)
+    finally:
+        webhook_was_skipped = cache.get(webhook_skipped_cache_key(project))
+        cache.delete(webhook_skipped_cache_key(project))
+        cache.delete(sync_running_cache_key(project))
+        if webhook_was_skipped:
+            trigger_sync_versions_isolated(project)
 
+
+def _sync_versions(project, tags_data, branches_data):
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
     current_stable = project.get_original_stable_version()
