@@ -9,6 +9,8 @@ from django.dispatch import receiver
 
 from readthedocs.allauth.providers.githubapp.provider import GitHubAppProvider
 from readthedocs.notifications.models import Notification
+from readthedocs.oauth.constants import GITHUB_APP
+from readthedocs.oauth.migrate import cancel_migration_notifications
 from readthedocs.oauth.migrate import has_projects_pending_migration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BITBUCKET_RECONNECT
@@ -103,6 +105,20 @@ def update_project_clone_url(sender, instance, created, *args, **kwargs):
     instance.projects.exclude(feature__feature_id=Feature.DONT_SYNC_WITH_REMOTE_REPO).update(
         repo=instance.clone_url
     )
+
+
+@receiver(post_save, sender=Project)
+def cancel_github_app_migration_notifications(sender, instance, *args, **kwargs):
+    """Cancel migration notifications once the project is connected to the GitHub App."""
+    if not instance.remote_repository_id:
+        return
+
+    migrated = RemoteRepository.objects.filter(
+        pk=instance.remote_repository_id,
+        vcs_provider=GITHUB_APP,
+    ).exists()
+    if migrated:
+        cancel_migration_notifications(instance)
 
 
 @receiver(social_account_added, sender=SocialLogin)
