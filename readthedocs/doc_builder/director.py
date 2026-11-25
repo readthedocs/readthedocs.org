@@ -74,8 +74,9 @@ class BuildDirector:
 
         1. clone the repository
         2. checkout specific commit/identifier
-        3. load the config file
-        4. checkout submodules
+
+        The config file is loaded later by ``load_config``,
+        so versions can be synced even if the config file is missing.
         """
         # Make dirs if it does not exist to clone the repository under it
         if not os.path.exists(self.data.project.doc_path):
@@ -200,7 +201,7 @@ class BuildDirector:
 
     # VCS checkout
     def checkout(self):
-        """Checkout Git repo and load build config file."""
+        """Clone and checkout the Git repo."""
 
         log.info("Cloning and fetching.")
         self.vcs_repository.update()
@@ -208,9 +209,10 @@ class BuildDirector:
         # Check if the key has write access to the repository (RTD Business only).
         # This check is done immediately after clone step, and before running any
         # commands that make use of user given input (like the post_checkout job).
-        has_ssh_key_with_write_access = False
+        self.has_ssh_key_with_write_access = False
         if settings.ALLOW_PRIVATE_REPOS:
             has_ssh_key_with_write_access = self.vcs_repository.has_ssh_key_with_write_access()
+            self.has_ssh_key_with_write_access = has_ssh_key_with_write_access
             if has_ssh_key_with_write_access != self.data.project.has_ssh_key_with_write_access:
                 self.data.api_client.project(self.data.project.pk).patch(
                     {"has_ssh_key_with_write_access": has_ssh_key_with_write_access}
@@ -251,6 +253,8 @@ class BuildDirector:
             log.info("Checking out.", identifier=identifier)
             self.vcs_repository.checkout(identifier)
 
+    def load_config(self):
+        """Load the build config file and checkout submodules."""
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
         # instead of per-version or per-project.
@@ -306,7 +310,7 @@ class BuildDirector:
 
         # If the config has a post_checkout job, we stop the build,
         # as it could be abused to write to the repository.
-        if has_ssh_key_with_write_access and get_dotted_attribute(
+        if self.has_ssh_key_with_write_access and get_dotted_attribute(
             self.data.config, "build.jobs.post_checkout", None
         ):
             raise BuildUserError(BuildUserError.SSH_KEY_WITH_WRITE_ACCESS)
