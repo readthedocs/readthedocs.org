@@ -26,6 +26,9 @@ To set up your :doc:`custom domain </custom-domains>`, follow these steps:
 
     For a subdomain like ``docs.example.com`` add a CNAME record,
     and for a root domain like ``example.com`` use an ANAME or ALIAS record.
+    If your DNS provider doesn't support ANAME or ALIAS records (or CNAME flattening) for root domains,
+    or your root domain fails to validate after setting up the record,
+    please contact :doc:`/support`.
 
 .. warning::
 
