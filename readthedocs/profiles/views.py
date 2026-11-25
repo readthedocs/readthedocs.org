@@ -438,6 +438,9 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         context["old_application_link"] = get_old_app_link()
         context["step_revoke_completed"] = self._is_access_to_old_github_accounts_revoked()
         context["old_github_accounts"] = self._get_old_github_accounts()
+        context["github_app_accounts"] = user.socialaccount_set.filter(
+            provider=GitHubAppProvider.id
+        )
         context["manual_migration_required"] = get_projects_requiring_manual_migration(user)
 
         # These can take some time, so we only load them when needed.
