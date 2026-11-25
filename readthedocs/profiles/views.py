@@ -421,7 +421,7 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         return MigrationSteps.install
 
     def _redirect_to_step(self, step):
-        return HttpResponseRedirect(reverse("migrate_to_github_app") + f"?step={step}")
+        return HttpResponseRedirect(reverse("migrate_to_github_app", query={"step": step}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -520,4 +520,6 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         else:
             messages.info(request, _("No projects were migrated."))
 
-        return HttpResponseRedirect(reverse("migrate_to_github_app") + "?step=migrate")
+        return HttpResponseRedirect(
+            reverse("migrate_to_github_app", query={"step": MigrationSteps.migrate})
+        )
