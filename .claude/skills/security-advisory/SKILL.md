@@ -49,7 +49,6 @@ In order to exploit this vulnerability, the attacker must <preconditions>.
 
 {Users of https://app.readthedocs.org/ and https://app.readthedocs.com/ do not need to take any further action, we have taken measures to ensure that the security issue is now fully fixed.
 | Users of https://app.readthedocs.org/ are not affected, as <reason>. Users of https://app.readthedocs.com/ do not need to take any further action, we have taken measures to ensure that the security issue is now fully fixed.}
-<Optional: This vulnerability was present from <Month D, YYYY> until <Month D, YYYY>.>
 
 This issue was {discovered by a member of our team | reported by <Full Name> | discovered by Anthropic's [oss-scanner](https://github.com/anthropics/oss-scanner) (tracked as ANT-YYYY-XXXXXXXX)}, and we have seen no signs that this vulnerability was exploited in the wild.
 
