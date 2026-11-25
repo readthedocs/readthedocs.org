@@ -484,4 +484,4 @@ class MigrateToGitHubAppView(PrivateViewMixin, TemplateView):
         else:
             messages.info(request, _("No projects were migrated."))
 
-        return HttpResponseRedirect(reverse("migrate_to_github_app") + "?step=migrate")
+        return HttpResponseRedirect(reverse("migrate_to_github_app", query={"step": "migrate"}))

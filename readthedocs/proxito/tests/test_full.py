@@ -1206,8 +1206,8 @@ class TestAdditionalDocViews(BaseDocServing):
             reverse(
                 "proxito_404_handler",
                 kwargs={"proxito_path": "/en/latest/index-exists"},
-            )
-            + "?foo=bar",
+                query={"foo": "bar"},
+            ),
             headers={"host": "project.readthedocs.io"},
         )
         self.assertEqual(response.status_code, 302)

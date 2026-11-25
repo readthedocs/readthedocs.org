@@ -248,21 +248,21 @@ class ProfileViewsTest(TestCase):
         self.assertQuerySetEqual(auditlogs, queryset)
 
         # Show logs filtered by project.
-        resp = self.client.get(reverse("profiles_security_log") + "?project=project")
+        resp = self.client.get(reverse("profiles_security_log"), data={"project": "project"})
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
         self.assertQuerySetEqual(auditlogs, queryset.filter(log_project_slug="project"))
 
         # Show logs filtered by IP.
         ip = "10.10.10.2"
-        resp = self.client.get(reverse("profiles_security_log") + f"?ip={ip}")
+        resp = self.client.get(reverse("profiles_security_log"), data={"ip": ip})
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
         self.assertQuerySetEqual(auditlogs, queryset.filter(ip=ip))
 
         # Show logs filtered by action.
         resp = self.client.get(
-            reverse("profiles_security_log") + "?action=authentication"
+            reverse("profiles_security_log"), data={"action": "authentication"}
         )
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
@@ -270,7 +270,7 @@ class ProfileViewsTest(TestCase):
 
         # Show logs filtered by action.
         resp = self.client.get(
-            reverse("profiles_security_log") + "?action=authentication-failure"
+            reverse("profiles_security_log"), data={"action": "authentication-failure"}
         )
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
@@ -280,15 +280,13 @@ class ProfileViewsTest(TestCase):
 
         # Show logs filtered by invalid values.
         for filter in ["ip", "project"]:
-            resp = self.client.get(
-                reverse("profiles_security_log") + f"?{filter}=invalid"
-            )
+            resp = self.client.get(reverse("profiles_security_log"), data={filter: "invalid"})
             self.assertEqual(resp.status_code, 200)
             auditlogs = resp.context_data["object_list"]
             self.assertEqual(auditlogs.count(), 0, filter)
 
         # If action isn't a valid value, the filter is just ignored.
-        resp = self.client.get(reverse("profiles_security_log") + "?action=invalid")
+        resp = self.client.get(reverse("profiles_security_log"), data={"action": "invalid"})
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
         self.assertQuerySetEqual(auditlogs, queryset)

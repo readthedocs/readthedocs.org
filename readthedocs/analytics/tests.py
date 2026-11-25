@@ -116,11 +116,12 @@ class AnalyticsPageViewsTests(TestCase):
             f"https://{self.project.slug}.readthedocs.io/en/latest/index.html"
         )
         self.host = f"{self.project.slug}.readthedocs.io"
-        self.url = (
-            reverse("analytics_api")
-            + f"?project={self.project.slug}&version={self.version.slug}"
-            f"&absolute_uri={self.absolute_uri}"
-        )
+        self.query = {
+            "project": self.project.slug,
+            "version": self.version.slug,
+            "absolute_uri": self.absolute_uri,
+        }
+        self.url = reverse("analytics_api", query=self.query)
 
         self.today = timezone.now()
         self.tomorrow = timezone.now() + timezone.timedelta(days=1)
@@ -128,10 +129,9 @@ class AnalyticsPageViewsTests(TestCase):
 
     def test_invalid_uri(self):
         assert PageView.objects.all().count() == 0
-        url = (
-            reverse("analytics_api")
-            + f"?project={self.project.slug}&version={self.version.slug}"
-            f"&absolute_uri=https://docs.example.com"
+        url = reverse(
+            "analytics_api",
+            query={**self.query, "absolute_uri": "https://docs.example.com"},
         )
         self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
@@ -145,28 +145,36 @@ class AnalyticsPageViewsTests(TestCase):
 
         # Host and ``absolute_uri`` are from different projects
         assert PageView.objects.all().count() == 0
-        url = (
-            reverse("analytics_api")
-            + f"?project={self.project.slug}&version=latest"
-            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        url = reverse(
+            "analytics_api",
+            query={
+                "project": self.project.slug,
+                "version": "latest",
+                "absolute_uri": "https://other.readthedocs.io/en/latest/",
+            },
         )
         self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
 
         # Host and ``absolute_uri`` are from different projects with no ``?version`` attribute
-        url = (
-            reverse("analytics_api")
-            + f"?project={self.project.slug}"
-            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        url = reverse(
+            "analytics_api",
+            query={
+                "project": self.project.slug,
+                "absolute_uri": "https://other.readthedocs.io/en/latest/",
+            },
         )
         self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
 
         # Host and ``absolute_uri`` are from the same project
-        url = (
-            reverse("analytics_api")
-            + f"?project=other&version=latest"
-            f"&absolute_uri=https://other.readthedocs.io/en/latest/"
+        url = reverse(
+            "analytics_api",
+            query={
+                "project": "other",
+                "version": "latest",
+                "absolute_uri": "https://other.readthedocs.io/en/latest/",
+            },
         )
         self.client.get(url, headers={"host": "other.readthedocs.io"})
         assert PageView.objects.all().count() == 1
@@ -280,7 +288,7 @@ class AnalyticsPageViewsTests(TestCase):
 
     def test_notfound_404_pages(self):
         self.assertEqual(PageView.objects.all().count(), 0)
-        url = self.url + "&status=404"
+        url = reverse("analytics_api", query={**self.query, "status": 404})
         resp = self.client.get(url, headers={"host": self.host})
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(PageView.objects.all().count(), 1)
@@ -291,11 +299,14 @@ class AnalyticsPageViewsTests(TestCase):
         absolute_uri = (
             f"https://{self.project.slug}.readthedocs.io/index.html"
         )
-        url = (
-            reverse("analytics_api")
-            + f"?project={self.project.slug}&version=null"
-            f"&absolute_uri={absolute_uri}"
-            "&status=404"
+        url = reverse(
+            "analytics_api",
+            query={
+                "project": self.project.slug,
+                "version": "null",
+                "absolute_uri": absolute_uri,
+                "status": 404,
+            },
         )
 
         resp = self.client.get(url, headers={"host": self.host})

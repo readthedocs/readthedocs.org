@@ -4,11 +4,11 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
+from django.http import QueryDict
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from vanilla import CreateView
 from vanilla import FormView
@@ -93,9 +93,11 @@ class ChooseOrganization(ListOrganization):
         # Check if user has exactly 1 organization and automatically redirect in this case
         organizations = self.get_queryset()
         if organizations.count() == 1:
-            redirect_url = reverse(self.next_name, kwargs={"slug": organizations[0].slug})
-            if self.next_querystring:
-                redirect_url += "?" + urlencode(self.next_querystring)
+            redirect_url = reverse(
+                self.next_name,
+                kwargs={"slug": organizations[0].slug},
+                query=QueryDict(self.next_querystring),
+            )
             return redirect(redirect_url)
 
         return super().get(request, *args, **kwargs)

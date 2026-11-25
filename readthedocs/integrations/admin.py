@@ -109,11 +109,10 @@ class IntegrationAdmin(admin.ModelAdmin):
                 HttpExchange._meta.app_label,
                 HttpExchange._meta.model_name,
             ),
+            query={"integrations__pk": obj.pk},
         )
         return format_html(
-            '<a href="{}?{}={}">{} HTTP transactions</a>',
+            '<a href="{}">{} HTTP transactions</a>',
             url,
-            "integrations__pk",
-            obj.pk,
             obj.exchanges.count(),
         )
