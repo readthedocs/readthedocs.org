@@ -7,8 +7,13 @@ description: Draft or review a GitHub security advisory (GHSA) for Read the Docs
 
 Advisories are filed on `readthedocs/readthedocs.org`, including those for
 the private Business code, `ext-theme`, and `readthedocs-builder`.
-Never create, edit, or publish an advisory on GitHub yourself.
-Write the draft for the user to paste, or review the one they point you to
+Don't create, edit, or publish an advisory on GitHub on your own initiative;
+only do so when the user explicitly asks. When they do, you can create or update
+a draft advisory with `gh` (for example, `gh api --method POST
+repos/readthedocs/readthedocs.org/security-advisories`). Publishing an advisory
+discloses it publicly and can't be undone, so confirm with the user before
+publishing, even after they've asked you to create the draft. You can also just
+write the draft for the user to paste, or review the one they point you to
 (`gh api repos/readthedocs/readthedocs.org/security-advisories/<GHSA-ID>`).
 
 ## Metadata
