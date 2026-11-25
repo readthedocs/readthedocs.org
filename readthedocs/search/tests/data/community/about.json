@@ -1,0 +1,7 @@
+{
+  "path": "about",
+  "title": "The docs we write",
+  "sections": [
+    {"id": "about", "title": "The docs we write", "content": "Our newsletter."}
+  ]
+}
