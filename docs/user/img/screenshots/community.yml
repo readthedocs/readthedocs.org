@@ -1,58 +1,452 @@
-# These screenshots are created using the rtfd-qa user. This user only has read
-# access to select repositories, invite the user again if it is missing from the
-# test-builds project.
+# Community screenshots. Run with `make community`, see README.
+#
+# On production these are created using the rtfd-qa user. This user only has
+# read access to select repositories, invite the user again if it is missing
+# from the test-builds project.
+#
+# Placeholders come from prod.env or dev.env, and the HELPERS one is
+# helpers.js. `selector: "#shot"` captures the area chosen by its crop helpers.
 
 # Project repository multifield
-- url: https://app.readthedocs.org/dashboard/test-builds/edit/
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/edit/
+  javascript: |-
+    ${HELPERS}
   selector: readthedocs-project-repository-multifield
   padding: 20
-  output: community-project-repo.png
+  output: ${OUT}/img/screenshots/community-project-repo.png
 
-# Webhook creation
-- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/create/
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .ui.grid > .column[class*="eleven wide computer"]
-    > *
-  padding: 20
-  output: community-project-webhook-create.png
+# --- Project settings ---------------------------------------------------------
 
-# Webhook activity
-- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
+# Incoming webhook integration, with sample activity. Shown as Community, even
+# when the data comes from Business.
+- url: ${INTEGRATION_SITE}/dashboard/${INTEGRATION_PROJECT}/integrations/${INTEGRATION_ID}/
   javascript: |-
-    document
-      .querySelectorAll("#edit-content > .ui.segment > .ui.list > .item:nth-child(n+4)")
-      .forEach((el) => { el.remove() });
-  selector_all: |-
-    #edit-content > .ui.small.header,
-    #edit-content > .ui.segment > .ui.list
-  padding: 20
-  output: community-project-webhook-activity.png
+    ${HELPERS}
+    const name = document.querySelector('a[href$="/projects/${INTEGRATION_PROJECT}/"]')?.textContent.trim();
+    replaceText([["${INTEGRATION_PROJECT}", "docs"], [name || "${INTEGRATION_PROJECT}", "docs"]]);
+    asCommunity();
+    const url = fieldInput("Webhook URL");
+    url.value = url.value.replace(/^https?:\/\/[^/]+\/api\/v2\/webhook\/[^/]+\//, "https://app.readthedocs.org/api/v2/webhook/docs/");
+    // Never publish the real secret
+    const secret = fieldInput("Secret");
+    if (secret) secret.value = "7tt135QRvfzCxjRLR8kfE1EXR607TwnO";
+    document.querySelector(".ui.warning.message")?.remove();
+    const times = ["2 minutes ago", "14 minutes ago", "1 hour, 3 minutes ago", "1 hour, 56 minutes ago",
+      "3 hours, 12 minutes ago", "5 hours, 40 minutes ago", "1 day, 2 hours ago", "1 day, 4 hours ago",
+      "2 days, 1 hour ago", "3 days, 6 hours ago"];
+    byText("Recent Activity").nextElementSibling.querySelectorAll(".item").forEach((item, i) => {
+      const label = item.querySelector(".ui.label");
+      label.className = "ui green label";
+      label.textContent = "200";
+      item.querySelector("a").textContent = times[i % times.length];
+    });
+    aboveFooter();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot-webhook.png
 
-# Just the edit/delete icons
-- url: https://app.readthedocs.org/dashboard/test-builds/integrations/
-  selector: .button:has(> i.fa-wrench.icon)
-  output: community-edit-button.png
-- url: https://app.readthedocs.org/dashboard/test-builds/integrations/
-  selector: .button:has(> i.fa-trash.icon)
-  output: community-delete-button.png
-
-- url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/rules/create/
   javascript: |-
-    document
-      .querySelector("#id_secret")
-      .value = "7tt135QRvfzCxjRLR8kfE1EXR607TwnO";
-  selector_all: |-
-    #div_id_secret
-  padding: 20
-  output: community-project-webhook-secret.png
+    ${HELPERS}
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot_automation_rules_add.png
 
-- url: https://app.readthedocs.org/dashboard/test-builds/subprojects/create/
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .ui.grid > .column[class*="eleven wide computer"]
-    > *
-  padding: 20
-  output: community-project-subproject-create.png
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/environmentvariables/create/
+  javascript: |-
+    ${HELPERS}
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot_environment_variables.png
+
+# Redirects list, with sample docs-like paths
+- url: ${COMMUNITY_URL}/dashboard/${BUSY_PROJECT}/redirects/
+  javascript: |-
+    ${HELPERS}
+    const redirects = [
+      ["/en/latest/install.html", "/en/latest/installation.html"],
+      ["/$lang/$version/", "/$lang/$version/"],
+      ["/en/latest/faq.html", "/en/latest/help/faq.html"],
+    ];
+    // Same markup as the template: $lang and $version are highlighted
+    const path = (p) => p.split(/(\$lang|\$version)/).filter(Boolean)
+      .map((s) => (s.startsWith("$") ? `<span class="ui violet text">${s}</span>` : `<span>${s}</span>`)).join("");
+    // Keep the first rows and the last one, so the move up/down buttons are right
+    const rows = [...document.querySelectorAll("table tbody tr")];
+    rows.slice(redirects.length - 1, -1).forEach((row) => row.remove());
+    document.querySelectorAll("table tbody tr").forEach((row, i) => {
+      row.querySelector(".content > a").innerHTML = path(redirects[i][0]);
+      const to = row.querySelector(".sub.header");
+      to.replaceChildren(to.querySelector("label"), " ");
+      to.insertAdjacentHTML("beforeend", path(redirects[i][1]));
+    });
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot_redirects.png
+
+# Redirect form, the preview is generated by the dashboard itself
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/redirects/create/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      jQuery("#id_redirect_type").closest(".ui.dropdown").dropdown("set selected", "page");
+      setValue("#id_from_url", "/old.html");
+      setValue("#id_to_url", "/new.html");
+      await sleep(300);
+      mainColumn();
+    })();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot_redirects_preview.png
+
+# Highlight the configuration file path field, with the fields around it
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/edit/
+  javascript: |-
+    ${HELPERS}
+    setValue("#id_readthedocs_yaml_path", "docs/.readthedocs.yaml");
+    document.querySelector("#id_readthedocs_yaml_path").focus();
+    const branch = document.querySelector("#id_default_branch").closest(".ui.dropdown").querySelector(".text");
+    branch.textContent = "main";
+    branch.classList.remove("default");
+    const field = document.querySelector("#div_id_readthedocs_yaml_path");
+    Object.assign(field.style, { outline: "3px solid #2185d0", outlineOffset: "8px", borderRadius: "2px" });
+    const b = box(field);
+    const prev = box(field.previousElementSibling).top;
+    const next = box(field.nextElementSibling).bottom;
+    clip({ x: b.left - 2 * PAD, y: prev - PAD, width: b.right - b.left + 4 * PAD, height: next - prev + 2 * PAD });
+  selector: "#shot"
+  output: ${OUT}/img/screenshot-howto-build-configuration-file.png
+
+# --- Analytics, with sample data -------------------------------------------------
+
+- url: ${COMMUNITY_URL}/dashboard/${BUSY_PROJECT}/search-analytics/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      await chartData(dailySeries(48, 1));
+      fillQueries([
+        ["install", 31, 84],
+        ["configuration", 16, 77],
+        ["theme", 16, 73],
+        ["pdf", 12, 56],
+        ["redirects", 9, 51],
+        ["custom domain", 4, 50],
+      ]);
+      contentColumn(byText("Search Analytics"), document.querySelector("canvas").closest('[class*="segment"]'));
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/search-analytics-demo.png
+
+- url: ${COMMUNITY_URL}/dashboard/${BUSY_PROJECT}/traffic-analytics/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      await chartData(dailySeries(420, 2));
+      fillPages([
+        ["/index.html", "4,182"],
+        ["/installation.html", "2,307"],
+        ["/tutorial/index.html", "1,594"],
+        ["/configuration.html", "1,120"],
+        ["/api/index.html", "863"],
+        ["/changelog.html", "412"],
+      ]);
+      contentColumn(byText("Traffic Analytics"), document.querySelector("canvas").closest('[class*="segment"]'));
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/addons-analytics.png
+
+# --- Webhooks and subprojects ------------------------------------------------------
+
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/webhooks/create/
+  javascript: |-
+    ${HELPERS}
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-project-webhook-create.png
+
+# Sample activity, built with the same markup as the template
+- url: ${COMMUNITY_URL}/dashboard/${WEBHOOK_PROJECT}/webhooks/${WEBHOOK_ID}/edit/
+  javascript: |-
+    ${HELPERS}
+    const header = byText("Recent activity");
+    const rows = [["200", "2 minutes ago"], ["200", "1 hour, 12 minutes ago"], ["200", "3 hours, 40 minutes ago"],
+      ["404", "1 day, 2 hours ago"], ["200", "2 days, 5 hours ago"]];
+    header.nextElementSibling.querySelector(".ui.list").replaceChildren(...rows.map(([code, when]) => {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `<span class="ui ${code === "200" ? "green" : "red"} label">${code}</span> <a href="#">${when}</a>`;
+      return item;
+    }));
+    contentColumn(header, header.nextElementSibling);
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-project-webhook-activity.png
+
+# Never publish the real secret
+- url: ${COMMUNITY_URL}/dashboard/${WEBHOOK_PROJECT}/webhooks/${WEBHOOK_ID}/edit/
+  javascript: |-
+    ${HELPERS}
+    document.querySelector("#id_secret").value = "7tt135QRvfzCxjRLR8kfE1EXR607TwnO";
+    element(document.querySelector("#div_id_secret"));
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-project-webhook-secret.png
+
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/subprojects/create/
+  javascript: |-
+    ${HELPERS}
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-project-subproject-create.png
+
+# A single subproject, with a generic domain
+- url: ${SUBPROJECT_SITE}/dashboard/${SUBPROJECT_PARENT}/subprojects/
+  javascript: |-
+    ${HELPERS}
+    document.querySelectorAll("table tbody tr:nth-child(n+2)").forEach((row) => row.remove());
+    replaceText([[String.raw`https?://[^/\s]+/projects/`, "https://docs.example.com/projects/"]], true);
+    replaceText([["${SUBPROJECT_PARENT}", "docs"]]);
+    mainColumn();
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-project-subproject-list.png
+
+# --- Account ---------------------------------------------------------------------
+
+- url: ${COMMUNITY_URL}/accounts/social/connections/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      const avatar = "https://assets.readthedocs.org/static/images/silhouette.png";
+      const rows = [...document.querySelectorAll("table tbody tr")].filter((r) => r.querySelector(".ui.label"));
+      const logins = { GitHub: "2 days ago", GitLab: "3 weeks ago", Bitbucket: "2 months ago" };
+      for (const row of rows) {
+        const label = row.querySelector(".ui.label");
+        const provider = label.textContent.trim().replace(" OAuth", "");
+        label.lastChild.nodeValue = " " + provider;
+        const content = row.querySelector(".header .content");
+        content.firstChild.nodeValue = "example-user";
+        content.querySelector(".sub.header").textContent = "Logged in " + (logins[provider] || "2 days ago");
+        for (const btn of row.querySelectorAll(".button")) {
+          if (btn.textContent.trim() === "Migrate") btn.remove();
+        }
+        const img = row.querySelector("img");
+        if (img) {
+          img.src = avatar;
+        } else {
+          // Rows without an avatar show an icon instead
+          const icon = row.querySelector(".header > .icon, .header > i, .header > .image");
+          const newImg = Object.assign(document.createElement("img"),
+            { className: "ui rounded image", width: 28, height: 28, src: avatar });
+          icon ? icon.replaceWith(newImg) : row.querySelector(".header").prepend(newImg);
+        }
+      }
+      const github = rows.find((r) => r.querySelector(".ui.label").textContent.includes("GitHub"));
+      if (github) github.parentElement.prepend(github);
+      await until(() => [...document.images].every((img) => img.complete));
+      mainColumn();
+    })();
+  selector: "#shot"
+  output: ${OUT}/img/screenshot_connected_services.png
+
+# --- Tutorial, the project is shown as "tutorial" -----------------------------------
+
+# Same markup as the template's empty state (includes/crud/table_list.html)
+- url: ${COMMUNITY_URL}/dashboard/
+  javascript: |-
+    ${HELPERS}
+    const placeholder = document.createElement("div");
+    placeholder.className = "ui placeholder segment";
+    placeholder.innerHTML = `
+      <div class="ui icon header"><i class=" icon"></i>You don't have any projects configured yet</div>
+      <div class="inline"><a href="#" class="ui primary button">Learn how to get started</a></div>`;
+    document.querySelector("table").closest(".segment").replaceWith(placeholder);
+    document.querySelector(".ui.pagination.menu")?.remove();
+    aboveFooter();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/rtd-empty-dashboard.png
+
+# Repository search answers with a sample repository
+- url: ${COMMUNITY_URL}/dashboard/import/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      const input = xpath("//label[contains(., 'Repository name')]/following::input[1]");
+      const search = input.closest(".ui.search");
+      fakeSearch(search, [{
+        pk: 1,
+        name: "tutorial",
+        full_name: "example-user/tutorial",
+        description: "Tutorial project for Read the Docs",
+        admin: true,
+        avatar_url: "https://assets.readthedocs.org/static/images/silhouette.png",
+        ssh_url: "git@github.com:example-user/tutorial.git",
+        clone_url: "https://github.com/example-user/tutorial.git",
+        html_url: "https://github.com/example-user/tutorial",
+        vcs: "git",
+        vcs_provider: "github",
+        private: false,
+        default_branch: "main",
+        projects: [],
+        remote_organization: null,
+      }]);
+      input.value = "tutorial";
+      jQuery(search).search("query");
+      (await until(() => search.querySelector(".results .result"))).click();
+      await sleep(800);
+      jQuery(search).search("hide results");
+      input.blur();
+      aboveFooter();
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/rtd-import-projects.png
+
+# Build log made to look like the tutorial template's build
+- url: ${COMMUNITY_URL}/projects/${BUSY_PROJECT}/builds/${BUILD_ID}/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      // The log loads after the page
+      await until(() => xpath("//*[starts-with(normalize-space(text()), 'asdf global python')]"));
+      renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+      recentTimes();
+      replaceText([
+        [String.raw`https://github\.com/\S+\.git`, "https://github.com/example-user/tutorial.git"],
+        [String.raw`/home/docs/checkouts/[^/]+/envs/`, "/home/docs/checkouts/readthedocs.org/user_builds/tutorial/envs/"],
+        [String.raw`-r requirements\.txt`, "-r docs/requirements.txt"],
+        [String.raw`cat docs/conf\.py`, "cat docs/source/conf.py"],
+        [String.raw` \. \$READTHEDOCS_OUTPUT`, " docs/source $READTHEDOCS_OUTPUT"],
+        // The first build uses the template's Python version
+        [String.raw`asdf global python \S+`, "asdf global python 3.13.14"],
+      ], true);
+      setCounters(1, 1);
+      aboveFooter();
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/rtd-first-successful-build.png
+
+# Just the Python commands of the build log, with the virtualenv command expanded
+- url: ${COMMUNITY_URL}/projects/${BUSY_PROJECT}/builds/${BUILD_ID}/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      // The log loads after the page
+      const virtualenv = await until(() => xpath("//*[starts-with(normalize-space(text()), 'python -mvirtualenv')]"));
+      renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+      recentTimes();
+      virtualenv.click();
+      await sleep(800);
+      replaceText([
+        [String.raw`https://github\.com/\S+\.git`, "https://github.com/example-user/tutorial.git"],
+        [String.raw`/home/docs/checkouts/[^/]+/envs/`, "/home/docs/checkouts/readthedocs.org/user_builds/tutorial/envs/"],
+        [String.raw`-r requirements\.txt`, "-r docs/requirements.txt"],
+      ], true);
+      const start = xpath("//*[starts-with(normalize-space(text()), 'asdf global python')]");
+      const end = xpath("//*[starts-with(normalize-space(text()), 'python -m pip install --upgrade --no-cache-dir pip')]");
+      const log = box(start.closest('[class*="segment"]'));
+      const top = box(start).top;
+      clip({ x: log.left, y: top - 6, width: log.right - log.left, height: box(end).bottom - top + 12 });
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/build-python.png
+
+# Project home with only the latest version, as after the first build
+- url: ${COMMUNITY_URL}/projects/${PROJECT}/
+  javascript: |-
+    ${HELPERS}
+    renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+    recentTimes("5 minutes ago");
+    removePagination();
+    for (const row of document.querySelectorAll("table tbody tr")) {
+      if (row.querySelector("a")?.textContent.trim() !== "latest") row.remove();
+    }
+    setCounters(1, 1);
+    replaceText([[String.raw`#\d+`, "#${BUILD_ID}"]], true);
+    aboveFooter();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/rtd-project-home.png
+
+- url: ${COMMUNITY_URL}/projects/${PROJECT}/
+  javascript: |-
+    ${HELPERS}
+    renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+    recentTimes("5 minutes ago");
+    removePagination();
+    const version = (row) => row.querySelector("a")?.textContent.trim();
+    const rows = [...document.querySelectorAll("table tbody tr")];
+    rows.filter((row) => !["latest", "stable"].includes(version(row))).forEach((row) => row.remove());
+    if (!rows.some((row) => version(row) === "stable")) {
+      // Not on the first page: show one like latest, without its Default label
+      const latest = rows.find((row) => version(row) === "latest");
+      const stable = latest.cloneNode(true);
+      const walker = document.createTreeWalker(stable, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        if (walker.currentNode.nodeValue.trim() === "latest") walker.currentNode.nodeValue = "stable";
+      }
+      [...stable.querySelectorAll(".label")].filter((l) => l.textContent.trim() === "Default").forEach((l) => l.remove());
+      latest.before(stable);
+    }
+    setCounters(2, 3);
+    aboveFooter();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/active-versions.png
+
+# Version search answers with sample versions, one of them inactive
+- url: ${COMMUNITY_URL}/dashboard/${PROJECT}/version/create/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+      setCounters(2, 3);
+      const version = (name, active, identifier) => ({
+        verbose_name: name,
+        slug: name,
+        type: "branch",
+        active,
+        identifier,
+        urls: { dashboard: { edit: "#" } },
+      });
+      const input = document.querySelector('input[placeholder="Search versions"]');
+      const search = input.closest(".ui.search");
+      fakeSearch(search, [version("1.0.x", false, "1.0.x"), version("stable", true, "1.0.x"), version("latest", true, "main")]);
+      // Results show on focus
+      input.focus();
+      jQuery(search).search("query");
+      (await until(() => search.querySelector(".results .result"))).classList.add("active");
+      await sleep(500);
+      aboveFooter();
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/inactive-versions.png
+
+- url: ${COMMUNITY_URL}/dashboard/${BUSY_PROJECT}/traffic-analytics/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      await chartData(dailySeries(35, 3));
+      renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+      fillPages([
+        ["/index.html", "412"],
+        ["/usage.html", "238"],
+        ["/api.html", "171"],
+        ["/generated/lumache.html", "96"],
+      ]);
+      contentColumn(byText("Traffic Analytics"), document.querySelector("canvas").closest('[class*="segment"]'));
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/traffic-analytics-plot.png
+
+# "ingredients" returns 2 results, as the tutorial says
+- url: ${COMMUNITY_URL}/dashboard/${BUSY_PROJECT}/search-analytics/
+  javascript: |-
+    ${HELPERS}
+    (async () => {
+      await chartData(dailySeries(6, 4));
+      renameExact(["docs", "${PROJECT}", "${BUSY_PROJECT}"], "tutorial");
+      fillQueries([
+        ["ingredients", 2, 14],
+        ["recipes", 3, 9],
+        ["lumache", 4, 7],
+        ["installation", 1, 5],
+        ["random", 2, 3],
+        ["kind", 1, 2],
+      ]);
+      contentColumn(byText("Search Analytics"), document.querySelector("canvas").closest('[class*="segment"]'));
+    })();
+  selector: "#shot"
+  output: ${OUT}/_static/images/tutorial/search-analytics-terms.png

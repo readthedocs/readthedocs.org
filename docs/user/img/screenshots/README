@@ -15,12 +15,41 @@ This runs the following steps:
 - Creates the auth files that will contain the session information so that
   following screenshots use an authenticated request.
 - Runs shot-scraper against the YAML configuration files with all the
-  screenshots to generate.
+  screenshots to generate, writing them into docs/user.
 
 Creating the auth file will open a browser so you can log in. Log in as the
 directed user. This will create a file that will be reused by shot-scraper to
 generate authenticated requests to the production dashboard.
 
-To add a screenshot, select a good element that you can target to keep the
-screenshot clear and helpful. Refer to the existing screenshots and the shot-scraper
+Review the result with `git diff`. Use `make community` or `make business` to
+run only one of them, and `OUT=/some/dir` to write the images somewhere else.
+
+## Features that aren't deployed yet
+
+Production only shows what's deployed. To take screenshots of a new feature,
+use your local development instance instead:
+
+    % make ENV=dev community
+
+Log in with your local user when asked. dev.env lists the projects and objects
+the screenshots borrow from your database: update it to match your data.
+
+## Adding a screenshot
+
+Add an entry to community.yml or business.yml. Placeholders like
+`${COMMUNITY_URL}` and `${PROJECT}` come from prod.env and dev.env. Start the
+entry's `javascript` with `${HELPERS}`: it hides notifications and staff-only
+items, shows projects as "docs", and defines helpers (see helpers.js). Then
+choose the area with one of its crop helpers, like `mainColumn()`, and use
+`selector: "#shot"`:
+
+    - url: ${COMMUNITY_URL}/dashboard/${PROJECT}/domains/
+      javascript: |-
+        ${HELPERS}
+        mainColumn();
+      selector: "#shot"
+      output: ${OUT}/img/screenshot_domains.png
+
+Never publish real usernames, secrets, or development URLs: replace them in the
+`javascript` step. Refer to the existing screenshots and the shot-scraper
 documentation for usage and help configuring.

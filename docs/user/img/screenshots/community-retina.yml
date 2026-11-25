@@ -1,0 +1,15 @@
+# Small inline images, taken at 2x. Run with `make community`, see README.
+
+# Just the edit/delete icons
+- url: ${SUBPROJECT_SITE}/dashboard/${SUBPROJECT_PARENT}/subprojects/
+  javascript: |-
+    ${HELPERS}
+    element(document.querySelectorAll("table .ui.icon.buttons > .button")[0], 0);
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-edit-button.png
+- url: ${SUBPROJECT_SITE}/dashboard/${SUBPROJECT_PARENT}/subprojects/
+  javascript: |-
+    ${HELPERS}
+    element(document.querySelectorAll("table .ui.icon.buttons > .button")[1], 0);
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/community-delete-button.png
