@@ -1,3 +1,13 @@
+# These screenshots are created using the rtfd-qa user. This user only has read
+# access to select repositories, invite the user again if it is missing from the
+# test-builds project.
+
+# Project repository multifield
+- url: https://app.readthedocs.org/dashboard/test-builds/edit/
+  selector: readthedocs-project-repository-multifield
+  padding: 20
+  output: community-project-repo.png
+
 # Webhook creation
 - url: https://app.readthedocs.org/dashboard/test-builds/webhooks/create/
   selector_all: |-
@@ -8,6 +18,7 @@
   padding: 20
   output: community-project-webhook-create.png
 
+# Webhook activity
 - url: https://app.readthedocs.org/dashboard/test-builds/webhooks/616/edit/
   javascript: |-
     document
