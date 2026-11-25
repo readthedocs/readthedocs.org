@@ -79,4 +79,4 @@ If you have any questions or comments about this advisory, email us at [security
   (`https://github.com/readthedocs/<repo>/commit/<sha>`).
 - Replace every placeholder, like `[commit]`, before publishing.
 - The contact link is `mailto:`, with the PGP link next to it.
-- Spell-check: "Read the Docs configuration file", "Business", "access", "newly created".
+- Spell-check
