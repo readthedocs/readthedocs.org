@@ -40,6 +40,7 @@ from readthedocs.core.utils.db import delete_in_batches
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.integrations.models import HttpExchange
+from readthedocs.notifications.constants import ERROR
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.notifications import MESSAGE_OAUTH_BUILD_STATUS_FAILURE
 from readthedocs.projects.models import Project
@@ -472,6 +473,21 @@ class BuildNotificationSender:
                     build_id=self.build.id,
                 )
 
+    def _get_error(self):
+        """Return the rendered error notification attached to the build, if any."""
+        try:
+            for notification in self.build.notifications.order_by("-created"):
+                message = notification.get_message()
+                if message and message.type == ERROR:
+                    return {
+                        "header": message.get_rendered_header(),
+                        "body": message.get_rendered_body(),
+                    }
+        except Exception:
+            # Send the email without the error rather than not at all.
+            log.exception("Failed to render build error for email.", build_id=self.build.pk)
+        return None
+
     def send_email(self, email):
         """Send email notifications for build failures."""
         protocol = "http" if settings.DEBUG else "https"
@@ -484,7 +500,10 @@ class BuildNotificationSender:
             },
             "build": {
                 "pk": self.build.pk,
+                "commit": self.build.commit[:8] if self.build.commit else None,
+                "commit_url": self.build.get_commit_url() if self.build.commit else None,
             },
+            "error": self._get_error(),
             "build_url": "{}://{}{}".format(
                 protocol,
                 settings.PRODUCTION_DOMAIN,
@@ -502,13 +521,7 @@ class BuildNotificationSender:
             ),
         }
 
-        if self.build.commit:
-            title = _("Failed: {project[name]} ({commit})").format(
-                commit=self.build.commit[:8],
-                **context,
-            )
-        else:
-            title = _("Failed: {project[name]} ({version[verbose_name]})").format(**context)
+        title = _("Build failed: {project[name]} ({version[verbose_name]})").format(**context)
 
         log.info(
             "Sending email notification.",

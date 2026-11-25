@@ -14,7 +14,13 @@ class PendingCustomDomainValidation(EmailNotification):
     app_templates = "domains"
     context_object_name = "domain"
     name = "pending_domain_configuration"
-    subject = "Pending configuration of custom domain {{ domain.domain }}"
+    subject = (
+        "{% if domain.validation_process_expired %}"
+        "Custom domain validation has ended: {{ domain.domain }}"
+        "{% else %}"
+        "Finish setting up your custom domain {{ domain.domain }}"
+        "{% endif %}"
+    )
 
 
 MESSAGE_DOMAIN_VALIDATION_PENDING = "project:domain:validation-pending"

@@ -1,43 +1,50 @@
 {% extends "core/email/common.html" %}
 
-{% block top-right %}
-  {{ project.name }}: build #{{ build.pk }}
-{% endblock %}
-
 {% block salutation %}
-Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
+We couldn't build your documentation
 {% endblock %}
 
 {% block content %}
   <p>
-    <a href="{{ build_url }}">
-      build #{{ build.pk }} -&nbsp; <span style="color: #ff7040;">failed</span>
-    </a>
+    We ran into a problem while building your documentation.
+    Your currently published documentation hasn't changed.
   </p>
 
-  <p>
-    You can find out more about this failure in the build log:
+  <ul style="margin: 0 0 16px; padding-left: 24px;">
+    <li><strong>Project:</strong> {{ project.name }}</li>
+    <li><strong>Version:</strong> {{ version.verbose_name }}</li>
+    <li><strong>Build:</strong> <a href="{{ build_url }}">#{{ build.pk }}</a></li>
+    {% if build.commit %}
+      <li>
+        <strong>Commit:</strong>
+        {% if build.commit_url %}<a href="{{ build.commit_url }}">{{ build.commit }}</a>{% else %}{{ build.commit }}{% endif %}
+      </li>
+    {% endif %}
+  </ul>
+{% endblock %}
 
-    <ul>
-      <li>
-        <a href="{{ build_url }}">
-          Build log page
-        </a>
-      </li>
-      <li>
-        <a href="{{ build_raw }}">
-          Raw build log
-        </a>
-      </li>
-    </ul>
+{% block callout %}
+  {% with callout_header=error.header callout_body=error.body %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block content-after %}
+  <p>
+    The build log shows the commands we ran and where the build stopped.
+    You can also see the <a href="{{ build_raw }}">raw build log</a>.
   </p>
 
   <p>
     A good place to start debugging this error is our <a href="https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html">build troubleshooting guide</a>.
-    We also suggest reading our <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> to get a better sense for how the builds are executed.
+    We also suggest reading our <a href="https://docs.readthedocs.com/platform/stable/builds.html">build process overview</a> to get a better sense of how builds are run.
   </p>
+{% endblock %}
 
-  <p>
-    You can manage your email preferences in the project's <a href="{{ unsubscribe_url }}">notification settings</a>.
-  </p>
+{% block action %}
+  {% with action_url=build_url action_label="View build log" %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <br />
+  <a href="{{ unsubscribe_url }}">Manage notification settings</a>
 {% endblock %}

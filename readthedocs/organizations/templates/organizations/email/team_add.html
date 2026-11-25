@@ -1,21 +1,14 @@
 {% extends 'core/email/common.html' %}
 
-{% block top-right %}
-{% endblock %}
-
-{% block salutation %}
-  <h1>
-    Join your team at Read the Docs!
-  </h1>
-{% endblock %}
+{% block salutation %}You've been added to a team{% endblock %}
 
 {% block content %}
   <p>
-    {{ sender_full_name|default:sender_username }} has added you to a team at {{ organization_name|default_if_none:"your company" }}.
-    Join your team now, by following this link:
+    {{ sender_full_name|default:sender_username }} added you to the <strong>{{ team_name }}</strong> team in <strong>{{ organization_name|default_if_none:"your company" }}</strong>.
+    You now have access to the team's projects.
   </p>
+{% endblock %}
 
-  <p>
-   <a href="{{ uri }}{% url "organization_detail" organization_slug %}">{{ uri }}{% url "organization_detail" organization_slug %}</a>
-  </p>
+{% block action %}
+  {% with action_url=uri|add:team_url action_label="View team" %}{{ block.super }}{% endwith %}
 {% endblock %}

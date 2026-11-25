@@ -39,7 +39,7 @@ class SubscriptionRequiredNotification(SubscriptionNotificationMixin, EmailNotif
     """Trial has ended, push user into subscribing."""
 
     name = "subscription_required"
-    subject = "We hope you enjoyed your trial of Read the Docs!"
+    subject = "Your trial has ended"
 
 
 class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotification):

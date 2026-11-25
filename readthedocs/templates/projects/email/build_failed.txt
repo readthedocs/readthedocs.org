@@ -1,13 +1,24 @@
 {% extends "core/email/common.txt" %}
-{% block salutation %}Build Failed for {{ project.name }} ({{ version.verbose_name }}){% endblock %}
+{% block salutation %}We couldn't build your documentation{% endblock %}
 {% block content %}
-You can find out more about this failure here:
+We ran into a problem while building your documentation. Your currently published documentation hasn't changed.
+
+Project: {{ project.name }}
+Version: {{ version.verbose_name }}
+Build: #{{ build.pk }}{% if build.commit %}
+Commit: {{ build.commit }}{% endif %}
+{% if error %}
+{{ error.header|striptags }}
+{{ error.body|striptags }}
+{% endif %}
+The build log shows the commands we ran and where the build stopped:
 {{ build_url }}
+
+Raw build log: {{ build_raw }}
 
 A good place to start debugging this error is our build troubleshooting guide: https://docs.readthedocs.com/platform/stable/guides/build-troubleshooting.html
 
-We also suggest reading our build process overview to get a better sense for how the builds are executed: https://docs.readthedocs.com/platform/stable/builds.html
+We also suggest reading our build process overview to get a better sense of how builds are run: https://docs.readthedocs.com/platform/stable/builds.html
 
-You can unsubscribe from these emails in your notification settings: {{ unsubscribe_url }}.
-
+Manage notification settings: {{ unsubscribe_url }}
 {% endblock %}
