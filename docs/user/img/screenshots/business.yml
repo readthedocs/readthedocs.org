@@ -1,75 +1,79 @@
-# These screenshots are created using the rtfd-qa user. This user only has read
-# access to select repositories, invite the user again if it is missing from the
-# Read the Docs QA organization and QA team.
+# Business screenshots. Run with `make business`, see README.
+#
+# On production these are created using the rtfd-qa user. This user only has
+# read access to select repositories, invite the user again if it is missing
+# from the Read the Docs QA organization and QA team.
+#
+# Placeholders come from prod.env or dev.env, and the HELPERS one is
+# helpers.js. `selector: "#shot"` captures the area chosen by its crop helpers.
 
-# Team select on project manual creation form, mock select value
-- url: https://app.readthedocs.com/dashboard/import/manual/
+# Team select on project manual creation form, with generic organization names
+- url: ${BUSINESS_URL}/dashboard/import/manual/
   javascript: |-
-    document
-      .getElementById("div_id_organization_team-organization_team")
-      .querySelector(".text")
-      .innerHTML = "Example Company / Admins";
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .ui.column[class*="eleven wide computer"]
-  output: business-project-manual-team-select.png
+    ${HELPERS}
+    (async () => {
+      const field = document.querySelector("#div_id_organization_team-organization_team");
+      const names = ["Example Docs", "Example Company"];
+      const seen = [];
+      for (const description of field.querySelectorAll(".menu .item .description")) {
+        const original = description.textContent.trim();
+        if (!seen.includes(original)) seen.push(original);
+        description.textContent = names[seen.indexOf(original) % names.length];
+      }
+      // Warnings that depend on the user's permissions
+      for (const label of field.querySelectorAll(".menu .item .label")) {
+        if (label.textContent.includes("ownership required")) label.remove();
+      }
+      const style = document.createElement("style");
+      style.textContent = "footer, .footer { display: none !important; } "
+        + "#div_id_organization_team-organization_team .menu { max-height: none !important; }";
+      document.head.append(style);
+      jQuery(field.querySelector(".ui.dropdown")).dropdown("show");
+      await sleep(500);
+      // Highlight only the chosen team (BUSINESS_TEAM, or the first one)
+      const items = [...field.querySelectorAll(".menu .item")];
+      const team = items.find((item) => item.dataset.value === "${BUSINESS_TEAM}") || items[0];
+      items.forEach((item) => item.classList.remove("selected"));
+      team.classList.add("selected");
+      contentColumn(byText("Add project"), field.querySelector(".menu"));
+    })();
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/business-project-manual-team-select.png
 
-# Project manual creation form, have to submit with a team first. The JS looks
-# funny becuase Playwright needs to wait for the page to load before submitting.
-- url: https://app.readthedocs.com/dashboard/import/manual/
+# Project manual creation form. Submitting the first step only stores the team
+# in the session. wait_for runs on the second step, once it's loaded.
+- url: ${BUSINESS_URL}/dashboard/import/manual/
   javascript: |-
-    const _submit = () => {
-      document
-        .querySelector('form[action="/dashboard/import/manual/"]')
-        .submit();
-    }
-
-    if (document.readyState !== "loading") {
-      _submit();
-    } else {
-      document.addEventListener("DOMContentLoaded", _submit);
-    }
+    const field = document.querySelector("#div_id_organization_team-organization_team");
+    const items = [...field.querySelectorAll(".menu .item")];
+    const team = items.find((item) => item.dataset.value === "${BUSINESS_TEAM}") || items[0];
+    jQuery(field.querySelector(".ui.dropdown")).dropdown("set selected", team.dataset.value);
+    document.querySelector('form[action="/dashboard/import/manual/"]').submit();
   wait_for: |-
-    document.querySelector("#id_basics-name");
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .ui.column[class*="eleven wide computer"]
-  output: business-project-manual-form.png
+    (() => {
+      if (!document.querySelector("#id_basics-name") || document.readyState !== "complete") return false;
+      if (document.querySelector("#shot")) return true;
+    ${HELPERS}
+      setValue('input[name="basics-name"]', "docs");
+      setValue('input[name="basics-repo"]', "git@github.com:readthedocs/readthedocs.org.git");
+      document.activeElement.blur();
+      contentColumn(byText("Add project"), [...document.querySelectorAll('input[type="submit"]')].pop());
+      return true;
+    })()
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/business-project-manual-form.png
 
-# TODO load a project key via JS or dedicate a user/project/local fixture for screenshots
-- url: https://app.readthedocs.com/dashboard/read-the-docs-qa-test-builds-en/keys/3460/
-  # Obfuscate fields
+# Never publish a real key or fingerprint
+- url: ${BUSINESS_URL}/dashboard/${SSH_PROJECT}/keys/${SSH_KEY_ID}/
   javascript: |-
-    const fingerprint = "01:23:45:67:89:aa:bb:cc:dd:ee:ff:01:23:45:67:89";
-    const public_key = "ssh-rsa AAAA00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 support@readthedocs.com";
-    document
-      .querySelector("h2.ui.dividing.header > .sub.header div.active.section")
-      .innerHTML = fingerprint;
-    document.querySelector("input#ssh-key-fingerprint").value = fingerprint;
-    document.querySelector("input#ssh-key-public").value = public_key;
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .column[class*="eleven wide computer"]
-    > *
-  padding: 20
-  output: business-project-ssh-key.png
-
-# TODO set up this fixture project on community instead
-- url: https://app.readthedocs.com/dashboard/read-the-docs-qa-superproject/subprojects/
-  javascript: |-
-    document
-      .querySelectorAll("#edit-content table tr:nth-child(n+2)")
-      .forEach((el) => { el.remove() });
-    document
-      .querySelector("#edit-content table tr td > .ui.tiny.header > .content")
-      .innerHTML = "<a href='#'>example-subproject</a><a href='#' class='sub header'>https://docs.example.com/projects/example</a>";
-  selector_all: |-
-    body
-    > div.ui.very.padded.container
-    .column[class*="eleven wide computer"]
-    > *
-  padding: 20
-  output: community-project-subproject-list.png
+    ${HELPERS}
+    replaceText([
+      [String.raw`([0-9a-f]{2}:){15}[0-9a-f]{2}`, "01:23:45:67:89:ab:cd:ef:01:23:45:67:89:ab:cd:ef"],
+      [String.raw`^ssh-\S+ \S+.*$`, "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC" + "0".repeat(64)],
+    ], true);
+    replaceText([["${SSH_PROJECT}", "docs"]]);
+    const heading = xpath('//*[self::h1 or self::h2][contains(normalize-space(), "SSH keys")]');
+    const last = xpath('(//input | //textarea)[last()]/ancestor::div[contains(@class,"field")][1]');
+    contentColumn(heading, last);
+  selector: "#shot"
+  output: ${OUT}/img/screenshots/business-project-ssh-key.png

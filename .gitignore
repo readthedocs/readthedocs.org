@@ -67,6 +67,7 @@ media/*.prof
 
 # Secrets
 /docs/user/img/screenshots/auth*.json
+/docs/user/img/screenshots/build/
 
 # Environments
 .env
