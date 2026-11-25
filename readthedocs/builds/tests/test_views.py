@@ -10,6 +10,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CANCELLED,
     BUILD_STATE_INSTALLING,
     BUILD_STATE_TRIGGERED,
+    EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.organizations.models import Organization
@@ -151,3 +152,56 @@ class BuildViewsTests(TestCase):
         url = reverse("builds_detail", args=[self.project.slug, self.build.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 410)
+
+
+class BuildListFilterTests(TestCase):
+    def setUp(self):
+        self.user = get(User, username="test")
+        self.project = get(
+            Project,
+            users=[self.user],
+            privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
+        )
+        self.version = get(
+            Version, project=self.project, slug="latest", privacy_level=PUBLIC
+        )
+        self.build = get(Build, project=self.project, version=self.version)
+        self.external_version = get(
+            Version,
+            project=self.project,
+            slug="5440",
+            verbose_name="5440",
+            type=EXTERNAL,
+            active=True,
+        )
+        self.external_build = get(
+            Build, project=self.project, version=self.external_version
+        )
+        self.url = reverse("builds_project_list", args=[self.project.slug])
+
+    def _version_choices(self, response):
+        field = response.context["filter"].form.fields["version__slug"]
+        return [str(value) for value, _ in field.choices if value]
+
+    def test_filter_by_external_version(self):
+        response = self.client.get(self.url, {"version__slug": "5440"})
+        assert response.status_code == 200
+        assert list(response.context["build_qs"]) == [self.external_build]
+
+    def test_filter_by_inactive_external_version(self):
+        self.external_version.active = False
+        self.external_version.save()
+        response = self.client.get(self.url, {"version__slug": "5440"})
+        assert response.status_code == 200
+        assert list(response.context["build_qs"]) == [self.external_build]
+
+    def test_external_versions_not_in_choices(self):
+        response = self.client.get(self.url)
+        assert response.status_code == 200
+        assert self._version_choices(response) == ["latest"]
+
+    def test_filter_by_internal_version(self):
+        response = self.client.get(self.url, {"version__slug": "latest"})
+        assert response.status_code == 200
+        assert list(response.context["build_qs"]) == [self.build]
